@@ -18,7 +18,7 @@ VertexState MultiVertexStateCombiner::combine(const VSC& theMixture) const {
   AlgebraicVector3 meanPosition;
   double weightSum = 0.;
   AlgebraicSymMatrix33 measCovar1, measCovar2;
-  for (VSC::const_iterator mixtureIter1 = theMixture.begin(); mixtureIter1 != theMixture.end(); mixtureIter1++) {
+  for (auto mixtureIter1 = theMixture.begin(); mixtureIter1 != theMixture.end(); mixtureIter1++) {
     double vtxWeight = mixtureIter1->weightInMixture();
 
     GlobalPoint vertexPosition = mixtureIter1->position();
@@ -32,7 +32,7 @@ VertexState MultiVertexStateCombiner::combine(const VSC& theMixture) const {
     meanPosition += vtxWeight * vertexCoord1;
 
     measCovar1 += vtxWeight * mixtureIter1->error().matrix();
-    for (VSC::const_iterator mixtureIter2 = mixtureIter1 + 1; mixtureIter2 != theMixture.end(); mixtureIter2++) {
+    for (auto mixtureIter2 = mixtureIter1 + 1; mixtureIter2 != theMixture.end(); mixtureIter2++) {
       GlobalPoint vertexPosition2 = mixtureIter2->position();
       AlgebraicVector3 vertexCoord2;
       vertexCoord2[0] = vertexPosition2.x();

@@ -130,7 +130,7 @@ void DTTTrigCalibration::analyze(const edm::Event& event, const edm::EventSetup&
       cout << "----------- Layer " << layerId << " -------------" << endl;
 
     //Check if the layer is inside a noisy chamber
-    for (vector<DTChamberId>::const_iterator chamber = badChambers.begin(); chamber != badChambers.end(); ++chamber) {
+    for (auto chamber = badChambers.begin(); chamber != badChambers.end(); ++chamber) {
       if ((*chamber) == chId) {
         badChamber = true;
         break;
@@ -211,12 +211,10 @@ void DTTTrigCalibration::endJob() {
 
   // Write all time boxes to file
   theFile->cd();
-  for (map<DTSuperLayerId, TH1F*>::const_iterator slHisto = theHistoMap.begin(); slHisto != theHistoMap.end();
-       ++slHisto) {
+  for (auto slHisto = theHistoMap.begin(); slHisto != theHistoMap.end(); ++slHisto) {
     (*slHisto).second->Write();
   }
-  for (map<DTLayerId, TH1F*>::const_iterator slHisto = theOccupancyMap.begin(); slHisto != theOccupancyMap.end();
-       ++slHisto) {
+  for (auto slHisto = theOccupancyMap.begin(); slHisto != theOccupancyMap.end(); ++slHisto) {
     (*slHisto).second->Write();
   }
 
@@ -225,8 +223,7 @@ void DTTTrigCalibration::endJob() {
     DTTtrig* tTrig = new DTTtrig();
 
     // Loop over the map, fit the histos and write the resulting values to the DB
-    for (map<DTSuperLayerId, TH1F*>::const_iterator slHisto = theHistoMap.begin(); slHisto != theHistoMap.end();
-         ++slHisto) {
+    for (auto slHisto = theHistoMap.begin(); slHisto != theHistoMap.end(); ++slHisto) {
       pair<double, double> meanAndSigma = theFitter->fitTimeBox((*slHisto).second);
       tTrig->set((*slHisto).first, meanAndSigma.first, meanAndSigma.second, kFactor, DTTimeUnits::ns);
 
@@ -273,7 +270,7 @@ string DTTTrigCalibration::getOccupancyName(const DTLayerId& slId) const {
 
 void DTTTrigCalibration::dumpTTrigMap(const DTTtrig* tTrig) const {
   static const double convToNs = 25. / 32.;
-  for (DTTtrig::const_iterator ttrig = tTrig->begin(); ttrig != tTrig->end(); ++ttrig) {
+  for (auto ttrig = tTrig->begin(); ttrig != tTrig->end(); ++ttrig) {
     cout << "Wh: " << (*ttrig).first.wheelId << " St: " << (*ttrig).first.stationId
          << " Sc: " << (*ttrig).first.sectorId << " Sl: " << (*ttrig).first.slId
          << " TTrig mean (ns): " << (*ttrig).second.tTrig * convToNs
@@ -287,7 +284,7 @@ void DTTTrigCalibration::plotTTrig(const DTTtrig* tTrig) const {
   TH1F* tTrig_YB2_Se11 = new TH1F("tTrig_YB2_Se11", "tTrig YB2_Se11", 12, 1, 13);
 
   static const double convToNs = 25. / 32.;
-  for (DTTtrig::const_iterator ttrig = tTrig->begin(); ttrig != tTrig->end(); ++ttrig) {
+  for (auto ttrig = tTrig->begin(); ttrig != tTrig->end(); ++ttrig) {
     // avoid to have wired numbers in the plot
     float tTrigValue = 0;
     float tTrmsValue = 0;

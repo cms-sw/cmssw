@@ -65,7 +65,7 @@ EcalGetLaserData::EcalGetLaserData(const edm::ParameterSet& iConfig)
 
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters toGet = iConfig.getParameter<Parameters>("toGet");
-  for (Parameters::iterator i = toGet.begin(); i != toGet.end(); ++i) {
+  for (auto i = toGet.begin(); i != toGet.end(); ++i) {
     container = i->getParameter<std::string>("container");
     record = i->getParameter<std::string>("record");
     m_cacheIDs.insert(std::make_pair(container, 0));
@@ -91,7 +91,7 @@ void EcalGetLaserData::analyze(const edm::Event& evt, const edm::EventSetup& evt
   std::string container;
   std::string record;
   typedef std::map<std::string, std::string>::const_iterator recordIter;
-  for (recordIter i = m_records.begin(); i != m_records.end(); ++i) {
+  for (auto i = m_records.begin(); i != m_records.end(); ++i) {
     container = (*i).first;
     record = (*i).second;
 

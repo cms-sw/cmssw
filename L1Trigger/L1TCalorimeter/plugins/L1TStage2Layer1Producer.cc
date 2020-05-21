@@ -291,8 +291,7 @@ void L1TStage2Layer1Producer::produce(edm::Event& iEvent, const edm::EventSetup&
     processor_->processEvent(*localInTowers, *localOutTowers);
 
     // copy towers to output collection
-    for (std::vector<CaloTower>::const_iterator tower = localOutTowers->begin(); tower != localOutTowers->end();
-         ++tower) {
+    for (auto tower = localOutTowers->begin(); tower != localOutTowers->end(); ++tower) {
       //     if (tower->hwEta()>30) std::cout << "HF out : " << tower->hwEta() << "," << tower->hwPhi() << "," << tower->hwPt() << "," << tower->etHad() << std::endl;
       towersColl->push_back(ibx, *tower);
     }

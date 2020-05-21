@@ -140,9 +140,9 @@ bool ApvTimingHistosUsingDb::update(SiStripConfigDb::DeviceDescriptionsRange dev
       fec_path = fec_key;
 
       // Locate appropriate analysis object
-      Analyses::const_iterator iter = data(allowSelectiveUpload_).find(fec_key.key());
+      auto iter = data(allowSelectiveUpload_).find(fec_key.key());
       if (iter != data(allowSelectiveUpload_).end()) {
-        ApvTimingAnalysis* anal = dynamic_cast<ApvTimingAnalysis*>(iter->second);
+        auto* anal = dynamic_cast<ApvTimingAnalysis*>(iter->second);
         if (!anal) {
           edm::LogError(mlDqmClient_) << "[ApvTimingHistosUsingDb::" << __func__ << "]"
                                       << " NULL pointer to analysis object!";
@@ -256,9 +256,9 @@ void ApvTimingHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange feds) 
           conn.fecCrate(), conn.fecSlot(), conn.fecRing(), conn.ccuAddr(), conn.ccuChan(), conn.lldChannel());
 
       // Locate appropriate analysis object
-      Analyses::const_iterator iter = data(allowSelectiveUpload_).find(fec_key.key());
+      auto iter = data(allowSelectiveUpload_).find(fec_key.key());
       if (iter != data(allowSelectiveUpload_).end()) {
-        ApvTimingAnalysis* anal = dynamic_cast<ApvTimingAnalysis*>(iter->second);
+        auto* anal = dynamic_cast<ApvTimingAnalysis*>(iter->second);
         if (!anal) {
           edm::LogError(mlDqmClient_) << "[ApvTimingHistosUsingDb::" << __func__ << "]"
                                       << " NULL pointer to analysis object!";
@@ -315,7 +315,7 @@ void ApvTimingHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange feds) 
 // -----------------------------------------------------------------------------
 /** */
 void ApvTimingHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& desc, Analysis analysis) {
-  ApvTimingAnalysis* anal = dynamic_cast<ApvTimingAnalysis*>(analysis->second);
+  auto* anal = dynamic_cast<ApvTimingAnalysis*>(analysis->second);
   if (!anal) {
     return;
   }
@@ -365,8 +365,8 @@ void ApvTimingHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& desc
     // Add comments
     typedef std::vector<std::string> Strings;
     Strings errors = anal->getErrorCodes();
-    Strings::const_iterator istr = errors.begin();
-    Strings::const_iterator jstr = errors.end();
+    auto istr = errors.begin();
+    auto jstr = errors.end();
     for (; istr != jstr; ++istr) {
       tmp->addComments(*istr);
     }

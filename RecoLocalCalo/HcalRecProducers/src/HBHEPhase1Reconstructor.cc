@@ -410,7 +410,7 @@ void HBHEPhase1Reconstructor::processData(const Collection& coll,
   const bool skipDroppedChannels = !(infos && saveDroppedInfos_);
 
   // Iterate over the input collection
-  for (typename Collection::const_iterator it = coll.begin(); it != coll.end(); ++it) {
+  for (auto it = coll.begin(); it != coll.end(); ++it) {
     const DFrame& frame(*it);
     const HcalDetId cell(frame.id());
 

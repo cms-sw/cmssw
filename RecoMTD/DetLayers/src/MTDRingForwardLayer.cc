@@ -37,7 +37,7 @@ MTDRingForwardLayer::MTDRingForwardLayer(const vector<const ForwardDetRing*>& ri
 
   // Cache chamber pointers (the basic components_)
   // and find extension in R and Z
-  for (vector<const ForwardDetRing*>::const_iterator it = rings.begin(); it != rings.end(); it++) {
+  for (auto it = rings.begin(); it != rings.end(); it++) {
     vector<const GeomDet*> tmp2 = (*it)->basicComponents();
     theBasicComps.insert(theBasicComps.end(), tmp2.begin(), tmp2.end());
 
@@ -70,7 +70,7 @@ MTDRingForwardLayer::MTDRingForwardLayer(const vector<const ForwardDetRing*>& ri
 
 MTDRingForwardLayer::~MTDRingForwardLayer() {
   delete theBinFinder;
-  for (vector<const ForwardDetRing*>::iterator i = theRings.begin(); i < theRings.end(); i++) {
+  for (auto i = theRings.begin(); i < theRings.end(); i++) {
     delete *i;
   }
 }

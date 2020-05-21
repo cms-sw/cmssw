@@ -36,7 +36,7 @@ void Pythia6JetGun::generateEvent(CLHEP::HepRandomEngine*) {
 
   // 1st, primary vertex
   //
-  HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
+  auto* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
 
   // here re-create fEvt (memory)
   //
@@ -117,7 +117,7 @@ void Pythia6JetGun::generateEvent(CLHEP::HepRandomEngine*) {
   //
   for (int i = 0; i < pyjets.n; i++) {
     HepMC::FourVector p(pyjets.p[0][i], pyjets.p[1][i], pyjets.p[2][i], pyjets.p[3][i]);
-    HepMC::GenParticle* Part = new HepMC::GenParticle(p, HepPID::translatePythiatoPDT(pyjets.k[1][i]), 1);
+    auto* Part = new HepMC::GenParticle(p, HepPID::translatePythiatoPDT(pyjets.k[1][i]), 1);
     Part->suggest_barcode(i + 1);
     Vtx->add_particle_out(Part);
   }

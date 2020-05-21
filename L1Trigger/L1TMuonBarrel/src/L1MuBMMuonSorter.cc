@@ -68,7 +68,7 @@ void L1MuBMMuonSorter::run() {
 
   for (int wedge = 0; wedge < 12; wedge++) {
     vector<const L1MuBMTrack*> wscand = m_tf.ws(wedge)->tracks();
-    vector<const L1MuBMTrack*>::iterator iter = wscand.begin();
+    auto iter = wscand.begin();
     while (iter != wscand.end()) {
       if (*iter && !(*iter)->empty())
         mycands.push_back(const_cast<L1MuBMTrack*>(*iter));
@@ -90,7 +90,7 @@ void L1MuBMMuonSorter::run() {
   runCOL(mycands);
 
   // remove disabled candidates
-  vector<L1MuBMTrack*>::iterator it = mycands.begin();
+  auto it = mycands.begin();
   while (it != mycands.end()) {
     if (*it && (*it)->empty()) {
       mycands.erase(it);
@@ -105,7 +105,7 @@ void L1MuBMMuonSorter::run() {
 
   // copy the best 4 candidates
   int number_of_tracks = 0;
-  vector<L1MuBMTrack*>::const_iterator iter1 = mycands.begin();
+  auto iter1 = mycands.begin();
   while (iter1 != mycands.end()) {
     if (*iter1 && number_of_tracks < 4) {
       m_TrackCands.push_back(*iter1);
@@ -132,7 +132,7 @@ void L1MuBMMuonSorter::reset() {
 void L1MuBMMuonSorter::print() const {
   cout << endl;
   cout << "Muon candidates found by the barrel MTTF : " << numberOfTracks() << endl;
-  vector<const L1MuBMTrack*>::const_iterator iter = m_TrackCands.begin();
+  auto iter = m_TrackCands.begin();
   while (iter != m_TrackCands.end()) {
     if (*iter)
       cout << *(*iter) << endl;
@@ -151,14 +151,14 @@ void L1MuBMMuonSorter::runCOL(vector<L1MuBMTrack*>& cands) const {
   // compare addresses from stations 2, 3 and 4
 
   typedef vector<L1MuBMTrack*>::iterator TI;
-  for (TI iter1 = cands.begin(); iter1 != cands.end(); iter1++) {
+  for (auto iter1 = cands.begin(); iter1 != cands.end(); iter1++) {
     if (*iter1 == nullptr)
       continue;
     if ((*iter1)->empty())
       continue;
     L1MuBMSecProcId sp1 = (*iter1)->spid();
     int qual1 = (*iter1)->quality();
-    for (TI iter2 = cands.begin(); iter2 != cands.end(); iter2++) {
+    for (auto iter2 = cands.begin(); iter2 != cands.end(); iter2++) {
       if (*iter2 == nullptr)
         continue;
       if (*iter1 == *iter2)
@@ -249,7 +249,7 @@ void L1MuBMMuonSorter::runCOL(vector<L1MuBMTrack*>& cands) const {
   // if two candidates have exactly the same phi and eta values
   // remove the one with lower rank
 
-  for (TI iter1 = cands.begin(); iter1 != cands.end(); iter1++) {
+  for (auto iter1 = cands.begin(); iter1 != cands.end(); iter1++) {
     if (*iter1 == nullptr)
       continue;
     if ((*iter1)->empty())
@@ -257,7 +257,7 @@ void L1MuBMMuonSorter::runCOL(vector<L1MuBMTrack*>& cands) const {
     int phi1 = (*iter1)->phi();
     int pt1 = (*iter1)->pt();
     int qual1 = (*iter1)->quality();
-    for (TI iter2 = cands.begin(); iter2 != cands.end(); iter2++) {
+    for (auto iter2 = cands.begin(); iter2 != cands.end(); iter2++) {
       if (*iter2 == nullptr)
         continue;
       if (*iter1 == *iter2)

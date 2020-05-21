@@ -91,7 +91,7 @@ public:
   // by name
   void addModuleToPath(const char *mod, const char *path) {
     // first make sure module exists
-    Modules::iterator m = findModule(mod);
+    auto m = findModule(mod);
     if (m == endModules()) {
       // new module - create it and stick it on the end
       Module newMod(mod, 0, 0);  // time (wall and cpu) = 0 since it wasn't run

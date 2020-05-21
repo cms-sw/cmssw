@@ -18,7 +18,7 @@ void StripClusterSelectorTopBottom::produce(edm::StreamID, edm::Event& event, co
 
     DetId detIdObject(clustSet->detId());
     edmNew::DetSetVector<SiStripCluster>::FastFiller spc(*output, detIdObject.rawId());
-    const StripGeomDetUnit* theGeomDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(detIdObject));
+    const auto* theGeomDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(detIdObject));
     const StripTopology* topol = dynamic_cast<const StripTopology*>(&(theGeomDet->specificTopology()));
 
     for (; clustIt != end; ++clustIt) {

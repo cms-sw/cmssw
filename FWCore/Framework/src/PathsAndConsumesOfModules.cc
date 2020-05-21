@@ -48,8 +48,7 @@ namespace edm {
   ModuleDescription const* PathsAndConsumesOfModules::doModuleDescription(unsigned int moduleID) const {
     unsigned int dummy = 0;
     auto target = std::make_pair(moduleID, dummy);
-    std::vector<std::pair<unsigned int, unsigned int>>::const_iterator iter =
-        std::lower_bound(moduleIDToIndex_.begin(), moduleIDToIndex_.end(), target);
+    auto iter = std::lower_bound(moduleIDToIndex_.begin(), moduleIDToIndex_.end(), target);
     if (iter == moduleIDToIndex_.end() || iter->first != moduleID) {
       throw Exception(errors::LogicError) << "PathsAndConsumesOfModules::moduleDescription: Unknown moduleID\n";
     }
@@ -78,8 +77,7 @@ namespace edm {
   unsigned int PathsAndConsumesOfModules::moduleIndex(unsigned int moduleID) const {
     unsigned int dummy = 0;
     auto target = std::make_pair(moduleID, dummy);
-    std::vector<std::pair<unsigned int, unsigned int>>::const_iterator iter =
-        std::lower_bound(moduleIDToIndex_.begin(), moduleIDToIndex_.end(), target);
+    auto iter = std::lower_bound(moduleIDToIndex_.begin(), moduleIDToIndex_.end(), target);
     if (iter == moduleIDToIndex_.end() || iter->first != moduleID) {
       throw Exception(errors::LogicError) << "PathsAndConsumesOfModules::moduleIndex: Unknown moduleID\n";
     }

@@ -98,7 +98,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5() {
       // make an EBDetId since we need EBDetId::rawId() to be used as the key for the pedestals
       if (EBDetId::validDetId(iEta, iPhi)) {
         EBDetId ebdetid(iEta, iPhi, EBDetId::ETAPHIMODE);
-        EcalPedestals::const_iterator it = ped_db->find(ebdetid.rawId());
+        auto it = ped_db->find(ebdetid.rawId());
         EcalPedestals::Item aped = (*it);
 
         // here I copy the last valid value in the peds object
@@ -121,7 +121,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5() {
       if (EEDetId::validDetId(iX, iY, 1)) {
         EEDetId eedetidpos(iX, iY, 1);
 
-        EcalPedestals::const_iterator it = ped_db->find(eedetidpos.rawId());
+        auto it = ped_db->find(eedetidpos.rawId());
         EcalPedestals::Item aped = (*it);
 
         //	unsigned int hiee = eedetidpos.hashedIndex();
@@ -140,7 +140,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5() {
       if (EEDetId::validDetId(iX, iY, -1)) {
         EEDetId eedetidneg(iX, iY, -1);
 
-        EcalPedestals::const_iterator it = ped_db->find(eedetidneg.rawId());
+        auto it = ped_db->find(eedetidneg.rawId());
         EcalPedestals::Item aped = (*it);
         //     unsigned int hiee = eedetidneg.hashedIndex();
         //     EcalPedestals::Item aped= ped_db->endcap(hiee);
@@ -225,7 +225,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5() {
 
         // this to validate ...
         int nbad = 0;
-        for (CImon p = dataset_mon.begin(); p != dataset_mon.end(); p++) {
+        for (auto p = dataset_mon.begin(); p != dataset_mon.end(); p++) {
           ecid_xt = p->first;
           rd_ped = p->second;
           int sm_num = ecid_xt.getID1();
@@ -287,7 +287,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5() {
 
         //	      if(nbad<(dataset_mon.size()*0.1)){
         if (nbad < (dataset_mon.size() * 0.05) && (nEB > 10200 || nEE > 2460)) {
-          for (CImon p = dataset_mon.begin(); p != dataset_mon.end(); p++) {
+          for (auto p = dataset_mon.begin(); p != dataset_mon.end(); p++) {
             ecid_xt = p->first;
             rd_ped = p->second;
             int sm_num = ecid_xt.getID1();
@@ -583,7 +583,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsH2() {
         int ix = 0;
         int iy = 0;
 
-        for (CImon p = dataset_mon.begin(); p != dataset_mon.end(); p++) {
+        for (auto p = dataset_mon.begin(); p != dataset_mon.end(); p++) {
           ecid_xt = p->first;
           rd_ped = p->second;
           //int sm_num=ecid_xt.getID1();
@@ -1063,7 +1063,7 @@ void popcon::EcalPedestalsHandler::readPedestal2017() {
       // make an EBDetId since we need EBDetId::rawId() to be used as the key for the pedestals
       if (EBDetId::validDetId(iEta, iPhi)) {
         EBDetId ebdetid(iEta, iPhi, EBDetId::ETAPHIMODE);
-        EcalPedestals::const_iterator it = ped_db->find(ebdetid.rawId());
+        auto it = ped_db->find(ebdetid.rawId());
         EcalPedestals::Item aped = (*it);
         // here I copy the last valid value in the peds object
         EcalPedestals::Item item;
@@ -1082,7 +1082,7 @@ void popcon::EcalPedestalsHandler::readPedestal2017() {
       // make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
       if (EEDetId::validDetId(iX, iY, 1)) {
         EEDetId eedetidpos(iX, iY, 1);
-        EcalPedestals::const_iterator it = ped_db->find(eedetidpos.rawId());
+        auto it = ped_db->find(eedetidpos.rawId());
         EcalPedestals::Item aped = (*it);
         // here I copy the last valid value in the peds object
         EcalPedestals::Item item;
@@ -1096,7 +1096,7 @@ void popcon::EcalPedestalsHandler::readPedestal2017() {
       }
       if (EEDetId::validDetId(iX, iY, -1)) {
         EEDetId eedetidneg(iX, iY, -1);
-        EcalPedestals::const_iterator it = ped_db->find(eedetidneg.rawId());
+        auto it = ped_db->find(eedetidneg.rawId());
         EcalPedestals::Item aped = (*it);
         // here I copy the last valid value in the peds object
         EcalPedestals::Item item;

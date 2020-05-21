@@ -97,7 +97,7 @@ namespace hcaltb {
     }
 
     if (is04) {  ///this is TB04
-      const ClassicQADCDataFormat* qadc = (const ClassicQADCDataFormat*)raw.data();
+      const auto* qadc = (const ClassicQADCDataFormat*)raw.data();
       double qdc_calib_hits[N_QADCS_ALLOWED * 32];
       // Applying mask, pedestal subtraction and gain.
       for (unsigned int i = 0; i < N_QADCS_ALLOWED * 32; i++)
@@ -126,7 +126,7 @@ namespace hcaltb {
                         qdc_calib_hits[aScint4],
                         Ecal7x7);
     } else {  /// this is TB06
-      const CombinedTDCQDCDataFormat* qdctdc = (const CombinedTDCQDCDataFormat*)raw.data();
+      const auto* qdctdc = (const CombinedTDCQDCDataFormat*)raw.data();
       double qdc_calib_hits[32];
       for (unsigned int i = 0; i < qdctdc->n_qdc_hits; i++)
         qdc_calib_hits[i] = ((qdctdc->qdc_values[i] & 0xFFF) - qdc_ped[i]) / qdc_gain[i];

@@ -72,7 +72,7 @@ namespace edm {
     /// return values collection
     static val_type val(const ref_type &ref, const map_assoc &iv) {
       val_type v;
-      for (typename map_assoc::const_iterator idx = iv.begin(), idxEnd = iv.end(); idx != idxEnd; ++idx)
+      for (auto idx = iv.begin(), idxEnd = iv.end(); idx != idxEnd; ++idx)
         v.push_back(edm::Ref<CVal>(ref.val, *idx));
       return v;
     }

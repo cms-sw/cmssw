@@ -191,7 +191,7 @@ void popcon::EcalSRPHandler::getNewObjects() {
       }
       RunFEConfigDat rd_fe;
       int fe_conf_id = 0;
-      feConfIter p = feconfig.begin();
+      auto p = feconfig.begin();
       rd_fe = p->second;
       fe_conf_id = rd_fe.getConfigId();
 

@@ -63,7 +63,7 @@ protected:
     if (build == nullptr)
       return nullptr;
     std::map<std::string, const reco::Candidate*>& cMap = build->daugMap;
-    std::map<std::string, const reco::Candidate*>::iterator iter = cMap.find(name);
+    auto iter = cMap.find(name);
     return (iter != cMap.end() ? iter->second : nullptr);
   }
 };

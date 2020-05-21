@@ -46,7 +46,7 @@ namespace reco {
         double eta = 0, phi = 0, energy = hit.energy();
         math::RhoEtaPhiVector p(1, eta, phi);
         p *= (energy / p.r());
-        CaloRecHitCandidate *c = new CaloRecHitCandidate(Candidate::LorentzVector(p.x(), p.y(), p.z(), energy));
+        auto *c = new CaloRecHitCandidate(Candidate::LorentzVector(p.x(), p.y(), p.z(), energy));
         c->setCaloRecHit(RefToBase<CaloRecHit>(Ref<HitCollection>(hits, idx)));
         cands->push_back(c);
       }

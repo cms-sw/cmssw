@@ -74,7 +74,7 @@ namespace edm {
 
     ParameterSet ps = ps_mix.getParameter<ParameterSet>("mixObjects");
     std::vector<std::string> names = ps.getParameterNames();
-    for (std::vector<std::string>::iterator it = names.begin(); it != names.end(); ++it) {
+    for (auto it = names.begin(); it != names.end(); ++it) {
       ParameterSet pset = ps.getParameter<ParameterSet>((*it));
       if (!pset.exists("type"))
         continue;  //to allow replacement by empty pset
@@ -479,9 +479,7 @@ namespace edm {
       }
     }
 
-    for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-         accItr != accEnd;
-         ++accItr) {
+    for (auto accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->StorePileupInformation(
           bunchCrossingList, numInteractionList, TrueInteractionList, eventInfoList, bunchSpace_);
     }
@@ -494,9 +492,7 @@ namespace edm {
       for (size_t setBcrIdx = 0; setBcrIdx < workers_.size(); ++setBcrIdx) {
         workers_[setBcrIdx]->setBcrOffset();
       }
-      for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-           accItr != accEnd;
-           ++accItr) {
+      for (auto accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
         (*accItr)->initializeBunchCrossing(e, setup, bunchIdx);
       }
 
@@ -546,8 +542,8 @@ namespace edm {
             TrueNumInteractions_.push_back(numberOfEvents);
           }
           sizes.push_back(numberOfEvents);
-          std::vector<EventID>::const_iterator begin = playEventID.begin();
-          std::vector<EventID>::const_iterator end = playEventID.end();
+          auto begin = playEventID.begin();
+          auto end = playEventID.end();
           inputSources_[readSrcIdx]->playOldFormatPileUp(begin,
                                                          end,
                                                          recordEventID,
@@ -567,9 +563,9 @@ namespace edm {
             TrueNumInteractions_.push_back(numberOfEvents);
           }
           sizes.push_back(numberOfEvents);
-          std::vector<SecondaryEventIDAndFileInfo>::const_iterator begin = playbackInfo_H->getEventId(playbackCounter);
+          auto begin = playbackInfo_H->getEventId(playbackCounter);
           playbackCounter += numberOfEvents;
-          std::vector<SecondaryEventIDAndFileInfo>::const_iterator end = playbackInfo_H->getEventId(playbackCounter);
+          auto end = playbackInfo_H->getEventId(playbackCounter);
           inputSources_[readSrcIdx]->playPileUp(begin,
                                                 end,
                                                 recordEventID,
@@ -584,9 +580,7 @@ namespace edm {
                                                           e.streamID()));
         }
       }
-      for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-           accItr != accEnd;
-           ++accItr) {
+      for (auto accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
         (*accItr)->finalizeBunchCrossing(e, setup, bunchIdx);
       }
     }
@@ -623,53 +617,41 @@ namespace edm {
   }
 
   void MixingModule::beginRun(edm::Run const& run, edm::EventSetup const& setup) {
-    for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-         accItr != accEnd;
-         ++accItr) {
+    for (auto accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->beginRun(run, setup);
     }
     BMixingModule::beginRun(run, setup);
   }
 
   void MixingModule::endRun(edm::Run const& run, edm::EventSetup const& setup) {
-    for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-         accItr != accEnd;
-         ++accItr) {
+    for (auto accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->endRun(run, setup);
     }
     BMixingModule::endRun(run, setup);
   }
 
   void MixingModule::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {
-    for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-         accItr != accEnd;
-         ++accItr) {
+    for (auto accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->beginLuminosityBlock(lumi, setup);
     }
     BMixingModule::beginLuminosityBlock(lumi, setup);
   }
 
   void MixingModule::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& setup) {
-    for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-         accItr != accEnd;
-         ++accItr) {
+    for (auto accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->endLuminosityBlock(lumi, setup);
     }
     BMixingModule::endLuminosityBlock(lumi, setup);
   }
 
   void MixingModule::initializeEvent(edm::Event const& event, edm::EventSetup const& setup) {
-    for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-         accItr != accEnd;
-         ++accItr) {
+    for (auto accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->initializeEvent(event, setup);
     }
   }
 
   void MixingModule::accumulateEvent(edm::Event const& event, edm::EventSetup const& setup) {
-    for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-         accItr != accEnd;
-         ++accItr) {
+    for (auto accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->accumulate(event, setup);
     }
   }
@@ -677,17 +659,13 @@ namespace edm {
   void MixingModule::accumulateEvent(PileUpEventPrincipal const& event,
                                      edm::EventSetup const& setup,
                                      edm::StreamID const& streamID) {
-    for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-         accItr != accEnd;
-         ++accItr) {
+    for (auto accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->accumulate(event, setup, streamID);
     }
   }
 
   void MixingModule::finalizeEvent(edm::Event& event, edm::EventSetup const& setup) {
-    for (Accumulators::const_iterator accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end();
-         accItr != accEnd;
-         ++accItr) {
+    for (auto accItr = digiAccumulators_.begin(), accEnd = digiAccumulators_.end(); accItr != accEnd; ++accItr) {
       (*accItr)->finalizeEvent(event, setup);
     }
   }

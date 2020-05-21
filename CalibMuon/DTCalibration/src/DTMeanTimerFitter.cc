@@ -60,7 +60,7 @@ vector<float> DTMeanTimerFitter::evaluateVDriftAndReso(const TString &N) {
     vector<Double_t> sigma;
     vector<Double_t> count;  //number of entries
 
-    for (vector<TH1F *>::const_iterator ith = hTMax.begin(); ith != hTMax.end(); ++ith) {
+    for (auto ith = hTMax.begin(); ith != hTMax.end(); ++ith) {
       TF1 *funct = fitTMax(*ith);
       if (!funct) {
         edm::LogError("DTMeanTimerFitter") << "Error when fitting TMax..histogram name" << (*ith)->GetName();
@@ -114,13 +114,13 @@ vector<float> DTMeanTimerFitter::evaluateVDriftAndReso(const TString &N) {
 
     // Order t0 histogram by number of entries (choose histograms with higher nr. of entries)
     map<Double_t, TH1F *> hEntries;
-    for (vector<TH1F *>::const_iterator ith = hT0.begin(); ith != hT0.end(); ++ith) {
+    for (auto ith = hT0.begin(); ith != hT0.end(); ++ith) {
       hEntries[(*ith)->GetEntries()] = (*ith);
     }
 
     // add at the end of hT0 the two hists with the higher number of entries
     int counter = 0;
-    for (map<Double_t, TH1F *>::reverse_iterator iter = hEntries.rbegin(); iter != hEntries.rend(); ++iter) {
+    for (auto iter = hEntries.rbegin(); iter != hEntries.rend(); ++iter) {
       counter++;
       if (counter == 1)
         hT0.push_back(iter->second);
@@ -135,7 +135,7 @@ vector<float> DTMeanTimerFitter::evaluateVDriftAndReso(const TString &N) {
     vector<Double_t> sigmaT0;
     vector<Double_t> countT0;
 
-    for (vector<TH1F *>::const_iterator ith = hT0.begin(); ith != hT0.end(); ++ith) {
+    for (auto ith = hT0.begin(); ith != hT0.end(); ++ith) {
       try {
         (*ith)->Fit("gaus");
       } catch (std::exception const &) {

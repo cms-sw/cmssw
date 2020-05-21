@@ -147,7 +147,7 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
   // HCAL
   std::string sd = names[0];
   int HCHCid = G4SDManager::GetSDMpointer()->GetCollectionID(sd);
-  CaloG4HitCollection* theHCHC = (CaloG4HitCollection*)allHC->GetHC(HCHCid);
+  auto* theHCHC = (CaloG4HitCollection*)allHC->GetHC(HCHCid);
   LogDebug("HcalTBSim") << "HcalTB02Analysis :: Hit Collection for " << sd << " of ID " << HCHCid << " is obtained at "
                         << theHCHC;
 
@@ -219,7 +219,7 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
     for (int iring = 0; iring < 100; iring++)
       EnRing[iring] = 0.;
 
-    for (std::map<int, float>::iterator is = energyInScints.begin(); is != energyInScints.end(); is++) {
+    for (auto is = energyInScints.begin(); is != energyInScints.end(); is++) {
       ETot = (*is).second;
 
       int layer = org->getlayerID((*is).first);
@@ -341,7 +341,7 @@ void HcalTB02Analysis::update(const EndOfEvent* evt) {
         }
       }
 
-      for (std::map<int, float>::iterator is = energyInCrystals.begin(); is != energyInCrystals.end(); is++) {
+      for (auto is = energyInCrystals.begin(); is != energyInCrystals.end(); is++) {
         int xtalID = (*is).first;
         xETot = (*is).second;
 

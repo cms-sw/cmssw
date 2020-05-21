@@ -50,7 +50,7 @@ namespace {
                          NbRows);
 
         double row = NbRows - 0.5;
-        for (EcalTPGWeightIdMap::EcalTPGWeightMapItr it = map.begin(); it != map.end(); it++) {
+        for (auto it = map.begin(); it != map.end(); it++) {
           uint32_t mapKey = it->first;
           EcalTPGWeights item = it->second;
           uint32_t w0, w1, w2, w3, w4;

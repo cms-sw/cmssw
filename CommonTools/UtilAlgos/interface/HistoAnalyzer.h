@@ -49,12 +49,12 @@ HistoAnalyzer<C>::HistoAnalyzer(const edm::ParameterSet& par)
           mayConsume<double>(par.template getUntrackedParameter<edm::InputTag>("weights", edm::InputTag("fake")))) {
   edm::Service<TFileService> fs;
   std::vector<edm::ParameterSet> histograms = par.template getParameter<std::vector<edm::ParameterSet> >("histograms");
-  std::vector<edm::ParameterSet>::const_iterator it = histograms.begin();
-  std::vector<edm::ParameterSet>::const_iterator end = histograms.end();
+  auto it = histograms.begin();
+  auto end = histograms.end();
 
   // create the histograms from the given parameter sets
   for (; it != end; ++it) {
-    ExpressionHisto<typename C::value_type>* hist = new ExpressionHisto<typename C::value_type>(*it);
+    auto* hist = new ExpressionHisto<typename C::value_type>(*it);
     hist->initialize(fs->tFileDirectory());
     vhistograms.push_back(hist);
   }
@@ -63,8 +63,8 @@ HistoAnalyzer<C>::HistoAnalyzer(const edm::ParameterSet& par)
 template <typename C>
 HistoAnalyzer<C>::~HistoAnalyzer() {
   // delete all histograms and clear the vector of pointers
-  typename std::vector<ExpressionHisto<typename C::value_type>*>::iterator it = vhistograms.begin();
-  typename std::vector<ExpressionHisto<typename C::value_type>*>::iterator end = vhistograms.end();
+  auto it = vhistograms.begin();
+  auto end = vhistograms.end();
   for (; it != end; ++it) {
     (*it)->~ExpressionHisto<typename C::value_type>();
   }
@@ -82,8 +82,8 @@ void HistoAnalyzer<C>::analyze(const edm::Event& iEvent, const edm::EventSetup&)
     weight = *weightColl;
   }
 
-  typename std::vector<ExpressionHisto<typename C::value_type>*>::iterator it = vhistograms.begin();
-  typename std::vector<ExpressionHisto<typename C::value_type>*>::iterator end = vhistograms.end();
+  auto it = vhistograms.begin();
+  auto end = vhistograms.end();
 
   for (; it != end; ++it) {
     uint32_t i = 0;

@@ -403,8 +403,8 @@ void DTCompactMapWriter::cloneROS(std::map<DTROSChannelId, DTROBCardId, DTROSCha
                                   int ros_o,
                                   int ddu_f,
                                   int ros_f) {
-  std::map<DTROSChannelId, DTROBCardId, DTROSChannelCompare>::const_iterator ros_iter = ros_m.begin();
-  std::map<DTROSChannelId, DTROBCardId, DTROSChannelCompare>::const_iterator ros_iend = ros_m.end();
+  auto ros_iter = ros_m.begin();
+  auto ros_iend = ros_m.end();
   while (ros_iter != ros_iend) {
     const std::pair<DTROSChannelId, DTROBCardId>& rosLink = *ros_iter++;
     const DTROSChannelId& rosChannelId = rosLink.first;
@@ -421,8 +421,8 @@ void DTCompactMapWriter::cloneROS(std::map<DTROSChannelId, DTROBCardId, DTROSCha
 
 void DTCompactMapWriter::appendROS(std::map<DTROSChannelId, DTROBCardId, DTROSChannelCompare>& ros_m,
                                    std::map<DTROSChannelId, DTROBCardId, DTROSChannelCompare>& ros_a) {
-  std::map<DTROSChannelId, DTROBCardId, DTROSChannelCompare>::const_iterator ros_iter = ros_a.begin();
-  std::map<DTROSChannelId, DTROBCardId, DTROSChannelCompare>::const_iterator ros_iend = ros_a.end();
+  auto ros_iter = ros_a.begin();
+  auto ros_iend = ros_a.end();
   while (ros_iter != ros_iend)
     ros_m.insert(*ros_iter++);
   return;
@@ -437,13 +437,13 @@ void DTCompactMapWriter::fillReadOutMap(int ros_count,
 
   while (check || write) {
     // ROS board to sector connection map
-    std::map<DTROSChannelId, DTROBCardId, DTROSChannelCompare>::const_iterator ddu_iter = ddu_map.begin();
-    std::map<DTROSChannelId, DTROBCardId, DTROSChannelCompare>::const_iterator ddu_iend = ddu_map.end();
+    auto ddu_iter = ddu_map.begin();
+    auto ddu_iend = ddu_map.end();
     // ROB card to TDC element map
-    std::map<DTROBCardId, int, DTROBCardCompare>::const_iterator idt_iend = tdc_idm.end();
+    auto idt_iend = tdc_idm.end();
     // ROS channel to ROB connection map
-    std::map<DTROSChannelId, DTROBCardId, DTROSChannelCompare>::const_iterator ros_iter = ros_map.begin();
-    std::map<DTROSChannelId, DTROBCardId, DTROSChannelCompare>::const_iterator ros_iend = ros_map.end();
+    auto ros_iter = ros_map.begin();
+    auto ros_iend = ros_map.end();
 
     check = false;
     std::map<DTROSChannelId, DTROBCardId, DTROSChannelCompare> ros_app;
@@ -477,7 +477,7 @@ void DTCompactMapWriter::fillReadOutMap(int ros_count,
       if (sector != DTMapElementIdentifiers::defaultIdValue)
         secdef = sector;
       const DTROBCardId robCardId(whdef, secdef, station, rob);
-      std::map<DTROBCardId, int, DTROBCardCompare>::const_iterator idt_iter = tdc_idm.find(robCardId);
+      auto idt_iter = tdc_idm.find(robCardId);
       if (idt_iter != idt_iend) {
         int tdcMapId = idt_iter->second;
         ddu_iter = ddu_map.begin();
@@ -502,7 +502,7 @@ void DTCompactMapWriter::fillReadOutMap(int ros_count,
             check = true;
           }
           if ((tdcMapId == tdcMapCk) && check) {
-            std::map<DTROSChannelId, DTROBCardId, DTROSChannelCompare>::iterator ddu_inew = ddu_map.find(ros_id);
+            auto ddu_inew = ddu_map.find(ros_id);
             ddu_inew->second = DTROBCardId(sec_id.wheelId(), sec_id.sectorId(), sec_id.stationId(), ros_count);
           }
         }

@@ -7,9 +7,7 @@ L1Analysis::L1AnalysisL1UpgradeTfMuon::~L1AnalysisL1UpgradeTfMuon() {}
 void L1Analysis::L1AnalysisL1UpgradeTfMuon::SetTfMuon(const l1t::RegionalMuonCandBxCollection& muon,
                                                       unsigned maxL1UpgradeTfMuon) {
   for (int ibx = muon.getFirstBX(); ibx <= muon.getLastBX(); ++ibx) {
-    for (l1t::RegionalMuonCandBxCollection::const_iterator it = muon.begin(ibx);
-         it != muon.end(ibx) && l1upgradetfmuon_.nTfMuons < maxL1UpgradeTfMuon;
-         ++it) {
+    for (auto it = muon.begin(ibx); it != muon.end(ibx) && l1upgradetfmuon_.nTfMuons < maxL1UpgradeTfMuon; ++it) {
       if (it->hwPt() > 0) {
         l1upgradetfmuon_.tfMuonHwPt.push_back(it->hwPt());
         l1upgradetfmuon_.tfMuonHwEta.push_back(it->hwEta());

@@ -74,8 +74,7 @@ std::pair<int, float> PhotonTkIsolation::getIso(const reco::Candidate* photon) c
   float photonEta = photon->eta();
 
   //loop over tracks
-  for (reco::TrackCollection::const_iterator trItr = trackCollection_->begin(); trItr != trackCollection_->end();
-       ++trItr) {
+  for (auto trItr = trackCollection_->begin(); trItr != trackCollection_->end(); ++trItr) {
     //check z-distance of vertex
     float dzCut = 0;
     switch (dzOption_) {

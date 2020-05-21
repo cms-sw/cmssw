@@ -32,7 +32,7 @@ void RandomEngineGlue::fill() {
                                                   << "beginLuminosityBlock methods, which is not allowed.\n";
   }
   nextNumber = theNumbers.begin();
-  for (RndVector::iterator it = nextNumber; it != theNumbers.end(); ++it)
+  for (auto it = nextNumber; it != theNumbers.end(); ++it)
     *it = randomEngine->flat();
 }
 

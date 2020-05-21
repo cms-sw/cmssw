@@ -322,7 +322,7 @@ void HcalTestAnalysis::fill(const EndOfEvent* evt) {
 
   // Hcal
   int HCHCid = G4SDManager::GetSDMpointer()->GetCollectionID(names_[0]);
-  CaloG4HitCollection* theHCHC = (CaloG4HitCollection*)allHC->GetHC(HCHCid);
+  auto* theHCHC = (CaloG4HitCollection*)allHC->GetHC(HCHCid);
   edm::LogVerbatim("HcalSim") << "HcalTestAnalysis :: Hit Collection for " << names_[0] << " of ID " << HCHCid
                               << " is obtained at " << theHCHC;
   int hchc_entries = theHCHC->entries();
@@ -369,7 +369,7 @@ void HcalTestAnalysis::fill(const EndOfEvent* evt) {
 
   // EB
   int EBHCid = G4SDManager::GetSDMpointer()->GetCollectionID(names_[1]);
-  CaloG4HitCollection* theEBHC = (CaloG4HitCollection*)allHC->GetHC(EBHCid);
+  auto* theEBHC = (CaloG4HitCollection*)allHC->GetHC(EBHCid);
   edm::LogVerbatim("HcalSim") << "HcalTestAnalysis :: Hit Collection for " << names_[1] << " of ID " << EBHCid
                               << " is obtained at " << theEBHC;
   int ebhc_entries = theEBHC->entries();
@@ -406,7 +406,7 @@ void HcalTestAnalysis::fill(const EndOfEvent* evt) {
 
   // EE
   int EEHCid = G4SDManager::GetSDMpointer()->GetCollectionID(names_[2]);
-  CaloG4HitCollection* theEEHC = (CaloG4HitCollection*)allHC->GetHC(EEHCid);
+  auto* theEEHC = (CaloG4HitCollection*)allHC->GetHC(EEHCid);
   edm::LogVerbatim("HcalSim") << "HcalTestAnalysis :: Hit Collection for " << names_[2] << " of ID " << EEHCid
                               << " is obtained at " << theEEHC;
   int eehc_entries = theEEHC->entries();

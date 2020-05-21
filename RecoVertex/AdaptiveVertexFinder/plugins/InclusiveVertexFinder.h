@@ -193,7 +193,7 @@ void TemplatedInclusiveVertexFinder<InputContainer, VTX>::produce(edm::Event &ev
 
     std::vector<TransientTrack> tts;
     //Fill transient track vector
-    for (typename InputContainer::const_iterator track = tracks->begin(); track != tracks->end(); ++track) {
+    for (auto track = tracks->begin(); track != tracks->end(); ++track) {
       //TransientTrack tt = trackBuilder->build(ref);
       //TrackRef ref(tracks, track - tracks->begin());
       TransientTrack tt(tthelpers::buildTT(tracks, trackBuilder, track - tracks->begin()));
@@ -232,9 +232,7 @@ void TemplatedInclusiveVertexFinder<InputContainer, VTX>::produce(edm::Event &ev
     std::cout << "CLUSTERS " << clusters.size() << std::endl;
 #endif
 
-    for (std::vector<TracksClusteringFromDisplacedSeed::Cluster>::iterator cluster = clusters.begin();
-         cluster != clusters.end();
-         ++cluster, ++i) {
+    for (auto cluster = clusters.begin(); cluster != clusters.end(); ++cluster, ++i) {
       if (cluster->tracks.size() < 2 || cluster->tracks.size() > maxNTracks)
         continue;
       std::vector<TransientVertex> vertices;
@@ -255,7 +253,7 @@ void TemplatedInclusiveVertexFinder<InputContainer, VTX>::produce(edm::Event &ev
         }
       }
 
-      for (std::vector<TransientVertex>::const_iterator v = vertices.begin(); v != vertices.end(); ++v) {
+      for (auto v = vertices.begin(); v != vertices.end(); ++v) {
         Measurement1D dlen = vdist.distance(pv, *v);
         Measurement1D dlen2 = vdist2d.distance(pv, *v);
 #ifdef VTXDEBUG
@@ -270,7 +268,7 @@ void TemplatedInclusiveVertexFinder<InputContainer, VTX>::produce(edm::Event &ev
 #endif
         GlobalVector dir;
         std::vector<reco::TransientTrack> ts = v->originalTracks();
-        for (std::vector<reco::TransientTrack>::const_iterator i = ts.begin(); i != ts.end(); ++i) {
+        for (auto i = ts.begin(); i != ts.end(); ++i) {
           float w = v->trackWeight(*i);
           if (w > 0.5)
             dir += i->impactPointState().globalDirection();

@@ -118,7 +118,7 @@ Trajectory GsfTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
   TrajectoryStateCombiner combiner;
 
   int hitcounter = avtm.size() - 1;
-  for (std::vector<TM>::const_reverse_iterator itm = avtm.rbegin() + 1; itm < avtm.rend() - 1; ++itm) {
+  for (auto itm = avtm.rbegin() + 1; itm < avtm.rend() - 1; ++itm) {
     predTsos = usePropagator->propagate(currTsos, *(*itm).recHit()->surface());
     if (predTsos.isValid() && theConvolutor && theMatBeforeUpdate)
       predTsos = (*theConvolutor)(predTsos, usePropagator->propagationDirection());

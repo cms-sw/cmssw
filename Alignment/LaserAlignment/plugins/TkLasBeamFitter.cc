@@ -362,8 +362,7 @@ void TkLasBeamFitter::endRunProduce(edm::Run &run, const edm::EventSetup &setup)
     cout << "BS fixed, not fitted!" << endl;
 
   // loop over LAS beams
-  for (TkLasBeamCollection::const_iterator iBeam = laserBeams->begin(), iEnd = laserBeams->end(); iBeam != iEnd;
-       ++iBeam) {
+  for (auto iBeam = laserBeams->begin(), iEnd = laserBeams->end(); iBeam != iEnd; ++iBeam) {
     TkFittedLasBeam beam(*iBeam);
     vector<TrajectoryStateOnSurface> tsosLas;
 
@@ -416,7 +415,7 @@ void TkLasBeamFitter::getLasBeams(TkFittedLasBeam &beam, vector<TrajectoryStateO
   double sumZ(0.);
 
   // loop over hits
-  for (TkLasBeam::const_iterator iHit = beam.begin(); iHit < beam.end(); ++iHit) {
+  for (auto iHit = beam.begin(); iHit < beam.end(); ++iHit) {
     // iHit is a SiStripLaserRecHit2D
 
     const SiStripLaserRecHit2D hit(*iHit);

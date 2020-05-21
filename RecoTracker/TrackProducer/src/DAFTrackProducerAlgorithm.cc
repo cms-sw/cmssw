@@ -65,9 +65,7 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry* theG,
       CurrentTraj = fit(hits, theFitter, *BeforeDAFTraj);
 
       //starting the annealing program
-      for (std::vector<double>::const_iterator ian = updator->getAnnealingProgram().begin();
-           ian != updator->getAnnealingProgram().end();
-           ian++) {
+      for (auto ian = updator->getAnnealingProgram().begin(); ian != updator->getAnnealingProgram().end(); ian++) {
         if (CurrentTraj.isValid()) {
           LogDebug("DAFTrackProducerAlgorithm") << "Seed direction is " << CurrentTraj.seed().direction()
                                                 << ".Traj direction is " << CurrentTraj.direction() << std::endl;
@@ -150,8 +148,7 @@ std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> DA
   if (collectedmeas.empty())
     return std::make_pair(TransientTrackingRecHit::RecHitContainer(), TrajectoryStateOnSurface());
 
-  for (std::vector<TrajectoryMeasurement>::const_iterator iter = collectedmeas.begin(); iter != collectedmeas.end();
-       iter++) {
+  for (auto iter = collectedmeas.begin(); iter != collectedmeas.end(); iter++) {
     nHits++;
     hits.push_back(iter->recHit());
   }
@@ -286,16 +283,15 @@ int DAFTrackProducerAlgorithm::countingGoodHits(const Trajectory traj) const {
   int ngoodhits = 0;
   std::vector<TrajectoryMeasurement> vtm = traj.measurements();
 
-  for (std::vector<TrajectoryMeasurement>::const_iterator tm = vtm.begin(); tm != vtm.end(); tm++) {
+  for (auto tm = vtm.begin(); tm != vtm.end(); tm++) {
     //if the rechit is valid
     if (tm->recHit()->isValid()) {
-      SiTrackerMultiRecHit const& mHit = dynamic_cast<SiTrackerMultiRecHit const&>(*tm->recHit());
+      auto const& mHit = dynamic_cast<SiTrackerMultiRecHit const&>(*tm->recHit());
       std::vector<const TrackingRecHit*> components = mHit.recHits();
 
       int iComp = 0;
 
-      for (std::vector<const TrackingRecHit*>::const_iterator iter = components.begin(); iter != components.end();
-           iter++, iComp++) {
+      for (auto iter = components.begin(); iter != components.end(); iter++, iComp++) {
         //if there is at least one component with weight higher than 1e-6 then the hit is not an outlier
         if (mHit.weight(iComp) > 1e-6) {
           ngoodhits++;
@@ -325,15 +321,14 @@ void DAFTrackProducerAlgorithm::filter(const TrajectoryFitter* fitter,
   TransientTrackingRecHit::RecHitContainer hits;
 
   //count the number of non-outlier and non-invalid hits
-  for (std::vector<TrajectoryMeasurement>::reverse_iterator tm = vtm.rbegin(); tm != vtm.rend(); tm++) {
+  for (auto tm = vtm.rbegin(); tm != vtm.rend(); tm++) {
     //if the rechit is valid
     if (tm->recHit()->isValid()) {
-      SiTrackerMultiRecHit const& mHit = dynamic_cast<SiTrackerMultiRecHit const&>(*tm->recHit());
+      auto const& mHit = dynamic_cast<SiTrackerMultiRecHit const&>(*tm->recHit());
       std::vector<const TrackingRecHit*> components = mHit.recHits();
       int iComp = 0;
       bool isGood = false;
-      for (std::vector<const TrackingRecHit*>::const_iterator iter = components.begin(); iter != components.end();
-           iter++, iComp++) {
+      for (auto iter = components.begin(); iter != components.end(); iter++, iComp++) {
         //if there is at least one component with weight higher than 1e-6 then the hit is not an outlier
         if (mHit.weight(iComp) > 1e-6) {
           ngoodhits++;
@@ -382,13 +377,12 @@ float DAFTrackProducerAlgorithm::calculateNdof(const Trajectory vtraj) const {
     return 0;
   float ndof = 0;
   const std::vector<TrajectoryMeasurement>& meas = vtraj.measurements();
-  for (std::vector<TrajectoryMeasurement>::const_iterator iter = meas.begin(); iter != meas.end(); iter++) {
+  for (auto iter = meas.begin(); iter != meas.end(); iter++) {
     if (iter->recHit()->isValid()) {
-      SiTrackerMultiRecHit const& mHit = dynamic_cast<SiTrackerMultiRecHit const&>(*iter->recHit());
+      auto const& mHit = dynamic_cast<SiTrackerMultiRecHit const&>(*iter->recHit());
       std::vector<const TrackingRecHit*> components = mHit.recHits();
       int iComp = 0;
-      for (std::vector<const TrackingRecHit*>::const_iterator iter2 = components.begin(); iter2 != components.end();
-           iter2++, iComp++) {
+      for (auto iter2 = components.begin(); iter2 != components.end(); iter2++, iComp++) {
         if ((*iter2)->isValid())
           ndof += ((*iter2)->dimension()) * mHit.weight(iComp);
       }
@@ -428,7 +422,7 @@ int DAFTrackProducerAlgorithm::checkHits(Trajectory iInitTraj, const Trajectory 
       const TrackingRecHit* MaxWeightHit = nullptr;
       float maxweight = 0;
 
-      const SiTrackerMultiRecHit* mrh = dynamic_cast<const SiTrackerMultiRecHit*>(finalHit);
+      const auto* mrh = dynamic_cast<const SiTrackerMultiRecHit*>(finalHit);
       if (mrh) {
         std::vector<const TrackingRecHit*> components = mrh->recHits();
         std::vector<const TrackingRecHit*>::const_iterator icomp;

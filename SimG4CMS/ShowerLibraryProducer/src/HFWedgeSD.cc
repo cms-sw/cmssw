@@ -76,7 +76,7 @@ G4bool HFWedgeSD::hitExists() {
     return true;
   }
 
-  std::map<int, HFShowerG4Hit*>::const_iterator it = hitMap.find(currentID);
+  auto it = hitMap.find(currentID);
   if (it != hitMap.end()) {
     updateHit(currentHit);
     return true;

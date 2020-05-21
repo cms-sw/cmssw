@@ -106,7 +106,7 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
     int iDa1 = -1;
     int iDa2 = -1;
     vector<const reco::Candidate*> cands;
-    vector<const Candidate*>::const_iterator found = cands.begin();
+    auto found = cands.begin();
     for (CandidateView::const_iterator p = particles->begin(); p != particles->end(); ++p) {
       cands.push_back(&*p);
     }
@@ -176,7 +176,7 @@ void ParticleListDrawer::analyze(const edm::Event& iEvent, const edm::EventSetup
       }
 
       if (printFlags_) {
-        const reco::GenParticle* gp = dynamic_cast<const reco::GenParticle*>(&*p);
+        const auto* gp = dynamic_cast<const reco::GenParticle*>(&*p);
         if (!gp)
           throw cms::Exception("Unsupported", "Status flags can be printed only for reco::GenParticle objects\n");
         if (gp->isPromptFinalState())

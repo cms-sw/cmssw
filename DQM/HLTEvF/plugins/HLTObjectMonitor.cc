@@ -826,9 +826,7 @@ double HLTObjectMonitor::dxyFinder(double eta,
                                    edm::Handle<reco::RecoChargedCandidateCollection> recoChargedCands,
                                    edm::Handle<reco::BeamSpot> recoBeamSpot) {
   double dxy = -99.;
-  for (reco::RecoChargedCandidateCollection::const_iterator l3Muon = recoChargedCands->begin();
-       l3Muon != recoChargedCands->end();
-       l3Muon++) {
+  for (auto l3Muon = recoChargedCands->begin(); l3Muon != recoChargedCands->end(); l3Muon++) {
     if (deltaR(eta, phi, l3Muon->eta(), l3Muon->phi()) < 0.1) {
       dxy = (-(l3Muon->vx() - recoBeamSpot->x0()) * l3Muon->py() + (l3Muon->vy() - recoBeamSpot->y0()) * l3Muon->px()) /
             l3Muon->pt();

@@ -72,12 +72,12 @@ void OffsetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGet
   //
   // Offset plots vs eta
   //
-  for (std::vector<std::string>::const_iterator i = offsetVariableTypes.begin(); i != offsetVariableTypes.end(); ++i) {
+  for (auto i = offsetVariableTypes.begin(); i != offsetVariableTypes.end(); ++i) {
     //
     // getting the average value for Npv and mu
     //
     stitle = offsetDir + (*i);
-    std::vector<std::string>::const_iterator it = std::find(MEStrings.begin(), MEStrings.end(), stitle);
+    auto it = std::find(MEStrings.begin(), MEStrings.end(), stitle);
     if (it == MEStrings.end())
       continue;
     mtmp = iget_.get(stitle);
@@ -105,7 +105,7 @@ void OffsetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGet
     //
     // for each pf types
     //
-    for (std::vector<std::string>::const_iterator j = pftypes.begin(); j != pftypes.end(); ++j) {
+    for (auto j = pftypes.begin(); j != pftypes.end(); ++j) {
       // accessing profiles
       std::string str_base = *i + std::to_string(iavg);
       if ((*i) == "npv")
@@ -140,7 +140,7 @@ void OffsetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGet
   // Checks
   //
   if (debug) {
-    for (std::vector<MonitorElement*>::const_iterator i = vME.begin(); i != vME.end(); ++i)
+    for (auto i = vME.begin(); i != vME.end(); ++i)
       (*i)->getTH1F()->Print();
   }
 }

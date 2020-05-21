@@ -33,7 +33,7 @@ MTDRingForwardDoubleLayer::MTDRingForwardDoubleLayer(const vector<const ForwardD
 
   // Cache chamber pointers (the basic components_)
   // and find extension in R and Z
-  for (vector<const ForwardDetRing*>::const_iterator it = theRings.begin(); it != theRings.end(); it++) {
+  for (auto it = theRings.begin(); it != theRings.end(); it++) {
     vector<const GeomDet*> tmp2 = (*it)->basicComponents();
     theBasicComponents.insert(theBasicComponents.end(), tmp2.begin(), tmp2.end());
   }
@@ -121,8 +121,8 @@ vector<GeometricSearchDet::DetWithState> MTDRingForwardDoubleLayer::compatibleDe
   // This code should be moved in a common place intead of being
   // copied many times.
   vector<DetGroup> vectorGroups = groupedCompatibleDets(tsos, prop, est);
-  for (vector<DetGroup>::const_iterator itDG = vectorGroups.begin(); itDG != vectorGroups.end(); itDG++) {
-    for (vector<DetGroupElement>::const_iterator itDGE = itDG->begin(); itDGE != itDG->end(); itDGE++) {
+  for (auto itDG = vectorGroups.begin(); itDG != vectorGroups.end(); itDG++) {
+    for (auto itDGE = itDG->begin(); itDGE != itDG->end(); itDGE++) {
       result.push_back(DetWithState(itDGE->det(), itDGE->trajectoryState()));
     }
   }
@@ -175,8 +175,7 @@ void MTDRingForwardDoubleLayer::selfTest() const {
   const std::vector<const GeomDet*>& frontDets = theFrontLayer.basicComponents();
   const std::vector<const GeomDet*>& backDets = theBackLayer.basicComponents();
 
-  std::vector<const GeomDet*>::const_iterator frontItr = frontDets.begin(), lastFront = frontDets.end(),
-                                              backItr = backDets.begin(), lastBack = backDets.end();
+  auto frontItr = frontDets.begin(), lastFront = frontDets.end(), backItr = backDets.begin(), lastBack = backDets.end();
 
   // test that each front z is less than each back z
   for (; frontItr != lastFront; ++frontItr) {

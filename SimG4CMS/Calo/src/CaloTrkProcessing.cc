@@ -179,7 +179,7 @@ void CaloTrkProcessing::update(const G4Step* aStep) {
   G4Track* theTrack = aStep->GetTrack();
   int id = theTrack->GetTrackID();
 
-  TrackInformation* trkInfo = dynamic_cast<TrackInformation*>(theTrack->GetUserInformation());
+  auto* trkInfo = dynamic_cast<TrackInformation*>(theTrack->GetUserInformation());
 
   if (trkInfo == nullptr) {
     edm::LogError("CaloSim") << "CaloTrkProcessing: No trk info !!!! abort ";

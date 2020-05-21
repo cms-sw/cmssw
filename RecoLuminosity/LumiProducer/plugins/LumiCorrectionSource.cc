@@ -83,14 +83,14 @@ std::string LumiCorrectionSource::toParentString(const xercesc::DOMNode& nodeToC
     xercesc::DOMNode* childNode = childList->item(i);
     if (childNode->getNodeType() != xercesc::DOMNode::ELEMENT_NODE)
       continue;
-    xercesc::DOMElement* child = static_cast<xercesc::DOMElement*>(childNode);
+    auto* child = static_cast<xercesc::DOMElement*>(childNode);
     xercesc::DOMNamedNodeMap* attributes = child->getAttributes();
     unsigned int numAttributes = attributes->getLength();
     for (unsigned int j = 0; j < numAttributes; ++j) {
       xercesc::DOMNode* attributeNode = attributes->item(j);
       if (attributeNode->getNodeType() != xercesc::DOMNode::ATTRIBUTE_NODE)
         continue;
-      xercesc::DOMAttr* attribute = static_cast<xercesc::DOMAttr*>(attributeNode);
+      auto* attribute = static_cast<xercesc::DOMAttr*>(attributeNode);
 
       oss << "(" << x2s(child->getTagName()) << x2s(attribute->getName()) << "=" << x2s(attribute->getValue()) << ")";
     }
@@ -114,7 +114,7 @@ const std::string LumiCorrectionSource::servletTranslation(const std::string& se
 
     xercesc::DOMNodeList* frontierConnectList = doc->getElementsByTagName(s2x("frontier-connect"));
     if (frontierConnectList->getLength() > 0) {
-      xercesc::DOMElement* frontierConnectElement = static_cast<xercesc::DOMElement*>(frontierConnectList->item(0));
+      auto* frontierConnectElement = static_cast<xercesc::DOMElement*>(frontierConnectList->item(0));
       frontierConnect = toParentString(*frontierConnectElement);
     }
     // Replace the last component of every "serverurl=" piece (up to the
@@ -255,7 +255,7 @@ void LumiCorrectionSource::fillparamcache(unsigned int runnumber) {
       reloadAuth();
     }
   }
-  coral::ConnectionService* mydbservice = new coral::ConnectionService;
+  auto* mydbservice = new coral::ConnectionService;
   if (!m_globaltag.empty()) {
     coral::ISessionProxy* gsession = mydbservice->connect(m_connectStr, coral::ReadOnly);
     gsession->transaction().start(true);
@@ -326,7 +326,7 @@ void LumiCorrectionSource::fillparamcache(unsigned int runnumber) {
     std::map<unsigned int, lumi::NormDML::normData> normDataMap;
     normdml.normById(schema, normid, normDataMap);
 
-    std::map<unsigned int, lumi::NormDML::normData>::iterator normIt = --normDataMap.end();
+    auto normIt = --normDataMap.end();
     if (runnumber < normIt->first) {
       normIt = normDataMap.upper_bound(runnumber);
       --normIt;

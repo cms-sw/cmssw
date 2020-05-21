@@ -203,6 +203,6 @@ void HcalPatternXMLParser::parse(const std::string& xmlDocument,
     formatting = 16;
 
   data.clear();
-  for (std::vector<std::string>::const_iterator i = items.begin(); i != items.end(); i++)
+  for (auto i = items.begin(); i != items.end(); i++)
     data.push_back(strtol(i->c_str(), nullptr, formatting));
 }

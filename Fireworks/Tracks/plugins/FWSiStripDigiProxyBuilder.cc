@@ -44,15 +44,14 @@ void FWSiStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
   }
   const FWGeometry* geom = iItem->getGeom();
 
-  for (edm::DetSetVector<SiStripDigi>::const_iterator it = digis->begin(), end = digis->end(); it != end; ++it) {
+  for (auto it = digis->begin(), end = digis->end(); it != end; ++it) {
     edm::DetSet<SiStripDigi> ds = *it;
     const uint32_t& id = ds.id;
 
     const float* pars = geom->getParameters(id);
 
-    for (edm::DetSet<SiStripDigi>::const_iterator idigi = ds.data.begin(), idigiEnd = ds.data.end(); idigi != idigiEnd;
-         ++idigi) {
-      TEveStraightLineSet* lineSet = new TEveStraightLineSet;
+    for (auto idigi = ds.data.begin(), idigiEnd = ds.data.end(); idigi != idigiEnd; ++idigi) {
+      auto* lineSet = new TEveStraightLineSet;
       setupAddElement(lineSet, product);
 
       if (!geom->contains(id)) {

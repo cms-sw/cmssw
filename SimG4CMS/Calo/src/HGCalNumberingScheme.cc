@@ -96,7 +96,7 @@ void HGCalNumberingScheme::checkPosition(uint32_t index, const G4ThreeVector& po
     tolR = 12.0;
     tolZ = 1.0;
   } else if (DetId(index).det() == DetId::HGCalHSc) {
-    HGCScintillatorDetId id = HGCScintillatorDetId(index);
+    auto id = HGCScintillatorDetId(index);
     lay = id.layer();
     xy = hgcons_.locateCellTrap(lay, id.ietaAbs(), id.iphi(), false);
     z1 = hgcons_.waferZ(lay, false);

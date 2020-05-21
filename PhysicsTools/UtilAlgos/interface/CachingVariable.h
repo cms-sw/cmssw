@@ -352,7 +352,7 @@ public:
 
       if (varEntry.empty()) {
         //loop only the indexes
-        for (std::map<std::string, edm::Entry>::iterator iIt = indexEntry.begin(); iIt != indexEntry.end(); ++iIt) {
+        for (auto iIt = indexEntry.begin(); iIt != indexEntry.end(); ++iIt) {
           edm::ParameterSet toUse = arg.iConfig;
           toUse.insert(true, "index", iIt->second);
           std::string newVname = radical + iIt->first;
@@ -361,7 +361,7 @@ public:
           new ExpressionVariable(CachingVariable::CachingVariableFactoryArg(newVname, arg.m, toUse), iC);
         }
       } else {
-        for (std::map<std::string, edm::Entry>::iterator vIt = varEntry.begin(); vIt != varEntry.end(); ++vIt) {
+        for (auto vIt = varEntry.begin(); vIt != varEntry.end(); ++vIt) {
           if (indexEntry.empty()) {
             edm::ParameterSet toUse = arg.iConfig;
             toUse.insert(true, "expr", vIt->second);
@@ -370,7 +370,7 @@ public:
             // the constructor auto log the new variable in the map
             new ExpressionVariable(CachingVariable::CachingVariableFactoryArg(newVname, arg.m, toUse), iC);
           } else {
-            for (std::map<std::string, edm::Entry>::iterator iIt = indexEntry.begin(); iIt != indexEntry.end(); ++iIt) {
+            for (auto iIt = indexEntry.begin(); iIt != indexEntry.end(); ++iIt) {
               edm::ParameterSet toUse = arg.iConfig;
               toUse.insert(true, "expr", vIt->second);
               toUse.insert(true, "index", iIt->second);

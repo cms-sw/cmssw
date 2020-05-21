@@ -69,7 +69,7 @@ void MuonKinkFinder::cropAndInvert(AlgebraicSymMatrix55 &cov) const {
     cov.Invert();
   } else {
     // get 3x3 covariance
-    AlgebraicSymMatrix33 momCov = cov.Sub<AlgebraicSymMatrix33>(0, 0);  // get 3x3 matrix
+    auto momCov = cov.Sub<AlgebraicSymMatrix33>(0, 0);  // get 3x3 matrix
     if (diagonalOnly_) {
       momCov(0, 1) = 0;
       momCov(0, 2) = 0;

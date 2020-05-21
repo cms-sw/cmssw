@@ -118,7 +118,7 @@ bool PickEvents::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if (isRunLsBased_) {
     // std::cout << "GF DEBUG: kRun is " << kRun << " kLumi is: " << kLumi << std::endl;
 
-    for (std::vector<edm::LuminosityBlockRange>::iterator oneLumiRange = luminositySectionsBlockRanges_.begin();
+    for (auto oneLumiRange = luminositySectionsBlockRanges_.begin();
          oneLumiRange != luminositySectionsBlockRanges_.end();
          ++oneLumiRange) {
       // luminositySectionsBlockRanges_ is sorted according to startRun()

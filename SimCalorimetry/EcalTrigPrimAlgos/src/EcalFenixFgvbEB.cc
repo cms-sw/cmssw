@@ -72,7 +72,7 @@ void EcalFenixFgvbEB::setParameters(uint32_t towid,
                                     const EcalTPGFineGrainEBGroup *ecaltpgFgEBGroup,
                                     const EcalTPGFineGrainEBIdMap *ecaltpgFineGrainEB) {
   const EcalTPGGroups::EcalTPGGroupsMap &groupmap = ecaltpgFgEBGroup->getMap();
-  EcalTPGGroups::EcalTPGGroupsMapItr it = groupmap.find(towid);
+  auto it = groupmap.find(towid);
   if (it != groupmap.end()) {
     //     uint32_t fgid =(*it).second;
     //     const EcalTPGFineGrainEBIdMap::EcalTPGFineGrainEBMap fgmap =
@@ -81,7 +81,7 @@ void EcalFenixFgvbEB::setParameters(uint32_t towid,
     //     fgmap.find(fgid);
     //     (*itfg).second.getValues( ETlow_,  EThigh_,  Ratlow_,  Rathigh_,
     //     lut_);
-    EcalTPGFineGrainEBIdMap::EcalTPGFineGrainEBMapItr itfg = (ecaltpgFineGrainEB->getMap()).find((*it).second);
+    auto itfg = (ecaltpgFineGrainEB->getMap()).find((*it).second);
     (*itfg).second.getValues(ETlow_, EThigh_, Ratlow_, Rathigh_, lut_);
   } else
     edm::LogWarning("EcalTPG") << " could not find EcalTPGGroupsMap entry for " << towid;

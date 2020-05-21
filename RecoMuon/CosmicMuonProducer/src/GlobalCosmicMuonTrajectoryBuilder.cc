@@ -199,7 +199,7 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
 
   result.push_back(std::make_unique<MuonCandidate>(std::move(myTraj), muTrack, tkTrack));
   LogTrace(category_) << "final global cosmic muon: ";
-  for (std::vector<TrajectoryMeasurement>::const_iterator itm = mytms.begin(); itm != mytms.end(); ++itm) {
+  for (auto itm = mytms.begin(); itm != mytms.end(); ++itm) {
     LogTrace(category_) << "updated pos " << itm->updatedState().globalPosition() << "mom "
                         << itm->updatedState().globalMomentum();
   }
@@ -218,8 +218,8 @@ void GlobalCosmicMuonTrajectoryBuilder::sortHits(ConstRecHitContainer& hits,
     return;
   }
 
-  ConstRecHitContainer::const_iterator frontTkHit = tkHits.begin();
-  ConstRecHitContainer::const_iterator backTkHit = tkHits.end() - 1;
+  auto frontTkHit = tkHits.begin();
+  auto backTkHit = tkHits.end() - 1;
   while (!(*frontTkHit)->isValid() && frontTkHit != backTkHit) {
     frontTkHit++;
   }
@@ -227,8 +227,8 @@ void GlobalCosmicMuonTrajectoryBuilder::sortHits(ConstRecHitContainer& hits,
     backTkHit--;
   }
 
-  ConstRecHitContainer::const_iterator frontMuHit = muonHits.begin();
-  ConstRecHitContainer::const_iterator backMuHit = muonHits.end() - 1;
+  auto frontMuHit = muonHits.begin();
+  auto backMuHit = muonHits.end() - 1;
   while (!(*frontMuHit)->isValid() && frontMuHit != backMuHit) {
     frontMuHit++;
   }
@@ -269,10 +269,10 @@ void GlobalCosmicMuonTrajectoryBuilder::sortHits(ConstRecHitContainer& hits,
   //  LogTrace(category_)<< "== End of muonHits == "<<endl;
 
   //separate muon hits into 2 different hemisphere
-  ConstRecHitContainer::iterator middlepoint = muonHits.begin();
+  auto middlepoint = muonHits.begin();
   bool insertInMiddle = false;
 
-  for (ConstRecHitContainer::iterator ihit = muonHits.begin(); ihit != muonHits.end() - 1; ihit++) {
+  for (auto ihit = muonHits.begin(); ihit != muonHits.end() - 1; ihit++) {
     GlobalPoint ipos = (*ihit)->globalPosition();
     GlobalPoint nextpos = (*(ihit + 1))->globalPosition();
     if ((ipos - nextpos).mag() < 100.0)
@@ -321,7 +321,7 @@ TransientTrackingRecHit::ConstRecHitContainer GlobalCosmicMuonTrajectoryBuilder:
   auto hitCloner = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder.product())->cloner();
   TrajectoryStateOnSurface currTsos = trajectoryStateTransform::innerStateOnSurface(
       track, *theService->trackingGeometry(), &*theService->magneticField());
-  for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
+  for (auto hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if ((*hit)->isValid()) {
       DetId recoid = (*hit)->geographicalId();
       if (recoid.det() == DetId::Tracker) {
@@ -380,7 +380,7 @@ std::vector<GlobalCosmicMuonTrajectoryBuilder::TrackCand> GlobalCosmicMuonTrajec
     // if there're tracker tracks totally on the other half
     // and there're tracker tracks on the same half
     // remove the tracks on the other half
-    for (vector<TrackCand>::const_iterator itkCand = tkTrackCands.begin(); itkCand != tkTrackCands.end(); ++itkCand) {
+    for (auto itkCand = tkTrackCands.begin(); itkCand != tkTrackCands.end(); ++itkCand) {
       reco::TrackRef tkTrack = itkCand->second;
 
       GlobalPoint tkInnerPos(tkTrack->innerPosition().x(), tkTrack->innerPosition().y(), tkTrack->innerPosition().z());
@@ -394,8 +394,7 @@ std::vector<GlobalCosmicMuonTrajectoryBuilder::TrackCand> GlobalCosmicMuonTrajec
 
       if (true || !isTraversing(*tkTrack)) {
         bool keep = true;
-        for (vector<TrackCand>::const_iterator itkCand2 = tkTrackCands.begin(); itkCand2 != tkTrackCands.end();
-             ++itkCand2) {
+        for (auto itkCand2 = tkTrackCands.begin(); itkCand2 != tkTrackCands.end(); ++itkCand2) {
           if (itkCand2 == itkCand)
             continue;
           reco::TrackRef tkTrack2 = itkCand2->second;
@@ -449,8 +448,7 @@ std::vector<GlobalCosmicMuonTrajectoryBuilder::TrackCand> GlobalCosmicMuonTrajec
 
     double quality = 1e6;
     double max_quality = 1e6;
-    for (vector<TrackCand>::const_iterator iter = matched_trackerTracks.begin(); iter != matched_trackerTracks.end();
-         iter++) {
+    for (auto iter = matched_trackerTracks.begin(); iter != matched_trackerTracks.end(); iter++) {
       quality = theTrackMatcher->match(mu, *iter, 1, 0);
       LogTrace(category_) << " quality of tracker track is " << quality;
       if (quality < max_quality) {
@@ -466,7 +464,7 @@ std::vector<GlobalCosmicMuonTrajectoryBuilder::TrackCand> GlobalCosmicMuonTrajec
 
 bool GlobalCosmicMuonTrajectoryBuilder::isTraversing(const reco::Track& track) const {
   trackingRecHit_iterator firstValid;
-  for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
+  for (auto hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if ((*hit)->isValid()) {
       firstValid = hit;
       break;
@@ -474,7 +472,7 @@ bool GlobalCosmicMuonTrajectoryBuilder::isTraversing(const reco::Track& track) c
   }
 
   trackingRecHit_iterator lastValid;
-  for (trackingRecHit_iterator hit = track.recHitsEnd() - 1; hit != track.recHitsBegin() - 1; --hit) {
+  for (auto hit = track.recHitsEnd() - 1; hit != track.recHitsBegin() - 1; --hit) {
     if ((*hit)->isValid()) {
       lastValid = hit;
       break;

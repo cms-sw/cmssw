@@ -282,7 +282,7 @@ public:
       if ((mMax > 0) && (mass > mMax))
         return false;
     }
-    const Vector3DBase<float, GlobalTag>* fmom = BPHUserData::get<Vector3DBase<float, GlobalTag>>(cand, "fitMomentum");
+    const auto* fmom = BPHUserData::get<Vector3DBase<float, GlobalTag>>(cand, "fitMomentum");
     if (fmom == nullptr)
       return false;
     if (pMin > 0) {
@@ -335,8 +335,7 @@ public:
       case 'f':
         svtx = BPHUserData::get<reco::Vertex>(cand, "fitVertex");
         {
-          const Vector3DBase<float, GlobalTag>* fmom =
-              BPHUserData::get<Vector3DBase<float, GlobalTag>>(cand, "fitMomentum");
+          const auto* fmom = BPHUserData::get<Vector3DBase<float, GlobalTag>>(cand, "fitMomentum");
           if (fmom == nullptr)
             return false;
           px = fmom->x();
@@ -1289,8 +1288,8 @@ void BPHHistoSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup&
     ofMap["DisplacedBc"] = nullptr;
     ofMap["InclusiveX3872"] = nullptr;
     ofMap["DisplacedX3872"] = nullptr;
-    map<string, ofstream*>::iterator iter = ofMap.begin();
-    map<string, ofstream*>::iterator iend = ofMap.end();
+    auto iter = ofMap.begin();
+    auto iend = ofMap.end();
     string name = "list";
     while (iter != iend) {
       iter->second = new ofstream(name + iter->first);
@@ -1442,7 +1441,7 @@ void BPHHistoSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup&
   for (ibu = 0; ibu < nbu; ++ibu) {
     LogTrace("DataDump") << "*********** Bu " << ibu << "/" << nbu << " ***********";
     const pat::CompositeCandidate& cand = buCands->at(ibu);
-    const pat::CompositeCandidate* jPsi = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToJPsi");
+    const auto* jPsi = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToJPsi");
     LogTrace("DataDump") << "JPsi: " << jPsi;
     if (jPsi == nullptr)
       continue;
@@ -1494,7 +1493,7 @@ void BPHHistoSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup&
   for (ibd = 0; ibd < nbd; ++ibd) {
     LogTrace("DataDump") << "*********** Bd " << ibd << "/" << nbd << " ***********";
     const pat::CompositeCandidate& cand = bdCands->at(ibd);
-    const pat::CompositeCandidate* jPsi = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToJPsi");
+    const auto* jPsi = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToJPsi");
     LogTrace("DataDump") << "JPsi: " << jPsi;
     if (jPsi == nullptr)
       continue;
@@ -1502,7 +1501,7 @@ void BPHHistoSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup&
       continue;
     if (!npJPsiDaughterSelect->accept(*jPsi))
       continue;
-    const pat::CompositeCandidate* kx0 = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToKx0");
+    const auto* kx0 = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToKx0");
     LogTrace("DataDump") << "Kx0: " << kx0;
     if (kx0 == nullptr)
       continue;
@@ -1549,7 +1548,7 @@ void BPHHistoSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup&
   for (ibs = 0; ibs < nbs; ++ibs) {
     LogTrace("DataDump") << "*********** Bs " << ibs << "/" << nbs << " ***********";
     const pat::CompositeCandidate& cand = bsCands->at(ibs);
-    const pat::CompositeCandidate* jPsi = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToJPsi");
+    const auto* jPsi = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToJPsi");
     LogTrace("DataDump") << "JPsi: " << jPsi;
     if (jPsi == nullptr)
       continue;
@@ -1557,7 +1556,7 @@ void BPHHistoSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup&
       continue;
     if (!npJPsiDaughterSelect->accept(*jPsi))
       continue;
-    const pat::CompositeCandidate* phi = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToPhi");
+    const auto* phi = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToPhi");
     LogTrace("DataDump") << "Phi: " << phi;
     if (phi == nullptr)
       continue;
@@ -1644,7 +1643,7 @@ void BPHHistoSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup&
   for (ib0 = 0; ib0 < nb0; ++ib0) {
     LogTrace("DataDump") << "*********** B0 " << ib0 << "/" << nb0 << " ***********";
     const pat::CompositeCandidate& cand = b0Cands->at(ib0);
-    const pat::CompositeCandidate* jPsi = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToJPsi");
+    const auto* jPsi = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToJPsi");
     LogTrace("DataDump") << "JPsi: " << jPsi;
     if (jPsi == nullptr)
       continue;
@@ -1652,7 +1651,7 @@ void BPHHistoSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup&
       continue;
     if (!npJPsiDaughterSelect->accept(*jPsi))
       continue;
-    const pat::CompositeCandidate* k0s = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToK0s");
+    const auto* k0s = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToK0s");
     LogTrace("DataDump") << "K0s: " << k0s;
     if (k0s == nullptr)
       continue;
@@ -1699,7 +1698,7 @@ void BPHHistoSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup&
   for (ilb = 0; ilb < nlb; ++ilb) {
     LogTrace("DataDump") << "*********** Lambdab " << ilb << "/" << nlb << " ***********";
     const pat::CompositeCandidate& cand = lbCands->at(ilb);
-    const pat::CompositeCandidate* jPsi = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToJPsi");
+    const auto* jPsi = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToJPsi");
     LogTrace("DataDump") << "JPsi: " << jPsi;
     if (jPsi == nullptr)
       continue;
@@ -1707,7 +1706,7 @@ void BPHHistoSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup&
       continue;
     if (!npJPsiDaughterSelect->accept(*jPsi))
       continue;
-    const pat::CompositeCandidate* l0 = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToLambda0");
+    const auto* l0 = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToLambda0");
     LogTrace("DataDump") << "Lambda0: " << l0;
     if (l0 == nullptr)
       continue;
@@ -1754,7 +1753,7 @@ void BPHHistoSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup&
   for (ibc = 0; ibc < nbc; ++ibc) {
     LogTrace("DataDump") << "*********** Bc " << ibc << "/" << nbc << " ***********";
     const pat::CompositeCandidate& cand = bcCands->at(ibc);
-    const pat::CompositeCandidate* jPsi = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToJPsi");
+    const auto* jPsi = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToJPsi");
     LogTrace("DataDump") << "JPsi: " << jPsi;
     if (jPsi == nullptr)
       continue;
@@ -1810,7 +1809,7 @@ void BPHHistoSpecificDecay::analyze(const edm::Event& ev, const edm::EventSetup&
   for (ix3872 = 0; ix3872 < nx3872; ++ix3872) {
     LogTrace("DataDump") << "*********** X3872 " << ix3872 << "/" << nx3872 << " ***********";
     const pat::CompositeCandidate& cand = x3872Cands->at(ix3872);
-    const pat::CompositeCandidate* jPsi = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToJPsi");
+    const auto* jPsi = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToJPsi");
     LogTrace("DataDump") << "JPsi: " << jPsi;
     if (jPsi == nullptr)
       continue;
@@ -1874,7 +1873,7 @@ void BPHHistoSpecificDecay::fillHisto(const string& name, const pat::CompositeCa
 
   const reco::Vertex* pvtx = BPHUserData::getByRef<reco::Vertex>(cand, "primaryVertex");
   if (pvtx == nullptr) {
-    const pat::CompositeCandidate* jPsi = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToJPsi");
+    const auto* jPsi = BPHUserData::getByRef<pat::CompositeCandidate>(cand, "refToJPsi");
     if (jPsi == nullptr)
       return;
     pvtx = BPHUserData::getByRef<reco::Vertex>(*jPsi, "primaryVertex");
@@ -1891,8 +1890,7 @@ void BPHHistoSpecificDecay::fillHisto(const string& name, const pat::CompositeCa
     if (svtx != nullptr) {
       float px;
       float py;
-      const Vector3DBase<float, GlobalTag>* fmom =
-          BPHUserData::get<Vector3DBase<float, GlobalTag>>(cand, "fitMomentum");
+      const auto* fmom = BPHUserData::get<Vector3DBase<float, GlobalTag>>(cand, "fitMomentum");
       if (fmom != nullptr) {
         px = fmom->x();
         py = fmom->y();
@@ -1913,8 +1911,8 @@ void BPHHistoSpecificDecay::fillHisto(const string& name, const pat::CompositeCa
 }
 
 void BPHHistoSpecificDecay::fillHisto(const string& name, float x) {
-  map<string, TH1F*>::iterator iter = histoMap.find(name);
-  map<string, TH1F*>::iterator iend = histoMap.end();
+  auto iter = histoMap.find(name);
+  auto iend = histoMap.end();
   if (iter == iend)
     return;
   iter->second->Fill(x);

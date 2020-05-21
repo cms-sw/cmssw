@@ -188,7 +188,7 @@ RPCCalibSetUp::RPCCalibSetUp(const edm::ParameterSet &ps) {
 }
 
 std::vector<float> RPCCalibSetUp::getNoise(uint32_t id) {
-  map<uint32_t, std::vector<float>>::iterator iter = _mapDetIdNoise.find(id);
+  auto iter = _mapDetIdNoise.find(id);
   if (iter == _mapDetIdNoise.end()) {
     throw cms::Exception("DataCorrupt") << "Exception comming from RPCCalibSetUp - no noise information for "
                                            "DetId\t"
@@ -198,7 +198,7 @@ std::vector<float> RPCCalibSetUp::getNoise(uint32_t id) {
 }
 
 std::vector<float> RPCCalibSetUp::getEff(uint32_t id) {
-  map<uint32_t, std::vector<float>>::iterator iter = _mapDetIdEff.find(id);
+  auto iter = _mapDetIdEff.find(id);
   if (iter == _mapDetIdEff.end()) {
     throw cms::Exception("DataCorrupt") << "Exception comming from RPCCalibSetUp - no efficiency information "
                                            "for DetId\t"
@@ -215,7 +215,7 @@ std::vector<float> RPCCalibSetUp::getEff(uint32_t id) {
 float RPCCalibSetUp::getTime(uint32_t id) {
   RPCDetId rpcid(id);
 
-  std::map<RPCDetId, float>::iterator iter = _bxmap.find(rpcid);
+  auto iter = _bxmap.find(rpcid);
   if (iter == _bxmap.end()) {
     throw cms::Exception("DataCorrupt") << "Exception comming from RPCCalibSetUp - no timing information for "
                                            "rpcid.rawId()\t"
@@ -234,7 +234,7 @@ std::map<int, std::vector<double>> RPCCalibSetUp::getClsMap() {
 }
 
 std::vector<double> RPCCalibSetUp::getCls(uint32_t id) {
-  std::map<uint32_t, std::vector<double>>::iterator iter = _mapDetClsMap.find(id);
+  auto iter = _mapDetClsMap.find(id);
   if (iter == _mapDetClsMap.end()) {
     throw cms::Exception("DataCorrupt") << "Exception comming from RPCCalibSetUp - no cluster size information "
                                            "for DetId\t"

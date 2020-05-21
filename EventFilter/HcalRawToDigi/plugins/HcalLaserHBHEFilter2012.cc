@@ -153,9 +153,8 @@ bool HcalLaserHBHEFilter2012::filter(edm::Event& iEvent, const edm::EventSetup& 
   // Step 2:  Count HBHE digi calib channels
   int ncalibHBHE = 0;  // this will track number of HBHE digi channels
 
-  for (HcalCalibDigiCollection::const_iterator Calibiter = calib_digi->begin(); Calibiter != calib_digi->end();
-       ++Calibiter) {
-    const HcalCalibDataFrame digi = (const HcalCalibDataFrame)(*Calibiter);
+  for (auto Calibiter = calib_digi->begin(); Calibiter != calib_digi->end(); ++Calibiter) {
+    const auto digi = (const HcalCalibDataFrame)(*Calibiter);
     if (digi.zsMarkAndPass())
       continue;  // skip digis labeled as "mark and pass" in NZS events
     HcalCalibDetId myid = (HcalCalibDetId)digi.id();
@@ -194,7 +193,7 @@ bool HcalLaserHBHEFilter2012::filter(edm::Event& iEvent, const edm::EventSetup& 
   double goodrbxfrac = 0.;
   int Nbad = 72 * 3;            // 3 bad RBXes, 72 channels each
   int Ngood = 2592 * 2 - Nbad;  // remaining HBHE channels are 'good'
-  for (HBHEDigiCollection::const_iterator hbhe = hbhe_digi->begin(); hbhe != hbhe_digi->end(); ++hbhe) {
+  for (auto hbhe = hbhe_digi->begin(); hbhe != hbhe_digi->end(); ++hbhe) {
     const HBHEDataFrame digi = (const HBHEDataFrame)(*hbhe);
     HcalDetId myid = (HcalDetId)digi.id();
     bool isbad = false;  // assume channel is not bad

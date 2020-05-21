@@ -65,7 +65,7 @@ void DTTPDeadWriter::analyze(const Event& event, const EventSetup& eventSetup) {
   set<DTLayerId> analyzedLayers;
 
   //Loop on tzero map
-  for (DTT0::const_iterator tzero = tZeroMap->begin(); tzero != tZeroMap->end(); ++tzero) {
+  for (auto tzero = tZeroMap->begin(); tzero != tZeroMap->end(); ++tzero) {
     //Consider what layers have been already considered
     // @@@ NEW DTT0 FORMAT
     //    DTLayerId layerId = (DTWireId((*tzero).first.wheelId,

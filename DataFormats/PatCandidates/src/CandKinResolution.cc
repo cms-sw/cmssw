@@ -62,7 +62,7 @@ double pat::CandKinResolution::resolPz(const pat::CandKinResolution::LorentzVect
 
 void pat::CandKinResolution::fillVector() {
   if (dimension() == 3) {
-    AlgebraicSymMatrix33 sub = covmatrix_.Sub<AlgebraicSymMatrix33>(0, 0);
+    auto sub = covmatrix_.Sub<AlgebraicSymMatrix33>(0, 0);
     covariances_.insert(covariances_.end(), sub.begin(), sub.end());
   } else {
     covariances_.insert(covariances_.end(), covmatrix_.begin(), covmatrix_.end());

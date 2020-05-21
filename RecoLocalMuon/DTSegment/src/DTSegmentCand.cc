@@ -67,8 +67,8 @@ void DTSegmentCand::removeHit(AssPoint badHit) { theHits.erase(badHit); }
 int DTSegmentCand::nSharedHitPairs(const DTSegmentCand& seg) const {
   int result = 0;
 
-  for (AssPointCont::const_iterator hit = theHits.begin(); hit != theHits.end(); ++hit) {
-    for (AssPointCont::const_iterator hit2 = seg.hits().begin(); hit2 != seg.hits().end(); ++hit2) {
+  for (auto hit = theHits.begin(); hit != theHits.end(); ++hit) {
+    for (auto hit2 = seg.hits().begin(); hit2 != seg.hits().end(); ++hit2) {
       //  if(result) return result ; // TODO, uncomm this line or move it in another func
       if ((*(*hit).first) == (*(*hit2).first)) {
         ++result;
@@ -85,9 +85,9 @@ DTSegmentCand::AssPointCont DTSegmentCand::conflictingHitPairs(const DTSegmentCa
 
   //  if (nSharedHitPairs(seg)==0) return result;
 
-  AssPointCont::const_iterator hitBegin2 = hits2.begin(), hitEnd2 = hits2.end();
-  for (AssPointCont::const_iterator hit = theHits.begin(), hitEnd = theHits.end(); hit != hitEnd; ++hit) {
-    for (AssPointCont::const_iterator hit2 = hitBegin2; hit2 != hitEnd2; ++hit2) {
+  auto hitBegin2 = hits2.begin(), hitEnd2 = hits2.end();
+  for (auto hit = theHits.begin(), hitEnd = theHits.end(); hit != hitEnd; ++hit) {
+    for (auto hit2 = hitBegin2; hit2 != hitEnd2; ++hit2) {
       if ((*(*hit).first) == (*(*hit2).first) && (*hit).second != (*hit2).second) {
         result.insert(*hit);
         continue;
@@ -118,7 +118,7 @@ bool DTSegmentCand::hitsShareLayer() const {
 
   int layerN[hitsSize];
   unsigned int i = 0;
-  for (DTSegmentCand::AssPointCont::iterator assHit = theHits.begin(); assHit != theHits.end(); ++assHit) {
+  for (auto assHit = theHits.begin(); assHit != theHits.end(); ++assHit) {
     layerN[i] = (*assHit).first->id().layerId().layer() + 10 * (*assHit).first->id().superlayerId().superlayer();
     for (unsigned int j = 0; j < i; j++) {
       if (layerN[i] == layerN[j])
@@ -142,7 +142,7 @@ DTSegmentCand::operator DTSLRecSegment2D*() const {
   AlgebraicSymMatrix seg2DCovMatrix = covMatrix();
 
   std::vector<DTRecHit1D> hits1D;
-  for (DTSegmentCand::AssPointCont::iterator assHit = theHits.begin(); assHit != theHits.end(); ++assHit) {
+  for (auto assHit = theHits.begin(); assHit != theHits.end(); ++assHit) {
     GlobalPoint hitGlobalPos = theSL->toGlobal((*assHit).first->localPosition((*assHit).second));
 
     LocalPoint hitPosInLayer = theSL->layer((*assHit).first->id().layerId())->toLocal(hitGlobalPos);
@@ -172,7 +172,7 @@ DTSegmentCand::operator DTChamberRecSegment2D*() const {
   AlgebraicSymMatrix seg2DCovMatrix = covMatrix();
 
   std::vector<DTRecHit1D> hits1D;
-  for (DTSegmentCand::AssPointCont::iterator assHit = theHits.begin(); assHit != theHits.end(); ++assHit) {
+  for (auto assHit = theHits.begin(); assHit != theHits.end(); ++assHit) {
     GlobalPoint hitGlobalPos = theSL->toGlobal((*assHit).first->localPosition((*assHit).second));
 
     LocalPoint hitPosInLayer = theSL->chamber()

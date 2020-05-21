@@ -50,8 +50,8 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(const std::vector<DTSegme
 
   vector<DTSegmentCand*> ghosts;
 
-  for (vector<DTSegmentCand*>::const_iterator cand = inputCands.begin(); cand != inputCands.end(); ++cand) {
-    for (vector<DTSegmentCand*>::const_iterator cand2 = cand + 1; cand2 != inputCands.end(); ++cand2) {
+  for (auto cand = inputCands.begin(); cand != inputCands.end(); ++cand) {
+    for (auto cand2 = cand + 1; cand2 != inputCands.end(); ++cand2) {
       DTSegmentCand::AssPointCont confHits = (*cand)->conflictingHitPairs(*(*cand2));
 
       if (!confHits.empty()) {
@@ -90,7 +90,7 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(const std::vector<DTSegme
               badCand = (DAlpha1 > DAlpha2) ? (*cand) : (*cand2);
             }
 
-            for (DTSegmentCand::AssPointCont::const_iterator cHit = confHits.begin(); cHit != confHits.end(); ++cHit) {
+            for (auto cHit = confHits.begin(); cHit != confHits.end(); ++cHit) {
               badCand->removeHit(*cHit);
             }
 
@@ -105,7 +105,7 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(const std::vector<DTSegme
           if (((*cand)->t0() * (*cand2)->t0() != 0) || ((*cand)->t0() == (*cand2)->t0())) {
             DTSegmentCand* badCand = (**cand) < (**cand2) ? (*cand) : (*cand2);
             //cout << " Remove hits in " << (*badCand) << endl;
-            for (DTSegmentCand::AssPointCont::const_iterator cHit = confHits.begin(); cHit != confHits.end(); ++cHit)
+            for (auto cHit = confHits.begin(); cHit != confHits.end(); ++cHit)
               badCand->removeHit(*cHit);
           }
         }
@@ -113,12 +113,12 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(const std::vector<DTSegme
     }
   }
 
-  vector<DTSegmentCand*>::const_iterator cand = inputCands.begin();
+  auto cand = inputCands.begin();
   while (cand < inputCands.end()) {
     if ((*cand)->good())
       result.push_back(*cand);
     else {
-      vector<DTSegmentCand*>::const_iterator badCand = cand;
+      auto badCand = cand;
       delete *badCand;
     }
     ++cand;
@@ -128,8 +128,8 @@ vector<DTSegmentCand*> DTSegmentCleaner::solveConflict(const std::vector<DTSegme
 
 vector<DTSegmentCand*> DTSegmentCleaner::ghostBuster(const std::vector<DTSegmentCand*>& inputCands) const {
   vector<DTSegmentCand*> ghosts;
-  for (vector<DTSegmentCand*>::const_iterator cand = inputCands.begin(); cand != inputCands.end(); ++cand) {
-    for (vector<DTSegmentCand*>::const_iterator cand2 = cand + 1; cand2 != inputCands.end(); ++cand2) {
+  for (auto cand = inputCands.begin(); cand != inputCands.end(); ++cand) {
+    for (auto cand2 = cand + 1; cand2 != inputCands.end(); ++cand2) {
       unsigned int nSharedHits = (*cand)->nSharedHitPairs(*(*cand2));
       ///cout << "Sharing " << (**cand) << " " << (**cand2) << " " << nSharedHits
       //       << " (first or second) " << ((**cand)<(**cand2)) << endl;
@@ -162,9 +162,9 @@ vector<DTSegmentCand*> DTSegmentCleaner::ghostBuster(const std::vector<DTSegment
   }
 
   vector<DTSegmentCand*> result;
-  for (vector<DTSegmentCand*>::const_iterator cand = inputCands.begin(); cand != inputCands.end(); ++cand) {
+  for (auto cand = inputCands.begin(); cand != inputCands.end(); ++cand) {
     bool isGhost = false;
-    for (vector<DTSegmentCand*>::const_iterator ghost = ghosts.begin(); ghost != ghosts.end(); ++ghost) {
+    for (auto ghost = ghosts.begin(); ghost != ghosts.end(); ++ghost) {
       if ((*cand) == (*ghost)) {
         isGhost = true;
         break;

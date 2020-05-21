@@ -89,7 +89,7 @@ namespace {
 
 // ------------ method called to for each event  ------------
 void AbortOnEventIDAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const&) {
-  std::vector<edm::EventID>::iterator itFind = std::find_if(ids_.begin(), ids_.end(), CompareWithoutLumi(iEvent.id()));
+  auto itFind = std::find_if(ids_.begin(), ids_.end(), CompareWithoutLumi(iEvent.id()));
   if (itFind != ids_.end()) {
     if (throwException_) {
       throw cms::Exception("AbortEvent") << "Found event " << iEvent.id() << "\n";

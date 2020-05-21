@@ -136,7 +136,7 @@ void popcon::EcalChannelStatusHandler::nBadLaserModules(std::map<EcalLogicID, Mo
   EcalLogicID ecid_xt;
   MonLaserBlueDat rd_blue;
 
-  for (CImon p = dataset_mon.begin(); p != dataset_mon.end(); p++) {
+  for (auto p = dataset_mon.begin(); p != dataset_mon.end(); p++) {
     ecid_xt = p->first;
     int sm_num = ecid_xt.getID1();
     int xt_num = ecid_xt.getID2();
@@ -406,7 +406,7 @@ void popcon::EcalChannelStatusHandler::daqOut(const RunIOV& _myRun) {
   RunFEConfigDat rd_fe;
 
   int fe_conf_id = 0;
-  for (feConfIter p = feconfig.begin(); p != feconfig.end(); p++) {
+  for (auto p = feconfig.begin(); p != feconfig.end(); p++) {
     ecid_xt = p->first;
     rd_fe = p->second;
     fe_conf_id = rd_fe.getConfigId();
@@ -523,7 +523,7 @@ void popcon::EcalChannelStatusHandler::pedAnalysis(std::map<EcalLogicID, MonPede
   typedef std::map<EcalLogicID, MonPedestalsDat>::const_iterator CImon;
   MonPedestalsDat rd_ped;
 
-  for (CImon p = dataset_mon.begin(); p != dataset_mon.end(); p++) {
+  for (auto p = dataset_mon.begin(); p != dataset_mon.end(); p++) {
     uint16_t status_now = 0;
     ecid_xt = p->first;
     rd_ped = p->second;
@@ -630,7 +630,7 @@ void popcon::EcalChannelStatusHandler::pedAnalysis(std::map<EcalLogicID, MonPede
   typedef std::map<EcalLogicID, MonCrystalConsistencyDat>::const_iterator WGmonIter;
   MonCrystalConsistencyDat rd_wgain;
 
-  for (WGmonIter p = wrongGain_mon.begin(); p != wrongGain_mon.end(); p++) {
+  for (auto p = wrongGain_mon.begin(); p != wrongGain_mon.end(); p++) {
     ecid_xt = p->first;
     rd_wgain = p->second;
     int sm_num = ecid_xt.getID1();
@@ -697,7 +697,7 @@ void popcon::EcalChannelStatusHandler::laserAnalysis(std::map<EcalLogicID, MonLa
   EcalLogicID ecid_xt;
   MonLaserBlueDat rd_blue;
 
-  for (CImon p = dataset_mon.begin(); p != dataset_mon.end(); p++) {
+  for (auto p = dataset_mon.begin(); p != dataset_mon.end(); p++) {
     ecid_xt = p->first;
     int sm_num = ecid_xt.getID1();
     int xt_num = ecid_xt.getID2();
@@ -847,7 +847,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis(std::map<EcalLogicID, Mon
   // to be used after: total number of entries above high threshold
   float totEntriesAboveHighThrEB = 0.;
   float totEntriesAboveHighThrEE = 0.;
-  for (CImonOcc p = occupancy_mon.begin(); p != occupancy_mon.end(); p++) {
+  for (auto p = occupancy_mon.begin(); p != occupancy_mon.end(); p++) {
     ecid_xt = p->first;
     rd_occ = p->second;
     float highOcc = rd_occ.getEventsOverHighThreshold();
@@ -858,7 +858,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis(std::map<EcalLogicID, Mon
   }
 
   // A) creating the list of all bad channels: searching for problems based on pedestal online except gain zero
-  for (CImonPedO p = pedestalO_mon.begin(); p != pedestalO_mon.end(); p++) {
+  for (auto p = pedestalO_mon.begin(); p != pedestalO_mon.end(); p++) {
     bool isWrong = false;
     ecid_xt = p->first;
     rd_ped0 = p->second;
@@ -909,7 +909,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis(std::map<EcalLogicID, Mon
   }
 
   // B) creating the list of all bad channels: searching for channels at gain zero at least in 100 events
-  for (CImonCons p = wrongGain_mon.begin(); p != wrongGain_mon.end(); p++) {
+  for (auto p = wrongGain_mon.begin(); p != wrongGain_mon.end(); p++) {
     bool isWrong = false;
     ecid_xt = p->first;
     rd_wgain = p->second;
@@ -939,7 +939,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis(std::map<EcalLogicID, Mon
   }
 
   // C) creating the list of all bad channels: searching for channels with bad occupancy [ too high ]
-  for (CImonOcc p = occupancy_mon.begin(); p != occupancy_mon.end(); p++) {
+  for (auto p = occupancy_mon.begin(); p != occupancy_mon.end(); p++) {
     // logic id
     ecid_xt = p->first;
     int sm_num = ecid_xt.getID1();
@@ -980,7 +980,7 @@ void popcon::EcalChannelStatusHandler::cosmicsAnalysis(std::map<EcalLogicID, Mon
   }
 
   // D) creating the list of all bad channels: searching for channels with bad laser amplitude [among those covered by the calibration sequence]
-  for (CImonLaser p = laser_mon.begin(); p != laser_mon.end(); p++) {
+  for (auto p = laser_mon.begin(); p != laser_mon.end(); p++) {
     // logic id
     ecid_xt = p->first;
     int sm_num = ecid_xt.getID1();

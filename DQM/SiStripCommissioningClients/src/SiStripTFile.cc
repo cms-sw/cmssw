@@ -196,7 +196,7 @@ TDirectory* SiStripTFile::addPath(const std::string& path) {
 
   //update file
   TDirectory* child = gDirectory;
-  for (std::vector<std::string>::const_iterator dir = directories.begin(); dir != directories.end(); dir++) {
+  for (auto dir = directories.begin(); dir != directories.end(); dir++) {
     if (!dynamic_cast<TDirectory*>(child->Get(dir->c_str()))) {
       child = child->mkdir(dir->c_str());
       child->cd();
@@ -249,7 +249,7 @@ void SiStripTFile::dirContent(TDirectory* dir,
         TH1* his = dynamic_cast<TH1*>(dir->Get(obj->GetName()));
         if (his) {
           bool found = false;
-          std::vector<TH1*>::iterator ihis = (*histos)[std::string(dir->GetPath())].begin();
+          auto ihis = (*histos)[std::string(dir->GetPath())].begin();
           for (; ihis != (*histos)[std::string(dir->GetPath())].end(); ihis++) {
             if ((*ihis)->GetName() == his->GetName()) {
               found = true;

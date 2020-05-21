@@ -94,7 +94,7 @@ void DTDAQInfo::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     }
 
     // loop on all active feds
-    for (vector<int>::const_iterator fed = fedInIDs.begin(); fed != fedInIDs.end(); ++fed) {
+    for (auto fed = fedInIDs.begin(); fed != fedInIDs.end(); ++fed) {
       // check if the fed is in the DT range
       if (!(*fed >= FEDIDmin && *fed <= FEDIDMax))
         continue;

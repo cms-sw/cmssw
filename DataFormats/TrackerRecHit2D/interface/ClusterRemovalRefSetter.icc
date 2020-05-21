@@ -34,11 +34,11 @@ void ClusterRemovalRefSetter::reKey(TrackingRecHit *hit) const {
     } else if (type == typeid(SiStripRecHit1D)) {
       reKeyStrip(reinterpret_cast<SiStripRecHit1D *>(hit)->omniCluster());
     } else if (type == typeid(SiStripMatchedRecHit2D)) {
-      SiStripMatchedRecHit2D *mhit = reinterpret_cast<SiStripMatchedRecHit2D *>(hit);
+      auto *mhit = reinterpret_cast<SiStripMatchedRecHit2D *>(hit);
       reKeyStrip(mhit->monoClusterRef());
       reKeyStrip(mhit->stereoClusterRef());
     } else if (type == typeid(ProjectedSiStripRecHit2D)) {
-      ProjectedSiStripRecHit2D *phit = reinterpret_cast<ProjectedSiStripRecHit2D *>(hit);
+      auto *phit = reinterpret_cast<ProjectedSiStripRecHit2D *>(hit);
       reKeyStrip(phit->originalHit().omniCluster());
     } else
       throw cms::Exception("Unknown RecHit Type")

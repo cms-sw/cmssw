@@ -103,7 +103,7 @@ public:
 
     //find the subDirectory requested:
     SubDirectory* subDirectoryToUse = nullptr;
-    SubDirectories::iterator subDirectoryFindIterator = currentSetOfSubDirectories.find(subDir);
+    auto subDirectoryFindIterator = currentSetOfSubDirectories.find(subDir);
 
     //not found? insert a new directory with this name
     if (subDirectoryFindIterator == currentSetOfSubDirectories.end()) {
@@ -116,16 +116,16 @@ public:
       }
 
       //create a copy from the master copy
-      DirectoryHistos::iterator masterHistogramIterator = master_.begin();
-      DirectoryHistos::iterator masterHistogramIterator_end = master_.end();
+      auto masterHistogramIterator = master_.begin();
+      auto masterHistogramIterator_end = master_.end();
       for (; masterHistogramIterator != masterHistogramIterator_end; ++masterHistogramIterator) {
         //clone does not book histogram
         insertedDir.histos[masterHistogramIterator->first] = masterHistogramIterator->second->clone();
       }
 
       //book all copies of the histos
-      DirectoryHistos::iterator clonedHistogramIterator = insertedDir.histos.begin();
-      DirectoryHistos::iterator clonedHistogramIterator_end = insertedDir.histos.end();
+      auto clonedHistogramIterator = insertedDir.histos.begin();
+      auto clonedHistogramIterator_end = insertedDir.histos.end();
       for (; clonedHistogramIterator != clonedHistogramIterator_end; ++clonedHistogramIterator) {
         clonedHistogramIterator->second->book(insertedDir.dir);
       }
@@ -134,8 +134,8 @@ public:
     }
 
     //now that you have the subdirectory: fill histograms for this sub directory
-    DirectoryHistos::iterator histogramIterator = subDirectoryToUse->histos.begin();
-    DirectoryHistos::iterator histogramIterator_end = subDirectoryToUse->histos.end();
+    auto histogramIterator = subDirectoryToUse->histos.begin();
+    auto histogramIterator_end = subDirectoryToUse->histos.end();
     for (; histogramIterator != histogramIterator_end; ++histogramIterator) {
       histogramIterator->second->fill(iEvent);
     }
@@ -168,18 +168,18 @@ public:
   void complete() override {
     //loop over all subdirectories and call complete() on all ConfigurableHistograms
 
-    Directories::iterator dir_It = directories_.begin();
-    Directories::iterator dir_It_end = directories_.end();
+    auto dir_It = directories_.begin();
+    auto dir_It_end = directories_.end();
     // loop directories
     for (; dir_It != dir_It_end; ++dir_It) {
       Directory& currentDirectory = dir_It->second;
       SubDirectories& currentSetOfSubDirectories = currentDirectory.subDir;
-      SubDirectories::iterator subDir_It = currentSetOfSubDirectories.begin();
-      SubDirectories::iterator subDir_It_end = currentSetOfSubDirectories.end();
+      auto subDir_It = currentSetOfSubDirectories.begin();
+      auto subDir_It_end = currentSetOfSubDirectories.end();
       //loop subdirectories
       for (; subDir_It != subDir_It_end; ++subDir_It) {
-        DirectoryHistos::iterator histogramIterator = subDir_It->second.histos.begin();
-        DirectoryHistos::iterator histogramIterator_end = subDir_It->second.histos.end();
+        auto histogramIterator = subDir_It->second.histos.begin();
+        auto histogramIterator_end = subDir_It->second.histos.end();
         //loop configurable histograms
         for (; histogramIterator != histogramIterator_end; ++histogramIterator) {
           histogramIterator->second->complete();

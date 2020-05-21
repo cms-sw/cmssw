@@ -48,7 +48,7 @@ vector<CosmicLayerTriplets::LayerPairAndLayers> CosmicLayerTriplets::layers() {
   return result;
 }
 CosmicLayerTriplets::~CosmicLayerTriplets() {
-  for (vector<LayerWithHits*>::const_iterator it = allLayersWithHits.begin(); it != allLayersWithHits.end(); it++) {
+  for (auto it = allLayersWithHits.begin(); it != allLayersWithHits.end(); it++) {
     delete *it;
   }
 }
@@ -68,7 +68,7 @@ void CosmicLayerTriplets::init(const SiStripRecHit2DCollection& collstereo,
   iSetup.get<TrackerTopologyRcd>().get(httopo);
   const TrackerTopology& ttopo = *httopo;
 
-  for (vector<LayerWithHits*>::const_iterator it = allLayersWithHits.begin(); it != allLayersWithHits.end(); it++) {
+  for (auto it = allLayersWithHits.begin(); it != allLayersWithHits.end(); it++) {
     delete *it;
   }
 

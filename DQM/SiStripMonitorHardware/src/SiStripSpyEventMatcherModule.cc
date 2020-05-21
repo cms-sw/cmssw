@@ -138,7 +138,7 @@ namespace sistrip {
         if (buffer.trackerSpecialHeader().headerType() != HEADER_TYPE_FULL_DEBUG) {
           continue;
         }
-        const FEDFullDebugHeader* header = dynamic_cast<const FEDFullDebugHeader*>(buffer.feHeader());
+        const auto* header = dynamic_cast<const FEDFullDebugHeader*>(buffer.feHeader());
         auto connections = cabling.fedConnections(*iFedId);
         for (auto iConn = connections.begin(); iConn != connections.end(); ++iConn) {
           if (!iConn->isConnected()) {

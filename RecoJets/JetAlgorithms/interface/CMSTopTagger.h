@@ -180,7 +180,7 @@ inline PseudoJet CMSTopTagger::result(const PseudoJet& jet) const {
     non_W = join(subjets[2], *rec);
   }
   PseudoJet result = join<CMSTopTaggerStructure>(W, non_W, *rec);
-  CMSTopTaggerStructure* s = (CMSTopTaggerStructure*)result.structure_non_const_ptr();
+  auto* s = (CMSTopTaggerStructure*)result.structure_non_const_ptr();
   s->_cos_theta_w = _cos_theta_W(result);
 
   // Note that we could perhaps ensure this cut before constructing

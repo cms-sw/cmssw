@@ -171,7 +171,7 @@ void Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
     // energy
     CaloNavigator<DetId> navigator(it->id(), topology_p);
     DetId seedId = navigator.pos();
-    EcalRecHitCollection::const_iterator seedIt = hits->find(seedId);
+    auto seedIt = hits->find(seedId);
     navigator.setHome(seedId);
 
     // Is the seed a local maximum?
@@ -239,7 +239,7 @@ void Multi5x5ClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
 
   std::vector<std::pair<DetId, float> >::iterator it;
   for (it = current_v.begin(); it != current_v.end(); it++) {
-    EcalRecHitCollection::const_iterator itt = hits->find((*it).first);
+    auto itt = hits->find((*it).first);
     EcalRecHit hit_p = *itt;
     energy += hit_p.energy();
     //chi2 += 0;
@@ -283,7 +283,7 @@ void Multi5x5ClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
 bool Multi5x5ClusterAlgo::checkMaxima(CaloNavigator<DetId>& navigator, const EcalRecHitCollection* hits) {
   bool maxima = true;
   EcalRecHitCollection::const_iterator thisHit;
-  EcalRecHitCollection::const_iterator seedHit = hits->find(navigator.pos());
+  auto seedHit = hits->find(navigator.pos());
   double seedEnergy = seedHit->energy();
 
   std::vector<DetId> swissCrossVec;
@@ -309,7 +309,7 @@ bool Multi5x5ClusterAlgo::checkMaxima(CaloNavigator<DetId>& navigator, const Eca
     // the recHit has to be skipped in the local maximum search if it was found
     // in the map of channels to be excluded
     uint32_t rhFlag = thisHit->recoFlag();
-    std::vector<int>::const_iterator vit = std::find(v_chstatus_.begin(), v_chstatus_.end(), rhFlag);
+    auto vit = std::find(v_chstatus_.begin(), v_chstatus_.end(), rhFlag);
     if (vit != v_chstatus_.end())
       continue;
 
@@ -374,7 +374,7 @@ void Multi5x5ClusterAlgo::prepareCluster(CaloNavigator<DetId>& navigator,
 }
 
 void Multi5x5ClusterAlgo::addCrystal(const DetId& det) {
-  EcalRecHitCollection::const_iterator thisIt = recHits_->find(det);
+  auto thisIt = recHits_->find(det);
   if ((thisIt != recHits_->end()) && (thisIt->id() != DetId(0))) {
     if ((used_s.find(thisIt->id()) == used_s.end())) {
       //std::cout << "   ... this is a good crystal and will be added" << std::endl;

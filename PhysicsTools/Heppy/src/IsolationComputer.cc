@@ -119,11 +119,11 @@ float heppy::IsolationComputer::isoSumRaw(const std::vector<const pat::PackedCan
   }
 
   typedef std::vector<const pat::PackedCandidate *>::const_iterator IT;
-  IT candsbegin = std::lower_bound(cands.begin(), cands.end(), cand.eta() - dR, ByEta());
-  IT candsend = std::upper_bound(candsbegin, cands.end(), cand.eta() + dR, ByEta());
+  auto candsbegin = std::lower_bound(cands.begin(), cands.end(), cand.eta() - dR, ByEta());
+  auto candsend = std::upper_bound(candsbegin, cands.end(), cand.eta() + dR, ByEta());
 
   double isosum = 0;
-  for (IT icharged = candsbegin; icharged < candsend; ++icharged) {
+  for (auto icharged = candsbegin; icharged < candsend; ++icharged) {
     // pdgId
     if (pdgId > 0 && abs((*icharged)->pdgId()) != pdgId)
       continue;
@@ -163,15 +163,15 @@ float heppy::IsolationComputer::isoSumNeutralsWeighted(
   }
 
   typedef std::vector<const pat::PackedCandidate *>::const_iterator IT;
-  IT charged_begin = std::lower_bound(charged_.begin(), charged_.end(), cand.eta() - dR - weightCone_, ByEta());
-  IT charged_end = std::upper_bound(charged_begin, charged_.end(), cand.eta() + dR + weightCone_, ByEta());
-  IT pileup_begin = std::lower_bound(pileup_.begin(), pileup_.end(), cand.eta() - dR - weightCone_, ByEta());
-  IT pileup_end = std::upper_bound(pileup_begin, pileup_.end(), cand.eta() + dR + weightCone_, ByEta());
-  IT neutral_begin = std::lower_bound(neutral_.begin(), neutral_.end(), cand.eta() - dR, ByEta());
-  IT neutral_end = std::upper_bound(neutral_begin, neutral_.end(), cand.eta() + dR, ByEta());
+  auto charged_begin = std::lower_bound(charged_.begin(), charged_.end(), cand.eta() - dR - weightCone_, ByEta());
+  auto charged_end = std::upper_bound(charged_begin, charged_.end(), cand.eta() + dR + weightCone_, ByEta());
+  auto pileup_begin = std::lower_bound(pileup_.begin(), pileup_.end(), cand.eta() - dR - weightCone_, ByEta());
+  auto pileup_end = std::upper_bound(pileup_begin, pileup_.end(), cand.eta() + dR + weightCone_, ByEta());
+  auto neutral_begin = std::lower_bound(neutral_.begin(), neutral_.end(), cand.eta() - dR, ByEta());
+  auto neutral_end = std::upper_bound(neutral_begin, neutral_.end(), cand.eta() + dR, ByEta());
 
   double isosum = 0.0;
-  for (IT ineutral = neutral_begin; ineutral < neutral_end; ++ineutral) {
+  for (auto ineutral = neutral_begin; ineutral < neutral_end; ++ineutral) {
     // pdgId
     if (pdgId > 0 && abs((*ineutral)->pdgId()) != pdgId)
       continue;
@@ -190,7 +190,7 @@ float heppy::IsolationComputer::isoSumNeutralsWeighted(
     float &w = weights_[ineutral - neutral_.begin()];
     if (w == -1.f) {
       double sumc = 0, sump = 0.0;
-      for (IT icharged = charged_begin; icharged < charged_end; ++icharged) {
+      for (auto icharged = charged_begin; icharged < charged_end; ++icharged) {
         float hisdr2 = std::max<float>(reco::deltaR2(**icharged, **ineutral), 0.01f);
         if (hisdr2 > weightCone2)
           continue;
@@ -199,7 +199,7 @@ float heppy::IsolationComputer::isoSumNeutralsWeighted(
         }
         sumc += std::log((*icharged)->pt() / std::sqrt(hisdr2));
       }
-      for (IT ipileup = pileup_begin; ipileup < pileup_end; ++ipileup) {
+      for (auto ipileup = pileup_begin; ipileup < pileup_end; ++ipileup) {
         float hisdr2 = std::max<float>(reco::deltaR2(**ipileup, **ineutral), 0.01f);
         if (hisdr2 > weightCone2)
           continue;

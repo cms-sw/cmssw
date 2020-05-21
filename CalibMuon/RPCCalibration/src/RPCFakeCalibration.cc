@@ -35,9 +35,7 @@ RPCStripNoises *RPCFakeCalibration::makeNoise() {
   }
 
   RPCStripNoises::NoiseItem tipoprova;
-  for (std::map<uint32_t, std::vector<float>>::iterator it = (theRPCCalibSetUp->_mapDetIdNoise).begin();
-       it != (theRPCCalibSetUp->_mapDetIdNoise).end();
-       ++it) {
+  for (auto it = (theRPCCalibSetUp->_mapDetIdNoise).begin(); it != (theRPCCalibSetUp->_mapDetIdNoise).end(); ++it) {
     tipoprova.dpid = it->first;
     tipoprova.time = theRPCCalibSetUp->getTime(it->first);
 
@@ -55,9 +53,7 @@ RPCClusterSize *RPCFakeCalibration::makeCls() {
   RPCClusterSize *obj = new RPCClusterSize();
   RPCClusterSize::ClusterSizeItem rpcClsItem;
 
-  for (std::map<uint32_t, std::vector<double>>::iterator it = (theRPCCalibSetUp->_mapDetClsMap).begin();
-       it != (theRPCCalibSetUp->_mapDetClsMap).end();
-       ++it) {
+  for (auto it = (theRPCCalibSetUp->_mapDetClsMap).begin(); it != (theRPCCalibSetUp->_mapDetClsMap).end(); ++it) {
     rpcClsItem.dpid = it->first;
 
     for (unsigned int k = 0; k < 100; k++) {

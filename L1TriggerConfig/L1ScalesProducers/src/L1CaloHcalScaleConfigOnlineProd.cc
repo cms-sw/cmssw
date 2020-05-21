@@ -164,8 +164,8 @@ std::unique_ptr<L1CaloHcalScale> L1CaloHcalScaleConfigOnlineProd::newObject(cons
   channelStrings.push_back("OUTPUT_LUT_THRESHOLD");
   channelStrings.push_back("OBJECTNAME");
 
-  std::vector<std::string>::const_iterator it = channelStrings.begin();
-  std::vector<std::string>::const_iterator end = channelStrings.end();
+  auto it = channelStrings.begin();
+  auto end = channelStrings.end();
   for (; it != end; ++it) {
     query->addToOutputList(*it);
   }

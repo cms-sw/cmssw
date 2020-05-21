@@ -39,7 +39,7 @@ namespace lumi {
     //
     //std::cout<<"retrieving data for run "<<runnumber<<std::endl;
     std::string fakehltkey("/cdaq/Cosmic/V12");
-    coral::ConnectionService* svc = new coral::ConnectionService;
+    auto* svc = new coral::ConnectionService;
     lumi::DBConfig dbconf(*svc);
     if (!m_authpath.empty()) {
       dbconf.setAuthentication(m_authpath);

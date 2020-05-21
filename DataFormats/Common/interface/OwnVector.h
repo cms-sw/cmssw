@@ -467,8 +467,8 @@ namespace edm {
 
   template <typename T, typename P>
   inline void OwnVector<T, P>::destroy() noexcept {
-    typename base::const_iterator b = data_.begin(), e = data_.end();
-    for (typename base::const_iterator i = b; i != e; ++i)
+    auto b = data_.begin(), e = data_.end();
+    for (auto i = b; i != e; ++i)
       delete *i;
   }
 
@@ -522,7 +522,7 @@ namespace edm {
     pointers.reserve(numElements);
     helpers.reserve(numElements);
     size_type key = 0;
-    for (typename base::const_iterator i = data_.begin(), e = data_.end(); i != e; ++i, ++key) {
+    for (auto i = data_.begin(), e = data_.end(); i != e; ++i, ++key) {
       if (*i == nullptr) {
         Exception::throwThis(errors::NullPointerError,
                              "In OwnVector::fillView() we have intercepted an attempt to put a null pointer\n"

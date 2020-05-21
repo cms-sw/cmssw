@@ -8,8 +8,8 @@ const TwoBodyDecayParameters TwoBodyDecayLinearizationPointFinder::getLinearizat
     const double primaryMass,
     const double secondaryMass) const {
   GlobalPoint linPoint = tracks[0]->linearizationPoint();
-  PerigeeLinearizedTrackState *linTrack1 = dynamic_cast<PerigeeLinearizedTrackState *>(tracks[0].get());
-  PerigeeLinearizedTrackState *linTrack2 = dynamic_cast<PerigeeLinearizedTrackState *>(tracks[1].get());
+  auto *linTrack1 = dynamic_cast<PerigeeLinearizedTrackState *>(tracks[0].get());
+  auto *linTrack2 = dynamic_cast<PerigeeLinearizedTrackState *>(tracks[1].get());
   if (!linTrack1 || !linTrack2)
     return TwoBodyDecayParameters();
 

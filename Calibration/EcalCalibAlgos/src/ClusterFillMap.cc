@@ -23,7 +23,7 @@ void ClusterFillMap::fillMap(const std::vector<std::pair<DetId, float> >& v1,
                              const EcalRecHitCollection* endcapHitsCollection,
                              std::map<int, double>& xtlMap,
                              double& pSubtract) {
-  for (std::vector<std::pair<DetId, float> >::const_iterator idsIt = v1.begin(); idsIt != v1.end(); ++idsIt) {
+  for (auto idsIt = v1.begin(); idsIt != v1.end(); ++idsIt) {
     int RegionNumber = m_xtalRegionId[Max.rawId()];
     EcalRecHitCollection::const_iterator itrechit;
     double dummy = 0.;

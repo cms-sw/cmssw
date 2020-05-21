@@ -194,7 +194,7 @@ namespace edm {
                                       std::string name) const {
     // std::cerr << "Calling apply rules with protocol: " << protocol << "\n destination: " << destination << "\n " << " on name " << name << std::endl;
 
-    ProtocolRules::const_iterator const rulesIterator = protocolRules.find(protocol);
+    auto const rulesIterator = protocolRules.find(protocol);
     if (rulesIterator == protocolRules.end()) {
       return "";
     }
@@ -205,7 +205,7 @@ namespace edm {
     std::smatch nameMatches;
 
     /* Look up for a matching rule*/
-    for (Rules::const_iterator i = rules.begin(); i != rules.end(); ++i) {
+    for (auto i = rules.begin(); i != rules.end(); ++i) {
       if (!std::regex_match(destination, destinationMatches, i->destinationMatch)) {
         continue;
       }

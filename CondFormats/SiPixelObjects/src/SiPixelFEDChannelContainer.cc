@@ -19,7 +19,7 @@ void SiPixelFEDChannelContainer::setScenario(const std::string &theScenarioId,
 //****************************************************************************//
 SiPixelFEDChannelContainer::SiPixelFEDChannelCollection SiPixelFEDChannelContainer::getSiPixelBadFedChannels(
     const std::string &theScenarioId) const {
-  SiPixelBadFEDChannelsScenarioMap::const_iterator it = m_scenarioMap.find(theScenarioId);
+  auto it = m_scenarioMap.find(theScenarioId);
 
   if (it != m_scenarioMap.end()) {
     return it->second;
@@ -32,7 +32,7 @@ SiPixelFEDChannelContainer::SiPixelFEDChannelCollection SiPixelFEDChannelContain
 //****************************************************************************//
 const SiPixelFEDChannelContainer::SiPixelFEDChannelCollection &SiPixelFEDChannelContainer::getSiPixelBadFedChannels(
     const std::string &theScenarioId) {
-  SiPixelBadFEDChannelsScenarioMap::const_iterator it = m_scenarioMap.find(theScenarioId);
+  auto it = m_scenarioMap.find(theScenarioId);
 
   if (it != m_scenarioMap.end()) {
     return it->second;
@@ -45,13 +45,13 @@ const SiPixelFEDChannelContainer::SiPixelFEDChannelCollection &SiPixelFEDChannel
 //****************************************************************************//
 const std::vector<PixelFEDChannel> &SiPixelFEDChannelContainer::getSiPixelBadFedChannelsInDetId(
     const std::string &theScenarioId, DetId theDetId) {
-  SiPixelBadFEDChannelsScenarioMap::const_iterator it = m_scenarioMap.find(theScenarioId);
+  auto it = m_scenarioMap.find(theScenarioId);
 
   if (it == m_scenarioMap.end()) {
     throw cms::Exception("SiPixelFEDChannelContainer")
         << "No Bad Pixel FEDChannels defined for Scenario id: " << theScenarioId << "\n";
   } else {
-    SiPixelFEDChannelCollection::const_iterator it2 = (it->second).find(theDetId);
+    auto it2 = (it->second).find(theDetId);
 
     if (it2 == (it->second).end()) {
       throw cms::Exception("SiPixelFEDChannelContainer")
@@ -64,7 +64,7 @@ const std::vector<PixelFEDChannel> &SiPixelFEDChannelContainer::getSiPixelBadFed
 //****************************************************************************//
 std::unique_ptr<PixelFEDChannelCollection> SiPixelFEDChannelContainer::getDetSetBadPixelFedChannels(
     const std::string &theScenarioId) const {
-  SiPixelBadFEDChannelsScenarioMap::const_iterator it = m_scenarioMap.find(theScenarioId);
+  auto it = m_scenarioMap.find(theScenarioId);
 
   if (it == m_scenarioMap.end()) {
     throw cms::Exception("SiPixelFEDChannelContainer")

@@ -48,7 +48,7 @@ void DimuonMCMatcher::produce(edm::Event& evt, const edm::EventSetup&) {
       mc1 = mu1->genParticleRef();
       //     if (mc1.isNonnull()) cout << "DimuonMCMatcher> genParticleRef1 " << mc1->pdgId() << endl;
     } else {
-      const pat::GenericParticle* gp1 = dynamic_cast<const pat::GenericParticle*>(c1);
+      const auto* gp1 = dynamic_cast<const pat::GenericParticle*>(c1);
       if (gp1 == nullptr)
         throw Exception(errors::InvalidReference)
             << "first of two daughter is neither a pat::Muon not pat::GenericParticle\n";
@@ -61,7 +61,7 @@ void DimuonMCMatcher::produce(edm::Event& evt, const edm::EventSetup&) {
       mc2 = mu2->genParticleRef();
       //      if (mc2.isNonnull()) cout << "DimuonMCMatcher> genParticleRef2 " << mc2->pdgId() << endl;
     } else {
-      const pat::GenericParticle* gp2 = dynamic_cast<const pat::GenericParticle*>(c2);
+      const auto* gp2 = dynamic_cast<const pat::GenericParticle*>(c2);
       if (gp2 == nullptr)
         throw Exception(errors::InvalidReference)
             << "first of two daughter is neither a pat::Muon not pat::GenericParticle\n";

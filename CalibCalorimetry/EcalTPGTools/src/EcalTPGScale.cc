@@ -29,7 +29,7 @@ double EcalTPGScale::getTPGInGeV(unsigned int ADC, const EcalTrigTowerDetId& tow
 
   uint32_t eb = DetId(DetId::Ecal, EcalBarrel).rawId();
   uint32_t ee = DetId(DetId::Ecal, EcalEndcap).rawId();
-  EcalTPGPhysicsConstMapIterator it = physMap.end();
+  auto it = physMap.end();
   if (towerId.subDet() == EcalBarrel)
     it = physMap.find(eb);
   else if (towerId.subDet() == EcalEndcap)
@@ -51,7 +51,7 @@ unsigned int EcalTPGScale::getLinearizedTPG(unsigned int ADC, const EcalTrigTowe
   edm::ESHandle<EcalTPGLutGroup> lutGrpHandle;
   setup_->get<EcalTPGLutGroupRcd>().get(lutGrpHandle);
   const EcalTPGGroups::EcalTPGGroupsMap& lutGrpMap = lutGrpHandle.product()->getMap();
-  EcalTPGGroups::EcalTPGGroupsMapItr itgrp = lutGrpMap.find(towerId.rawId());
+  auto itgrp = lutGrpMap.find(towerId.rawId());
   uint32_t lutGrp = 999;
   if (itgrp != lutGrpMap.end())
     lutGrp = itgrp->second;
@@ -59,7 +59,7 @@ unsigned int EcalTPGScale::getLinearizedTPG(unsigned int ADC, const EcalTrigTowe
   edm::ESHandle<EcalTPGLutIdMap> lutMapHandle;
   setup_->get<EcalTPGLutIdMapRcd>().get(lutMapHandle);
   const EcalTPGLutIdMap::EcalTPGLutMap& lutMap = lutMapHandle.product()->getMap();
-  EcalTPGLutIdMap::EcalTPGLutMapItr itLut = lutMap.find(lutGrp);
+  auto itLut = lutMap.find(lutGrp);
   if (itLut != lutMap.end()) {
     const unsigned int* lut = (itLut->second).getLut();
     for (unsigned int i = 0; i < 1024; i++)
@@ -82,7 +82,7 @@ unsigned int EcalTPGScale::getTPGInADC(double energy, const EcalTrigTowerDetId& 
 
   uint32_t eb = DetId(DetId::Ecal, EcalBarrel).rawId();
   uint32_t ee = DetId(DetId::Ecal, EcalEndcap).rawId();
-  EcalTPGPhysicsConstMapIterator it = physMap.end();
+  auto it = physMap.end();
   if (towerId.subDet() == EcalBarrel)
     it = physMap.find(eb);
   else if (towerId.subDet() == EcalEndcap)
@@ -97,7 +97,7 @@ unsigned int EcalTPGScale::getTPGInADC(double energy, const EcalTrigTowerDetId& 
   edm::ESHandle<EcalTPGLutGroup> lutGrpHandle;
   setup_->get<EcalTPGLutGroupRcd>().get(lutGrpHandle);
   const EcalTPGGroups::EcalTPGGroupsMap& lutGrpMap = lutGrpHandle.product()->getMap();
-  EcalTPGGroups::EcalTPGGroupsMapItr itgrp = lutGrpMap.find(towerId);
+  auto itgrp = lutGrpMap.find(towerId);
   uint32_t lutGrp = 0;
   if (itgrp != lutGrpMap.end())
     lutGrp = itgrp->second;
@@ -105,7 +105,7 @@ unsigned int EcalTPGScale::getTPGInADC(double energy, const EcalTrigTowerDetId& 
   edm::ESHandle<EcalTPGLutIdMap> lutMapHandle;
   setup_->get<EcalTPGLutIdMapRcd>().get(lutMapHandle);
   const EcalTPGLutIdMap::EcalTPGLutMap& lutMap = lutMapHandle.product()->getMap();
-  EcalTPGLutIdMap::EcalTPGLutMapItr itLut = lutMap.find(lutGrp);
+  auto itLut = lutMap.find(lutGrp);
   if (itLut != lutMap.end()) {
     const unsigned int* lut = (itLut->second).getLut();
     if (lsb10bits > 0) {

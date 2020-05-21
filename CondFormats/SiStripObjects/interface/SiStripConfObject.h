@@ -46,7 +46,7 @@ public:
   /// otherwise true.
   template <class valueType>
   bool update(const std::string& name, const valueType& inputValue) {
-    parMap::iterator it = parameters.find(name);
+    auto it = parameters.find(name);
     if (it == parameters.end()) {
       std::cout << "WARNING in SiStripConfObject::update: parameter " << name << " not found, "
                 << "so cannot be updated to '" << inputValue << "'." << std::endl;
@@ -62,7 +62,7 @@ public:
   template <class valueType>
   valueType get(const std::string& name) const {
     valueType returnValue = 0;
-    parMap::const_iterator it = parameters.find(name);
+    auto it = parameters.find(name);
     std::stringstream ss;
     if (it != parameters.end()) {
       ss << it->second;

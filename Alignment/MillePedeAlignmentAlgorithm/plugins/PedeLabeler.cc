@@ -44,7 +44,7 @@ unsigned int PedeLabeler::alignableLabel(Alignable* alignable) const {
   if (!alignable)
     return 0;
 
-  AlignableToIdMap::const_iterator position = theAlignableToIdMap.find(alignable);
+  auto position = theAlignableToIdMap.find(alignable);
   if (position != theAlignableToIdMap.end()) {
     return position->second;
   } else {
@@ -68,7 +68,7 @@ unsigned int PedeLabeler::alignableLabelFromParamAndInstance(Alignable* alignabl
 
 //_________________________________________________________________________
 unsigned int PedeLabeler::lasBeamLabel(unsigned int lasBeamId) const {
-  UintUintMap::const_iterator position = theLasBeamToLabelMap.find(lasBeamId);
+  auto position = theLasBeamToLabelMap.find(lasBeamId);
   if (position != theLasBeamToLabelMap.end()) {
     return position->second;
   } else {
@@ -109,12 +109,12 @@ Alignable* PedeLabeler::alignableFromLabel(unsigned int label) const {
   if (aliLabel < theMinLabel)
     return nullptr;  // error already given
 
-  IdToAlignableMap::const_iterator position = theIdToAlignableMap.find(aliLabel);
+  auto position = theIdToAlignableMap.find(aliLabel);
   if (position != theIdToAlignableMap.end()) {
     return position->second;
   } else {
     // error only if not in lasBeamMap:
-    UintUintMap::const_iterator position = theLabelToLasBeamMap.find(aliLabel);
+    auto position = theLabelToLasBeamMap.find(aliLabel);
     if (position == theLabelToLasBeamMap.end()) {
       edm::LogError("LogicError") << "@SUB=PedeLabeler::alignableFromLabel"
                                   << "Alignable label " << aliLabel << " not in map.";
@@ -129,7 +129,7 @@ unsigned int PedeLabeler::lasBeamIdFromLabel(unsigned int label) const {
   if (aliLabel < theMinLabel)
     return 0;  // error already given
 
-  UintUintMap::const_iterator position = theLabelToLasBeamMap.find(aliLabel);
+  auto position = theLabelToLasBeamMap.find(aliLabel);
   if (position != theLabelToLasBeamMap.end()) {
     return position->second;
   } else {

@@ -10,7 +10,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 void DaqScopeModeSummaryFactory::extract(Iterator iter) {
-  DaqScopeModeAnalysis* anal = dynamic_cast<DaqScopeModeAnalysis*>(iter->second);
+  auto* anal = dynamic_cast<DaqScopeModeAnalysis*>(iter->second);
   if (!anal) {
     return;
   }

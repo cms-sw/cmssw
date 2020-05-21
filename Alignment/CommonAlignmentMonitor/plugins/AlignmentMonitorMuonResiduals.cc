@@ -1755,13 +1755,13 @@ void AlignmentMonitorMuonResiduals::event(const edm::Event &iEvent,
                                           const ConstTrajTrackPairCollection &tracks) {
   TrajectoryStateCombiner tsoscomb;
 
-  for (ConstTrajTrackPairCollection::const_iterator it = tracks.begin(); it != tracks.end(); ++it) {
+  for (auto it = tracks.begin(); it != tracks.end(); ++it) {
     const Trajectory *traj = it->first;
     //      const reco::Track *track = it->second;
 
     std::vector<TrajectoryMeasurement> measurements = traj->measurements();
 
-    for (std::vector<TrajectoryMeasurement>::const_iterator im = measurements.begin(); im != measurements.end(); ++im) {
+    for (auto im = measurements.begin(); im != measurements.end(); ++im) {
       const TrajectoryMeasurement meas = *im;
       const TransientTrackingRecHit *hit = &(*meas.recHit());
       const DetId id = hit->geographicalId();

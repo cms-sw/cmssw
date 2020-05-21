@@ -40,7 +40,7 @@ std::vector<EventRecords> RPCRecordFormatter::recordPack(uint32_t rawDetId, cons
   RPCReadOutMapping::StripInDetUnit duFrame(rawDetId, stripInDU);
   RawDataFrames rawDataFrames = readoutMapping->rawDataFrame(duFrame);
 
-  for (RawDataFrames::const_iterator ir = rawDataFrames.begin(); ir != rawDataFrames.end(); ir++) {
+  for (auto ir = rawDataFrames.begin(); ir != rawDataFrames.end(); ir++) {
     const LinkBoardElectronicIndex& eleIndex = (*ir).first;
     const LinkBoardPackedStrip& lbPackedStrip = (*ir).second;
 
@@ -113,7 +113,7 @@ int RPCRecordFormatter::recordUnpack(const EventRecords& event,
     return error.type();
   }
 
-  for (std::vector<int>::iterator is = packStrips.begin(); is != packStrips.end(); ++is) {
+  for (auto is = packStrips.begin(); is != packStrips.end(); ++is) {
     RPCReadOutMapping::StripInDetUnit duFrame = readoutMapping->detUnitFrame(*linkBoard, LinkBoardPackedStrip(*is));
 
     uint32_t rawDetId = duFrame.first;

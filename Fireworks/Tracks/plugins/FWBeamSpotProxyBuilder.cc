@@ -39,8 +39,8 @@ void FWBeamSpotProxyBuilder::localModelChanges(const FWModelId& iId,
                                                const FWViewContext* vc) {
   if (TEveStraightLineSet* ls = dynamic_cast<TEveStraightLineSet*>(*parent->BeginChildren())) {
     Color_t c = FWProxyBuilderBase::item()->modelInfo(iId.index()).displayProperties().color();
-    for (TEveProjectable::ProjList_i j = ls->BeginProjecteds(); j != ls->EndProjecteds(); ++j) {
-      if (TEveStraightLineSet* pls = dynamic_cast<TEveStraightLineSet*>(*j)) {
+    for (auto j = ls->BeginProjecteds(); j != ls->EndProjecteds(); ++j) {
+      if (auto* pls = dynamic_cast<TEveStraightLineSet*>(*j)) {
         pls->SetMarkerColor(c);
         pls->ElementChanged();
       }
@@ -55,7 +55,7 @@ void FWBeamSpotProxyBuilder::build(const reco::BeamSpot& bs,
                                    unsigned int iIndex,
                                    TEveElement& oItemHolder,
                                    const FWViewContext*) {
-  TEveStraightLineSet* ls = new TEveStraightLineSet();
+  auto* ls = new TEveStraightLineSet();
 
   double pos[3] = {bs.x0(), bs.y0(), bs.z0()};
   double e[3] = {bs.x0Error(), bs.y0Error(), bs.z0Error()};

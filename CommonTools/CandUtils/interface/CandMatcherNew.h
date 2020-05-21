@@ -43,7 +43,7 @@ namespace reco {
 
     template <typename C>
     CandMatcher<C>::CandMatcher(const typename CandMatcher<C>::map_vector &maps) : map_() {
-      for (typename map_vector::const_iterator i = maps.begin(); i != maps.end(); ++i)
+      for (auto i = maps.begin(); i != maps.end(); ++i)
         map_ += **i;
     }
 

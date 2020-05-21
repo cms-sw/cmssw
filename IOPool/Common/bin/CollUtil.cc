@@ -274,8 +274,7 @@ namespace edm {
     unsigned long nEvents = 0;
     unsigned long runID = 0;
     unsigned long lumiID = 0;
-    for (std::vector<FileIndex::Element>::const_iterator it = fileIndex.begin(), itEnd = fileIndex.end(); it != itEnd;
-         ++it) {
+    for (auto it = fileIndex.begin(), itEnd = fileIndex.end(); it != itEnd; ++it) {
       if (it->getEntryType() == FileIndex::kEvent) {
         ++nEvents;
       } else if (it->getEntryType() == FileIndex::kLumi) {

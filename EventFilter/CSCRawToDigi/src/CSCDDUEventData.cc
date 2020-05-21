@@ -179,7 +179,7 @@ void CSCDDUEventData::unpack_data(const uint16_t* buf, CSCDCCExaminer* examiner)
     DDUIdType dduID = theDDUHeader.source_id();
 
     std::map<DDUIdType, std::map<CSCIdType, const uint16_t*> > ddus = examiner->DMB_block();
-    std::map<DDUIdType, std::map<CSCIdType, const uint16_t*> >::iterator ddu_itr = ddus.find(dduID);
+    auto ddu_itr = ddus.find(dduID);
     const uint16_t* dduBlock = (const uint16_t*)((examiner->DDU_block())[dduID]);
     uint32_t dduBufSize = (examiner->DDU_size())[dduID];
 

@@ -27,7 +27,7 @@ void MeasurementDistancemeter3dim::calculateSimulatedValue(ALIbool firstTime) {
     printStartCalculateSimulatedValue(this);  // important for Examples/FakeMeas
 
   //---------- Loop list of OptO that take part in measurement
-  std::vector<OpticalObject*>::const_iterator vocite = OptOList().begin();
+  auto vocite = OptOList().begin();
   if (ALIUtils::debug >= 5)
     std::cout << "OptOList size" << OptOList().size() << std::endl;
 

@@ -91,12 +91,12 @@ void PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   typedef std::vector<std::unique_ptr<TrackingRegion> > Regions;
   typedef Regions::const_iterator IR;
   Regions regions = theRegionProducer->regions(e, es);
-  for (IR ir = regions.begin(), irEnd = regions.end(); ir < irEnd; ++ir) {
+  for (auto ir = regions.begin(), irEnd = regions.end(); ir < irEnd; ++ir) {
     const TrackingRegion& region = **ir;
 
     // Loop over the seeds
-    TrajectorySeedCollection::const_iterator aSeed = theSeeds->begin();
-    TrajectorySeedCollection::const_iterator lastSeed = theSeeds->end();
+    auto aSeed = theSeeds->begin();
+    auto lastSeed = theSeeds->end();
     for (; aSeed != lastSeed; ++aSeed) {
       // Find the first hit and last hit of the Seed
       TrajectorySeed::range theSeedingRecHitRange = aSeed->recHits();

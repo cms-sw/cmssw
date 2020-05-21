@@ -34,7 +34,7 @@ HLTHiggsPlotter::HLTHiggsPlotter(const edm::ParameterSet &pset,
       _parametersTurnOn(pset.getParameter<std::vector<double> >("parametersTurnOn")),
       _NptPlots(NptPlots),
       _NminOneCuts(NminOneCuts) {
-  for (std::set<unsigned int>::iterator it = _objectsType.begin(); it != _objectsType.end(); ++it) {
+  for (auto it = _objectsType.begin(); it != _objectsType.end(); ++it) {
     // Some parameters extracted from the .py
     std::string objStr = EVTColContainer::getTypeString(*it);
     _cutMinPt[*it] = pset.getParameter<double>(std::string(objStr + "_cutMinPt").c_str());
@@ -49,7 +49,7 @@ void HLTHiggsPlotter::beginJob() {}
 void HLTHiggsPlotter::beginRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {}
 
 void HLTHiggsPlotter::bookHistograms(DQMStore::IBooker &ibooker, const bool &useNminOneCuts) {
-  for (std::set<unsigned int>::iterator it = _objectsType.begin(); it != _objectsType.end(); ++it) {
+  for (auto it = _objectsType.begin(); it != _objectsType.end(); ++it) {
     std::vector<std::string> sources(2);
     sources[0] = "gen";
     sources[1] = "rec";
@@ -104,7 +104,7 @@ void HLTHiggsPlotter::analyze(const bool &isPassTrigger,
   }
   std::map<unsigned int, int> countobjects;
   // Initializing the count of the used object
-  for (std::set<unsigned int>::iterator co = _objectsType.begin(); co != _objectsType.end(); ++co) {
+  for (auto co = _objectsType.begin(); co != _objectsType.end(); ++co) {
     countobjects[*co] = 0;
   }
 
@@ -165,7 +165,7 @@ void HLTHiggsPlotter::analyze(const bool &isPassTrigger,
   }
   std::map<unsigned int, int> countobjects;
   // Initializing the count of the used object
-  for (std::set<unsigned int>::iterator co = _objectsType.begin(); co != _objectsType.end(); ++co) {
+  for (auto co = _objectsType.begin(); co != _objectsType.end(); ++co) {
     if (!(*co == EVTColContainer::PFJET && source == "gen"))  // genJets are not there
       countobjects[*co] = 0;
   }

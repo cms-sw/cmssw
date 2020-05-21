@@ -115,7 +115,7 @@ void HighPtTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::EventS
   Handle<TrackCollection> tkTracks;
   iEvent.getByToken(inputCollectionToken_, tkTracks);
   std::unique_ptr<DetIdCollection> interestingDetIdCollection(new DetIdCollection());
-  for (TrackCollection::const_iterator itTrack = tkTracks->begin(); itTrack != tkTracks->end(); ++itTrack) {
+  for (auto itTrack = tkTracks->begin(); itTrack != tkTracks->end(); ++itTrack) {
     if (itTrack->pt() > ptcut_) {
       TrackDetMatchInfo info =
           trackAssociator_.associate(iEvent, iSetup, *itTrack, parameters_, TrackDetectorAssociator::InsideOut);
@@ -128,7 +128,7 @@ void HighPtTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::EventS
         const CaloSubdetectorTopology* topology =
             caloTopology_->getSubdetectorTopology(DetId::Ecal, centerId.subdetId());
         const std::vector<DetId>& ids = topology->getWindow(centerId, 5, 5);
-        for (std::vector<DetId>::const_iterator id = ids.begin(); id != ids.end(); ++id)
+        for (auto id = ids.begin(); id != ids.end(); ++id)
           if (std::find(interestingDetIdCollection->begin(), interestingDetIdCollection->end(), *id) ==
               interestingDetIdCollection->end())
             interestingDetIdCollection->push_back(*id);

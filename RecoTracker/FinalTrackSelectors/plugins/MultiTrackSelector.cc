@@ -262,7 +262,7 @@ void MultiTrackSelector::run(edm::Event& evt, const edm::EventSetup& es) const {
 
     // Loop over tracks
     size_t current = 0;
-    for (TrackCollection::const_iterator it = srcTracks.begin(), ed = srcTracks.end(); it != ed; ++it, ++current) {
+    for (auto it = srcTracks.begin(), ed = srcTracks.end(); it != ed; ++it, ++current) {
       const Track& trk = *it;
       // Check if this track passes cuts
 
@@ -449,7 +449,7 @@ bool MultiTrackSelector::select(unsigned int tsNum,
   }
 
   int iv = 0;
-  for (std::vector<Point>::const_iterator point = points.begin(), end = points.end(); point != end; ++point) {
+  for (auto point = points.begin(), end = points.end(); point != end; ++point) {
     LogTrace("TrackSelection") << "Test track w.r.t. vertex with z position " << point->z();
     if (primaryVertexZCompatibility && primaryVertexD0Compatibility)
       break;
@@ -507,7 +507,7 @@ void MultiTrackSelector::selectVertices(unsigned int tsNum,
   // Select good primary vertices
   using namespace reco;
   int32_t toTake = vtxNumber_[tsNum];
-  for (VertexCollection::const_iterator it = vtxs.begin(), ed = vtxs.end(); it != ed; ++it) {
+  for (auto it = vtxs.begin(), ed = vtxs.end(); it != ed; ++it) {
     LogDebug("SelectVertex") << " select vertex with z position " << it->z() << " " << it->chi2() << " " << it->ndof()
                              << " " << TMath::Prob(it->chi2(), static_cast<int32_t>(it->ndof()));
     Vertex vtx = *it;
@@ -564,7 +564,7 @@ void MultiTrackSelector::processMVA(edm::Event& evt,
     return;
 
   size_t current = 0;
-  for (TrackCollection::const_iterator it = srcTracks.begin(), ed = srcTracks.end(); it != ed; ++it, ++current) {
+  for (auto it = srcTracks.begin(), ed = srcTracks.end(); it != ed; ++it, ++current) {
     const Track& trk = *it;
     RefToBase<Track> trackRef(rtbpTrackCollection, current);
     auto tmva_ndof_ = trk.ndof();

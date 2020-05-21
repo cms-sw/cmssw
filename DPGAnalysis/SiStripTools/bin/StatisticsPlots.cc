@@ -178,7 +178,7 @@ TGraphAsymmErrors* SummaryHistoRatioGraph(
   TH1D* denom = SummaryHisto(f1, mod1);
   TH1D* numer = SummaryHisto(f2, mod2);
 
-  TGraphAsymmErrors* ratio = new TGraphAsymmErrors;
+  auto* ratio = new TGraphAsymmErrors;
   ;
 
   ratio->BayesDivide(numer, denom);

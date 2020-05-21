@@ -126,11 +126,11 @@ reco::isodeposit::AbsVeto *IsoDepositVetoFactory::make(const char *string,
   } else if (regex_match(string, match, numCrystalEtaPhi)) {
     return new NumCrystalEtaPhiVeto(Direction(), atof(match[1].first), atof(match[2].first));
   } else if (regex_match(string, match, otherCandidatesDR)) {
-    OtherCandidatesDeltaRVeto *ret = new OtherCandidatesDeltaRVeto(edm::InputTag(match[1]), atof(match[2].first), iC);
+    auto *ret = new OtherCandidatesDeltaRVeto(edm::InputTag(match[1]), atof(match[2].first), iC);
     evdep = ret;
     return ret;
   } else if (regex_match(string, match, otherJetConstituentsDR)) {
-    OtherJetConstituentsDeltaRVeto *ret = new OtherJetConstituentsDeltaRVeto(
+    auto *ret = new OtherJetConstituentsDeltaRVeto(
         Direction(), edm::InputTag(match[1]), atof(match[2].first), edm::InputTag(match[3]), atof(match[4].first), iC);
     evdep = ret;
     return ret;

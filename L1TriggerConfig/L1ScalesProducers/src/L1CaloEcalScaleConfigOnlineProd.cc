@@ -271,7 +271,7 @@ std::unique_ptr<L1CaloEcalScale> L1CaloEcalScaleConfigOnlineProd::newObject(cons
         if (!EcalTrigTowerDetId::validDetId(zside, subdet, ieta, iphi))
           continue;
         EcalTrigTowerDetId test(zside, subdet, ieta, iphi);
-        EcalTPGGroups::EcalTPGGroupsMapItr itLut = gMap.find(test);
+        auto itLut = gMap.find(test);
         if (itLut != gMap.end()) {
           //	     std::cout << " non mapped section iphi " << iphi << " ieta " <<ieta << " tccid " << theMapping_->TCCid(test) << " iTT " << theMapping_->iTT(test)<< std::endl;
           std::vector<int> tpgValue = tpgValueMap[itLut->second];

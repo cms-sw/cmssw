@@ -114,7 +114,7 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
     double EL = 0;
     // look for long partner
     HcalDetId neighbor(HcalForward, ieta, iphi, 1);
-    HFRecHitCollection::const_iterator neigh = rec.find(neighbor);
+    auto neigh = rec.find(neighbor);
     if (neigh != rec.end())
       EL = neigh->energy();
 
@@ -144,7 +144,7 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
 
       // Look to see if neighbor is in rechit collection
       HcalDetId neighbor(HcalForward, i, testphi, d);
-      HFRecHitCollection::const_iterator neigh = rec.find(neighbor);
+      auto neigh = rec.find(neighbor);
       // require that neighbor exists, and that it doesn't have a prior flag already set
       if (neigh != rec.end()) {
         const uint32_t chanstat = myqual->getValues(neighbor)->getValue();
@@ -172,7 +172,7 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
         testphi -= 72;
       // Look to see if neighbor is in rechit collection
       HcalDetId neighbor(HcalForward, ieta, testphi, d);
-      HFRecHitCollection::const_iterator neigh = rec.find(neighbor);
+      auto neigh = rec.find(neighbor);
       if (neigh != rec.end()) {
         const uint32_t chanstat = myqual->getValues(neighbor)->getValue();
         int SeverityLevel = mySeverity->getSeverityLevel(neighbor, neigh->flags(), chanstat);
@@ -187,7 +187,7 @@ void HcalHF_S9S1algorithm::HFSetFlagFromS9S1(HFRecHit& hf,
     for (int d = 1; d <= 2; ++d)  // add cells from both depths!
     {
       HcalDetId neighbor(HcalForward, 39 * abs(ieta) / ieta, (iphi + 2) % 72, d);
-      HFRecHitCollection::const_iterator neigh = rec.find(neighbor);
+      auto neigh = rec.find(neighbor);
       if (neigh != rec.end()) {
         const uint32_t chanstat = myqual->getValues(neighbor)->getValue();
         int SeverityLevel = mySeverity->getSeverityLevel(neighbor, neigh->flags(), chanstat);

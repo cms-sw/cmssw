@@ -128,7 +128,7 @@ BoundDisk* TIDLayer::computeDisk(const vector<const TIDRing*>& rings) const {
   float theZmin = rings.front()->position().z() - rings.front()->surface().bounds().thickness() / 2;
   float theZmax = rings.front()->position().z() + rings.front()->surface().bounds().thickness() / 2;
 
-  for (vector<const TIDRing*>::const_iterator i = rings.begin(); i != rings.end(); i++) {
+  for (auto i = rings.begin(); i != rings.end(); i++) {
     float rmin = (**i).specificSurface().innerRadius();
     float rmax = (**i).specificSurface().outerRadius();
     float zmin = (**i).position().z() - (**i).surface().bounds().thickness() / 2.;

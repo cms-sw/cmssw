@@ -282,8 +282,7 @@ void EcalABAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
   // Decode DCCHeader Information
   // =============================
 
-  for (EcalRawDataCollection::const_iterator headerItr = DCCHeader->begin(); headerItr != DCCHeader->end();
-       ++headerItr) {
+  for (auto headerItr = DCCHeader->begin(); headerItr != DCCHeader->end(); ++headerItr) {
     // Get run type and run number
 
     int fed = headerItr->fedId();
@@ -316,7 +315,7 @@ void EcalABAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) {
     if (color < 0)
       return;
 
-    std::vector<int>::iterator iter = find(colors.begin(), colors.end(), color);
+    auto iter = find(colors.begin(), colors.end(), color);
     if (iter == colors.end()) {
       colors.push_back(color);
     }

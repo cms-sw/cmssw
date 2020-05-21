@@ -82,7 +82,7 @@ bool HLTMonoJetFilter<T>::hltFilter(edm::Event& iEvent,
     double jet2Phi = 0.;
     double jet2Pt = 0.;
 
-    typename TCollection::const_iterator i(objects->begin());
+    auto i(objects->begin());
     for (; i != objects->end(); i++) {
       if (countJet == 0) {
         ref1 = TRef(objects, distance(objects->begin(), i));

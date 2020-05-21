@@ -76,8 +76,7 @@ void RawDataConverter::GetDigis(const edm::Event& iEvent) {
   disk = 0;
   do {
     // Find the module in the DetSetVector and get a pointer (iterator) to it
-    typename edm::DetSetVector<Digitype>::const_iterator theModule =
-        detSetVector->find(detectorId.GetTECEntry(det, ring, beam, disk));
+    auto theModule = detSetVector->find(detectorId.GetTECEntry(det, ring, beam, disk));
 
     if (theModule != detSetVector->end()) {
       // loop over all the Digis in this Module
@@ -96,8 +95,7 @@ void RawDataConverter::GetDigis(const edm::Event& iEvent) {
   pos = 0;  // <- set det = 2 (TIB)
   do {
     // Find the module in the DetSetVector and get a pointer (iterator) to it
-    typename edm::DetSetVector<Digitype>::const_iterator theModule =
-        detSetVector->find(detectorId.GetTIBTOBEntry(det, beam, pos));
+    auto theModule = detSetVector->find(detectorId.GetTIBTOBEntry(det, beam, pos));
 
     if (theModule != detSetVector->end()) {
       // loop over all the Digis in this Module
@@ -116,8 +114,7 @@ void RawDataConverter::GetDigis(const edm::Event& iEvent) {
   disk = 0;
   do {
     // Find the module in the DetSetVector and get a pointer (iterator) to it
-    typename edm::DetSetVector<Digitype>::const_iterator theModule =
-        detSetVector->find(detectorId.GetTEC2TECEntry(det, beam, disk));
+    auto theModule = detSetVector->find(detectorId.GetTEC2TECEntry(det, beam, disk));
 
     if (theModule != detSetVector->end()) {
       // loop over all the Digis in this Module

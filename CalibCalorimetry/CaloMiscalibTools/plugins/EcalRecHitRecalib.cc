@@ -67,7 +67,7 @@ void EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     EBRecHitCollection::const_iterator itb;
     for (itb = EBRecHits->begin(); itb != EBRecHits->end(); ++itb) {
       // find intercalib constant for this xtal
-      EcalIntercalibConstantMap::const_iterator icalit = ical->getMap().find(itb->id().rawId());
+      auto icalit = ical->getMap().find(itb->id().rawId());
       EcalIntercalibConstant icalconst = -1;
 
       if (icalit != ical->getMap().end()) {
@@ -93,7 +93,7 @@ void EcalRecHitRecalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     EERecHitCollection::const_iterator ite;
     for (ite = EERecHits->begin(); ite != EERecHits->end(); ++ite) {
       // find intercalib constant for this xtal
-      EcalIntercalibConstantMap::const_iterator icalit = ical->getMap().find(ite->id().rawId());
+      auto icalit = ical->getMap().find(ite->id().rawId());
       EcalIntercalibConstant icalconst = -1;
 
       if (icalit != ical->getMap().end()) {

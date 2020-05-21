@@ -246,8 +246,7 @@ int OutsideInMuonSeeder::doLayer(const GeometricSearchDet &layer,
   }
 
   std::vector<TrajectoryMeasurement> meas;
-  for (std::vector<GeometricSearchDet::DetWithState>::const_iterator it = dets.begin(), ed = dets.end(); it != ed;
-       ++it) {
+  for (auto it = dets.begin(), ed = dets.end(); it != ed; ++it) {
     MeasurementDetWithData det = measurementTracker.idToDet(it->first->geographicalId());
     if (det.isNull()) {
       std::cerr << "BOGUS detid " << it->first->geographicalId().rawId() << std::endl;
@@ -260,15 +259,14 @@ int OutsideInMuonSeeder::doLayer(const GeometricSearchDet &layer,
     if (debug_)
       LogDebug("OutsideInMuonSeeder") << "Query on detector " << it->first->geographicalId().rawId() << " returned "
                                       << mymeas.size() << " measurements." << std::endl;
-    for (std::vector<TrajectoryMeasurement>::const_iterator it2 = mymeas.begin(), ed2 = mymeas.end(); it2 != ed2;
-         ++it2) {
+    for (auto it2 = mymeas.begin(), ed2 = mymeas.end(); it2 != ed2; ++it2) {
       if (it2->recHit()->isValid())
         meas.push_back(*it2);
     }
   }
   int found = 0;
   std::sort(meas.begin(), meas.end(), TrajMeasLessEstim());
-  for (std::vector<TrajectoryMeasurement>::const_iterator it2 = meas.begin(), ed2 = meas.end(); it2 != ed2; ++it2) {
+  for (auto it2 = meas.begin(), ed2 = meas.end(); it2 != ed2; ++it2) {
     if (debug_) {
       LogDebug("OutsideInMuonSeeder") << "  inspecting Hit with chi2 = " << it2->estimate() << std::endl;
       LogDebug("OutsideInMuonSeeder") << "        track state     " << it2->forwardPredictedState().globalPosition()

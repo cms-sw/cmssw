@@ -51,8 +51,7 @@ const pat::ParticleStatus CaloJetSelector::filter(  //const unsigned int&       
 
   //calculate tower related variables:
   double MaxEnergyTower = 0., SumTowPt = 0., SumTowPtR = 0.;
-  for (std::vector<CaloTowerPtr>::const_iterator tow = jetTowers.begin(), towend = jetTowers.end(); tow != towend;
-       ++tow) {
+  for (auto tow = jetTowers.begin(), towend = jetTowers.end(); tow != towend; ++tow) {
     SumTowPt += (*tow)->et();
     SumTowPtR += (*tow)->et() * deltaR(Jet.p4().Eta(), Jet.p4().Phi(), (*tow)->eta(), (*tow)->phi());
     if ((*tow)->et() > MaxEnergyTower)

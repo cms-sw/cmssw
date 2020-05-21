@@ -272,7 +272,7 @@ void EcalSelectiveReadoutProducer::printTTFlags(const EcalTrigPrimDigiCollection
   //}
 
   vector<vector<int> > ttf(nEta, vector<int>(nPhi, -1));
-  for (EcalTrigPrimDigiCollection::const_iterator it = tp.begin(); it != tp.end(); ++it) {
+  for (auto it = tp.begin(); it != tp.end(); ++it) {
     const EcalTriggerPrimitiveDigi& trigPrim = *it;
     if (trigPrim.size() > 0) {
       int iEta = trigPrim.id().ieta();
@@ -423,7 +423,7 @@ void EcalSelectiveReadoutProducer::printSrFlags(ostream& os,
   int eeSrf[nEndcaps][nScX][nScY];
   for (size_t i = 0; i < sizeof(eeSrf) / sizeof(int); ((int*)eeSrf)[i++] = -1) {
   };
-  for (EESrFlagCollection::const_iterator it = eeSrFlags.begin(); it != eeSrFlags.end(); ++it) {
+  for (auto it = eeSrFlags.begin(); it != eeSrFlags.end(); ++it) {
     const EESrFlag& flag = *it;
     int iZ0 = flag.id().zside() > 0 ? 1 : 0;
     int iX0 = flag.id().ix() - 1;
@@ -440,7 +440,7 @@ void EcalSelectiveReadoutProducer::printSrFlags(ostream& os,
   int ebSrf[nEbTtEta][nTtPhi];
   for (size_t i = 0; i < sizeof(ebSrf) / sizeof(int); ((int*)ebSrf)[i++] = -1) {
   };
-  for (EBSrFlagCollection::const_iterator it = ebSrFlags.begin(); it != ebSrFlags.end(); ++it) {
+  for (auto it = ebSrFlags.begin(); it != ebSrFlags.end(); ++it) {
     const EBSrFlag& flag = *it;
     int iEta = flag.id().ieta();
     int iEta0 = iEta + nTtEta / 2 - (iEta >= 0 ? 1 : 0);  //0->55 from eta=-3 to eta=3

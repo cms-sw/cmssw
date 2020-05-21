@@ -42,11 +42,11 @@ void CocoaDaqRootEvent::DumpIt() {
   // Dump to screen all Alignment info
   Header->DumpIt();
   for (int i = 0; i < numPosCOPS; i++) {
-    AliDaqPositionCOPS* posCOPS = (AliDaqPositionCOPS*)Array_PositionCOPS->At(i);
+    auto* posCOPS = (AliDaqPositionCOPS*)Array_PositionCOPS->At(i);
     posCOPS->DumpIt(posCOPS->GetID());
   }
   for (int i = 0; i < numPos2D; i++) {
-    AliDaqPosition2D* pos2D = (AliDaqPosition2D*)Array_Position2D->At(i);
+    auto* pos2D = (AliDaqPosition2D*)Array_Position2D->At(i);
     pos2D->DumpIt(pos2D->GetID());
   }
   for (int i = 0; i < numTilt; i++) {
@@ -58,7 +58,7 @@ void CocoaDaqRootEvent::DumpIt() {
     dist->DumpIt(dist->GetID());
   }
   for (int i = 0; i < numTemp; i++) {
-    AliDaqTemperature* temp = (AliDaqTemperature*)Array_Temp->At(i);
+    auto* temp = (AliDaqTemperature*)Array_Temp->At(i);
     temp->DumpIt(temp->GetID());
   }
 }

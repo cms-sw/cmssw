@@ -69,7 +69,7 @@ namespace reco {
         using namespace std;
         string decay(cfg.getParameter<string>("decay"));
         if (decayParser(decay, labels_))
-          for (vector<ConjInfo>::iterator label = labels_.begin(); label != labels_.end(); ++label)
+          for (auto label = labels_.begin(); label != labels_.end(); ++label)
             if (label->mode_ == ConjInfo::kPlus)
               dauCharge_.push_back(1);
             else if (label->mode_ == ConjInfo::kMinus)
@@ -153,7 +153,7 @@ namespace reco {
 
         std::unique_ptr<OutputCollection> out = combiner_.combine(colls, names_.roles());
         if (setLongLived_ || setMassConstraint_ || setPdgId_) {
-          typename OutputCollection::iterator i = out->begin(), e = out->end();
+          auto i = out->begin(), e = out->end();
           for (; i != e; ++i) {
             names_.set(*i);
             if (setLongLived_)

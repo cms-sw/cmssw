@@ -62,7 +62,7 @@ unsigned int L1TOccupancyClientHistogramService::getNBinsHistogram(string iHistN
 //____________________________________________________________________________
 void L1TOccupancyClientHistogramService::setMaskedBins(string iHistName, const vector<ParameterSet>& iMaskedAreas) {
   TH2F* histo = mHistograms[iHistName].first;
-  vector<pair<int, int> >* m = new vector<pair<int, int> >();
+  auto* m = new vector<pair<int, int> >();
 
   if (mVerbose) {
     printf("Masked areas for: %s\n", iHistName.c_str());

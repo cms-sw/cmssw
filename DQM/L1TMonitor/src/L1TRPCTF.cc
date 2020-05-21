@@ -197,9 +197,9 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c) {
     brlAndFwdCands.push_back(RRItr->getFwdRPCCands());
 
     int beIndex = 0;
-    vector<vector<L1MuRegionalCand> >::iterator RPCTFCands = brlAndFwdCands.begin();
+    auto RPCTFCands = brlAndFwdCands.begin();
     for (; RPCTFCands != brlAndFwdCands.end(); ++RPCTFCands) {
-      for (vector<L1MuRegionalCand>::const_iterator ECItr = RPCTFCands->begin(); ECItr != RPCTFCands->end(); ++ECItr) {
+      for (auto ECItr = RPCTFCands->begin(); ECItr != RPCTFCands->end(); ++ECItr) {
         int bxindex = 1;  // bx == 0
         if (ECItr->bx() > 0)
           bxindex = 2;

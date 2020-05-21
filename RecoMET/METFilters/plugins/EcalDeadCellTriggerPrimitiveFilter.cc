@@ -344,17 +344,17 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double& tpValCu
   for (ebrechit = HitecalEB.begin(); ebrechit != HitecalEB.end(); ebrechit++) {
     EBDetId det = ebrechit->id();
 
-    std::map<DetId, vector<double> >::iterator valItor = EcalAllDeadChannelsValMap.find(det);
+    auto valItor = EcalAllDeadChannelsValMap.find(det);
     if (valItor == EcalAllDeadChannelsValMap.end())
       continue;
 
     double theta = valItor->second.back();
 
-    std::map<DetId, vector<int> >::iterator bitItor = EcalAllDeadChannelsBitMap.find(det);
+    auto bitItor = EcalAllDeadChannelsBitMap.find(det);
     if (bitItor == EcalAllDeadChannelsBitMap.end())
       continue;
 
-    std::map<DetId, EcalTrigTowerDetId>::iterator ttItor = EcalAllDeadChannelsTTMap.find(det);
+    auto ttItor = EcalAllDeadChannelsTTMap.find(det);
     if (ttItor == EcalAllDeadChannelsTTMap.end())
       continue;
 
@@ -381,8 +381,8 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double& tpValCu
 
       std::vector<DetId> vid = ttMap_->constituentsOf(ttDetId);
       int towerTestCnt = 0;
-      for (std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit) {
-        std::map<DetId, vector<int> >::iterator bit2Itor = EcalAllDeadChannelsBitMap.find((*dit));
+      for (auto dit = vid.begin(); dit != vid.end(); ++dit) {
+        auto bit2Itor = EcalAllDeadChannelsBitMap.find((*dit));
         if (bit2Itor == EcalAllDeadChannelsBitMap.end()) {
           towerTestCnt++;
           continue;
@@ -405,7 +405,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double& tpValCu
         continue;
       }
 
-      std::map<EcalTrigTowerDetId, double>::iterator ttetItor = accuTTetMap.find(ttDetId);
+      auto ttetItor = accuTTetMap.find(ttDetId);
       if (ttetItor == accuTTetMap.end()) {
         accuTTetMap[ttDetId] = ebrechit->energy() * sin(theta);
         accuTTchnMap[ttDetId] = 1;
@@ -421,17 +421,17 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double& tpValCu
   for (eerechit = HitecalEE.begin(); eerechit != HitecalEE.end(); eerechit++) {
     EEDetId det = eerechit->id();
 
-    std::map<DetId, vector<double> >::iterator valItor = EcalAllDeadChannelsValMap.find(det);
+    auto valItor = EcalAllDeadChannelsValMap.find(det);
     if (valItor == EcalAllDeadChannelsValMap.end())
       continue;
 
     double theta = valItor->second.back();
 
-    std::map<DetId, vector<int> >::iterator bitItor = EcalAllDeadChannelsBitMap.find(det);
+    auto bitItor = EcalAllDeadChannelsBitMap.find(det);
     if (bitItor == EcalAllDeadChannelsBitMap.end())
       continue;
 
-    std::map<DetId, EcalTrigTowerDetId>::iterator ttItor = EcalAllDeadChannelsTTMap.find(det);
+    auto ttItor = EcalAllDeadChannelsTTMap.find(det);
     if (ttItor == EcalAllDeadChannelsTTMap.end())
       continue;
 
@@ -459,8 +459,8 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double& tpValCu
 
       std::vector<DetId> vid = ttMap_->constituentsOf(ttDetId);
       int towerTestCnt = 0;
-      for (std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); ++dit) {
-        std::map<DetId, vector<int> >::iterator bit2Itor = EcalAllDeadChannelsBitMap.find((*dit));
+      for (auto dit = vid.begin(); dit != vid.end(); ++dit) {
+        auto bit2Itor = EcalAllDeadChannelsBitMap.find((*dit));
         if (bit2Itor == EcalAllDeadChannelsBitMap.end()) {
           towerTestCnt++;
           continue;
@@ -486,7 +486,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double& tpValCu
         continue;
       }
 
-      std::map<EcalScDetId, double>::iterator scetItor = accuSCetMap.find(sc);
+      auto scetItor = accuSCetMap.find(sc);
       if (scetItor == accuSCetMap.end()) {
         accuSCetMap[sc] = eerechit->energy() * sin(theta);
         accuSCchnMap[sc] = 1;
@@ -509,13 +509,13 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double& tpValCu
 
     double ttetVal = ttetItor->second;
 
-    std::map<EcalTrigTowerDetId, int>::iterator ttchnItor = accuTTchnMap.find(ttDetId);
+    auto ttchnItor = accuTTchnMap.find(ttDetId);
     if (ttchnItor == accuTTchnMap.end()) {
       edm::LogError("EcalDeadCellTriggerPrimitiveFilter")
           << "\nERROR  cannot find ttDetId : " << ttDetId << " in accuTTchnMap?!";
     }
 
-    std::map<EcalTrigTowerDetId, int>::iterator ttzsideItor = TTzsideMap.find(ttDetId);
+    auto ttzsideItor = TTzsideMap.find(ttDetId);
     if (ttzsideItor == TTzsideMap.end()) {
       edm::LogError("EcalDeadCellTriggerPrimitiveFilter")
           << "\nERROR  cannot find ttDetId : " << ttDetId << " in TTzsideMap?!";
@@ -538,13 +538,13 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtRecHitstatus(const double& tpValCu
 
     double scetVal = scetItor->second;
 
-    std::map<EcalScDetId, int>::iterator scchnItor = accuSCchnMap.find(scDetId);
+    auto scchnItor = accuSCchnMap.find(scDetId);
     if (scchnItor == accuSCchnMap.end()) {
       edm::LogError("EcalDeadCellTriggerPrimitiveFilter")
           << "\nERROR  cannot find scDetId : " << scDetId << " in accuSCchnMap?!";
     }
 
-    std::map<EcalScDetId, int>::iterator sczsideItor = SCzsideMap.find(scDetId);
+    auto sczsideItor = SCzsideMap.find(scDetId);
     if (sczsideItor == SCzsideMap.end()) {
       edm::LogError("EcalDeadCellTriggerPrimitiveFilter")
           << "\nERROR  cannot find scDetId : " << scDetId << " in SCzsideMap?!";
@@ -584,7 +584,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtTPstatus(EcalTrigPrimDigiCollectio
     if (!doEEfilter_ && subdet != 1)
       continue;
 
-    std::map<DetId, EcalTrigTowerDetId>::iterator ttItor = EcalAllDeadChannelsTTMap.find(maskedDetId);
+    auto ttItor = EcalAllDeadChannelsTTMap.find(maskedDetId);
     if (ttItor == EcalAllDeadChannelsTTMap.end())
       continue;
 
@@ -598,7 +598,7 @@ int EcalDeadCellTriggerPrimitiveFilter::setEvtTPstatus(EcalTrigPrimDigiCollectio
       EcalTrigTowerDetId ttDetId = ttItor->second;
       int ttzside = ttDetId.zside();
 
-      EcalTrigPrimDigiCollection::const_iterator tp = tpDigis.find(ttDetId);
+      auto tp = tpDigis.find(ttDetId);
       if (tp != tpDigis.end()) {
         double tpEt = ecalScale.getTPGInGeV(tp->compressedEt(), tp->id());
         if (tpEt >= tpValCut) {
@@ -626,7 +626,7 @@ int EcalDeadCellTriggerPrimitiveFilter::getChannelStatusMaps() {
         continue;
 
       const EBDetId detid = EBDetId(ieta, iphi, EBDetId::ETAPHIMODE);
-      EcalChannelStatus::const_iterator chit = ecalStatus->find(detid);
+      auto chit = ecalStatus->find(detid);
       // refer https://twiki.cern.ch/twiki/bin/viewauth/CMS/EcalChannelStatus
       int status = (chit != ecalStatus->end()) ? chit->getStatusCode() & 0x1F : -1;
 
@@ -663,7 +663,7 @@ int EcalDeadCellTriggerPrimitiveFilter::getChannelStatusMaps() {
             continue;
 
           const EEDetId detid = EEDetId(ix, iy, iz, EEDetId::XYMODE);
-          EcalChannelStatus::const_iterator chit = ecalStatus->find(detid);
+          auto chit = ecalStatus->find(detid);
           int status = (chit != ecalStatus->end()) ? chit->getStatusCode() & 0x1F : -1;
 
           const CaloSubdetectorGeometry* subGeom = geometry->getSubdetectorGeometry(detid);

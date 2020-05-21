@@ -52,7 +52,7 @@ void HLTExoticaValidator::dqmBeginRun(const edm::Run &iRun, const edm::EventSetu
   LogDebug("ExoticaValidation") << "In HLTExoticaValidator::dqmBeginRun()";
 
   // Call the Plotter beginRun (which stores the triggers paths..:)
-  for (std::vector<HLTExoticaSubAnalysis>::iterator iter = _analyzers.begin(); iter != _analyzers.end(); ++iter) {
+  for (auto iter = _analyzers.begin(); iter != _analyzers.end(); ++iter) {
     iter->beginRun(iRun, iSetup);
   }
 }
@@ -66,7 +66,7 @@ void HLTExoticaValidator::bookHistograms(DQMStore::IBooker &iBooker,
   // For this to work, I think we have to pass the iBooker to each of them.
   // I don't think we have any guarantee that this loop is executed
   // sequentially, but the booking with iBooker itself has such a guarantee.
-  for (std::vector<HLTExoticaSubAnalysis>::iterator iter = _analyzers.begin(); iter != _analyzers.end(); ++iter) {
+  for (auto iter = _analyzers.begin(); iter != _analyzers.end(); ++iter) {
     iter->subAnalysisBookHistos(iBooker, iRun, iSetup);
   }
 }
@@ -82,7 +82,7 @@ void HLTExoticaValidator::analyze(const edm::Event &iEvent, const edm::EventSetu
   // Initialize the event collections
   this->_collections->reset();
 
-  for (std::vector<HLTExoticaSubAnalysis>::iterator iter = _analyzers.begin(); iter != _analyzers.end(); ++iter) {
+  for (auto iter = _analyzers.begin(); iter != _analyzers.end(); ++iter) {
     iter->analyze(iEvent, iSetup, this->_collections);
   }
 }
@@ -90,7 +90,7 @@ void HLTExoticaValidator::analyze(const edm::Event &iEvent, const edm::EventSetu
 void HLTExoticaValidator::beginJob() { LogDebug("ExoticaValidation") << "In HLTExoticaValidator::beginJob()"; }
 
 void HLTExoticaValidator::dqmEndRun(const edm::Run &iRun, const edm::EventSetup &iSetup) {
-  for (std::vector<HLTExoticaSubAnalysis>::iterator iter = _analyzers.begin(); iter != _analyzers.end(); ++iter) {
+  for (auto iter = _analyzers.begin(); iter != _analyzers.end(); ++iter) {
     iter->endRun();
   }
 }

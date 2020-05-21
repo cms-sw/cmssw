@@ -68,7 +68,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject, bool retu
   double energySum = 0.;
   if (!caloHits_.empty()) {
     //Take the SC position
-    reco::SuperClusterRef sc = emObject->get<reco::SuperClusterRef>();
+    auto sc = emObject->get<reco::SuperClusterRef>();
     math::XYZPoint const& theCaloPosition = sc.get()->position();
     GlobalPoint pclu(theCaloPosition.x(), theCaloPosition.y(), theCaloPosition.z());
     float etaclus = pclu.eta();
@@ -83,10 +83,9 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject, bool retu
 
       CaloSubdetectorGeometry::DetIdSet chosen =
           subdet_[subdetnr]->getCells(pclu, extRadius_);  // select cells around cluster
-      EcalRecHitCollection::const_iterator j = caloHits_.end();
+      auto j = caloHits_.end();
 
-      for (CaloSubdetectorGeometry::DetIdSet::const_iterator i = chosen.begin(); i != chosen.end();
-           ++i) {                    //loop selected cells
+      for (auto i = chosen.begin(); i != chosen.end(); ++i) {  //loop selected cells
         j = caloHits_.find(*i);      // find selected cell among rechits
         if (j != caloHits_.end()) {  // add rechit only if available
           auto cell = theCaloGeom_->getGeometry(*i);
@@ -140,8 +139,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject, bool retu
 
           //std::cout << "detid " << j->detid() << std::endl;
           int severityFlag = ecalBarHits_ == nullptr ? -1 : sevLevel_->severityLevel(j->detid(), *ecalBarHits_);
-          std::vector<int>::const_iterator sit =
-              std::find(severitiesexcl_.begin(), severitiesexcl_.end(), severityFlag);
+          auto sit = std::find(severitiesexcl_.begin(), severitiesexcl_.end(), severityFlag);
 
           if (sit != severitiesexcl_.end())
             continue;
@@ -192,9 +190,8 @@ double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc, bool returnE
         continue;
       CaloSubdetectorGeometry::DetIdSet chosen =
           subdet_[subdetnr]->getCells(pclu, extRadius_);  // select cells around cluster
-      EcalRecHitCollection::const_iterator j = caloHits_.end();
-      for (CaloSubdetectorGeometry::DetIdSet::const_iterator i = chosen.begin(); i != chosen.end();
-           ++i) {  //loop selected cells
+      auto j = caloHits_.end();
+      for (auto i = chosen.begin(); i != chosen.end(); ++i) {  //loop selected cells
 
         j = caloHits_.find(*i);      // find selected cell among rechits
         if (j != caloHits_.end()) {  // add rechit only if available
@@ -246,8 +243,7 @@ double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc, bool returnE
           }  //end if removeClustered
 
           int severityFlag = sevLevel_->severityLevel(j->detid(), *ecalBarHits_);
-          std::vector<int>::const_iterator sit =
-              std::find(severitiesexcl_.begin(), severitiesexcl_.end(), severityFlag);
+          auto sit = std::find(severitiesexcl_.begin(), severitiesexcl_.end(), severityFlag);
 
           if (sit != severitiesexcl_.end())
             continue;

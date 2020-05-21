@@ -23,8 +23,7 @@ ThrParameters::ThrParameters(const EventSetup* eSetup) {
   // Ape are always filled even they're null
   ESHandle<AlignmentErrorsExtended> dtAlignmentErrorsExtended;
   eSetup->get<DTAlignmentErrorExtendedRcd>().get(dtAlignmentErrorsExtended);
-  for (std::vector<AlignTransformErrorExtended>::const_iterator it = dtAlignmentErrorsExtended->m_alignError.begin();
-       it != dtAlignmentErrorsExtended->m_alignError.end();
+  for (auto it = dtAlignmentErrorsExtended->m_alignError.begin(); it != dtAlignmentErrorsExtended->m_alignError.end();
        it++) {
     CLHEP::HepSymMatrix error = (*it).matrix();
     GlobalError glbErr(error[0][0], error[1][0], error[1][1], error[2][0], error[2][1], error[2][2]);
@@ -33,8 +32,7 @@ ThrParameters::ThrParameters(const EventSetup* eSetup) {
   }
   ESHandle<AlignmentErrorsExtended> cscAlignmentErrorsExtended;
   eSetup->get<CSCAlignmentErrorExtendedRcd>().get(cscAlignmentErrorsExtended);
-  for (std::vector<AlignTransformErrorExtended>::const_iterator it = cscAlignmentErrorsExtended->m_alignError.begin();
-       it != cscAlignmentErrorsExtended->m_alignError.end();
+  for (auto it = cscAlignmentErrorsExtended->m_alignError.begin(); it != cscAlignmentErrorsExtended->m_alignError.end();
        it++) {
     CLHEP::HepSymMatrix error = (*it).matrix();
     GlobalError glbErr(error[0][0], error[1][0], error[1][1], error[2][0], error[2][1], error[2][2]);

@@ -36,9 +36,7 @@ namespace edm {
 
       std::unique_ptr<std::vector<T> > pOutput(new std::vector<T>);
 
-      for (typename std::vector<edm::FwdPtr<T> >::const_iterator ibegin = hSrc->begin(), iend = hSrc->end(), i = ibegin;
-           i != iend;
-           ++i) {
+      for (auto ibegin = hSrc->begin(), iend = hSrc->end(), i = ibegin; i != iend; ++i) {
         H factory;
         T t = factory(*i);
         pOutput->push_back(t);

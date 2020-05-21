@@ -162,8 +162,7 @@ void TrackingMaterialAnalyser::analyze(const edm::Event& event, const edm::Event
   Handle<std::vector<MaterialAccountingTrack> > h_tracks;
   event.getByToken(m_materialToken, h_tracks);
 
-  for (std::vector<MaterialAccountingTrack>::const_iterator t = h_tracks->begin(), end = h_tracks->end(); t != end;
-       ++t) {
+  for (auto t = h_tracks->begin(), end = h_tracks->end(); t != end; ++t) {
     MaterialAccountingTrack track(*t);
     split(track);
   }

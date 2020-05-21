@@ -81,7 +81,7 @@ RecoTauCleanerImpl<Prod>::RecoTauCleanerImpl(const edm::ParameterSet& pset) {
   typedef std::vector<edm::ParameterSet> VPSet;
   // Get each of our tau builders
   const VPSet& cleaners = pset.getParameter<VPSet>("cleaners");
-  for (VPSet::const_iterator cleanerPSet = cleaners.begin(); cleanerPSet != cleaners.end(); ++cleanerPSet) {
+  for (auto cleanerPSet = cleaners.begin(); cleanerPSet != cleaners.end(); ++cleanerPSet) {
     auto cleanerEntry = std::make_unique<CleanerEntryType>();
     // Get plugin name
     const std::string& pluginType = cleanerPSet->getParameter<std::string>("plugin");
@@ -224,7 +224,7 @@ void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt, const edm::EventSetup& e
   }
 
   // Update all our cleaners with the event info if they need it
-  for (typename CleanerList::iterator cleaner = cleaners_.begin(); cleaner != cleaners_.end(); ++cleaner) {
+  for (auto cleaner = cleaners_.begin(); cleaner != cleaners_.end(); ++cleaner) {
     (*cleaner)->plugin_->setup(evt, es);
   }
 
@@ -241,7 +241,7 @@ void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt, const edm::EventSetup& e
     rankedTau->N_ = cleaners_.size();
     rankedTau->ranks_.reserve(rankedTau->N_);
     rankedTau->tolerances_.reserve(rankedTau->N_);
-    for (typename CleanerList::const_iterator cleaner = cleaners_.begin(); cleaner != cleaners_.end(); ++cleaner) {
+    for (auto cleaner = cleaners_.begin(); cleaner != cleaners_.end(); ++cleaner) {
       rankedTau->ranks_.push_back((*(*cleaner)->plugin_)(inputRef));
       rankedTau->tolerances_.push_back((*cleaner)->tolerance_);
     }
@@ -258,8 +258,7 @@ void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt, const edm::EventSetup& e
   typedef std::vector<reco::PFTauRef> PFTauRefs;
   PFTauRefs dirty(inputTaus->size());
   size_t idx_sorted = 0;
-  for (std::list<PFTauRankType*>::const_iterator rankedTau = rankedTaus.begin(); rankedTau != rankedTaus.end();
-       ++rankedTau) {
+  for (auto rankedTau = rankedTaus.begin(); rankedTau != rankedTaus.end(); ++rankedTau) {
     dirty[idx_sorted] = (*rankedTau)->tauRef_;
     if (verbosity_) {
       std::cout << "dirty[" << idx_sorted << "] = " << dirty[idx_sorted].id() << ":" << dirty[idx_sorted].key()
@@ -277,7 +276,7 @@ void RecoTauCleanerImpl<Prod>::produce(edm::Event& evt, const edm::EventSetup& e
   //output->reserve(cleanTaus.size());
 
   // Copy clean refs into output
-  for (PFTauRefs::const_iterator tau = cleanTaus.begin(); tau != cleanTaus.end(); ++tau) {
+  for (auto tau = cleanTaus.begin(); tau != cleanTaus.end(); ++tau) {
     // If we are applying an output selection, check if it passes
     bool selected = true;
     if (outputSelector_.get() && !(*outputSelector_)(**tau)) {

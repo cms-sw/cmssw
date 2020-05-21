@@ -35,7 +35,7 @@ public:
 
 protected:
   inline bool isEqual(const AbsHcalFunctor& other) const override {
-    const HcalChebyshevFunctor& r = static_cast<const HcalChebyshevFunctor&>(other);
+    const auto& r = static_cast<const HcalChebyshevFunctor&>(other);
     return coeffs_ == r.coeffs_ && xmin_ == r.xmin_ && xmax_ == r.xmax_ && outOfRangeValue_ == r.outOfRangeValue_;
   }
 

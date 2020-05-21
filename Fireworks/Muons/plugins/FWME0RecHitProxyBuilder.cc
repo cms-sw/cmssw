@@ -43,7 +43,7 @@ void FWME0RecHitProxyBuilder::buildViewType(const ME0RecHit& iData,
     return;
   }
 
-  TEveStraightLineSet* recHitSet = new TEveStraightLineSet;
+  auto* recHitSet = new TEveStraightLineSet;
   recHitSet->SetLineWidth(3);
 
   if (type == FWViewType::k3D || type == FWViewType::kISpy) {
@@ -73,7 +73,7 @@ void FWME0RecHitProxyBuilder::buildViewType(const ME0RecHit& iData,
   float globalV1[3];
   float globalV2[3];
 
-  FWGeometry::IdToInfoItr det = geom->find(rawid);
+  auto det = geom->find(rawid);
 
   geom->localToGlobal(*det, localU1, globalU1);
   geom->localToGlobal(*det, localU2, globalU2);

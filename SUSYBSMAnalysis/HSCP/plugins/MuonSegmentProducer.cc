@@ -86,7 +86,7 @@ void MuonSegmentProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   using namespace std;
   using namespace susybsm;
 
-  susybsm::MuonSegmentCollection* segments = new susybsm::MuonSegmentCollection;
+  auto* segments = new susybsm::MuonSegmentCollection;
   std::unique_ptr<susybsm::MuonSegmentCollection> resultSeg(segments);
 
   edm::ESHandle<DTGeometry> dtGeom;

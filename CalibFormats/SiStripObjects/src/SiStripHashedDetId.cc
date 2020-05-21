@@ -24,7 +24,7 @@ SiStripHashedDetId::SiStripHashedDetId(const std::vector<DetId> &det_ids) : detI
                        << " Constructing object...";
   detIds_.clear();
   detIds_.reserve(16000);
-  std::vector<DetId>::const_iterator iter = det_ids.begin();
+  auto iter = det_ids.begin();
   for (; iter != det_ids.end(); ++iter) {
     detIds_.push_back(iter->rawId());
   }
@@ -60,7 +60,7 @@ SiStripHashedDetId::~SiStripHashedDetId() {
 void SiStripHashedDetId::init(const std::vector<uint32_t> &raw_ids) {
   detIds_.clear();
   detIds_.reserve(16000);
-  const_iterator iter = raw_ids.begin();
+  auto iter = raw_ids.begin();
   for (; iter != raw_ids.end(); ++iter) {
     DetId detectorId = DetId(*iter);
     if (*iter != sistrip::invalid32_ && *iter != sistrip::invalid_ && detectorId.det() == DetId::Tracker &&
@@ -86,7 +86,7 @@ std::ostream &operator<<(std::ostream &os, const SiStripHashedDetId &input) {
   std::stringstream ss;
   ss << "[SiStripHashedDetId::" << __func__ << "]"
      << " Found " << input.end() - input.begin() << " entries in DetId hash map:" << std::endl;
-  SiStripHashedDetId::const_iterator iter = input.begin();
+  auto iter = input.begin();
   for (; iter != input.end(); ++iter) {
     ss << " Index: " << std::dec << std::setw(5) << std::setfill(' ') << iter - input.begin() << "  DetId: 0x"
        << std::hex << std::setw(8) << std::setfill('0') << *iter << std::endl;

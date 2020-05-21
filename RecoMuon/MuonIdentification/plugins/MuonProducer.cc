@@ -86,7 +86,7 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet)
   if (fillSelectors_) {
     theSelectorMapNames = pSet.getParameter<InputTags>("SelectorMaps");
 
-    for (InputTags::const_iterator tag = theSelectorMapNames.begin(); tag != theSelectorMapNames.end(); ++tag) {
+    for (auto tag = theSelectorMapNames.begin(); tag != theSelectorMapNames.end(); ++tag) {
       theSelectorMapTokens_.push_back(consumes<edm::ValueMap<bool>>(*tag));
       produces<edm::ValueMap<bool>>(labelOrInstance(*tag));
     }
@@ -126,15 +126,14 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet)
     isolationLabels.push_back("pfIsoSumDRProfileR04");
 
     //Fill the label,pet map and initialize MuPFIsoHelper
-    for (std::vector<std::string>::const_iterator label = isolationLabels.begin(); label != isolationLabels.end();
-         ++label)
+    for (auto label = isolationLabels.begin(); label != isolationLabels.end(); ++label)
       psetMap[*label] = pfIsoPSet.getParameter<edm::ParameterSet>(*label);
 
     thePFIsoHelper = new MuPFIsoHelper(psetMap, consumesCollector());
 
     //Now loop on the mass read for each PSet the parameters and save them to the mapNames for later
 
-    for (std::map<std::string, edm::ParameterSet>::const_iterator map = psetMap.begin(); map != psetMap.end(); ++map) {
+    for (auto map = psetMap.begin(); map != psetMap.end(); ++map) {
       std::map<std::string, edm::InputTag> isoMap;
       isoMap["chargedParticle"] = map->second.getParameter<edm::InputTag>("chargedParticle");
       isoMap["chargedHadron"] = map->second.getParameter<edm::InputTag>("chargedHadron");
@@ -158,9 +157,7 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet)
     }
 
     for (unsigned int j = 0; j < pfIsoMapNames.size(); ++j) {
-      for (std::map<std::string, edm::InputTag>::const_iterator map = pfIsoMapNames.at(j).begin();
-           map != pfIsoMapNames.at(j).end();
-           ++map)
+      for (auto map = pfIsoMapNames.at(j).begin(); map != pfIsoMapNames.at(j).end(); ++map)
         produces<edm::ValueMap<double>>(labelOrInstance(map->second));
     }
   }
@@ -247,9 +244,7 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
     for (unsigned int j = 0; j < pfIsoMapNames.size(); ++j) {
       std::map<std::string, std::vector<double>> mapVals;
       std::map<std::string, edm::Handle<edm::ValueMap<double>>> maps;
-      for (std::map<std::string, edm::InputTag>::const_iterator map = pfIsoMapNames.at(j).begin();
-           map != pfIsoMapNames.at(j).end();
-           ++map) {
+      for (auto map = pfIsoMapNames.at(j).begin(); map != pfIsoMapNames.at(j).end(); ++map) {
         edm::Handle<edm::ValueMap<double>> handleTmp;
         event.getByToken(pfIsoMapTokens_.at(j)[map->first], handleTmp);
         maps[map->first] = handleTmp;
@@ -264,7 +259,7 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
   std::vector<std::vector<bool>> selectorMapResults(fillSelectors_ ? theSelectorMapNames.size() : 0);
   if (fillSelectors_) {
     unsigned int s = 0;
-    for (InputTags::const_iterator tag = theSelectorMapNames.begin(); tag != theSelectorMapNames.end(); ++tag, ++s) {
+    for (auto tag = theSelectorMapNames.begin(); tag != theSelectorMapNames.end(); ++tag, ++s) {
       event.getByToken(theSelectorMapTokens_.at(s), selectorMaps[s]);
       selectorMapResults[s].resize(nMuons);
     }
@@ -307,7 +302,7 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 
     if (fillSelectors_) {
       unsigned int s = 0;
-      for (InputTags::const_iterator tag = theSelectorMapNames.begin(); tag != theSelectorMapNames.end(); ++tag, ++s) {
+      for (auto tag = theSelectorMapNames.begin(); tag != theSelectorMapNames.end(); ++tag, ++s) {
         fillMuonMap<bool>(event, muonHandle, selectorMapResults[s], labelOrInstance(*tag));
       }
     }
@@ -325,9 +320,7 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 
     if (fillPFIsolation_) {
       for (unsigned int j = 0; j < pfIsoMapNames.size(); ++j)
-        for (std::map<std::string, edm::InputTag>::const_iterator map = pfIsoMapNames.at(j).begin();
-             map != pfIsoMapNames.at(j).end();
-             ++map) {
+        for (auto map = pfIsoMapNames.at(j).begin(); map != pfIsoMapNames.at(j).end(); ++map) {
           fillMuonMap<double>(event, muonHandle, pfIsoMapVals.at(j)[map->first], labelOrInstance(map->second));
         }
     }
@@ -361,7 +354,7 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 
     if (fillPFMomentum_) {
       // search for the corresponding pf candidate
-      MuToPFMap::iterator iter = muToPFMap.find(muRef);
+      auto iter = muToPFMap.find(muRef);
       if (iter != muToPFMap.end()) {
         const auto& pfMu = pfCandidates->at(iter->second);
         outMuon.setPFP4(pfMu.p4());
@@ -385,9 +378,7 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
       thePFIsoHelper->embedPFIsolation(outMuon, muRef);
 
       for (unsigned int j = 0; j < pfIsoMapNames.size(); ++j) {
-        for (std::map<std::string, edm::InputTag>::const_iterator map = pfIsoMapNames[j].begin();
-             map != pfIsoMapNames[j].end();
-             ++map) {
+        for (auto map = pfIsoMapNames[j].begin(); map != pfIsoMapNames[j].end(); ++map) {
           (pfIsoMapVals[j])[map->first][i] = (*pfIsoMaps[j][map->first])[muRef];
         }
       }
@@ -411,7 +402,7 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 
     if (fillSelectors_) {
       unsigned int s = 0;
-      for (InputTags::const_iterator tag = theSelectorMapNames.begin(); tag != theSelectorMapNames.end(); ++tag, ++s)
+      for (auto tag = theSelectorMapNames.begin(); tag != theSelectorMapNames.end(); ++tag, ++s)
         selectorMapResults[s][i] = (*selectorMaps[s])[muRef];
     }
 
@@ -454,16 +445,14 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 
   if (fillPFIsolation_) {
     for (unsigned int j = 0; j < pfIsoMapNames.size(); ++j) {
-      for (std::map<std::string, edm::InputTag>::const_iterator map = pfIsoMapNames[j].begin();
-           map != pfIsoMapNames[j].end();
-           ++map)
+      for (auto map = pfIsoMapNames[j].begin(); map != pfIsoMapNames[j].end(); ++map)
         fillMuonMap<double>(event, muonHandle, pfIsoMapVals[j][map->first], labelOrInstance(map->second));
     }
   }
 
   if (fillSelectors_) {
     unsigned int s = 0;
-    for (InputTags::const_iterator tag = theSelectorMapNames.begin(); tag != theSelectorMapNames.end(); ++tag, ++s)
+    for (auto tag = theSelectorMapNames.begin(); tag != theSelectorMapNames.end(); ++tag, ++s)
       fillMuonMap<bool>(event, muonHandle, selectorMapResults[s], labelOrInstance(*tag));
   }
 

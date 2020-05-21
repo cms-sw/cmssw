@@ -3,7 +3,7 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 
 bool SiStripLorentzAngle::putLorentzAngle(const uint32_t& detid, float value) {
-  std::map<unsigned int, float>::const_iterator id = m_LA.find(detid);
+  auto id = m_LA.find(detid);
   if (id != m_LA.end()) {
     edm::LogError("SiStripLorentzAngle") << "SiStripLorentzAngle for DetID " << detid
                                          << " is already stored. Skippig this put" << std::endl;
@@ -13,7 +13,7 @@ bool SiStripLorentzAngle::putLorentzAngle(const uint32_t& detid, float value) {
   return true;
 }
 float SiStripLorentzAngle::getLorentzAngle(const uint32_t& detid) const {
-  std::map<unsigned int, float>::const_iterator id = m_LA.find(detid);
+  auto id = m_LA.find(detid);
   if (id != m_LA.end())
     return id->second;
   else {

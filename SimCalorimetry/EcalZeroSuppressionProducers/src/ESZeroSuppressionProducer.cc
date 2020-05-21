@@ -39,7 +39,7 @@ void ESZeroSuppressionProducer::produce(edm::Event &event, const edm::EventSetup
     for (ESDigiCollection::const_iterator i(ESDigis->begin()); i != ESDigis->end(); ++i) {
       ESDataFrame dataframe = (*i);
 
-      ESPedestals::const_iterator it_ped = pedestals->find(dataframe.id());
+      auto it_ped = pedestals->find(dataframe.id());
 
       if (dataframe.sample(1).adc() > (ts2Threshold + it_ped->getMean())) {
         // std::cout<<dataframe.sample(1).adc()<<"

@@ -218,8 +218,7 @@ void PFProducer::beginRun(const edm::Run& run, const edm::EventSetup& es) {
     edm::ESHandle<PerformancePayload> perfH;
     es.get<PFCalibrationRcd>().get(calibrationsLabel_, perfH);
 
-    PerformancePayloadFromTFormula const* pfCalibrations =
-        static_cast<const PerformancePayloadFromTFormula*>(perfH.product());
+    auto const* pfCalibrations = static_cast<const PerformancePayloadFromTFormula*>(perfH.product());
 
     pfEnergyCalibration_.setCalibrationFunctions(pfCalibrations);
   }

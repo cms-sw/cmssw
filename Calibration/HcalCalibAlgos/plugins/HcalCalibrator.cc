@@ -211,14 +211,14 @@ void HcalCalibrator::endJob() {
   inputFileList.close();
 
   std::cout << "\nInput files for processing:" << std::endl;
-  for (std::vector<TString>::iterator it = inputFiles.begin(); it != inputFiles.end(); ++it) {
+  for (auto it = inputFiles.begin(); it != inputFiles.end(); ++it) {
     std::cout << "file: " << it->Data() << std::endl;
   }
   std::cout << std::endl;
 
   TChain* fChain = new TChain("hcalCalibTree");
 
-  for (std::vector<TString>::iterator f_it = inputFiles.begin(); f_it != inputFiles.end(); ++f_it) {
+  for (auto f_it = inputFiles.begin(); f_it != inputFiles.end(); ++f_it) {
     fChain->Add(f_it->Data());
   }
 

@@ -54,7 +54,7 @@ void ConfigurableAdaptiveFitter::configure(const edm::ParameterSet& n) {
 
   if (theFitter)
     delete theFitter;
-  AdaptiveVertexFitter* fitter = new AdaptiveVertexFitter(ann, linpt, updator, estimator, *smoother);
+  auto* fitter = new AdaptiveVertexFitter(ann, linpt, updator, estimator, *smoother);
   delete smoother;
   fitter->setParameters(m);
   theFitter = fitter;

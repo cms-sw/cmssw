@@ -137,7 +137,7 @@ namespace hitfit {
   //
   {
     // Find where to add it.
-    vector<std::shared_ptr<Fit_Result>>::iterator it = lower_bound(_v.begin(), _v.end(), res, Compare_Fitresptr());
+    auto it = lower_bound(_v.begin(), _v.end(), res, Compare_Fitresptr());
 
     // Insert it.
     _v.insert(it, res);

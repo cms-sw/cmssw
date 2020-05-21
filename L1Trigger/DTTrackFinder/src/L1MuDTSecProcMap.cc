@@ -47,7 +47,7 @@ L1MuDTSecProcMap::L1MuDTSecProcMap() : m_map() {}
 //--------------
 
 L1MuDTSecProcMap::~L1MuDTSecProcMap() {
-  SPmap_iter iter = m_map.begin();
+  auto iter = m_map.begin();
   while (iter != m_map.end()) {
     delete (*iter).second;
     iter++;
@@ -63,7 +63,7 @@ L1MuDTSecProcMap::~L1MuDTSecProcMap() {
 // return Sector Processor
 //
 L1MuDTSectorProcessor* L1MuDTSecProcMap::sp(const L1MuDTSecProcId& id) const {
-  SPmap::const_iterator it = m_map.find(id);
+  auto it = m_map.find(id);
   if (it == m_map.end()) {
     //    cerr << "Error: Sector Processor not in the map" << endl;
     return nullptr;

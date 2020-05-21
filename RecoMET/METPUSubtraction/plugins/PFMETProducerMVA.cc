@@ -13,7 +13,7 @@ PFMETProducerMVA::PFMETProducerMVA(const edm::ParameterSet& cfg) : mvaMEtAlgo_(c
   srcPFCandidatesView_ = consumes<reco::CandidateView>(cfg.getParameter<edm::InputTag>("srcPFCandidates"));
   srcVertices_ = consumes<reco::VertexCollection>(cfg.getParameter<edm::InputTag>("srcVertices"));
   vInputTag srcLeptonsTags = cfg.getParameter<vInputTag>("srcLeptons");
-  for (vInputTag::const_iterator it = srcLeptonsTags.begin(); it != srcLeptonsTags.end(); it++) {
+  for (auto it = srcLeptonsTags.begin(); it != srcLeptonsTags.end(); it++) {
     srcLeptons_.push_back(consumes<reco::CandidateView>(*it));
   }
   mJetCorrector_ = consumes<reco::JetCorrector>(cfg.getParameter<edm::InputTag>("corrector"));
@@ -35,9 +35,7 @@ void PFMETProducerMVA::produce(edm::Event& evt, const edm::EventSetup& es) {
   // CV: check if the event is to be skipped
   if (minNumLeptons_ > 0) {
     int numLeptons = 0;
-    for (std::vector<edm::EDGetTokenT<reco::CandidateView> >::const_iterator srcLeptons_i = srcLeptons_.begin();
-         srcLeptons_i != srcLeptons_.end();
-         ++srcLeptons_i) {
+    for (auto srcLeptons_i = srcLeptons_.begin(); srcLeptons_i != srcLeptons_.end(); ++srcLeptons_i) {
       edm::Handle<reco::CandidateView> leptons;
       evt.getByToken(*srcLeptons_i, leptons);
       numLeptons += leptons->size();
@@ -144,16 +142,12 @@ std::vector<reco::PUSubMETCandInfo> PFMETProducerMVA::computeLeptonInfo(
     edm::Event& evt) {
   std::vector<reco::PUSubMETCandInfo> leptonInfo;
 
-  for (std::vector<edm::EDGetTokenT<reco::CandidateView> >::const_iterator srcLeptons_i = srcLeptons_.begin();
-       srcLeptons_i != srcLeptons_.end();
-       ++srcLeptons_i) {
+  for (auto srcLeptons_i = srcLeptons_.begin(); srcLeptons_i != srcLeptons_.end(); ++srcLeptons_i) {
     edm::Handle<reco::CandidateView> leptons;
     evt.getByToken(*srcLeptons_i, leptons);
     for (reco::CandidateView::const_iterator lepton1 = leptons->begin(); lepton1 != leptons->end(); ++lepton1) {
       bool pMatch = false;
-      for (std::vector<edm::EDGetTokenT<reco::CandidateView> >::const_iterator srcLeptons_j = srcLeptons_.begin();
-           srcLeptons_j != srcLeptons_.end();
-           ++srcLeptons_j) {
+      for (auto srcLeptons_j = srcLeptons_.begin(); srcLeptons_j != srcLeptons_.end(); ++srcLeptons_j) {
         edm::Handle<reco::CandidateView> leptons2;
         evt.getByToken(*srcLeptons_j, leptons2);
         for (reco::CandidateView::const_iterator lepton2 = leptons2->begin(); lepton2 != leptons2->end(); ++lepton2) {
@@ -212,8 +206,7 @@ std::vector<reco::PUSubMETCandInfo> PFMETProducerMVA::computeJetInfo(const reco:
                                                                      std::vector<reco::PUSubMETCandInfo>& iLeptons,
                                                                      std::vector<reco::PUSubMETCandInfo>& iCands) {
   std::vector<reco::PUSubMETCandInfo> retVal;
-  for (reco::PFJetCollection::const_iterator uncorrJet = uncorrJets.begin(); uncorrJet != uncorrJets.end();
-       ++uncorrJet) {
+  for (auto uncorrJet = uncorrJets.begin(); uncorrJet != uncorrJets.end(); ++uncorrJet) {
     // for ( reco::PFJetCollection::const_iterator corrJet = corrJets.begin();
     // 	  corrJet != corrJets.end(); ++corrJet ) {
     auto corrJet = corrJets->begin();
@@ -294,14 +287,14 @@ std::vector<reco::PUSubMETCandInfo> PFMETProducerMVA::computePFCandidateInfo(con
     double dZ = -999.;  // PH: If no vertex is reconstructed in the event
                         //     or PFCandidate has no track, set dZ to -999
     if (hardScatterVertex) {
-      const reco::PFCandidate* pfc = dynamic_cast<const reco::PFCandidate*>(&(*pfCandidate));
+      const auto* pfc = dynamic_cast<const reco::PFCandidate*>(&(*pfCandidate));
       if (pfc != nullptr) {  //PF candidate for RECO and PAT levels
         if (pfc->trackRef().isNonnull())
           dZ = std::abs(pfc->trackRef()->dz(hardScatterVertex->position()));
         else if (pfc->gsfTrackRef().isNonnull())
           dZ = std::abs(pfc->gsfTrackRef()->dz(hardScatterVertex->position()));
       } else {  //if not, then packedCandidate for miniAOD level
-        const pat::PackedCandidate* pfc = dynamic_cast<const pat::PackedCandidate*>(&(*pfCandidate));
+        const auto* pfc = dynamic_cast<const pat::PackedCandidate*>(&(*pfCandidate));
         dZ = std::abs(pfc->dz(hardScatterVertex->position()));
         //exact dz=zero corresponds to the -999 case for pfcandidate
         if (dZ == 0) {
@@ -319,7 +312,7 @@ std::vector<reco::PUSubMETCandInfo> PFMETProducerMVA::computePFCandidateInfo(con
 
 std::vector<reco::Vertex::Point> PFMETProducerMVA::computeVertexInfo(const reco::VertexCollection& vertices) {
   std::vector<reco::Vertex::Point> retVal;
-  for (reco::VertexCollection::const_iterator vertex = vertices.begin(); vertex != vertices.end(); ++vertex) {
+  for (auto vertex = vertices.begin(); vertex != vertices.end(); ++vertex) {
     if (std::abs(vertex->z()) > 24.)
       continue;
     if (vertex->ndof() < 4.)
@@ -410,14 +403,14 @@ double PFMETProducerMVA::chargedFracInCone(const reco::Candidate* iCand,
     double dZ = -999.;  // PH: If no vertex is reconstructed in the event
                         //     or PFCandidate has no track, set dZ to -999
     if (hardScatterVertex) {
-      const reco::PFCandidate* pfc = dynamic_cast<const reco::PFCandidate*>((&(*pfCandidate)));
+      const auto* pfc = dynamic_cast<const reco::PFCandidate*>((&(*pfCandidate)));
       if (pfc != nullptr) {  //PF candidate for RECO and PAT levels
         if (pfc->trackRef().isNonnull())
           dZ = std::abs(pfc->trackRef()->dz(hardScatterVertex->position()));
         else if (pfc->gsfTrackRef().isNonnull())
           dZ = std::abs(pfc->gsfTrackRef()->dz(hardScatterVertex->position()));
       } else {  //if not, then packedCandidate for miniAOD level
-        const pat::PackedCandidate* pfc = dynamic_cast<const pat::PackedCandidate*>(&(*pfCandidate));
+        const auto* pfc = dynamic_cast<const pat::PackedCandidate*>(&(*pfCandidate));
         dZ = std::abs(pfc->dz(hardScatterVertex->position()));
       }
     }

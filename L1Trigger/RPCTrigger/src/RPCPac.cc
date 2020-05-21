@@ -97,7 +97,7 @@ RPCPacMuon RPCPac::runEnergeticPatternsGroups(const RPCLogCone& cone) const {
   RPCPacMuon bestMuon;
   unsigned short firedPlanes = 0;
   int firedPlanesCount = 0;
-  RPCPacData::TEPatternsGroupList::const_iterator iEGroup = m_pacData->m_EnergeticPatternsGroupList.begin();
+  auto iEGroup = m_pacData->m_EnergeticPatternsGroupList.begin();
   for (; iEGroup != m_pacData->m_EnergeticPatternsGroupList.end(); iEGroup++) {
     firedPlanes = 0;
     firedPlanesCount = 0;
@@ -108,8 +108,8 @@ RPCPacMuon RPCPac::runEnergeticPatternsGroups(const RPCLogCone& cone) const {
 
       if (cone.getHitsCnt(logPlane) > 0) {
         RPCLogCone::TLogPlane lp = cone.getLogPlane(logPlane);
-        RPCLogCone::TLogPlane::const_iterator itLP = lp.begin();
-        RPCLogCone::TLogPlane::const_iterator itLPE = lp.end();
+        auto itLP = lp.begin();
+        auto itLPE = lp.end();
         for (; itLP != itLPE; ++itLP) {
           int strip = itLP->first;
           if (iEGroup->m_GroupShape.getLogStripState(logPlane, strip)) {
@@ -145,7 +145,7 @@ RPCPacMuon RPCPac::runEnergeticPatternsGroups(const RPCLogCone& cone) const {
     RPCPacMuon bufMuon;
     for (unsigned int vecNum = 0; vecNum < iEGroup->m_PatternsItVec.size(); vecNum++) {
       RPCMuon::TDigiLinkVec digiIdx;
-      const RPCPattern::RPCPatVec::const_iterator patternIt = iEGroup->m_PatternsItVec[vecNum];
+      const auto patternIt = iEGroup->m_PatternsItVec[vecNum];
       const RPCPattern& pattern = *patternIt;
       bool wasHit = false;
       unsigned short one1 = 1;

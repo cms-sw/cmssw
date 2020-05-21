@@ -88,8 +88,7 @@ MultiplicityCorrelator::MultiplicityCorrelator(const edm::ParameterSet& iConfig)
   std::vector<edm::ParameterSet> correlationConfigs =
       iConfig.getParameter<std::vector<edm::ParameterSet> >("correlationConfigurations");
 
-  for (std::vector<edm::ParameterSet>::const_iterator ps = correlationConfigs.begin(); ps != correlationConfigs.end();
-       ++ps) {
+  for (auto ps = correlationConfigs.begin(); ps != correlationConfigs.end(); ++ps) {
     m_xMultiplicityMapTokens.push_back(
         consumes<std::map<unsigned int, int> >(ps->getParameter<edm::InputTag>("xMultiplicityMap")));
     m_yMultiplicityMapTokens.push_back(
@@ -125,8 +124,8 @@ void MultiplicityCorrelator::analyze(const edm::Event& iEvent, const edm::EventS
 
     // check if the selection exists
 
-    std::map<unsigned int, int>::const_iterator xmult = xMults->find(m_xSelections[i]);
-    std::map<unsigned int, int>::const_iterator ymult = yMults->find(m_ySelections[i]);
+    auto xmult = xMults->find(m_xSelections[i]);
+    auto ymult = yMults->find(m_ySelections[i]);
 
     if (xmult != xMults->end() && ymult != yMults->end()) {
       m_mchms[i]->fill(iEvent, xmult->second, ymult->second);

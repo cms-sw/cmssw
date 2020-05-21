@@ -17,7 +17,7 @@ namespace spr {
                                                              bool debug) {
     std::vector<EcalRecHitCollection::const_iterator> hit;
 
-    for (EcalRecHitCollection::const_iterator j = hits->begin(); j != hits->end(); j++) {
+    for (auto j = hits->begin(); j != hits->end(); j++) {
       bool keepHit = false;
 
       if (j->id().subdetId() == EcalEndcap) {
@@ -59,7 +59,7 @@ namespace spr {
       doEndcap = true;  // 1.479-2*0.087
 
     if (doBarrel) {
-      for (EcalRecHitCollection::const_iterator j = barrelhits->begin(); j != barrelhits->end(); j++) {
+      for (auto j = barrelhits->begin(); j != barrelhits->end(); j++) {
         bool keepHit = false;
         if (j->id().subdetId() == EcalBarrel) {
           EBDetId EBid = EBDetId(j->id());
@@ -75,7 +75,7 @@ namespace spr {
     }  // doBarrel
 
     if (doEndcap) {
-      for (EcalRecHitCollection::const_iterator j = endcaphits->begin(); j != endcaphits->end(); j++) {
+      for (auto j = endcaphits->begin(); j != endcaphits->end(); j++) {
         bool keepHit = false;
 
         if (j->id().subdetId() == EcalEndcap) {
@@ -104,7 +104,7 @@ namespace spr {
                                                              bool debug) {
     std::vector<HBHERecHitCollection::const_iterator> hit;
     // Loop over Hcal RecHits
-    for (HBHERecHitCollection::const_iterator j = hits->begin(); j != hits->end(); j++) {
+    for (auto j = hits->begin(); j != hits->end(); j++) {
       DetId detId(j->id());
       const GlobalPoint rechitPoint =
           (static_cast<const HcalGeometry*>(geo->getSubdetectorGeometry(detId)))->getPosition(detId);

@@ -38,7 +38,7 @@ AlignmentCSCBeamHaloSelector::Tracks AlignmentCSCBeamHaloSelector::select(const 
         CSCDetId cscid(id.rawId());
         int station = (cscid.endcap() == 1 ? 1 : -1) * cscid.station();
 
-        std::map<int, unsigned int>::const_iterator station_iter = station_map.find(station);
+        auto station_iter = station_map.find(station);
         if (station_iter == station_map.end()) {
           station_map[station] = 0;
         }
@@ -47,9 +47,7 @@ AlignmentCSCBeamHaloSelector::Tracks AlignmentCSCBeamHaloSelector::select(const 
     }    // end loop over hits
 
     unsigned int stations = 0;
-    for (std::map<int, unsigned int>::const_iterator station_iter = station_map.begin();
-         station_iter != station_map.end();
-         ++station_iter) {
+    for (auto station_iter = station_map.begin(); station_iter != station_map.end(); ++station_iter) {
       if (station_iter->second > m_minHitsPerStation)
         stations++;
     }

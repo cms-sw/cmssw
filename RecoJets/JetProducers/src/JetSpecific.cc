@@ -86,9 +86,7 @@ void reco::writeSpecific(reco::PFJet& jet,
   makeSpecific(constituents, &specific, weights);
   // now make jet charge
   int charge = 0.;
-  for (std::vector<reco::CandidatePtr>::const_iterator ic = constituents.begin(), icend = constituents.end();
-       ic != icend;
-       ++ic) {
+  for (auto ic = constituents.begin(), icend = constituents.end(); ic != icend; ++ic) {
     float weight = (weights != nullptr) ? (*weights)[*ic] : 1.0;
     charge += (*ic)->charge() * weight;
   }
@@ -355,7 +353,7 @@ bool reco::makeSpecific(std::vector<reco::CandidatePtr> const& mcparticles, GenJ
   if (nullptr == genJetSpecific)
     return false;
 
-  std::vector<reco::CandidatePtr>::const_iterator itMcParticle = mcparticles.begin();
+  auto itMcParticle = mcparticles.begin();
   for (; itMcParticle != mcparticles.end(); ++itMcParticle) {
     if (itMcParticle->isNull() || !itMcParticle->isAvailable()) {
       edm::LogWarning("DataNotFound") << " JetSpecific: MC Particle is invalid\n";

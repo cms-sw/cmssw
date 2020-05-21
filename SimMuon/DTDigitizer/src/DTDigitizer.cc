@@ -180,7 +180,7 @@ void DTDigitizer::produce(Event &iEvent, const EventSetup &iSetup) {
 
   //************ 3 ***************
   // Loop over the wires
-  for (DTWireIdMapConstIter wire = wireMap.begin(); wire != wireMap.end(); wire++) {
+  for (auto wire = wireMap.begin(); wire != wireMap.end(); wire++) {
     // SimHit Container associated to the wire
     const vector<const PSimHit *> &vhit = (*wire).second;
     if (!vhit.empty()) {
@@ -194,7 +194,7 @@ void DTDigitizer::produce(Event &iEvent, const EventSetup &iSetup) {
       const DTLayer *layer = muonGeom->layer(wireId.layerId());
 
       // Loop on the hits of this wire
-      for (vector<const PSimHit *>::const_iterator hit = vhit.begin(); hit != vhit.end(); hit++) {
+      for (auto hit = vhit.begin(); hit != vhit.end(); hit++) {
         //************ 5 ***************
         LocalPoint locPos = (*hit)->localPosition();
 
@@ -514,7 +514,7 @@ void DTDigitizer::storeDigis(DTWireId &wireId,
   DTDigi digi;
 
   // loop over signal times and drop signals inside dead time
-  for (TDContainer::const_iterator hit = hits.begin(); hit != hits.end(); hit++) {
+  for (auto hit = hits.begin(); hit != hits.end(); hit++) {
     if (onlyMuHits && abs((*hit).first->particleType()) != 13)
       continue;
 

@@ -13,7 +13,7 @@ std::ostream& operator<<(std::ostream& os, const DDVector& cons) {
 
   if (cons.isDefined().second) {
     os << " size=" << cons.size() << " vals=( ";
-    DDVector::value_type::const_iterator it(cons.values().begin()), ed(cons.values().end());
+    auto it(cons.values().begin()), ed(cons.values().end());
     for (; it < ed; ++it) {
       os << *it << ' ';
     }

@@ -309,8 +309,8 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
           ClusterCollectionFP420::Range outputRange;
           outputRange = input->get(iu);
           // fill output in currentclust vector (for may be sorting? or other checks)
-          ClusterCollectionFP420::ContainerIterator sort_begin = outputRange.first;
-          ClusterCollectionFP420::ContainerIterator sort_end = outputRange.second;
+          auto sort_begin = outputRange.first;
+          auto sort_end = outputRange.second;
           for (; sort_begin != sort_end; ++sort_begin) {
             //  std::sort(currentclust.begin(),currentclust.end());
             currentclust.push_back(*sort_begin);
@@ -321,8 +321,8 @@ std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle
           }
           //============================================================================================================
 
-          std::vector<ClusterFP420>::const_iterator simHitIter = currentclust.begin();
-          std::vector<ClusterFP420>::const_iterator simHitIterEnd = currentclust.end();
+          auto simHitIter = currentclust.begin();
+          auto simHitIterEnd = currentclust.end();
 
           if (xytype == 1) {
             if (ii != ii0) {

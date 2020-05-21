@@ -289,15 +289,15 @@ namespace lhef {
     const HEPRUP *heprup = getHEPRUP();
 
     // set beam particles
-    HepMC::GenParticle *b1 = new HepMC::GenParticle(
-        HepMC::FourVector(0.0, 0.0, +heprup->EBMUP.first, heprup->EBMUP.first), heprup->IDBMUP.first);
-    HepMC::GenParticle *b2 = new HepMC::GenParticle(
-        HepMC::FourVector(0.0, 0.0, -heprup->EBMUP.second, heprup->EBMUP.second), heprup->IDBMUP.second);
+    auto *b1 = new HepMC::GenParticle(HepMC::FourVector(0.0, 0.0, +heprup->EBMUP.first, heprup->EBMUP.first),
+                                      heprup->IDBMUP.first);
+    auto *b2 = new HepMC::GenParticle(HepMC::FourVector(0.0, 0.0, -heprup->EBMUP.second, heprup->EBMUP.second),
+                                      heprup->IDBMUP.second);
     b1->set_status(3);
     b2->set_status(3);
 
-    HepMC::GenVertex *v1 = new HepMC::GenVertex();
-    HepMC::GenVertex *v2 = new HepMC::GenVertex();
+    auto *v1 = new HepMC::GenVertex();
+    auto *v2 = new HepMC::GenVertex();
     v1->add_particle_in(b1);
     v2->add_particle_in(b2);
 
@@ -319,7 +319,7 @@ namespace lhef {
       edm::LogWarning("Generator|LHEInterface") << "Can't find any initial partons to be"
                                                    " connected to the beam particles.";
 
-    for (std::vector<HepMC::GenVertex *>::const_iterator iter = genVertices.begin(); iter != genVertices.end(); ++iter)
+    for (auto iter = genVertices.begin(); iter != genVertices.end(); ++iter)
       hepmc->add_vertex(*iter);
 
     // do some more consistency checks
@@ -340,7 +340,7 @@ namespace lhef {
   }
 
   HepMC::GenParticle *LHEEvent::makeHepMCParticle(unsigned int i) const {
-    HepMC::GenParticle *particle = new HepMC::GenParticle(
+    auto *particle = new HepMC::GenParticle(
         HepMC::FourVector(hepeup.PUP.at(i)[0], hepeup.PUP.at(i)[1], hepeup.PUP.at(i)[2], hepeup.PUP.at(i)[3]),
         hepeup.IDUP.at(i));
 
@@ -402,9 +402,7 @@ namespace lhef {
 
       double px = 0.0, py = 0.0, pz = 0.0, E = 0.0;
       bool hadStatus3 = false;
-      for (HepMC::GenVertex::particles_out_const_iterator iter2 = (*iter)->particles_out_const_begin();
-           iter2 != (*iter)->particles_out_const_end();
-           ++iter2) {
+      for (auto iter2 = (*iter)->particles_out_const_begin(); iter2 != (*iter)->particles_out_const_end(); ++iter2) {
         hadStatus3 = hadStatus3 || (*iter2)->status() == 3;
         px += (*iter2)->momentum().px();
         py += (*iter2)->momentum().py();
@@ -439,9 +437,7 @@ namespace lhef {
     else
       time = curTime;
 
-    for (HepMC::GenVertex::particles_out_const_iterator iter = vertex->particles_out_const_begin();
-         iter != vertex->particles_out_const_end();
-         ++iter) {
+    for (auto iter = vertex->particles_out_const_begin(); iter != vertex->particles_out_const_end(); ++iter) {
       HepMC::GenVertex *endVertex = (*iter)->end_vertex();
       if (endVertex)
         fixSubTree(endVertex, time, visited);

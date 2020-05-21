@@ -61,7 +61,7 @@ namespace edm {
           if (o == nullptr) {
             Exception::throwThis(errors::InvalidReference, "In RefVectorHolder trying to dereference a null pointer\n");
           }
-          const_iterator_imp_specific const* oo = dynamic_cast<const_iterator_imp_specific const*>(o);
+          auto const* oo = dynamic_cast<const_iterator_imp_specific const*>(o);
           if (oo == nullptr) {
             Exception::throwThis(errors::InvalidReference,
                                  "In RefVectorHolder trying to cast iterator to wrong type\n");

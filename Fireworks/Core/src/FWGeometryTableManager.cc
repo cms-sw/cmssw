@@ -157,7 +157,7 @@ void FWGeometryTableManager::checkHierarchy() {
 
 void FWGeometryTableManager::checkChildMatches(TGeoVolume* vol, std::vector<TGeoVolume*>& pstack) {
   if (m_volumes[vol].m_matches) {
-    for (std::vector<TGeoVolume*>::iterator i = pstack.begin(); i != pstack.end(); ++i) {
+    for (auto i = pstack.begin(); i != pstack.end(); ++i) {
       Match& pm = m_volumes[*i];
       pm.m_childMatches = true;
     }
@@ -194,7 +194,7 @@ void FWGeometryTableManager::updateFilter(int iType) {
   int numMatched = 0;
 
   TPMERegexp regexp(TString(filterExp.c_str()), "o");
-  for (Volumes_i i = m_volumes.begin(); i != m_volumes.end(); ++i) {
+  for (auto i = m_volumes.begin(); i != m_volumes.end(); ++i) {
     int res = 0;
 
     if (iType == FWGeometryTableView::kFilterMaterialName) {
@@ -217,7 +217,7 @@ void FWGeometryTableManager::updateFilter(int iType) {
   std::vector<TGeoVolume*> pstack;
   checkChildMatches(m_entries[0].m_node->GetVolume(), pstack);
 
-  for (Entries_i ni = m_entries.begin(); ni != m_entries.end(); ++ni) {
+  for (auto ni = m_entries.begin(); ni != m_entries.end(); ++ni) {
     ni->resetBit(kFilterCached);
     assertNodeFilterCache(*ni);
   }
@@ -320,7 +320,7 @@ void FWGeometryTableManager::recalculateVisibilityVolumeRec(int pIdx) {
     NodeInfo& data = m_entries[idx];
 
     bool toAdd = true;
-    for (std::vector<int>::iterator u = vi.begin(); u != vi.end(); ++u) {
+    for (auto u = vi.begin(); u != vi.end(); ++u) {
       TGeoVolume* neighbourVolume = parentNode->GetDaughter(*u)->GetVolume();
       if (neighbourVolume == data.m_node->GetVolume()) {
         toAdd = false;
@@ -462,7 +462,7 @@ bool FWGeometryTableManager::nodeIsParent(const NodeInfo& data) const {
 void FWGeometryTableManager::checkRegionOfInterest(double* center, double radius, long algo) {
   double sqr_r = radius * radius;
 
-  for (Entries_i ni = m_entries.begin(); ni != m_entries.end(); ++ni)
+  for (auto ni = m_entries.begin(); ni != m_entries.end(); ++ni)
     ni->resetBit(kVisNodeChld);
 
   int cnt = 0;
@@ -473,7 +473,7 @@ void FWGeometryTableManager::checkRegionOfInterest(double* center, double radius
          center[1],
          center[2]);
   TGeoIterator git(m_entries[0].m_node->GetVolume());
-  Entries_i eit(m_entries.begin());
+  auto eit(m_entries.begin());
   while (git()) {
     const TGeoMatrix* gm = git.GetCurrentMatrix();
     const TGeoBBox* bb = static_cast<TGeoBBox*>(eit->m_node->GetVolume()->GetShape());
@@ -531,7 +531,7 @@ void FWGeometryTableManager::checkRegionOfInterest(double* center, double radius
 }
 
 void FWGeometryTableManager::resetRegionOfInterest() {
-  for (Entries_i ni = m_entries.begin(); ni != m_entries.end(); ++ni) {
+  for (auto ni = m_entries.begin(); ni != m_entries.end(); ++ni) {
     ni->setBit(kVisNodeSelf);
     ni->setBit(kVisNodeChld);
   }

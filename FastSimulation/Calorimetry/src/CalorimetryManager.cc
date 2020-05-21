@@ -145,8 +145,7 @@ CalorimetryManager::~CalorimetryManager() {
 
 void CalorimetryManager::reconstruct(RandomEngineAndDistribution const* random) {
   if (!evtsToDebug_.empty()) {
-    std::vector<unsigned int>::const_iterator itcheck =
-        find(evtsToDebug_.begin(), evtsToDebug_.end(), mySimEvent->id().event());
+    auto itcheck = find(evtsToDebug_.begin(), evtsToDebug_.end(), mySimEvent->id().event());
     debug_ = (itcheck != evtsToDebug_.end());
     if (debug_)
       mySimEvent->print();
@@ -625,8 +624,8 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
 
         //make hits
         std::vector<GflashHit>& gflashHitList = theProfile->getGflashHitList();
-        std::vector<GflashHit>::const_iterator spotIter = gflashHitList.begin();
-        std::vector<GflashHit>::const_iterator spotIterEnd = gflashHitList.end();
+        auto spotIter = gflashHitList.begin();
+        auto spotIterEnd = gflashHitList.end();
 
         Gflash::CalorimeterNumber whichCalor = Gflash::kNULL;
 
@@ -1067,7 +1066,7 @@ void CalorimetryManager::respCorr(double p) {
 
 void CalorimetryManager::updateECAL(const std::map<CaloHitID, float>& hitMap, int onEcal, int trackID, float corr) {
   std::map<CaloHitID, float>::const_iterator mapitr;
-  std::map<CaloHitID, float>::const_iterator endmapitr = hitMap.end();
+  auto endmapitr = hitMap.end();
   if (onEcal == 1) {
     EBMapping_.reserve(EBMapping_.size() + hitMap.size());
     endmapitr = hitMap.end();
@@ -1101,7 +1100,7 @@ void CalorimetryManager::updateHCAL(const std::map<CaloHitID, float>& hitMap, in
   std::vector<double> hfcorrEm = myHDResponse_->getCorrHFem();
   std::vector<double> hfcorrHad = myHDResponse_->getCorrHFhad();
   std::map<CaloHitID, float>::const_iterator mapitr;
-  std::map<CaloHitID, float>::const_iterator endmapitr = hitMap.end();
+  auto endmapitr = hitMap.end();
   HMapping_.reserve(HMapping_.size() + hitMap.size());
   for (mapitr = hitMap.begin(); mapitr != endmapitr; ++mapitr) {
     //correct energy
@@ -1147,7 +1146,7 @@ void CalorimetryManager::updateHCAL(const std::map<CaloHitID, float>& hitMap, in
 
 void CalorimetryManager::updatePreshower(const std::map<CaloHitID, float>& hitMap, int trackID, float corr) {
   std::map<CaloHitID, float>::const_iterator mapitr;
-  std::map<CaloHitID, float>::const_iterator endmapitr = hitMap.end();
+  auto endmapitr = hitMap.end();
   ESMapping_.reserve(ESMapping_.size() + hitMap.size());
   for (mapitr = hitMap.begin(); mapitr != endmapitr; ++mapitr) {
     //correct energy
@@ -1212,8 +1211,7 @@ void CalorimetryManager::loadMuonSimTracks(edm::SimTrackContainer& muons) const 
       continue;
     // identify the corresponding muon in the local collection
 
-    std::vector<FSimTrack>::const_iterator itcheck =
-        find_if(muonSimTracks.begin(), muonSimTracks.end(), FSimTrackEqual(id));
+    auto itcheck = find_if(muonSimTracks.begin(), muonSimTracks.end(), FSimTrackEqual(id));
     if (itcheck != muonSimTracks.end()) {
       muons[i].setTkPosition(itcheck->trackerSurfacePosition());
       muons[i].setTkMomentum(itcheck->trackerSurfaceMomentum());

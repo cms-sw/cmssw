@@ -86,7 +86,7 @@ void TrackProbabilityTagPlotter::analyzeTag(const reco::BaseTagInfo* baseTagInfo
                                             double jec,
                                             int jetFlavour,
                                             float w /*=1*/) {
-  const reco::TrackProbabilityTagInfo* tagInfo = dynamic_cast<const reco::TrackProbabilityTagInfo*>(baseTagInfo);
+  const auto* tagInfo = dynamic_cast<const reco::TrackProbabilityTagInfo*>(baseTagInfo);
 
   if (!tagInfo) {
     throw cms::Exception("Configuration")

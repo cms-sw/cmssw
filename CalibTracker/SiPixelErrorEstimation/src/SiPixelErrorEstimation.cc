@@ -411,9 +411,9 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
   e.getByToken(tTrajectory, trajCollectionHandle);
   //e.getByLabel( "generalTracks", trajCollectionHandle);
 
-  for (vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(); it != trajCollectionHandle->end(); ++it) {
+  for (auto it = trajCollectionHandle->begin(); it != trajCollectionHandle->end(); ++it) {
     vector<TrajectoryMeasurement> tmColl = it->measurements();
-    for (vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj != tmColl.end(); ++itTraj) {
+    for (auto itTraj = tmColl.begin(); itTraj != tmColl.end(); ++itTraj) {
       if (!itTraj->updatedState().isValid())
         continue;
 
@@ -518,8 +518,7 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
           (int)detid.subdetId() != (int)(StripSubdetector::TOB))
         continue;
 
-      const SiStripMatchedRecHit2D* matchedhit =
-          dynamic_cast<const SiStripMatchedRecHit2D*>((*trans_trk_rec_hit_point).hit());
+      const auto* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>((*trans_trk_rec_hit_point).hit());
       const SiStripRecHit2D* hit2d = dynamic_cast<const SiStripRecHit2D*>((*trans_trk_rec_hit_point).hit());
       const SiStripRecHit1D* hit1d = dynamic_cast<const SiStripRecHit1D*>((*trans_trk_rec_hit_point).hit());
 
@@ -560,7 +559,7 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
       strip_cotalpha = locx / locz;
       strip_cotbeta = locy / locz;
 
-      StripSubdetector StripSubdet = (StripSubdetector)detid;
+      auto StripSubdet = (StripSubdetector)detid;
 
       if (StripSubdet.stereo() == 0)
         strip_is_stereo = 0;
@@ -570,7 +569,7 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
       SiStripDetId si_strip_det_id = SiStripDetId(detid);
 
       //const StripGeomDetUnit* strip_geom_det_unit = dynamic_cast<const StripGeomDetUnit*> ( tracker->idToDet( detid ) );
-      const StripGeomDetUnit* strip_geom_det_unit = (const StripGeomDetUnit*)tracker->idToDetUnit(detid);
+      const auto* strip_geom_det_unit = (const StripGeomDetUnit*)tracker->idToDetUnit(detid);
 
       if (strip_geom_det_unit != nullptr) {
         LocalVector lbfield = (strip_geom_det_unit->surface())
@@ -683,7 +682,7 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
           int strip_nprimaries = 0;
           int current_index = 0;
 
-          for (vector<PSimHit>::const_iterator m = matched.begin(); m < matched.end(); ++m) {
+          for (auto m = matched.begin(); m < matched.end(); ++m) {
             ++current_index;
 
             if ((*m).processType() == 2)
@@ -796,7 +795,7 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
 
           // Get the closest simhit
 
-          for (vector<PSimHit>::const_iterator m = matched.begin(); m < matched.end(); ++m) {
+          for (auto m = matched.begin(); m < matched.end(); ++m) {
             float dist = abs((hit2d)->localPosition().x() - (*m).localPosition().x());
 
             if (dist < mindist) {
@@ -843,7 +842,7 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
   e.getByToken(tSimTrackContainer, simtracks);
 
   //-----Iterate over detunits
-  for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
+  for (auto it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
     DetId detId = ((*it)->geographicalId());
 
     SiPixelRecHitCollection::const_iterator dsmatch = recHitColl->find(detId);
@@ -1008,7 +1007,7 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
         continue;
       }
 
-      const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(tracker->idToDet(detId));
+      const auto* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(tracker->idToDet(detId));
 
       const PixelTopology* topol = &(theGeomDet->specificTopology());
 
@@ -1102,9 +1101,9 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
 
       //---Loop over sim hits, fill closest
       float closest_dist = 99999.9;
-      std::vector<PSimHit>::const_iterator closest_simhit = matched.begin();
+      auto closest_simhit = matched.begin();
 
-      for (std::vector<PSimHit>::const_iterator m = matched.begin(); m < matched.end(); m++) {
+      for (auto m = matched.begin(); m < matched.end(); m++) {
         if (checkType_) {
           int pid = (*m).particleType();
           if (abs(pid) != genType_)
@@ -1362,8 +1361,8 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
 
               int n_assoc_muon = 0;
 
-              vector<PSimHit>::const_iterator closestit = matched.begin();
-              for (vector<PSimHit>::const_iterator m = matched.begin(); m < matched.end(); ++m) {
+              auto closestit = matched.begin();
+              for (auto m = matched.begin(); m < matched.end(); ++m) {
                 if (checkType_) {  // only consider associated simhits with the generated pid (muons)
                   int pid = (*m).particleType();
                   if (abs(pid) != genType_)
@@ -1399,7 +1398,7 @@ void SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup&
 
               DetId detId = hit->geographicalId();
 
-              const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>((*tracker).idToDet(detId));
+              const auto* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>((*tracker).idToDet(detId));
 
               const PixelTopology* theTopol = &(theGeomDet->specificTopology());
 
@@ -1537,7 +1536,7 @@ void SiPixelErrorEstimation::computeAnglesFromDetPosition(const SiPixelCluster& 
                                                           float& alpha,
                                                           float& beta) {
   //--- This is a new det unit, so cache it
-  const PixelGeomDetUnit* theDet = dynamic_cast<const PixelGeomDetUnit*>(&det);
+  const auto* theDet = dynamic_cast<const PixelGeomDetUnit*>(&det);
   if (!theDet) {
     cout << "---------------------------------------------- Not a pixel detector !!!!!!!!!!!!!!" << endl;
     assert(0);

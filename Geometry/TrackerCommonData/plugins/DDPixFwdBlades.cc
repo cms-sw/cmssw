@@ -377,7 +377,7 @@ void DDPixFwdBlades::computeNippleParameters(double endcap) {
   CLHEP::Hep3Vector axis = vZ.cross(jkC);
   double angleCover = vZ.angle(jkC);
   LogDebug("PixelGeom") << " Angle to Cover: " << angleCover;
-  CLHEP::HepRotation* rpCN = new CLHEP::HepRotation(axis, angleCover);
+  auto* rpCN = new CLHEP::HepRotation(axis, angleCover);
   if (endcap > 0.) {
     nippleRotationZPlus = rpCN;
   } else {

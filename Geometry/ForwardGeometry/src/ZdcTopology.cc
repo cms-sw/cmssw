@@ -54,7 +54,7 @@ bool ZdcTopology::isExcluded(const HcalZDCDetId& id) const {
 
   // check the entire list
   if (!exed && !exclusionList_.empty()) {
-    std::vector<HcalZDCDetId>::const_iterator i = std::lower_bound(exclusionList_.begin(), exclusionList_.end(), id);
+    auto i = std::lower_bound(exclusionList_.begin(), exclusionList_.end(), id);
     if (i != exclusionList_.end() && *i == id)
       exed = true;
   }
@@ -62,7 +62,7 @@ bool ZdcTopology::isExcluded(const HcalZDCDetId& id) const {
 }
 
 void ZdcTopology::exclude(const HcalZDCDetId& id) {
-  std::vector<HcalZDCDetId>::iterator i = std::lower_bound(exclusionList_.begin(), exclusionList_.end(), id);
+  auto i = std::lower_bound(exclusionList_.begin(), exclusionList_.end(), id);
   if (i == exclusionList_.end() || *i != id) {
     exclusionList_.insert(i, id);
   }

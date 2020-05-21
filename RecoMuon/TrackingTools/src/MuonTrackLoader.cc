@@ -62,7 +62,7 @@ std::vector<const TrackingRecHit*> MuonTrackLoader::unpackHit(const TrackingRecH
         // 4D --> 2D
         std::vector<const TrackingRecHit*> seg2D = hit.recHits();
         // load 1D hits (2D --> 1D)
-        for (std::vector<const TrackingRecHit*>::const_iterator it = seg2D.begin(); it != seg2D.end(); ++it) {
+        for (auto it = seg2D.begin(); it != seg2D.end(); ++it) {
           std::vector<const TrackingRecHit*> hits1D = (*it)->recHits();
           copy(hits1D.begin(), hits1D.end(), back_inserter(hits));
         }
@@ -215,8 +215,7 @@ OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(TrajectoryContai
   }
 
   unsigned int tjCnt = 0;
-  for (TrajectoryContainer::iterator itRawTrajectory = trajectories.begin(); itRawTrajectory != trajectories.end();
-       ++itRawTrajectory, ++tjCnt) {
+  for (auto itRawTrajectory = trajectories.begin(); itRawTrajectory != trajectories.end(); ++itRawTrajectory, ++tjCnt) {
     auto rawTrajectory = std::move(*itRawTrajectory);
     Trajectory& trajectory = *rawTrajectory;
 
@@ -346,7 +345,7 @@ OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(TrajectoryContai
     auto trajTrackMap = std::make_unique<TrajTrackAssociationCollection>(rTrajs, nonUpdatedHandle);
 
     // Now Create traj<->tracks association map
-    for (std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); i != tjTkMap.end(); i++) {
+    for (auto i = tjTkMap.begin(); i != tjTkMap.end(); i++) {
       trajTrackMap->insert(edm::Ref<std::vector<Trajectory>>(rTrajs, (*i).first),
                            edm::Ref<reco::TrackCollection>(nonUpdatedHandle, (*i).second));
     }
@@ -387,7 +386,7 @@ OrphanHandle<reco::MuonTrackLinksCollection> MuonTrackLoader::loadTracks(Candida
   // get combined Trajectories
   TrajectoryContainer combinedTrajs;
   TrajectoryContainer trackerTrajs;
-  for (CandidateContainer::iterator it = muonCands.begin(); it != muonCands.end(); ++it) {
+  for (auto it = muonCands.begin(); it != muonCands.end(); ++it) {
     LogDebug(metname) << "Loader glbSeedRef " << (*it)->trajectory()->seedRef().isNonnull();
     if ((*it)->trackerTrajectory())
       LogDebug(metname) << " "
@@ -429,7 +428,7 @@ OrphanHandle<reco::MuonTrackLinksCollection> MuonTrackLoader::loadTracks(Candida
   //reco::TrackCollection::const_iterator glIt = combinedTracks->begin(),
   //  glEnd = combinedTracks->end();
 
-  for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); ++it, ++candposition) {
+  for (auto it = muonCands.begin(); it != muonCands.end(); ++it, ++candposition) {
     // The presence of the global track determines whether to fill the MuonTrackLinks or not
     // N.B. We are assuming here that the global tracks in "combinedTracks"
     //      have the same order as the muon candidates in "muonCands"
@@ -542,8 +541,7 @@ OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(
     theSmoother->setHitCloner(&hitCloner);
   }
 
-  for (TrajectoryContainer::iterator itRawTrajectory = trajectories.begin(); itRawTrajectory != trajectories.end();
-       ++itRawTrajectory) {
+  for (auto itRawTrajectory = trajectories.begin(); itRawTrajectory != trajectories.end(); ++itRawTrajectory) {
     auto rawTrajectory = std::move(*itRawTrajectory);
     reco::TrackRef glbRef;
     std::vector<std::pair<Trajectory*, reco::TrackRef>>::const_iterator mmit;
@@ -659,7 +657,7 @@ OrphanHandle<reco::TrackCollection> MuonTrackLoader::loadTracks(
     auto trajTrackMap = std::make_unique<TrajTrackAssociationCollection>(rTrajs, nonUpdatedHandle);
 
     // Now Create traj<->tracks association map
-    for (std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); i != tjTkMap.end(); i++) {
+    for (auto i = tjTkMap.begin(); i != tjTkMap.end(); i++) {
       trajTrackMap->insert(edm::Ref<std::vector<Trajectory>>(rTrajs, (*i).first),
                            edm::Ref<reco::TrackCollection>(nonUpdatedHandle, (*i).second));
     }

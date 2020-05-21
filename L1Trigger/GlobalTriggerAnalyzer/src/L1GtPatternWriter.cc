@@ -48,7 +48,7 @@ L1GtPatternWriter::L1GtPatternWriter(std::ostream& destination,
 }
 
 void L1GtPatternWriter::writePatterns(const L1GtPatternMap& patterns) {
-  for (L1GtPatternMap::LineMap::const_iterator it = patterns.begin(); it != patterns.end(); ++it) {
+  for (auto it = patterns.begin(); it != patterns.end(); ++it) {
     int event = it->first.first;
     int bx = it->first.second;
 

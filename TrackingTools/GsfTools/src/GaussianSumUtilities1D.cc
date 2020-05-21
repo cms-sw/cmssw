@@ -117,7 +117,7 @@ void GaussianSumUtilities1D::computeMode() const {
   double xRes(mean((*xStart.begin()).second));  // current estimate of mode
   double yRes(-1.);                             // pdf at current estimate of mode
   //   std::pair<double,double> result(-1.,mean((*xStart.begin()).second));
-  for (StartMap::const_iterator i = xStart.begin(); i != xStart.end(); i++) {
+  for (auto i = xStart.begin(); i != xStart.end(); i++) {
     //
     // Convergence radius for a single Gaussian = 1 sigma: don't try
     // start values within 1 sigma of the current solution

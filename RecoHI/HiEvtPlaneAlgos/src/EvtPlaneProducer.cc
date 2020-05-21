@@ -359,7 +359,7 @@ void EvtPlaneProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
   iEvent.getByToken(caloToken, caloCollection_);
 
   if (caloCollection_.isValid()) {
-    for (CaloTowerCollection::const_iterator j = caloCollection_->begin(); j != caloCollection_->end(); j++) {
+    for (auto j = caloCollection_->begin(); j != caloCollection_->end(); j++) {
       tower_eta = j->eta();
       tower_phi = j->phi();
       tower_energyet_e = j->emEt();
@@ -398,8 +398,7 @@ void EvtPlaneProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
   iEvent.getByToken(castorToken, castorCollection_);
 
   if (castorCollection_.isValid()) {
-    for (std::vector<reco::CastorTower>::const_iterator j = castorCollection_->begin(); j != castorCollection_->end();
-         j++) {
+    for (auto j = castorCollection_->begin(); j != castorCollection_->end(); j++) {
       tower_eta = j->eta();
       tower_phi = j->phi();
       tower_energyet = j->et();
@@ -445,7 +444,7 @@ void EvtPlaneProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
 
   iEvent.getByToken(trackToken, trackCollection_);
   if (trackCollection_.isValid()) {
-    for (reco::TrackCollection::const_iterator j = trackCollection_->begin(); j != trackCollection_->end(); j++) {
+    for (auto j = trackCollection_->begin(); j != trackCollection_->end(); j++) {
       bool accepted = true;
       bool isPixel = false;
       // determine if the track is a pixel track

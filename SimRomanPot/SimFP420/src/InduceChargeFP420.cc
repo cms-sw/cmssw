@@ -34,8 +34,7 @@ IChargeFP420::hit_map_type InduceChargeFP420::induce(const CDrifterFP420::collec
   // map to store pixel integrals in the x and in the y directions
   std::map<int, float, less<int>> x, y;
 
-  for (CDrifterFP420::collection_type::const_iterator sp = _collection_points.begin(); sp != _collection_points.end();
-       sp++) {
+  for (auto sp = _collection_points.begin(); sp != _collection_points.end(); sp++) {
     float chargePositionW = -1.;  // charge in strip coord in Wide pixel
     float chargePosition = -1.;   // charge in strip coord
 

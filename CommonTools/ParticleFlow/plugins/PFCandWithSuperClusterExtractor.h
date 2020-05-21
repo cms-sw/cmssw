@@ -39,11 +39,11 @@ public:
     if (myPhoton)
       return depositFromObject(ev, evSetup, *myPhoton);
 
-    const reco::GsfElectron *myElectron = dynamic_cast<const reco::GsfElectron *>(&cand);
+    const auto *myElectron = dynamic_cast<const reco::GsfElectron *>(&cand);
     if (myElectron)
       return depositFromObject(ev, evSetup, *myElectron);
 
-    const reco::PFCandidate *myPFCand = dynamic_cast<const reco::PFCandidate *>(&cand);
+    const auto *myPFCand = dynamic_cast<const reco::PFCandidate *>(&cand);
     return depositFromObject(ev, evSetup, *myPFCand);
   }
 

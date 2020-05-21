@@ -57,7 +57,7 @@ G4toCMSLegacyProcTypeMap::G4toCMSLegacyProcTypeMap() {
 }
 
 const unsigned int G4toCMSLegacyProcTypeMap::processId(unsigned int g4ProcessId) const {
-  MapType::const_iterator it = m_map.find(g4ProcessId);
+  auto it = m_map.find(g4ProcessId);
 
   if (it == m_map.end()) {
     edm::LogError("UnknownProcessType") << "Encountered an unknown process type: " << g4ProcessId

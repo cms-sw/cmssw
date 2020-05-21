@@ -21,7 +21,7 @@ namespace pf2pat {
       assert(hc.isValid());
 
       unsigned key = 0;
-      for (collection::const_iterator pfc = hc->begin(); pfc != hc->end(); ++pfc, ++key) {
+      for (auto pfc = hc->begin(); pfc != hc->end(); ++pfc, ++key) {
         if (pfc->pt() > ptMin_) {
           selected_.push_back(reco::PFCandidate(*pfc));
           reco::PFCandidatePtr ptrToMother(hc, key);

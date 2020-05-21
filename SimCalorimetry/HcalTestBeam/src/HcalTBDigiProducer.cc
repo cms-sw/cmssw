@@ -195,7 +195,7 @@ void HcalTBDigiProducer::finalizeEvent(edm::Event &e, const edm::EventSetup &eve
 }
 
 void HcalTBDigiProducer::sortHits(const edm::PCaloHitContainer &hits) {
-  for (edm::PCaloHitContainer::const_iterator hitItr = hits.begin(); hitItr != hits.end(); ++hitItr) {
+  for (auto hitItr = hits.begin(); hitItr != hits.end(); ++hitItr) {
     HcalSubdetector subdet = HcalDetId(hitItr->id()).subdet();
     if (subdet == HcalBarrel || subdet == HcalEndcap) {
       theHBHEHits.push_back(*hitItr);

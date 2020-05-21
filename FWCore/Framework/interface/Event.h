@@ -518,8 +518,7 @@ namespace edm {
   template <typename PROD>
   void Event::getManyByType(std::vector<Handle<PROD>>& results) const {
     provRecorder_.getManyByType(results, moduleCallingContext_);
-    for (typename std::vector<Handle<PROD>>::const_iterator it = results.begin(), itEnd = results.end(); it != itEnd;
-         ++it) {
+    for (auto it = results.begin(), itEnd = results.end(); it != itEnd; ++it) {
       addToGotBranchIDs(*it->provenance());
     }
   }

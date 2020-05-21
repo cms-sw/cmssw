@@ -611,7 +611,7 @@ MuScleFit::~MuScleFit() {
       if (MuScleFitUtils::speedup) {
         // rootTreeHandler.writeTree(outputRootTreeFileName_, &(MuScleFitUtils::SavedPair), theMuonType_, 0, saveAllToTree_);
         if (debug_ > 0) {
-          std::vector<MuonPair>::const_iterator it = muonPairs_.begin();
+          auto it = muonPairs_.begin();
           std::cout << "[MuScleFit::~MuScleFit] (Destructor)" << std::endl;
           for (; it < muonPairs_.end(); ++it) {
             std::cout << "  Debugging pairs that are going to be written to file" << std::endl;
@@ -866,7 +866,7 @@ void MuScleFit::selectMuons(const edm::Event& event) {
     std::cout << "[MuScleFit::selectMuons] Debugging muons collections after call to muonSelector_->selectMuons"
               << std::endl;
     int iMu = 0;
-    for (std::vector<MuScleFitMuon>::const_iterator it = muons.begin(); it < muons.end(); ++it) {
+    for (auto it = muons.begin(); it < muons.end(); ++it) {
       std::cout << "  - muon n. " << iMu << " = " << (*it) << std::endl;
       ++iMu;
     }
@@ -976,8 +976,8 @@ void MuScleFit::selectMuons(const int maxEvents, const TString& treeFileName) {
                              &(MuScleFitUtils::genMuscleFitPair));
   }
   // Now loop on all the pairs and apply any smearing and bias if needed
-  std::vector<std::pair<unsigned int, unsigned long long> >::iterator evtRunIt = evtRun.begin();
-  std::vector<std::pair<MuScleFitMuon, MuScleFitMuon> >::iterator it = MuScleFitUtils::SavedPairMuScleFitMuons.begin();
+  auto evtRunIt = evtRun.begin();
+  auto it = MuScleFitUtils::SavedPairMuScleFitMuons.begin();
   std::vector<std::pair<MuScleFitMuon, MuScleFitMuon> >::iterator genIt;
   if (MuScleFitUtils::speedup == false)
     genIt = MuScleFitUtils::genMuscleFitPair.begin();

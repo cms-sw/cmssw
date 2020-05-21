@@ -253,8 +253,7 @@ void RecAnalyzerHF::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
     iEvent.getByToken(tok_hltL1GtMap_, gtObjectMapRecord);
     if (gtObjectMapRecord.isValid()) {
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
-      for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin(); itMap != objMapVec.end();
-           ++itMap) {
+      for (auto itMap = objMapVec.begin(); itMap != objMapVec.end(); ++itMap) {
         bool resultGt = (*itMap).algoGtlResult();
         if (resultGt) {
           int algoBit = (*itMap).algoBitNumber();
@@ -277,8 +276,7 @@ void RecAnalyzerHF::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
     if (gtObjectMapRecord.isValid()) {
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
       bool ok(false);
-      for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin(); itMap != objMapVec.end();
-           ++itMap) {
+      for (auto itMap = objMapVec.begin(); itMap != objMapVec.end(); ++itMap) {
         bool resultGt = (*itMap).algoGtlResult();
         if (resultGt) {
           int algoBit = (*itMap).algoBitNumber();
@@ -330,7 +328,7 @@ void RecAnalyzerHF::analyzeHcal(const HFPreRecHitCollection& Hithf, int algoBit,
     // Remove PMT hits
     //
     if (((noise_ || nzs_) && fabs(energy) <= 40.) || (energy >= eLowHF_ && energy <= eHighHF_)) {
-      std::map<std::pair<int, HcalDetId>, myInfo>::iterator itr1 = myMap_.find(std::pair<int, HcalDetId>(algoBit, hid));
+      auto itr1 = myMap_.find(std::pair<int, HcalDetId>(algoBit, hid));
       if (itr1 == myMap_.end()) {
         myInfo info;
         myMap_[std::pair<int, HcalDetId>(algoBit, hid)] = info;

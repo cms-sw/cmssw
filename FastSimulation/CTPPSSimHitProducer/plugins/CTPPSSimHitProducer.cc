@@ -114,9 +114,7 @@ void CTPPSSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       continue;
     double prim_vtxZ = (*ivtx)->position().z() * mm_to_m;  //in meters
     // Get the vertices at the entrance of CTPPS and get the protons coming out of them (propagated by Hector)
-    for (HepMC::GenVertex::particles_out_const_iterator i = (*ivtx)->particles_out_const_begin();
-         i != (*ivtx)->particles_out_const_end();
-         ++i) {
+    for (auto i = (*ivtx)->particles_out_const_begin(); i != (*ivtx)->particles_out_const_end(); ++i) {
       int pid = (*i)->pdg_id();
       if (pid != 2212)
         continue;
@@ -199,7 +197,7 @@ void CTPPSSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
   std::unique_ptr<edm::PSimHitContainer> pctpps(new edm::PSimHitContainer);
   int n = 0;
-  for (std::vector<PSimHit>::const_iterator i = theCTPPSHits.begin(); i != theCTPPSHits.end(); i++) {
+  for (auto i = theCTPPSHits.begin(); i != theCTPPSHits.end(); i++) {
     pctpps->push_back(*i);
     n += 1;
   }

@@ -124,7 +124,7 @@ public:
   virtual double Rcut() const { return _cut_setter->Rcut; }
   // only meaningful for DefaultCutSetter:
   virtual double Rcut_factor() const {
-    if (DefaultCutSetter *cs = dynamic_cast<DefaultCutSetter *>(_cut_setter))
+    if (auto *cs = dynamic_cast<DefaultCutSetter *>(_cut_setter))
       return cs->Rcut_factor;
     else
       return -1.0;

@@ -28,7 +28,7 @@ void PFchsMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup& 
     if (fabs(v.z()) > goodVtxZ_)
       continue;
 
-    for (reco::Vertex::trackRef_iterator track = v.tracks_begin(); track != v.tracks_end(); ++track) {
+    for (auto track = v.tracks_begin(); track != v.tracks_end(); ++track) {
       if ((*track)->charge() != 0) {
         chsSum->mex += (*track)->px();
         chsSum->mey += (*track)->py();

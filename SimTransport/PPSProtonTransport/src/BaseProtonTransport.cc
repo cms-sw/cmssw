@@ -87,10 +87,10 @@ void BaseProtonTransport::addPartToHepMC(HepMC::GenEvent* evt) {
     }
     TLorentzVector const& p_out = (it).second;
 
-    HepMC::GenVertex* vert = new HepMC::GenVertex(HepMC::FourVector((*(m_xAtTrPoint.find(line))).second,
-                                                                    (*(m_yAtTrPoint.find(line))).second,
-                                                                    ddd * direction * m_to_mm,
-                                                                    time + time * 0.001));
+    auto* vert = new HepMC::GenVertex(HepMC::FourVector((*(m_xAtTrPoint.find(line))).second,
+                                                        (*(m_yAtTrPoint.find(line))).second,
+                                                        ddd * direction * m_to_mm,
+                                                        time + time * 0.001));
 
     gpart->set_status(2);
     vert->add_particle_in(gpart);

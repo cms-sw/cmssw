@@ -233,12 +233,11 @@ void TkAlCaRecoMonitor::analyze(const edm::Event &iEvent, const edm::EventSetup 
   AlCaRecoTrackEfficiency_->Fill(static_cast<double>((*trackCollection).size()) / (*referenceTrackCollection).size());
 
   double sumOfCharges = 0;
-  for (reco::TrackCollection::const_iterator track = (*trackCollection).begin(); track < (*trackCollection).end();
-       ++track) {
+  for (auto track = (*trackCollection).begin(); track < (*trackCollection).end(); ++track) {
     double dR = 0;
     if (runsOnReco_) {
       double minJetDeltaR = 10;  // some number > 2pi
-      for (reco::CaloJetCollection::const_iterator itJet = jets->begin(); itJet != jets->end(); ++itJet) {
+      for (auto itJet = jets->begin(); itJet != jets->end(); ++itJet) {
         jetPt_->Fill((*itJet).pt());
         dR = deltaR((*track), (*itJet));
         if ((*itJet).pt() > maxJetPt_ && dR < minJetDeltaR)
@@ -251,8 +250,7 @@ void TkAlCaRecoMonitor::analyze(const edm::Event &iEvent, const edm::EventSetup 
     }
 
     double minTrackDeltaR = 10;  // some number > 2pi
-    for (reco::TrackCollection::const_iterator track2 = (*trackCollection).begin(); track2 < (*trackCollection).end();
-         ++track2) {
+    for (auto track2 = (*trackCollection).begin(); track2 < (*trackCollection).end(); ++track2) {
       dR = deltaR((*track), (*track2));
       if (dR < minTrackDeltaR && dR > 1e-6)
         minTrackDeltaR = dR;
@@ -303,7 +301,7 @@ void TkAlCaRecoMonitor::analyze(const edm::Event &iEvent, const edm::EventSetup 
 }
 
 void TkAlCaRecoMonitor::fillHitmaps(const reco::Track &track, const TrackerGeometry &geometry) {
-  for (trackingRecHit_iterator iHit = track.recHitsBegin(); iHit != track.recHitsEnd(); ++iHit) {
+  for (auto iHit = track.recHitsBegin(); iHit != track.recHitsEnd(); ++iHit) {
     if ((*iHit)->isValid()) {
       const TrackingRecHit *hit = (*iHit);
       const DetId geoId(hit->geographicalId());
@@ -328,14 +326,13 @@ void TkAlCaRecoMonitor::fillHitmaps(const reco::Track &track, const TrackerGeome
 
 void TkAlCaRecoMonitor::fillRawIdMap(const TrackerGeometry &geometry) {
   std::vector<int> sortedRawIds;
-  for (std::vector<DetId>::const_iterator iDetId = geometry.detUnitIds().begin(); iDetId != geometry.detUnitIds().end();
-       ++iDetId) {
+  for (auto iDetId = geometry.detUnitIds().begin(); iDetId != geometry.detUnitIds().end(); ++iDetId) {
     sortedRawIds.push_back((*iDetId).rawId());
   }
   std::sort(sortedRawIds.begin(), sortedRawIds.end());
 
   int i = 0;
-  for (std::vector<int>::iterator iRawId = sortedRawIds.begin(); iRawId != sortedRawIds.end(); ++iRawId) {
+  for (auto iRawId = sortedRawIds.begin(); iRawId != sortedRawIds.end(); ++iRawId) {
     binByRawId_[*iRawId] = i;
     ++i;
   }

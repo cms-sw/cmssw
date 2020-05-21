@@ -122,8 +122,8 @@ namespace sistrip {
 
     uint16_t min = 0x3FF;
     uint16_t max = 0;
-    edm::DetSetVector<SiStripRawDigi>::detset::const_iterator iDigi = channelDigis.begin();
-    const edm::DetSetVector<SiStripRawDigi>::detset::const_iterator endChannelDigis = channelDigis.end();
+    auto iDigi = channelDigis.begin();
+    const auto endChannelDigis = channelDigis.end();
 
     //counters for outputting warnings
     uint16_t numzeroes = 0, numsats = 0;
@@ -198,7 +198,7 @@ namespace sistrip {
     std::vector<uint16_t> lFirstBitVec;
     lFirstBitVec.reserve(aInputDigis->size());
     aFirstHeaderBit = 0;
-    edm::DetSetVector<SiStripRawDigi>::const_iterator lDigis = aInputDigis->begin();
+    auto lDigis = aInputDigis->begin();
 
     for (; lDigis != aInputDigis->end(); lDigis++) {
       sistrip::SpyUtilities::Frame lFrame = sistrip::SpyUtilities::extractFrameInfo(*lDigis);
@@ -249,8 +249,8 @@ namespace sistrip {
     bool foundHeader = false;
     uint16_t count = 0;
 
-    edm::DetSetVector<SiStripRawDigi>::detset::const_iterator iDigi = channelDigis.begin();
-    const edm::DetSetVector<SiStripRawDigi>::detset::const_iterator endChannelDigis = channelDigis.end();
+    auto iDigi = channelDigis.begin();
+    const auto endChannelDigis = channelDigis.end();
 
     for (; iDigi != endChannelDigis; ++iDigi) {
       if (iDigi->adc() > threshold) {
@@ -287,8 +287,8 @@ namespace sistrip {
     if (count >= sistrip::SPY_SAMPLES_PER_CHANNEL)
       return sistrip::SPY_SAMPLES_PER_CHANNEL;
 
-    edm::DetSetVector<SiStripRawDigi>::detset::const_iterator iDigi = channelDigis.begin() + count;
-    const edm::DetSetVector<SiStripRawDigi>::detset::const_iterator endChannelDigis = channelDigis.end();
+    auto iDigi = channelDigis.begin() + count;
+    const auto endChannelDigis = channelDigis.end();
 
     for (; iDigi != endChannelDigis; ++iDigi) {
       if (iDigi->adc() > threshold) {
@@ -324,8 +324,8 @@ namespace sistrip {
     if (count >= sistrip::SPY_SAMPLES_PER_CHANNEL - 1)
       return lPair;
 
-    edm::DetSetVector<SiStripRawDigi>::detset::const_iterator iDigi = channelDigis.begin() + count;
-    const edm::DetSetVector<SiStripRawDigi>::detset::const_iterator endChannelDigis = channelDigis.end();
+    auto iDigi = channelDigis.begin() + count;
+    const auto endChannelDigis = channelDigis.end();
 
     //double check....
     if (iDigi == endChannelDigis)
@@ -357,8 +357,8 @@ namespace sistrip {
     if (count >= sistrip::SPY_SAMPLES_PER_CHANNEL - 15)
       return lPair;
 
-    edm::DetSetVector<SiStripRawDigi>::detset::const_iterator iDigi = channelDigis.begin() + count;
-    const edm::DetSetVector<SiStripRawDigi>::detset::const_iterator endChannelDigis = channelDigis.end();
+    auto iDigi = channelDigis.begin() + count;
+    const auto endChannelDigis = channelDigis.end();
 
     //double check....
     if (iDigi == endChannelDigis)
@@ -415,7 +415,7 @@ namespace sistrip {
     uint32_t lMajorityCounter = 0;
     uint16_t lMaj = 0;
 
-    std::vector<uint16_t>::iterator lIter = values.begin();
+    auto lIter = values.begin();
     for (; lIter != values.end();) {
       uint32_t lCounter = std::count(lIter, values.end(), *lIter);
       if (lCounter > lMajorityCounter) {
@@ -438,7 +438,7 @@ namespace sistrip {
 
   void SpyUtilities::fillFEDMajorities(const std::map<uint32_t, uint32_t>& channelValues,
                                        std::vector<uint32_t>& fedMajoritiesToFill) {
-    std::map<uint32_t, uint32_t>::const_iterator lMapIter = channelValues.begin();
+    auto lMapIter = channelValues.begin();
     uint16_t lPreviousFedId = 0;
     std::vector<uint16_t> lAddrVec;
     lAddrVec.reserve(sistrip::FEDCH_PER_FED);

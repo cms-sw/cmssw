@@ -83,8 +83,8 @@ void GeometryInfoDump::dumpInfo(
     std::ofstream dump(dsname.c_str());
     const auto& gra = cpv.graph();
     std::set<DDLogicalPart> lpStore;
-    adjl_iterator git = gra.begin();
-    adjl_iterator gend = gra.end();
+    auto git = gra.begin();
+    auto gend = gra.end();
     Graph::index_type i = 0;
     for (; git != gend; ++git) {
       const DDLogicalPart& ddLP = gra.nodeData(git);
@@ -113,11 +113,10 @@ void GeometryInfoDump::dumpInfo(
 
 void GeometryInfoDump::dumpSpec(const std::vector<std::pair<const DDPartSelection*, const DDsvalues_type*> >& attspec,
                                 std::ostream& dump) {
-  std::vector<std::pair<const DDPartSelection*, const DDsvalues_type*> >::const_iterator bit(attspec.begin()),
-      eit(attspec.end());
+  auto bit(attspec.begin()), eit(attspec.end());
   for (; bit != eit; ++bit) {
     //  DDPartSelection is a std::vector<DDPartSelectionLevel>
-    std::vector<DDPartSelectionLevel>::const_iterator psit(bit->first->begin()), pseit(bit->first->end());
+    auto psit(bit->first->begin()), pseit(bit->first->end());
     for (; psit != pseit; ++psit) {
       switch (psit->selectionType_) {
         case ddunknown:
@@ -148,7 +147,7 @@ void GeometryInfoDump::dumpSpec(const std::vector<std::pair<const DDPartSelectio
     }
     dump << " ";
     // DDsvalues_type is typedef std::vector< std::pair<unsigned int, DDValue> > DDsvalues_type;
-    DDsvalues_type::const_iterator bsit(bit->second->begin()), bseit(bit->second->end());
+    auto bsit(bit->second->begin()), bseit(bit->second->end());
     for (; bsit != bseit; ++bsit) {
       dump << bsit->second.name() << " ";
       dump << (bsit->second.isEvaluated() ? "eval " : "NOT eval ");

@@ -4,7 +4,7 @@
 
 const CSCcrosstalk::Item& CSCcrosstalk::item(const CSCDetId& cscId, int strip) const {
   CSCIndexer indexer;
-  CrosstalkMap::const_iterator mapItr = crosstalk.find(indexer.dbIndex(cscId, strip));
+  auto mapItr = crosstalk.find(indexer.dbIndex(cscId, strip));
   if (mapItr == crosstalk.end()) {
     throw cms::Exception("CSCCrosstalk") << "Cannot find CSC conditions for chamber " << cscId;
   }

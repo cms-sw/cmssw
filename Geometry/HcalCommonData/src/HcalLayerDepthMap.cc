@@ -112,7 +112,7 @@ int HcalLayerDepthMap::getDepth(
     const int subdet, const int ieta, const int iphi, const int zside, const int layer) const {
   int depth(-1);
   if (isValid(subdet, iphi, zside)) {
-    std::map<std::pair<int, int>, int>::const_iterator itr = layer2Depth_.find(std::pair<int, int>(ieta, layer));
+    auto itr = layer2Depth_.find(std::pair<int, int>(ieta, layer));
     if (itr != layer2Depth_.end())
       depth = itr->second;
   }
@@ -158,7 +158,7 @@ int HcalLayerDepthMap::getDepthMax(const int subdet, const int ieta, const int i
 }
 
 std::pair<int, int> HcalLayerDepthMap::getDepths(const int eta) const {
-  std::map<int, std::pair<int, int> >::const_iterator itr = depthsEta_.find(eta);
+  auto itr = depthsEta_.find(eta);
   if (itr == depthsEta_.end())
     return std::pair<int, int>(-1, -1);
   else
@@ -169,7 +169,7 @@ int HcalLayerDepthMap::getLayerFront(
     const int subdet, const int ieta, const int iphi, const int zside, const int depth) const {
   int layer(-1);
   if (isValid(subdet, iphi, zside)) {
-    std::map<std::pair<int, int>, int>::const_iterator itr = depth2LayerF_.find(std::pair<int, int>(ieta, depth));
+    auto itr = depth2LayerF_.find(std::pair<int, int>(ieta, depth));
     if (itr != depth2LayerF_.end())
       layer = itr->second;
   }
@@ -184,7 +184,7 @@ int HcalLayerDepthMap::getLayerBack(
     const int subdet, const int ieta, const int iphi, const int zside, const int depth) const {
   int layer(-1);
   if (isValid(subdet, iphi, zside)) {
-    std::map<std::pair<int, int>, int>::const_iterator itr = depth2LayerB_.find(std::pair<int, int>(ieta, depth));
+    auto itr = depth2LayerB_.find(std::pair<int, int>(ieta, depth));
     if (itr != depth2LayerB_.end())
       layer = itr->second;
   }

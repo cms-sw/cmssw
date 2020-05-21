@@ -42,7 +42,7 @@ float FixedGridEnergyDensity::fixedGridRho(std::vector<float>& etabins, std::vec
   for (unsigned int ieta = 0; ieta < etabins.size(); ++ieta) {
     for (unsigned int iphi = 0; iphi < phibins.size(); ++iphi) {
       float pfniso_ieta_iphi = 0;
-      for (PFCandidateCollection::const_iterator pf_it = pfCandidates->begin(); pf_it != pfCandidates->end(); pf_it++) {
+      for (auto pf_it = pfCandidates->begin(); pf_it != pfCandidates->end(); pf_it++) {
         if (fabs(etabins[ieta] - pf_it->eta()) > etahalfdist)
           continue;
         if (fabs(reco::deltaPhi(phibins[iphi], pf_it->phi())) > phihalfdist)

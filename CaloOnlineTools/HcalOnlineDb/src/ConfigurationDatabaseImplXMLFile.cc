@@ -149,7 +149,7 @@ void ConfigurationDatabaseImplXMLFile::getFirmwareMCS(const std::string& board,
                                                       std::vector<std::string>& mcsLines) noexcept(false) {
   std::string key = ::toolbox::toString("%s:%x", board.c_str(), version);
 
-  std::map<std::string, std::pair<int, int> >::iterator j = m_lookup.find(key);
+  auto j = m_lookup.find(key);
   if (j == m_lookup.end()) {
     XCEPT_RAISE(hcal::exception::ConfigurationItemNotFoundException, "");
   }
@@ -182,7 +182,7 @@ void ConfigurationDatabaseImplXMLFile::getLUTs(
 
         std::string key =
             toolbox::toString("%s:%d:%d:%d:%d:%d:%d", tag.c_str(), crate, slot, tb, lut_type, fiber, fiberChan);
-        std::map<std::string, std::pair<int, int> >::iterator j = m_lookup.find(key);
+        auto j = m_lookup.find(key);
         if (j == m_lookup.end())
           continue;
         std::string data = "<?xml version='1.0'?>\n";
@@ -220,7 +220,7 @@ void ConfigurationDatabaseImplXMLFile::getLUTs(
         std::string key =
             toolbox::toString("%s:%d:%d:%d:%d:%d:%d", tag.c_str(), crate, slot, tb, lut_type, slb, slbChan);
 
-        std::map<std::string, std::pair<int, int> >::iterator j = m_lookup.find(key);
+        auto j = m_lookup.find(key);
         if (j == m_lookup.end())
           continue;
         std::string data = "<?xml version='1.0'?>\n";
@@ -260,7 +260,7 @@ void ConfigurationDatabaseImplXMLFile::getZSThresholds(
   thresholds.clear();
   for (int tb = 0; tb <= 1; tb++) {
     std::string key = toolbox::toString("%s:%d:%d:%d", tag.c_str(), crate, slot, tb);
-    std::map<std::string, std::pair<int, int> >::iterator j = m_lookup.find(key);
+    auto j = m_lookup.find(key);
     if (j == m_lookup.end())
       continue;
     std::string data = "<?xml version='1.0'?>\n";
@@ -300,7 +300,7 @@ void ConfigurationDatabaseImplXMLFile::getPatterns(
   for (int tb = 0; tb <= 1; tb++)
     for (int fiber = 1; fiber <= 8; fiber++) {
       std::string key = toolbox::toString("%s:%d:%d:%d:%d", tag.c_str(), crate, slot, tb, fiber);
-      std::map<std::string, std::pair<int, int> >::iterator j = m_lookup.find(key);
+      auto j = m_lookup.find(key);
       if (j == m_lookup.end())
         continue;
       std::string data = "<?xml version='1.0'?>\n";

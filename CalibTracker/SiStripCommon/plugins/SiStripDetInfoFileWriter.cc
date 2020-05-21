@@ -41,7 +41,7 @@ void SiStripDetInfoFileWriter::beginRun(const edm::Run&, const edm::EventSetup& 
     edm::LogInfo("SiStripDetInfoFileWriter") << " There are " << pDD->detUnits().size() << " detectors" << std::endl;
 
     for (const auto& it : pDD->detUnits()) {
-      const StripGeomDetUnit* mit = dynamic_cast<StripGeomDetUnit const*>(it);
+      const auto* mit = dynamic_cast<StripGeomDetUnit const*>(it);
 
       if (mit != nullptr) {
         uint32_t detid = (mit->geographicalId()).rawId();

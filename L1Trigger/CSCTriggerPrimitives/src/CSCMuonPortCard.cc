@@ -19,8 +19,8 @@ void CSCMuonPortCard::loadDigis(const CSCCorrelatedLCTDigiCollection& thedigis) 
   CSCCorrelatedLCTDigiCollection::DigiRangeIterator Citer;
 
   for (Citer = thedigis.begin(); Citer != thedigis.end(); Citer++) {
-    CSCCorrelatedLCTDigiCollection::const_iterator Diter = (*Citer).second.first;
-    CSCCorrelatedLCTDigiCollection::const_iterator Dend = (*Citer).second.second;
+    auto Diter = (*Citer).second.first;
+    auto Dend = (*Citer).second.second;
 
     for (; Diter != Dend; Diter++) {
       csctf::TrackStub theStub((*Diter), (*Citer).first);

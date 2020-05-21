@@ -48,8 +48,8 @@ void PrimitiveConversion::configure(const GeometryTranslator* tp_geom,
 
 void PrimitiveConversion::process(const std::map<int, TriggerPrimitiveCollection>& selected_prim_map,
                                   EMTFHitCollection& conv_hits) const {
-  std::map<int, TriggerPrimitiveCollection>::const_iterator map_tp_it = selected_prim_map.begin();
-  std::map<int, TriggerPrimitiveCollection>::const_iterator map_tp_end = selected_prim_map.end();
+  auto map_tp_it = selected_prim_map.begin();
+  auto map_tp_end = selected_prim_map.end();
 
   for (; map_tp_it != map_tp_end; ++map_tp_it) {
     // Unique chamber ID in FW, {0, 53} as defined in get_index_csc in src/PrimitiveSelection.cc
@@ -60,8 +60,8 @@ void PrimitiveConversion::process(const std::map<int, TriggerPrimitiveCollection
     int pc_chamber = selected % 9;  // Equals CSC ID - 1 for all except neighbor chambers
     int pc_segment = 0;             // Counts hits in a single chamber
 
-    TriggerPrimitiveCollection::const_iterator tp_it = map_tp_it->second.begin();
-    TriggerPrimitiveCollection::const_iterator tp_end = map_tp_it->second.end();
+    auto tp_it = map_tp_it->second.begin();
+    auto tp_end = map_tp_it->second.end();
 
     for (; tp_it != tp_end; ++tp_it) {
       EMTFHit conv_hit;

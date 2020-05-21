@@ -143,8 +143,8 @@ void L1GlobalCaloTrigger::process() {
     // to determine the size of the output vectors
     bxSetup();
 
-    vector<L1CaloEmCand>::iterator emc = m_allInputEmCands.begin();
-    vector<L1CaloRegion>::iterator rgn = m_allInputRegions.begin();
+    auto emc = m_allInputEmCands.begin();
+    auto rgn = m_allInputRegions.begin();
     int bx = m_bxStart;
 
     // Loop over bunch crossings
@@ -180,13 +180,13 @@ void L1GlobalCaloTrigger::bxSetup() {
     m_numOfBx = std::max(lastBxEmCand, lastBxRegion) - m_bxStart + 1;
   } else {
     // Remove any input from before the start of the requested range
-    for (vector<L1CaloEmCand>::iterator emc = m_allInputEmCands.begin(); emc != m_allInputEmCands.end(); emc++) {
+    for (auto emc = m_allInputEmCands.begin(); emc != m_allInputEmCands.end(); emc++) {
       if (emc->bx() >= m_bxStart)
         break;
       m_allInputEmCands.erase(emc);
     }
 
-    for (vector<L1CaloRegion>::iterator rgn = m_allInputRegions.begin(); rgn != m_allInputRegions.end(); rgn++) {
+    for (auto rgn = m_allInputRegions.begin(); rgn != m_allInputRegions.end(); rgn++) {
       if (rgn->bx() >= m_bxStart)
         break;
       m_allInputRegions.erase(rgn);
@@ -445,7 +445,7 @@ void L1GlobalCaloTrigger::setBxRangeAutomatic() {
 void L1GlobalCaloTrigger::fillRegions(const vector<L1CaloRegion>& rgn) {
   // To enable multiple bunch crossing operation, we copy the input regions into a vector,
   // from which they will be extracted one bunch crossing at a time and sent to the processors
-  vector<L1CaloRegion>::iterator itr = m_allInputRegions.end();
+  auto itr = m_allInputRegions.end();
   m_allInputRegions.insert(itr, rgn.begin(), rgn.end());
 }
 
@@ -453,7 +453,7 @@ void L1GlobalCaloTrigger::fillRegions(const vector<L1CaloRegion>& rgn) {
 void L1GlobalCaloTrigger::fillEmCands(const vector<L1CaloEmCand>& em) {
   // To enable multiple bunch crossing operation, we copy the input electrons into a vector,
   // from which they will be extracted one bunch crossing at a time and sent to the processors
-  vector<L1CaloEmCand>::iterator itr = m_allInputEmCands.end();
+  auto itr = m_allInputEmCands.end();
   m_allInputEmCands.insert(itr, em.begin(), em.end());
 }
 

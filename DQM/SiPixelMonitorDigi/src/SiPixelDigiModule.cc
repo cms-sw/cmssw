@@ -77,7 +77,7 @@ void SiPixelDigiModule::book(const edm::ParameterSet& iConfig,
     pytitle = "Number of Digis (1bin=one row)";
   }
   if (type == 0) {
-    SiPixelHistogramId* theHistogramId = new SiPixelHistogramId(src.label());
+    auto* theHistogramId = new SiPixelHistogramId(src.label());
     // Number of digis
     hid = theHistogramId->setHistoId("ndigis", id_);
     meNDigis_ = iBooker.book1D(hid, "Number of Digis", 25, 0., 25.);
@@ -353,7 +353,7 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input,
     DBladder = PixelBarrelName(DetId(id_), pTT, isUpgrade).ladderName();
   }
 
-  edm::DetSetVector<PixelDigi>::const_iterator isearch = input.find(id_);  // search  digis of detid
+  auto isearch = input.find(id_);  // search  digis of detid
 
   unsigned int numberOfDigisMod = 0;
   int msize;
@@ -585,7 +585,7 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input,
           chanBarrel->Fill((float)numberOfDigis[1]);
       }
       int j = 2;
-      for (std::vector<MonitorElement*>::iterator i = chanBarrelL.begin(); i != chanBarrelL.end(); i++) {
+      for (auto i = chanBarrelL.begin(); i != chanBarrelL.end(); i++) {
         if (numberOfDigis[j] > 0)
           (*i)->Fill((float)numberOfDigis[j]);
         j++;

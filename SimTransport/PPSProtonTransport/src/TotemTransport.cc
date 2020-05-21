@@ -192,7 +192,7 @@ LHCOpticsApproximator* TotemTransport::ReadParameterization(const std::string& m
   edm::LogInfo("TotemTransport") << "Root file opened, pointer:" << f;
 
   // read parametrization
-  LHCOpticsApproximator* aprox = (LHCOpticsApproximator*)f->Get(m_model_name.c_str());
+  auto* aprox = (LHCOpticsApproximator*)f->Get(m_model_name.c_str());
   f->Close();
   return aprox;
 }

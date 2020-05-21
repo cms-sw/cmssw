@@ -55,7 +55,7 @@ bool DeterministicAnnealing::isAnnealed() const { return theIsAnnealed; }
 
 void DeterministicAnnealing::debug() const {
   cout << "[DeterministicAnnealing] schedule=";
-  for (vector<float>::const_iterator i = theTemperatures.begin(); i != theTemperatures.end(); ++i) {
+  for (auto i = theTemperatures.begin(); i != theTemperatures.end(); ++i) {
     cout << *i << " ";
   };
   cout << endl;

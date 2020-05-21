@@ -61,7 +61,7 @@ L1MuBMDataBuffer::~L1MuBMDataBuffer() { delete m_tsphi; }
 // clear buffer
 //
 void L1MuBMDataBuffer::reset() {
-  TSPhivector::iterator iter = m_tsphi->begin();
+  auto iter = m_tsphi->begin();
   while (iter != m_tsphi->end()) {
     if (*iter) {
       delete *iter;
@@ -83,7 +83,7 @@ const L1MuBMTrackSegPhi* L1MuBMDataBuffer::getTSphi(int station, int reladr) con
 // add new phi track segment to the buffer
 //
 void L1MuBMDataBuffer::addTSphi(int adr, const L1MuBMTrackSegPhi& ts) {
-  L1MuBMTrackSegPhi* tmpts = new L1MuBMTrackSegPhi(ts);
+  auto* tmpts = new L1MuBMTrackSegPhi(ts);
   (*m_tsphi)[adr] = tmpts;
 }
 
@@ -91,7 +91,7 @@ void L1MuBMDataBuffer::addTSphi(int adr, const L1MuBMTrackSegPhi& ts) {
 // print all phi track segments in the buffer
 //
 void L1MuBMDataBuffer::printTSphi() const {
-  TSPhivector::const_iterator iter = m_tsphi->begin();
+  auto iter = m_tsphi->begin();
   while (iter != m_tsphi->end()) {
     if (*iter)
       cout << *(*iter) << endl;
@@ -104,7 +104,7 @@ void L1MuBMDataBuffer::printTSphi() const {
 //
 int L1MuBMDataBuffer::numberTSphi() const {
   int count = 0;
-  TSPhivector::iterator iter = m_tsphi->begin();
+  auto iter = m_tsphi->begin();
   while (iter != m_tsphi->end()) {
     if (*iter && !(*iter)->empty())
       count++;

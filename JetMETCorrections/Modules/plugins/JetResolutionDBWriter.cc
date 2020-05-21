@@ -37,7 +37,7 @@ JetResolutionDBWriter::JetResolutionDBWriter(const edm::ParameterSet& pSet) {
 void JetResolutionDBWriter::beginJob() {
   std::cout << "Loading data from '" << m_path << "'" << std::endl;
 
-  JME::JetResolutionObject* jerObject = new JME::JetResolutionObject(m_path);
+  auto* jerObject = new JME::JetResolutionObject(m_path);
 
   std::cout << "Opening PoolDBOutputService" << std::endl;
 

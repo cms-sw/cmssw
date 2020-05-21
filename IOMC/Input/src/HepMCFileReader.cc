@@ -71,7 +71,7 @@ void HepMCFileReader::initialize(const string &filename) {
 int HepMCFileReader::rdstate() const {
   // work around a HepMC IO_ inheritence shortfall
 
-  HepMC::IO_GenEvent const *p = dynamic_cast<HepMC::IO_GenEvent const *>(input());
+  auto const *p = dynamic_cast<HepMC::IO_GenEvent const *>(input());
   if (p)
     return p->rdstate();
 
@@ -170,9 +170,7 @@ void HepMCFileReader::ReadStats() {
   for (HepMC::GenEvent::vertex_const_iterator v = evt_->vertices_begin(); v != evt_->vertices_end(); ++v) {
     // making a list of incoming particles of the vertices
     // so that the mother indices in HEPEVT can be filled properly
-    for (HepMC::GenVertex::particles_in_const_iterator p1 = (*v)->particles_in_const_begin();
-         p1 != (*v)->particles_in_const_end();
-         ++p1) {
+    for (auto p1 = (*v)->particles_in_const_begin(); p1 != (*v)->particles_in_const_end(); ++p1) {
       ++particle_counter;
       //particle_counter can be very large for heavy ions
       if (particle_counter >= index_to_particle.size()) {
@@ -184,9 +182,7 @@ void HepMCFileReader::ReadStats() {
     }
     // daughters are entered only if they aren't a mother of
     // another vertex
-    for (HepMC::GenVertex::particles_out_const_iterator p2 = (*v)->particles_out_const_begin();
-         p2 != (*v)->particles_out_const_end();
-         ++p2) {
+    for (auto p2 = (*v)->particles_out_const_begin(); p2 != (*v)->particles_out_const_end(); ++p2) {
       if (!(*p2)->end_vertex()) {
         ++particle_counter;
         //particle_counter can be very large for heavy ions
@@ -250,6 +246,6 @@ void HepMCFileReader::getStatsFromTuple(int &mo1, int &mo2, int &da1, int &da2, 
 
 //-------------------------------------------------------------------------
 int HepMCFileReader::find_in_map(const std::map<HepMC::GenParticle *, int> &m, HepMC::GenParticle *p) const {
-  std::map<HepMC::GenParticle *, int>::const_iterator iter = m.find(p);
+  auto iter = m.find(p);
   return (iter == m.end()) ? 0 : iter->second;
 }

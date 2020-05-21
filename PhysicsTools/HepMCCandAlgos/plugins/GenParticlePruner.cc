@@ -162,7 +162,7 @@ void GenParticlePruner::recursiveFlagMothers(size_t index,
 void GenParticlePruner::produce(Event &evt, const EventSetup &es) {
   if (firstEvent_) {
     PdgEntryReplacer rep(es);
-    for (vector<string>::const_iterator i = selection_.begin(); i != selection_.end(); ++i) {
+    for (auto i = selection_.begin(); i != selection_.end(); ++i) {
       string cut;
       ::helper::SelectCode code;
       parse(*i, code, cut);
@@ -247,7 +247,7 @@ void GenParticlePruner::produce(Event &evt, const EventSetup &es) {
   GenParticleRefProd outRef = evt.getRefBeforePut<GenParticleCollection>();
   out->reserve(counter);
 
-  for (vector<size_t>::const_iterator i = indices_.begin(); i != indices_.end(); ++i) {
+  for (auto i = indices_.begin(); i != indices_.end(); ++i) {
     size_t index = *i;
     const GenParticle &gen = (*src)[index];
     const LeafCandidate &part = gen;

@@ -474,7 +474,7 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
     bool isGoodFile(true);
     //get all names of a file, each of them corresponds to a data catalog
     const std::vector<std::string>& fNames = fileitem.fileNames();
-    for (std::vector<std::string>::const_iterator it = fNames.begin(); it != fNames.end(); ++it) {
+    for (auto it = fNames.begin(); it != fNames.end(); ++it) {
       // Try to open a file
       try {
         file = TFile::Open(it->c_str());

@@ -160,7 +160,7 @@ std::unique_ptr<RectangularEtaPhiTrackingRegion> MuonTrackingRegionBuilder::regi
     // check if there exists at least one reconstructed vertex
     if (vtxHandleFlag && !vertexCollection->empty()) {
       // use the first vertex in the collection and assume it is the primary event vertex
-      reco::VertexCollection::const_iterator vtx = vertexCollection->begin();
+      auto vtx = vertexCollection->begin();
       if (!vtx->isFake() && vtx->isValid()) {
         vertexPos = GlobalPoint(vtx->x(), vtx->y(), vtx->z());
         deltaZ = useFixedZ ? theHalfZ : vtx->zError() * theNsigmaDz;

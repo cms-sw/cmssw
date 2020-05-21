@@ -58,8 +58,7 @@ namespace reco {
       reco::Candidate::LorentzVector tauAltP4(0., 0., 0., 0.);
 
       std::vector<reco::CandidatePtr> pfJetConstituents = tau.jetRef()->getJetConstituents();
-      for (std::vector<reco::CandidatePtr>::const_iterator pfJetConstituent = pfJetConstituents.begin();
-           pfJetConstituent != pfJetConstituents.end();
+      for (auto pfJetConstituent = pfJetConstituents.begin(); pfJetConstituent != pfJetConstituents.end();
            ++pfJetConstituent) {
         double dR = deltaR((*pfJetConstituent)->p4(), tau.p4());
         if (dR < dRcone_)

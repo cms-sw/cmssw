@@ -122,7 +122,7 @@ void MuonSimHitProducer::beginRun(edm::Run const& run, const edm::EventSetup& es
   // A few propagators
   propagatorWithMaterial = &(*(theService->propagator("SteppingHelixPropagatorAny")));
   propagatorWithoutMaterial = propagatorWithMaterial->clone();
-  SteppingHelixPropagator* SHpropagator = dynamic_cast<SteppingHelixPropagator*>(propagatorWithoutMaterial);  // Beuark!
+  auto* SHpropagator = dynamic_cast<SteppingHelixPropagator*>(propagatorWithoutMaterial);  // Beuark!
   SHpropagator->setMaterialMode(true);  // switches OFF material effects;
 }
 
@@ -477,7 +477,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   std::unique_ptr<edm::PSimHitContainer> pcsc(new edm::PSimHitContainer);
   int n = 0;
-  for (std::vector<PSimHit>::const_iterator i = theCSCHits.begin(); i != theCSCHits.end(); i++) {
+  for (auto i = theCSCHits.begin(); i != theCSCHits.end(); i++) {
     pcsc->push_back(*i);
     n += 1;
   }
@@ -485,7 +485,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   std::unique_ptr<edm::PSimHitContainer> pdt(new edm::PSimHitContainer);
   n = 0;
-  for (std::vector<PSimHit>::const_iterator i = theDTHits.begin(); i != theDTHits.end(); i++) {
+  for (auto i = theDTHits.begin(); i != theDTHits.end(); i++) {
     pdt->push_back(*i);
     n += 1;
   }
@@ -493,7 +493,7 @@ void MuonSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   std::unique_ptr<edm::PSimHitContainer> prpc(new edm::PSimHitContainer);
   n = 0;
-  for (std::vector<PSimHit>::const_iterator i = theRPCHits.begin(); i != theRPCHits.end(); i++) {
+  for (auto i = theRPCHits.begin(); i != theRPCHits.end(); i++) {
     prpc->push_back(*i);
     n += 1;
   }

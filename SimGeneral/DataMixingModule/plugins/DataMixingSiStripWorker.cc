@@ -55,7 +55,7 @@ namespace edm {
       OneDetectorMap LocalMap;
 
       // loop on all detsets (detectorIDs) inside the input collection
-      edm::DetSetVector<SiStripDigi>::const_iterator DSViter = input->begin();
+      auto DSViter = input->begin();
       for (; DSViter != input->end(); DSViter++) {
 #ifdef DEBUG
         LogDebug("DataMixingSiStripWorker") << "Processing DetID " << DSViter->id;
@@ -95,7 +95,7 @@ namespace edm {
       OneDetectorMap LocalMap;
 
       // loop on all detsets (detectorIDs) inside the input collection
-      edm::DetSetVector<SiStripDigi>::const_iterator DSViter = input->begin();
+      auto DSViter = input->begin();
       for (; DSViter != input->end(); DSViter++) {
 #ifdef DEBUG
         LogDebug("DataMixingSiStripWorker") << "Pileups: Processing DetID " << DSViter->id;
@@ -138,7 +138,7 @@ namespace edm {
 
     // big loop over Detector IDs:
 
-    for (SiGlobalIndex::const_iterator IDet = SiHitStorage_.begin(); IDet != SiHitStorage_.end(); IDet++) {
+    for (auto IDet = SiHitStorage_.begin(); IDet != SiHitStorage_.end(); IDet++) {
       edm::DetSet<SiStripDigi> SSD(IDet->first);  // Make empty collection with this detector ID
 
       OneDetectorMap LocalMap = IDet->second;
@@ -149,7 +149,7 @@ namespace edm {
       int ADCSum = 0;
 
       OneDetectorMap::const_iterator iLocalchk;
-      OneDetectorMap::const_iterator iLocal = LocalMap.begin();
+      auto iLocal = LocalMap.begin();
       for (; iLocal != LocalMap.end(); ++iLocal) {
         currentStrip = iLocal->strip();
 

@@ -92,12 +92,12 @@ namespace hcaldqm {
 
     //	iterate over all channels
     std::vector<HcalGenericDetId> gids = _emap->allPrecisionId();
-    for (std::vector<HcalGenericDetId>::const_iterator it = gids.begin(); it != gids.end(); ++it) {
+    for (auto it = gids.begin(); it != gids.end(); ++it) {
       if (!it->isHcalDetId())
         continue;
 
       HcalDetId did(it->rawId());
-      HcalElectronicsId eid = HcalElectronicsId(ehashmap.lookup(did));
+      auto eid = HcalElectronicsId(ehashmap.lookup(did));
 
       if (did.subdet() == HcalForward)
         xUniHF.get(eid) += cOccupancyCut_depth.getBinContent(did);
@@ -133,7 +133,7 @@ namespace hcaldqm {
     //	summary flags
     std::vector<flag::Flag> sumflags;
     int icrate = 0;
-    for (std::vector<uint32_t>::const_iterator it = _vhashCrates.begin(); it != _vhashCrates.end(); ++it) {
+    for (auto it = _vhashCrates.begin(); it != _vhashCrates.end(); ++it) {
       flag::Flag fSum("RECO");
       HcalElectronicsId eid(*it);
       HcalDetId did = HcalDetId(_emap->lookup(eid));
@@ -154,7 +154,7 @@ namespace hcaldqm {
 
       //	combine
       int iflag = 0;
-      for (std::vector<flag::Flag>::iterator ft = vflags.begin(); ft != vflags.end(); ++ft) {
+      for (auto ft = vflags.begin(); ft != vflags.end(); ++ft) {
         cSummary.setBinContent(eid, iflag, ft->_state);
         fSum += (*ft);
         iflag++;

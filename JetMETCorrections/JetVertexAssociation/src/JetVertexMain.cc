@@ -34,7 +34,7 @@ std::pair<double, bool> JetVertexMain::Main(const reco::CaloJet& jet,
   double Pt_jets_X_tot = 0.;
   double Pt_jets_Y_tot = 0.;
 
-  TrackCollection::const_iterator track = tracks->begin();
+  auto track = tracks->begin();
 
   if (!tracks->empty()) {
     for (; track != tracks->end(); track++) {

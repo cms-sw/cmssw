@@ -46,7 +46,7 @@ NtpProducer<C>::NtpProducer(const edm::ParameterSet& par)
       prefix_(par.template getUntrackedParameter<std::string>("prefix", "")),
       eventInfo_(par.template getUntrackedParameter<bool>("eventInfo", true)) {
   std::vector<edm::ParameterSet> variables = par.template getParameter<std::vector<edm::ParameterSet> >("variables");
-  std::vector<edm::ParameterSet>::const_iterator q = variables.begin(), end = variables.end();
+  auto q = variables.begin(), end = variables.end();
   if (eventInfo_) {
     produces<edm::EventNumber_t>(prefix_ + "EventNumber").setBranchAlias(prefix_ + "EventNumber");
     produces<unsigned int>(prefix_ + "RunNumber").setBranchAlias(prefix_ + "RunNumber");
@@ -79,9 +79,7 @@ void NtpProducer<C>::produce(edm::Event& iEvent, const edm::EventSetup&) {
     iEvent.put(std::move(run), prefix_ + "RunNumber");
     iEvent.put(std::move(lumi), prefix_ + "LumiBlock");
   }
-  typename std::vector<std::pair<std::string, StringObjectFunction<typename C::value_type> > >::const_iterator
-      q = tags_.begin(),
-      end = tags_.end();
+  auto q = tags_.begin(), end = tags_.end();
   for (; q != end; ++q) {
     std::unique_ptr<std::vector<float> > x(new std::vector<float>);
     x->reserve(coll->size());

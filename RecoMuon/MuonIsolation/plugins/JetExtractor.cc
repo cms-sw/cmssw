@@ -86,7 +86,7 @@ IsoDeposit JetExtractor::deposit(const Event& event, const EventSetup& eventSetu
   event.getByToken(theJetCollectionToken, caloJetsH);
 
   //use calo towers
-  CaloJetCollection::const_iterator jetCI = caloJetsH->begin();
+  auto jetCI = caloJetsH->begin();
   for (; jetCI != caloJetsH->end(); ++jetCI) {
     double deltar0 = reco::deltaR(muon, *jetCI);
     if (deltar0 > theDR_Max)
@@ -97,8 +97,8 @@ IsoDeposit JetExtractor::deposit(const Event& event, const EventSetup& eventSetu
     //should I make a separate config option for this?
     std::vector<CaloTowerPtr> jetConstituents = jetCI->getCaloConstituents();
 
-    std::vector<DetId>::const_iterator crossedCI = mInfo.crossedTowerIds.begin();
-    std::vector<CaloTowerPtr>::const_iterator jetTowCI = jetConstituents.begin();
+    auto crossedCI = mInfo.crossedTowerIds.begin();
+    auto jetTowCI = jetConstituents.begin();
 
     double sumEtExcluded = 0;
     for (; jetTowCI != jetConstituents.end(); ++jetTowCI) {
@@ -128,7 +128,7 @@ IsoDeposit JetExtractor::deposit(const Event& event, const EventSetup& eventSetu
     depJet.addDeposit(jetDir, depositEt);
   }
 
-  std::vector<const CaloTower*>::const_iterator crossedCI = mInfo.crossedTowers.begin();
+  auto crossedCI = mInfo.crossedTowers.begin();
   double muSumEt = 0;
   for (; crossedCI != mInfo.crossedTowers.end(); ++crossedCI) {
     muSumEt += (*crossedCI)->et();

@@ -28,8 +28,8 @@ bLayer::bLayer(handles::const_iterator begin, handles::const_iterator end, bool 
   }
 
   // Find sectors in phi
-  handles::iterator secBegin = theVolumes.begin();
-  handles::iterator secEnd = secBegin;
+  auto secBegin = theVolumes.begin();
+  auto secEnd = secBegin;
   int binOffset = 0;
 
   const Surface& refSurf = (*secBegin)->surface(outer);

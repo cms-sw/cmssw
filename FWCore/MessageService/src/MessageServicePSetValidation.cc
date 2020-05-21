@@ -179,8 +179,8 @@ namespace edm {
     void edm::service::MessageServicePSetValidation::vStringsCheck(ParameterSet const& pset,
                                                                    std::string const& /*psetName*/) {
       vString vStrings = pset.getParameterNamesForType<vString>(false);
-      vString::const_iterator end = vStrings.end();
-      for (vString::const_iterator i = vStrings.begin(); i != end; ++i) {
+      auto end = vStrings.end();
+      for (auto i = vStrings.begin(); i != end; ++i) {
         if (!allowedVstring(*i)) {
           flaws << "MessageLogger"
                 << " PSet: \n"
@@ -190,7 +190,7 @@ namespace edm {
       }
       vStrings = pset.getParameterNamesForType<vString>(true);
       end = vStrings.end();
-      for (vString::const_iterator i = vStrings.begin(); i != end; ++i) {
+      for (auto i = vStrings.begin(); i != end; ++i) {
         flaws << "MessageLogger"
               << " PSet: \n"
               << (*i) << " is used as a tracked vstring: "
@@ -248,9 +248,9 @@ namespace edm {
     void edm::service::MessageServicePSetValidation::noDuplicates(vString const& v,
                                                                   std::string const& psetName,
                                                                   std::string const& parameterLabel) {
-      vString::const_iterator end = v.end();
-      for (vString::const_iterator i = v.begin(); i != end; ++i) {
-        for (vString::const_iterator j = i + 1; j != end; ++j) {
+      auto end = v.end();
+      for (auto i = v.begin(); i != end; ++i) {
+        for (auto j = i + 1; j != end; ++j) {
           if (*i == *j) {
             flaws << psetName << " PSet: \n"
                   << "in vString " << parameterLabel << " duplication of the string " << *i << "\n";
@@ -264,10 +264,10 @@ namespace edm {
                                                                   std::string const& psetName,
                                                                   std::string const& p1,
                                                                   std::string const& p2) {
-      vString::const_iterator end1 = v1.end();
-      vString::const_iterator end2 = v2.end();
-      for (vString::const_iterator i = v1.begin(); i != end1; ++i) {
-        for (vString::const_iterator j = v2.begin(); j != end2; ++j) {
+      auto end1 = v1.end();
+      auto end2 = v2.end();
+      for (auto i = v1.begin(); i != end1; ++i) {
+        for (auto j = v2.begin(); j != end2; ++j) {
           if (*i == *j) {
             flaws << psetName << " PSet: \n"
                   << "in vStrings " << p1 << " and " << p2 << " duplication of the string " << *i << "\n";
@@ -279,10 +279,10 @@ namespace edm {
     void edm::service::MessageServicePSetValidation::noCoutCerrClash(vString const& v,
                                                                      std::string const& psetName,
                                                                      std::string const& parameterLabel) {
-      vString::const_iterator end = v.end();
+      auto end = v.end();
       bool coutPresent = false;
       bool cerrPresent = false;
-      for (vString::const_iterator i = v.begin(); i != end; ++i) {
+      for (auto i = v.begin(); i != end; ++i) {
         if (*i == "cout")
           coutPresent = true;
         if (*i == "cerr")
@@ -297,8 +297,8 @@ namespace edm {
     void edm::service::MessageServicePSetValidation::noKeywords(vString const& v,
                                                                 std::string const& psetName,
                                                                 std::string const& parameterLabel) {
-      vString::const_iterator end = v.end();
-      for (vString::const_iterator i = v.begin(); i != end; ++i) {
+      auto end = v.end();
+      for (auto i = v.begin(); i != end; ++i) {
         if (!keywordCheck(*i)) {
           flaws << psetName << " PSet: \n"
                 << "vString " << parameterLabel << " should not contain the keyword " << *i << "\n";
@@ -384,10 +384,10 @@ namespace edm {
                                                                  std::string const& psetName,
                                                                  std::string const& parameterLabel,
                                                                  std::string const& type) {
-      vString::const_iterator end1 = v.end();
-      vString::const_iterator end2 = params.end();
-      for (vString::const_iterator i = v.begin(); i != end1; ++i) {
-        for (vString::const_iterator j = params.begin(); j != end2; ++j) {
+      auto end1 = v.end();
+      auto end2 = params.end();
+      for (auto i = v.begin(); i != end1; ++i) {
+        for (auto j = params.begin(); j != end2; ++j) {
           if (*i == *j) {
             flaws << psetName << " PSet: \n"
                   << *i << " (listed in vstring " << parameterLabel << ")\n"
@@ -399,8 +399,8 @@ namespace edm {
     }  // noBadParams
 
     bool edm::service::MessageServicePSetValidation::wildcard(vString const& v) {
-      vString::const_iterator end = v.end();
-      for (vString::const_iterator i = v.begin(); i != end; ++i) {
+      auto end = v.end();
+      for (auto i = v.begin(); i != end; ++i) {
         if ((*i) == "*")
           return true;
       }
@@ -410,8 +410,8 @@ namespace edm {
     void edm::service::MessageServicePSetValidation::noOtherPsets(ParameterSet const& pset) {
       vString psnames;
       pset.getParameterSetNames(psnames, false);
-      vString::const_iterator end = psnames.end();
-      for (vString::const_iterator i = psnames.begin(); i != end; ++i) {
+      auto end = psnames.end();
+      for (auto i = psnames.begin(); i != end; ++i) {
         if (lookForMatch(destinations, *i))
           continue;
         if (lookForMatch(statistics, *i))
@@ -442,7 +442,7 @@ namespace edm {
       unsigned int n = pset.getParameterSetNames(psnames, true);
       if (n > 0) {
         end = psnames.end();
-        for (vString::const_iterator i = psnames.begin(); i != end; ++i) {
+        for (auto i = psnames.begin(); i != end; ++i) {
           flaws << "MessageLogger "
                 << " PSet: \n"
                 << "PSet " << *i << " is tracked - not allowed\n";
@@ -451,15 +451,15 @@ namespace edm {
     }
 
     bool edm::service::MessageServicePSetValidation::lookForMatch(vString const& v, std::string const& s) {
-      vString::const_iterator begin = v.begin();
-      vString::const_iterator end = v.end();
+      auto begin = v.begin();
+      auto end = v.end();
       return (std::find(begin, end, s) != end);
     }
 
     void edm::service::MessageServicePSetValidation::destinationPSets(ParameterSet const& pset) {
       ParameterSet empty_PSet;
-      std::vector<std::string>::const_iterator end = destinations.end();
-      for (std::vector<std::string>::const_iterator i = destinations.begin(); i != end; ++i) {
+      auto end = destinations.end();
+      for (auto i = destinations.begin(); i != end; ++i) {
         ParameterSet const& d = pset.getUntrackedParameterSet(*i, empty_PSet);
         destinationPSet(d, *i);
       }
@@ -564,8 +564,8 @@ namespace edm {
 
     void edm::service::MessageServicePSetValidation::statisticsPSets(ParameterSet const& pset) {
       ParameterSet empty_PSet;
-      std::vector<std::string>::const_iterator end = statistics.end();
-      for (std::vector<std::string>::const_iterator i = statistics.begin(); i != end; ++i) {
+      auto end = statistics.end();
+      for (auto i = statistics.begin(); i != end; ++i) {
         if (lookForMatch(destinations, *i))
           continue;
         ParameterSet const& d = pset.getUntrackedParameterSet(*i, empty_PSet);
@@ -620,8 +620,8 @@ namespace edm {
 
     void edm::service::MessageServicePSetValidation::fwkJobReportPSets(ParameterSet const& pset) {
       ParameterSet empty_PSet;
-      std::vector<std::string>::const_iterator end = fwkJobReports.end();
-      for (std::vector<std::string>::const_iterator i = fwkJobReports.begin(); i != end; ++i) {
+      auto end = fwkJobReports.end();
+      for (auto i = fwkJobReports.begin(); i != end; ++i) {
         ParameterSet const& d = pset.getUntrackedParameterSet(*i, empty_PSet);
         fwkJobReportPSet(d, *i);
       }
@@ -670,8 +670,8 @@ namespace edm {
                                                                         std::string const& psetName) {
       vString psnames;
       pset.getParameterSetNames(psnames, false);
-      vString::const_iterator end = psnames.end();
-      for (vString::const_iterator i = psnames.begin(); i != end; ++i) {
+      auto end = psnames.end();
+      for (auto i = psnames.begin(); i != end; ++i) {
         if (lookForMatch(categories, *i))
           continue;
         if (lookForMatch(messageIDs, *i))
@@ -702,7 +702,7 @@ namespace edm {
       unsigned int n = pset.getParameterSetNames(psnames, true);
       if (n > 0) {
         end = psnames.end();
-        for (vString::const_iterator i = psnames.begin(); i != end; ++i) {
+        for (auto i = psnames.begin(); i != end; ++i) {
           flaws << psetName << " PSet: \n"
                 << "PSet " << *i << " is tracked - not allowed\n";
         }
@@ -719,8 +719,8 @@ namespace edm {
         categoryPSet(pset, psetName, "default");
       // The above conditional is because default in the main level is treated
       // as a set of defaults differnt from those of a simple category.
-      std::vector<std::string>::const_iterator end = categories.end();
-      for (std::vector<std::string>::const_iterator i = categories.begin(); i != end; ++i) {
+      auto end = categories.end();
+      for (auto i = categories.begin(); i != end; ++i) {
         categoryPSet(pset, psetName, *i);
       }
     }  // categoryPSets
@@ -750,8 +750,8 @@ namespace edm {
                                                              std::string const& psetName,
                                                              std::string const& categoryName) {
       vString x = pset.getParameterNamesForType<int>(false);
-      vString::const_iterator end = x.end();
-      for (vString::const_iterator i = x.begin(); i != end; ++i) {
+      auto end = x.end();
+      for (auto i = x.begin(); i != end; ++i) {
         if (*i == "limit")
           continue;
         if (*i == "reportEvery")
@@ -763,7 +763,7 @@ namespace edm {
       }
       x = pset.getParameterNamesForType<int>(true);
       end = x.end();
-      for (vString::const_iterator i = x.begin(); i != end; ++i) {
+      for (auto i = x.begin(); i != end; ++i) {
         flaws << categoryName << " category PSet nested in " << psetName << " PSet: \n"
               << (*i) << " is used as a tracked int \n"
               << "Tracked parameters not allowed here \n";
@@ -775,8 +775,8 @@ namespace edm {
                                                                 std::string const& categoryName) {
       vString psnames;
       pset.getParameterSetNames(psnames, false);
-      vString::const_iterator end = psnames.end();
-      for (vString::const_iterator i = psnames.begin(); i != end; ++i) {
+      auto end = psnames.end();
+      for (auto i = psnames.begin(); i != end; ++i) {
         flaws << categoryName << " category PSet nested in " << psetName << " PSet: \n"
               << *i << " is used as a  PSet\n"
               << "PSets not allowed within a category PSet\n";
@@ -785,7 +785,7 @@ namespace edm {
       unsigned int n = pset.getParameterSetNames(psnames, true);
       if (n > 0) {
         end = psnames.end();
-        for (vString::const_iterator i = psnames.begin(); i != end; ++i) {
+        for (auto i = psnames.begin(); i != end; ++i) {
           flaws << categoryName << " category PSet nested in " << psetName << " PSet: \n"
                 << *i << " is used as a tracked PSet\n"
                 << "tracked parameters not permitted, and "
@@ -799,8 +799,8 @@ namespace edm {
                                                                         std::string const& categoryName,
                                                                         std::string const& type) {
       vString x = pset.getParameterNamesForType<bool>(false);
-      vString::const_iterator end = x.end();
-      for (vString::const_iterator i = x.begin(); i != end; ++i) {
+      auto end = x.end();
+      for (auto i = x.begin(); i != end; ++i) {
         if (((*i) == "placeholder") || ((*i) == "optionalPSet"))
           continue;
         flaws << categoryName << " category PSet nested in " << psetName << " PSet: \n"
@@ -809,7 +809,7 @@ namespace edm {
       }
       x = pset.getParameterNamesForType<bool>(true);
       end = x.end();
-      for (vString::const_iterator i = x.begin(); i != end; ++i) {
+      for (auto i = x.begin(); i != end; ++i) {
         flaws << categoryName << " category PSet nested in " << psetName << " PSet: \n"
               << (*i) << " is used as a tracked " << type << "\n"
               << "Tracked parameters not allowed here, "

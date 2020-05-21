@@ -113,7 +113,7 @@ bool PhotonIsoProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   unsigned int ivtx = 0;
   reco::VertexRef myVtxRef(vertexCollection, ivtx);
 
-  for (reco::PhotonCollection::const_iterator aPho = recoPho->begin(); aPho != recoPho->end(); ++aPho) {
+  for (auto aPho = recoPho->begin(); aPho != recoPho->end(); ++aPho) {
     isolator.fGetIsolation(&*aPho, &thePfColl, myVtxRef, vertexCollection);
 
     if (verbose_) {

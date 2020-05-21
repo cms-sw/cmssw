@@ -251,7 +251,7 @@ void L1TGlobalSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       cout << " ------ Bx= " << i << " ext ----------" << endl;
       if (ext.isValid()) {
         if (i >= ext->getFirstBX() && i <= ext->getLastBX()) {
-          for (std::vector<GlobalExtBlk>::const_iterator extBlk = ext->begin(i); extBlk != ext->end(i); ++extBlk) {
+          for (auto extBlk = ext->begin(i); extBlk != ext->end(i); ++extBlk) {
             extBlk->print(cout);
             cout << std::dec;
           }
@@ -266,7 +266,7 @@ void L1TGlobalSummary::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       cout << " ------ Bx= " << i << " alg ----------" << endl;
       if (alg.isValid()) {
         if (i >= alg->getFirstBX() && i <= alg->getLastBX()) {
-          for (std::vector<GlobalAlgBlk>::const_iterator algBlk = alg->begin(i); algBlk != alg->end(i); ++algBlk) {
+          for (auto algBlk = alg->begin(i); algBlk != alg->end(i); ++algBlk) {
             algBlk->print(cout);
             cout << std::dec;
           }

@@ -975,7 +975,7 @@ reco::Track TrackExtenderWithMTDT<TrackCollection>::buildTrack(const reco::Track
       bool ismtd = hit.recHit()->geographicalId().det() == DetId::Forward &&
                    ForwardSubdetector(hit.recHit()->geographicalId().subdetId()) == FastTime;
       if (ismtd) {
-        const MTDTrackingRecHit* mtdhit = static_cast<const MTDTrackingRecHit*>(hit.recHit()->hit());
+        const auto* mtdhit = static_cast<const MTDTrackingRecHit*>(hit.recHit()->hit());
         thit = mtdhit->time();
         thiterror = mtdhit->timeError();
         validmtd = true;

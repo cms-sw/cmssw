@@ -36,8 +36,8 @@ bool TripletFilter::checkTrack(const vector<const TrackingRecHit*>& recHits,
                                const SiPixelClusterShapeCache& clusterShapeCache) {
   bool ok = true;
 
-  vector<LocalVector>::const_iterator localDir = localDirs.begin();
-  for (vector<const TrackingRecHit*>::const_iterator recHit = recHits.begin(); recHit != recHits.end(); recHit++) {
+  auto localDir = localDirs.begin();
+  for (auto recHit = recHits.begin(); recHit != recHits.end(); recHit++) {
     const SiPixelRecHit* pixelRecHit = dynamic_cast<const SiPixelRecHit*>(*recHit);
 
     if (!pixelRecHit->isValid()) {
@@ -65,8 +65,8 @@ bool TripletFilter::checkTrack(const vector<const TrackingRecHit*>& recHits,
                                const SiPixelClusterShapeCache& clusterShapeCache) {
   bool ok = true;
 
-  vector<GlobalVector>::const_iterator globalDir = globalDirs.begin();
-  for (vector<const TrackingRecHit*>::const_iterator recHit = recHits.begin(); recHit != recHits.end(); recHit++) {
+  auto globalDir = globalDirs.begin();
+  for (auto recHit = recHits.begin(); recHit != recHits.end(); recHit++) {
     const SiPixelRecHit* pixelRecHit = dynamic_cast<const SiPixelRecHit*>(*recHit);
 
     if (!pixelRecHit->isValid()) {

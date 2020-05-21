@@ -281,12 +281,10 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent, const edm::EventSetup& 
   const EBUncalibratedRecHitCollection* EBUncalibRecHit = EcalUncalibRecHitEB.product();
   const EBRecHitCollection* EBRecHit = EcalRecHitEB.product();
 
-  for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EBUncalibRecHit->begin();
-       uncalibRecHit != EBUncalibRecHit->end();
-       ++uncalibRecHit) {
+  for (auto uncalibRecHit = EBUncalibRecHit->begin(); uncalibRecHit != EBUncalibRecHit->end(); ++uncalibRecHit) {
     EBDetId EBid = EBDetId(uncalibRecHit->id());
 
-    EcalRecHitCollection::const_iterator myRecHit = EBRecHit->find(EBid);
+    auto myRecHit = EBRecHit->find(EBid);
 
     if (myRecHit != EBRecHit->end()) {
       ++nEBRecHits;
@@ -342,12 +340,10 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent, const edm::EventSetup& 
   const EEUncalibratedRecHitCollection* EEUncalibRecHit = EcalUncalibRecHitEE.product();
   const EERecHitCollection* EERecHit = EcalRecHitEE.product();
 
-  for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EEUncalibRecHit->begin();
-       uncalibRecHit != EEUncalibRecHit->end();
-       ++uncalibRecHit) {
+  for (auto uncalibRecHit = EEUncalibRecHit->begin(); uncalibRecHit != EEUncalibRecHit->end(); ++uncalibRecHit) {
     EEDetId EEid = EEDetId(uncalibRecHit->id());
 
-    EcalRecHitCollection::const_iterator myRecHit = EERecHit->find(EEid);
+    auto myRecHit = EERecHit->find(EEid);
 
     if (myRecHit != EERecHit->end()) {
       ++nEERecHits;
@@ -394,7 +390,7 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent, const edm::EventSetup& 
   int nESRecHits = 0;
   // loop over RecHits
   const ESRecHitCollection* ESRecHit = EcalRecHitES.product();
-  for (EcalRecHitCollection::const_iterator recHit = ESRecHit->begin(); recHit != ESRecHit->end(); ++recHit) {
+  for (auto recHit = ESRecHit->begin(); recHit != ESRecHit->end(); ++recHit) {
     ESDetId ESid = ESDetId(recHit->id());
 
     ++nESRecHits;
@@ -484,8 +480,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent, const edm::EventSetup& 
   MapType fHEEnergySimHits;
   MapType fHOEnergySimHits;
   MapType fHFEnergySimHits;
-  for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end();
-       ++simhits) {
+  for (auto simhits = simhitResult->begin(); simhits != simhitResult->end(); ++simhits) {
     HcalDetId detId(simhits->id());
     uint32_t cellid = detId.rawId();
 
@@ -536,7 +531,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent, const edm::EventSetup& 
   int iHE = 0;
   for (ihbhe = hbhe.begin(); ihbhe != hbhe.end(); ++ihbhe) {
     // find max values
-    for (HBHERecHitCollection::const_iterator jhbhe = (*ihbhe)->begin(); jhbhe != (*ihbhe)->end(); ++jhbhe) {
+    for (auto jhbhe = (*ihbhe)->begin(); jhbhe != (*ihbhe)->end(); ++jhbhe) {
       HcalDetId cell(jhbhe->id());
 
       if (cell.subdet() == sdHcalBrl) {
@@ -566,7 +561,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent, const edm::EventSetup& 
       }
     }  // end find max values
 
-    for (HBHERecHitCollection::const_iterator jhbhe = (*ihbhe)->begin(); jhbhe != (*ihbhe)->end(); ++jhbhe) {
+    for (auto jhbhe = (*ihbhe)->begin(); jhbhe != (*ihbhe)->end(); ++jhbhe) {
       HcalDetId cell(jhbhe->id());
 
       if (cell.subdet() == sdHcalBrl) {
@@ -641,7 +636,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent, const edm::EventSetup& 
   int iHF = 0;
   for (ihf = hf.begin(); ihf != hf.end(); ++ihf) {
     // find max values
-    for (HFRecHitCollection::const_iterator jhf = (*ihf)->begin(); jhf != (*ihf)->end(); ++jhf) {
+    for (auto jhf = (*ihf)->begin(); jhf != (*ihf)->end(); ++jhf) {
       HcalDetId cell(jhf->id());
 
       if (cell.subdet() == sdHcalFwd) {
@@ -656,7 +651,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent, const edm::EventSetup& 
       }
     }  // end find max values
 
-    for (HFRecHitCollection::const_iterator jhf = (*ihf)->begin(); jhf != (*ihf)->end(); ++jhf) {
+    for (auto jhf = (*ihf)->begin(); jhf != (*ihf)->end(); ++jhf) {
       HcalDetId cell(jhf->id());
 
       if (cell.subdet() == sdHcalFwd) {
@@ -701,7 +696,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent, const edm::EventSetup& 
 
   int iHO = 0;
   for (iho = ho.begin(); iho != ho.end(); ++iho) {
-    for (HORecHitCollection::const_iterator jho = (*iho)->begin(); jho != (*iho)->end(); ++jho) {
+    for (auto jho = (*iho)->begin(); jho != (*iho)->end(); ++jho) {
       HcalDetId cell(jho->id());
 
       if (cell.subdet() == sdHcalOut) {
@@ -832,7 +827,7 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent, const edm::EventSetup& i
   int nStripBrl = 0, nStripFwd = 0;
 
   // loop over det units
-  for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); ++it) {
+  for (auto it = pDD->dets().begin(); it != pDD->dets().end(); ++it) {
     uint32_t myid = ((*it)->geographicalId()).rawId();
     DetId detid = ((*it)->geographicalId());
 
@@ -868,7 +863,7 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent, const edm::EventSetup& i
           const StripGeomDetUnit* partnerstripdet = (StripGeomDetUnit*)gluedDet->stereoDet();
           std::pair<LocalPoint, LocalVector> hitPair;
 
-          for (std::vector<PSimHit>::const_iterator m = matched.begin(); m != matched.end(); m++) {
+          for (auto m = matched.begin(); m != matched.end(); m++) {
             //project simhit;
             hitPair = projectHit((*m), partnerstripdet, gluedDet->surface());
             distx = fabs(rechitmatchedx - hitPair.first.x());
@@ -1054,7 +1049,7 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent, const edm::EventSetup& i
 
   int nPxlBrl = 0, nPxlFwd = 0;
   //iterate over detunits
-  for (TrackerGeometry::DetContainer::const_iterator it = geom->dets().begin(); it != geom->dets().end(); ++it) {
+  for (auto it = geom->dets().begin(); it != geom->dets().end(); ++it) {
     uint32_t myid = ((*it)->geographicalId()).rawId();
     DetId detId = ((*it)->geographicalId());
     int subid = detId.subdetId();
@@ -1090,7 +1085,7 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent, const edm::EventSetup& i
         float sim_y = 0.;
 
         //loop over sim hits and fill closet
-        for (std::vector<PSimHit>::const_iterator m = matched.begin(); m != matched.end(); ++m) {
+        for (auto m = matched.begin(); m != matched.end(); ++m) {
           float sim_x1 = (*m).entryPoint().x();
           float sim_x2 = (*m).exitPoint().x();
           float sim_xpos = 0.5 * (sim_x1 + sim_x2);
@@ -1659,7 +1654,7 @@ void GlobalRecHitsProducer::fillMuon(edm::Event& iEvent, const edm::EventSetup& 
     int detId = (*recHitItr).cscDetId().rawId();
 
     edm::PSimHitContainer simHits;
-    std::map<int, edm::PSimHitContainer>::const_iterator mapItr = theMap.find(detId);
+    auto mapItr = theMap.find(detId);
     if (mapItr != theMap.end()) {
       simHits = mapItr->second;
     }
@@ -1728,7 +1723,7 @@ void GlobalRecHitsProducer::fillMuon(edm::Event& iEvent, const edm::EventSetup& 
   }
 
   int i = 0;
-  for (std::map<double, int>::iterator iter = maprec.begin(); iter != maprec.end(); ++iter) {
+  for (auto iter = maprec.begin(); iter != maprec.end(); ++iter) {
     i = i + 1;
     nmaprec[i] = (*iter).first;
   }
@@ -1747,7 +1742,7 @@ void GlobalRecHitsProducer::fillMuon(edm::Event& iEvent, const edm::EventSetup& 
   }
 
   i = 0;
-  for (std::map<double, int>::iterator iter = mapsim.begin(); iter != mapsim.end(); ++iter) {
+  for (auto iter = mapsim.begin(); iter != mapsim.end(); ++iter) {
     i = i + 1;
     nmapsim[i] = (*iter).first;
   }
@@ -2039,7 +2034,7 @@ const type* GlobalRecHitsProducer::findBestRecHit(const DTLayer* layer,
   float res = 99999;
   const type* theBestRecHit = nullptr;
   // Loop over RecHits within the cell
-  for (typename std::vector<type>::const_iterator recHit = recHits.begin(); recHit != recHits.end(); recHit++) {
+  for (auto recHit = recHits.begin(); recHit != recHits.end(); recHit++) {
     float distTmp = recHitDistFromWire(*recHit, layer);
     if (fabs(distTmp - simHitDist) < res) {
       res = fabs(distTmp - simHitDist);
@@ -2070,9 +2065,7 @@ int GlobalRecHitsProducer::compute(const DTGeometry* dtGeom,
   std::map<DTWireId, std::vector<type>> recHitsPerWire = _recHitsPerWire;
   int nDt = 0;
   // Loop over cells with a muon SimHit
-  for (std::map<DTWireId, std::vector<PSimHit>>::const_iterator wireAndSHits = simHitsPerWire.begin();
-       wireAndSHits != simHitsPerWire.end();
-       wireAndSHits++) {
+  for (auto wireAndSHits = simHitsPerWire.begin(); wireAndSHits != simHitsPerWire.end(); wireAndSHits++) {
     DTWireId wireId = (*wireAndSHits).first;
     std::vector<PSimHit> simHitsInCell = (*wireAndSHits).second;
 

@@ -399,7 +399,7 @@ bool CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
 
 void CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc, const CSCDetId& id) {
   CSCWireDigiCollection::Range rwired = wiredc->get(id);
-  for (CSCWireDigiCollection::const_iterator digiIt = rwired.first; digiIt != rwired.second; ++digiIt) {
+  for (auto digiIt = rwired.first; digiIt != rwired.second; ++digiIt) {
     digiV[id.layer() - 1].push_back(*digiIt);
   }
 }
@@ -656,7 +656,7 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
     // calculate median
     const int sz = mset_for_median.size();
     if (sz > 0) {
-      std::multiset<int>::iterator im = mset_for_median.begin();
+      auto im = mset_for_median.begin();
       if (sz > 1)
         std::advance(im, sz / 2 - 1);
       if (sz == 1)

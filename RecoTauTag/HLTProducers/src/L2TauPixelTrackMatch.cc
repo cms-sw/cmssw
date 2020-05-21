@@ -59,7 +59,7 @@ void L2TauPixelTrackMatch::produce(edm::Event& ev, const edm::EventSetup& es) {
   // *** Selects interesting tracks ***
 
   vector<TinyTrack> good_tracks;
-  for (TrackCollection::const_iterator itrk = tracksHandle->begin(); itrk != tracksHandle->end(); ++itrk) {
+  for (auto itrk = tracksHandle->begin(); itrk != tracksHandle->end(); ++itrk) {
     if (itrk->pt() < m_trackMinPt)
       continue;
     if (std::abs(itrk->eta()) > m_jetMaxEta + m_deltaR)
@@ -90,7 +90,7 @@ void L2TauPixelTrackMatch::produce(edm::Event& ev, const edm::EventSetup& es) {
 
       size_t n0 = new_tau_jets->size();
 
-      for (vector<TinyTrack>::const_iterator itrk = good_tracks.begin(); itrk != good_tracks.end(); ++itrk) {
+      for (auto itrk = good_tracks.begin(); itrk != good_tracks.end(); ++itrk) {
         DBG_PRINT(cout << "  trk pt,eta,phi,z: " << itrk->pt << " " << itrk->eta << " " << itrk->phi << " "
                        << itrk->vtx.z() << " \t\t ");
 

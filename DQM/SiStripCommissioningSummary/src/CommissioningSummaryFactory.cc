@@ -18,7 +18,7 @@ uint32_t SummaryPlotFactory<CommissioningAnalysis*>::init(const sistrip::Monitor
   }
 
   // extract monitorables and populate map
-  std::map<uint32_t, CommissioningAnalysis*>::const_iterator iter = data.begin();
+  auto iter = data.begin();
   for (; iter != data.end(); iter++) {
     extract(iter);
   }

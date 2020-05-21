@@ -229,10 +229,10 @@ void PFAlgo::egammaFilters(const reco::PFBlockRef& blockref,
 
   for (unsigned int ieg = 0; ieg < negmcandidates; ++ieg) {
     //      const reco::PFCandidate & egmcand((*pfEgammaCandidates_)[ieg]);
-    reco::PFCandidateRef pfEgmRef = pfEgammaCandidates_->refAt(ieg).castTo<reco::PFCandidateRef>();
+    auto pfEgmRef = pfEgammaCandidates_->refAt(ieg).castTo<reco::PFCandidateRef>();
 
     const PFCandidate::ElementsInBlocks& theElements = (*pfEgmRef).elementsInBlocks();
-    PFCandidate::ElementsInBlocks::const_iterator iegfirst = theElements.begin();
+    auto iegfirst = theElements.begin();
     bool sameBlock = false;
     bool isGoodElectron = false;
     bool isGoodPhoton = false;

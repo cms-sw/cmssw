@@ -43,7 +43,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
   if (trajectoryInEvent_)
     selTrajectories->reserve(algoResults.size());
 
-  for (AlgoProductCollection::iterator i = algoResults.begin(); i != algoResults.end(); i++) {
+  for (auto i = algoResults.begin(); i != algoResults.end(); i++) {
     auto theTraj = (*i).trajectory;
     (*indecesInput).push_back((*i).indexInput);
     if (trajectoryInEvent_) {
@@ -161,7 +161,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
 
   LogTrace("TrackingRegressionTest") << "========== TrackProducer Info ===================";
   LogTrace("TrackingRegressionTest") << "number of finalTracks: " << selTracks->size();
-  for (reco::TrackCollection::const_iterator it = selTracks->begin(); it != selTracks->end(); it++) {
+  for (auto it = selTracks->begin(); it != selTracks->end(); it++) {
     LogTrace("TrackingRegressionTest") << "track's n valid and invalid hit, chi2, pt, eta : " << it->found() << " , "
                                        << it->lost() << " , " << it->normalizedChi2() << " , " << it->pt() << " , "
                                        << it->eta();
@@ -193,7 +193,7 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
 
     // Now Create traj<->tracks association map
     std::unique_ptr<TrajTrackAssociationCollection> trajTrackMap(new TrajTrackAssociationCollection(rTrajs, rTracks_));
-    for (std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); i != tjTkMap.end(); i++) {
+    for (auto i = tjTkMap.begin(); i != tjTkMap.end(); i++) {
       edm::Ref<std::vector<Trajectory> > trajRef(rTrajs, (*i).first);
       edm::Ref<reco::TrackCollection> tkRef(rTracks_, (*i).second);
       trajTrackMap->insert(edm::Ref<std::vector<Trajectory> >(rTrajs, (*i).first),

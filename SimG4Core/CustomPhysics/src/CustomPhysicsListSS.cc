@@ -77,7 +77,7 @@ void CustomPhysicsListSS::ConstructProcess() {
           pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper.get()));
         }
         if (particle->GetParticleType() == "darkpho") {
-          CMSDarkPairProductionProcess* darkGamma = new CMSDarkPairProductionProcess(dfactor);
+          auto* darkGamma = new CMSDarkPairProductionProcess(dfactor);
           pmanager->AddDiscreteProcess(darkGamma);
         }
       }

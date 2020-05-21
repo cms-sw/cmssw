@@ -47,11 +47,11 @@ double IsolatorByDeposit::weightedSum(const DepositContainer& deposits, float dR
 
   assert(deposits.size() == theWeights.size());
 
-  vector<double>::const_iterator w = theWeights.begin();
-  vector<double>::const_iterator dThresh = theDepThresholds.begin();
+  auto w = theWeights.begin();
+  auto dThresh = theDepThresholds.begin();
 
   typedef DepositContainer::const_iterator DI;
-  for (DI dep = deposits.begin(), depEnd = deposits.end(); dep != depEnd; ++dep) {
+  for (auto dep = deposits.begin(), depEnd = deposits.end(); dep != depEnd; ++dep) {
     if (dep->vetos != nullptr) {
       sumDep += dep->dep->depositAndCountWithin(dRcone, *dep->vetos, (*dThresh)).first * (*w);
     } else {

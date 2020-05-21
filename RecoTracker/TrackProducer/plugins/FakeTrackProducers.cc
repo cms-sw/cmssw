@@ -89,7 +89,7 @@ void FakeTrackProducer<T>::produce(edm::Event &iEvent, const edm::EventSetup &iS
 
   TrackingRecHitRefProd rHits = iEvent.getRefBeforePut<TrackingRecHitCollection>();
   reco::TrackExtraRefProd rTrackExtras = iEvent.getRefBeforePut<reco::TrackExtraCollection>();
-  for (typename vector<T>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
+  for (auto it = src->begin(), ed = src->end(); it != ed; ++it) {
     const T &mu = *it;
     //if (!selector_(mu)) continue;
     const PTrajectoryStateOnDet &pstate = getState(mu);

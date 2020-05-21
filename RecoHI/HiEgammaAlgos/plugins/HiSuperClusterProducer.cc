@@ -105,7 +105,7 @@ void HiSuperClusterProducer::produceSuperclustersForECALPart(
     const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken,
     std::string superclusterCollection) {
   // get the cluster collection out and turn it to a BasicClusterRefVector:
-  reco::CaloClusterPtrVector* clusterPtrVector_p = new reco::CaloClusterPtrVector;
+  auto* clusterPtrVector_p = new reco::CaloClusterPtrVector;
   getClusterPtrVector(evt, clustersToken, clusterPtrVector_p);
 
   // run the brem recovery and get the SC collection

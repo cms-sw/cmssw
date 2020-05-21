@@ -446,7 +446,7 @@ const HcalPulseShape& HcalPulseShapes::computeSiPMShapeHE206() {
 }
 
 const HcalPulseShapes::Shape& HcalPulseShapes::getShape(int shapeType) const {
-  ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
+  auto shapeMapItr = theShapes.find(shapeType);
   if (shapeMapItr == theShapes.end()) {
     throw cms::Exception("HcalPulseShapes") << "unknown shapeType";
     return hpdShape_;  // should not return this, but...
@@ -461,7 +461,7 @@ const HcalPulseShapes::Shape& HcalPulseShapes::shape(const HcalDetId& detId) con
   }
   int shapeType = theDbService->getHcalMCParam(detId)->signalShape();
 
-  ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
+  auto shapeMapItr = theShapes.find(shapeType);
   if (shapeMapItr == theShapes.end()) {
     return defaultShape(detId);
   } else {
@@ -475,7 +475,7 @@ const HcalPulseShapes::Shape& HcalPulseShapes::shapeForReco(const HcalDetId& det
   }
   int shapeType = theDbService->getHcalRecoParam(detId.rawId())->pulseShapeID();
 
-  ShapeMap::const_iterator shapeMapItr = theShapes.find(shapeType);
+  auto shapeMapItr = theShapes.find(shapeType);
   if (shapeMapItr == theShapes.end()) {
     return defaultShape(detId);
   } else {

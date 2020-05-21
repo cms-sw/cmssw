@@ -43,7 +43,7 @@ void FWCandidateTowerProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
 }
 
 FWHistSliceSelector* FWCandidateTowerProxyBuilder::instantiateSliceSelector() {
-  FWCandidateTowerSliceSelector* ss = new FWCandidateTowerSliceSelector(m_hist, item(), &m_helper);
+  auto* ss = new FWCandidateTowerSliceSelector(m_hist, item(), &m_helper);
   return ss;
 }
 

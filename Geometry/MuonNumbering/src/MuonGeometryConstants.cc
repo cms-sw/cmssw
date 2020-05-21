@@ -12,7 +12,7 @@ int MuonGeometryConstants::getValue(const std::string& name) const {
   if (namesAndValues_.empty())
     throw cms::Exception("GeometryBuildFailure", "MuonGeometryConstants does not have requested value for " + name);
 
-  std::map<std::string, int>::const_iterator findIt = namesAndValues_.find(name);
+  auto findIt = namesAndValues_.find(name);
   if (findIt == namesAndValues_.end())
     throw cms::Exception("GeometryBuildFailure", "MuonGeometryConstants does not have requested value for " + name);
 

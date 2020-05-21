@@ -143,8 +143,7 @@ void pat::PATJetSlimmer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
           //	jet.addDaughter(refToPtr((*pf2pc)[old[i]]));
           ptrs[((*pf2pc)[old[i]]).key()] = refToPtr((*pf2pc)[old[i]]);
         }
-        for (std::map<unsigned int, reco::CandidatePtr>::iterator itp = ptrs.begin(); itp != ptrs.end();
-             itp++)  //iterate on sorted items
+        for (auto itp = ptrs.begin(); itp != ptrs.end(); itp++)  //iterate on sorted items
         {
           jet.addDaughter(itp->second);
         }

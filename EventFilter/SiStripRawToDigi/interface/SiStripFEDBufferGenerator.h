@@ -280,7 +280,7 @@ namespace sistrip {
   inline void FEDBufferPayload::appendToBuffer(size_t* pIndexInBuffer,
                                                std::vector<uint8_t>::const_iterator start,
                                                std::vector<uint8_t>::const_iterator finish) {
-    for (std::vector<uint8_t>::const_iterator iVal = start; iVal != finish; iVal++) {
+    for (auto iVal = start; iVal != finish; iVal++) {
       appendToBuffer(pIndexInBuffer, *iVal);
     }
   }

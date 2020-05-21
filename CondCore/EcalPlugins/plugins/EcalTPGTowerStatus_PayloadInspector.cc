@@ -264,7 +264,7 @@ namespace {
 
         int NbMaskedTT = 0;
 
-        for (EcalTPGTowerStatusMapIterator it = towerMap.begin(); it != towerMap.end(); ++it)
+        for (auto it = towerMap.begin(); it != towerMap.end(); ++it)
           if ((*it).second > 0)
             NbMaskedTT++;
 

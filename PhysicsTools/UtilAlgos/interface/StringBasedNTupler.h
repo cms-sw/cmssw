@@ -306,15 +306,15 @@ public:
       //reserve memory for the indexes
       indexDataHolder_ = new uint[branches_.size()];
       // loop the automated leafer
-      Branches::iterator iB = branches_.begin();
-      Branches::iterator iB_end = branches_.end();
+      auto iB = branches_.begin();
+      auto iB_end = branches_.end();
       uint indexOfIndexInDataHolder = 0;
       for (; iB != iB_end; ++iB, ++indexOfIndexInDataHolder) {
         //create a branch for the index: an integer
         tree_->Branch(iB->first.c_str(), &(indexDataHolder_[indexOfIndexInDataHolder]), (iB->first + "/i").c_str());
         //loop on the "leaves"
-        std::vector<TreeBranch>::iterator iL = iB->second.begin();
-        std::vector<TreeBranch>::iterator iL_end = iB->second.end();
+        auto iL = iB->second.begin();
+        auto iL_end = iB->second.end();
         for (; iL != iL_end; ++iL) {
           TreeBranch& b = *iL;
           //create a branch for the leaves: vector of floats
@@ -336,14 +336,14 @@ public:
 
     } else {
       // loop the automated leafer
-      Branches::iterator iB = branches_.begin();
-      Branches::iterator iB_end = branches_.end();
+      auto iB = branches_.begin();
+      auto iB_end = branches_.end();
       for (; iB != iB_end; ++iB) {
         //the index. should produce it only once
         // a simple uint for the index
         producesCollector.produces<uint>(iB->first).setBranchAlias(iB->first);
-        std::vector<TreeBranch>::iterator iL = iB->second.begin();
-        std::vector<TreeBranch>::iterator iL_end = iB->second.end();
+        auto iL = iB->second.begin();
+        auto iL_end = iB->second.end();
         for (; iL != iL_end; ++iL) {
           TreeBranch& b = *iL;
           //a vector of float for each leave
@@ -361,12 +361,12 @@ public:
 
     if (useTFileService_) {
       // loop the automated leafer
-      Branches::iterator iB = branches_.begin();
-      Branches::iterator iB_end = branches_.end();
+      auto iB = branches_.begin();
+      auto iB_end = branches_.end();
       uint indexOfIndexInDataHolder = 0;
       for (; iB != iB_end; ++iB, ++indexOfIndexInDataHolder) {
-        std::vector<TreeBranch>::iterator iL = iB->second.begin();
-        std::vector<TreeBranch>::iterator iL_end = iB->second.end();
+        auto iL = iB->second.begin();
+        auto iL_end = iB->second.end();
         uint maxS = 0;
         for (; iL != iL_end; ++iL) {
           TreeBranch& b = *iL;
@@ -405,10 +405,10 @@ public:
       edm::Handle<LHEEventProduct> product;
       *model_params_ = "NULL";
       if (iEvent.getByLabel("source", product)) {
-        comments_const_iterator c_begin = product->comments_begin();
-        comments_const_iterator c_end = product->comments_end();
+        auto c_begin = product->comments_begin();
+        auto c_end = product->comments_end();
 
-        for (comments_const_iterator cit = c_begin; cit != c_end; ++cit) {
+        for (auto cit = c_begin; cit != c_end; ++cit) {
           size_t found = (*cit).find("model");
           if (found != std::string::npos) {
             //std::cout << *cit << std::endl;
@@ -422,11 +422,11 @@ public:
       }
     } else {
       // loop the automated leafer
-      Branches::iterator iB = branches_.begin();
-      Branches::iterator iB_end = branches_.end();
+      auto iB = branches_.begin();
+      auto iB_end = branches_.end();
       for (; iB != iB_end; ++iB) {
-        std::vector<TreeBranch>::iterator iL = iB->second.begin();
-        std::vector<TreeBranch>::iterator iL_end = iB->second.end();
+        auto iL = iB->second.begin();
+        auto iL_end = iB->second.end();
         uint maxS = 0;
         for (; iL != iL_end; ++iL) {
           TreeBranch& b = *iL;
@@ -443,12 +443,12 @@ public:
 
   void callBack() {
     if (useTFileService_) {
-      Branches::iterator iB = branches_.begin();
-      Branches::iterator iB_end = branches_.end();
+      auto iB = branches_.begin();
+      auto iB_end = branches_.end();
       //de-allocate memory now: allocated in branch(...) and released to the pointer.
       for (; iB != iB_end; ++iB) {
-        std::vector<TreeBranch>::iterator iL = iB->second.begin();
-        std::vector<TreeBranch>::iterator iL_end = iB->second.end();
+        auto iL = iB->second.begin();
+        auto iL_end = iB->second.end();
         for (; iL != iL_end; ++iL) {
           TreeBranch& b = *iL;
           delete b.dataHolderPtr();

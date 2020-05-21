@@ -382,9 +382,7 @@ const bool L1GtUtils::l1AlgoTechTrigBitNumber(const std::string& nameAlgoTechTri
   if (m_retrieveL1GtTriggerMenuLite) {
     if (m_l1GtMenuLiteValid) {
       // test if the name is an algorithm alias
-      for (L1GtTriggerMenuLite::CItL1Trig itTrig = m_algorithmAliasMapLite->begin();
-           itTrig != m_algorithmAliasMapLite->end();
-           itTrig++) {
+      for (auto itTrig = m_algorithmAliasMapLite->begin(); itTrig != m_algorithmAliasMapLite->end(); itTrig++) {
         if (itTrig->second == nameAlgoTechTrig) {
           trigCategory = AlgorithmTrigger;
           bitNumber = itTrig->first;
@@ -394,8 +392,7 @@ const bool L1GtUtils::l1AlgoTechTrigBitNumber(const std::string& nameAlgoTechTri
       }
 
       // test if the name is an algorithm name
-      for (L1GtTriggerMenuLite::CItL1Trig itTrig = m_algorithmMapLite->begin(); itTrig != m_algorithmMapLite->end();
-           itTrig++) {
+      for (auto itTrig = m_algorithmMapLite->begin(); itTrig != m_algorithmMapLite->end(); itTrig++) {
         if (itTrig->second == nameAlgoTechTrig) {
           trigCategory = AlgorithmTrigger;
           bitNumber = itTrig->first;
@@ -405,9 +402,7 @@ const bool L1GtUtils::l1AlgoTechTrigBitNumber(const std::string& nameAlgoTechTri
       }
 
       // test if the name is a technical trigger
-      for (L1GtTriggerMenuLite::CItL1Trig itTrig = m_technicalTriggerMapLite->begin();
-           itTrig != m_technicalTriggerMapLite->end();
-           itTrig++) {
+      for (auto itTrig = m_technicalTriggerMapLite->begin(); itTrig != m_technicalTriggerMapLite->end(); itTrig++) {
         if (itTrig->second == nameAlgoTechTrig) {
           trigCategory = TechnicalTrigger;
           bitNumber = itTrig->first;
@@ -418,7 +413,7 @@ const bool L1GtUtils::l1AlgoTechTrigBitNumber(const std::string& nameAlgoTechTri
 
     } else if (m_retrieveL1EventSetup) {
       // test if the name is an algorithm alias
-      CItAlgo itAlgo = m_algorithmAliasMap->find(nameAlgoTechTrig);
+      auto itAlgo = m_algorithmAliasMap->find(nameAlgoTechTrig);
       if (itAlgo != m_algorithmAliasMap->end()) {
         trigCategory = AlgorithmTrigger;
         bitNumber = (itAlgo->second).algoBitNumber();
@@ -450,7 +445,7 @@ const bool L1GtUtils::l1AlgoTechTrigBitNumber(const std::string& nameAlgoTechTri
     }
   } else if (m_retrieveL1EventSetup) {
     // test if the name is an algorithm alias
-    CItAlgo itAlgo = m_algorithmAliasMap->find(nameAlgoTechTrig);
+    auto itAlgo = m_algorithmAliasMap->find(nameAlgoTechTrig);
     if (itAlgo != m_algorithmAliasMap->end()) {
       trigCategory = AlgorithmTrigger;
       bitNumber = (itAlgo->second).algoBitNumber();
@@ -499,9 +494,7 @@ const bool L1GtUtils::l1TriggerNameFromBit(const int& bitNumber,
         bool trigAliasFound = false;
         bool trigNameFound = false;
 
-        for (L1GtTriggerMenuLite::CItL1Trig itTrig = m_algorithmAliasMapLite->begin();
-             itTrig != m_algorithmAliasMapLite->end();
-             itTrig++) {
+        for (auto itTrig = m_algorithmAliasMapLite->begin(); itTrig != m_algorithmAliasMapLite->end(); itTrig++) {
           if (static_cast<int>(itTrig->first) == bitNumber) {
             aliasL1Trigger = itTrig->second;
             trigAliasFound = true;
@@ -509,8 +502,7 @@ const bool L1GtUtils::l1TriggerNameFromBit(const int& bitNumber,
           }
         }
 
-        for (L1GtTriggerMenuLite::CItL1Trig itTrig = m_algorithmMapLite->begin(); itTrig != m_algorithmMapLite->end();
-             itTrig++) {
+        for (auto itTrig = m_algorithmMapLite->begin(); itTrig != m_algorithmMapLite->end(); itTrig++) {
           if (static_cast<int>(itTrig->first) == bitNumber) {
             nameL1Trigger = itTrig->second;
             trigNameFound = true;
@@ -529,9 +521,7 @@ const bool L1GtUtils::l1TriggerNameFromBit(const int& bitNumber,
 
         bool trigNameFound = false;
 
-        for (L1GtTriggerMenuLite::CItL1Trig itTrig = m_technicalTriggerMapLite->begin();
-             itTrig != m_technicalTriggerMapLite->end();
-             itTrig++) {
+        for (auto itTrig = m_technicalTriggerMapLite->begin(); itTrig != m_technicalTriggerMapLite->end(); itTrig++) {
           if (static_cast<int>(itTrig->first) == bitNumber) {
             nameL1Trigger = itTrig->second;
 
@@ -560,7 +550,7 @@ const bool L1GtUtils::l1TriggerNameFromBit(const int& bitNumber,
       if (trigCategory == AlgorithmTrigger) {
         bool trigAliasFound = false;
 
-        for (CItAlgo itTrig = m_algorithmAliasMap->begin(); itTrig != m_algorithmAliasMap->end(); itTrig++) {
+        for (auto itTrig = m_algorithmAliasMap->begin(); itTrig != m_algorithmAliasMap->end(); itTrig++) {
           if ((itTrig->second).algoBitNumber() == bitNumber) {
             aliasL1Trigger = itTrig->first;
             // get the name here, avoiding a loop on m_algorithmMap
@@ -582,7 +572,7 @@ const bool L1GtUtils::l1TriggerNameFromBit(const int& bitNumber,
 
         bool trigNameFound = false;
 
-        for (CItAlgo itTrig = m_technicalTriggerMap->begin(); itTrig != m_technicalTriggerMap->end(); itTrig++) {
+        for (auto itTrig = m_technicalTriggerMap->begin(); itTrig != m_technicalTriggerMap->end(); itTrig++) {
           if ((itTrig->second).algoBitNumber() == bitNumber) {
             nameL1Trigger = (itTrig->second).algoName();
             // technically, no alias is defined for technical triggers
@@ -614,7 +604,7 @@ const bool L1GtUtils::l1TriggerNameFromBit(const int& bitNumber,
     if (trigCategory == AlgorithmTrigger) {
       bool trigAliasFound = false;
 
-      for (CItAlgo itTrig = m_algorithmAliasMap->begin(); itTrig != m_algorithmAliasMap->end(); itTrig++) {
+      for (auto itTrig = m_algorithmAliasMap->begin(); itTrig != m_algorithmAliasMap->end(); itTrig++) {
         if ((itTrig->second).algoBitNumber() == bitNumber) {
           aliasL1Trigger = itTrig->first;
           // get the name here, avoiding a loop on m_algorithmMap
@@ -636,7 +626,7 @@ const bool L1GtUtils::l1TriggerNameFromBit(const int& bitNumber,
 
       bool trigNameFound = false;
 
-      for (CItAlgo itTrig = m_technicalTriggerMap->begin(); itTrig != m_technicalTriggerMap->end(); itTrig++) {
+      for (auto itTrig = m_technicalTriggerMap->begin(); itTrig != m_technicalTriggerMap->end(); itTrig++) {
         if ((itTrig->second).algoBitNumber() == bitNumber) {
           nameL1Trigger = (itTrig->second).algoName();
           // technically, no alias is defined for technical triggers

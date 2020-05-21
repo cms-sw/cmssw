@@ -165,7 +165,7 @@ void MuonEnergyDepositAnalyzer::analyze(const edm::Event& iEvent, const edm::Eve
   if (!muons.isValid())
     return;
 
-  for (reco::MuonCollection::const_iterator recoMu = muons->begin(); recoMu != muons->end(); ++recoMu) {
+  for (auto recoMu = muons->begin(); recoMu != muons->end(); ++recoMu) {
     // get all the mu energy deposits
     reco::MuonEnergy muEnergy = recoMu->calEnergy();
 

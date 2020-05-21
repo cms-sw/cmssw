@@ -361,7 +361,7 @@ namespace notcub {
         }
 
         // Iterate through the range of cached blocks on the same device in the same bin
-        CachedBlocks::iterator block_itr = cached_blocks.lower_bound(search_key);
+        auto block_itr = cached_blocks.lower_bound(search_key);
         while ((block_itr != cached_blocks.end()) && (block_itr->device == device) &&
                (block_itr->bin == search_key.bin)) {
           // To prevent races with reusing blocks returned by the host but still
@@ -433,7 +433,7 @@ namespace notcub {
 
           // Iterate the range of free blocks on the same device
           BlockDescriptor free_key(device);
-          CachedBlocks::iterator block_itr = cached_blocks.lower_bound(free_key);
+          auto block_itr = cached_blocks.lower_bound(free_key);
 
           while ((block_itr != cached_blocks.end()) && (block_itr->device == device)) {
             // No need to worry about synchronization with the device: cudaFree is
@@ -558,7 +558,7 @@ namespace notcub {
       // Find corresponding block descriptor
       bool recached = false;
       BlockDescriptor search_key(d_ptr, device);
-      BusyBlocks::iterator block_itr = live_blocks.find(search_key);
+      auto block_itr = live_blocks.find(search_key);
       if (block_itr != live_blocks.end()) {
         // Remove from live blocks
         search_key = *block_itr;
@@ -658,7 +658,7 @@ namespace notcub {
 
       while (!cached_blocks.empty()) {
         // Get first block
-        CachedBlocks::iterator begin = cached_blocks.begin();
+        auto begin = cached_blocks.begin();
 
         // Get entry-point device ordinal if necessary
         if (entrypoint_device == INVALID_DEVICE_ORDINAL) {

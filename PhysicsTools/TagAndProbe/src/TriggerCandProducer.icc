@@ -95,17 +95,15 @@ void TriggerCandProducer<object>::produce(edm::Event& event, const edm::EventSet
   std::vector<std::string> activeHLTPathsInThisEvent = hltConfig.triggerNames();
   std::map<std::string, bool> triggerInMenu;
   std::map<std::string, bool> triggerUnprescaled;
-  for (std::vector<edm::InputTag>::const_iterator iMyHLT = hltTags_.begin(); iMyHLT != hltTags_.end(); ++iMyHLT) {
+  for (auto iMyHLT = hltTags_.begin(); iMyHLT != hltTags_.end(); ++iMyHLT) {
     if (triggerInMenu.find((*iMyHLT).label()) == triggerInMenu.end())
       triggerInMenu[(*iMyHLT).label()] = false;
     if (triggerUnprescaled.find((*iMyHLT).label()) == triggerUnprescaled.end())
       triggerUnprescaled[(*iMyHLT).label()] = false;
   }
-  for (std::vector<std::string>::const_iterator iHLT = activeHLTPathsInThisEvent.begin();
-       iHLT != activeHLTPathsInThisEvent.end();
-       ++iHLT) {
+  for (auto iHLT = activeHLTPathsInThisEvent.begin(); iHLT != activeHLTPathsInThisEvent.end(); ++iHLT) {
     // cout << "######## " << *iHLT << endl;
-    for (std::vector<edm::InputTag>::const_iterator iMyHLT = hltTags_.begin(); iMyHLT != hltTags_.end(); ++iMyHLT) {
+    for (auto iMyHLT = hltTags_.begin(); iMyHLT != hltTags_.end(); ++iMyHLT) {
       if ((*iMyHLT).label() == *iHLT) {
         triggerInMenu[(*iMyHLT).label()] = true;
         if (hltPrescaleProvider_.prescaleValue(event, eventSetup, *iHLT) == 1)
@@ -114,8 +112,7 @@ void TriggerCandProducer<object>::produce(edm::Event& event, const edm::EventSet
     }
   }
   unsigned int numOKHLTPaths = 0;
-  for (std::map<std::string, bool>::const_iterator iMyHLT = triggerInMenu.begin(); iMyHLT != triggerInMenu.end();
-       ++iMyHLT) {
+  for (auto iMyHLT = triggerInMenu.begin(); iMyHLT != triggerInMenu.end(); ++iMyHLT) {
     if (iMyHLT->second && triggerUnprescaled[iMyHLT->first]) {
       theRightHLTTag_ = edm::InputTag(iMyHLT->first, "", hltTags_[0].process());
       ++numOKHLTPaths;
@@ -124,8 +121,7 @@ void TriggerCandProducer<object>::produce(edm::Event& event, const edm::EventSet
 
   // in case user wants to perform matching with prescaled trigger, then choose prescale trigger
   if (numOKHLTPaths == 0 && !(matchUnprescaledTriggerOnly_)) {
-    for (std::map<std::string, bool>::const_iterator iMyHLT = triggerInMenu.begin(); iMyHLT != triggerInMenu.end();
-         ++iMyHLT) {
+    for (auto iMyHLT = triggerInMenu.begin(); iMyHLT != triggerInMenu.end(); ++iMyHLT) {
       if (iMyHLT->second) {
         theRightHLTTag_ = edm::InputTag(iMyHLT->first, "", hltTags_[0].process());
         ++numOKHLTPaths;
@@ -134,7 +130,7 @@ void TriggerCandProducer<object>::produce(edm::Event& event, const edm::EventSet
   }
 
   if (isFilter_) {
-    for (std::vector<edm::InputTag>::const_iterator iMyHLT = hltTags_.begin(); iMyHLT != hltTags_.end(); ++iMyHLT) {
+    for (auto iMyHLT = hltTags_.begin(); iMyHLT != hltTags_.end(); ++iMyHLT) {
       if (theRightHLTTag_.label() == (*iMyHLT).label()) {
         theRightHLTTag_ = edm::InputTag((*iMyHLT).label(), (*iMyHLT).instance(), (*iMyHLT).process());
         // std::cout << "Found it " << (*iMyHLT).label() << "\t" <<(*iMyHLT).instance() << "\t" << (*iMyHLT).process() << std::endl;
@@ -201,7 +197,7 @@ void TriggerCandProducer<object>::produce(edm::Event& event, const edm::EventSet
     } catch (std::exception const&) {
       cout << "bad trigger\n";
     }
-    for (std::vector<std::string>::iterator filter = filters.begin(); filter != filters.end(); ++filter) {
+    for (auto filter = filters.begin(); filter != filters.end(); ++filter) {
       edm::InputTag testTag(*filter, "", theRightHLTTag_.process());
 
       int testindex = trgEvent->filterIndex(testTag);
@@ -234,7 +230,7 @@ void TriggerCandProducer<object>::produce(edm::Event& event, const edm::EventSet
     //           (*iMyHLT).label() << "   filter name " <<
     //           (*iMyHLT).instance() << std::endl;
     //       }
-    for (std::vector<edm::InputTag>::const_iterator iMyHLT = hltTags_.begin(); iMyHLT != hltTags_.end(); ++iMyHLT) {
+    for (auto iMyHLT = hltTags_.begin(); iMyHLT != hltTags_.end(); ++iMyHLT) {
       if (foundMatch)
         break;
       if (isTriggerOR_ && isFilter_) {
@@ -316,7 +312,7 @@ void TriggerCandProducer<object>::beginRun(edm::Run const& iRun, edm::EventSetup
   //verify that the process names of all the requested HLT paths are identical
   skipEvent_ = false;
   bool identical = true;
-  std::vector<edm::InputTag>::const_iterator iMyHLT = hltTags_.begin();
+  auto iMyHLT = hltTags_.begin();
   edm::InputTag lastTag = *iMyHLT;
   while ((iMyHLT != hltTags_.end()) && identical) {
     if ((*iMyHLT).process() == lastTag.process())

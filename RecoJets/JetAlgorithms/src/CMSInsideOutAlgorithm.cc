@@ -8,8 +8,7 @@ void CMSInsideOutAlgorithm::run(const std::vector<fastjet::PseudoJet>& fInput,
                                 std::vector<fastjet::PseudoJet>& fOutput) {
   //make a list of input objects
   list<fastjet::PseudoJet> input;
-  for (std::vector<fastjet::PseudoJet>::const_iterator candIter = fInput.begin(); candIter != fInput.end();
-       ++candIter) {
+  for (auto candIter = fInput.begin(); candIter != fInput.end(); ++candIter) {
     input.push_back(*candIter);
   }
 
@@ -21,7 +20,7 @@ void CMSInsideOutAlgorithm::run(const std::vector<fastjet::PseudoJet>& fInput,
     //find iterators to those objects that are in the max cone size
     list<inputListIter> maxCone;
     // add seed, then test elements after seed
-    inputListIter iCand = input.begin();
+    auto iCand = input.begin();
     maxCone.push_back(iCand++);
     for (; iCand != input.end(); ++iCand) {
       const fastjet::PseudoJet& candidate = *iCand;
@@ -30,7 +29,7 @@ void CMSInsideOutAlgorithm::run(const std::vector<fastjet::PseudoJet>& fInput,
     }
     //sort objects by increasing DR about the seed  directions
     maxCone.sort(ListIteratorLesserByDeltaR(seedEta, seedPhi));
-    list<inputListIter>::const_iterator position = maxCone.begin();
+    auto position = maxCone.begin();
     bool limitReached = false;
     double totalET = (**position).perp();
     ++position;
@@ -46,7 +45,7 @@ void CMSInsideOutAlgorithm::run(const std::vector<fastjet::PseudoJet>& fInput,
     }
     //turn this into a final jet
     fastjet::PseudoJet final;
-    for (list<inputListIter>::const_iterator iNewJet = maxCone.begin(); iNewJet != position; ++iNewJet) {
+    for (auto iNewJet = maxCone.begin(); iNewJet != position; ++iNewJet) {
       final += **iNewJet;
       input.erase(*iNewJet);
     }

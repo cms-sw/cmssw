@@ -10,7 +10,7 @@ void FWPFEcalRecHitLegoProxyBuilder::scaleProduct(TEveElementList *parent,
   typedef std::vector<FWPFLegoRecHit *> rh;
 
   // printf("FWPFEcalRecHitLegoProxyBuilder::scaleProduct >> scale %f \n", caloScale->getValToHeight());
-  for (rh::iterator i = m_recHits.begin(); i != m_recHits.end(); ++i) {  // Tallest tower needs deciding still
+  for (auto i = m_recHits.begin(); i != m_recHits.end(); ++i) {  // Tallest tower needs deciding still
     if ((*i)->isTallest() == false && (*i)->getEtEnergy(b) == maxVal)
       (*i)->setIsTallest(true);
 
@@ -23,9 +23,9 @@ void FWPFEcalRecHitLegoProxyBuilder::localModelChanges(const FWModelId &iId,
                                                        TEveElement *parent,
                                                        FWViewType::EType viewType,
                                                        const FWViewContext *vc) {
-  for (TEveElement::List_i i = parent->BeginChildren(); i != parent->EndChildren(); ++i) {
+  for (auto i = parent->BeginChildren(); i != parent->EndChildren(); ++i) {
     {
-      TEveStraightLineSet *line = dynamic_cast<TEveStraightLineSet *>(*i);
+      auto *line = dynamic_cast<TEveStraightLineSet *>(*i);
       if (line) {
         line->SetMarkerColor(item()->modelInfo(iId.index()).displayProperties().color());
       }
@@ -120,7 +120,7 @@ void FWPFEcalRecHitLegoProxyBuilder::build(const FWEventItem *iItem,
 
 //______________________________________________________________________________
 void FWPFEcalRecHitLegoProxyBuilder::cleanLocal() {
-  for (std::vector<FWPFLegoRecHit *>::iterator i = m_recHits.begin(); i != m_recHits.end(); ++i)
+  for (auto i = m_recHits.begin(); i != m_recHits.end(); ++i)
     delete (*i);
 
   m_recHits.clear();

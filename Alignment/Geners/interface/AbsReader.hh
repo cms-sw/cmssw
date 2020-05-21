@@ -59,12 +59,12 @@ namespace gs {
     inline DefaultReader() : std::map<std::string, AbsReader<Base> *>() {}
 
     virtual ~DefaultReader() {
-      for (typename std::map<std::string, AbsReader<Base> *>::iterator it = this->begin(); it != this->end(); ++it)
+      for (auto it = this->begin(); it != this->end(); ++it)
         delete it->second;
     }
 
     inline Base *read(const ClassId &id, std::istream &in) const {
-      typename std::map<std::string, AbsReader<Base> *>::const_iterator it = this->find(id.name());
+      auto it = this->find(id.name());
       if (it == this->end()) {
         std::ostringstream os;
         os << "In gs::DefaultReader::read: class \"" << id.name() << "\" is not mapped to a concrete reader";

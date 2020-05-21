@@ -44,7 +44,7 @@ public:
   }
 
   void add(const RecordToKey& map) {
-    for (RecordToKey::const_iterator itr = map.begin(); itr != map.end(); ++itr) {
+    for (auto itr = map.begin(); itr != map.end(); ++itr) {
       m_recordToKey.insert(std::make_pair(itr->first, itr->second.empty() ? kNullKey : itr->second));
     }
   }
@@ -59,7 +59,7 @@ public:
      * is returned.
      */
   std::string get(const std::string& record, const std::string& type) const {
-    RecordToKey::const_iterator it = m_recordToKey.find(record + "@" + type);
+    auto it = m_recordToKey.find(record + "@" + type);
     if (it == m_recordToKey.end())
       return std::string();
     else
@@ -69,7 +69,7 @@ public:
   const std::string& tscKey() const { return m_tscKey; }
 
   const std::string& subsystemKey(L1Subsystems subsystem) const {
-    std::map<int, std::string>::const_iterator key = m_subsystemKeys.find(subsystem);
+    auto key = m_subsystemKeys.find(subsystem);
     return key == m_subsystemKeys.end() || key->second == kNullKey ? kEmptyKey : key->second;
   }
 

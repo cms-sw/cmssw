@@ -29,7 +29,7 @@ namespace pf2pat {
       selected_.clear();
 
       unsigned key = 0;
-      for (collection::const_iterator pfc = hc->begin(); pfc != hc->end(); ++pfc, ++key) {
+      for (auto pfc = hc->begin(); pfc != hc->end(); ++pfc, ++key) {
         reco::MuonRef muR = pfc->muonRef();
 
         // skip ones without a ref to a reco::Muon: they won't be matched anyway

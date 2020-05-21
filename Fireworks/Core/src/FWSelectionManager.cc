@@ -62,7 +62,7 @@ FWSelectionManager::FWSelectionManager(FWModelChangeManager* iCM) : m_changeMana
 //
 void FWSelectionManager::clearSelection() {
   FWChangeSentry sentry(*m_changeManager);
-  for (std::set<FWModelId>::iterator it = m_selection.begin(), itEnd = m_selection.end(); it != itEnd; ++it) {
+  for (auto it = m_selection.begin(), itEnd = m_selection.end(); it != itEnd; ++it) {
     //NOTE: this will cause
     it->unselect();
   }
@@ -74,7 +74,7 @@ void FWSelectionManager::clearItemSelection() {
   //FWChangeSentry sentry(*m_changeManager);
   std::set<FWEventItem*> items;
   items.swap(m_itemSelection);
-  for (std::set<FWEventItem*>::iterator it = items.begin(), itEnd = items.end(); it != itEnd; ++it) {
+  for (auto it = items.begin(), itEnd = items.end(); it != itEnd; ++it) {
     //NOTE: this will cause
     (*it)->unselectItem();
   }
@@ -82,7 +82,7 @@ void FWSelectionManager::clearItemSelection() {
 
 void FWSelectionManager::clearModelSelectionLeaveItem() {
   FWChangeSentry sentry(*m_changeManager);
-  for (std::set<FWModelId>::iterator it = m_selection.begin(), itEnd = m_selection.end(); it != itEnd; ++it) {
+  for (auto it = m_selection.begin(), itEnd = m_selection.end(); it != itEnd; ++it) {
     //NOTE: this will cause
     it->unselect();
   }
@@ -134,7 +134,7 @@ void FWSelectionManager::itemChanged(const FWEventItem* iItem) {
   FWModelId high(iItem, 0x7FFFFFFF);  //largest signed 32 bit number
   bool someoneChanged = false;
   {
-    std::set<FWModelId>::iterator itL = m_newSelection.lower_bound(low), itH = m_newSelection.upper_bound(high);
+    auto itL = m_newSelection.lower_bound(low), itH = m_newSelection.upper_bound(high);
     if (itL != itH) {
       m_wasChanged = true;
       someoneChanged = true;
@@ -142,7 +142,7 @@ void FWSelectionManager::itemChanged(const FWEventItem* iItem) {
     }
   }
   {
-    std::set<FWModelId>::iterator itL = m_selection.lower_bound(low), itH = m_selection.upper_bound(high);
+    auto itL = m_selection.lower_bound(low), itH = m_selection.upper_bound(high);
     if (itL != itH) {
       m_wasChanged = true;
       someoneChanged = true;

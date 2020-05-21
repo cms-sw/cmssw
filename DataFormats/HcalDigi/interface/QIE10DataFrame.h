@@ -27,7 +27,7 @@ public:
         : word1_(word1), word2_(word2) {}
     explicit Sample(const wide_type wide) : word1_{0}, word2_{0} {
       static_assert(sizeof(wide) == 2 * sizeof(word1_), "The wide input type must be able to contain two words");
-      const edm::DataFrame::data_type* ptr = reinterpret_cast<const edm::DataFrame::data_type*>(&wide);
+      const auto* ptr = reinterpret_cast<const edm::DataFrame::data_type*>(&wide);
       word1_ = ptr[0];
       word2_ = ptr[1];
     }
@@ -54,7 +54,7 @@ public:
       static_assert(sizeof(QIE10DataFrame::Sample::wide_type) == 2 * sizeof(word1_),
                     "The wide result type must be able to contain two words");
       wide_type result = 0;
-      edm::DataFrame::data_type* ptr = reinterpret_cast<edm::DataFrame::data_type*>(&result);
+      auto* ptr = reinterpret_cast<edm::DataFrame::data_type*>(&result);
       ptr[0] = word1_;
       ptr[1] = word2_;
       return result;

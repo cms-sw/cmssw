@@ -79,7 +79,7 @@ void popcon::EcalLaser_weekly_Linearization::getNewObjects() {
     uint32_t ped[kGains], mult[kGains], shift[kGains];
     uint32_t id;
 
-    EcalTPGLinearizationConst *linC = new EcalTPGLinearizationConst;
+    auto *linC = new EcalTPGLinearizationConst;
 
     for (int iChannel = 0; iChannel < kEBChannels; iChannel++) {
       getline(fWeek, line);

@@ -450,7 +450,7 @@ void FP420Test::update(const G4Step* aStep) {
   }
   // track on aStep:                                                                                         !
   G4Track* theTrack = aStep->GetTrack();
-  TrackInformation* trkInfo = dynamic_cast<TrackInformation*>(theTrack->GetUserInformation());
+  auto* trkInfo = dynamic_cast<TrackInformation*>(theTrack->GetUserInformation());
   if (trkInfo == nullptr) {
     std::cout << "FP420Test on aStep: No trk info !!!! abort " << std::endl;
   }
@@ -917,7 +917,7 @@ void FP420Test::update(const EndOfEvent* evt) {
     // edm::LogInfo("FP420Test") << "3";
     // std::cout << " CAFIid = " << CAFIid << std::endl;;
 
-    FP420G4HitCollection* theCAFI = (FP420G4HitCollection*)allHC->GetHC(CAFIid);
+    auto* theCAFI = (FP420G4HitCollection*)allHC->GetHC(CAFIid);
     //  CaloG4HitCollection* theCAFI = (CaloG4HitCollection*) allHC->GetHC(CAFIid);
     if (verbosity > 0) {
       //std::cout << "FP420Test: theCAFI = " << theCAFI << std::endl;

@@ -26,11 +26,11 @@ namespace {
       int result(-1);
       if (type) {
         StringToEnumParser<HcalTopologyMode::Mode> eparser;
-        HcalTopologyMode::Mode mode = (HcalTopologyMode::Mode)eparser.parseString(fvec[0]);
+        auto mode = (HcalTopologyMode::Mode)eparser.parseString(fvec[0]);
         result = static_cast<int>(mode);
       } else {
         StringToEnumParser<HcalTopologyMode::TriggerMode> eparser;
-        HcalTopologyMode::TriggerMode mode = (HcalTopologyMode::TriggerMode)eparser.parseString(fvec[0]);
+        auto mode = (HcalTopologyMode::TriggerMode)eparser.parseString(fvec[0]);
         result = static_cast<int>(mode);
       }
       return result;
@@ -43,11 +43,11 @@ namespace {
     int result(-1);
     if (type) {
       StringToEnumParser<HcalTopologyMode::Mode> eparser;
-      HcalTopologyMode::Mode mode = (HcalTopologyMode::Mode)eparser.parseString(s);
+      auto mode = (HcalTopologyMode::Mode)eparser.parseString(s);
       result = static_cast<int>(mode);
     } else {
       StringToEnumParser<HcalTopologyMode::TriggerMode> eparser;
-      HcalTopologyMode::TriggerMode mode = (HcalTopologyMode::TriggerMode)eparser.parseString(s);
+      auto mode = (HcalTopologyMode::TriggerMode)eparser.parseString(s);
       result = static_cast<int>(mode);
     }
     return result;
@@ -185,7 +185,7 @@ bool HcalParametersFromDD::build(const cms::DDCompactView& cpv, HcalParameters& 
   const cms::DDFilter filter("OnlyForHcalRecNumbering", "HCAL");
   cms::DDFilteredView fv(cpv, filter);
 
-  std::vector<std::string> tempS = fv.get<std::vector<std::string> >("hcal", "TopologyMode");
+  auto tempS = fv.get<std::vector<std::string> >("hcal", "TopologyMode");
   std::string sv = (!tempS.empty()) ? tempS[0] : "HcalTopologyMode::SLHC";
   int topoMode = getTopologyMode(sv, true);
   tempS = fv.get<std::vector<std::string> >("hcal", "TriggerMode");

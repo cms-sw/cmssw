@@ -292,8 +292,7 @@ namespace l1t {
       if (eta >= 9999)
         continue;
 
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>* p4 =
-          new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>();
+      auto* p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>();
 
       l1t::Muon mu(*p4,
                    pt,
@@ -339,8 +338,7 @@ namespace l1t {
       if (eta >= 9999)
         continue;
 
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>* p4 =
-          new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>();
+      auto* p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>();
 
       l1t::EGamma eg(*p4, pt, eta, phi, qual, iso);
       egammaVec.push_back(eg);
@@ -370,8 +368,7 @@ namespace l1t {
       if (eta >= 9999)
         continue;
 
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>* p4 =
-          new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>();
+      auto* p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>();
 
       l1t::Tau tau(*p4, pt, eta, phi, qual, iso);
       tauVec.push_back(tau);
@@ -394,7 +391,7 @@ namespace l1t {
     edm::Handle<reco::GenJetCollection> genJets;
     // Make sure that you can get genJets
     if (iEvent.getByToken(genJetsToken, genJets)) {  // Jet Collection
-      for (reco::GenJetCollection::const_iterator genJet = genJets->begin(); genJet != genJets->end(); ++genJet) {
+      for (auto genJet = genJets->begin(); genJet != genJets->end(); ++genJet) {
         //Keep running sum of total Et
         sumEt += genJet->et();
 
@@ -405,8 +402,7 @@ namespace l1t {
         //
         if (nJet >= maxNumJetCands_)
           continue;
-        ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>* p4 =
-            new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>();
+        auto* p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>();
 
         int pt = convertPtToHW(genJet->et(), MaxJetPt_, PtStep_);
         int eta = convertEtaToHW(genJet->eta(), -MaxCaloEta_, MaxCaloEta_, EtaStepCalo_);
@@ -458,8 +454,7 @@ namespace l1t {
 
     // Put the total Et into EtSums  (Make HTT slightly smaller to tell them apart....not supposed to be realistic)
     int pt = convertPtToHW(sumEt, 2047, PtStep_);
-    ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>* p4 =
-        new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>();
+    auto* p4 = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>();
     l1t::EtSum etTotal(*p4, l1t::EtSum::EtSumType::kTotalEt, pt, 0, 0, 0);
 
     // Scale down ETTem as an estimate

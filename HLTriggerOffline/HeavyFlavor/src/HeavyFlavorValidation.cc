@@ -440,7 +440,7 @@ void HeavyFlavorValidation::analyze(const Event &iEvent, const EventSetup &iSetu
   Handle<GenParticleCollection> genParticles;
   iEvent.getByToken(genParticlesToken, genParticles);
   if (genParticles.isValid()) {
-    for (GenParticleCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++p) {
+    for (auto p = genParticles->begin(); p != genParticles->end(); ++p) {
       if (p->status() == 1 && std::abs(p->pdgId()) == 13 &&
           (find(motherIDs.begin(), motherIDs.end(), -1) != motherIDs.end() ||
            find(motherIDs.begin(), motherIDs.end(), getMotherId(&(*p))) != motherIDs.end())) {
@@ -460,7 +460,7 @@ void HeavyFlavorValidation::analyze(const Event &iEvent, const EventSetup &iSetu
   Handle<MuonCollection> recoMuonsHandle;
   iEvent.getByToken(recoMuonsToken, recoMuonsHandle);
   if (recoMuonsHandle.isValid()) {
-    for (MuonCollection::const_iterator p = recoMuonsHandle->begin(); p != recoMuonsHandle->end(); ++p) {
+    for (auto p = recoMuonsHandle->begin(); p != recoMuonsHandle->end(); ++p) {
       if (p->isGlobalMuon()) {
         globMuons.push_back(*p);
         globMuons_position.push_back(LeafCandidate(p->charge(),

@@ -76,7 +76,7 @@ ME0Geometry* ME0GeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo) 
     pars.emplace_back(nstrip);
     pars.emplace_back(npad);
 
-    ME0EtaPartitionSpecs* e_p_specs = new ME0EtaPartitionSpecs(GeomDetEnumerators::ME0, name, pars);
+    auto* e_p_specs = new ME0EtaPartitionSpecs(GeomDetEnumerators::ME0, name, pars);
 
     //Change of axes for the forward
     Basic3DVector<float> newX(1., 0., 0.);

@@ -157,8 +157,7 @@ void MCElectronAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
   std::vector<ElectronMCTruth> MCElectronctrons = theElectronMCTruthFinder_->find(theSimTracks, theSimVertices);
   std::cout << " MCElectronAnalyzer MCElectronctrons size " << MCElectronctrons.size() << std::endl;
 
-  for (std::vector<ElectronMCTruth>::const_iterator iEl = MCElectronctrons.begin(); iEl != MCElectronctrons.end();
-       ++iEl) {
+  for (auto iEl = MCElectronctrons.begin(); iEl != MCElectronctrons.end(); ++iEl) {
     h_MCEleE_->Fill((*iEl).fourMomentum().e());
     h_MCEleEta_->Fill((*iEl).fourMomentum().pseudoRapidity());
     h_MCElePhi_->Fill((*iEl).fourMomentum().phi());

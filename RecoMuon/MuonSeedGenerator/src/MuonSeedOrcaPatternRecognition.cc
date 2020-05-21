@@ -174,7 +174,7 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event,
 
   unsigned int counter = 0;
   if (list9.size() < 100) {  // +v
-    for (MuonRecHitContainer::iterator iter = list9.begin(); iter != list9.end(); iter++) {
+    for (auto iter = list9.begin(); iter != list9.end(); iter++) {
       MuonRecHitContainer seedSegments;
       seedSegments.push_back(*iter);
       complete(seedSegments, list6, MB3);
@@ -294,7 +294,7 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event,
 
     LogTrace(metname) << "Number of segments: " << all.size();
 
-    for (MuonRecHitContainer::const_iterator segmentItr = all.begin(); segmentItr != all.end(); ++segmentItr) {
+    for (auto segmentItr = all.begin(); segmentItr != all.end(); ++segmentItr) {
       MuonRecHitContainer singleSegmentContainer;
       singleSegmentContainer.push_back(*segmentItr);
       result.push_back(singleSegmentContainer);
@@ -430,7 +430,7 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(const MuonRecHitContainer& m
   bool* ME5 = zero(list5.size());
 
   // creates list of compatible track segments
-  for (MuonRecHitContainer::iterator iter = list1.begin(); iter != list1.end(); iter++) {
+  for (auto iter = list1.begin(); iter != list1.end(); iter++) {
     if ((*iter)->recHits().size() < 4 && !list3.empty())
       continue;  // 3p.tr-seg. are not so good for starting
 
@@ -509,9 +509,7 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(const MuonRecHitContainer& m
   } else {
     if (!crackSegments.empty()) {
       // make some single-segment seeds
-      for (MuonRecHitContainer::const_iterator crackSegmentItr = crackSegments.begin();
-           crackSegmentItr != crackSegments.end();
-           ++crackSegmentItr) {
+      for (auto crackSegmentItr = crackSegments.begin(); crackSegmentItr != crackSegments.end(); ++crackSegmentItr) {
         MuonRecHitContainer singleSegmentPattern;
         singleSegmentPattern.push_back(*crackSegmentItr);
         result.push_back(singleSegmentPattern);
@@ -559,7 +557,7 @@ MuonSeedOrcaPatternRecognition::MuonRecHitPointer MuonSeedOrcaPatternRecognition
   if (good_rhit.size() == 1)
     return good_rhit[0];
   double bestDiscrim = 10000.;
-  for (MuonRecHitContainer::iterator iter = good_rhit.begin(); iter != good_rhit.end(); iter++) {
+  for (auto iter = good_rhit.begin(); iter != good_rhit.end(); iter++) {
     double discrim = discriminator(first, *iter);
     if (discrim < bestDiscrim) {
       bestDiscrim = discrim;
@@ -627,8 +625,7 @@ void MuonSeedOrcaPatternRecognition::markAsUsed(int nr, const MuonRecHitContaine
 bool MuonSeedOrcaPatternRecognition::isCrack(const ConstMuonRecHitPointer& segment) const {
   bool result = false;
   double absEta = fabs(segment->globalPosition().eta());
-  for (std::vector<double>::const_iterator crackItr = theCrackEtas.begin(); crackItr != theCrackEtas.end();
-       ++crackItr) {
+  for (auto crackItr = theCrackEtas.begin(); crackItr != theCrackEtas.end(); ++crackItr) {
     if (fabs(absEta - *crackItr) < theCrackWindow) {
       result = true;
     }
@@ -638,7 +635,7 @@ bool MuonSeedOrcaPatternRecognition::isCrack(const ConstMuonRecHitPointer& segme
 
 void MuonSeedOrcaPatternRecognition::rememberCrackSegments(const MuonRecHitContainer& segments,
                                                            MuonRecHitContainer& crackSegments) const {
-  for (MuonRecHitContainer::const_iterator segmentItr = segments.begin(); segmentItr != segments.end(); ++segmentItr) {
+  for (auto segmentItr = segments.begin(); segmentItr != segments.end(); ++segmentItr) {
     if ((**segmentItr).hit()->dimension() == 4 && isCrack(*segmentItr)) {
       crackSegments.push_back(*segmentItr);
     }
@@ -653,7 +650,7 @@ void MuonSeedOrcaPatternRecognition::dumpLayer(const char* name, const MuonRecHi
   MuonPatternRecoDumper theDumper;
 
   LogTrace(metname) << name << std::endl;
-  for (MuonRecHitContainer::const_iterator segmentItr = segments.begin(); segmentItr != segments.end(); ++segmentItr) {
+  for (auto segmentItr = segments.begin(); segmentItr != segments.end(); ++segmentItr) {
     LogTrace(metname) << theDumper.dumpMuonId((**segmentItr).geographicalId());
   }
 }
@@ -662,7 +659,7 @@ MuonSeedOrcaPatternRecognition::MuonRecHitContainer MuonSeedOrcaPatternRecogniti
     const MuonRecHitContainer& segments, double dThetaCut) const {
   MuonPatternRecoDumper theDumper;
   MuonRecHitContainer result;
-  for (MuonRecHitContainer::const_iterator segmentItr = segments.begin(); segmentItr != segments.end(); ++segmentItr) {
+  for (auto segmentItr = segments.begin(); segmentItr != segments.end(); ++segmentItr) {
     double dtheta = (*segmentItr)->globalDirection().theta() - (*segmentItr)->globalPosition().theta();
     if ((*segmentItr)->isDT()) {
       // only apply the cut to 4D segments
@@ -757,8 +754,7 @@ bool MuonSeedOrcaPatternRecognition::isME1A(const ConstMuonRecHitPointer& segmen
 int MuonSeedOrcaPatternRecognition::countHits(const MuonRecHitPointer& segment) const {
   int count = 0;
   vector<TrackingRecHit*> components = (*segment).recHits();
-  for (vector<TrackingRecHit*>::const_iterator component = components.begin(); component != components.end();
-       ++component) {
+  for (auto component = components.begin(); component != components.end(); ++component) {
     int componentSize = (**component).recHits().size();
     count += (componentSize == 0) ? 1 : componentSize;
   }

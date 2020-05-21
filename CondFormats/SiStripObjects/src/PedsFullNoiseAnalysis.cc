@@ -375,8 +375,8 @@ void PedsFullNoiseAnalysis::print(std::stringstream& ss, uint32_t iapv) {
   if (getErrorCodes().empty()) {
     ss << "(none)";
   } else {
-    VString::const_iterator istr = getErrorCodes().begin();
-    VString::const_iterator jstr = getErrorCodes().end();
+    auto istr = getErrorCodes().begin();
+    auto jstr = getErrorCodes().end();
     for (; istr != jstr; ++istr) {
       ss << *istr << " ";
     }

@@ -105,7 +105,7 @@ TtFullHadKinFitter::~TtFullHadKinFitter() {
   delete lightP_;
   delete lightPBar_;
   delete covM_;
-  for (std::map<Constraint, TFitConstraintM*>::iterator it = massConstr_.begin(); it != massConstr_.end(); ++it)
+  for (auto it = massConstr_.begin(); it != massConstr_.end(); ++it)
     delete it->second;
 }
 
@@ -558,7 +558,7 @@ std::list<TtFullHadKinFitter::KinFitResult> TtFullHadKinFitter::KinFit::fit(cons
   }
 
   unsigned int bJetCounter = 0;
-  for (std::vector<pat::Jet>::const_iterator jet = jets.begin(); jet < jets.end(); ++jet) {
+  for (auto jet = jets.begin(); jet < jets.end(); ++jet) {
     if (jet->bDiscriminator(bTagAlgo_) >= minBTagValueBJet_)
       ++bJetCounter;
   }

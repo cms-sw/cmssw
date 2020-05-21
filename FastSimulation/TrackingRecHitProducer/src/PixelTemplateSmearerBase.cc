@@ -182,7 +182,7 @@ TrackingRecHitProductPtr PixelTemplateSmearerBase::process(TrackingRecHitProduct
   RandomEngineAndDistribution const& randomEngine = getRandomEngine();
 
   const GeomDet* geomDet = getTrackerGeometry().idToDetUnit(product->getDetId());
-  const PixelGeomDetUnit* pixelGeomDet = dynamic_cast<const PixelGeomDetUnit*>(geomDet);
+  const auto* pixelGeomDet = dynamic_cast<const PixelGeomDetUnit*>(geomDet);
   if (pixelGeomDet == nullptr) {
     throw cms::Exception("FastSimulation/TrackingRecHitProducer")
         << "The GeomDetUnit is not a PixelGeomDetUnit.  This should never happen!";
@@ -347,7 +347,7 @@ FastSingleTrackerRecHit PixelTemplateSmearerBase::smearHit(const PSimHit& simHit
                        << "   cotalpha=" << cotalpha << ",  cotbeta=" << cotbeta;
 
   const PixelTopology* theSpecificTopology = &(detUnit->specificType().specificTopology());
-  const RectangularPixelTopology* rectPixelTopology = static_cast<const RectangularPixelTopology*>(theSpecificTopology);
+  const auto* rectPixelTopology = static_cast<const RectangularPixelTopology*>(theSpecificTopology);
 
   const int nrows = theSpecificTopology->nrows();
   const int ncolumns = theSpecificTopology->ncolumns();

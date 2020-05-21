@@ -21,7 +21,7 @@ void TopJetAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   // fill histograms
 
   mult_->Fill(jets->size());
-  for (std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet != jets->end(); ++jet) {
+  for (auto jet = jets->begin(); jet != jets->end(); ++jet) {
     pt_->Fill(jet->pt());
     en_->Fill(jet->energy());
     eta_->Fill(jet->eta());
@@ -52,7 +52,7 @@ void TopJetAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   }
   std::cout << std::endl << std::setfill('-') << std::setw(lineWidth) << "\n" << std::setfill(' ');
   unsigned i = 0;
-  for (std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet != jets->end(); ++jet) {
+  for (auto jet = jets->begin(); jet != jets->end(); ++jet) {
     std::cout << std::setw(3) << i << " : " << std::setprecision(3) << std::fixed << std::setw(8) << jet->pt() << " : "
               << std::setw(6) << jet->eta() << " : " << std::setw(6) << jet->phi() << " : " << std::setw(8)
               << jet->bDiscriminator("trackCountingHighEffBJetTags") << " : " << std::setw(8)

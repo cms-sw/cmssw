@@ -119,9 +119,8 @@ void makePlots(std::string inputFileName, std::string outputFileName)
   std::string entryLabel;
   std::vector<TH1F*> hLayers;
 //   unsigned int normFactor;
-  
-  for(std::vector< std::string >::iterator itPlot=plotType.begin(); itPlot!=plotType.end(); itPlot++)
-  {
+
+  for (auto itPlot = plotType.begin(); itPlot != plotType.end(); itPlot++) {
     // Put together the Tracker histograms with the TIB, TID, TOB and TEC ones
     
     histoName = "h" + *itPlot + "Tracker";
@@ -226,8 +225,7 @@ void makePlots(std::string inputFileName, std::string outputFileName)
    
     
     // Put together the histograms for the different layers of the detectors
-    for(std::vector< std::string >::iterator itSub=subDetName.begin(); itSub!=subDetName.end(); itSub++)
-    {
+    for (auto itSub = subDetName.begin(); itSub != subDetName.end(); itSub++) {
       unsigned int nLayers = 0;
       std::string layerName;
 //       std::cout << "itSub = " << (*itSub).c_str() << std::endl;
@@ -428,7 +426,7 @@ void makePlots(std::string inputFileName, std::string outputFileName)
       delete c1;
     }
   }
-  
+
   inputFile->Close();
   outputFile->Close();
   

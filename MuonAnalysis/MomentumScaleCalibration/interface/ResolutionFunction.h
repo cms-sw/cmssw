@@ -26,7 +26,7 @@ public:
     edm::FileInPath fileWithFullPath(identifier.Data());
     readParameters(fileWithFullPath.fullPath());
 
-    std::vector<int>::const_iterator idIt = functionId_.begin();
+    auto idIt = functionId_.begin();
     for (; idIt != functionId_.end(); ++idIt)
       std::cout << "idIt = " << *idIt << std::endl;
   }
@@ -37,7 +37,7 @@ public:
    * The object is the same for all the functions.
    */
   ResolutionFunction(const MuScleFitDBobject* dbObject) : BaseFunction(dbObject) {
-    std::vector<int>::const_iterator id = functionId_.begin();
+    auto id = functionId_.begin();
     for (; id != functionId_.end(); ++id) {
       resolutionFunctionVec_.push_back(resolutionFunctionService(*id));
     }

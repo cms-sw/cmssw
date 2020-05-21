@@ -39,7 +39,7 @@ void VpspScanAlgorithm::extract(const std::vector<TH1*>& histos) {
   }
 
   // Extract histograms
-  std::vector<TH1*>::const_iterator ihis = histos.begin();
+  auto ihis = histos.begin();
   for (; ihis != histos.end(); ihis++) {
     // Check pointer
     if (!(*ihis)) {
@@ -79,8 +79,8 @@ void VpspScanAlgorithm::analyse() {
     return;
   }
 
-  CommissioningAnalysis* tmp = const_cast<CommissioningAnalysis*>(anal());
-  VpspScanAnalysis* anal = dynamic_cast<VpspScanAnalysis*>(tmp);
+  auto* tmp = const_cast<CommissioningAnalysis*>(anal());
+  auto* anal = dynamic_cast<VpspScanAnalysis*>(tmp);
   if (!anal) {
     edm::LogWarning(mlCommissioning_) << "[VpspScanAlgorithm::" << __func__ << "]"
                                       << " NULL pointer to derived Analysis object!";

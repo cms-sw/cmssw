@@ -240,7 +240,7 @@ bool EcalUncalibRecHitWorkerGlobal::run(const edm::Event& evt,
   gainRatios[2] = aGain->gain6Over1() * aGain->gain12Over6();
 
   // compute the right bin of the pulse shape using time calibration constants
-  EcalTimeCalibConstantMap::const_iterator it = itime->find(detid);
+  auto it = itime->find(detid);
   EcalTimeCalibConstant itimeconst = 0;
   if (it != itime->end()) {
     itimeconst = (*it);

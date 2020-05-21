@@ -80,7 +80,7 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
   RecHitsSortedInPhi::Range outerHits = outerHitsMap.all();
 
   RecHitsSortedInPhi::HitIter nextoh;
-  for (RecHitsSortedInPhi::HitIter oh = outerHits.first; oh != outerHits.second; ++oh) {
+  for (auto oh = outerHits.first; oh != outerHits.second; ++oh) {
     RecHitsSortedInPhi::Hit ohit = (*oh).hit();
     GlobalPoint oPos = ohit->globalPosition();
 
@@ -131,8 +131,8 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
       std::unique_ptr<const HitRZCompatibility> checkRZc = region.checkRZ(innerLayerObj.detLayer(), nohit, es);
 
       /*Loop on inner hits*/
-      vector<RecHitsSortedInPhi::Hit>::const_iterator ieh = innerHits.end();
-      for (vector<RecHitsSortedInPhi::Hit>::const_iterator ih = innerHits.begin(); ih < ieh; ++ih) {
+      auto ieh = innerHits.end();
+      for (auto ih = innerHits.begin(); ih < ieh; ++ih) {
         RecHitsSortedInPhi::Hit ihit = *ih;
 
 #ifdef mydebug_QSeed
@@ -152,7 +152,7 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
             failCheckRZCompatibility(ihit, *innerLayerObj.detLayer(), checkRZc.get(), region))
           continue;
 
-        for (vector<RecHitsSortedInPhi::Hit>::const_iterator nextih = ih + 1; nextih != ieh; ++nextih) {
+        for (auto nextih = ih + 1; nextih != ieh; ++nextih) {
           RecHitsSortedInPhi::Hit nihit = *nextih;
 
 #ifdef mydebug_QSeed

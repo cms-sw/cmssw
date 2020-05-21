@@ -65,7 +65,7 @@ void GenTrackMatcher::produce(Event &evt, const EventSetup &es) {
       const HepMC::GenParticle *particle = tracer_.genParticle();
       if (particle) {
         int barCode = particle->barcode();
-        vector<int>::const_iterator b = barCodes->begin(), e = barCodes->end(), f = find(b, e, barCode);
+        auto b = barCodes->begin(), e = barCodes->end(), f = find(b, e, barCode);
         if (f == e) {
           edm::EDConsumerBase::Labels labels;
           labelsForToken(genParticles_, labels);

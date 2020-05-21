@@ -97,7 +97,7 @@ void SiStripFedCablingBuilder::beginRun(const edm::Run& run, const edm::EventSet
 
   edm::LogVerbatim("SiStripFedCablingBuilder") << "[SiStripFedCablingBuilder::" << __func__ << "]"
                                                << " Copying FED cabling...";
-  SiStripFedCabling* obj = new SiStripFedCabling(*(fed.product()));
+  auto* obj = new SiStripFedCabling(*(fed.product()));
 
   //End now write sistripnoises data in DB
   edm::Service<cond::service::PoolDBOutputService> mydbservice;

@@ -46,8 +46,8 @@ template <>
 void PrimitiveSelection::process(emtf::CSCTag tag,
                                  const TriggerPrimitiveCollection& muon_primitives,
                                  std::map<int, TriggerPrimitiveCollection>& selected_csc_map) const {
-  TriggerPrimitiveCollection::const_iterator tp_it = muon_primitives.begin();
-  TriggerPrimitiveCollection::const_iterator tp_end = muon_primitives.end();
+  auto tp_it = muon_primitives.begin();
+  auto tp_end = muon_primitives.end();
 
   for (; tp_it != tp_end; ++tp_it) {
     TriggerPrimitive new_tp = *tp_it;  // make a copy and apply patches to this copy
@@ -106,8 +106,8 @@ void PrimitiveSelection::process(emtf::CSCTag tag,
   // If there are 2 LCTs in the same chamber with (strip, wire) = (s1, w1) and (s2, w2)
   // make all combinations with (s1, w1), (s2, w1), (s1, w2), (s2, w2)
   if (duplicateTheta_) {
-    std::map<int, TriggerPrimitiveCollection>::iterator map_tp_it = selected_csc_map.begin();
-    std::map<int, TriggerPrimitiveCollection>::iterator map_tp_end = selected_csc_map.end();
+    auto map_tp_it = selected_csc_map.begin();
+    auto map_tp_end = selected_csc_map.end();
 
     for (; map_tp_it != map_tp_end; ++map_tp_it) {
       int selected = map_tp_it->first;
@@ -168,8 +168,8 @@ template <>
 void PrimitiveSelection::process(emtf::RPCTag tag,
                                  const TriggerPrimitiveCollection& muon_primitives,
                                  std::map<int, TriggerPrimitiveCollection>& selected_rpc_map) const {
-  TriggerPrimitiveCollection::const_iterator tp_it = muon_primitives.begin();
-  TriggerPrimitiveCollection::const_iterator tp_end = muon_primitives.end();
+  auto tp_it = muon_primitives.begin();
+  auto tp_end = muon_primitives.end();
 
   for (; tp_it != tp_end; ++tp_it) {
     int selected_rpc = select_rpc(*tp_it);  // Returns RPC "link" index
@@ -210,8 +210,8 @@ void PrimitiveSelection::process(emtf::RPCTag tag,
       }
     } cluster_size_cut;
 
-    std::map<int, TriggerPrimitiveCollection>::iterator map_tp_it = selected_rpc_map.begin();
-    std::map<int, TriggerPrimitiveCollection>::iterator map_tp_end = selected_rpc_map.end();
+    auto map_tp_it = selected_rpc_map.begin();
+    auto map_tp_end = selected_rpc_map.end();
 
     for (; map_tp_it != map_tp_end; ++map_tp_it) {
       int selected = map_tp_it->first;
@@ -249,8 +249,8 @@ void PrimitiveSelection::process(emtf::RPCTag tag,
   if (map_rpc_to_csc) {
     std::map<int, TriggerPrimitiveCollection> tmp_selected_rpc_map;
 
-    std::map<int, TriggerPrimitiveCollection>::iterator map_tp_it = selected_rpc_map.begin();
-    std::map<int, TriggerPrimitiveCollection>::iterator map_tp_end = selected_rpc_map.end();
+    auto map_tp_it = selected_rpc_map.begin();
+    auto map_tp_end = selected_rpc_map.end();
 
     for (; map_tp_it != map_tp_end; ++map_tp_it) {
       int selected = map_tp_it->first;
@@ -361,8 +361,8 @@ template <>
 void PrimitiveSelection::process(emtf::GEMTag tag,
                                  const TriggerPrimitiveCollection& muon_primitives,
                                  std::map<int, TriggerPrimitiveCollection>& selected_gem_map) const {
-  TriggerPrimitiveCollection::const_iterator tp_it = muon_primitives.begin();
-  TriggerPrimitiveCollection::const_iterator tp_end = muon_primitives.end();
+  auto tp_it = muon_primitives.begin();
+  auto tp_end = muon_primitives.end();
 
   for (; tp_it != tp_end; ++tp_it) {
     int selected_gem = select_gem(*tp_it);  // Returns GEM "link" index
@@ -384,8 +384,8 @@ void PrimitiveSelection::process(emtf::GEMTag tag,
       }
     } cluster_size_cut;
 
-    std::map<int, TriggerPrimitiveCollection>::iterator map_tp_it = selected_gem_map.begin();
-    std::map<int, TriggerPrimitiveCollection>::iterator map_tp_end = selected_gem_map.end();
+    auto map_tp_it = selected_gem_map.begin();
+    auto map_tp_end = selected_gem_map.end();
 
     for (; map_tp_it != map_tp_end; ++map_tp_it) {
       //int selected = map_tp_it->first;
@@ -408,8 +408,8 @@ template <>
 void PrimitiveSelection::process(emtf::ME0Tag tag,
                                  const TriggerPrimitiveCollection& muon_primitives,
                                  std::map<int, TriggerPrimitiveCollection>& selected_me0_map) const {
-  TriggerPrimitiveCollection::const_iterator tp_it = muon_primitives.begin();
-  TriggerPrimitiveCollection::const_iterator tp_end = muon_primitives.end();
+  auto tp_it = muon_primitives.begin();
+  auto tp_end = muon_primitives.end();
 
   for (; tp_it != tp_end; ++tp_it) {
     int selected_me0 = select_me0(*tp_it);  // Returns ME0 "link" index
@@ -423,8 +423,8 @@ void PrimitiveSelection::process(emtf::ME0Tag tag,
   // Apply truncation
   bool apply_truncation = true;
   if (apply_truncation) {
-    std::map<int, TriggerPrimitiveCollection>::iterator map_tp_it = selected_me0_map.begin();
-    std::map<int, TriggerPrimitiveCollection>::iterator map_tp_end = selected_me0_map.end();
+    auto map_tp_it = selected_me0_map.begin();
+    auto map_tp_end = selected_me0_map.end();
 
     for (; map_tp_it != map_tp_end; ++map_tp_it) {
       //int selected = map_tp_it->first;
@@ -443,8 +443,8 @@ template <>
 void PrimitiveSelection::process(emtf::DTTag tag,
                                  const TriggerPrimitiveCollection& muon_primitives,
                                  std::map<int, TriggerPrimitiveCollection>& selected_dt_map) const {
-  TriggerPrimitiveCollection::const_iterator tp_it = muon_primitives.begin();
-  TriggerPrimitiveCollection::const_iterator tp_end = muon_primitives.end();
+  auto tp_it = muon_primitives.begin();
+  auto tp_end = muon_primitives.end();
 
   for (; tp_it != tp_end; ++tp_it) {
     int selected_dt = select_dt(*tp_it);  // Returns DT "link" index
@@ -457,8 +457,8 @@ void PrimitiveSelection::process(emtf::DTTag tag,
 
   // Duplicate DT muon primitives
   if (duplicateTheta_) {
-    std::map<int, TriggerPrimitiveCollection>::iterator map_tp_it = selected_dt_map.begin();
-    std::map<int, TriggerPrimitiveCollection>::iterator map_tp_end = selected_dt_map.end();
+    auto map_tp_it = selected_dt_map.begin();
+    auto map_tp_end = selected_dt_map.end();
 
     for (; map_tp_it != map_tp_end; ++map_tp_it) {
       //int selected = map_tp_it->first;
@@ -511,8 +511,8 @@ void PrimitiveSelection::merge(const std::map<int, TriggerPrimitiveCollection>& 
                                const std::map<int, TriggerPrimitiveCollection>& selected_me0_map,
                                std::map<int, TriggerPrimitiveCollection>& selected_prim_map) const {
   // First, put CSC hits
-  std::map<int, TriggerPrimitiveCollection>::const_iterator map_tp_it = selected_csc_map.begin();
-  std::map<int, TriggerPrimitiveCollection>::const_iterator map_tp_end = selected_csc_map.end();
+  auto map_tp_it = selected_csc_map.begin();
+  auto map_tp_end = selected_csc_map.end();
 
   for (; map_tp_it != map_tp_end; ++map_tp_it) {
     int selected_csc = map_tp_it->first;

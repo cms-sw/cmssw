@@ -429,8 +429,8 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
       muDaugs.push_back(*iter++);
   }
 
-  map<recoType, map<parType, double>>::const_iterator rIter = parMap.begin();
-  map<recoType, map<parType, double>>::const_iterator rIend = parMap.end();
+  auto rIter = parMap.begin();
+  auto rIend = parMap.end();
 
   // reconstruct quarkonia
 
@@ -475,8 +475,8 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
         default:
           continue;
       }
-      map<parType, double>::const_iterator pIter = pMap.begin();
-      map<parType, double>::const_iterator pIend = pMap.end();
+      auto pIter = pMap.begin();
+      auto pIend = pMap.end();
       while (pIter != pIend) {
         const map<parType, double>::value_type& pEntry = *pIter++;
         parType id = pEntry.first;
@@ -528,10 +528,10 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
     // get the CompositeCandidate containing both muons
     pair<mu_cc_iter, mu_cc_iter> cc0 = muCCMap.equal_range(ptr->originalReco(daugs[0]));
     pair<mu_cc_iter, mu_cc_iter> cc1 = muCCMap.equal_range(ptr->originalReco(daugs[1]));
-    mu_cc_iter iter0 = cc0.first;
-    mu_cc_iter iend0 = cc0.second;
-    mu_cc_iter iter1 = cc1.first;
-    mu_cc_iter iend1 = cc1.second;
+    auto iter0 = cc0.first;
+    auto iend0 = cc0.second;
+    auto iter1 = cc1.first;
+    auto iend1 = cc1.second;
     while ((iter0 != iend0) && (pVtx == nullptr)) {
       const pat::CompositeCandidate* ccp = iter0++->second;
       while (iter1 != iend1) {
@@ -633,8 +633,8 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
     rIter = parMap.find(Bu);
     if (rIter != rIend) {
       const map<parType, double>& pMap = rIter->second;
-      map<parType, double>::const_iterator pIter = pMap.begin();
-      map<parType, double>::const_iterator pIend = pMap.end();
+      auto pIter = pMap.begin();
+      auto pIend = pMap.end();
       while (pIter != pIend) {
         const map<parType, double>::value_type& pEntry = *pIter++;
         parType id = pEntry.first;
@@ -702,8 +702,8 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
     rIter = parMap.find(Kx0);
     if (rIter != rIend) {
       const map<parType, double>& pMap = rIter->second;
-      map<parType, double>::const_iterator pIter = pMap.begin();
-      map<parType, double>::const_iterator pIend = pMap.end();
+      auto pIter = pMap.begin();
+      auto pIend = pMap.end();
       while (pIter != pIend) {
         const map<parType, double>::value_type& pEntry = *pIter++;
         parType id = pEntry.first;
@@ -741,12 +741,12 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
   // build and dump Bd -> JPsi Kx0
 
   if (recoBd && nKx0) {
-    BPHBdToJPsiKxBuilder* bd = new BPHBdToJPsiKxBuilder(es, lJPsi, lKx0);
+    auto* bd = new BPHBdToJPsiKxBuilder(es, lJPsi, lKx0);
     rIter = parMap.find(Bd);
     if (rIter != rIend) {
       const map<parType, double>& pMap = rIter->second;
-      map<parType, double>::const_iterator pIter = pMap.begin();
-      map<parType, double>::const_iterator pIend = pMap.end();
+      auto pIter = pMap.begin();
+      auto pIend = pMap.end();
       while (pIter != pIend) {
         const map<parType, double>::value_type& pEntry = *pIter++;
         parType id = pEntry.first;
@@ -799,8 +799,8 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
     int nBd = lBd.size();
     for (iBd = 0; iBd < nBd; ++iBd)
       sKx0.insert(lBd[iBd]->getComp("Kx0"));
-    set<BPHRecoConstCandPtr>::const_iterator iter = sKx0.begin();
-    set<BPHRecoConstCandPtr>::const_iterator iend = sKx0.end();
+    auto iter = sKx0.begin();
+    auto iend = sKx0.end();
     while (iter != iend)
       lSd.push_back(*iter++);
   }
@@ -825,8 +825,8 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
     rIter = parMap.find(Pkk);
     if (rIter != rIend) {
       const map<parType, double>& pMap = rIter->second;
-      map<parType, double>::const_iterator pIter = pMap.begin();
-      map<parType, double>::const_iterator pIend = pMap.end();
+      auto pIter = pMap.begin();
+      auto pIend = pMap.end();
       while (pIter != pIend) {
         const map<parType, double>::value_type& pEntry = *pIter++;
         parType id = pEntry.first;
@@ -864,12 +864,12 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
   // build and dump Bs
 
   if (recoBs && nPhi) {
-    BPHBsToJPsiPhiBuilder* bs = new BPHBsToJPsiPhiBuilder(es, lJPsi, lPhi);
+    auto* bs = new BPHBsToJPsiPhiBuilder(es, lJPsi, lPhi);
     rIter = parMap.find(Bs);
     if (rIter != rIend) {
       const map<parType, double>& pMap = rIter->second;
-      map<parType, double>::const_iterator pIter = pMap.begin();
-      map<parType, double>::const_iterator pIend = pMap.end();
+      auto pIter = pMap.begin();
+      auto pIend = pMap.end();
       while (pIter != pIend) {
         const map<parType, double>::value_type& pEntry = *pIter++;
         parType id = pEntry.first;
@@ -922,8 +922,8 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
     int nBs = lBs.size();
     for (iBs = 0; iBs < nBs; ++iBs)
       sPhi.insert(lBs[iBs]->getComp("Phi"));
-    set<BPHRecoConstCandPtr>::const_iterator iter = sPhi.begin();
-    set<BPHRecoConstCandPtr>::const_iterator iend = sPhi.end();
+    auto iter = sPhi.begin();
+    auto iend = sPhi.end();
     while (iter != iend)
       lSs.push_back(*iter++);
   }
@@ -941,8 +941,8 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
     rIter = parMap.find(K0s);
     if (rIter != rIend) {
       const map<parType, double>& pMap = rIter->second;
-      map<parType, double>::const_iterator pIter = pMap.begin();
-      map<parType, double>::const_iterator pIend = pMap.end();
+      auto pIter = pMap.begin();
+      auto pIend = pMap.end();
       while (pIter != pIend) {
         const map<parType, double>::value_type& pEntry = *pIter++;
         parType id = pEntry.first;
@@ -990,8 +990,8 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
     rIter = parMap.find(Lambda0);
     if (rIter != rIend) {
       const map<parType, double>& pMap = rIter->second;
-      map<parType, double>::const_iterator pIter = pMap.begin();
-      map<parType, double>::const_iterator pIend = pMap.end();
+      auto pIter = pMap.begin();
+      auto pIend = pMap.end();
       while (pIter != pIend) {
         const map<parType, double>::value_type& pEntry = *pIter++;
         parType id = pEntry.first;
@@ -1029,12 +1029,12 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
   // build and dump Bd -> JPsi K0s
 
   if (recoB0 && nK0) {
-    BPHBdToJPsiKsBuilder* b0 = new BPHBdToJPsiKsBuilder(es, lJPsi, lK0);
+    auto* b0 = new BPHBdToJPsiKsBuilder(es, lJPsi, lK0);
     rIter = parMap.find(B0);
     if (rIter != rIend) {
       const map<parType, double>& pMap = rIter->second;
-      map<parType, double>::const_iterator pIter = pMap.begin();
-      map<parType, double>::const_iterator pIend = pMap.end();
+      auto pIter = pMap.begin();
+      auto pIend = pMap.end();
       while (pIter != pIend) {
         const map<parType, double>::value_type& pEntry = *pIter++;
         parType id = pEntry.first;
@@ -1088,12 +1088,12 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
   // build and dump Lambdab -> JPsi Lambda0
 
   if (recoLambdab && nL0) {
-    BPHLbToJPsiL0Builder* lb = new BPHLbToJPsiL0Builder(es, lJPsi, lL0);
+    auto* lb = new BPHLbToJPsiL0Builder(es, lJPsi, lL0);
     rIter = parMap.find(Lambdab);
     if (rIter != rIend) {
       const map<parType, double>& pMap = rIter->second;
-      map<parType, double>::const_iterator pIter = pMap.begin();
-      map<parType, double>::const_iterator pIend = pMap.end();
+      auto pIter = pMap.begin();
+      auto pIend = pMap.end();
       while (pIter != pIend) {
         const map<parType, double>::value_type& pEntry = *pIter++;
         parType id = pEntry.first;
@@ -1160,8 +1160,8 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
     rIter = parMap.find(Bc);
     if (rIter != rIend) {
       const map<parType, double>& pMap = rIter->second;
-      map<parType, double>::const_iterator pIter = pMap.begin();
-      map<parType, double>::const_iterator pIend = pMap.end();
+      auto pIter = pMap.begin();
+      auto pIend = pMap.end();
       while (pIter != pIend) {
         const map<parType, double>::value_type& pEntry = *pIter++;
         parType id = pEntry.first;
@@ -1228,8 +1228,8 @@ void BPHWriteSpecificDecay::fill(edm::Event& ev, const edm::EventSetup& es) {
     rIter = parMap.find(X3872);
     if (rIter != rIend) {
       const map<parType, double>& pMap = rIter->second;
-      map<parType, double>::const_iterator pIter = pMap.begin();
-      map<parType, double>::const_iterator pIend = pMap.end();
+      auto pIter = pMap.begin();
+      auto pIend = pMap.end();
       while (pIter != pIend) {
         const map<parType, double>::value_type& pEntry = *pIter++;
         parType id = pEntry.first;
@@ -1345,8 +1345,8 @@ void BPHWriteSpecificDecay::setRecoParameters(const edm::ParameterSet& ps) {
       break;
   }
 
-  map<string, parType>::const_iterator pIter = pMap.begin();
-  map<string, parType>::const_iterator pIend = pMap.end();
+  auto pIter = pMap.begin();
+  auto pIend = pMap.end();
   while (pIter != pIend) {
     const map<string, parType>::value_type& entry = *pIter++;
     const string& pn = entry.first;
@@ -1357,8 +1357,8 @@ void BPHWriteSpecificDecay::setRecoParameters(const edm::ParameterSet& ps) {
                                         << " : " << (parMap[rMap[name]][id] = pv);
   }
 
-  map<string, parType>::const_iterator fIter = fMap.begin();
-  map<string, parType>::const_iterator fIend = fMap.end();
+  auto fIter = fMap.begin();
+  auto fIend = fMap.end();
   while (fIter != fIend) {
     const map<string, parType>::value_type& entry = *fIter++;
     const string& fn = entry.first;

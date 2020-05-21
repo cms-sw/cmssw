@@ -74,7 +74,7 @@ void OptoScanHistosUsingDb::update(SiStripConfigDb::DeviceDescriptionsRange devi
     }
 
     // Cast to retrieve appropriate description object
-    laserdriverDescription* desc = dynamic_cast<laserdriverDescription*>(*idevice);
+    auto* desc = dynamic_cast<laserdriverDescription*>(*idevice);
     if (!desc) {
       continue;
     }
@@ -88,9 +88,9 @@ void OptoScanHistosUsingDb::update(SiStripConfigDb::DeviceDescriptionsRange devi
       SiStripFecKey fec_key(addr.fecCrate_, addr.fecSlot_, addr.fecRing_, addr.ccuAddr_, addr.ccuChan_, ichan + 1);
 
       // Iterate through all channels and extract LLD settings
-      Analyses::const_iterator iter = data(allowSelectiveUpload_).find(fec_key.key());
+      auto iter = data(allowSelectiveUpload_).find(fec_key.key());
       if (iter != data(allowSelectiveUpload_).end()) {
-        OptoScanAnalysis* anal = dynamic_cast<OptoScanAnalysis*>(iter->second);
+        auto* anal = dynamic_cast<OptoScanAnalysis*>(iter->second);
         if (!anal) {
           edm::LogError(mlDqmClient_) << "[OptoScanHistosUsingDb::" << __func__ << "]"
                                       << " NULL pointer to analysis object!";
@@ -131,7 +131,7 @@ void OptoScanHistosUsingDb::update(SiStripConfigDb::DeviceDescriptionsRange devi
 // -----------------------------------------------------------------------------
 /** */
 void OptoScanHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& desc, Analysis analysis) {
-  OptoScanAnalysis* anal = dynamic_cast<OptoScanAnalysis*>(analysis->second);
+  auto* anal = dynamic_cast<OptoScanAnalysis*>(analysis->second);
   if (!anal) {
     return;
   }
@@ -193,8 +193,8 @@ void OptoScanHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& desc,
     // Add comments
     typedef std::vector<std::string> Strings;
     Strings errors = anal->getErrorCodes();
-    Strings::const_iterator istr = errors.begin();
-    Strings::const_iterator jstr = errors.end();
+    auto istr = errors.begin();
+    auto jstr = errors.end();
     for (; istr != jstr; ++istr) {
       tmp->addComments(*istr);
     }

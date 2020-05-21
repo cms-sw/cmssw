@@ -223,7 +223,7 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
   float dphi_normalsc = electron.deltaPhiSuperClusterTrackAtVtx();
 
   const PFCandidate::ElementsInBlocks& extraTracks = pfcandextra->extraNonConvTracks();
-  for (PFCandidate::ElementsInBlocks::const_iterator itrk = extraTracks.begin(); itrk < extraTracks.end(); ++itrk) {
+  for (auto itrk = extraTracks.begin(); itrk < extraTracks.end(); ++itrk) {
     const PFBlock& block = *(itrk->first);
     const PFBlock::LinkData& linkData = block.linkData();
     const PFBlockElement& pfele = block.elements()[itrk->second];
@@ -239,8 +239,7 @@ bool PFEGammaFilters::isElectronSafeForJetMET(const reco::GsfElectron& electron,
       int nexhits = trackref->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
 
       bool trackIsFromPrimaryVertex = false;
-      for (Vertex::trackRef_iterator trackIt = primaryVertex.tracks_begin(); trackIt != primaryVertex.tracks_end();
-           ++trackIt) {
+      for (auto trackIt = primaryVertex.tracks_begin(); trackIt != primaryVertex.tracks_end(); ++trackIt) {
         if ((*trackIt).castTo<TrackRef>() == trackref) {
           trackIsFromPrimaryVertex = true;
           break;
@@ -341,7 +340,7 @@ bool PFEGammaFilters::isPhotonSafeForJetMET(const reco::Photon& photon, const re
 
   PFCandidateEGammaExtraRef pfcandextra = pfcand.egammaExtraRef();
   const PFCandidate::ElementsInBlocks& extraTracks = pfcandextra->extraNonConvTracks();
-  for (PFCandidate::ElementsInBlocks::const_iterator itrk = extraTracks.begin(); itrk < extraTracks.end(); ++itrk) {
+  for (auto itrk = extraTracks.begin(); itrk < extraTracks.end(); ++itrk) {
     const PFBlock& block = *(itrk->first);
     const PFBlockElement& pfele = block.elements()[itrk->second];
 

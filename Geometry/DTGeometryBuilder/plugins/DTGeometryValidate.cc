@@ -228,7 +228,7 @@ void DTGeometryValidate::compareShape(const GeomDet* det, const float* shape) {
 
   const Bounds* bounds = &(det->surface().bounds());
 
-  if (const TrapezoidalPlaneBounds* tpbs = dynamic_cast<const TrapezoidalPlaneBounds*>(bounds)) {
+  if (const auto* tpbs = dynamic_cast<const TrapezoidalPlaneBounds*>(bounds)) {
     array<const float, 4> const& ps = tpbs->parameters();
 
     assert(ps.size() == 4);

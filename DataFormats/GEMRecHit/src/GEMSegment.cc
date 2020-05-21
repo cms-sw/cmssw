@@ -84,7 +84,7 @@ GEMSegment::~GEMSegment() {}
 
 std::vector<const TrackingRecHit*> GEMSegment::recHits() const {
   std::vector<const TrackingRecHit*> pointersOfRecHits;
-  for (std::vector<GEMRecHit>::const_iterator irh = theGEMRecHits.begin(); irh != theGEMRecHits.end(); ++irh) {
+  for (auto irh = theGEMRecHits.begin(); irh != theGEMRecHits.end(); ++irh) {
     pointersOfRecHits.push_back(&(*irh));
   }
   return pointersOfRecHits;
@@ -92,7 +92,7 @@ std::vector<const TrackingRecHit*> GEMSegment::recHits() const {
 
 std::vector<TrackingRecHit*> GEMSegment::recHits() {
   std::vector<TrackingRecHit*> pointersOfRecHits;
-  for (std::vector<GEMRecHit>::iterator irh = theGEMRecHits.begin(); irh != theGEMRecHits.end(); ++irh) {
+  for (auto irh = theGEMRecHits.begin(); irh != theGEMRecHits.end(); ++irh) {
     pointersOfRecHits.push_back(&(*irh));
   }
   return pointersOfRecHits;

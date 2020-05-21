@@ -95,7 +95,7 @@ void FWLegoViewBase::setContext(const fireworks::Context& ctx) {
     data = static_cast<TEveCaloData*>(ctx.getCaloDataHF());
   } else {
     // create empty data locally instead of context
-    TEveCaloDataHist* hdata = new TEveCaloDataHist();
+    auto* hdata = new TEveCaloDataHist();
     hdata->IncDenyDestroy();
 
     Bool_t status = TH1::AddDirectoryStatus();
@@ -133,7 +133,7 @@ void FWLegoViewBase::setContext(const fireworks::Context& ctx) {
   m_lego->SetFixedHeightValIn2DMode(0.001);
   eventScene()->AddElement(m_lego);
 
-  TEveLegoEventHandler* eh = dynamic_cast<TEveLegoEventHandler*>(viewerGL()->GetEventHandler());
+  auto* eh = dynamic_cast<TEveLegoEventHandler*>(viewerGL()->GetEventHandler());
   if (eh)
     eh->SetLego(m_lego);
 
@@ -223,8 +223,7 @@ void FWLegoViewBase::setFrom(const FWConfiguration& iFrom) {
       setFromOrthoCamera(camera, iFrom);
     } else {
       viewerGL()->SetCurrentCamera(TGLViewer::kCameraPerspXOY);
-      TGLPerspectiveCamera* camera =
-          dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->RefCamera(TGLViewer::kCameraPerspXOY)));
+      auto* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->RefCamera(TGLViewer::kCameraPerspXOY)));
       setFromPerspectiveCamera(camera, typeName(), iFrom);
     }
   } else {
@@ -246,8 +245,7 @@ void FWLegoViewBase::addTo(FWConfiguration& iTo) const {
     TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>(&(viewerGL()->RefCamera(TGLViewer::kCameraOrthoXOY)));
     addToOrthoCamera(camera, iTo);
   } else {
-    TGLPerspectiveCamera* camera =
-        dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->RefCamera(TGLViewer::kCameraPerspXOY)));
+    auto* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->RefCamera(TGLViewer::kCameraPerspXOY)));
     addToPerspectiveCamera(camera, typeName(), iTo);
   }
 }

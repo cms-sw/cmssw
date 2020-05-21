@@ -30,9 +30,9 @@ void PreMixingMuonWorker<CSCStripDigiCollection>::put(edm::Event &iEvent) {
     int PrevStrip = -1;
     std::vector<int> DuplicateList;
 
-    std::vector<CSCStripDigiCollection::const_iterator>::const_iterator StripPtr = StripPointer.begin();
+    auto StripPtr = StripPointer.begin();
 
-    for (std::vector<int>::const_iterator istrip = StripList.begin(); istrip != StripList.end(); ++istrip) {
+    for (auto istrip = StripList.begin(); istrip != StripList.end(); ++istrip) {
       const int CurrentStrip = *(istrip);
 
       if (CurrentStrip > PrevStrip) {
@@ -41,9 +41,9 @@ void PreMixingMuonWorker<CSCStripDigiCollection>::put(edm::Event &iEvent) {
         int dupl_count;
         dupl_count = std::count(StripList.begin(), StripList.end(), CurrentStrip);
         if (dupl_count > 1) {
-          std::vector<int>::const_iterator duplicate = istrip;
+          auto duplicate = istrip;
           ++duplicate;
-          std::vector<CSCStripDigiCollection::const_iterator>::const_iterator DuplPointer = StripPtr;
+          auto DuplPointer = StripPtr;
           ++DuplPointer;
           for (; duplicate != StripList.end(); ++duplicate) {
             if ((*duplicate) == CurrentStrip) {
@@ -60,9 +60,9 @@ void PreMixingMuonWorker<CSCStripDigiCollection>::put(edm::Event &iEvent) {
 
               std::vector<int> new_adc;
 
-              std::vector<int>::const_iterator newsig = signal_adc.begin();
+              auto newsig = signal_adc.begin();
 
-              for (std::vector<int>::const_iterator ibin = pileup_adc.begin(); ibin != pileup_adc.end(); ++ibin) {
+              for (auto ibin = pileup_adc.begin(); ibin != pileup_adc.end(); ++ibin) {
                 new_adc.push_back((*newsig) + (*ibin) - minvalue);
 
                 ++newsig;

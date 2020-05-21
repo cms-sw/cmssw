@@ -394,7 +394,7 @@ bool HcalDbXml::dumpObject(std::ostream& fOutput,
   std::cout << "HcalDbXml::dumpObject-> set default errors: 0.0001, 0.0001, 0.0001, 0.0001" << std::endl;
   HcalPedestalWidths widths(fObject.topo(), fObject.isADC());
   std::vector<DetId> channels = fObject.getAllChannels();
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); channel++) {
+  for (auto channel = channels.begin(); channel != channels.end(); channel++) {
     HcalPedestalWidth item(*channel);
     for (int iCapId = 0; iCapId < 4; iCapId++) {
       item.setSigma(iCapId, iCapId, dummyError * dummyError);
@@ -422,7 +422,7 @@ bool HcalDbXml::dumpObject(std::ostream& fOutput,
                            const HcalGains& fObject) {
   HcalGainWidths widths(fObject.topo());
   std::vector<DetId> channels = fObject.getAllChannels();
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); channel++) {
+  for (auto channel = channels.begin(); channel != channels.end(); channel++) {
     HcalGainWidth item(*channel, 0, 0, 0, 0);
     widths.addValues(item);  // no error
   }

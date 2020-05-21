@@ -16,7 +16,7 @@ namespace Clusterizer1DCommons {
 
   template <class T>
   void add(const std::vector<const T*>& source, std::vector<const T*>& dest) {
-    for (typename std::vector<const T*>::const_iterator i = source.begin(); i != source.end(); ++i) {
+    for (auto i = source.begin(); i != source.end(); ++i) {
       dest.push_back(*i);
     };
   }

@@ -561,7 +561,7 @@ void HGCalGeomParameters::loadGeometryHexagon(const std::map<int, HGCalGeomParam
   php.copiesInLayers_ = copiesInLayers;
   php.nSectors_ = (int)(php.waferCopy_.size());
 
-  std::vector<HGCalGeomParameters::cellParameters>::const_iterator itrf = wafers.end();
+  auto itrf = wafers.end();
   for (unsigned int i = 0; i < cellsf.size(); ++i) {
     auto itr = cellsf.find(i);
     if (itr == cellsf.end()) {
@@ -1694,8 +1694,7 @@ std::pair<double, double> HGCalGeomParameters::cellPosition(
     double xx,
     double yy) {
   if (itrf == wafers.end()) {
-    for (std::vector<HGCalGeomParameters::cellParameters>::const_iterator itr = wafers.begin(); itr != wafers.end();
-         ++itr) {
+    for (auto itr = wafers.begin(); itr != wafers.end(); ++itr) {
       if (itr->wafer == wafer) {
         itrf = itr;
         break;

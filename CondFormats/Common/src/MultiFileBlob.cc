@@ -25,7 +25,7 @@ void MultiFileBlob::finalized(bool compress) {
 }
 
 void MultiFileBlob::read(const std::string& name, std::istream& is) {
-  Positions::const_iterator pos = positions.find(name);
+  auto pos = positions.find(name);
   if (pos != positions.end()) {
     edm::LogError("MultiFileBlob:") << name << "already in this object";
     return;
@@ -44,7 +44,7 @@ void MultiFileBlob::write(const std::string& name, std::ostream& os) const {
 
 MultiFileBlob::Range MultiFileBlob::rawBlob(const std::string& name) const {
   const_cast<MultiFileBlob*>(this)->expand();
-  Positions::const_iterator pos = positions.find(name);
+  auto pos = positions.find(name);
   if (pos == positions.end()) {
     edm::LogError("MultiFileBlob:") << name << "not in this object";
     return Range(nullptr, nullptr);

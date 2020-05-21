@@ -26,7 +26,7 @@ void PFDisplacedVertex::cleanTracks() {
 }
 
 const bool PFDisplacedVertex::isThereKindTracks(VertexTrackType T) const {
-  vector<VertexTrackType>::const_iterator iter = find(trackTypes_.begin(), trackTypes_.end(), T);
+  auto iter = find(trackTypes_.begin(), trackTypes_.end(), T);
   return (iter != trackTypes_.end());
 }
 

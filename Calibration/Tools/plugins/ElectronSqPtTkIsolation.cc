@@ -30,8 +30,7 @@ std::pair<int, double> ElectronSqPtTkIsolation::getIso(const reco::GsfElectron* 
   reco::GsfTrackRef tmpTrack = electron->gsfTrack();
   math::XYZVector tmpElectronMomentumAtVtx = (*tmpTrack).momentum();
 
-  for (reco::TrackCollection::const_iterator itrTr = (*trackCollection_).begin(); itrTr != (*trackCollection_).end();
-       ++itrTr) {
+  for (auto itrTr = (*trackCollection_).begin(); itrTr != (*trackCollection_).end(); ++itrTr) {
     math::XYZVector tmpTrackMomentumAtVtx = (*itrTr).momentum();
     double this_pt = (*itrTr).pt();
     if (this_pt < ptLow_)

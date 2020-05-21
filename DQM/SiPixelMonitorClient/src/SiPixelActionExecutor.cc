@@ -272,11 +272,11 @@ void SiPixelActionExecutor::GetBladeSubdirs(DQMStore::IBooker &iBooker,
   blade_subdirs.clear();
   vector<string> panels = iGetter.getSubdirs();
   vector<string> modules;
-  for (vector<string>::const_iterator it = panels.begin(); it != panels.end(); it++) {
+  for (auto it = panels.begin(); it != panels.end(); it++) {
     iGetter.cd(*it);
     iBooker.cd(*it);
     modules = iGetter.getSubdirs();
-    for (vector<string>::const_iterator m_it = modules.begin(); m_it != modules.end(); m_it++) {
+    for (auto m_it = modules.begin(); m_it != modules.end(); m_it++) {
       blade_subdirs.push_back(*m_it);
     }
   }
@@ -309,7 +309,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
     prefix = "SUMOFF";
   if (currDir.find(dir_name) != string::npos) {
     vector<MonitorElement *> sum_mes;
-    for (vector<string>::const_iterator iv = me_names.begin(); iv != me_names.end(); iv++) {
+    for (auto iv = me_names.begin(); iv != me_names.end(); iv++) {
       if (source_type_ == 5 || source_type_ == 6) {
         if ((*iv) == "errorType" || (*iv) == "NErrors" || (*iv) == "fullType" || (*iv) == "chanNmbr" ||
             (*iv) == "TBMType" || (*iv) == "EvtNbr" || (*iv) == "evtSize" || (*iv) == "linkId" || (*iv) == "ROCId" ||
@@ -421,7 +421,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
       GetBladeSubdirs(iBooker, iGetter, subdirs);
 
     int ndet = 0;
-    for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
+    for (auto it = subdirs.begin(); it != subdirs.end(); it++) {
       if (prefix != "SUMOFF" && (*it).find("Module_") == string::npos)
         continue;
       if (prefix == "SUMOFF" && (*it).find(isbarrel ? "Layer_" : "Disk_") == string::npos)
@@ -432,8 +432,8 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
 
       vector<string> contents = iGetter.getMEs();
 
-      for (vector<MonitorElement *>::const_iterator isum = sum_mes.begin(); isum != sum_mes.end(); isum++) {
-        for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++) {
+      for (auto isum = sum_mes.begin(); isum != sum_mes.end(); isum++) {
+        for (auto im = contents.begin(); im != contents.end(); im++) {
           string sname = ((*isum)->getName());
           string tname = " ";
           tname = sname.substr(7, (sname.find("_", 7) - 6));
@@ -626,7 +626,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
     vector<string> subdirs = iGetter.getSubdirs();
     // printing cout << "#\t" << iBooker.pwd() << endl;
     if (isbarrel) {
-      for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
+      for (auto it = subdirs.begin(); it != subdirs.end(); it++) {
         //				 cout << "##\t" << iBooker.pwd() << "\t"
         //<<
         //(*it) << endl;
@@ -655,7 +655,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker &iBooker,
 
     } else  // Endcap
     {
-      for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
+      for (auto it = subdirs.begin(); it != subdirs.end(); it++) {
         if ((iBooker.pwd()).find("Barrel") != string::npos ||
             (iBooker.pwd()).find("AdditionalPixelErrors") != string::npos) {
           iBooker.goUp();
@@ -699,10 +699,10 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore::IBooker &iBooker,
 
   if (currDir.find(dir_name) != string::npos) {
     vector<MonitorElement *> sum_mes;
-    for (vector<string>::const_iterator iv = me_names.begin(); iv != me_names.end(); iv++) {
+    for (auto iv = me_names.begin(); iv != me_names.end(); iv++) {
       bool isBooked = false;
       vector<string> contents = iGetter.getMEs();
-      for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++)
+      for (auto im = contents.begin(); im != contents.end(); im++)
         if ((*im).find(*iv) != string::npos)
           isBooked = true;
       if (source_type_ == 5 || source_type_ == 6) {
@@ -783,7 +783,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore::IBooker &iBooker,
     }
     vector<string> subdirs = iGetter.getSubdirs();
     int ndet = 0;
-    for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
+    for (auto it = subdirs.begin(); it != subdirs.end(); it++) {
       if ((*it).find("FED_") == string::npos)
         continue;
       iBooker.cd(*it);
@@ -795,8 +795,8 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore::IBooker &iBooker,
       ndet++;
       vector<string> contents = iGetter.getMEs();
 
-      for (vector<MonitorElement *>::const_iterator isum = sum_mes.begin(); isum != sum_mes.end(); isum++) {
-        for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++) {
+      for (auto isum = sum_mes.begin(); isum != sum_mes.end(); isum++) {
+        for (auto im = contents.begin(); im != contents.end(); im++) {
           if (((*im).find("FedChNErr") != std::string::npos &&
                (*isum)->getName().find("FedChNErr") != std::string::npos) ||
               ((*im).find("FedChLErr") != std::string::npos &&
@@ -861,7 +861,7 @@ void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore::IBooker &iBooker,
     }
   } else {
     vector<string> subdirs = iGetter.getSubdirs();
-    for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
+    for (auto it = subdirs.begin(); it != subdirs.end(); it++) {
       if ((*it).find("Endcap") != string::npos || (*it).find("Barrel") != string::npos)
         continue;
       iBooker.cd(*it);
@@ -899,7 +899,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore::IBooker &iBoo
   int nbin_subdir = 0;
   int cnt = 0;
   bool first_subdir = true;
-  for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
+  for (auto it = subdirs.begin(); it != subdirs.end(); it++) {
     cnt++;
     iBooker.cd(*it);
     iGetter.cd(*it);
@@ -924,8 +924,8 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore::IBooker &iBoo
     else if (source_type_ == 20)
       prefix = "SUMOFF";
 
-    for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++) {
-      for (vector<string>::const_iterator iv = me_names.begin(); iv != me_names.end(); iv++) {
+    for (auto im = contents.begin(); im != contents.end(); im++) {
+      for (auto iv = me_names.begin(); iv != me_names.end(); iv++) {
         string var = "_" + (*iv) + "_";
         if ((*im).find(var) != string::npos) {
           if ((var == "_charge_" || var == "_nclusters_" || var == "_size_" || var == "_sizeX_" || var == "_sizeY_") &&
@@ -1013,7 +1013,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore::IBooker &iBoo
             getGrandSummaryME(iBooker, iGetter, nbin, me_name, gsum_mes);
           }
 
-          for (vector<MonitorElement *>::const_iterator igm = gsum_mes.begin(); igm != gsum_mes.end(); igm++) {
+          for (auto igm = gsum_mes.begin(); igm != gsum_mes.end(); igm++) {
             if ((*igm)->getName().find(var) != string::npos) {
               if (prefix == "SUMOFF")
                 (*igm)->setAxisTitle("Ladders", 1);
@@ -1279,7 +1279,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore::IBooker &iBoo
   int nbin_subdir = 0;
   int cnt = 0;
   bool first_subdir = true;
-  for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
+  for (auto it = subdirs.begin(); it != subdirs.end(); it++) {
     cnt++;
     iBooker.cd(*it);
     iGetter.cd(*it);
@@ -1303,8 +1303,8 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore::IBooker &iBoo
     else if (source_type_ == 20)
       prefix = "SUMOFF";
 
-    for (vector<string>::const_iterator im = contents.begin(); im != contents.end(); im++) {
-      for (vector<string>::const_iterator iv = me_names.begin(); iv != me_names.end(); iv++) {
+    for (auto im = contents.begin(); im != contents.end(); im++) {
+      for (auto iv = me_names.begin(); iv != me_names.end(); iv++) {
         string var = "_" + (*iv) + "_";
         if ((*im).find(var) != string::npos) {
           if ((var == "_charge_" || var == "_nclusters_" || var == "_size_" || var == "_sizeX_" || var == "_sizeY_") &&
@@ -1394,7 +1394,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore::IBooker &iBoo
             getGrandSummaryME(iBooker, iGetter, nbin, me_name, gsum_mes);
           }
 
-          for (vector<MonitorElement *>::const_iterator igm = gsum_mes.begin(); igm != gsum_mes.end(); igm++) {
+          for (auto igm = gsum_mes.begin(); igm != gsum_mes.end(); igm++) {
             if ((*igm)->getName().find(var) != string::npos) {
               if (prefix == "SUMOFF")
                 (*igm)->setAxisTitle("Blades", 1);
@@ -1585,7 +1585,7 @@ void SiPixelActionExecutor::getGrandSummaryME(
     return;  // If one doesn't find pixel
   vector<string> contents = iGetter.getMEs();
 
-  for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) {
+  for (auto it = contents.begin(); it != contents.end(); it++) {
     // printing cout<<"in grand summary me: "<<me_name<<","<<(*it)<<endl;
     if ((*it).find(me_name) == 0) {
       string fullpathname = iBooker.pwd() + "/" + me_name;
@@ -1627,7 +1627,7 @@ SiPixelActionExecutor::MonitorElement *SiPixelActionExecutor::getSummaryME(DQMSt
     return me;
   vector<string> contents = iGetter.getMEs();
 
-  for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) {
+  for (auto it = contents.begin(); it != contents.end(); it++) {
     if ((*it).find(me_name) == 0) {
       string fullpathname = iBooker.pwd() + "/" + (*it);
       me = iGetter.get(fullpathname);
@@ -1686,7 +1686,7 @@ SiPixelActionExecutor::MonitorElement *SiPixelActionExecutor::getFEDSummaryME(DQ
     return me;
   vector<string> contents = iGetter.getMEs();
 
-  for (vector<string>::const_iterator it = contents.begin(); it != contents.end(); it++) {
+  for (auto it = contents.begin(); it != contents.end(); it++) {
     if ((*it).find(me_name) == 0) {
       string fullpathname = iBooker.pwd() + "/" + (*it);
 
@@ -1713,7 +1713,7 @@ void SiPixelActionExecutor::bookOccupancyPlots(DQMStore::IBooker &iBooker,
   if (Tier0Flag_)
     return;
   vector<string> subdirs = iGetter.getSubdirs();
-  for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
+  for (auto it = subdirs.begin(); it != subdirs.end(); it++) {
     if (isbarrel && (*it).find("Barrel") == string::npos)
       continue;
     if (!isbarrel && (*it).find("Endcap") == string::npos)
@@ -1809,7 +1809,7 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore::IBooker &iBooker, DQMStore::
 
   if (dname.find("Layer_") != string::npos || dname.find("Disk_") != string::npos) {
     vector<string> meVec = iGetter.getMEs();
-    for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+    for (auto it = meVec.begin(); it != meVec.end(); it++) {
       string full_path = currDir + "/" + (*it);
       if (full_path.find("hitmap_siPixelDigis") != string::npos) {  // If we have the hitmap ME
         MonitorElement *me = iGetter.get(full_path);
@@ -1837,7 +1837,7 @@ void SiPixelActionExecutor::fillOccupancy(DQMStore::IBooker &iBooker, DQMStore::
     }
   } else {
     vector<string> subdirs = iGetter.getSubdirs();
-    for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
+    for (auto it = subdirs.begin(); it != subdirs.end(); it++) {
       iGetter.cd(*it);
       iBooker.cd(*it);
       if (*it != "Pixel" &&
@@ -2072,7 +2072,7 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker &iBooker,
     if (isbarrel && dname.find("Ladder_") != string::npos) {
       if (!isUpgrade) {
         vector<string> meVec = iGetter.getMEs();
-        for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+        for (auto it = meVec.begin(); it != meVec.end(); it++) {
           string full_path = currDir + "/" + (*it);
 
           if (full_path.find("missingMod_") != string::npos) {  // If we have missing hits ME
@@ -2128,7 +2128,7 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker &iBooker,
       }  // endifNOTUpgradeInBPix
       else if (isUpgrade) {
         vector<string> meVec = iGetter.getMEs();
-        for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+        for (auto it = meVec.begin(); it != meVec.end(); it++) {
           string full_path = currDir + "/" + (*it);
           if (full_path.find("missing_") != string::npos) {  // If we have missing hits ME
             MonitorElement *me = iGetter.get(full_path);
@@ -2176,7 +2176,7 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker &iBooker,
       }  // endifUpgradeInBPix
     } else if (!isbarrel && dname.find("Blade_") != string::npos && !isUpgrade) {
       vector<string> meVec = iGetter.getMEs();
-      for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+      for (auto it = meVec.begin(); it != meVec.end(); it++) {
         string full_path = currDir + "/" + (*it);
         if (full_path.find("missing_") != string::npos) {  // If we have missing hits ME
           MonitorElement *missing = iGetter.get(full_path);
@@ -2228,7 +2228,7 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker &iBooker,
       }
     } else if (!isbarrel && dname.find("Blade_") != string::npos && isUpgrade) {
       vector<string> meVec = iGetter.getMEs();
-      for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+      for (auto it = meVec.begin(); it != meVec.end(); it++) {
         string full_path = currDir + "/" + (*it);
         if (full_path.find("missing_") != string::npos) {  // If we have missing hits ME
           MonitorElement *me = iGetter.get(full_path);
@@ -2315,7 +2315,7 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker &iBooker,
       }
     } else {
       vector<string> subdirs = iGetter.getSubdirs();
-      for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
+      for (auto it = subdirs.begin(); it != subdirs.end(); it++) {
         iBooker.cd(*it);
         iGetter.cd(*it);
         if (*it != "Pixel" &&
@@ -2329,7 +2329,7 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker &iBooker,
   } else {  // Online
     if (dname.find("Module_") != string::npos) {
       vector<string> meVec = iGetter.getMEs();
-      for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+      for (auto it = meVec.begin(); it != meVec.end(); it++) {
         string full_path = currDir + "/" + (*it);
         if (full_path.find("missing_") != string::npos) {  // If we have missing hits ME
           MonitorElement *me = iGetter.get(full_path);
@@ -2643,7 +2643,7 @@ void SiPixelActionExecutor::fillEfficiency(DQMStore::IBooker &iBooker,
     } else {
       // cout<<"finding subdirs now"<<std::endl;
       vector<string> subdirs = iGetter.getSubdirs();
-      for (vector<string>::const_iterator it = subdirs.begin(); it != subdirs.end(); it++) {
+      for (auto it = subdirs.begin(); it != subdirs.end(); it++) {
         iBooker.cd(*it);
         iGetter.cd(*it);
         if (*it != "Pixel" &&

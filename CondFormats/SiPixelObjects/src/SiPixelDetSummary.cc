@@ -65,9 +65,9 @@ void SiPixelDetSummary::add(const DetId& detid, const float& value) {
 
 // ----------------------------------------------------------------------
 void SiPixelDetSummary::print(std::stringstream& ss, const bool mean) const {
-  std::map<int, int>::const_iterator countIt = fCountMap.begin();
-  std::map<int, double>::const_iterator meanIt = fMeanMap.begin();
-  std::map<int, double>::const_iterator rmsIt = fRmsMap.begin();
+  auto countIt = fCountMap.begin();
+  auto meanIt = fMeanMap.begin();
+  auto rmsIt = fRmsMap.begin();
 
   ss << "subDet" << setw(15) << "layer" << setw(16);
   if (mean)

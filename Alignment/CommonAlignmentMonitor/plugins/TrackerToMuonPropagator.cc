@@ -152,11 +152,10 @@ void TrackerToMuonPropagator::produce(edm::Event& iEvent, const edm::EventSetup&
   std::map<edm::Ref<std::vector<Trajectory>>::key_type, edm::Ref<reco::TrackCollection>::key_type> reference_map;
   edm::Ref<std::vector<Trajectory>>::key_type trajCounter = 0;
 
-  for (reco::MuonCollection::const_iterator globalMuon = globalMuons->begin(); globalMuon != globalMuons->end();
-       ++globalMuon) {
+  for (auto globalMuon = globalMuons->begin(); globalMuon != globalMuons->end(); ++globalMuon) {
     // get the counter for this global muon (that's why we needed to extract the collection explicitly
     edm::Ref<reco::TrackCollection>::key_type trackCounter = 0;
-    reco::TrackCollection::const_iterator globalMuonTrack = globalMuonTracks->begin();
+    auto globalMuonTrack = globalMuonTracks->begin();
     for (; globalMuonTrack != globalMuonTracks->end(); ++globalMuonTrack) {
       trackCounter++;
       if (fabs(globalMuon->combinedMuon()->phi() - globalMuonTrack->phi()) < 1e-10 &&

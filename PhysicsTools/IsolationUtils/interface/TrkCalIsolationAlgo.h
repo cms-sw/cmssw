@@ -27,7 +27,7 @@ private:
 template <typename T1, typename C2>
 double TrkCalIsolationAlgo<T1, C2>::operator()(const T1 &cand, const C2 &elements) const {
   double etSum = 0;
-  for (typename C2::const_iterator elem = elements.begin(); elem != elements.end(); ++elem) {
+  for (auto elem = elements.begin(); elem != elements.end(); ++elem) {
     double dR = deltaR(elem->eta(), elem->phi(), cand.outerEta(), cand.outerPhi());
     if (dR < dRMax_ && dR > dRMin_) {
       etSum += elem->et();

@@ -137,9 +137,8 @@ namespace ecaldqm {
   unsigned MESetMulti::getIndex(PathReplacements const &_replacements) const {
     unsigned index(0);
     unsigned base(1);
-    for (typename ReplCandidates::const_reverse_iterator cItr(replCandidates_.rbegin()); cItr != replCandidates_.rend();
-         ++cItr) {
-      typename PathReplacements::const_iterator rItr(_replacements.find(cItr->first));
+    for (auto cItr(replCandidates_.rbegin()); cItr != replCandidates_.rend(); ++cItr) {
+      auto rItr(_replacements.find(cItr->first));
       if (rItr == _replacements.end())
         throw_(cItr->first + " not given in the key for getIndex");
       unsigned nC(cItr->second.size());

@@ -67,7 +67,7 @@ bool MuonAlignmentPreFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
 
   // check if there's at least one interesting track:
 
-  for (reco::TrackCollection::const_iterator it = trackColl->begin(); it != trackColl->end(); it++) {
+  for (auto it = trackColl->begin(); it != trackColl->end(); it++) {
     int tracker_numHits = 0;
     bool contains_TIDTEC = false;
     int dt_numHits = 0;

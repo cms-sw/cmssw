@@ -109,7 +109,7 @@ void FlatRandomPtAndDxyGunProducer::produce(Event& e, const EventSetup& es) {
         break;
     }
 
-    HepMC::GenVertex* Vtx1 = new HepMC::GenVertex(HepMC::FourVector(vx, vy, vz));
+    auto* Vtx1 = new HepMC::GenVertex(HepMC::FourVector(vx, vy, vz));
 
     int PartID = fPartIDs[ip];
     const HepPDT::ParticleData* PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID)));
@@ -117,20 +117,20 @@ void FlatRandomPtAndDxyGunProducer::produce(Event& e, const EventSetup& es) {
     double energy2 = px * px + py * py + pz * pz + mass * mass;
     double energy = sqrt(energy2);
     HepMC::FourVector p(px, py, pz, energy);
-    HepMC::GenParticle* Part = new HepMC::GenParticle(p, PartID, 1);
+    auto* Part = new HepMC::GenParticle(p, PartID, 1);
     Part->suggest_barcode(barcode);
     barcode++;
     Vtx1->add_particle_out(Part);
     fEvt->add_vertex(Vtx1);
 
     if (fAddAntiParticle) {
-      HepMC::GenVertex* Vtx2 = new HepMC::GenVertex(HepMC::FourVector(-vx, -vy, -vz));
+      auto* Vtx2 = new HepMC::GenVertex(HepMC::FourVector(-vx, -vy, -vz));
       HepMC::FourVector ap(-px, -py, -pz, energy);
       int APartID = -PartID;
       if (PartID == 22 || PartID == 23) {
         APartID = PartID;
       }
-      HepMC::GenParticle* APart = new HepMC::GenParticle(ap, APartID, 1);
+      auto* APart = new HepMC::GenParticle(ap, APartID, 1);
       APart->suggest_barcode(barcode);
       barcode++;
       Vtx2->add_particle_out(APart);

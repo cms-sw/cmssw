@@ -35,7 +35,7 @@ namespace lumi {
     //generate dummy data of run summary for the given run and write data to LumiDB
     //
     std::string fakehltkey("/cdaq/Cosmic/V12");
-    coral::ConnectionService* svc = new coral::ConnectionService;
+    auto* svc = new coral::ConnectionService;
     lumi::DBConfig dbconf(*svc);
     if (!m_authpath.empty()) {
       dbconf.setAuthentication(m_authpath);

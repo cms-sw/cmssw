@@ -29,8 +29,7 @@ JetCollectionReducerT<T>::JetCollectionReducerT(const edm::ParameterSet& iConfig
     : jetColToken_(consumes<std::vector<T>>(iConfig.getParameter<edm::InputTag>("jetCollection"))),
       writeEmptyCollection_(iConfig.getParameter<bool>("writeEmptyCollection")) {
   std::vector<edm::InputTag> filtersDecTags = iConfig.getParameter<std::vector<edm::InputTag>>("triggeringCollections");
-  for (std::vector<edm::InputTag>::const_iterator inputTag = filtersDecTags.begin(); inputTag != filtersDecTags.end();
-       ++inputTag) {
+  for (auto inputTag = filtersDecTags.begin(); inputTag != filtersDecTags.end(); ++inputTag) {
     collections_.push_back(consumes<edm::View<reco::Candidate>>(*inputTag));
   }
 
@@ -44,9 +43,7 @@ void JetCollectionReducerT<T>::produce(edm::StreamID id, edm::Event& iEvent, con
 
   bool filterDecision = false;
   edm::Handle<edm::View<reco::Candidate>> tmpCol;
-  for (std::vector<edm::EDGetTokenT<edm::View<reco::Candidate>>>::const_iterator filter = collections_.begin();
-       filter != collections_.end();
-       filter++) {
+  for (auto filter = collections_.begin(); filter != collections_.end(); filter++) {
     iEvent.getByToken(*filter, tmpCol);
     if (!tmpCol->empty()) {
       filterDecision = true;

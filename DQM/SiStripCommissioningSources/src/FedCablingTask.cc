@@ -70,7 +70,7 @@ void FedCablingTask::fill(const SiStripEventSummary& summary,
                            << " Found " << fed_ch.size() << " FED channels with high signal!";
   }
 
-  std::map<uint16_t, float>::const_iterator ichan = fed_ch.begin();
+  auto ichan = fed_ch.begin();
   for (; ichan != fed_ch.end(); ichan++) {
     updateHistoSet(histos_[0], fed_id, ichan->second);
     updateHistoSet(histos_[1], ichan->first, ichan->second);

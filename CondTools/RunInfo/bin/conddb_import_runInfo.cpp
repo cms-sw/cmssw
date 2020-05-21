@@ -28,7 +28,7 @@ cond::RunInfoUtils::RunInfoUtils() : Utilities("conddb_import_runInfo") {
 cond::RunInfoUtils::~RunInfoUtils() {}
 
 boost::posix_time::ptime parseTimeFromIsoString(const std::string& isoString) {
-  boost::posix_time::time_input_facet* tif = new boost::posix_time::time_input_facet;
+  auto* tif = new boost::posix_time::time_input_facet;
   tif->set_iso_extended_format();
   std::istringstream iss(isoString);
   iss.imbue(std::locale(std::locale::classic(), tif));

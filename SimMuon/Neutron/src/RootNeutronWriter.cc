@@ -6,8 +6,7 @@ using namespace std;
 RootNeutronWriter::RootNeutronWriter(const string& fileName) { theFile = new TFile(fileName.c_str(), "update"); }
 
 RootNeutronWriter::~RootNeutronWriter() {
-  for (std::map<int, RootChamberWriter>::iterator mapItr = theChamberWriters.begin(); mapItr != theChamberWriters.end();
-       ++mapItr) {
+  for (auto mapItr = theChamberWriters.begin(); mapItr != theChamberWriters.end(); ++mapItr) {
     mapItr->second.tree()->Print();
     // the tree will remember which file it's from
     theFile = mapItr->second.tree()->GetCurrentFile();
@@ -23,7 +22,7 @@ void RootNeutronWriter::initialize(int chamberType) {
 }
 
 RootChamberWriter& RootNeutronWriter::chamberWriter(int chamberType) {
-  std::map<int, RootChamberWriter>::iterator mapItr = theChamberWriters.find(chamberType);
+  auto mapItr = theChamberWriters.find(chamberType);
   if (mapItr != theChamberWriters.end()) {
     return mapItr->second;
   } else {

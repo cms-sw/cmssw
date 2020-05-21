@@ -334,7 +334,7 @@ unsigned int GroupedCkfTrajectoryBuilder::groupedLimitedCandidates(const Traject
 
   while (!candidates.empty()) {
     newCand.clear();
-    for (TempTrajectoryContainer::iterator traj = candidates.begin(); traj != candidates.end(); traj++) {
+    for (auto traj = candidates.begin(); traj != candidates.end(); traj++) {
       if (!advanceOneLayer(seed, *traj, regionalCondition, propagator, inOut, newCand, result)) {
         LogDebug("CkfPattern") << "GCTB: terminating after advanceOneLayer==false";
         continue;
@@ -848,7 +848,7 @@ void GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed& see
   //seedHits.reserve(nSeed);
   TempTrajectoryContainer rebuiltTrajectories;
 
-  for (TempTrajectoryContainer::iterator it = result.begin(); it != result.end(); it++) {
+  for (auto it = result.begin(); it != result.end(); it++) {
     // Refit - keep existing trajectory in case fit is not possible
     // or fails
     //
@@ -941,7 +941,7 @@ int GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed& seed
   bool orig_ok = false;
   //const RecHitEqualByChannels recHitEqual(false,false);
   //vector<TM> oldMeasurements(candidate.measurements());
-  for (TempTrajectoryContainer::iterator it = rebuiltTrajectories.begin(); it != rebuiltTrajectories.end(); it++) {
+  for (auto it = rebuiltTrajectories.begin(); it != rebuiltTrajectories.end(); it++) {
     TempTrajectory::DataContainer newMeasurements(it->measurements());
     //
     // Verify presence of seeding hits?
@@ -1094,7 +1094,7 @@ TempTrajectory GroupedCkfTrajectoryBuilder::backwardFit(TempTrajectory& candidat
   //So we have to cache the detLayer pointers and replug them in.
   //For the backward building it would be enaugh to cache the last DetLayer,
   //but for the intermediary cleaning we need all
-  for (vector<TM>::const_iterator im = tmsbf.begin(); im != tmsbf.end(); im++) {
+  for (auto im = tmsbf.begin(); im != tmsbf.end(); im++) {
     fitted.emplace((*im).forwardPredictedState(),
                    (*im).backwardPredictedState(),
                    (*im).updatedState(),

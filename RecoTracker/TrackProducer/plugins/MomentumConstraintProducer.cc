@@ -98,7 +98,7 @@ void MomentumConstraintProducer::produce(edm::StreamID streamid,
       new TrackMomConstraintAssociationCollection(theTCollection, rPairs));
 
   int index = 0;
-  for (reco::TrackCollection::const_iterator i = theTCollection->begin(); i != theTCollection->end(); i++) {
+  for (auto i = theTCollection->begin(); i != theTCollection->end(); i++) {
     //    MomentumConstraint tmp(10.,0.01) ;
 
     MomentumConstraint tmp(fixedmom_, fixedmomerr_);

@@ -402,7 +402,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
       // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
       sort(seeds.begin(), seeds.end(), ecalRecHitGreater);
 
-      for (std::vector<EcalRecHit>::iterator itseed = seeds.begin(); itseed != seeds.end(); itseed++) {
+      for (auto itseed = seeds.begin(); itseed != seeds.end(); itseed++) {
         EBDetId seed_id = itseed->id();
         std::vector<EBDetId>::const_iterator usedIds;
 
@@ -427,7 +427,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
         double simple_energy = 0;
 
-        for (std::vector<DetId>::iterator det = clus_v.begin(); det != clus_v.end(); det++) {
+        for (auto det = clus_v.begin(); det != clus_v.end(); det++) {
           EBDetId EBdet = *det;
           //      cout<<" det "<< EBdet<<" ieta "<<EBdet.ieta()<<" iphi
           //      "<<EBdet.iphi()<<endl;
@@ -441,7 +441,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
           if (HitAlreadyUsed)
             continue;
 
-          std::vector<EBDetId>::iterator itdet = find(detIdEBRecHits.begin(), detIdEBRecHits.end(), EBdet);
+          auto itdet = find(detIdEBRecHits.begin(), detIdEBRecHits.end(), EBdet);
           if (itdet == detIdEBRecHits.end())
             continue;
 
@@ -524,17 +524,17 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
         /// calculate e5x5
         std::vector<DetId> clus_v5x5 = topology_p->getWindow(seed_id, 5, 5);
-        for (std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++) {
+        for (auto idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++) {
           EBDetId det = *idItr;
 
-          std::vector<EBDetId>::iterator itdet0 = find(usedXtals.begin(), usedXtals.end(), det);
+          auto itdet0 = find(usedXtals.begin(), usedXtals.end(), det);
 
           /// already clustered
           if (itdet0 != usedXtals.end())
             continue;
 
           // inside collections
-          std::vector<EBDetId>::iterator itdet = find(detIdEBRecHits.begin(), detIdEBRecHits.end(), det);
+          auto itdet = find(detIdEBRecHits.begin(), detIdEBRecHits.end(), det);
           if (itdet == detIdEBRecHits.end())
             continue;
 
@@ -711,7 +711,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
       // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
       sort(seeds.begin(), seeds.end(), ecalRecHitGreater);
 
-      for (std::vector<EcalRecHit>::iterator itseed = seeds.begin(); itseed != seeds.end(); itseed++) {
+      for (auto itseed = seeds.begin(); itseed != seeds.end(); itseed++) {
         EBDetId seed_id = itseed->id();
         std::vector<EBDetId>::const_iterator usedIds;
 
@@ -736,7 +736,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
         double simple_energy = 0;
 
-        for (std::vector<DetId>::iterator det = clus_v.begin(); det != clus_v.end(); det++) {
+        for (auto det = clus_v.begin(); det != clus_v.end(); det++) {
           EBDetId EBdet = *det;
           //      cout<<" det "<< EBdet<<" ieta "<<EBdet.ieta()<<" iphi
           //      "<<EBdet.iphi()<<endl;
@@ -750,7 +750,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
           if (HitAlreadyUsed)
             continue;
 
-          std::vector<EBDetId>::iterator itdet = find(detIdEBRecHits.begin(), detIdEBRecHits.end(), EBdet);
+          auto itdet = find(detIdEBRecHits.begin(), detIdEBRecHits.end(), EBdet);
           if (itdet == detIdEBRecHits.end())
             continue;
 
@@ -833,17 +833,17 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
         /// calculate e5x5
         std::vector<DetId> clus_v5x5 = topology_p->getWindow(seed_id, 5, 5);
-        for (std::vector<DetId>::const_iterator idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++) {
+        for (auto idItr = clus_v5x5.begin(); idItr != clus_v5x5.end(); idItr++) {
           EBDetId det = *idItr;
 
-          std::vector<EBDetId>::iterator itdet0 = find(usedXtals.begin(), usedXtals.end(), det);
+          auto itdet0 = find(usedXtals.begin(), usedXtals.end(), det);
 
           /// already clustered
           if (itdet0 != usedXtals.end())
             continue;
 
           // inside collections
-          std::vector<EBDetId>::iterator itdet = find(detIdEBRecHits.begin(), detIdEBRecHits.end(), det);
+          auto itdet = find(detIdEBRecHits.begin(), detIdEBRecHits.end(), det);
           if (itdet == detIdEBRecHits.end())
             continue;
 
@@ -1029,7 +1029,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
       // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
       sort(seedsEndCap.begin(), seedsEndCap.end(), ecalRecHitGreater);
 
-      for (std::vector<EcalRecHit>::iterator itseed = seedsEndCap.begin(); itseed != seedsEndCap.end(); itseed++) {
+      for (auto itseed = seedsEndCap.begin(); itseed != seedsEndCap.end(); itseed++) {
         EEDetId seed_id = itseed->id();
         std::vector<EEDetId>::const_iterator usedIds;
 
@@ -1051,7 +1051,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
         float simple_energy = 0;
 
-        for (std::vector<DetId>::iterator det = clus_v.begin(); det != clus_v.end(); det++) {
+        for (auto det = clus_v.begin(); det != clus_v.end(); det++) {
           EEDetId EEdet = *det;
 
           bool HitAlreadyUsed = false;
@@ -1065,7 +1065,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
           if (HitAlreadyUsed)
             continue;
 
-          std::vector<EEDetId>::iterator itdet = find(detIdEERecHits.begin(), detIdEERecHits.end(), EEdet);
+          auto itdet = find(detIdEERecHits.begin(), detIdEERecHits.end(), EEdet);
           if (itdet == detIdEERecHits.end())
             continue;
 
@@ -1281,7 +1281,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
       // Make own simple clusters (3x3, 5x5 or clusPhiSize_ x clusEtaSize_)
       sort(seedsEndCap.begin(), seedsEndCap.end(), ecalRecHitGreater);
 
-      for (std::vector<EcalRecHit>::iterator itseed = seedsEndCap.begin(); itseed != seedsEndCap.end(); itseed++) {
+      for (auto itseed = seedsEndCap.begin(); itseed != seedsEndCap.end(); itseed++) {
         EEDetId seed_id = itseed->id();
         std::vector<EEDetId>::const_iterator usedIds;
 
@@ -1303,7 +1303,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
 
         float simple_energy = 0;
 
-        for (std::vector<DetId>::iterator det = clus_v.begin(); det != clus_v.end(); det++) {
+        for (auto det = clus_v.begin(); det != clus_v.end(); det++) {
           EEDetId EEdet = *det;
 
           bool HitAlreadyUsed = false;
@@ -1317,7 +1317,7 @@ void DQMSourcePi0::analyze(const Event &iEvent, const EventSetup &iSetup) {
           if (HitAlreadyUsed)
             continue;
 
-          std::vector<EEDetId>::iterator itdet = find(detIdEERecHits.begin(), detIdEERecHits.end(), EEdet);
+          auto itdet = find(detIdEERecHits.begin(), detIdEERecHits.end(), EEdet);
           if (itdet == detIdEERecHits.end())
             continue;
 

@@ -32,7 +32,7 @@ void CaloTowersExample::analyze(const Event& evt, const EventSetup& es) {
   evt.getByLabel(CaloTowersAlgorithm, caloTowers);
 
   //Loop over the two leading CaloJets and fill some histograms
-  for (CaloTowerCollection::const_iterator cal = caloTowers->begin(); cal != caloTowers->end(); ++cal) {
+  for (auto cal = caloTowers->begin(); cal != caloTowers->end(); ++cal) {
     h_et.Fill(cal->et());
   }
 }

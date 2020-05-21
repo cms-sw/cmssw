@@ -76,10 +76,7 @@ FWTableWidget::FWTableWidget(FWTableManagerBase* iManager, const TGWindow* p)
   std::vector<unsigned int> columnWidths = m_body->widthOfTextInColumns();
   if (nullptr != m_header) {
     std::vector<unsigned int> headerWidths = m_header->widthOfTextInColumns();
-    for (std::vector<unsigned int>::iterator it = columnWidths.begin(),
-                                             itEnd = columnWidths.end(),
-                                             itHeader = headerWidths.begin();
-         it != itEnd;
+    for (auto it = columnWidths.begin(), itEnd = columnWidths.end(), itHeader = headerWidths.begin(); it != itEnd;
          ++it, ++itHeader) {
       if (*itHeader > *it) {
         *it = *itHeader;
@@ -437,10 +434,7 @@ void FWTableWidget::dataChanged() {
     // reset header back to its internal max rather than the last width
     m_header->dataChanged();
     std::vector<unsigned int> headerWidths = m_header->widthOfTextInColumns();
-    for (std::vector<unsigned int>::iterator it = columnWidths.begin(),
-                                             itEnd = columnWidths.end(),
-                                             itHeader = headerWidths.begin();
-         it != itEnd;
+    for (auto it = columnWidths.begin(), itEnd = columnWidths.end(), itHeader = headerWidths.begin(); it != itEnd;
          ++it, ++itHeader) {
       if (*itHeader > *it) {
         *it = *itHeader;

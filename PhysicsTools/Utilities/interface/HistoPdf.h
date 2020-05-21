@@ -16,7 +16,7 @@ namespace funct {
       unsigned int i = 0;
       for (Iterator it = begin; it != end; ++it)
         s += (y_[i++] = *it);
-      for (std::vector<double>::iterator i = y_.begin(); i != y_.end(); ++i)
+      for (auto i = y_.begin(); i != y_.end(); ++i)
         *i /= s;
     }
     HistoPdf() {}
@@ -32,7 +32,7 @@ namespace funct {
       unsigned int i = 0;
       for (Iterator it = begin; it != end; ++it)
         s += (y_[i++] = *it);
-      for (std::vector<double>::iterator i = y_.begin(); i != y_.end(); ++i)
+      for (auto i = y_.begin(); i != y_.end(); ++i)
         *i /= s;
     }
     double operator()(double x) const {

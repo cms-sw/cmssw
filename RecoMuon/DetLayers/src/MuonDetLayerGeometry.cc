@@ -28,7 +28,7 @@ using namespace geomsort;
 MuonDetLayerGeometry::MuonDetLayerGeometry() {}
 
 MuonDetLayerGeometry::~MuonDetLayerGeometry() {
-  for (vector<const DetLayer*>::const_iterator it = allDetLayers.begin(); it != allDetLayers.end(); ++it) {
+  for (auto it = allDetLayers.begin(); it != allDetLayers.end(); ++it) {
     delete *it;
   }
 }
@@ -247,7 +247,7 @@ const DetLayer* MuonDetLayerGeometry::idToLayer(const DetId& detId) const {
   } else
     throw cms::Exception("InvalidSubdetId") << detId.subdetId();
 
-  std::map<DetId, const DetLayer*>::const_iterator layer = detLayersMap.find(id);
+  auto layer = detLayersMap.find(id);
   if (layer == detLayersMap.end())
     return nullptr;
   return layer->second;

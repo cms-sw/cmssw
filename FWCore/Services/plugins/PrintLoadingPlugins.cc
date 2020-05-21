@@ -116,7 +116,7 @@ void PrintLoadingPlugins::askedToLoad(const std::string& iCategory, const std::s
 
   const PluginManager::CategoryToInfos& category = pm->categoryToInfos();
 
-  PluginManager::CategoryToInfos::const_iterator itFound = category.find(iCategory);
+  auto itFound = category.find(iCategory);
 
   std::string libname("Not found");
 

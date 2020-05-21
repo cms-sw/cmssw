@@ -144,7 +144,7 @@ void DTTSPhi::loadTSPhi() {
 
   // loop on all TRACO triggers
   std::vector<DTTracoTrigData>::const_iterator p;
-  std::vector<DTTracoTrigData>::const_iterator pend = _tracocard->end();
+  auto pend = _tracocard->end();
   for (p = _tracocard->begin(); p != pend; p++) {
     if (config()->usedTraco(p->tracoNumber()) /*|| config()->usedTraco(p->tracoNumber())==1*/) {
       int step = p->step();
@@ -450,7 +450,7 @@ DTTSS *DTTSPhi::getDTTSS(int step, unsigned n) const {
     return nullptr;
   }
 
-  std::vector<DTTSS *>::const_iterator p = _tss[step - DTConfigTSPhi::NSTEPF].begin() + n - 1;
+  auto p = _tss[step - DTConfigTSPhi::NSTEPF].begin() + n - 1;
   return *p;
 }
 
@@ -466,7 +466,7 @@ DTTSM *DTTSPhi::getDTTSM(int step, unsigned n) const {
     std::cout << " empty pointer returned!" << std::endl;
     return nullptr;
   }
-  std::vector<DTTSM *>::const_iterator p_tsm = _tsm[step - DTConfigTSPhi::NSTEPF].begin() + n - 1;
+  auto p_tsm = _tsm[step - DTConfigTSPhi::NSTEPF].begin() + n - 1;
   return *p_tsm;
 }
 

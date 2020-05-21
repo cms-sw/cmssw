@@ -152,7 +152,7 @@ private:
 };
 
 inline int SiStripGainsPCLWorker::statCollectionFromMode(const char *tag) const {
-  std::vector<std::string>::const_iterator it = dqm_tag_.begin();
+  auto it = dqm_tag_.begin();
   while (it != dqm_tag_.end()) {
     if (*it == std::string(tag))
       return it - dqm_tag_.begin();

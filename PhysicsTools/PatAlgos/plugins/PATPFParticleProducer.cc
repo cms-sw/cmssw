@@ -83,7 +83,7 @@ void PATPFParticleProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     resolutionLoader_.newEvent(iEvent, iSetup);
 
   // loop over PFCandidates
-  std::vector<PFParticle>* patPFParticles = new std::vector<PFParticle>();
+  auto* patPFParticles = new std::vector<PFParticle>();
   for (edm::View<reco::PFCandidate>::const_iterator itPFParticle = pfCandidates->begin();
        itPFParticle != pfCandidates->end();
        ++itPFParticle) {

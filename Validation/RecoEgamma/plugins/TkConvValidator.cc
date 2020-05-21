@@ -1357,7 +1357,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
   std::map<const reco::Track*, TrackingParticleRef> myAss;
   std::map<const reco::Track*, TrackingParticleRef>::const_iterator itAss;
 
-  for (std::vector<PhotonMCTruth>::const_iterator mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
+  for (auto mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
     mcConvPt_ = (*mcPho).fourMomentum().et();
     float mcPhi = (*mcPho).fourMomentum().phi();
     mcPhi_ = phiNormalization(mcPhi);
@@ -1455,7 +1455,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
     float chi2Prob = 0.;
     //////////////////Measure reco efficiencies
     // cout << " size of conversions " << convHandle->size() << endl;
-    for (reco::ConversionCollection::const_iterator conv = convHandle->begin(); conv != convHandle->end(); ++conv) {
+    for (auto conv = convHandle->begin(); conv != convHandle->end(); ++conv) {
       const reco::Conversion aConv = (*conv);
       if (arbitratedMerged_ && !aConv.quality(reco::Conversion::arbitratedMerged))
         continue;
@@ -1587,7 +1587,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
 
   // ########################### RECO to SIM ############################## //
 
-  for (reco::ConversionCollection::const_iterator conv = convHandle->begin(); conv != convHandle->end(); ++conv) {
+  for (auto conv = convHandle->begin(); conv != convHandle->end(); ++conv) {
     const reco::Conversion aConv = (*conv);
     if (arbitratedMerged_ && !aConv.quality(reco::Conversion::arbitratedMerged))
       continue;
@@ -1665,8 +1665,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
     double Mindeltaphi = 999999;
     bool matchConvSC = false;
     reco::PhotonCollection::const_iterator iMatchingSC;
-    for (reco::PhotonCollection::const_iterator iPho = photonCollection.begin(); iPho != photonCollection.end();
-         iPho++) {
+    for (auto iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
       reco::Photon aPho = reco::Photon(*iPho);
       const double deltaphi = reco::deltaPhi(aConv.refittedPairMomentum().phi(), aPho.superCluster()->position().phi());
       double ConvEta = etaTransformation(aConv.refittedPairMomentum().eta(), aConv.zOfPrimaryVertexFromTracks());
@@ -1851,7 +1850,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
     float mcConvPt_ = -99999999.0;
     //    float mcPhi= 0; // unused
     float simPV_Z = 0;
-    for (std::vector<PhotonMCTruth>::const_iterator mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
+    for (auto mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
       mcConvPt_ = (*mcPho).fourMomentum().et();
       float mcPhi = (*mcPho).fourMomentum().phi();
       simPV_Z = (*mcPho).primaryVertex().z();
@@ -1940,7 +1939,7 @@ void TkConvValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
       reco::RecoToSimCollection p1incl = theTrackAssociator->associateRecoToSim(tc1, theConvTP_);
       reco::RecoToSimCollection p2incl = theTrackAssociator->associateRecoToSim(tc2, theConvTP_);
 
-      for (std::vector<PhotonMCTruth>::const_iterator mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
+      for (auto mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
         mcConvPt_ = (*mcPho).fourMomentum().et();
         float mcPhi = (*mcPho).fourMomentum().phi();
         simPV_Z = (*mcPho).primaryVertex().z();

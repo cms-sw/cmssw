@@ -178,7 +178,7 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es) {
         }
         int eecounter = 0;
         for (EEDigiCollection::const_iterator blah = digis->begin(); blah != digis->end(); blah++) {
-          std::set<DetId>::const_iterator finder = saveTheseDetIds.find(blah->id());
+          auto finder = saveTheseDetIds.find(blah->id());
           if (finder != saveTheseDetIds.end()) {
             EEDetId detL = EEDetId(*finder);
 

@@ -182,7 +182,7 @@ void SummaryGenerator::format(const sistrip::RunType& run_type,
 // -----------------------------------------------------------------------------
 //
 void SummaryGenerator::clearMap() {
-  HistoData::iterator iter = map_.begin();
+  auto iter = map_.begin();
   for (; iter != map_.end(); iter++) {
     iter->second.clear();
   }
@@ -199,12 +199,12 @@ void SummaryGenerator::printMap() {
   ss << "[SummaryGenerator::" << __func__ << "]"
      << " Printing contents of map: " << std::endl;
 
-  HistoData::iterator iter = map_.begin();
+  auto iter = map_.begin();
   for (; iter != map_.end(); iter++) {
     ss << " bin/entries: " << iter->first << "/" << iter->second.size() << " ";
     if (!iter->second.empty()) {
       ss << " value/error: ";
-      std::vector<Data>::const_iterator jter = iter->second.begin();
+      auto jter = iter->second.begin();
       for (; jter != iter->second.end(); jter++) {
         ss << jter->first << "/" << jter->second << " ";
       }
@@ -290,12 +290,12 @@ void SummaryGenerator::histo1D(TH1& his) {
 
   // Iterate through std::map, set bin labels and fill histogram
   entries_ = 0.;
-  HistoData::const_iterator ibin = map_.begin();
+  auto ibin = map_.begin();
   for (; ibin != map_.end(); ibin++) {
     if (ibin->second.empty()) {
       continue;
     }
-    BinData::const_iterator ii = ibin->second.begin();
+    auto ii = ibin->second.begin();
     for (; ii != ibin->second.end(); ii++) {
       // bin (value) and weight (error)
       histo->Fill(ii->first);  //, ii->second );
@@ -325,14 +325,14 @@ void SummaryGenerator::histo2DSum(TH1& his) {
   // Iterate through map, set bin labels and fill histogram
   entries_ = 0.;
   uint16_t bin = 0;
-  HistoData::const_iterator ibin = map_.begin();
+  auto ibin = map_.begin();
   for (; ibin != map_.end(); ibin++) {
     bin++;
     histo->GetXaxis()->SetBinLabel(static_cast<Int_t>(bin), ibin->first.c_str());
     if (ibin->second.empty()) {
       continue;
     }
-    BinData::const_iterator ii = ibin->second.begin();
+    auto ii = ibin->second.begin();
     for (; ii != ibin->second.end(); ii++) {
       // x (bin), y (value) and weight (error)
       histo->Fill(static_cast<Double_t>(bin - 0.5),
@@ -363,14 +363,14 @@ void SummaryGenerator::histo2DScatter(TH1& his) {
   // Iterate through std::map, set bin labels and fill histogram
   entries_ = 0.;
   uint16_t bin = 0;
-  HistoData::const_iterator ibin = map_.begin();
+  auto ibin = map_.begin();
   for (; ibin != map_.end(); ibin++) {
     bin++;
     histo->GetXaxis()->SetBinLabel(static_cast<Int_t>(bin), ibin->first.c_str());
     if (ibin->second.empty()) {
       continue;
     }
-    BinData::const_iterator ii = ibin->second.begin();
+    auto ii = ibin->second.begin();
     for (; ii != ibin->second.end(); ii++) {
       // x (bin), y (value) and weight (error)
       histo->Fill(static_cast<Double_t>(bin - 0.5),
@@ -401,14 +401,14 @@ void SummaryGenerator::profile1D(TH1& his) {
   // Iterate through std::map, set bin labels and fill histogram
   entries_ = 0.;
   uint16_t bin = 0;
-  HistoData::const_iterator ibin = map_.begin();
+  auto ibin = map_.begin();
   for (; ibin != map_.end(); ibin++) {
     bin++;
     histo->GetXaxis()->SetBinLabel(static_cast<Int_t>(bin), ibin->first.c_str());
     if (ibin->second.empty()) {
       continue;
     }
-    BinData::const_iterator ii = ibin->second.begin();
+    auto ii = ibin->second.begin();
     for (; ii != ibin->second.end(); ii++) {
       // x (bin), y (value) and weight (error)
       histo->Fill(static_cast<Double_t>(bin - .5),

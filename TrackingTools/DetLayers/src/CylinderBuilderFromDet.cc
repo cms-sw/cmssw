@@ -11,7 +11,7 @@ BoundCylinder* CylinderBuilderFromDet::operator()(vector<const Det*>::const_iter
   typedef PositionType::BasicVectorType Vector;
   Vector posSum(0, 0, 0);
   float rSum = 0;
-  for (vector<const Det*>::const_iterator i = first; i != last; i++) {
+  for (auto i = first; i != last; i++) {
     posSum += (**i).surface().position().basicVector();
     rSum += (**i).surface().position().perp();
   }
@@ -24,9 +24,9 @@ BoundCylinder* CylinderBuilderFromDet::operator()(vector<const Det*>::const_iter
   float rmax = meanR;
   float zmin = meanPos.z();
   float zmax = meanPos.z();
-  for (vector<const Det*>::const_iterator i = first; i != last; i++) {
+  for (auto i = first; i != last; i++) {
     vector<GlobalPoint> corners = BoundingBox::corners(dynamic_cast<const Plane&>((**i).surface()));
-    for (vector<GlobalPoint>::const_iterator ic = corners.begin(); ic != corners.end(); ic++) {
+    for (auto ic = corners.begin(); ic != corners.end(); ic++) {
       float r = ic->perp();
       float z = ic->z();
       rmin = min(rmin, r);

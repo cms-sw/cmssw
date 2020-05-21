@@ -67,8 +67,7 @@ void ME0MuonTrackCollProducer::produce(edm::Event& iEvent, const edm::EventSetup
 
   reco::TrackRefProd rTracks = iEvent.getRefBeforePut<reco::TrackCollection>();
 
-  for (std::vector<reco::ME0Muon>::const_iterator thismuon = OurMuons->begin(); thismuon != OurMuons->end();
-       ++thismuon) {
+  for (auto thismuon = OurMuons->begin(); thismuon != OurMuons->end(); ++thismuon) {
     if (!muon::isGoodMuon(*thismuon, muon::Tight))
       continue;
     reco::TrackRef trackref;

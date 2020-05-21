@@ -84,13 +84,13 @@ math::XYZPoint PositionCalc::Calculate_Location(const PositionCalc::HitsAndFract
     DetId maxId;
 
     // Check that DetIds are nonzero
-    typename HitTypeCollection::const_iterator endRecHits(iRecHits->end());
+    auto endRecHits(iRecHits->end());
     HitsAndFractions::const_iterator n, endDiDs(iDetIds.end());
     for (n = iDetIds.begin(); n != endDiDs; ++n) {
       const DetId dId((*n).first);
       const float frac((*n).second);
       if (!dId.null()) {
-        typename HitTypeCollection::const_iterator iHit(iRecHits->find(dId));
+        auto iHit(iRecHits->find(dId));
         if (iHit != endRecHits) {
           const double energy(iHit->energy() * frac);
           detIds.push_back(std::make_pair(dId, energy));

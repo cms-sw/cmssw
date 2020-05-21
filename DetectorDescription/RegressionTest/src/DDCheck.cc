@@ -81,7 +81,7 @@ bool DDCheckConnect(const DDCompactView& cpv, std::ostream& os) {
      << std::endl;
 
   // Pass 2:
-  DDCompactView::Graph& g = const_cast<DDCompactView::Graph&>(cpv.graph());
+  auto& g = const_cast<DDCompactView::Graph&>(cpv.graph());
 
   int uc = 0;
   DDCompactView::Graph::adj_list::size_type it = 0;
@@ -110,7 +110,7 @@ bool DDCheckConnect(const DDCompactView& cpv, std::ostream& os) {
 bool DDCheckAll(const DDCompactView& cpv, std::ostream& os) {
   bool result = false;
   // const_cast because Graph does not provide const_iterators!
-  DDCompactView::Graph& g = const_cast<DDCompactView::Graph&>(cpv.graph());
+  auto& g = const_cast<DDCompactView::Graph&>(cpv.graph());
 
   // basic debuggger
   std::map<std::pair<std::string, std::string>, int> lp_names;

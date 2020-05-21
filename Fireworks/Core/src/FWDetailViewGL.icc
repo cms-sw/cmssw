@@ -42,7 +42,7 @@ void FWDetailViewGL<T>::init(TEveWindowSlot* slot) {
     m_guiFrame->SetCleanup(kDeepCleanup);
 
     // legend
-    TRootEmbeddedCanvas* ec = new TRootEmbeddedCanvas("Embeddedcanvas", hf, 100, 100, 0);
+    auto* ec = new TRootEmbeddedCanvas("Embeddedcanvas", hf, 100, 100, 0);
     hf->AddFrame(ec, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
     m_infoCanvas = ec->GetCanvas();
     m_infoCanvas->SetHighLightColor(-1);
@@ -68,7 +68,7 @@ void FWDetailViewGL<T>::init(TEveWindowSlot* slot) {
 
   // override event handling
   TGLViewer* glv = m_eveViewer->GetGLViewer();
-  FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)glv->GetGLWidget(), (TObject*)glv);
+  auto* eh = new FWGLEventHandler((TGWindow*)glv->GetGLWidget(), (TObject*)glv);
   glv->SetEventHandler(eh);
 }
 

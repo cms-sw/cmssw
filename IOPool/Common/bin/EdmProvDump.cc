@@ -152,7 +152,7 @@ void HistoryNode::printEventSetupHistory(ParameterSetMap const& iPSM,
                                          std::ostream& oErrorLog) const {
   for (auto const& itH : *this) {
     //Get ParameterSet for process
-    ParameterSetMap::const_iterator itFind = iPSM.find(itH.parameterSetID());
+    auto itFind = iPSM.find(itH.parameterSetID());
     if (itFind == iPSM.end()) {
       oErrorLog << "No ParameterSetID for " << itH.parameterSetID() << std::endl;
     } else {
@@ -222,7 +222,7 @@ void HistoryNode::printOtherModulesHistory(ParameterSetMap const& iPSM,
                                            std::ostream& oErrorLog) const {
   for (auto const& itH : *this) {
     //Get ParameterSet for process
-    ParameterSetMap::const_iterator itFind = iPSM.find(itH.parameterSetID());
+    auto itFind = iPSM.find(itH.parameterSetID());
     if (itFind == iPSM.end()) {
       oErrorLog << "No ParameterSetID for " << itH.parameterSetID() << std::endl;
     } else {
@@ -280,7 +280,7 @@ void HistoryNode::printTopLevelPSetsHistory(ParameterSetMap const& iPSM,
                                             std::ostream& oErrorLog) const {
   for (auto const& itH : *this) {
     //Get ParameterSet for process
-    ParameterSetMap::const_iterator itFind = iPSM.find(itH.parameterSetID());
+    auto itFind = iPSM.find(itH.parameterSetID());
     if (itFind == iPSM.end()) {
       oErrorLog << "No ParameterSetID for " << itH.parameterSetID() << std::endl;
     } else {
@@ -577,7 +577,7 @@ void ProvenanceDumper::dumpEventFilteringParameterSets_(TFile* file) {
 void ProvenanceDumper::dumpParameterSetForID_(edm::ParameterSetID const& id) {
   std::cout << "ParameterSetID: " << id << '\n';
   if (id.isValid()) {
-    ParameterSetMap::const_iterator i = psm_.find(id);
+    auto i = psm_.find(id);
     if (i == psm_.end()) {
       std::cout << "We are unable to find the corresponding ParameterSet\n";
       edm::ParameterSet empty;
@@ -899,7 +899,7 @@ void ProvenanceDumper::work_() {
       }
       sout << " }" << std::endl;
       edm::ParameterSetID psid(idBranch.first);
-      ParameterSetMap::const_iterator itpsm = psm_.find(psid);
+      auto itpsm = psm_.find(psid);
       if (psm_.end() == itpsm) {
         ++errorCount_;
         errorLog_ << "No ParameterSetID for " << psid << std::endl;

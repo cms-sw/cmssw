@@ -150,9 +150,7 @@ void DQMPFCandidateAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run
       multiplicityPFCandRECO_.clear();
     if (!multiplicityPFCand_nameRECO_.empty())
       multiplicityPFCand_nameRECO_.clear();
-    for (std::vector<edm::ParameterSet>::const_iterator v = diagnosticsParameters_.begin();
-         v != diagnosticsParameters_.end();
-         v++) {
+    for (auto v = diagnosticsParameters_.begin(); v != diagnosticsParameters_.end(); v++) {
       int etaNBinsPFCand = v->getParameter<int>("etaNBins");
       double etaMinPFCand = v->getParameter<double>("etaMin");
       double etaMaxPFCand = v->getParameter<double>("etaMax");
@@ -481,9 +479,7 @@ void DQMPFCandidateAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run
       multiplicityPFCand_.clear();
     if (!multiplicityPFCand_name_.empty())
       multiplicityPFCand_name_.clear();
-    for (std::vector<edm::ParameterSet>::const_iterator v = diagnosticsParameters_.begin();
-         v != diagnosticsParameters_.end();
-         v++) {
+    for (auto v = diagnosticsParameters_.begin(); v != diagnosticsParameters_.end(); v++) {
       int etaNBinsPFCand = v->getParameter<int>("etaNBins");
       double etaMinPFCand = v->getParameter<double>("etaMin");
       double etaMaxPFCand = v->getParameter<double>("etaMax");
@@ -818,8 +814,7 @@ void DQMPFCandidateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
                 }
                 if (nTracks == 1) {
                   // Characteristics of the track
-                  const reco::PFBlockElementTrack& et =
-                      dynamic_cast<const reco::PFBlockElementTrack&>(elements[iTrack]);
+                  const auto& et = dynamic_cast<const reco::PFBlockElementTrack&>(elements[iTrack]);
                   mProfileIsoPFChHad_TrackOccupancy = map_of_MEs[DirName + "/" + "IsoPfChHad_Track_profile"];
                   if (mProfileIsoPFChHad_TrackOccupancy && mProfileIsoPFChHad_TrackOccupancy->getRootObject())
                     mProfileIsoPFChHad_TrackOccupancy->Fill(et.trackRef()->eta(), et.trackRef()->phi());
@@ -900,8 +895,7 @@ void DQMPFCandidateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
                   }
                   //ECAL element
                   for (unsigned int ii = 0; ii < iECAL.size(); ii++) {
-                    const reco::PFBlockElementCluster& eecal =
-                        dynamic_cast<const reco::PFBlockElementCluster&>(elements[iECAL[ii]]);
+                    const auto& eecal = dynamic_cast<const reco::PFBlockElementCluster&>(elements[iECAL[ii]]);
                     if (fabs(eecal.clusterRef()->eta()) < 1.479) {
                       mProfileIsoPFChHad_EcalOccupancyCentral =
                           map_of_MEs[DirName + "/" + "IsoPfChHad_ECAL_profile_central"];
@@ -928,8 +922,7 @@ void DQMPFCandidateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
                   }
                   //HCAL element
                   for (unsigned int ii = 0; ii < iHCAL.size(); ii++) {
-                    const reco::PFBlockElementCluster& ehcal =
-                        dynamic_cast<const reco::PFBlockElementCluster&>(elements[iHCAL[ii]]);
+                    const auto& ehcal = dynamic_cast<const reco::PFBlockElementCluster&>(elements[iHCAL[ii]]);
                     if (fabs(ehcal.clusterRef()->eta()) < 1.740) {
                       mProfileIsoPFChHad_HcalOccupancyCentral =
                           map_of_MEs[DirName + "/" + "IsoPfChHad_HCAL_profile_central"];

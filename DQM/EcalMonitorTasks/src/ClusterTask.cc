@@ -391,7 +391,7 @@ namespace ecaldqm {
 
     int nSC(0);
 
-    for (reco::SuperClusterCollection::const_iterator scItr(_scs.begin()); scItr != _scs.end(); ++scItr) {
+    for (auto scItr(_scs.begin()); scItr != _scs.end(); ++scItr) {
       DetId seedId(scItr->seed()->seed());
       if (seedId.null()) {
         math::XYZPoint const& position(scItr->position());
@@ -407,7 +407,7 @@ namespace ecaldqm {
       if (seedId.null() || (seedId.subdetId() != subdet))
         continue;
 
-      EcalRecHitCollection::const_iterator seedItr(hits->find(seedId));
+      auto seedItr(hits->find(seedId));
       if (seedItr == hits->end())
         continue;
 

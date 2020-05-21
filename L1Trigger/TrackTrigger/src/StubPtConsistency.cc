@@ -40,7 +40,7 @@ namespace StubPtConsistency {
 
       const GeomDetUnit* det0 = theTrackerGeom->idToDetUnit(detIdStub);
       const GeomDetUnit* det1 = theTrackerGeom->idToDetUnit(tTopo->partnerDetId(detIdStub));
-      const PixelGeomDetUnit* unit = reinterpret_cast<const PixelGeomDetUnit*>(det0);
+      const auto* unit = reinterpret_cast<const PixelGeomDetUnit*>(det0);
       const PixelTopology& topo = unit->specificTopology();
 
       // Calculation of snesor spacing obtained from TMTT: https://github.com/CMS-TMTT/cmssw/blob/TMTT_938/L1Trigger/TrackFindingTMTT/src/Stub.cc#L138-L146

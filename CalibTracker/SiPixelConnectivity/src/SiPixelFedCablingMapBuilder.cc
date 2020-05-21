@@ -82,7 +82,7 @@ SiPixelFedCablingTree* SiPixelFedCablingMapBuilder::produce(const edm::EventSetu
   const PixelToFEDAssociate& name2fed = *associator;
 
   string version = name2fed.version();
-  SiPixelFedCablingTree* result = new SiPixelFedCablingTree(version);
+  auto* result = new SiPixelFedCablingTree(version);
   edm::LogInfo(" version ") << version << endl;
 
   // Access topology
@@ -96,8 +96,8 @@ SiPixelFedCablingTree* SiPixelFedCablingMapBuilder::produce(const edm::EventSetu
   typedef std::vector<pair<PixelModuleName*, uint32_t> > UNITS;
   UNITS units;
 
-  for (ITG it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
-    const PixelGeomDetUnit* pxUnit = dynamic_cast<const PixelGeomDetUnit*>(*it);
+  for (auto it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
+    const auto* pxUnit = dynamic_cast<const PixelGeomDetUnit*>(*it);
     if (pxUnit == nullptr)
       continue;
     npxdets++;
@@ -160,7 +160,7 @@ SiPixelFedCablingTree* SiPixelFedCablingMapBuilder::produce(const edm::EventSetu
 
   PixelToFEDAssociate::DetectorRocId detectorRocId;
   edm::LogInfo(" HERE PixelToLNKAssociateFromAscii");
-  for (UNITS::iterator iu = units.begin(); iu != units.end(); iu++) {
+  for (auto iu = units.begin(); iu != units.end(); iu++) {
     PixelModuleName* name = (*iu).first;
     detectorRocId.module = name;
     //for (int rocDetId=0; rocDetId<=16; rocDetId++) {
@@ -181,7 +181,7 @@ SiPixelFedCablingTree* SiPixelFedCablingMapBuilder::produce(const edm::EventSetu
   //}
 
   //clear names:
-  for (UNITS::iterator iu = units.begin(); iu != units.end(); iu++)
+  for (auto iu = units.begin(); iu != units.end(); iu++)
     delete iu->first;
 
   return result;

@@ -32,7 +32,7 @@ CombinedSeedComparitor::CombinedSeedComparitor(const edm::ParameterSet &cfg, edm
 
   typedef std::vector<edm::ParameterSet> VPSet;
   VPSet psets = cfg.getParameter<VPSet>("comparitors");
-  for (VPSet::const_iterator it = psets.begin(), ed = psets.end(); it != ed; ++it) {
+  for (auto it = psets.begin(), ed = psets.end(); it != ed; ++it) {
     std::string name = it->getParameter<std::string>("ComponentName");
     comparitors_.push_back(SeedComparitorFactory::get()->create(name, *it, iC));
   }

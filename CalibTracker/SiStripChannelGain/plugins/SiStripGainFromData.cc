@@ -1097,7 +1097,7 @@ void SiStripGainFromData::algoEndJob() {
     fprintf(Gains, "NEvents = %i\n", NEvent);
     fprintf(Gains, "Number of APVs = %lu\n", static_cast<unsigned long>(APVsColl.size()));
     fprintf(Gains, "GoodFits = %i BadFits = %i ratio = %f\n", GOOD, BAD, (100.0 * GOOD) / (GOOD + BAD));
-    for (std::vector<stAPVGain*>::iterator it = APVsCollOrdered.begin(); it != APVsCollOrdered.end(); it++) {
+    for (auto it = APVsCollOrdered.begin(); it != APVsCollOrdered.end(); it++) {
       stAPVGain* APV = *it;
       fprintf(Gains,
               "%i | %i | PreviousGain = %7.5f NewGain = %7.5f\n",
@@ -1109,7 +1109,7 @@ void SiStripGainFromData::algoEndJob() {
 
     std::vector<int> DetIdOfBuggedAPV;
     fprintf(Gains, "----------------------------------------------------------------------\n");
-    for (std::vector<stAPVGain*>::iterator it = APVsCollOrdered.begin(); it != APVsCollOrdered.end(); it++) {
+    for (auto it = APVsCollOrdered.begin(); it != APVsCollOrdered.end(); it++) {
       stAPVGain* APV = *it;
       if (APV->MPV > 0 && APV->MPV < 200) {
         bool tmpBug = false;
@@ -1143,7 +1143,7 @@ void SiStripGainFromData::algoBeginRun(const edm::Run&, const edm::EventSetup& i
       exit(0);
     }
 
-    for (std::vector<stAPVGain*>::iterator it = APVsCollOrdered.begin(); it != APVsCollOrdered.end(); it++) {
+    for (auto it = APVsCollOrdered.begin(); it != APVsCollOrdered.end(); it++) {
       stAPVGain* APV = *it;
 
       if (gainHandle.isValid()) {
@@ -1195,8 +1195,7 @@ void SiStripGainFromData::algoAnalyze(const edm::Event& iEvent, const edm::Event
     int ndof = 0;
     const Trajectory::RecHitContainer transRecHits = traj.recHits();
 
-    for (Trajectory::RecHitContainer::const_iterator rechit = transRecHits.begin(); rechit != transRecHits.end();
-         ++rechit)
+    for (auto rechit = transRecHits.begin(); rechit != transRecHits.end(); ++rechit)
       if ((*rechit)->isValid())
         ndof += (*rechit)->dimension();
     ndof -= 5;
@@ -1230,9 +1229,7 @@ void SiStripGainFromData::algoAnalyze(const edm::Event& iEvent, const edm::Event
       }
 */
 
-    for (vector<TrajectoryMeasurement>::const_iterator measurement_it = measurements.begin();
-         measurement_it != measurements.end();
-         measurement_it++) {
+    for (auto measurement_it = measurements.begin(); measurement_it != measurements.end(); measurement_it++) {
       TrajectoryStateOnSurface trajState = measurement_it->updatedState();
       if (!trajState.isValid())
         continue;
@@ -1240,7 +1237,7 @@ void SiStripGainFromData::algoAnalyze(const edm::Event& iEvent, const edm::Event
       const TrackingRecHit* hit = (*measurement_it->recHit()).hit();
       const SiStripRecHit1D* sistripsimple1dhit = dynamic_cast<const SiStripRecHit1D*>(hit);
       const SiStripRecHit2D* sistripsimplehit = dynamic_cast<const SiStripRecHit2D*>(hit);
-      const SiStripMatchedRecHit2D* sistripmatchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
+      const auto* sistripmatchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
 
       if (sistripsimplehit) {
         ComputeChargeOverPath(
@@ -1413,8 +1410,8 @@ bool SiStripGainFromData::IsFarFromBorder(TrajectoryStateOnSurface trajState,
   }
 
   const BoundPlane plane = it->surface();
-  const TrapezoidalPlaneBounds* trapezoidalBounds(dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
-  const RectangularPlaneBounds* rectangularBounds(dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));
+  const auto* trapezoidalBounds(dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
+  const auto* rectangularBounds(dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));
 
   double DistFromBorder = 1.0;
   //double HalfWidth      = it->surface().bounds().width()  /2.0;

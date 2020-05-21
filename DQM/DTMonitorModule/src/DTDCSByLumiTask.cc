@@ -55,7 +55,7 @@ void DTDCSByLumiTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& co
 
   std::vector<eventsetup::EventSetupRecordKey> recordKeys;
   context.fillAvailableRecordKeys(recordKeys);
-  vector<eventsetup::EventSetupRecordKey>::iterator it = find(recordKeys.begin(), recordKeys.end(), recordKey);
+  auto it = find(recordKeys.begin(), recordKeys.end(), recordKey);
 
   if (it == recordKeys.end()) {
     //record not found
@@ -101,8 +101,8 @@ void DTDCSByLumiTask::dqmEndLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     dtHVStatus = &context.getData(dtHVStatusToken_);
   }
 
-  vector<const DTLayer*>::const_iterator layersIt = theDTGeom->layers().begin();
-  vector<const DTLayer*>::const_iterator layersEnd = theDTGeom->layers().end();
+  auto layersIt = theDTGeom->layers().begin();
+  auto layersEnd = theDTGeom->layers().end();
 
   for (; layersIt != layersEnd; ++layersIt) {
     int wheel = (*layersIt)->id().wheel();

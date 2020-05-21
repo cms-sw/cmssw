@@ -249,7 +249,7 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::readoutLCTs(int me1ab) con
     all_lcts = getLCTs1a();
   if (me1ab == ME1B)
     all_lcts = getLCTs1b();
-  std::vector<CSCCorrelatedLCTDigi>::const_iterator plct = all_lcts.begin();
+  auto plct = all_lcts.begin();
   for (; plct != all_lcts.end(); plct++) {
     if (!plct->isValid())
       continue;

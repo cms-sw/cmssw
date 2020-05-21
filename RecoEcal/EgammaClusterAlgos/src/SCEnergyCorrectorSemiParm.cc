@@ -78,14 +78,14 @@ void SCEnergyCorrectorSemiParm::setEvent(const edm::Event &e) {
     const EcalRecHitCollection *recHitsEE = (rechitsEE_.isValid() ? rechitsEE_.product() : nullptr);
 
     if (nullptr != recHitsEB) {
-      for (EcalRecHitCollection::const_iterator it = recHitsEB->begin(); it != recHitsEB->end(); ++it) {
+      for (auto it = recHitsEB->begin(); it != recHitsEB->end(); ++it) {
         if (it->energy() > eThreshold_)
           nHitsAboveThreshold_++;
       }
     }
 
     if (nullptr != recHitsEE) {
-      for (EcalRecHitCollection::const_iterator it = recHitsEE->begin(); it != recHitsEE->end(); ++it) {
+      for (auto it = recHitsEE->begin(); it != recHitsEE->end(); ++it) {
         if (it->energy() > eThreshold_)
           nHitsAboveThreshold_++;
       }

@@ -40,7 +40,7 @@ public:
 
   // getters
   std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator getEventId(size_t offset) const {
-    std::vector<edm::SecondaryEventIDAndFileInfo>::const_iterator iter = eventInfo_.begin();
+    auto iter = eventInfo_.begin();
     std::advance(iter, offset);
     return iter;
   }

@@ -73,14 +73,14 @@ void PedsOnlyHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange feds) {
           conn.fecCrate(), conn.fecSlot(), conn.fecRing(), conn.ccuAddr(), conn.ccuChan(), conn.lldChannel());
 
       // Locate appropriate analysis object
-      Analyses::const_iterator iter = data().find(fec_key.key());
+      auto iter = data().find(fec_key.key());
       if (iter != data().end()) {
         // Check if analysis is valid
         if (!iter->second->isValid()) {
           continue;
         }
 
-        PedsOnlyAnalysis* anal = dynamic_cast<PedsOnlyAnalysis*>(iter->second);
+        auto* anal = dynamic_cast<PedsOnlyAnalysis*>(iter->second);
         if (!anal) {
           edm::LogError(mlDqmClient_) << "[PedsOnlyHistosUsingDb::" << __func__ << "]"
                                       << " NULL pointer to analysis object!";
@@ -129,7 +129,7 @@ void PedsOnlyHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange feds) {
 // -----------------------------------------------------------------------------
 /** */
 void PedsOnlyHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& desc, Analysis analysis) {
-  PedsOnlyAnalysis* anal = dynamic_cast<PedsOnlyAnalysis*>(analysis->second);
+  auto* anal = dynamic_cast<PedsOnlyAnalysis*>(analysis->second);
   if (!anal) {
     return;
   }
@@ -172,8 +172,8 @@ void PedsOnlyHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& desc,
     // Add comments
     typedef std::vector<std::string> Strings;
     Strings errors = anal->getErrorCodes();
-    Strings::const_iterator istr = errors.begin();
-    Strings::const_iterator jstr = errors.end();
+    auto istr = errors.begin();
+    auto jstr = errors.end();
     for (; istr != jstr; ++istr) {
       tmp->addComments(*istr);
     }

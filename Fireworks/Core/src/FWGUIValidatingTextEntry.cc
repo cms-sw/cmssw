@@ -153,7 +153,7 @@ void FWGUIValidatingTextEntry::showOptions() {
     }
     m_list->RemoveAll();
     int index = 0;
-    for (Options::iterator it = m_options.begin(), itEnd = m_options.end(); it != itEnd; ++it, ++index) {
+    for (auto it = m_options.begin(), itEnd = m_options.end(); it != itEnd; ++it, ++index) {
       m_list->AddEntry(it->first->c_str(), index);
     }
     {

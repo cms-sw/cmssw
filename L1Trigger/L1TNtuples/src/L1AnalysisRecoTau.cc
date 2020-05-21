@@ -25,7 +25,7 @@ void L1Analysis::L1AnalysisRecoTau::SetTau(const edm::Event& event,
                                            unsigned maxTau) {
   recoTau_.nTaus = 0;
 
-  for (reco::PFTauCollection::const_iterator it = taus->begin(); it != taus->end() && recoTau_.nTaus < maxTau; ++it) {
+  for (auto it = taus->begin(); it != taus->end() && recoTau_.nTaus < maxTau; ++it) {
     recoTau_.e.push_back(it->energy());
     recoTau_.pt.push_back(it->pt());
     recoTau_.et.push_back(it->et());

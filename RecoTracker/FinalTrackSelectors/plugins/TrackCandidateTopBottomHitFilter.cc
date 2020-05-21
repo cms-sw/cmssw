@@ -74,7 +74,7 @@ void TrackCandidateTopBottomHitFilter::produce(edm::Event& iEvent, const edm::Ev
   Handle<TrackCandidateCollection> pIn;
   iEvent.getByToken(label, pIn);
   auto pOut = std::make_unique<TrackCandidateCollection>();
-  for (TrackCandidateCollection::const_iterator it = pIn->begin(); it != pIn->end(); ++it) {
+  for (auto it = pIn->begin(); it != pIn->end(); ++it) {
     PTrajectoryStateOnDet state = it->trajectoryStateOnDet();
     TrackCandidate::range oldhits = it->recHits();
     TrajectorySeed seed = it->seed();

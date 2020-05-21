@@ -175,7 +175,7 @@ std::unique_ptr<GenLumiInfoHeader> Herwig7Hadronizer::getGenLumiInfoHeader() con
       genLumiInfoHeader->weightNames().reserve(weights_number + 1);
       genLumiInfoHeader->weightNames().push_back("nominal");
       std::map<std::string, double> weights_map = thepegEvent->optionalWeights();
-      for (std::map<std::string, double>::iterator it = weights_map.begin(); it != weights_map.end(); it++) {
+      for (auto it = weights_map.begin(); it != weights_map.end(); it++) {
         genLumiInfoHeader->weightNames().push_back(it->first);
       }
     }

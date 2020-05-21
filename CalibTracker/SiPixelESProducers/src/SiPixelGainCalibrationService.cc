@@ -19,7 +19,7 @@
 void SiPixelGainCalibrationServiceBase::calibrate(
     uint32_t detID, DigiIterator b, DigiIterator e, float conversionFactor, float offset, int* electron) {
   int i = 0;
-  for (DigiIterator di = b; di != e; ++di) {
+  for (auto di = b; di != e; ++di) {
     int row = di->row();
     int col = di->column();
 

@@ -125,7 +125,7 @@ void ESOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& iSetup
 
   Handle<ESRecHitCollection> ESRecHit;
   if (e.getByToken(rechittoken_, ESRecHit)) {
-    for (ESRecHitCollection::const_iterator hitItr = ESRecHit->begin(); hitItr != ESRecHit->end(); ++hitItr) {
+    for (auto hitItr = ESRecHit->begin(); hitItr != ESRecHit->end(); ++hitItr) {
       ESDetId id = ESDetId(hitItr->id());
 
       zside = id.zside();

@@ -81,7 +81,7 @@ int TrackWithHistory::extractGenID(const G4Track* gt) const {
   if (vgprimary == nullptr)
     return -1;
   // replace old-style cast with appropriate new-style cast...
-  G4PrimaryParticle* gprimary = (G4PrimaryParticle*)vgprimary;
+  auto* gprimary = (G4PrimaryParticle*)vgprimary;
   GenParticleInfoExtractor ext;
   return ext(gprimary).id();
 }

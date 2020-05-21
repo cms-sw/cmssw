@@ -42,7 +42,7 @@ private:
 
 // to workaround plugin library
 inline CSCL1TPParameters *CSCL1TPParametersConditions::prefillCSCL1TPParameters() {
-  CSCL1TPParameters *cnl1tp = new CSCL1TPParameters();
+  auto *cnl1tp = new CSCL1TPParameters();
 
   cnl1tp->setAlctFifoTbins(16);
   cnl1tp->setAlctFifoPretrig(10);

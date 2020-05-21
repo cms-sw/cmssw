@@ -37,9 +37,9 @@ private:
     // and the iterator gets invalidated on the next line. Save it to a temporary object
     // and iterate on it.
     std::vector<double> parVecVec(functionPtr->parameters());
-    std::vector<double>::const_iterator parVec = parVecVec.begin();
+    auto parVec = parVecVec.begin();
     std::vector<int> functionId(functionPtr->identifiers());
-    std::vector<int>::const_iterator id = functionId.begin();
+    auto id = functionId.begin();
     std::cout << "total number of parameters read from database = parVecVec.size() = " << parVecVec.size() << std::endl;
     int iFunc = 0;
     for (; id != functionId.end(); ++id, ++iFunc) {

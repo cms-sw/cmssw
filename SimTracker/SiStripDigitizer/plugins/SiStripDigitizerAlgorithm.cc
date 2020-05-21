@@ -118,7 +118,7 @@ void SiStripDigitizerAlgorithm::initializeDetUnit(StripGeomDetUnit const* det, c
   std::vector<bool>& badChannels = allBadChannels[detId];
   badChannels.clear();
   badChannels.insert(badChannels.begin(), numStrips, false);
-  for (SiStripBadStrip::ContainerIterator it = detBadStripRange.first; it != detBadStripRange.second; ++it) {
+  for (auto it = detBadStripRange.first; it != detBadStripRange.second; ++it) {
     SiStripBadStrip::data fs = deadChannelHandle->decode(*it);
     for (int strip = fs.firstStrip; strip < fs.firstStrip + fs.range; ++strip) {
       badChannels[strip] = true;
@@ -186,8 +186,7 @@ void SiStripDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
         previousLocalAmplitude;  // Only used if makeDigiSimLinks_ is true. Needed to work out the change in amplitude.
 
     size_t simHitGlobalIndex = inputBeginGlobalIndex;  // This needs to stored to create the digi-sim link later
-    for (std::vector<PSimHit>::const_iterator simHitIter = inputBegin; simHitIter != inputEnd;
-         ++simHitIter, ++simHitGlobalIndex) {
+    for (auto simHitIter = inputBegin; simHitIter != inputEnd; ++simHitIter, ++simHitGlobalIndex) {
       // skip hits not in this detector.
       if ((*simHitIter).detUnitId() != detId) {
         continue;
@@ -262,7 +261,7 @@ void SiStripDigitizerAlgorithm::calculateInstlumiScale(PileupMixingContent* puIn
 
     int pui = 0, p = 0;
     std::vector<int>::const_iterator pu;
-    std::vector<int>::const_iterator pu0 = bunchCrossing.end();
+    auto pu0 = bunchCrossing.end();
 
     for (pu = bunchCrossing.begin(); pu != bunchCrossing.end(); ++pu) {
       if (*pu == 0) {
@@ -395,8 +394,7 @@ void SiStripDigitizerAlgorithm::digitize(edm::DetSet<SiStripDigi>& outdigi,
 
     // do this step here because we now have access to luminosity information
     if (FirstDigitize_) {
-      for (std::map<int, float>::iterator iter = mapOfAPVprobabilities.begin(); iter != mapOfAPVprobabilities.end();
-           ++iter) {
+      for (auto iter = mapOfAPVprobabilities.begin(); iter != mapOfAPVprobabilities.end(); ++iter) {
         std::bitset<6> bs;
         for (int Napv = 0; Napv < 6; Napv++) {
           float cursor = CLHEP::RandFlat::shoot(engine);

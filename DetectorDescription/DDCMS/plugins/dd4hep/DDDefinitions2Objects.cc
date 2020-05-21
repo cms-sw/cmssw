@@ -338,7 +338,7 @@ void Converter<LogicalPartSection>::operator()(xml_h element) const {
 
 template <>
 void Converter<disabled_algo>::operator()(xml_h element) const {
-  cms::DDParsingContext* c = _param<cms::DDParsingContext>();
+  auto* c = _param<cms::DDParsingContext>();
   c->disabledAlgs.emplace_back(element.attr<string>(_U(name)));
 }
 
@@ -670,7 +670,7 @@ void Converter<DDLCompositeMaterial>::operator()(xml_h element) const {
 /// Converter for <Rotation/> tags
 template <>
 void Converter<DDLRotation>::operator()(xml_h element) const {
-  cms::DDParsingContext* context = _param<cms::DDParsingContext>();
+  auto* context = _param<cms::DDParsingContext>();
   cms::DDNamespace ns(context);
   xml_dim_t xrot(element);
   string nam = xrot.nameStr();
@@ -697,7 +697,7 @@ void Converter<DDLRotation>::operator()(xml_h element) const {
 /// Converter for <ReflectionRotation/> tags
 template <>
 void Converter<DDLReflectionRotation>::operator()(xml_h element) const {
-  cms::DDParsingContext* context = _param<cms::DDParsingContext>();
+  auto* context = _param<cms::DDParsingContext>();
   cms::DDNamespace ns(context);
   xml_dim_t xrot(element);
   string name = xrot.nameStr();
@@ -724,7 +724,7 @@ void Converter<DDLReflectionRotation>::operator()(xml_h element) const {
 /// Converter for <RotationSequence/> tags
 template <>
 void Converter<DDLRotationSequence>::operator()(xml_h element) const {
-  cms::DDParsingContext* context = _param<cms::DDParsingContext>();
+  auto* context = _param<cms::DDParsingContext>();
   cms::DDNamespace ns(context);
   xml_dim_t xrot(element);
   string nam = xrot.nameStr();
@@ -764,7 +764,7 @@ void Converter<DDLRotationSequence>::operator()(xml_h element) const {
 /// Converter for <RotationByAxis/> tags
 template <>
 void Converter<DDLRotationByAxis>::operator()(xml_h element) const {
-  cms::DDParsingContext* context = _param<cms::DDParsingContext>();
+  auto* context = _param<cms::DDParsingContext>();
   cms::DDNamespace ns(context);
   xml_dim_t xrot(element);
   xml_dim_t par(xrot.parent());
@@ -896,7 +896,7 @@ void Converter<DDLPosPart>::operator()(xml_h element) const {
     TGeoShape* shape = child->GetShape();
     // Need to fix the daughter's BBox of assemblies, if the BBox was not calculated....
     if (shape->IsA() == TGeoShapeAssembly::Class()) {
-      TGeoShapeAssembly* as = (TGeoShapeAssembly*)shape;
+      auto* as = (TGeoShapeAssembly*)shape;
       if (std::fabs(as->GetDX()) < numeric_limits<double>::epsilon() &&
           std::fabs(as->GetDY()) < numeric_limits<double>::epsilon() &&
           std::fabs(as->GetDZ()) < numeric_limits<double>::epsilon()) {
@@ -1786,7 +1786,7 @@ void Converter<debug>::operator()(xml_h dbg) const {
 
 template <>
 void Converter<DDRegistry>::operator()(xml_h /* element */) const {
-  cms::DDParsingContext* context = _param<cms::DDParsingContext>();
+  auto* context = _param<cms::DDParsingContext>();
   DDRegistry* res = _option<DDRegistry>();
   cms::DDNamespace ns(context);
   int count = 0;

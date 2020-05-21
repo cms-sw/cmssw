@@ -113,10 +113,10 @@ void LumiCalculator::beginRun(const edm::Run& run, const edm::EventSetup& c) {
     hltPerPathInfo hlt;
     hlt.prescale = 1;
     hltmap_.insert(std::make_pair(hltname, hlt));
-    std::vector<std::string>::iterator hltpathBeg = numpathmodules.begin();
-    std::vector<std::string>::iterator hltpathEnd = numpathmodules.end();
+    auto hltpathBeg = numpathmodules.begin();
+    auto hltpathEnd = numpathmodules.end();
     unsigned int mycounter = 0;
-    for (std::vector<std::string>::iterator numpathmodule = hltpathBeg; numpathmodule != hltpathEnd; ++numpathmodule) {
+    for (auto numpathmodule = hltpathBeg; numpathmodule != hltpathEnd; ++numpathmodule) {
       if (hltConfig_.moduleType(*numpathmodule) != "HLTLevel1GTSeed") {
         continue;
       }
@@ -150,7 +150,7 @@ void LumiCalculator::beginRun(const edm::Run& run, const edm::EventSetup& c) {
           }
           continue;
         } else {
-          for (std::vector<std::string>::iterator i = seeds.begin(); i != seeds.end(); ++i) {
+          for (auto i = seeds.begin(); i != seeds.end(); ++i) {
             if (!i->empty() && showTrgInfo_)
               *log_ << "\t\tseed: " << *i << "\n";
             if (i == seeds.begin()) {  //for now we take the first one from OR
@@ -169,7 +169,7 @@ void LumiCalculator::beginRun(const edm::Run& run, const edm::EventSetup& c) {
           }
           continue;
         } else {
-          for (std::vector<std::string>::iterator i = seeds.begin(); i != seeds.end(); ++i) {
+          for (auto i = seeds.begin(); i != seeds.end(); ++i) {
             if (!i->empty() && showTrgInfo_)
               *log_ << "\t\tseed: " << *i << "\n";
             if (i == seeds.begin()) {  //for now we take the first one
@@ -229,8 +229,8 @@ void LumiCalculator::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, e
   //
   if (showTrgInfo_) {
     std::map<std::string, hltPerPathInfo>::iterator hltit;
-    std::map<std::string, hltPerPathInfo>::iterator hltitBeg = hltmap_.begin();
-    std::map<std::string, hltPerPathInfo>::iterator hltitEnd = hltmap_.end();
+    auto hltitBeg = hltmap_.begin();
+    auto hltitEnd = hltmap_.end();
 
     typedef std::pair<std::multimap<std::string, std::string>::iterator,
                       std::multimap<std::string, std::string>::iterator>
@@ -244,7 +244,7 @@ void LumiCalculator::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, e
       if (ppp.first == ppp.second) {
         *log_ << "    no L1\n";
       }
-      for (std::multimap<std::string, std::string>::iterator mit = ppp.first; mit != ppp.second; ++mit) {
+      for (auto mit = ppp.first; mit != ppp.second; ++mit) {
         std::string l1name = mit->second;
         *log_ << "    L1 name : " << l1name;
         LumiSummary::L1 l1result = lumiSummary->l1info(lumiSummaryRH->getL1Index(l1name));
@@ -301,8 +301,8 @@ void LumiCalculator::endRun(edm::Run const& run, edm::EventSetup const& c) {
   //std::cout<<"valid trigger lines "<<trgpathMmap_.size()<<std::endl;
   //std::cout<<"total lumi lines "<<perrunlumiinfo_.size()<<std::endl;
   std::vector<MyPerLumiInfo>::const_iterator lumiIt;
-  std::vector<MyPerLumiInfo>::const_iterator lumiItBeg = perrunlumiinfo_.begin();
-  std::vector<MyPerLumiInfo>::const_iterator lumiItEnd = perrunlumiinfo_.end();
+  auto lumiItBeg = perrunlumiinfo_.begin();
+  auto lumiItEnd = perrunlumiinfo_.end();
   float recorded = 0.0;
 
   *log_ << "================ Run Summary " << run.run() << "================\n";
@@ -313,19 +313,19 @@ void LumiCalculator::endRun(edm::Run const& run, edm::EventSetup const& c) {
   *log_ << "  Effective Lumi (e+27cm^-2) per trigger path: "
         << "\n\n";
   std::multimap<std::string, std::string>::iterator it;
-  std::multimap<std::string, std::string>::iterator itBeg = trgpathMmap_.begin();
-  std::multimap<std::string, std::string>::iterator itEnd = trgpathMmap_.end();
+  auto itBeg = trgpathMmap_.begin();
+  auto itEnd = trgpathMmap_.end();
   unsigned int cc = 0;
   for (it = itBeg; it != itEnd; ++it) {
     *log_ << "  " << cc << "  " << it->first << " - " << it->second << " : ";
     ++cc;
-    std::map<std::string, hltPerPathInfo>::const_iterator hltIt = hltmap_.find(it->first);
+    auto hltIt = hltmap_.find(it->first);
     if (hltIt == hltmap_.end()) {
       std::cout << "HLT path " << it->first << " not found" << std::endl;
       *log_ << "\n";
       continue;
     }
-    std::map<std::string, l1PerBitInfo>::const_iterator l1It = l1map_.find(it->second);
+    auto l1It = l1map_.find(it->second);
     if (l1It == l1map_.end()) {
       std::cout << "L1 bit " << it->second << " not found" << std::endl;
       *log_ << "\n";

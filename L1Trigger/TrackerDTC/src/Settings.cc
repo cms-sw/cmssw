@@ -297,7 +297,7 @@ namespace trackerDTC {
 
   // convert DetId to module id [0:15551]
   int Settings::modId(const DetId& detId) const {
-    unordered_map<DetId, int>::const_iterator it = cablingMap_.find(detId);
+    auto it = cablingMap_.find(detId);
     if (it == cablingMap_.end()) {
       cms::Exception exception("LogicError");
       exception << "Unknown DetID (" << detId << ") received from TTStub.";

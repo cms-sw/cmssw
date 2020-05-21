@@ -685,7 +685,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw,
                               Collections& colls,
                               HcalUnpackerReport& report,
                               bool silent) {
-  const hcal::AMC13Header* amc13 = (const hcal::AMC13Header*)(raw.data());
+  const auto* amc13 = (const hcal::AMC13Header*)(raw.data());
 
   // how many AMC in this packet
   int namc = amc13->NAMC();
@@ -1052,7 +1052,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw,
 }
 // Method to unpack uMNio data
 void HcalUnpacker::unpackUMNio(const FEDRawData& raw, int slot, Collections& colls) {
-  const hcal::AMC13Header* amc13 = (const hcal::AMC13Header*)(raw.data());
+  const auto* amc13 = (const hcal::AMC13Header*)(raw.data());
   int namc = amc13->NAMC();
   //Find AMC corresponding to uMNio slot
   for (int iamc = 0; iamc < namc; iamc++) {

@@ -47,7 +47,7 @@ TauDQMHistEffProducer::TauDQMHistEffProducer(const edm::ParameterSet& cfg) {
 
   edm::ParameterSet plots = cfg.getParameter<edm::ParameterSet>("plots");
   std::vector<std::string> plotNames = plots.getParameterNamesForType<edm::ParameterSet>();
-  for (std::vector<std::string>::const_iterator plotName = plotNames.begin(); plotName != plotNames.end(); ++plotName) {
+  for (auto plotName = plotNames.begin(); plotName != plotNames.end(); ++plotName) {
     edm::ParameterSet plotConfig = plots.getParameter<edm::ParameterSet>(*plotName);
 
     typedef std::vector<std::string> vstring;
@@ -58,7 +58,7 @@ TauDQMHistEffProducer::TauDQMHistEffProducer(const edm::ParameterSet& cfg) {
       std::string numerator = plotConfig.getParameter<std::string>("numerator");
       std::string denominator = plotConfig.getParameter<std::string>("denominator");
       std::string efficiency = plotConfig.getParameter<std::string>("efficiency");
-      for (vstring::const_iterator parameter = plotParameter.begin(); parameter != plotParameter.end(); ++parameter) {
+      for (auto parameter = plotParameter.begin(); parameter != plotParameter.end(); ++parameter) {
         int errorFlag = 0;
         std::string modNumerator = replace_string(numerator, parKeyword, *parameter, 1, 1, errorFlag);
         std::string modDenominator = replace_string(denominator, parKeyword, *parameter, 1, 1, errorFlag);
@@ -82,7 +82,7 @@ TauDQMHistEffProducer::~TauDQMHistEffProducer() {
 void TauDQMHistEffProducer::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGetter& iget) {
   //std::cout << "<TauDQMHistEffProducer::endJob>:" << std::endl;
 
-  for (std::vector<cfgEntryPlot>::const_iterator plot = cfgEntryPlot_.begin(); plot != cfgEntryPlot_.end(); ++plot) {
+  for (auto plot = cfgEntryPlot_.begin(); plot != cfgEntryPlot_.end(); ++plot) {
     //std::cout << "plot->numerator_ = " << plot->numerator_ << std::endl;
     std::string numeratorHistogramName, numeratorHistogramDirectory;
     separateHistogramFromDirectoryName(plot->numerator_, numeratorHistogramName, numeratorHistogramDirectory);

@@ -75,7 +75,7 @@ void CachedTrajectory::propagateForward(SteppingHelixStateInfo& state, float dis
 }
 
 void CachedTrajectory::propagate(SteppingHelixStateInfo& state, const Plane& plane) {
-  if (const SteppingHelixPropagator* shp = dynamic_cast<const SteppingHelixPropagator*>(propagator_)) {
+  if (const auto* shp = dynamic_cast<const SteppingHelixPropagator*>(propagator_)) {
     try {
       shp->propagate(state, plane, state);
     } catch (cms::Exception& ex) {
@@ -94,7 +94,7 @@ void CachedTrajectory::propagate(SteppingHelixStateInfo& state, const Plane& pla
 }
 
 void CachedTrajectory::propagate(SteppingHelixStateInfo& state, const Cylinder& cylinder) {
-  if (const SteppingHelixPropagator* shp = dynamic_cast<const SteppingHelixPropagator*>(propagator_)) {
+  if (const auto* shp = dynamic_cast<const SteppingHelixPropagator*>(propagator_)) {
     try {
       shp->propagate(state, cylinder, state);
     } catch (cms::Exception& ex) {
@@ -234,7 +234,7 @@ TrajectoryStateOnSurface CachedTrajectory::propagate(const Plane* plane) {
 
   // propagate to the plane
   // timers.pop_and_push("CachedTrajectory::propagate::localPropagation",TimerStack::FastMonitoring);
-  if (const SteppingHelixPropagator* shp = dynamic_cast<const SteppingHelixPropagator*>(propagator_)) {
+  if (const auto* shp = dynamic_cast<const SteppingHelixPropagator*>(propagator_)) {
     SteppingHelixStateInfo state;
     try {
       shp->propagate(fullTrajectory_[closestPointOnLeft], *plane, state);
@@ -494,7 +494,7 @@ std::vector<GlobalPoint>* CachedTrajectory::getWideTrajectory(const std::vector<
   if (!wideTrajectory)
     return nullptr;
 
-  for (std::vector<SteppingHelixStateInfo>::const_iterator state = states.begin(); state != states.end(); state++) {
+  for (auto state = states.begin(); state != states.end(); state++) {
     // defined a normal plane wrt the particle trajectory direction
     // let's hope that I computed the rotation matrix correctly.
     GlobalVector vector(state->momentum().unit());

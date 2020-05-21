@@ -131,7 +131,7 @@ namespace CastorDbASCIIIO {
     fOutput << buffer;
     std::vector<DetId> channels = fObject.getAllChannels();
     //std::sort (channels.begin(), channels.end(), DetIdLess ());
-    for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+    for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
       const float* values = fObject.getValues(*channel)->getValues();
       if (values) {
         dumpId(fOutput, *channel);
@@ -177,7 +177,7 @@ namespace CastorDbASCIIIO {
     fOutput << buffer;
     std::vector<DetId> channels = fObject.getAllChannels();
     std::sort(channels.begin(), channels.end(), DetIdLess());
-    for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+    for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
       const float value = fObject.getValues(*channel)->getValue();
       dumpId(fOutput, *channel);
       sprintf(buffer, " %8.5f %10X\n", value, channel->rawId());
@@ -221,7 +221,7 @@ namespace CastorDbASCIIIO {
     fOutput << buffer;
     std::vector<DetId> channels = fObject.getAllChannels();
     std::sort(channels.begin(), channels.end(), DetIdLess());
-    for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+    for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
       const int value = fObject.getValues(*channel)->getValue();
       dumpId(fOutput, *channel);
       sprintf(buffer, " %15d %10X\n", value, channel->rawId());
@@ -347,7 +347,7 @@ namespace CastorDbASCIIIO {
 
     std::vector<DetId> channels = fObject.getAllChannels();
     std::sort(channels.begin(), channels.end(), DetIdLess());
-    for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+    for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
       const float* values = fObject.getValues(*channel)->getValues();
       if (values) {
         dumpId(fOutput, *channel);
@@ -415,7 +415,7 @@ namespace CastorDbASCIIIO {
     fOutput << buffer;
     std::vector<DetId> channels = fObject.getAllChannels();
     std::sort(channels.begin(), channels.end(), DetIdLess());
-    for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+    for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
       const int value = fObject.getValues(*channel)->getValue();
       dumpId(fOutput, *channel);
       sprintf(buffer, " %15X %10X\n", value, channel->rawId());
@@ -555,7 +555,7 @@ namespace CastorDbASCIIIO {
     fOutput << buffer;
     std::vector<DetId> channels = fObject.getAllChannels();
     std::sort(channels.begin(), channels.end(), DetIdLess());
-    for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+    for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
       const CastorPedestalWidth* item = fObject.getValues(*channel);
       if (item) {
         dumpId(fOutput, *channel);
@@ -669,7 +669,7 @@ namespace CastorDbASCIIIO {
     fOutput << buffer;
     std::vector<DetId> channels = fObject.getAllChannels();
     std::sort(channels.begin(), channels.end(), DetIdLess());
-    for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+    for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
       const CastorQIECoder* coder = fObject.getCoder(*channel);
       dumpId(fOutput, *channel);
       for (unsigned capid = 0; capid < 4; capid++) {
@@ -730,7 +730,7 @@ namespace CastorDbASCIIIO {
     fOutput << buffer;
     std::vector<DetId> channels = fObject.getAllChannels();
     std::sort(channels.begin(), channels.end(), DetIdLess());
-    for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+    for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
       const CastorCalibrationQIECoder* coder = fObject.getCoder(*channel);
       if (coder) {
         dumpId(fOutput, *channel);
@@ -931,7 +931,7 @@ namespace CastorDbASCIIIO {
     fOutput << buffer;
     std::vector<DetId> channels = fObject.getAllChannels();
     std::sort(channels.begin(), channels.end(), DetIdLess());
-    for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+    for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
       dumpId(fOutput, *channel);
       sprintf(buffer,
               " %15d %15d %16X\n",

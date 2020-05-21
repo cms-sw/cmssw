@@ -114,7 +114,7 @@ void FlavorHistoryProducer::produce(Event &evt, const EventSetup &) {
 
           if (verbose_) {
             cout << "Parents : " << endl;
-            vector<Candidate const *>::const_iterator iprint = allParents.begin(), iprintend = allParents.end();
+            auto iprint = allParents.begin(), iprintend = allParents.end();
             for (; iprint != iprintend; ++iprint)
               cout << " status = " << (*iprint)->status() << ", pdg id = " << (*iprint)->pdgId()
                    << ", pt = " << (*iprint)->pt() << endl;
@@ -147,7 +147,7 @@ void FlavorHistoryProducer::produce(Event &evt, const EventSetup &) {
           //
           for (vector<Candidate const *>::size_type i = 0; i < a_size && !foundProgenitor; ++i) {
             const Candidate *aParent = allParents[i];
-            vector<Candidate const *>::const_iterator found = find(particles.begin(), particles.end(), aParent);
+            auto found = find(particles.begin(), particles.end(), aParent);
 
             // Get the index of the progenitor candidate
             progenitorIndex = found - particles.begin();
@@ -194,7 +194,7 @@ void FlavorHistoryProducer::produce(Event &evt, const EventSetup &) {
             // Now get the parton with only one parent (the proton) and that is the progenitor
             for (vector<Candidate const *>::size_type i = 0; i < a_size && !foundProgenitor; ++i) {
               const Candidate *aParent = allParents[i];
-              vector<Candidate const *>::const_iterator found = find(particles.begin(), particles.end(), aParent);
+              auto found = find(particles.begin(), particles.end(), aParent);
               // Get the index of the progenitor candidate
               progenitorIndex = found - particles.begin();
 
@@ -326,7 +326,7 @@ void FlavorHistoryProducer::produce(Event &evt, const EventSetup &) {
 
     if (verbose_) {
       cout << "Outputting pdg id = " << pdgIdToSelect_ << " with nelements = " << flavorHistoryEvent->size() << endl;
-      vector<FlavorHistory>::const_iterator i = flavorHistoryEvent->begin(), iend = flavorHistoryEvent->end();
+      auto i = flavorHistoryEvent->begin(), iend = flavorHistoryEvent->end();
       for (; i != iend; ++i) {
         cout << *i << endl;
       }

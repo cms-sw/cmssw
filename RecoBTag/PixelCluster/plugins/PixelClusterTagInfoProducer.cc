@@ -131,7 +131,7 @@ void PixelClusterTagInfoProducer::produce(edm::StreamID iID, edm::Event& iEvent,
   }
 
   // Get primary vertex 3D position
-  reco::VertexCollection::const_iterator firstPV = collectionPVs->begin();
+  auto firstPV = collectionPVs->begin();
   GlobalPoint v3(firstPV->x(), firstPV->y(), firstPV->z());
 
   // Open Pixel Cluster collection

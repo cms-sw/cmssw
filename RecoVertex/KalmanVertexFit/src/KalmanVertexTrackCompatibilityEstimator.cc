@@ -20,8 +20,7 @@ typename KalmanVertexTrackCompatibilityEstimator<N>::BDpair KalmanVertexTrackCom
       return estimateFittedTrack(vertex, tracks[hint]);
   }
 
-  typename std::vector<RefCountedVertexTrack>::const_iterator pos =
-      find_if(tracks.begin(), tracks.end(), VertexTrackEqual<N>(tr));
+  auto pos = find_if(tracks.begin(), tracks.end(), VertexTrackEqual<N>(tr));
   if (pos != tracks.end()) {
     return estimateFittedTrack(vertex, *pos);
   } else {

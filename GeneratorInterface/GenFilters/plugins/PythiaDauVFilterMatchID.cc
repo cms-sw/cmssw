@@ -79,7 +79,7 @@ bool PythiaDauVFilterMatchID::filter(edm::StreamID, edm::Event& iEvent, const ed
     // -- Check for mother of this particle
     if (0 != motherID) {
       OK = 0;
-      for (HepMC::GenVertex::particles_in_const_iterator des = (*p)->production_vertex()->particles_in_const_begin();
+      for (auto des = (*p)->production_vertex()->particles_in_const_begin();
            des != (*p)->production_vertex()->particles_in_const_end();
            ++des) {
         if (fVerbose > 10) {
@@ -200,7 +200,7 @@ bool PythiaDauVFilterMatchID::filter(edm::StreamID, edm::Event& iEvent, const ed
       // -- Check for mother of this particle
       if (0 != motherID) {
         OK = 0;
-        for (HepMC::GenVertex::particles_in_const_iterator des = (*p)->production_vertex()->particles_in_const_begin();
+        for (auto des = (*p)->production_vertex()->particles_in_const_begin();
              des != (*p)->production_vertex()->particles_in_const_end();
              ++des) {
           if (fVerbose > 10) {

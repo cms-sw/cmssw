@@ -427,7 +427,7 @@ void makeTKTrend(const char* inFileName,
   TH1F* hAllBadStripsTK = new TH1F(histoName.c_str(), histoTitle.c_str(), IOVSize, 0.5, IOVSize + 0.5);
 
   unsigned int j = 0;
-  for (std::map<unsigned int, unsigned int>::iterator iMap = badModulesTK.begin(); iMap != badModulesTK.end(); iMap++) {
+  for (auto iMap = badModulesTK.begin(); iMap != badModulesTK.end(); iMap++) {
     hBadModulesTK->SetBinContent(++j, /*(double)*/ iMap->second /*/(double)nModulesInPart*/);
     oss.str("");
     oss << iMap->first;
@@ -439,7 +439,7 @@ void makeTKTrend(const char* inFileName,
   cBadModulesTK->Update();
 
   j = 0;
-  for (std::map<unsigned int, unsigned int>::iterator iMap = badFibersTK.begin(); iMap != badFibersTK.end(); iMap++) {
+  for (auto iMap = badFibersTK.begin(); iMap != badFibersTK.end(); iMap++) {
     hBadFibersTK->SetBinContent(++j, /*(double)*/ iMap->second /*/(double)nFibersInPart*/);
     oss.str("");
     oss << iMap->first;
@@ -451,7 +451,7 @@ void makeTKTrend(const char* inFileName,
   cBadFibersTK->Update();
 
   j = 0;
-  for (std::map<unsigned int, unsigned int>::iterator iMap = badAPVsTK.begin(); iMap != badAPVsTK.end(); iMap++) {
+  for (auto iMap = badAPVsTK.begin(); iMap != badAPVsTK.end(); iMap++) {
     hBadAPVsTK->SetBinContent(++j, /*(double)*/ iMap->second /*/(double)nAPVsInPart*/);
     oss.str("");
     oss << iMap->first;
@@ -463,7 +463,7 @@ void makeTKTrend(const char* inFileName,
   cBadAPVsTK->Update();
 
   j = 0;
-  for (std::map<unsigned int, unsigned int>::iterator iMap = badStripsTK.begin(); iMap != badStripsTK.end(); iMap++) {
+  for (auto iMap = badStripsTK.begin(); iMap != badStripsTK.end(); iMap++) {
     hBadStripsTK->SetBinContent(++j, /*(double)*/ iMap->second /*/(double)nStripsInPart*/);
     oss.str("");
     oss << iMap->first;
@@ -475,9 +475,7 @@ void makeTKTrend(const char* inFileName,
   cBadStripsTK->Update();
 
   j = 0;
-  for (std::map<unsigned int, unsigned int>::iterator iMap = badStripsFromAPVsTK.begin();
-       iMap != badStripsFromAPVsTK.end();
-       iMap++) {
+  for (auto iMap = badStripsFromAPVsTK.begin(); iMap != badStripsFromAPVsTK.end(); iMap++) {
     hBadStripsFromAPVsTK->SetBinContent(++j, /*(double)*/ iMap->second /*/(double)nStripsInPart*/);
     oss.str("");
     oss << iMap->first;
@@ -489,8 +487,7 @@ void makeTKTrend(const char* inFileName,
   cBadStripsFromAPVsTK->Update();
 
   j = 0;
-  for (std::map<unsigned int, unsigned int>::iterator iMap = allBadStripsTK.begin(); iMap != allBadStripsTK.end();
-       iMap++) {
+  for (auto iMap = allBadStripsTK.begin(); iMap != allBadStripsTK.end(); iMap++) {
     hAllBadStripsTK->SetBinContent(++j, /*(double)*/ iMap->second /*/(double)nStripsInPart*/);
     oss.str("");
     oss << iMap->first;

@@ -86,8 +86,7 @@ bool ErrorSummaryFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
   edm::Handle<std::vector<edm::ErrorSummaryEntry> > errorSummaryEntry;
   iEvent.getByToken(srcToken_, errorSummaryEntry);
 
-  for (ErrorSummaryEntries::const_iterator i = errorSummaryEntry->begin(), end = errorSummaryEntry->end(); i != end;
-       ++i) {
+  for (auto i = errorSummaryEntry->begin(), end = errorSummaryEntry->end(); i != end; ++i) {
     if (std::find(modules_.begin(), modules_.end(), i->module) != modules_.end()) {
       if (std::find(avoidCategories_.begin(), avoidCategories_.end(), i->category) != avoidCategories_.end()) {
         continue;

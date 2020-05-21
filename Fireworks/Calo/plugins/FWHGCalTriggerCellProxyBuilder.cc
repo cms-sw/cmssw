@@ -60,7 +60,7 @@ void FWHGCalTriggerCellProxyBuilder::build(const l1t::HGCalTriggerCell &iData,
 
   std::unordered_set<unsigned> cells = getCellsFromTriggerCell(iData.detId());
 
-  for (std::unordered_set<unsigned>::const_iterator it = cells.begin(), itEnd = cells.end(); it != itEnd; ++it) {
+  for (auto it = cells.begin(), itEnd = cells.end(); it != itEnd; ++it) {
     const bool z = (*it >> 25) & 0x1;
 
     // discard everything thats not at the side that we are intersted in

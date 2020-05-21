@@ -282,8 +282,8 @@ std::pair<SimTrack, SimTrack> MuScleFitUtils::findBestSimuRes(const std::vector<
 
   // Double loop on muons
   // --------------------
-  for (std::vector<SimTrack>::const_iterator simMu1 = simMuons.begin(); simMu1 != simMuons.end(); simMu1++) {
-    for (std::vector<SimTrack>::const_iterator simMu2 = simMu1 + 1; simMu2 != simMuons.end(); simMu2++) {
+  for (auto simMu1 = simMuons.begin(); simMu1 != simMuons.end(); simMu1++) {
+    for (auto simMu2 = simMu1 + 1; simMu2 != simMuons.end(); simMu2++) {
       if (((*simMu1).charge() * (*simMu2).charge()) > 0) {
         continue;  // this also gets rid of simMu1==simMu2...
       }
@@ -326,11 +326,11 @@ std::pair<MuScleFitMuon, MuScleFitMuon> MuScleFitUtils::findBestRecoRes(const st
   double maxprob = -0.1;
   double minDeltaMass = 999999;
   std::pair<MuScleFitMuon, MuScleFitMuon> bestMassMuons;
-  for (std::vector<MuScleFitMuon>::const_iterator Muon1 = muons.begin(); Muon1 != muons.end(); ++Muon1) {
+  for (auto Muon1 = muons.begin(); Muon1 != muons.end(); ++Muon1) {
     //rc2010
     if (debug > 0)
       std::cout << "muon_1_charge:" << (*Muon1).charge() << std::endl;
-    for (std::vector<MuScleFitMuon>::const_iterator Muon2 = Muon1 + 1; Muon2 != muons.end(); ++Muon2) {
+    for (auto Muon2 = Muon1 + 1; Muon2 != muons.end(); ++Muon2) {
       //rc2010
       if (debug > 0)
         std::cout << "after_2" << std::endl;
@@ -468,7 +468,7 @@ lorentzVector MuScleFitUtils::applyScale(const lorentzVector &muon, const std::v
   // std::unique_ptr<double> p(new double[(int)(parval.size())]);
   // Removed auto_ptr, check massResolution for an explanation.
   int id = 0;
-  for (std::vector<double>::const_iterator it = parval.begin(); it != parval.end(); ++it, ++id) {
+  for (auto it = parval.begin(); it != parval.end(); ++it, ++id) {
     //(&*p)[id] = *it;
     // Also ok would be (p.get())[id] = *it;
     p[id] = *it;
@@ -536,7 +536,7 @@ double MuScleFitUtils::massResolution(const lorentzVector &mu1,
   // std::unique_ptr<double> p(new double[(int)(parval.size())]);
 
   double *p = new double[(int)(parval.size())];
-  std::vector<double>::const_iterator it = parval.begin();
+  auto it = parval.begin();
   int id = 0;
   for (; it != parval.end(); ++it, ++id) {
     // (&*p)[id] = *it;
@@ -724,7 +724,7 @@ double MuScleFitUtils::massProb(const double &mass,
   // Removed auto_ptr, check massResolution for an explanation.
   // std::unique_ptr<double> p(new double[(int)(parval.size())]);
 
-  std::vector<double>::const_iterator it = parval.begin();
+  auto it = parval.begin();
   int id = 0;
   for (; it != parval.end(); ++it, ++id) {
     // (&*p)[id] = *it;
@@ -1235,7 +1235,7 @@ void MuScleFitUtils::minimizeLikelihood() {
   tmpVec->insert(tmpVec->end(), parCrossSection.begin(), parCrossSection.end());
   tmpVec->insert(tmpVec->end(), parBgr.begin(), parBgr.end());
   int i = 0;
-  std::vector<double>::const_iterator it = tmpVec->begin();
+  auto it = tmpVec->begin();
   for (; it != tmpVec->end(); ++it, ++i) {
     std::cout << "tmpVec[" << i << "] = " << *it << std::endl;
   }
@@ -2266,7 +2266,7 @@ std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findSimMuFromRes(
     const edm::Handle<edm::HepMCProduct> &evtMC, const edm::Handle<edm::SimTrackContainer> &simTracks) {
   //Loop on simulated tracks
   std::pair<lorentzVector, lorentzVector> simMuFromRes;
-  for (edm::SimTrackContainer::const_iterator simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
+  for (auto simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
     //Chose muons
     if (std::abs((*simTrack).type()) == 13) {
       //If tracks from IP than find mother
@@ -2348,7 +2348,7 @@ std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes(
   //Loop on generated particles
   if (debug > 0)
     std::cout << "Starting loop on " << genParticles->size() << " genParticles" << std::endl;
-  for (reco::GenParticleCollection::const_iterator part = genParticles->begin(); part != genParticles->end(); ++part) {
+  for (auto part = genParticles->begin(); part != genParticles->end(); ++part) {
     if (std::abs(part->pdgId()) == 13 && part->status() == 1) {
       bool fromRes = false;
       unsigned int motherPdgId = part->mother()->pdgId();

@@ -217,7 +217,7 @@ MuonAlignmentInputXML::~MuonAlignmentInputXML() {
 
 void MuonAlignmentInputXML::recursiveGetId(std::map<unsigned int, Alignable *> &alignableNavigator,
                                            const align::Alignables &alignables) const {
-  for (align::Alignables::const_iterator ali = alignables.begin(); ali != alignables.end(); ++ali) {
+  for (auto ali = alignables.begin(); ali != alignables.end(); ++ali) {
     if ((*ali)->alignableObjectId() == align::AlignableDetUnit || (*ali)->alignableObjectId() == align::AlignableDet ||
         (*ali)->alignableObjectId() == align::AlignableDTChamber ||
         (*ali)->alignableObjectId() == align::AlignableDTSuperLayer ||
@@ -233,8 +233,8 @@ void MuonAlignmentInputXML::recursiveGetId(std::map<unsigned int, Alignable *> &
 void MuonAlignmentInputXML::fillAliToIdeal(std::map<Alignable *, Alignable *> &alitoideal,
                                            const align::Alignables &alignables,
                                            const align::Alignables &ideals) const {
-  align::Alignables::const_iterator alignable = alignables.begin();
-  align::Alignables::const_iterator ideal = ideals.begin();
+  auto alignable = alignables.begin();
+  auto ideal = ideals.begin();
 
   while (alignable != alignables.end() && ideal != ideals.end()) {
     alitoideal[*alignable] = *ideal;
@@ -274,7 +274,7 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup &iS
   XercesDOMParser *parser = new XercesDOMParser();
   parser->setValidationScheme(XercesDOMParser::Val_Always);
 
-  XERCES_CPP_NAMESPACE::ErrorHandler *errHandler = (XERCES_CPP_NAMESPACE::ErrorHandler *)(new HandlerBase());
+  auto *errHandler = (XERCES_CPP_NAMESPACE::ErrorHandler *)(new HandlerBase());
   parser->setErrorHandler(errHandler);
 
   try {
@@ -361,15 +361,13 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup &iS
           std::string name(ascii_name);
           XMLString::release(&ascii_name);
 
-          std::map<std::string, std::map<Alignable *, bool> >::const_iterator alicollections_iter =
-              alicollections.find(name);
+          auto alicollections_iter = alicollections.find(name);
           if (alicollections_iter == alicollections.end()) {
             throw cms::Exception("XMLException")
                 << "<collection name=\"" << name << "\"> hasn't been defined" << std::endl;
           }
 
-          for (std::map<Alignable *, bool>::const_iterator aliiter = alicollections_iter->second.begin();
-               aliiter != alicollections_iter->second.end();
+          for (auto aliiter = alicollections_iter->second.begin(); aliiter != alicollections_iter->second.end();
                ++aliiter) {
             aliset[aliiter->first] = true;
           }  // end loop over alignables in this collection
@@ -384,7 +382,7 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup &iS
     }    // end first loop over operation's children
 
     // from now on, we only want to see position/rotation directives
-    for (std::vector<DOMNode *>::const_iterator node = nodesToRemove.begin(); node != nodesToRemove.end(); ++node) {
+    for (auto node = nodesToRemove.begin(); node != nodesToRemove.end(); ++node) {
       operation->removeChild(*node);
     }
     children = operation->getChildNodes();
@@ -755,7 +753,7 @@ void MuonAlignmentInputXML::do_setposition(const XERCES_CPP_NAMESPACE::DOMElemen
                                          << message << "\"" << std::endl;
   }
 
-  for (std::map<Alignable *, bool>::const_iterator aliiter = aliset.begin(); aliiter != aliset.end(); ++aliiter) {
+  for (auto aliiter = aliset.begin(); aliiter != aliset.end(); ++aliiter) {
     // first reconstruct the old position: how it would look in this coordinate system
 
     Alignable *ali = aliiter->first;
@@ -1031,7 +1029,7 @@ void MuonAlignmentInputXML::do_setape(const XERCES_CPP_NAMESPACE::DOMElement *no
   matrix6x6(4, 5) = parseDouble(node_bc->getValue(), "bc");
   matrix6x6(5, 5) = parseDouble(node_cc->getValue(), "cc");
 
-  for (std::map<Alignable *, bool>::const_iterator aliiter = aliset.begin(); aliiter != aliset.end(); ++aliiter) {
+  for (auto aliiter = aliset.begin(); aliiter != aliset.end(); ++aliiter) {
     // this sets APEs at this level and (since 2nd argument is true) all lower levels
     aliiter->first->setAlignmentPositionError(AlignmentPositionError(matrix6x6), true);
   }
@@ -1128,7 +1126,7 @@ void MuonAlignmentInputXML::do_setsurveyerr(const XERCES_CPP_NAMESPACE::DOMEleme
   matrix6x6(4, 5) = parseDouble(node_bc->getValue(), "bc");
   matrix6x6(5, 5) = parseDouble(node_cc->getValue(), "cc");
 
-  for (std::map<Alignable *, bool>::const_iterator aliiter = aliset.begin(); aliiter != aliset.end(); ++aliiter) {
+  for (auto aliiter = aliset.begin(); aliiter != aliset.end(); ++aliiter) {
     Alignable *ali = aliiter->first;
     ali->setSurvey(new SurveyDet(ali->surface(), matrix6x6));
   }
@@ -1152,7 +1150,7 @@ void MuonAlignmentInputXML::do_moveglobal(const XERCES_CPP_NAMESPACE::DOMElement
   double z = parseDouble(node_z->getValue(), "z");
   align::GlobalVector vect(x, y, z);
 
-  for (std::map<Alignable *, bool>::const_iterator aliiter = aliset.begin(); aliiter != aliset.end(); ++aliiter) {
+  for (auto aliiter = aliset.begin(); aliiter != aliset.end(); ++aliiter) {
     Alignable *ali = aliiter->first;
 
     ali->move(vect);
@@ -1186,7 +1184,7 @@ void MuonAlignmentInputXML::do_movelocal(const XERCES_CPP_NAMESPACE::DOMElement 
   double z = parseDouble(node_z->getValue(), "z");
   align::LocalVector vect(x, y, z);
 
-  for (std::map<Alignable *, bool>::const_iterator aliiter = aliset.begin(); aliiter != aliset.end(); ++aliiter) {
+  for (auto aliiter = aliset.begin(); aliiter != aliset.end(); ++aliiter) {
     Alignable *ali = aliiter->first;
 
     align::GlobalVector globalVector = ali->surface().toGlobal(vect);
@@ -1225,7 +1223,7 @@ void MuonAlignmentInputXML::do_rotatelocal(const XERCES_CPP_NAMESPACE::DOMElemen
   double angle = parseDouble(node_angle->getValue(), "angle");
   align::LocalVector vect(x, y, z);
 
-  for (std::map<Alignable *, bool>::const_iterator aliiter = aliset.begin(); aliiter != aliset.end(); ++aliiter) {
+  for (auto aliiter = aliset.begin(); aliiter != aliset.end(); ++aliiter) {
     Alignable *ali = aliiter->first;
 
     ali->rotateAroundLocalAxis(vect, angle);
@@ -1259,7 +1257,7 @@ void MuonAlignmentInputXML::do_rotatebeamline(const XERCES_CPP_NAMESPACE::DOMEle
     value = parseDouble(node_phi->getValue(), "phi");
   }
 
-  for (std::map<Alignable *, bool>::const_iterator aliiter = aliset.begin(); aliiter != aliset.end(); ++aliiter) {
+  for (auto aliiter = aliset.begin(); aliiter != aliset.end(); ++aliiter) {
     Alignable *ali = aliiter->first;
 
     align::GlobalPoint pos = ali->surface().toGlobal(align::LocalPoint(0, 0, 0));
@@ -1306,7 +1304,7 @@ void MuonAlignmentInputXML::do_rotateglobalaxis(const XERCES_CPP_NAMESPACE::DOME
   double z = parseDouble(node_z->getValue(), "z");
   double angle = parseDouble(node_angle->getValue(), "angle");
 
-  for (std::map<Alignable *, bool>::const_iterator aliiter = aliset.begin(); aliiter != aliset.end(); ++aliiter) {
+  for (auto aliiter = aliset.begin(); aliiter != aliset.end(); ++aliiter) {
     Alignable *ali = aliiter->first;
     align::GlobalPoint pos = ali->surface().toGlobal(align::LocalPoint(0, 0, 0));
 

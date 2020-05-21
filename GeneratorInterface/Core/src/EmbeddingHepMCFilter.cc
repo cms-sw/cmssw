@@ -30,9 +30,7 @@ EmbeddingHepMCFilter::EmbeddingHepMCFilter(const edm::ParameterSet &iConfig)
 
   std::vector<std::string> use_final_states = iConfig.getParameter<std::vector<std::string> >("Final_States");
 
-  for (std::vector<std::string>::const_iterator final_state = use_final_states.begin();
-       final_state != use_final_states.end();
-       ++final_state) {
+  for (auto final_state = use_final_states.begin(); final_state != use_final_states.end(); ++final_state) {
     if ((*final_state) == "ElEl")
       fill_cuts(cut_string_elel, ee);
     else if ((*final_state) == "MuMu")
@@ -77,12 +75,12 @@ bool EmbeddingHepMCFilter::filter(const HepMC::GenEvent *evt) {
       p4VisPair_.push_back(p4Vis);
     } else if (std::abs((*particle)->pdg_id()) == muonPDGID_ &&
                mom_id == ZPDGID_) {  // Also handle the option when Z-> mumu
-      reco::Candidate::LorentzVector p4Vis = (reco::Candidate::LorentzVector)(*particle)->momentum();
+      auto p4Vis = (reco::Candidate::LorentzVector)(*particle)->momentum();
       DecayChannel_.fill(TauDecayMode::Muon);  // take the muon cuts
       p4VisPair_.push_back(p4Vis);
     } else if (std::abs((*particle)->pdg_id()) == electronPDGID_ &&
                mom_id == ZPDGID_) {  // Also handle the option when Z-> ee
-      reco::Candidate::LorentzVector p4Vis = (reco::Candidate::LorentzVector)(*particle)->momentum();
+      auto p4Vis = (reco::Candidate::LorentzVector)(*particle)->momentum();
       DecayChannel_.fill(TauDecayMode::Electron);  // take the electron cuts
       p4VisPair_.push_back(p4Vis);
     }
@@ -164,7 +162,7 @@ void EmbeddingHepMCFilter::sort_by_convention(std::vector<reco::Candidate::Loren
 }
 
 bool EmbeddingHepMCFilter::apply_cuts(std::vector<reco::Candidate::LorentzVector> &p4VisPair) {
-  for (std::vector<CutsContainer>::const_iterator cut = cuts_.begin(); cut != cuts_.end(); ++cut) {
+  for (auto cut = cuts_.begin(); cut != cuts_.end(); ++cut) {
     if (DecayChannel_.first == cut->decaychannel.first &&
         DecayChannel_.second == cut->decaychannel.second) {  // First the match to the decay channel
       edm::LogInfo("EmbeddingHepMCFilter")

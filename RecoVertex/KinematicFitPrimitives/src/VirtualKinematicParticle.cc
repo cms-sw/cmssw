@@ -33,7 +33,7 @@ bool VirtualKinematicParticle::operator==(const KinematicParticle& other) const 
 
   //first looking if this is an object of the same type
   const KinematicParticle* lp = &other;
-  const VirtualKinematicParticle* lPart = dynamic_cast<const VirtualKinematicParticle*>(lp);
+  const auto* lPart = dynamic_cast<const VirtualKinematicParticle*>(lp);
   if (lPart != nullptr && initialState() == lPart->initialState())
     dc = true;
   return dc;
@@ -67,7 +67,7 @@ RefCountedKinematicParticle VirtualKinematicParticle::refittedParticle(const Kin
                                                                        float chi2,
                                                                        float ndf,
                                                                        KinematicConstraint* cons) const {
-  VirtualKinematicParticle* ncp = const_cast<VirtualKinematicParticle*>(this);
+  auto* ncp = const_cast<VirtualKinematicParticle*>(this);
   ReferenceCountingPointer<KinematicParticle> current = ReferenceCountingPointer<KinematicParticle>(ncp);
   return ReferenceCountingPointer<KinematicParticle>(
       new VirtualKinematicParticle(state, chi2, ndf, cons, current, propagator));
@@ -75,7 +75,7 @@ RefCountedKinematicParticle VirtualKinematicParticle::refittedParticle(const Kin
 
 VirtualKinematicParticle::RefCountedLinearizedTrackState VirtualKinematicParticle::particleLinearizedTrackState(
     const GlobalPoint& point) const {
-  VirtualKinematicParticle* cr = const_cast<VirtualKinematicParticle*>(this);
+  auto* cr = const_cast<VirtualKinematicParticle*>(this);
   RefCountedKinematicParticle lp = ReferenceCountingPointer<KinematicParticle>(cr);
   return linFactory.linearizedTrackState(point, lp);
 }

@@ -76,7 +76,7 @@ void popcon::EcalADCToGeVHandler::getNewObjects() {
   std::string location_p5 = "P5_Co";
   econn->fetchValidDataSet(&rundat, &rp, location_p5, runmax);
 
-  unsigned long long irun = (unsigned long long)rp.getRunNumber();
+  auto irun = (unsigned long long)rp.getRunNumber();
 
   std::cout << "retrieved run number " << irun << std::endl;
 
@@ -139,7 +139,7 @@ void popcon::EcalADCToGeVHandler::getNewObjects() {
     if (something_to_transfer) {
       std::cout << "Generating popcon record for run " << irun << "  going to open file " << file_ << "\n"
                 << std::flush;
-      EcalADCToGeVConstant* payload = new EcalADCToGeVConstant;
+      auto* payload = new EcalADCToGeVConstant;
       //      EcalCondHeader   header;   // DBv1
       //	    EcalADCToGeVXMLTranslator::readXML(file_,header,*payload);   // DBv1
       // DBv2 poor xml file :-(

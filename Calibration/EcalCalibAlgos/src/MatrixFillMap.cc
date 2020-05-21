@@ -64,7 +64,7 @@ void MatrixFillMap::fillEBMap(EBDetId EBmax,
         EBDetId det = EBDetId(curr_eta, curr_phi, EBDetId::ETAPHIMODE);
         int ID = det.rawId();
         //finds the hit corresponding to the cell
-        EcalRecHitCollection::const_iterator curr_recHit = barrelHitsCollection->find(det);
+        auto curr_recHit = barrelHitsCollection->find(det);
         double dummy = 0;
         dummy = curr_recHit->energy();
         //checks if the reading of the xtal is in a sensible range
@@ -102,7 +102,7 @@ void MatrixFillMap::fillEEMap(EEDetId EEmax,
       if (EEDetId::validDetId(curr_x, curr_y, EEmax.zside())) {
         EEDetId det = EEDetId(curr_x, curr_y, EEmax.zside(), EEDetId::XYMODE);
         int ID = det.rawId();
-        EcalRecHitCollection::const_iterator curr_recHit = endcapHitsCollection->find(det);
+        auto curr_recHit = endcapHitsCollection->find(det);
         double dummy = curr_recHit->energy();
         if (edm::isNotFinite(dummy)) {
           dummy = 0;

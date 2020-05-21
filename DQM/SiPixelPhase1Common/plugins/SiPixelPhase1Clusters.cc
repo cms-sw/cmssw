@@ -87,7 +87,7 @@ namespace {
     for (it = inputPixel->begin(); it != inputPixel->end(); ++it) {
       auto id = DetId(it->detId());
 
-      const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(tracker.idToDet(id));
+      const auto* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(tracker.idToDet(id));
       const PixelTopology& topol = theGeomDet->specificTopology();
 
       for (SiPixelCluster const& cluster : *it) {

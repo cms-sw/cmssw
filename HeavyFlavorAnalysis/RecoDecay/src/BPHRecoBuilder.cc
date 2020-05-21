@@ -98,7 +98,7 @@ void BPHRecoBuilder::add(const string& name, const vector<BPHRecoConstCandPtr>& 
 }
 
 void BPHRecoBuilder::filter(const string& name, const BPHRecoSelect& sel) const {
-  map<string, int>::const_iterator iter = sourceId.find(name);
+  auto iter = sourceId.find(name);
   if (iter == sourceId.end())
     return;
   BPHRecoSource* rs = sourceList[iter->second];
@@ -107,7 +107,7 @@ void BPHRecoBuilder::filter(const string& name, const BPHRecoSelect& sel) const 
 }
 
 void BPHRecoBuilder::filter(const string& name, const BPHMomentumSelect& sel) const {
-  map<string, int>::const_iterator iter = srCompId.find(name);
+  auto iter = srCompId.find(name);
   if (iter == sourceId.end())
     return;
   BPHCompSource* cs = srCompList[iter->second];
@@ -116,7 +116,7 @@ void BPHRecoBuilder::filter(const string& name, const BPHMomentumSelect& sel) co
 }
 
 void BPHRecoBuilder::filter(const string& name, const BPHVertexSelect& sel) const {
-  map<string, int>::const_iterator iter = srCompId.find(name);
+  auto iter = srCompId.find(name);
   if (iter == sourceId.end())
     return;
   BPHCompSource* cs = srCompList[iter->second];
@@ -125,7 +125,7 @@ void BPHRecoBuilder::filter(const string& name, const BPHVertexSelect& sel) cons
 }
 
 void BPHRecoBuilder::filter(const string& name, const BPHFitSelect& sel) const {
-  map<string, int>::const_iterator iter = srCompId.find(name);
+  auto iter = srCompId.find(name);
   if (iter == sourceId.end())
     return;
   BPHCompSource* cs = srCompList[iter->second];
@@ -301,7 +301,7 @@ void BPHRecoBuilder::build(vector<ComponentSet>& compList,
 bool BPHRecoBuilder::contained(ComponentSet& compSet, const reco::Candidate* cand) const {
   map<string, BPHDecayMomentum::Component>& dMap = compSet.daugMap;
   map<string, BPHDecayMomentum::Component>::const_iterator d_iter;
-  map<string, BPHDecayMomentum::Component>::const_iterator d_iend = dMap.end();
+  auto d_iend = dMap.end();
   for (d_iter = dMap.begin(); d_iter != d_iend; ++d_iter) {
     const reco::Candidate* cChk = d_iter->second.cand;
     if (cand == cChk)
@@ -314,7 +314,7 @@ bool BPHRecoBuilder::contained(ComponentSet& compSet, const reco::Candidate* can
 
 bool BPHRecoBuilder::contained(ComponentSet& compSet, BPHRecoConstCandPtr cCand) const {
   map<string, BPHRecoConstCandPtr>::const_iterator c_iter;
-  map<string, BPHRecoConstCandPtr>::const_iterator c_iend = compMap.end();
+  auto c_iend = compMap.end();
   const vector<const reco::Candidate*>& dCand = cCand->daughFull();
   int j;
   int m = dCand.size();
@@ -324,7 +324,7 @@ bool BPHRecoBuilder::contained(ComponentSet& compSet, BPHRecoConstCandPtr cCand)
     const reco::Candidate* cand = cCand->originalReco(dCand[j]);
     map<string, BPHDecayMomentum::Component>& dMap = compSet.daugMap;
     map<string, BPHDecayMomentum::Component>::const_iterator d_iter;
-    map<string, BPHDecayMomentum::Component>::const_iterator d_iend = dMap.end();
+    auto d_iend = dMap.end();
     for (d_iter = dMap.begin(); d_iter != d_iend; ++d_iter) {
       const reco::Candidate* cChk = d_iter->second.cand;
       if (cand == cChk)

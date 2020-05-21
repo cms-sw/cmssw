@@ -55,9 +55,7 @@ SiStripGainCosmicCalculator::SiStripGainCosmicCalculator(const edm::ParameterSet
   edm::LogInfo("SiStripApvGainCalculator")
       << "Clusters from " << detModulesToBeExcluded.size() << " modules will be ignored in the calibration:";
   edm::LogInfo("SiStripApvGainCalculator") << "The calibration for these DetIds will be set to a default value";
-  for (std::vector<uint32_t>::const_iterator imod = detModulesToBeExcluded.begin();
-       imod != detModulesToBeExcluded.end();
-       imod++) {
+  for (auto imod = detModulesToBeExcluded.begin(); imod != detModulesToBeExcluded.end(); imod++) {
     edm::LogInfo("SiStripApvGainCalculator") << "exclude detid = " << *imod;
   }
 
@@ -122,8 +120,7 @@ void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup) {
   // get tracker geometry and find nr. of apv pairs for each active detector
   edm::ESHandle<TrackerGeometry> tkGeom;
   iSetup.get<TrackerDigiGeometryRecord>().get(tkGeom);
-  for (TrackerGeometry::DetContainer::const_iterator it = tkGeom->dets().begin(); it != tkGeom->dets().end();
-       it++) {  // loop over detector modules
+  for (auto it = tkGeom->dets().begin(); it != tkGeom->dets().end(); it++) {  // loop over detector modules
     if (dynamic_cast<const StripGeomDetUnit*>((*it)) != nullptr) {
       uint32_t detid = ((*it)->geographicalId()).rawId();
       // get thickness for all detector modules, not just for active, this is strange
@@ -135,8 +132,7 @@ void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup) {
       thickness_map.insert(std::make_pair(detid, module_thickness));
       //
       bool is_active_detector = false;
-      for (std::vector<uint32_t>::iterator iactive = SelectedDetIds.begin(); iactive != SelectedDetIds.end();
-           iactive++) {
+      for (auto iactive = SelectedDetIds.begin(); iactive != SelectedDetIds.end(); iactive++) {
         if (*iactive == detid) {
           is_active_detector = true;
           break;  // leave for loop if found matching detid
@@ -144,9 +140,7 @@ void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup) {
       }
       //
       bool exclude_this_detid = false;
-      for (std::vector<uint32_t>::const_iterator imod = detModulesToBeExcluded.begin();
-           imod != detModulesToBeExcluded.end();
-           imod++) {
+      for (auto imod = detModulesToBeExcluded.begin(); imod != detModulesToBeExcluded.end(); imod++) {
         if (*imod == detid)
           exclude_this_detid = true;  // found in exclusion list
         break;
@@ -192,22 +186,19 @@ void SiStripGainCosmicCalculator::algoAnalyze(const edm::Event& iEvent, const ed
   //  es.get<IdealMagneticFieldRecord>().get(esmagfield);
   //  magfield=&(*esmagfield);
   // loop over tracks
-  for (reco::TrackCollection::const_iterator itr = tracks->begin(); itr != tracks->end();
-       itr++) {  // looping over tracks
+  for (auto itr = tracks->begin(); itr != tracks->end(); itr++) {  // looping over tracks
 
     //TO BE RESTORED
     //    std::vector<std::pair<const TrackingRecHit *,float> >hitangle =anglefinder_->findtrackangle((*(*seedcoll).begin()),*itr);
     std::vector<std::pair<const TrackingRecHit*, float> >
         hitangle;  // =anglefinder_->findtrackangle((*(*seedcoll).begin()),*itr);
 
-    for (std::vector<std::pair<const TrackingRecHit*, float> >::const_iterator hitangle_iter = hitangle.begin();
-         hitangle_iter != hitangle.end();
-         hitangle_iter++) {
+    for (auto hitangle_iter = hitangle.begin(); hitangle_iter != hitangle.end(); hitangle_iter++) {
       const TrackingRecHit* trechit = hitangle_iter->first;
       float local_angle = hitangle_iter->second;
       LocalPoint local_position = trechit->localPosition();
       const SiStripRecHit2D* sistripsimplehit = dynamic_cast<const SiStripRecHit2D*>(trechit);
-      const SiStripMatchedRecHit2D* sistripmatchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(trechit);
+      const auto* sistripmatchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(trechit);
       //      std::cout<<" hit/matched "<<std::ios::hex<<sistripsimplehit<<" "<<sistripmatchedhit<<std::endl;
       ((TH1F*)HlistOtherHistos->FindObject("LocalAngle"))->Fill(local_angle);
       ((TH1F*)HlistOtherHistos->FindObject("LocalAngleAbsoluteCosine"))->Fill(fabs(cos(local_angle)));

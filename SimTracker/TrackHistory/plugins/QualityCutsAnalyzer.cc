@@ -316,7 +316,7 @@ void QualityCutsAnalyzer::LoopOverJetTracksAssociation(
     pv = reco::Vertex(p, e, 1, 1, 1);
   }
 
-  reco::JetTracksAssociationCollection::const_iterator it = jetTracksAssociation->begin();
+  auto it = jetTracksAssociation->begin();
 
   int i = 0;
 

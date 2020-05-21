@@ -42,9 +42,9 @@ DTKeyedConfigCache::~DTKeyedConfigCache() { purge(); }
 int DTKeyedConfigCache::get(const cond::persistency::KeyList& keyList, int cfgId, const DTKeyedConfig*& obj) {
   bool cacheFound = false;
   int cacheAge = 999999999;
-  std::map<int, counted_brick>::iterator cache_iter = brickMap.begin();
-  std::map<int, counted_brick>::iterator cache_icfg = brickMap.find(cfgId);
-  std::map<int, counted_brick>::iterator cache_iend = brickMap.end();
+  auto cache_iter = brickMap.begin();
+  auto cache_icfg = brickMap.find(cfgId);
+  auto cache_iend = brickMap.end();
   if (cache_icfg != cache_iend) {
     std::pair<const int, counted_brick>& entry = *cache_icfg;
     counted_brick& cBrick = entry.second;
@@ -86,21 +86,21 @@ int DTKeyedConfigCache::get(const cond::persistency::KeyList& keyList, int cfgId
   if (brickFound) {
     counted_brick cBrick(0, obj = new DTKeyedConfig(*kBrick));
     brickMap.insert(std::pair<int, counted_brick>(cfgId, cBrick));
-    DTKeyedConfig::data_iterator d_iter = kBrick->dataBegin();
-    DTKeyedConfig::data_iterator d_iend = kBrick->dataEnd();
+    auto d_iter = kBrick->dataBegin();
+    auto d_iend = kBrick->dataEnd();
     cachedBrickNumber++;
     cachedStringNumber += (d_iend - d_iter);
     while (d_iter != d_iend)
       cachedByteNumber += (*d_iter++).size();
   }
-  std::map<int, const DTKeyedConfig*>::reverse_iterator iter = ageMap.rbegin();
+  auto iter = ageMap.rbegin();
   while ((cachedBrickNumber > maxBrickNumber) || (cachedStringNumber > maxStringNumber) ||
          (cachedByteNumber > maxByteNumber)) {
     const DTKeyedConfig* oldestBrick = iter->second;
     int oldestId = oldestBrick->getId();
     cachedBrickNumber--;
-    DTKeyedConfig::data_iterator d_iter = oldestBrick->dataBegin();
-    DTKeyedConfig::data_iterator d_iend = oldestBrick->dataEnd();
+    auto d_iter = oldestBrick->dataBegin();
+    auto d_iend = oldestBrick->dataEnd();
     cachedStringNumber -= (d_iend - d_iter);
     while (d_iter != d_iend)
       cachedByteNumber -= (*d_iter++).size();
@@ -117,20 +117,20 @@ void DTKeyedConfigCache::getData(const cond::persistency::KeyList& keyList, int 
   get(keyList, cfgId, obj);
   if (obj == nullptr)
     return;
-  DTKeyedConfig::data_iterator d_iter = obj->dataBegin();
-  DTKeyedConfig::data_iterator d_iend = obj->dataEnd();
+  auto d_iter = obj->dataBegin();
+  auto d_iend = obj->dataEnd();
   while (d_iter != d_iend)
     list.push_back(*d_iter++);
-  DTKeyedConfig::link_iterator l_iter = obj->linkBegin();
-  DTKeyedConfig::link_iterator l_iend = obj->linkEnd();
+  auto l_iter = obj->linkBegin();
+  auto l_iend = obj->linkEnd();
   while (l_iter != l_iend)
     getData(keyList, *l_iter++, list);
   return;
 }
 
 void DTKeyedConfigCache::purge() {
-  std::map<int, counted_brick>::const_iterator iter = brickMap.begin();
-  std::map<int, counted_brick>::const_iterator iend = brickMap.end();
+  auto iter = brickMap.begin();
+  auto iend = brickMap.end();
   while (iter != iend) {
     delete iter->second.second;
     iter++;

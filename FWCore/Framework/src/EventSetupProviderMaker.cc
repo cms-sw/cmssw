@@ -39,12 +39,11 @@ namespace edm {
       //preferInfo[ComponentDescription("DummyProxyProvider", "", false)]=
       //      recordToData;
 
-      for (std::vector<std::string>::iterator itName = prefers.begin(), itNameEnd = prefers.end(); itName != itNameEnd;
-           ++itName) {
+      for (auto itName = prefers.begin(), itNameEnd = prefers.end(); itName != itNameEnd; ++itName) {
         recordToData.clear();
         ParameterSet const& preferPSet = params.getParameterSet(*itName);
         std::vector<std::string> recordNames = preferPSet.getParameterNames();
-        for (std::vector<std::string>::iterator itRecordName = recordNames.begin(), itRecordNameEnd = recordNames.end();
+        for (auto itRecordName = recordNames.begin(), itRecordNameEnd = recordNames.end();
              itRecordName != itRecordNameEnd;
              ++itRecordName) {
           if ((*itRecordName)[0] == '@') {
@@ -62,9 +61,7 @@ namespace edm {
                   << "The record named " << *itRecordName << " specifies no data items";
             }
             //FUTURE: 'any' should be a special name
-            for (std::vector<std::string>::iterator itDatum = dataInfo.begin(), itDatumEnd = dataInfo.end();
-                 itDatum != itDatumEnd;
-                 ++itDatum) {
+            for (auto itDatum = dataInfo.begin(), itDatumEnd = dataInfo.end(); itDatum != itDatumEnd; ++itDatum) {
               std::string datumName(*itDatum, 0, itDatum->find_first_of("/"));
               std::string labelName;
 
@@ -93,9 +90,7 @@ namespace edm {
     void fillEventSetupProvider(EventSetupsController& esController, EventSetupProvider& cp, ParameterSet& params) {
       std::vector<std::string> providers = params.getParameter<std::vector<std::string> >("@all_esmodules");
 
-      for (std::vector<std::string>::iterator itName = providers.begin(), itNameEnd = providers.end();
-           itName != itNameEnd;
-           ++itName) {
+      for (auto itName = providers.begin(), itNameEnd = providers.end(); itName != itNameEnd; ++itName) {
         ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
         validateEventSetupParameters(*providerPSet);
         providerPSet->registerIt();
@@ -104,8 +99,7 @@ namespace edm {
 
       std::vector<std::string> sources = params.getParameter<std::vector<std::string> >("@all_essources");
 
-      for (std::vector<std::string>::iterator itName = sources.begin(), itNameEnd = sources.end(); itName != itNameEnd;
-           ++itName) {
+      for (auto itName = sources.begin(), itNameEnd = sources.end(); itName != itNameEnd; ++itName) {
         ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
         validateEventSetupParameters(*providerPSet);
         providerPSet->registerIt();

@@ -99,7 +99,7 @@ void RPixPlaneCombinatoryTracking::getHitCombinations(const std::map<CTPPSPixelD
     newHitPlaneMap[mapIterator->first] = i;
     PointInPlaneList newVector = tmpHitVector;
     newVector.push_back(mapIterator->second[i]);
-    std::map<CTPPSPixelDetId, PointInPlaneList>::iterator tmpMapIterator = mapIterator;
+    auto tmpMapIterator = mapIterator;
     getHitCombinations(mapOfAllHits, ++tmpMapIterator, newHitPlaneMap, newVector, outputMap);
   }
 }
@@ -277,7 +277,7 @@ void RPixPlaneCombinatoryTracking::findTracks(int run) {
     std::vector<uint32_t> listOfPlaneNotUsedForFit = listOfAllPlanes_;
     //remove the hits belonging to the tracks from the full list of hits
     for (const auto &hitToErase : pointMapWithMinChiSquared) {
-      std::map<CTPPSPixelDetId, PointInPlaneList>::iterator hitMapElement = hitMap_->find(hitToErase.first);
+      auto hitMapElement = hitMap_->find(hitToErase.first);
       if (hitMapElement == hitMap_->end()) {
         throw cms::Exception("RPixPlaneCombinatoryTracking")
             << "The found tracks has hit belonging to a plane which does not have hits";

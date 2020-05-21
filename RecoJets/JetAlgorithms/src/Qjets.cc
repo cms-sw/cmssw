@@ -38,7 +38,7 @@ JetDistance Qjets::GetNextDistance() {
   }
 
   double rand(Rand()), tot_weight(0.);
-  for (vector<pair<JetDistance, double> >::iterator it = popped_distances.begin(); it != popped_distances.end(); it++) {
+  for (auto it = popped_distances.begin(); it != popped_distances.end(); it++) {
     tot_weight += (*it).second / norm;
     if (tot_weight >= rand) {
       ret = (*it).first;
@@ -48,9 +48,7 @@ JetDistance Qjets::GetNextDistance() {
   }
 
   // repopulate in reverse (maybe quicker?)
-  for (vector<pair<JetDistance, double> >::reverse_iterator it = popped_distances.rbegin();
-       it != popped_distances.rend();
-       it++)
+  for (auto it = popped_distances.rbegin(); it != popped_distances.rend(); it++)
     if (JetsUnmerged((*it).first))
       _distances.push((*it).first);
 
@@ -112,7 +110,7 @@ void Qjets::Cluster(fastjet::ClusterSequence& cs) {
 void Qjets::computeDCut(fastjet::ClusterSequence& cs) {
   // assume all jets in cs form a single jet.  compute mass and pt
   fastjet::PseudoJet sum(0., 0., 0., 0.);
-  for (vector<fastjet::PseudoJet>::const_iterator it = cs.jets().begin(); it != cs.jets().end(); it++)
+  for (auto it = cs.jets().begin(); it != cs.jets().end(); it++)
     sum += (*it);
   _dcut = 2. * _dcut_fctr * sum.m() / sum.perp();
 }

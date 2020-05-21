@@ -7,7 +7,7 @@ void FWPFEcalRecHitRPProxyBuilder::scaleProduct(TEveElementList *parent,
   typedef std::vector<FWPFRhoPhiRecHit *> rpRecHits;
   unsigned int index = 0;
 
-  for (rpRecHits::iterator i = m_towers.begin(); i != m_towers.end(); ++i) {
+  for (auto i = m_towers.begin(); i != m_towers.end(); ++i) {
     m_towers[index]->updateScale(vc);
     index++;
   }
@@ -16,7 +16,7 @@ void FWPFEcalRecHitRPProxyBuilder::scaleProduct(TEveElementList *parent,
 //______________________________________________________________________________
 void FWPFEcalRecHitRPProxyBuilder::cleanLocal() {
   typedef std::vector<FWPFRhoPhiRecHit *> rpRecHits;
-  for (rpRecHits::iterator i = m_towers.begin(); i != m_towers.end(); ++i)
+  for (auto i = m_towers.begin(); i != m_towers.end(); ++i)
     (*i)->clean();
 
   m_towers.clear();
@@ -82,7 +82,7 @@ void FWPFEcalRecHitRPProxyBuilder::build(const FWEventItem *iItem, TEveElementLi
         bCorners[0] = lVec;
         bCorners[1] = rVec;
 
-        FWPFRhoPhiRecHit *rh = new FWPFRhoPhiRecHit(this, itemHolder, vc, E, et, lPhi, rPhi, bCorners);
+        auto *rh = new FWPFRhoPhiRecHit(this, itemHolder, vc, E, et, lPhi, rPhi, bCorners);
         context().voteMaxEtAndEnergy(et, E);
         m_towers.push_back(rh);
       }

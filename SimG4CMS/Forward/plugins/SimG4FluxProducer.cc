@@ -71,7 +71,7 @@ void SimG4FluxProducer::update(const BeginOfEvent* evt) {
 
 void SimG4FluxProducer::update(const G4Step* aStep) {
   if (aStep != nullptr) {
-    G4TouchableHistory* touchable = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
+    auto* touchable = (G4TouchableHistory*)aStep->GetPreStepPoint()->GetTouchable();
     G4LogicalVolume* plv = (G4LogicalVolume*)touchable->GetVolume()->GetLogicalVolume();
     auto it = (init_) ? mapLV_.find(plv) : findLV(plv);
     //  std::cout << plv->GetName() << " Flag " << (it != mapLV_.end()) << " step " << aStep->IsFirstStepInVolume() << ":"  << aStep->IsLastStepInVolume() << std::endl;

@@ -28,7 +28,7 @@ AlignableDet::AlignableDet(const GeomDet* geomDet, bool addComponents)
                                            << " has no components, use AlignableDetUnit.\n";
     } else {  // Push back all components
       const std::vector<const GeomDet*>& geomDets = geomDet->components();
-      for (std::vector<const GeomDet*>::const_iterator idet = geomDets.begin(); idet != geomDets.end(); ++idet) {
+      for (auto idet = geomDets.begin(); idet != geomDets.end(); ++idet) {
         const GeomDetUnit* unit = dynamic_cast<const GeomDetUnit*>(*idet);
         if (!unit) {
           throw cms::Exception("BadHierarchy")
@@ -157,7 +157,7 @@ Alignments* AlignableDet::alignments() const {
 
 //__________________________________________________________________________________________________
 AlignmentErrorsExtended* AlignableDet::alignmentErrors(void) const {
-  AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();
+  auto* m_alignmentErrors = new AlignmentErrorsExtended();
 
   // Add associated alignment position error
   uint32_t detId = this->geomDetId().rawId();

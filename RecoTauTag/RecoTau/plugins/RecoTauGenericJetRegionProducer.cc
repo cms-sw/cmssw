@@ -113,7 +113,7 @@ void RecoTauGenericJetRegionProducer<JetType, CandType>::produce(edm::Event& evt
   edm::Handle<reco::CandidateView> jetView;
   evt.getByToken(Jets_token, jetView);
   // Convert to a vector of JetRefs
-  edm::RefVector<std::vector<JetType> > jets = reco::tau::castView<edm::RefVector<std::vector<JetType> > >(jetView);
+  auto jets = reco::tau::castView<edm::RefVector<std::vector<JetType> > >(jetView);
   size_t nJets = jets.size();
 
   // Get the association map matching jets to Candidates

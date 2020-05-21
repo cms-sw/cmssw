@@ -87,8 +87,8 @@ namespace l1t {
     std::shared_ptr<coral::IQuery> query(table.newQuery());
 
     // Construct query
-    std::vector<std::string>::const_iterator it = columnNames.begin();
-    std::vector<std::string>::const_iterator end = columnNames.end();
+    auto it = columnNames.begin();
+    auto end = columnNames.end();
     for (; it != end; ++it) {
       query->addToOutputList(*it);
     }
@@ -171,8 +171,7 @@ namespace l1t {
     ;
 
     // Construct query
-    for (std::vector<std::string>::const_iterator constIt = columnNames.begin(); constIt != columnNames.end();
-         ++constIt) {
+    for (auto constIt = columnNames.begin(); constIt != columnNames.end(); ++constIt) {
       query->addToOutputList(*constIt);
     }
 

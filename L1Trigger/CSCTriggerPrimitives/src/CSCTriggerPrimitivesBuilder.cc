@@ -163,7 +163,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             // running upgraded ME1/1 TMBs
             if (stat == 1 && ring == 1 && isSLHC_ && !runME11ILT_) {
               // run the TMB
-              CSCMotherboardME11* tmb11 = static_cast<CSCMotherboardME11*>(tmb);
+              auto* tmb11 = static_cast<CSCMotherboardME11*>(tmb);
               if (infoV > 1)
                 LogTrace("CSCTriggerPrimitivesBuilder")
                     << "CSCTriggerPrimitivesBuilder::build in E:" << endc << " S:" << stat << " R:" << ring;
@@ -226,7 +226,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             // running upgraded ME1/1 TMBs with GEMs
             else if (stat == 1 && ring == 1 && isSLHC_ && runME11ILT_) {
               // run the TMB
-              CSCGEMMotherboardME11* tmb11GEM = static_cast<CSCGEMMotherboardME11*>(tmb);
+              auto* tmb11GEM = static_cast<CSCGEMMotherboardME11*>(tmb);
               tmb11GEM->setCSCGeometry(csc_g);
               tmb11GEM->setGEMGeometry(gem_g);
               if (infoV > 1)
@@ -293,7 +293,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             // running upgraded ME2/1 TMBs
             else if (stat == 2 && ring == 1 && isSLHC_ && runME21ILT_) {
               // run the TMB
-              CSCGEMMotherboardME21* tmb21GEM = static_cast<CSCGEMMotherboardME21*>(tmb);
+              auto* tmb21GEM = static_cast<CSCGEMMotherboardME21*>(tmb);
               tmb21GEM->setCSCGeometry(csc_g);
               tmb21GEM->setGEMGeometry(gem_g);
 
@@ -337,7 +337,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
             // running upgraded ME2/1-ME3/1-ME4/1 TMBs (without GEMs or RPCs)
             else if ((stat == 2 or stat == 3 or stat == 4) && ring == 1 && isSLHC_) {
               // run the TMB
-              CSCUpgradeMotherboard* utmb = static_cast<CSCUpgradeMotherboard*>(tmb);
+              auto* utmb = static_cast<CSCUpgradeMotherboard*>(tmb);
               utmb->setCSCGeometry(csc_g);
               utmb->run(wiredc, compdc);
 
@@ -430,7 +430,7 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 
   // now convert csctf::TrackStub back into CSCCorrelatedLCTDigi
   // put MPC stubs into the event
-  std::vector<csctf::TrackStub>::const_iterator itr = result.begin();
+  auto itr = result.begin();
   for (; itr != result.end(); itr++) {
     oc_sorted_lct.insertDigi(CSCDetId(itr->getDetId().rawId()), *(itr->getDigi()));
     if (infoV > 1)

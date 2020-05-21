@@ -6,14 +6,12 @@ using namespace TauSpinner;
   Recursively searches for final-state daughters of 'x'
 *******************************************************************************/
 inline std::vector<SimpleParticle> *getDaughters(HepMC::GenParticle *x) {
-  std::vector<SimpleParticle> *daughters = new std::vector<SimpleParticle>();
+  auto *daughters = new std::vector<SimpleParticle>();
   if (!x->end_vertex())
     return daughters;
 
   // Check decay products of 'x'
-  for (HepMC::GenVertex::particles_out_const_iterator p = x->end_vertex()->particles_out_const_begin();
-       p != x->end_vertex()->particles_out_const_end();
-       ++p) {
+  for (auto p = x->end_vertex()->particles_out_const_begin(); p != x->end_vertex()->particles_out_const_end(); ++p) {
     HepMC::GenParticle *pp = *p;
     HepMC::FourVector mm = pp->momentum();
 

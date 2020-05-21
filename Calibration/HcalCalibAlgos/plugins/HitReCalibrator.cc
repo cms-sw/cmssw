@@ -45,7 +45,7 @@ namespace cms {
       edm::Handle<HBHERecHitCollection> hbhe;
       iEvent.getByToken(tok_hbhe_, hbhe);
       const HBHERecHitCollection Hithbhe = *(hbhe.product());
-      for (HBHERecHitCollection::const_iterator hbheItr = Hithbhe.begin(); hbheItr != Hithbhe.end(); hbheItr++) {
+      for (auto hbheItr = Hithbhe.begin(); hbheItr != Hithbhe.end(); hbheItr++) {
         DetId id = hbheItr->detid();
         float recal;
         if (jetRecalib->exists(id))
@@ -68,7 +68,7 @@ namespace cms {
       edm::Handle<HORecHitCollection> ho;
       iEvent.getByToken(tok_ho_, ho);
       const HORecHitCollection Hitho = *(ho.product());
-      for (HORecHitCollection::const_iterator hoItr = Hitho.begin(); hoItr != Hitho.end(); hoItr++) {
+      for (auto hoItr = Hitho.begin(); hoItr != Hitho.end(); hoItr++) {
         DetId id = hoItr->detid();
         float recal;
         if (jetRecalib->exists(id))
@@ -91,7 +91,7 @@ namespace cms {
       edm::Handle<HFRecHitCollection> hf;
       iEvent.getByToken(tok_hf_, hf);
       const HFRecHitCollection Hithf = *(hf.product());
-      for (HFRecHitCollection::const_iterator hfItr = Hithf.begin(); hfItr != Hithf.end(); hfItr++) {
+      for (auto hfItr = Hithf.begin(); hfItr != Hithf.end(); hfItr++) {
         DetId id = hfItr->detid();
         float recal;
         if (jetRecalib->exists(id))

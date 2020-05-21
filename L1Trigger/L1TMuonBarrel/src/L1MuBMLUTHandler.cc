@@ -99,7 +99,7 @@ void L1MuBMLUTHandler::print_pta_lut() const {
     cout << "-------------------------" << endl;
     std::vector<L1TMuonBarrelParams::LUT> pta_lut = l1tbmparams->pta_lut();
 
-    L1TMuonBarrelParams::LUT::const_iterator iter = pta_lut[pam].begin();
+    auto iter = pta_lut[pam].begin();
     while (iter != pta_lut[pam].end()) {
       int address = (*iter).first;
       int value = (*iter).second;
@@ -131,7 +131,7 @@ void L1MuBMLUTHandler::print_pta_lut() const {
 int L1MuBMLUTHandler::getPt(int pta_ind, int address) const {
   std::vector<L1TMuonBarrelParams::LUT> pta_lut = l1tbmparams->pta_lut();
 
-  L1TMuonBarrelParams::LUT::const_iterator iter = pta_lut[pta_ind].find(address);
+  auto iter = pta_lut[pta_ind].find(address);
   if (iter != pta_lut[pta_ind].end()) {
     //std::cout<<"pta_ind  "<<pta_ind<<"  address  "<<address<<"  pt  "<<(*iter).second<<std::endl;
 
@@ -160,7 +160,7 @@ int L1MuBMLUTHandler::getPtLutThreshold(int pta_ind) const {
 //
 int L1MuBMLUTHandler::getDeltaPhi(int idx, int address) const {
   std::vector<L1TMuonBarrelParams::LUT> phi_lut = l1tbmparams->phi_lut();
-  L1TMuonBarrelParams::LUT::const_iterator iter = phi_lut[idx].find(address);
+  auto iter = phi_lut[idx].find(address);
   if (iter != phi_lut[idx].end()) {
     return (*iter).second;
   } else {
@@ -212,7 +212,7 @@ void L1MuBMLUTHandler::print_phi_lut() const {
     cout << "----------------------" << endl;
     std::vector<L1TMuonBarrelParams::LUT> phi_lut = l1tbmparams->phi_lut();
 
-    L1TMuonBarrelParams::LUT::const_iterator iter = phi_lut[idx].begin();
+    auto iter = phi_lut[idx].begin();
     while (iter != phi_lut[idx].end()) {
       int address = (*iter).first;
       int value = (*iter).second;
@@ -246,7 +246,7 @@ void L1MuBMLUTHandler::print_phi_lut() const {
 //
 int L1MuBMLUTHandler::getLow(int ext_ind, int address) const {
   std::vector<L1TMuonBarrelParams::LUTParams::extLUT> ext_lut = l1tbmparams->ext_lut();
-  L1TMuonBarrelParams::LUT::const_iterator iter = ext_lut[ext_ind].low.find(address);
+  auto iter = ext_lut[ext_ind].low.find(address);
   if (iter != ext_lut[ext_ind].low.end()) {
     return (*iter).second;
   } else {
@@ -260,7 +260,7 @@ int L1MuBMLUTHandler::getLow(int ext_ind, int address) const {
 //
 int L1MuBMLUTHandler::getHigh(int ext_ind, int address) const {
   std::vector<L1TMuonBarrelParams::LUTParams::extLUT> ext_lut = l1tbmparams->ext_lut();
-  L1TMuonBarrelParams::LUT::const_iterator iter = ext_lut[ext_ind].high.find(address);
+  auto iter = ext_lut[ext_ind].high.find(address);
   if (iter != ext_lut[ext_ind].high.end()) {
     return (*iter).second;
   } else {
@@ -301,7 +301,7 @@ void L1MuBMLUTHandler::print_ext_lut() const {
       cout << '-';
     cout << "---------------------------------" << endl;
     std::vector<L1TMuonBarrelParams::LUTParams::extLUT> ext_lut = l1tbmparams->ext_lut();
-    L1TMuonBarrelParams::LUT::const_iterator iter = ext_lut[ext].low.begin();
+    auto iter = ext_lut[ext].low.begin();
     L1TMuonBarrelParams::LUT::const_iterator iter1;
     while (iter != ext_lut[ext].low.end()) {
       int address = (*iter).first;

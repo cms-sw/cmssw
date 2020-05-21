@@ -42,12 +42,12 @@ static const G4LogicalVolume* GetVolume(const std::string& name) {
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
 
 #ifdef DEBUG_G4_VOLUMES
-  for (G4LogicalVolumeStore::const_iterator volume = lvs->begin(); volume != lvs->end(); ++volume)
+  for (auto volume = lvs->begin(); volume != lvs->end(); ++volume)
     LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: G4 registered volumes " << (*volume)->GetName()
                                         << std::endl;
 #endif
 
-  for (G4LogicalVolumeStore::const_iterator volume = lvs->begin(); volume != lvs->end(); ++volume) {
+  for (auto volume = lvs->begin(); volume != lvs->end(); ++volume) {
     if ((const std::string&)(*volume)->GetName() == name)
       return (*volume);
   }
@@ -117,9 +117,7 @@ void TrackingMaterialProducer::update(const EndOfJob* event) {
 void TrackingMaterialProducer::update(const BeginOfJob* event) {
   // INFO
   LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: List of the selected volumes: " << std::endl;
-  for (std::vector<std::string>::const_iterator volume_name = m_selectedNames.begin();
-       volume_name != m_selectedNames.end();
-       ++volume_name) {
+  for (auto volume_name = m_selectedNames.begin(); volume_name != m_selectedNames.end(); ++volume_name) {
     const G4LogicalVolume* volume = GetVolume(*volume_name);
     if (volume) {
       LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: " << *volume_name << std::endl;
@@ -192,7 +190,7 @@ bool TrackingMaterialProducer::isSelectedFast(const G4TouchableHistory* touchabl
 
 //-------------------------------------------------------------------------
 void TrackingMaterialProducer::update(const G4Step* step) {
-  const G4TouchableHistory* touchable = static_cast<const G4TouchableHistory*>(step->GetTrack()->GetTouchable());
+  const auto* touchable = static_cast<const G4TouchableHistory*>(step->GetTrack()->GetTouchable());
   if (not isSelectedFast(touchable)) {
     LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer:\t[...] skipping "
                                         << touchable->GetVolume()->GetName() << std::endl;

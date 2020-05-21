@@ -41,7 +41,7 @@ static void createWatchers(const edm::ParameterSet &iP,
   } catch (edm::Exception const &) {
   }
 
-  for (std::vector<ParameterSet>::iterator itWatcher = watchers.begin(); itWatcher != watchers.end(); ++itWatcher) {
+  for (auto itWatcher = watchers.begin(); itWatcher != watchers.end(); ++itWatcher) {
     std::unique_ptr<SimWatcherMakerBase> maker(
         SimWatcherFactory::get()->create(itWatcher->getParameter<std::string>("type")));
     if (maker.get() == nullptr) {
@@ -145,7 +145,7 @@ void GeometryProducer::produce(edm::Event &e, const edm::EventSetup &es) {
                                      << " Tk type Producers, and " << m_sensCaloDets.size() << " Calo type producers ";
   }
 
-  for (Producers::iterator itProd = m_producers.begin(); itProd != m_producers.end(); ++itProd) {
+  for (auto itProd = m_producers.begin(); itProd != m_producers.end(); ++itProd) {
     (*itProd)->produce(e, es);
   }
 }

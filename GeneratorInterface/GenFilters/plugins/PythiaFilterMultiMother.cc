@@ -81,7 +81,7 @@ bool PythiaFilterMultiMother::filter(edm::StreamID, edm::Event& iEvent, const ed
           (*p)->momentum().perp() > minptcut && (*p)->momentum().perp() < maxptcut && mom.eta() > minetacut &&
           mom.eta() < maxetacut && rapidity > minrapcut && rapidity < maxrapcut && (*p)->momentum().phi() > minphicut &&
           (*p)->momentum().phi() < maxphicut) {
-        for (std::vector<int>::const_iterator motherID = motherIDs.begin(); motherID != motherIDs.end(); ++motherID) {
+        for (auto motherID = motherIDs.begin(); motherID != motherIDs.end(); ++motherID) {
           if (status == 0 && *motherID == 0) {
             accepted = true;
           }

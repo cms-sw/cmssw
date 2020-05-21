@@ -19,7 +19,7 @@ void ConfigurableTrimmedKalmanFinder::configure(const edm::ParameterSet& n) {
     delete theRector;
   edm::ParameterSet m = n;
   m.augment(mydefaults());
-  KalmanTrimmedVertexFinder* tmp = new KalmanTrimmedVertexFinder();
+  auto* tmp = new KalmanTrimmedVertexFinder();
   tmp->setPtCut(m.getParameter<double>("ptcut"));
   tmp->setTrackCompatibilityCut(m.getParameter<double>("trkcutpv"));
   tmp->setTrackCompatibilityToSV(m.getParameter<double>("trkcutsv"));

@@ -438,7 +438,7 @@ namespace {
           continue;
 
         const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>(pxb1Hit->hit());
-        const PixelGeomDetUnit* geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(tracker->idToDet(detidHit));
+        const auto* geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(tracker->idToDet(detidHit));
         const PixelTopology& topol = geomdetunit->specificTopology();
 
         LocalPoint lp;
@@ -471,7 +471,7 @@ namespace {
               continue;
             if (pxb1Hit->geographicalId().rawId() != detAndState.first->geographicalId().rawId())
               continue;
-            const PixelGeomDetUnit* pixdet = (const PixelGeomDetUnit*)tkgeom->idToDetUnit(detId);
+            const auto* pixdet = (const PixelGeomDetUnit*)tkgeom->idToDetUnit(detId);
             edmNew::DetSet<SiPixelCluster>::const_iterator itCluster = iter_cl->begin();
             if (passcuts_hit) {
               for (; itCluster != iter_cl->end(); ++itCluster) {

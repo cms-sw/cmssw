@@ -123,8 +123,7 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
   // int npxbhits=0;
 
   //loop on tracks
-  for (std::vector<reco::Track>::const_iterator ittrk = Tracks->begin(), edtrk = Tracks->end(); ittrk != edtrk;
-       ++ittrk) {
+  for (auto ittrk = Tracks->begin(), edtrk = Tracks->end(); ittrk != edtrk; ++ittrk) {
     Eta[trk_cnt] = ittrk->eta();
     Phi[trk_cnt] = ittrk->phi();
     Chi2n[trk_cnt] = ittrk->normalizedChi2();

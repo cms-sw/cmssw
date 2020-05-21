@@ -140,7 +140,7 @@ void OverlapProblemTSOSAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
     m_ptrk->Fill(trk->p());
     m_etatrk->Fill(trk->eta());
 
-    for (std::vector<TrajectoryMeasurement>::const_iterator meas = tmcoll.begin(); meas != tmcoll.end(); ++meas) {
+    for (auto meas = tmcoll.begin(); meas != tmcoll.end(); ++meas) {
       if (!meas->updatedState().isValid())
         continue;
 

@@ -66,7 +66,7 @@ void FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
     float offset = -0.5 * nStrips * pitch;
 
     for (RPCDigiCollection::const_iterator dit = range.first; dit != range.second; ++dit) {
-      TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet;
+      auto* stripDigiSet = new TEveStraightLineSet;
       stripDigiSet->SetLineWidth(3);
       setupAddElement(stripDigiSet, product);
 

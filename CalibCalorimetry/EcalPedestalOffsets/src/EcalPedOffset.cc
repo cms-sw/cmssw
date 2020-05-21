@@ -65,9 +65,9 @@ EcalPedOffset::EcalPedOffset(const ParameterSet &paramSet)
 
 //! dtor
 EcalPedOffset::~EcalPedOffset() {
-  for (std::map<int, TPedValues *>::iterator mapIt = m_pedValues.begin(); mapIt != m_pedValues.end(); ++mapIt)
+  for (auto mapIt = m_pedValues.begin(); mapIt != m_pedValues.end(); ++mapIt)
     delete mapIt->second;
-  for (std::map<int, TPedResult *>::iterator mapIt = m_pedResult.begin(); mapIt != m_pedResult.end(); ++mapIt)
+  for (auto mapIt = m_pedResult.begin(); mapIt != m_pedResult.end(); ++mapIt)
     delete mapIt->second;
 }
 
@@ -99,8 +99,7 @@ void EcalPedOffset::analyze(Event const &event, EventSetup const &eventSetup) {
     m_run = event.id().run();
 
   // loop over the headers
-  for (EcalRawDataCollection::const_iterator headerItr = DCCHeaders->begin(); headerItr != DCCHeaders->end();
-       ++headerItr) {
+  for (auto headerItr = DCCHeaders->begin(); headerItr != DCCHeaders->end(); ++headerItr) {
     EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings();
     int FEDid = 600 + headerItr->id();
     DACvalues[FEDid] = settings.ped_offset;
@@ -221,8 +220,7 @@ void EcalPedOffset::readDACs(const edm::Handle<EEDigiCollection> &pDigis, const 
 
 //! perform the minimization and write results
 void EcalPedOffset::endJob() {
-  for (std::map<int, TPedValues *>::const_iterator smPeds = m_pedValues.begin(); smPeds != m_pedValues.end();
-       ++smPeds) {
+  for (auto smPeds = m_pedValues.begin(); smPeds != m_pedValues.end(); ++smPeds) {
     m_pedResult[smPeds->first] = new TPedResult((smPeds->second)->terminate(m_DACmin, m_DACmax));
   }
   edm::LogInfo("EcalPedOffset") << " results map size " << m_pedResult.size();
@@ -321,8 +319,7 @@ void EcalPedOffset::writeDb() {
   // fill the table
 
   // loop over the super-modules
-  for (std::map<int, TPedResult *>::const_iterator result = m_pedResult.begin(); result != m_pedResult.end();
-       ++result) {
+  for (auto result = m_pedResult.begin(); result != m_pedResult.end(); ++result) {
     // loop over the crystals
     for (int xtal = 0; xtal < 1700; ++xtal) {
       DBtable.setDACG1(result->second->m_DACvalue[2][xtal]);
@@ -384,7 +381,7 @@ void EcalPedOffset::writeDb() {
 //! write the m_pedResults to XML files
 void EcalPedOffset::writeXMLFiles(std::string fileName) {
   // loop over the super-modules
-  for (std::map<int, TPedResult *>::const_iterator smRes = m_pedResult.begin(); smRes != m_pedResult.end(); ++smRes) {
+  for (auto smRes = m_pedResult.begin(); smRes != m_pedResult.end(); ++smRes) {
     std::string thisSMFileName = fileName;
     // open the output stream
     thisSMFileName += "_";
@@ -436,8 +433,7 @@ void EcalPedOffset::makePlots() {
   TFile *rootFile = new TFile(m_plotting.c_str(), "RECREATE");
 
   // loop over the supermodules
-  for (std::map<int, TPedValues *>::const_iterator smPeds = m_pedValues.begin(); smPeds != m_pedValues.end();
-       ++smPeds) {
+  for (auto smPeds = m_pedValues.begin(); smPeds != m_pedValues.end(); ++smPeds) {
     // make a folder in the ROOT file
     char folderName[120];
     sprintf(folderName, "FED%02d", smPeds->first);

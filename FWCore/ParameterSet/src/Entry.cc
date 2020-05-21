@@ -713,8 +713,8 @@ namespace edm {
     codedString += codeFromType(type);
     codedString += '(';
     codedString += '{';
-    std::vector<std::string>::const_iterator i = value.begin();
-    std::vector<std::string>::const_iterator e = value.end();
+    auto i = value.begin();
+    auto e = value.end();
     std::string const kSeparator(",");
     std::string sep("");
     for (; i != e; ++i) {
@@ -1127,8 +1127,8 @@ namespace edm {
         // Make sure we get the representation of each contained
         // ParameterSet including *only* tracked parameters
         std::vector<ParameterSet> whole = entry.getVPSet();
-        std::vector<ParameterSet>::const_iterator i = whole.begin();
-        std::vector<ParameterSet>::const_iterator e = whole.end();
+        auto i = whole.begin();
+        auto e = whole.end();
         std::string start = "";
         std::string const between(",\n");
         os << "{" << std::endl;
@@ -1151,7 +1151,7 @@ namespace edm {
         std::string start = "'";
         std::string const between(",'");
         std::vector<std::string> strings = entry.getVString();
-        for (std::vector<std::string>::const_iterator it = strings.begin(), itEnd = strings.end(); it != itEnd; ++it) {
+        for (auto it = strings.begin(), itEnd = strings.end(); it != itEnd; ++it) {
           os << start << *it << "'";
           start = between;
         }
@@ -1173,7 +1173,7 @@ namespace edm {
         std::string start = "";
         std::string const between(",");
         std::vector<InputTag> tags = entry.getVInputTag();
-        for (std::vector<InputTag>::const_iterator it = tags.begin(), itEnd = tags.end(); it != itEnd; ++it) {
+        for (auto it = tags.begin(), itEnd = tags.end(); it != itEnd; ++it) {
           os << start << it->encode();
           start = between;
         }
@@ -1187,7 +1187,7 @@ namespace edm {
         std::string start = "";
         std::string const between(",");
         std::vector<ESInputTag> tags = entry.getVESInputTag();
-        for (std::vector<ESInputTag>::const_iterator it = tags.begin(), itEnd = tags.end(); it != itEnd; ++it) {
+        for (auto it = tags.begin(), itEnd = tags.end(); it != itEnd; ++it) {
           os << start << it->encode();
           start = between;
         }

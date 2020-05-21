@@ -23,7 +23,7 @@ std::atomic<bool> DTHitQualityUtils::debug{false};
 map<DTWireId, PSimHitContainer> DTHitQualityUtils::mapSimHitsPerWire(const PSimHitContainer &simhits) {
   map<DTWireId, PSimHitContainer> hitWireMapResult;
 
-  for (PSimHitContainer::const_iterator simhit = simhits.begin(); simhit != simhits.end(); simhit++) {
+  for (auto simhit = simhits.begin(); simhit != simhits.end(); simhit++) {
     hitWireMapResult[DTWireId((*simhit).detUnitId())].push_back(*simhit);
   }
 
@@ -35,9 +35,7 @@ map<DTWireId, const PSimHit *> DTHitQualityUtils::mapMuSimHitsPerWire(
     const map<DTWireId, PSimHitContainer> &simHitWireMap) {
   map<DTWireId, const PSimHit *> ret;
 
-  for (map<DTWireId, PSimHitContainer>::const_iterator wireAndSimHit = simHitWireMap.begin();
-       wireAndSimHit != simHitWireMap.end();
-       wireAndSimHit++) {
+  for (auto wireAndSimHit = simHitWireMap.begin(); wireAndSimHit != simHitWireMap.end(); wireAndSimHit++) {
     const PSimHit *muHit = findMuSimHit((*wireAndSimHit).second);
     if (muHit != nullptr) {
       ret[(*wireAndSimHit).first] = (muHit);
@@ -53,7 +51,7 @@ const PSimHit *DTHitQualityUtils::findMuSimHit(const PSimHitContainer &hits) {
   vector<const PSimHit *> muHits;
 
   // Loop over simhits
-  for (PSimHitContainer::const_iterator hit = hits.begin(); hit != hits.end(); hit++) {
+  for (auto hit = hits.begin(); hit != hits.end(); hit++) {
     if (abs((*hit).particleType()) == 13)
       muHits.push_back(&(*hit));
   }
@@ -78,8 +76,7 @@ pair<const PSimHit *, const PSimHit *> DTHitQualityUtils::findMuSimSegment(
   const PSimHit *inSimHit = nullptr;
   const PSimHit *outSimHit = nullptr;
 
-  for (map<DTWireId, const PSimHit *>::const_iterator wireAndMuSimHit = mapWireAndMuSimHit.begin();
-       wireAndMuSimHit != mapWireAndMuSimHit.end();
+  for (auto wireAndMuSimHit = mapWireAndMuSimHit.begin(); wireAndMuSimHit != mapWireAndMuSimHit.end();
        wireAndMuSimHit++) {
     const DTWireId wireId = (*wireAndMuSimHit).first;
     const PSimHit *theMuHit = (*wireAndMuSimHit).second;

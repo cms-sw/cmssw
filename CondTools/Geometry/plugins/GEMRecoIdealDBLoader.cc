@@ -39,7 +39,7 @@ void GEMRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) 
     const DDCompactView& cpv = *pDD;
     GEMGeometryParsFromDD rpcpd;
 
-    RecoIdealGeometry* rig = new RecoIdealGeometry;
+    auto* rig = new RecoIdealGeometry;
     rpcpd.build(&cpv, *pMNDC, *rig);
 
     mydbservice->createNewIOV<RecoIdealGeometry>(

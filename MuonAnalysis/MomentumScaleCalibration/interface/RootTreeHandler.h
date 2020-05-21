@@ -48,7 +48,7 @@ public:
       }
     }
     std::cout << "savedPair->size() is " << savedPair->size() << std::endl;
-    std::vector<MuonPair>::const_iterator muonPairIt = savedPair->begin();
+    auto muonPairIt = savedPair->begin();
     unsigned int iev = 0;
     for (; muonPairIt != savedPair->end(); ++muonPairIt, ++iev) {
       if (saveAll || ((muonPairIt->mu1.p4() != emptyLorentzVector) && (muonPairIt->mu2.p4() != emptyLorentzVector))) {

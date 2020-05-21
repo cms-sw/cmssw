@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
     event.getByLabel(jets_, jets);
 
     // loop over the jets in the event
-    for (std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet != jets->end(); jet++) {
+    for (auto jet = jets->begin(); jet != jets->end(); jet++) {
       if (jet->pt() > 20 && jet == jets->begin()) {
         emfAllJets_->Fill(jet->emEnergyFraction());
         if (!jet->hasOverlaps(overlaps_)) {

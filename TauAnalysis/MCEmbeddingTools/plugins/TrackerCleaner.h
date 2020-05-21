@@ -89,7 +89,7 @@ void TrackerCleaner<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
         continue;
       const reco::Track* mutrack = iMuon->globalTrack().get();
       //  reco::Track *mutrack = new reco::Track(*(iMuon->innerTrack() ));
-      for (trackingRecHit_iterator hitIt = mutrack->recHitsBegin(); hitIt != mutrack->recHitsEnd(); ++hitIt) {
+      for (auto hitIt = mutrack->recHitsBegin(); hitIt != mutrack->recHitsEnd(); ++hitIt) {
         const TrackingRecHit& murechit = **hitIt;
         if (!(murechit).isValid())
           continue;

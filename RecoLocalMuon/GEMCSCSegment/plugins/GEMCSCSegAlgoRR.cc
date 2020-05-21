@@ -66,8 +66,7 @@ std::vector<GEMCSCSegment> GEMCSCSegAlgoRR::run(const std::map<uint32_t, const C
   // --- LogDebug for CSC Layer map -----------------------------------------
   std::stringstream csclayermapss;
   csclayermapss << "[GEMCSCSegAlgoRR::run] :: csclayermap :: elements [" << std::endl;
-  for (std::map<uint32_t, const CSCLayer*>::const_iterator mapIt = theCSCLayers_.begin(); mapIt != theCSCLayers_.end();
-       ++mapIt) {
+  for (auto mapIt = theCSCLayers_.begin(); mapIt != theCSCLayers_.end(); ++mapIt) {
     csclayermapss << "[CSC DetId " << mapIt->first << " =" << CSCDetId(mapIt->first) << ", CSC Layer " << mapIt->second
                   << " =" << (mapIt->second)->id() << "]," << std::endl;
   }
@@ -79,9 +78,7 @@ std::vector<GEMCSCSegment> GEMCSCSegAlgoRR::run(const std::map<uint32_t, const C
   // --- LogDebug for GEM Eta Partition map ---------------------------------
   std::stringstream gemetapartmapss;
   gemetapartmapss << "[GEMCSCSegAlgoRR::run] :: gemetapartmap :: elements [" << std::endl;
-  for (std::map<uint32_t, const GEMEtaPartition*>::const_iterator mapIt = theGEMEtaParts_.begin();
-       mapIt != theGEMEtaParts_.end();
-       ++mapIt) {
+  for (auto mapIt = theGEMEtaParts_.begin(); mapIt != theGEMEtaParts_.end(); ++mapIt) {
     gemetapartmapss << "[GEM DetId " << mapIt->first << " =" << GEMDetId(mapIt->first) << ", GEM EtaPart "
                     << mapIt->second << "]," << std::endl;
   }
@@ -108,8 +105,7 @@ std::vector<GEMCSCSegment> GEMCSCSegAlgoRR::run(const std::map<uint32_t, const C
   // empty the temporary gemcsc segments vector
   // segmentvectortmp.clear();
 
-  for (std::vector<const CSCSegment*>::const_iterator cscSegIt = cscsegments.begin(); cscSegIt != cscsegments.end();
-       ++cscSegIt) {
+  for (auto cscSegIt = cscsegments.begin(); cscSegIt != cscsegments.end(); ++cscSegIt) {
     // chain hits :: make a vector of TrackingRecHits
     //               that contains the CSC and GEM rechits
     //               and that can be given to the fitter
@@ -170,7 +166,7 @@ std::vector<const TrackingRecHit*> GEMCSCSegAlgoRR::chainHitsToSegm(const CSCSeg
   }
 
   // now ask the layer id of the first CSC rechit
-  std::vector<const TrackingRecHit*>::const_iterator trhIt = chainedRecHits.begin();
+  auto trhIt = chainedRecHits.begin();
   // make sure pointer is valid
   if (trhIt == chainedRecHits.end()) {
     edm::LogVerbatim("GEMCSCSegFit")
@@ -193,7 +189,7 @@ std::vector<const TrackingRecHit*> GEMCSCSegAlgoRR::chainHitsToSegm(const CSCSeg
     float Dtheta_min_l1 = 999;
     float Dtheta_min_l2 = 999;
 
-    std::vector<const GEMRecHit*>::const_iterator grhIt = gemrechits.begin();
+    auto grhIt = gemrechits.begin();
 
     const GEMRecHit* gemrh_min_l1 = *grhIt;
     const GEMRecHit* gemrh_min_l2 = *grhIt;
@@ -287,7 +283,7 @@ std::vector<GEMCSCSegment> GEMCSCSegAlgoRR::buildSegments(const CSCSegment* cscs
   }
 
   // Extract the GEMRecHits from the TrackingRecHit vector
-  for (std::vector<const TrackingRecHit*>::const_iterator trhIt = rechits.begin(); trhIt != rechits.end(); ++trhIt) {
+  for (auto trhIt = rechits.begin(); trhIt != rechits.end(); ++trhIt) {
     if (DetId((*trhIt)->rawId()).subdetId() == MuonSubdetId::GEM) {
       gemrechits.push_back(((const GEMRecHit*)*trhIt));
     }

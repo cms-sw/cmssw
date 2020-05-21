@@ -80,7 +80,7 @@ const GBRForest* PFMETAlgorithmMVA::loadMVAfromFile(const edm::FileInPath& input
     throw cms::Exception("PFMETAlgorithmMVA::loadMVA") << " Failed to find File = " << inputFileName << " !!\n";
   std::unique_ptr<TFile> inputFile(new TFile(inputFileName.fullPath().data()));
 
-  std::vector<std::string>* lVec = (std::vector<std::string>*)inputFile->Get("varlist");
+  auto* lVec = (std::vector<std::string>*)inputFile->Get("varlist");
 
   if (lVec == nullptr) {
     throw cms::Exception("PFMETAlgorithmMVA::loadMVA")

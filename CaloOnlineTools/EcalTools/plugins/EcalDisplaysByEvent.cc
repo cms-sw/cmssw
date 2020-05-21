@@ -80,7 +80,7 @@ EcalDisplaysByEvent::EcalDisplaysByEvent(const edm::ParameterSet& iConfig)
     //if "actual" EB id given, then convert to FEDid and put in listFEDs_
     if (maskedEBs_[0] != "none") {
       maskedFEDs_.clear();
-      for (vector<string>::const_iterator ebItr = maskedEBs_.begin(); ebItr != maskedEBs_.end(); ++ebItr) {
+      for (auto ebItr = maskedEBs_.begin(); ebItr != maskedEBs_.end(); ++ebItr) {
         maskedFEDs_.push_back(fedMap_->getFedFromSlice(*ebItr));
       }
     }
@@ -114,8 +114,7 @@ void EcalDisplaysByEvent::analyze(edm::Event const& iEvent, edm::EventSetup cons
   edm::Handle<EcalRawDataCollection> DCCHeaders;
   iEvent.getByLabel(headerProducer_, DCCHeaders);
 
-  for (EcalRawDataCollection::const_iterator headerItr = DCCHeaders->begin(); headerItr != DCCHeaders->end();
-       ++headerItr) {
+  for (auto headerItr = DCCHeaders->begin(); headerItr != DCCHeaders->end(); ++headerItr) {
     FEDsAndDCCHeaders_[headerItr->id() + 600] = *headerItr;
   }
 
@@ -182,7 +181,7 @@ void EcalDisplaysByEvent::analyze(edm::Event const& iEvent, edm::EventSetup cons
 }
 
 void EcalDisplaysByEvent::selectHits(Handle<EcalRecHitCollection> hits, int ievt, ESHandle<CaloTopology> caloTopo) {
-  for (EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr) {
+  for (auto hitItr = hits->begin(); hitItr != hits->end(); ++hitItr) {
     EcalRecHit hit = (*hitItr);
     DetId det = hit.id();
     EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(det);
@@ -399,7 +398,7 @@ void EcalDisplaysByEvent::makeHistos(Handle<EEDigiCollection> eeDigiHandle) {
 }
 
 void EcalDisplaysByEvent::makeHistos(Handle<EcalRecHitCollection> hits) {
-  for (EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr) {
+  for (auto hitItr = hits->begin(); hitItr != hits->end(); ++hitItr) {
     EcalRecHit hit = (*hitItr);
     DetId det = hit.id();
     EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(det);
@@ -540,8 +539,7 @@ void EcalDisplaysByEvent::endJob() {
   }
 
   string frequencies = "";
-  for (std::map<std::string, int>::const_iterator itr = seedFrequencyMap_.begin(); itr != seedFrequencyMap_.end();
-       ++itr) {
+  for (auto itr = seedFrequencyMap_.begin(); itr != seedFrequencyMap_.end(); ++itr) {
     if (itr->second > 1) {
       frequencies += itr->first;
       frequencies += " Frequency: ";
@@ -554,13 +552,13 @@ void EcalDisplaysByEvent::endJob() {
                                     << frequencies;
 
   std::string channels;
-  for (std::vector<int>::const_iterator itr = maskedChannels_.begin(); itr != maskedChannels_.end(); ++itr) {
+  for (auto itr = maskedChannels_.begin(); itr != maskedChannels_.end(); ++itr) {
     channels += intToString(*itr);
     channels += ",";
   }
 
   std::string feds;
-  for (std::vector<int>::const_iterator itr = maskedFEDs_.begin(); itr != maskedFEDs_.end(); ++itr) {
+  for (auto itr = maskedFEDs_.begin(); itr != maskedFEDs_.end(); ++itr) {
     feds += intToString(*itr);
     feds += ",";
   }

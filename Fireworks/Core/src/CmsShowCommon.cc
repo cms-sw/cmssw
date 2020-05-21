@@ -116,16 +116,12 @@ void CmsShowCommon::permuteColors() {
   std::vector<Color_t> colv;
   colv.reserve(64);
 
-  for (FWEventItemsManager::const_iterator i = m_context->eventItemsManager()->begin();
-       i != m_context->eventItemsManager()->end();
-       ++i) {
+  for (auto i = m_context->eventItemsManager()->begin(); i != m_context->eventItemsManager()->end(); ++i) {
     colv.push_back((*i)->defaultDisplayProperties().color());
   }
 
   int vi = colv.size() - 1;
-  for (FWEventItemsManager::const_iterator i = m_context->eventItemsManager()->begin();
-       i != m_context->eventItemsManager()->end();
-       ++i, --vi) {
+  for (auto i = m_context->eventItemsManager()->begin(); i != m_context->eventItemsManager()->end(); ++i, --vi) {
     FWDisplayProperties prop = (*i)->defaultDisplayProperties();
     prop.setColor(colv[vi]);
     (*i)->setDefaultDisplayProperties(prop);
@@ -138,9 +134,7 @@ void CmsShowCommon::randomizeColors() {
   //   printf("Doing random_shuffle on existing colors ...\n");
 
   int vi = 0;
-  for (FWEventItemsManager::const_iterator i = m_context->eventItemsManager()->begin();
-       i != m_context->eventItemsManager()->end();
-       ++i, ++vi) {
+  for (auto i = m_context->eventItemsManager()->begin(); i != m_context->eventItemsManager()->end(); ++i, ++vi) {
     FWDisplayProperties prop = (*i)->defaultDisplayProperties();
 
     int col = rand() % 17;  // randomize in first row of palette
@@ -211,7 +205,7 @@ void CmsShowCommon::addTo(FWConfiguration& oTo) const {
 }
 
 void CmsShowCommon::setFrom(const FWConfiguration& iFrom) {
-  for (const_iterator it = begin(), itEnd = end(); it != itEnd; ++it) {
+  for (auto it = begin(), itEnd = end(); it != itEnd; ++it) {
     (*it)->setFrom(iFrom);
   }
 
@@ -268,9 +262,7 @@ void CmsShowCommon::setPalette() {
   }
 
   m_context->colorManager()->propagatePaletteChanges();
-  for (FWEventItemsManager::const_iterator i = m_context->eventItemsManager()->begin();
-       i != m_context->eventItemsManager()->end();
-       ++i) {
+  for (auto i = m_context->eventItemsManager()->begin(); i != m_context->eventItemsManager()->end(); ++i) {
     (*i)->resetColor();
   }
 }

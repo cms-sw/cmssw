@@ -203,7 +203,7 @@ void HLTScalers::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
     // save path names in DQM-accessible format
     int q = 0;
-    for (TriggerNames::Strings::const_iterator j = names.triggerNames().begin(); j != names.triggerNames().end(); ++j) {
+    for (auto j = names.triggerNames().begin(); j != names.triggerNames().end(); ++j) {
       LogDebug("HLTScalers") << q << ": " << *j;
       ++q;
       scalers_->getTH1()->GetXaxis()->SetBinLabel(q, j->c_str());

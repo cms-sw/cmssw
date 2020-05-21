@@ -35,8 +35,8 @@ float MTDTimeCalib::getTimeCalib(const MTDDetId& id) const {
       throw cms::Exception("MTDTimeCalib") << "GeographicalID: " << std::hex << geoId.rawId() << " (" << id.rawId()
                                            << ") is invalid!" << std::dec << std::endl;
     }
-    const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
-    const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
+    const auto& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
+    const auto& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
     if (MTDTopologyMode::crysLayoutFromTopoMode(topo_->getMTDTopologyMode()) == BTLDetId::CrysLayout::tile) {
       time_calib -= btlLightCollTime_;  //simply remove the offset introduced at sim level

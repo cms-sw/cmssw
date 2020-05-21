@@ -342,7 +342,7 @@ namespace reco {
   void TaggingVariableList::insert(TaggingVariableName tag,
                                    const std::vector<TaggingValue>& values,
                                    bool delayed /* = false */) {
-    for (std::vector<TaggingValue>::const_iterator i = values.begin(); i != values.end(); i++) {
+    for (auto i = values.begin(); i != values.end(); i++) {
       m_list.push_back(TaggingVariable(tag, *i));
     }
     if (not delayed)

@@ -89,7 +89,7 @@ void FWConvTrackHitsDetailView::build(const FWModelId& id, const reco::Conversio
   m_guiFrame->AddFrame(new TGLabel(m_guiFrame, "Camera Views:"), new TGLayoutHints(kLHintsLeft, 2, 2, 2, 2));
 
   {
-    TGHorizontalFrame* f = new TGHorizontalFrame(m_guiFrame);
+    auto* f = new TGHorizontalFrame(m_guiFrame);
     m_guiFrame->AddFrame(f, new TGLayoutHints(kLHintsExpandX, 2, 0, 0, 0));
 
     {
@@ -142,7 +142,7 @@ void FWConvTrackHitsDetailView::build(const FWModelId& id, const reco::Conversio
     action->activated.connect(sigc::mem_fun(this, &FWConvTrackHitsDetailView::rnrHits));
   }
 
-  TGCompositeFrame* p = (TGCompositeFrame*)m_guiFrame->GetParent();
+  auto* p = (TGCompositeFrame*)m_guiFrame->GetParent();
   p->MapSubwindows();
   p->Layout();
 
@@ -160,7 +160,7 @@ void FWConvTrackHitsDetailView::build(const FWModelId& id, const reco::Conversio
     addModules(*track0, id.item(), m_modules, true);
     addHits(*track0, id.item(), m_hits, true);
   }
-  for (TEveElement::List_i i = m_modules->BeginChildren(), end = m_modules->EndChildren(); i != end; ++i) {
+  for (auto i = m_modules->BeginChildren(), end = m_modules->EndChildren(); i != end; ++i) {
     TEveGeoShape* gs = dynamic_cast<TEveGeoShape*>(*i);
     const auto& rhs = *(*(i));
     if (gs == nullptr && (*i != nullptr)) {
@@ -183,7 +183,7 @@ void FWConvTrackHitsDetailView::build(const FWModelId& id, const reco::Conversio
   }
   m_moduleLabels->SetRnrChildren(false);
 
-  TEveTrackPropagator* prop = new TEveTrackPropagator();
+  auto* prop = new TEveTrackPropagator();
   prop->SetMagFieldObj(item()->context().getField(), false);
   prop->SetStepper(TEveTrackPropagator::kRungeKutta);
   prop->SetMaxR(123);
@@ -272,7 +272,7 @@ void FWConvTrackHitsDetailView::build(const FWModelId& id, const reco::Conversio
     up *= sfac;
     int transp = 90;
     {
-      TEveStraightLineSet* bls = new TEveStraightLineSet("base1");
+      auto* bls = new TEveStraightLineSet("base1");
       bls->AddLine(c, fwd + c);
       bls->SetMainColor(kBlue);
       bls->SetMainTransparency(transp);
@@ -281,7 +281,7 @@ void FWConvTrackHitsDetailView::build(const FWModelId& id, const reco::Conversio
     }
 
     {
-      TEveStraightLineSet* bls = new TEveStraightLineSet("base2");
+      auto* bls = new TEveStraightLineSet("base2");
       bls->AddLine(c, lft + c);
       bls->SetMainColor(kBlue);
       bls->SetMainTransparency(transp);
@@ -290,7 +290,7 @@ void FWConvTrackHitsDetailView::build(const FWModelId& id, const reco::Conversio
     }
 
     {
-      TEveStraightLineSet* bls = new TEveStraightLineSet("base3");
+      auto* bls = new TEveStraightLineSet("base3");
       bls->AddLine(c, up + c);
       bls->SetMainColor(kBlue);
       bls->SetMainTransparency(transp);
@@ -299,7 +299,7 @@ void FWConvTrackHitsDetailView::build(const FWModelId& id, const reco::Conversio
     }
   }
   {
-    TEveStraightLineSet* bls = new TEveStraightLineSet("Photon", "Photon");
+    auto* bls = new TEveStraightLineSet("Photon", "Photon");
     FWBeamSpot* bs = context().getBeamSpot();
     bls->AddLine(c.fX, c.fY, c.fZ, bs->x0(), bs->y0(), bs->z0());
     bls->SetMainColor(id.item()->defaultDisplayProperties().color());
@@ -441,7 +441,7 @@ void FWConvTrackHitsDetailView::addTrackerHits3D(std::vector<TVector3>& points,
   pointSet->SetTitle("Pixel Hits");
   pointSet->SetMarkerColor(color);
 
-  for (std::vector<TVector3>::const_iterator it = points.begin(), itEnd = points.end(); it != itEnd; ++it) {
+  for (auto it = points.begin(), itEnd = points.end(); it != itEnd; ++it) {
     pointSet->SetNextPoint(it->x(), it->y(), it->z());
   }
   tList->AddElement(pointSet);
@@ -481,8 +481,7 @@ void FWConvTrackHitsDetailView::addModules(const reco::Track& track,
                                            TEveElement* trkList,
                                            bool addLostHits) {
   std::set<unsigned int> ids;
-  for (trackingRecHit_iterator recIt = track.recHitsBegin(), recItEnd = track.recHitsEnd(); recIt != recItEnd;
-       ++recIt) {
+  for (auto recIt = track.recHitsBegin(), recItEnd = track.recHitsEnd(); recIt != recItEnd; ++recIt) {
     DetId detid = (*recIt)->geographicalId();
     if (!addLostHits && !(*recIt)->isValid())
       continue;

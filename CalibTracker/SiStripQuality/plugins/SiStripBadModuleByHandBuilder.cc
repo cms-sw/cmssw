@@ -22,7 +22,7 @@ std::unique_ptr<SiStripBadStrip> SiStripBadModuleByHandBuilder::getNewObject() {
   unsigned short NconsecutiveBadStrips;
   unsigned int theBadStripRange;
 
-  for (std::vector<uint32_t>::const_iterator it = BadModuleList_.begin(); it != BadModuleList_.end(); ++it) {
+  for (auto it = BadModuleList_.begin(); it != BadModuleList_.end(); ++it) {
     std::vector<unsigned int> theSiStripVector;
 
     NconsecutiveBadStrips = reader->getNumberOfApvsAndStripLength(*it).first * 128;

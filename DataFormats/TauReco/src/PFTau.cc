@@ -130,7 +130,7 @@ namespace reco {
 
     std::unique_ptr<reco::PFCandidatePtr> convertToPFPtr(const reco::CandidatePtr& ptr) {
       if (ptr.isNonnull()) {
-        const reco::PFCandidate* pf_cand = dynamic_cast<const reco::PFCandidate*>(&*ptr);
+        const auto* pf_cand = dynamic_cast<const reco::PFCandidate*>(&*ptr);
         if (pf_cand != nullptr) {
           return std::unique_ptr<reco::PFCandidatePtr>(new reco::PFCandidatePtr(ptr));
         } else
@@ -146,7 +146,7 @@ namespace reco {
       for (auto& cand : cands) {
         // Check for first Candidate if it is a PFCandidate; if yes, skip for the rest
         if (!isPF) {
-          const reco::PFCandidate* pf_cand = dynamic_cast<const reco::PFCandidate*>(&*cand);
+          const auto* pf_cand = dynamic_cast<const reco::PFCandidate*>(&*cand);
           if (pf_cand != nullptr) {
             isPF = true;
             newSignalPFCands->reserve(cands.size());
@@ -361,7 +361,7 @@ namespace reco {
     if (leadChargedHadrCand_.isNull())
       return false;
     else if (leadChargedHadrCand_.isNonnull()) {
-      const reco::PFCandidate* pf_cand = dynamic_cast<const reco::PFCandidate*>(&*leadChargedHadrCand_);
+      const auto* pf_cand = dynamic_cast<const reco::PFCandidate*>(&*leadChargedHadrCand_);
       if (pf_cand) {
         reco::MuonRef muonRef = pf_cand->muonRef();
         if (muonRef.isNull())

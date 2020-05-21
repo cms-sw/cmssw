@@ -44,19 +44,15 @@ namespace edm {
 
       oPtr.reserve(iIndicies.size());
       if (iToType == typeid(element_type)) {
-        for (std::vector<unsigned long>::const_iterator itIndex = iIndicies.begin(), itEnd = iIndicies.end();
-             itIndex != itEnd;
-             ++itIndex) {
-          iter it = coll.begin();
+        for (auto itIndex = iIndicies.begin(), itEnd = iIndicies.end(); itIndex != itEnd; ++itIndex) {
+          auto it = coll.begin();
           std::advance(it, *itIndex);
           element_type const* address = GetProduct<product_type>::address(it);
           oPtr.push_back(address);
         }
       } else {
-        for (std::vector<unsigned long>::const_iterator itIndex = iIndicies.begin(), itEnd = iIndicies.end();
-             itIndex != itEnd;
-             ++itIndex) {
-          iter it = coll.begin();
+        for (auto itIndex = iIndicies.begin(), itEnd = iIndicies.end(); itIndex != itEnd; ++itIndex) {
+          auto it = coll.begin();
           std::advance(it, *itIndex);
           element_type const* address = GetProduct<product_type>::address(it);
           void const* ptr = pointerToBase(iToType, address);

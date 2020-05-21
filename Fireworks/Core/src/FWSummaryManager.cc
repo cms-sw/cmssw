@@ -84,7 +84,7 @@ FWSummaryManager::~FWSummaryManager() {}
 //
 void FWSummaryManager::newItem(FWEventItem* iItem) {
   TGLayoutHints* hints = new TGLayoutHints(kLHintsExpandX);
-  FWCollectionSummaryWidget* lst = new FWCollectionSummaryWidget(m_pack, *iItem, hints);
+  auto* lst = new FWCollectionSummaryWidget(m_pack, *iItem, hints);
   m_pack->AddFrame(lst, hints);
   m_collectionWidgets.push_back(lst);
   bool backgroundIsWhite = m_colorManager->backgroundColorIndex() == FWColorManager::kWhiteIndex;
@@ -113,10 +113,7 @@ void FWSummaryManager::itemDestroyed(const FWEventItem* iItem) {
 void FWSummaryManager::itemChanged(const FWEventItem*) { m_itemChanged = true; }
 
 void FWSummaryManager::removeAllItems() {
-  for (std::vector<FWCollectionSummaryWidget*>::iterator it = m_collectionWidgets.begin(),
-                                                         itEnd = m_collectionWidgets.end();
-       it != itEnd;
-       ++it) {
+  for (auto it = m_collectionWidgets.begin(), itEnd = m_collectionWidgets.end(); it != itEnd; ++it) {
     if (nullptr != *it) {
       m_pack->HideFrame(*it);
       m_pack->RemoveFrame(*it);
@@ -148,10 +145,7 @@ void FWSummaryManager::colorsChanged() {
     m_pack->SetBackgroundColor(backgroundColor);
   }
   gClient->NeedRedraw(m_pack);
-  for (std::vector<FWCollectionSummaryWidget*>::iterator it = m_collectionWidgets.begin(),
-                                                         itEnd = m_collectionWidgets.end();
-       it != itEnd;
-       ++it) {
+  for (auto it = m_collectionWidgets.begin(), itEnd = m_collectionWidgets.end(); it != itEnd; ++it) {
     if (nullptr != *it) {
       (*it)->setBackgroundToWhite(backgroundIsWhite);
     }

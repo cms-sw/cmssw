@@ -31,7 +31,7 @@ bool LHAupLesHouches::setInit() {
   std::vector<std::string> slha = runInfo->findHeader("slha");
   if (!slha.empty()) {
     std::string slhaheader;
-    for (std::vector<std::string>::const_iterator iter = slha.begin(); iter != slha.end(); ++iter) {
+    for (auto iter = slha.begin(); iter != slha.end(); ++iter) {
       slhaheader.append(*iter);
     }
     infoPtr->setHeader("slha", slhaheader);

@@ -78,7 +78,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c) {
        csc++) {
     CSCCorrelatedLCTDigiCollection::Range range1 = corrlcts.product()->get((*csc).first);
     int lctId = 0;
-    for (CSCCorrelatedLCTDigiCollection::const_iterator lct = range1.first; lct != range1.second; lct++, lctId++) {
+    for (auto lct = range1.first; lct != range1.second; lct++, lctId++) {
       int station = (*csc).first.station() - 1;
       int cscId = (*csc).first.triggerCscId() - 1;
       int sector = (*csc).first.triggerSector() - 1 + ((*csc).first.endcap() == 1 ? 0 : 6);
@@ -159,7 +159,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c) {
     e.getByToken(CSCTC_Tok, barrelStubs);
     if (barrelStubs.isValid()) {
       std::vector<csctf::TrackStub> stubs = barrelStubs.product()->get();
-      for (std::vector<csctf::TrackStub>::const_iterator dt = stubs.begin(); dt != stubs.end(); dt++) {
+      for (auto dt = stubs.begin(); dt != stubs.end(); dt++) {
         int sector = dt->sector() - 1 + (dt->endcap() == 1 ? 0 : 6);
         int subSector = dt->subsector() - 1;
         int tbin = dt->getBX() - (central_lct_bx - central_sp_bx);  // Shift back to hardware BX window definition
@@ -202,7 +202,7 @@ void CSCTFPacker::produce(edm::Event& e, const edm::EventSetup& c) {
   if (trackProducer.label() != "null") {
     e.getByToken(L1CSCTr_Tok, tracks);
 
-    for (L1CSCTrackCollection::const_iterator trk = tracks->begin(); trk != tracks->end(); trk++) {
+    for (auto trk = tracks->begin(); trk != tracks->end(); trk++) {
       int sector = 6 * (trk->first.endcap() - 1) + trk->first.sector() - 1;
       int tbin = trk->first.BX() + central_sp_bx;  // Shift back to hardware BX window definition
       //std::cout<<"Track["<<nTrk[sector][tbin]<<"]  sector: "<<sector<<" tbin: "<<tbin<<std::endl;

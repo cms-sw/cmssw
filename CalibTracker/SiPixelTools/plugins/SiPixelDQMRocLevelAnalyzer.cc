@@ -345,7 +345,7 @@ void SiPixelDQMRocLevelAnalyzer::RocSummary(std::string tagname) {
   bool bMNCS = false;
   int panelNumber = -1;
 
-  for (std::vector<MonitorElement *>::const_iterator ime = mes.begin(); ime != mes.end(); ++ime) {
+  for (auto ime = mes.begin(); ime != mes.end(); ++ime) {
     bwasHM = bhalfMod;
     //set default values
     bMNCS = false;

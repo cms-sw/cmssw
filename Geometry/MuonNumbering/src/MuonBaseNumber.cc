@@ -4,8 +4,8 @@
 //#define LOCAL_DEBUG
 
 void MuonBaseNumber::addBase(const LevelBaseNumber& num) {
-  basenumber_type::iterator cur = sortedBaseNumber.begin();
-  basenumber_type::iterator end = sortedBaseNumber.end();
+  auto cur = sortedBaseNumber.begin();
+  auto end = sortedBaseNumber.end();
 
   // do a small check if level is already occupied
 
@@ -50,8 +50,8 @@ void MuonBaseNumber::addBase(const int level, const int super, const int base) {
 int MuonBaseNumber::getLevels() const { return sortedBaseNumber.size(); }
 
 int MuonBaseNumber::getSuperNo(int level) const {
-  basenumber_type::const_iterator cur = sortedBaseNumber.begin();
-  basenumber_type::const_iterator end = sortedBaseNumber.end();
+  auto cur = sortedBaseNumber.begin();
+  auto end = sortedBaseNumber.end();
   while (cur != end) {
     if ((*cur).level() == level) {
       return (*cur).super();
@@ -62,8 +62,8 @@ int MuonBaseNumber::getSuperNo(int level) const {
 }
 
 int MuonBaseNumber::getBaseNo(int level) const {
-  basenumber_type::const_iterator cur = sortedBaseNumber.begin();
-  basenumber_type::const_iterator end = sortedBaseNumber.end();
+  auto cur = sortedBaseNumber.begin();
+  auto end = sortedBaseNumber.end();
   while (cur != end) {
     if ((*cur).level() == level) {
       return (*cur).base();

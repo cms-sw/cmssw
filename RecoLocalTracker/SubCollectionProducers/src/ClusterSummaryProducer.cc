@@ -30,7 +30,7 @@ ClusterSummaryProducer::ClusterSummaryProducer(const edm::ParameterSet& iConfig)
   std::vector<edm::ParameterSet> wantedusersubdets_ps =
       iConfig.getParameter<std::vector<edm::ParameterSet> >("wantedUserSubDets");
   for (const auto& iS : wantedusersubdets_ps) {
-    ClusterSummary::CMSTracker subdet = (ClusterSummary::CMSTracker)iS.getParameter<unsigned int>("detSelection");
+    auto subdet = (ClusterSummary::CMSTracker)iS.getParameter<unsigned int>("detSelection");
     std::string detname = iS.getParameter<std::string>("detLabel");
     std::vector<std::string> selection = iS.getParameter<std::vector<std::string> >("selection");
 

@@ -94,7 +94,7 @@ void OniaPhotonConversionProducer::produce(edm::Event& event, const edm::EventSe
 
   const reco::PFCandidateCollection pfphotons = selectPFPhotons(*pfcandidates);
 
-  for (reco::ConversionCollection::const_iterator conv = pConv->begin(); conv != pConv->end(); ++conv) {
+  for (auto conv = pConv->begin(); conv != pConv->end(); ++conv) {
     if (!(*convSelection_)(*conv)) {
       continue;  // selection string
     }
@@ -103,8 +103,8 @@ void OniaPhotonConversionProducer::produce(edm::Event& event, const edm::EventSe
     }
     if (!convQuality_.empty()) {
       bool flagsok = true;
-      for (std::vector<int>::const_iterator flag = convQuality_.begin(); flag != convQuality_.end(); ++flag) {
-        reco::Conversion::ConversionQuality q = (reco::Conversion::ConversionQuality)(*flag);
+      for (auto flag = convQuality_.begin(); flag != convQuality_.end(); ++flag) {
+        auto q = (reco::Conversion::ConversionQuality)(*flag);
         if (!conv->quality(q)) {
           flagsok = false;
           break;
@@ -119,7 +119,7 @@ void OniaPhotonConversionProducer::produce(edm::Event& event, const edm::EventSe
 
   removeDuplicates(*outCollection);
 
-  for (reco::ConversionCollection::const_iterator conv = outCollection->begin(); conv != outCollection->end(); ++conv) {
+  for (auto conv = outCollection->begin(); conv != outCollection->end(); ++conv) {
     bool flag1 = true;
     bool flag2 = true;
     bool flag3 = true;
@@ -200,8 +200,8 @@ int OniaPhotonConversionProducer::PackFlags(const reco::Conversion& conv,
   s_quals.push_back("ecalMatched1Track");
   s_quals.push_back("ecalMatched2Track");
   std::vector<int> i_quals = StringToEnumValue<reco::Conversion::ConversionQuality>(s_quals);
-  for (std::vector<int>::const_iterator qq = i_quals.begin(); qq != i_quals.end(); ++qq) {
-    reco::Conversion::ConversionQuality q = (reco::Conversion::ConversionQuality)(*qq);
+  for (auto qq = i_quals.begin(); qq != i_quals.end(); ++qq) {
+    auto q = (reco::Conversion::ConversionQuality)(*qq);
     if (conv.quality(q))
       q_mask = *qq;
   }
@@ -328,7 +328,7 @@ bool OniaPhotonConversionProducer::HighpuritySubset(const reco::Conversion& conv
 }
 
 pat::CompositeCandidate* OniaPhotonConversionProducer::makePhotonCandidate(const reco::Conversion& conv) {
-  pat::CompositeCandidate* photonCand = new pat::CompositeCandidate();
+  auto* photonCand = new pat::CompositeCandidate();
   photonCand->setP4(convertVector(conv.refittedPair4Momentum()));
   photonCand->setVertex(conv.conversionVertex().position());
 
@@ -342,7 +342,7 @@ pat::CompositeCandidate* OniaPhotonConversionProducer::makePhotonCandidate(const
 const reco::PFCandidateCollection OniaPhotonConversionProducer::selectPFPhotons(
     const reco::PFCandidateCollection& pfcandidates) {
   reco::PFCandidateCollection pfphotons;
-  for (reco::PFCandidateCollection::const_iterator cand = pfcandidates.begin(); cand != pfcandidates.end(); ++cand) {
+  for (auto cand = pfcandidates.begin(); cand != pfcandidates.end(); ++cand) {
     if (cand->particleId() == reco::PFCandidate::gamma)
       pfphotons.push_back(*cand);
   }
@@ -362,7 +362,7 @@ bool OniaPhotonConversionProducer::CheckPi0(const reco::Conversion& conv,
   float small2 = pi0SmallWindow_[1];
   float large1 = pi0LargeWindow_[0];
   float large2 = pi0LargeWindow_[1];
-  for (reco::PFCandidateCollection::const_iterator photon = photons.begin(); photon != photons.end(); ++photon) {
+  for (auto photon = photons.begin(); photon != photons.end(); ++photon) {
     float inv = (conv.refittedPair4Momentum() + photon->p4()).M();
     if (inv > large1 && inv < large2) {
       check_large = true;

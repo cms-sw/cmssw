@@ -39,14 +39,14 @@ Phase1PixelBlade::Phase1PixelBlade(vector<const GeomDet*>& frontDets, vector<con
                           << theFrontDiskSector->outerRadius() << "), (" << theBackDiskSector->innerRadius() << " , "
                           << theBackDiskSector->outerRadius() << ")" << std::endl;
 
-  for (vector<const GeomDet*>::const_iterator it = theFrontDets.begin(); it != theFrontDets.end(); it++) {
+  for (auto it = theFrontDets.begin(); it != theFrontDets.end(); it++) {
     LogDebug("TkDetLayers") << "frontDet phi,z,r: " << (*it)->position().phi() << " , " << (*it)->position().z()
                             << " , " << (*it)->position().perp() << " , "
                             << " rmin: " << (*it)->surface().rSpan().first
                             << " rmax: " << (*it)->surface().rSpan().second << std::endl;
   }
 
-  for (vector<const GeomDet*>::const_iterator it = theBackDets.begin(); it != theBackDets.end(); it++) {
+  for (auto it = theBackDets.begin(); it != theBackDets.end(); it++) {
     LogDebug("TkDetLayers") << "backDet phi,z,r: " << (*it)->position().phi() << " , " << (*it)->position().z() << " , "
                             << (*it)->position().perp() << " , "
                             << " rmin: " << (*it)->surface().rSpan().first
@@ -242,7 +242,7 @@ int Phase1PixelBlade::findBin(float R, int diskSectorIndex) const {
 
   int theBin = 0;
   float rDiff = std::abs(R - localDets.front()->surface().position().perp());
-  for (vector<const GeomDet*>::const_iterator i = localDets.begin(); i != localDets.end(); i++) {
+  for (auto i = localDets.begin(); i != localDets.end(); i++) {
     float testDiff = std::abs(R - (**i).surface().position().perp());
     if (testDiff < rDiff) {
       rDiff = testDiff;
@@ -258,7 +258,7 @@ int Phase1PixelBlade::findBin2(GlobalPoint thispoint, int diskSectorIndex) const
   int theBin = 0;
   float sDiff = (thispoint - localDets.front()->surface().position()).mag();
 
-  for (vector<const GeomDet*>::const_iterator i = localDets.begin(); i != localDets.end(); i++) {
+  for (auto i = localDets.begin(); i != localDets.end(); i++) {
     float testDiff = (thispoint - (**i).surface().position()).mag();
     if (testDiff < sDiff) {
       sDiff = testDiff;

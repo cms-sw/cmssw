@@ -69,7 +69,7 @@ public:
       bool new_time_change = true;
 
       DataMap the_data;
-      list_iterator it_good = my_new_list->end();
+      auto it_good = my_new_list->end();
 
       if (!firstpass) {
         list_iterator it;

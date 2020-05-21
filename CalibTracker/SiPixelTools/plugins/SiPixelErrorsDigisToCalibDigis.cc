@@ -91,8 +91,7 @@ void SiPixelErrorsDigisToCalibDigis::analyze(const edm::Event& iEvent, const edm
 
     MonitorElement* temp_;
 
-    std::map<uint32_t, MonitorElement*>::iterator mapIterator =
-        SiPixelErrorsDigisToCalibDigis_2DErrorInformation_.find(detId);
+    auto mapIterator = SiPixelErrorsDigisToCalibDigis_2DErrorInformation_.find(detId);
 
     if (digiIter->begin() != digiIter->end()) {
       if (mapIterator == SiPixelErrorsDigisToCalibDigis_2DErrorInformation_.end()) {
@@ -146,7 +145,7 @@ SiPixelErrorsDigisToCalibDigis::MonitorElement* SiPixelErrorsDigisToCalibDigis::
     uint32_t detid, std::string name, std::string title) {
   DetId detId(detid);
   const TrackerGeometry& theTracker(*geom_);
-  const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId));
+  const auto* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId));
   int maxcol = theGeomDet->specificTopology().ncolumns();
   int maxrow = theGeomDet->specificTopology().nrows();
 

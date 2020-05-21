@@ -27,7 +27,7 @@ EcalTBCrystalMap::~EcalTBCrystalMap() {}
 int EcalTBCrystalMap::CrystalIndex(double thisEta, double thisPhi) {
   int thisCrysIndex = 0;
 
-  CrystalTBIndexMap::const_iterator mapItr = map_.find(std::make_pair(thisEta, thisPhi));
+  auto mapItr = map_.find(std::make_pair(thisEta, thisPhi));
   if (mapItr != map_.end()) {
     thisCrysIndex = mapItr->second;
   }
@@ -43,7 +43,7 @@ void EcalTBCrystalMap::findCrystalAngles(const int thisCrysIndex, double& thisEt
     return;
   }
 
-  for (CrystalTBIndexMap::const_iterator mapItr = map_.begin(); mapItr != map_.end(); ++mapItr) {
+  for (auto mapItr = map_.begin(); mapItr != map_.end(); ++mapItr) {
     int theCrysIndex = mapItr->second;
     if (theCrysIndex == thisCrysIndex) {
       thisEta = (mapItr->first).first;

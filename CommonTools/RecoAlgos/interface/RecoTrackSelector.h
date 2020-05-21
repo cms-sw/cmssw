@@ -24,7 +24,7 @@ public:
   void select(const edm::Handle<collection>& c, const edm::Event& event, const edm::EventSetup& es) {
     init(event, es);
     selected_.clear();
-    for (reco::TrackCollection::const_iterator trk = c->begin(); trk != c->end(); ++trk) {
+    for (auto trk = c->begin(); trk != c->end(); ++trk) {
       reference_type tkref(c, std::distance(c->begin(), trk));
       if (operator()(*tkref)) {
         selected_.push_back(&*trk);

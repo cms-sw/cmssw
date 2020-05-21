@@ -118,7 +118,7 @@ bool LargeEvents<T>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(_collectionToken, digis);
 
   int ndigitot = 0;
-  for (typename T::const_iterator it = digis->begin(); it != digis->end(); it++) {
+  for (auto it = digis->begin(); it != digis->end(); it++) {
     if (!_useQuality || !_qualityHandle->IsModuleBad(it->detId())) {
       if (_modthr < 0 || int(it->size()) < _modthr) {
         ndigitot += it->size();

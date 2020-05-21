@@ -10,7 +10,7 @@ std::string ExtractStringFromDDD<DDFilteredView>::getString(const std::string &s
   DDValue val(s);
   std::vector<const DDsvalues_type *> result;
   fv->specificsV(result);
-  std::vector<const DDsvalues_type *>::iterator it = result.begin();
+  auto it = result.begin();
   bool foundIt = false;
   for (; it != result.end(); ++it) {
     foundIt = DDfetch(*it, val);

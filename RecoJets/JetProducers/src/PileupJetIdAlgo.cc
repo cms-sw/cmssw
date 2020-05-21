@@ -150,7 +150,7 @@ void PileupJetIdAlgo::set(const PileupJetIdentifier& id) { internalId_ = id; }
 float PileupJetIdAlgo::getMVAval(const std::vector<std::string>& varList,
                                  const std::unique_ptr<const GBRForest>& reader) {
   std::vector<float> vars;
-  for (std::vector<std::string>::const_iterator it = varList.begin(); it != varList.end(); ++it) {
+  for (auto it = varList.begin(); it != varList.end(); ++it) {
     std::pair<float*, float> var = variables_.at(*it);
     vars.push_back(*var.first);
   }
@@ -318,8 +318,8 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
     reco::CandidatePtr pfJetConstituent = jet->sourceCandidatePtr(i);
 
     const reco::Candidate* icand = pfJetConstituent.get();
-    const pat::PackedCandidate* lPack = dynamic_cast<const pat::PackedCandidate*>(icand);
-    const reco::PFCandidate* lPF = dynamic_cast<const reco::PFCandidate*>(icand);
+    const auto* lPack = dynamic_cast<const pat::PackedCandidate*>(icand);
+    const auto* lPF = dynamic_cast<const reco::PFCandidate*>(icand);
     bool isPacked = true;
     if (lPack == nullptr) {
       isPacked = false;
@@ -445,7 +445,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
           // alternative beta definition based on track-vertex distance of closest approach
           double dZ0 = std::abs(lPF->trackRef()->dz(vtx->position()));
           double dZ = dZ0;
-          for (reco::VertexCollection::const_iterator vi = allvtx.begin(); vi != allvtx.end(); ++vi) {
+          for (auto vi = allvtx.begin(); vi != allvtx.end(); ++vi) {
             const reco::Vertex& iv = *vi;
             if (iv.isFake() || iv.ndof() < 4) {
               continue;
@@ -567,7 +567,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
 
     float partPuppiWeight = 1.0;
     if (usePuppi) {
-      const pat::PackedCandidate* partpack = dynamic_cast<const pat::PackedCandidate*>(part.get());
+      const auto* partpack = dynamic_cast<const pat::PackedCandidate*>(part.get());
       if (partpack != nullptr)
         partPuppiWeight = partpack->puppiWeight();
     }
@@ -594,7 +594,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
 
     float partPuppiWeight = 1.0;
     if (usePuppi) {
-      const pat::PackedCandidate* partpack = dynamic_cast<const pat::PackedCandidate*>(part.get());
+      const auto* partpack = dynamic_cast<const pat::PackedCandidate*>(part.get());
       if (partpack != nullptr)
         partPuppiWeight = partpack->puppiWeight();
     }
@@ -712,7 +712,7 @@ PileupJetIdentifier PileupJetIdAlgo::computeIdVariables(const reco::Jet* jet,
 // ------------------------------------------------------------------------------------------
 std::string PileupJetIdAlgo::dumpVariables() const {
   std::stringstream out;
-  for (variables_list_t::const_iterator it = variables_.begin(); it != variables_.end(); ++it) {
+  for (auto it = variables_.begin(); it != variables_.end(); ++it) {
     out << std::setw(15) << it->first << std::setw(3) << "=" << std::setw(5) << *it->second.first << " ("
         << std::setw(5) << it->second.second << ")" << std::endl;
   }
@@ -722,7 +722,7 @@ std::string PileupJetIdAlgo::dumpVariables() const {
 // ------------------------------------------------------------------------------------------
 void PileupJetIdAlgo::resetVariables() {
   internalId_.idFlag_ = 0;
-  for (variables_list_t::iterator it = variables_.begin(); it != variables_.end(); ++it) {
+  for (auto it = variables_.begin(); it != variables_.end(); ++it) {
     *it->second.first = it->second.second;
   }
 }

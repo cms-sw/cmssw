@@ -115,8 +115,7 @@ public:
   template <class OBJECT_TYPE>
   int GetIndex(const std::vector<OBJECT_TYPE *> &vec, const TString &name) {
     int result = 0;
-    for (typename std::vector<OBJECT_TYPE *>::const_iterator iter = vec.begin(), iterEnd = vec.end(); iter != iterEnd;
-         ++iter, ++result) {
+    for (auto iter = vec.begin(), iterEnd = vec.end(); iter != iterEnd; ++iter, ++result) {
       if (*iter && (*iter)->GetName() == name)
         return result;
     }
@@ -1130,7 +1129,7 @@ public:
           else if (dynamic_cast<const SiStripMatchedRecHit2D *>(&hit))
             return true;  // matched is 2D
           else if (dynamic_cast<const ProjectedSiStripRecHit2D *>(&hit)) {
-            const ProjectedSiStripRecHit2D *pH = static_cast<const ProjectedSiStripRecHit2D *>(&hit);
+            const auto *pH = static_cast<const ProjectedSiStripRecHit2D *>(&hit);
             return (countStereoHitAs2D_ && this->isHit2D(pH->originalHit()));  // depends on original...
           } else {
             edm::LogError("UnkownType") << "@SUB=GeneralPurposeTrackAnalyzer::isHit2D"

@@ -63,7 +63,7 @@ void Type1PFMET::run(const METCollection& uncorMET,
   // ---------------- Calculate jet corrections, but only for those uncorrected jets
   // ---------------- which are above the given threshold.  This requires that the
   // ---------------- uncorrected jets be matched with the corrected jets.
-  for (PFJetCollection::const_iterator jet = uncorJet.begin(); jet != uncorJet.end(); ++jet) {
+  for (auto jet = uncorJet.begin(); jet != uncorJet.end(); ++jet) {
     if (jet->pt() > jetPTthreshold) {
       double emEFrac = jet->chargedEmEnergyFraction() + jet->neutralEmEnergyFraction();
       double muEFrac = jet->chargedMuEnergyFraction();

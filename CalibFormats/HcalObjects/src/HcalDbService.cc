@@ -98,7 +98,7 @@ void HcalDbService::buildCalibrations() const {
     HcalCalibrations tool;
 
     //  std::cout << " length of id-vector: " << ids.size() << std::endl;
-    for (std::vector<DetId>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
+    for (auto id = ids.begin(); id != ids.end(); ++id) {
       // make
       bool ok = makeHcalCalibration(*id, &tool, pedsInADC, effPedsInADC);
       // store
@@ -130,7 +130,7 @@ void HcalDbService::buildCalibWidths() const {
     HcalCalibrationWidths tool;
 
     //  std::cout << " length of id-vector: " << ids.size() << std::endl;
-    for (std::vector<DetId>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
+    for (auto id = ids.begin(); id != ids.end(); ++id) {
       // make
       bool ok = makeHcalCalibrationWidth(*id, &tool, pedsInADC, effPedsInADC);
       // store

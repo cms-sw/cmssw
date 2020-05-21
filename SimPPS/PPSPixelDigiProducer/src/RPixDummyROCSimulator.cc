@@ -23,7 +23,7 @@ void RPixDummyROCSimulator::ConvertChargeToHits(
     std::vector<CTPPSPixelDigi> &output_digi,
     std::vector<std::vector<std::pair<int, double> > > &output_digi_links,
     const CTPPSPixelGainCalibrations *pcalibrations) {
-  for (std::map<unsigned short, double>::const_iterator i = signals.begin(); i != signals.end(); ++i) {
+  for (auto i = signals.begin(); i != signals.end(); ++i) {
     //one threshold per hybrid
     unsigned short pixel_no = i->first;
     if (verbosity_)

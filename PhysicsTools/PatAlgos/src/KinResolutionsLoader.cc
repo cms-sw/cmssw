@@ -10,7 +10,7 @@ KinResolutionsLoader::KinResolutionsLoader(const edm::ParameterSet &iConfig) {
   patlabels_ = iConfig.getParameterNamesForType<std::string>();
 
   // get the InputTags
-  for (std::vector<std::string>::const_iterator it = patlabels_.begin(), ed = patlabels_.end(); it != ed; ++it) {
+  for (auto it = patlabels_.begin(), ed = patlabels_.end(); it != ed; ++it) {
     eslabels_.push_back(iConfig.getParameter<std::string>(*it));
   }
 
@@ -18,7 +18,7 @@ KinResolutionsLoader::KinResolutionsLoader(const edm::ParameterSet &iConfig) {
   handles_.resize(patlabels_.size());
 
   // 'default' maps to empty string
-  for (std::vector<std::string>::iterator it = patlabels_.begin(), ed = patlabels_.end(); it != ed; ++it) {
+  for (auto it = patlabels_.begin(), ed = patlabels_.end(); it != ed; ++it) {
     if (*it == "default")
       *it = "";
   }

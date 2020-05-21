@@ -200,10 +200,9 @@ AlignmentSurfaceDeformations* Alignable::surfaceDeformations(void) const {
   surfaceDeformationIdPairs(result);
   std::sort(result.begin(), result.end(), [](auto& a, auto& b) { return a.first < b.first; });
 
-  AlignmentSurfaceDeformations* allSurfaceDeformations = new AlignmentSurfaceDeformations();
+  auto* allSurfaceDeformations = new AlignmentSurfaceDeformations();
 
-  for (std::vector<IdSurfaceDeformationPtrPair>::const_iterator iPair = result.begin(); iPair != result.end();
-       ++iPair) {
+  for (auto iPair = result.begin(); iPair != result.end(); ++iPair) {
     // should we check for 'empty' parameters here (all zeros) and skip ?
     // may be add 'empty' method to SurfaceDeformation
     allSurfaceDeformations->add((*iPair).first, (*iPair).second->type(), (*iPair).second->parameters());

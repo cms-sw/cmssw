@@ -172,10 +172,8 @@ namespace {
       }
       iMap.insert(std::make_pair(std::make_pair(iItem.modelInfo(index).displayProperties().isVisible(), ret), index));
     }
-    std::vector<int>::iterator itVec = oNewSort.begin();
-    for (typename std::multimap<std::pair<bool, double>, int, S>::iterator it = iMap.begin(), itEnd = iMap.end();
-         it != itEnd;
-         ++it, ++itVec) {
+    auto itVec = oNewSort.begin();
+    for (auto it = iMap.begin(), itEnd = iMap.end(); it != itEnd; ++it, ++itVec) {
       *itVec = it->second;
     }
   }
@@ -233,10 +231,7 @@ void FWTableViewTableManager::updateEvaluators() {
   }
   std::vector<FWExpressionEvaluator> &ev = m_evaluators;
   ev.clear();
-  for (std::vector<FWTableViewManager::TableEntry>::const_iterator i = m_tableFormats->begin(),
-                                                                   end = m_tableFormats->end();
-       i != end;
-       ++i) {
+  for (auto i = m_tableFormats->begin(), end = m_tableFormats->end(); i != end; ++i) {
     try {
       ev.push_back(FWExpressionEvaluator(i->expression, item->modelType()->GetName()));
     } catch (...) {

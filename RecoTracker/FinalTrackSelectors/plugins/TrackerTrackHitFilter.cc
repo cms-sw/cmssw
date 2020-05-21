@@ -337,7 +337,7 @@ namespace reco {
       // read and parse commands
       std::vector<std::string> str_rules = iConfig.getParameter<std::vector<std::string> >("commands");
       rules_.reserve(str_rules.size());
-      for (std::vector<std::string>::const_iterator it = str_rules.begin(), ed = str_rules.end(); it != ed; ++it) {
+      for (auto it = str_rules.begin(), ed = str_rules.end(); it != ed; ++it) {
         rules_.push_back(Rule(*it));
       }
 
@@ -354,8 +354,7 @@ namespace reco {
         }
 
         std::vector<std::string> str_StoNrules = iConfig.getParameter<std::vector<std::string> >("StoNcommands");
-        for (std::vector<std::string>::const_iterator str_StoN = str_StoNrules.begin(); str_StoN != str_StoNrules.end();
-             ++str_StoN) {
+        for (auto str_StoN = str_StoNrules.begin(); str_StoN != str_StoNrules.end(); ++str_StoN) {
           parseStoN(*str_StoN);
         }
         ////edm::LogDebug("TrackerTrackHitFilter")
@@ -422,7 +421,7 @@ namespace reco {
           const Trajectory *myTrajectory = &(*traj);
           produceFromTrajectory(iSetup, myTrajectory, hits);
 
-          std::vector<TrackingRecHit *>::iterator begin = hits.begin(), end = hits.end();
+          auto begin = hits.begin(), end = hits.end();
 
           // strip invalid hits at the beginning
           if (stripFrontInvalidHits_) {
@@ -440,7 +439,7 @@ namespace reco {
           // if we still have some hits build the track candidate
           if (replaceWithInactiveHits_) {
             int nvalidhits = 0;
-            for (std::vector<TrackingRecHit *>::iterator ithit = begin; ithit != end; ++ithit) {
+            for (auto ithit = begin; ithit != end; ++ithit) {
               if ((*ithit)->isValid())
                 nvalidhits++;
             }
@@ -469,8 +468,7 @@ namespace reco {
       } else {  //use plain tracks
 
         // loop on tracks
-        for (std::vector<reco::Track>::const_iterator ittrk = tracks->begin(), edtrk = tracks->end(); ittrk != edtrk;
-             ++ittrk) {
+        for (auto ittrk = tracks->begin(), edtrk = tracks->end(); ittrk != edtrk; ++ittrk) {
           //    std::cout<<"The hit collection has size "<<hits.size()<<" (should be 0) while the track contains initially "<< ittrk->recHitsEnd() - ittrk->recHitsBegin()<<std::endl;
 
           const Track *trk = &(*ittrk);
@@ -498,7 +496,7 @@ namespace reco {
       */
           //-----------------------
 
-          std::vector<TrackingRecHit *>::iterator begin = hits.begin(), end = hits.end();
+          auto begin = hits.begin(), end = hits.end();
           // std::cout << "Back in the main producer (TRK), the final hit collection has size " << hits.size() << std::endl;
           // strip invalid hits at the beginning
           if (stripFrontInvalidHits_) {
@@ -516,7 +514,7 @@ namespace reco {
           // if we still have some hits build the track candidate
           if (replaceWithInactiveHits_) {
             int nvalidhits = 0;
-            for (std::vector<TrackingRecHit *>::iterator ithit = begin; ithit != end; ++ithit) {
+            for (auto ithit = begin; ithit != end; ++ithit) {
               if ((*ithit)->isValid())
                 nvalidhits++;
             }
@@ -585,7 +583,7 @@ namespace reco {
       // loop on tracks
       hits.clear();  // extra safety
 
-      for (trackingRecHit_iterator ith = itt->recHitsBegin(), edh = itt->recHitsEnd(); ith != edh; ++ith) {
+      for (auto ith = itt->recHitsBegin(), edh = itt->recHitsEnd(); ith != edh; ++ith) {
         const TrackingRecHit *hit = (*ith);  // ith is an iterator on edm::Ref to rechit
 
         DetId detid = hit->geographicalId();
@@ -635,8 +633,7 @@ namespace reco {
 
       int constrhits = 0;
 
-      for (std::vector<TrajectoryMeasurement>::const_iterator itTrajMeas = tmColl.begin(); itTrajMeas != tmColl.end();
-           itTrajMeas++) {
+      for (auto itTrajMeas = tmColl.begin(); itTrajMeas != tmColl.end(); itTrajMeas++) {
         TransientTrackingRecHit::ConstRecHitPointer hitpointer = itTrajMeas->recHit();
 
         //check that the hit is a real hit and not a constraint
@@ -676,8 +673,7 @@ namespace reco {
 
             if ((previousTM != nullptr) && (layer != -1)) {
               //std::cout<<"A previous TM exists! "<<std::endl;
-              for (std::vector<TrajectoryMeasurement>::const_iterator itmCompare = itTrajMeas - 1;
-                   itmCompare >= tmColl.begin() && itmCompare > itTrajMeas - 4;
+              for (auto itmCompare = itTrajMeas - 1; itmCompare >= tmColl.begin() && itmCompare > itTrajMeas - 4;
                    --itmCompare) {
                 DetId compareId = itmCompare->recHit()->geographicalId();
                 if (subDet != compareId.subdetId() || side != sideFromId(compareId, tTopo) ||
@@ -743,7 +739,7 @@ namespace reco {
         if (detid.det() == DetId::Tracker) {  // check for tracker hits
           bool verdict = true;
           // first check at structure level
-          for (std::vector<Rule>::const_iterator itr = rules_.begin(), edr = rules_.end(); itr != edr; ++itr) {
+          for (auto itr = rules_.begin(), edr = rules_.end(); itr != edr; ++itr) {
             itr->apply(detid, tTopo, verdict);
           }
 

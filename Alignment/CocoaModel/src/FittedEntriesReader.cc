@@ -44,7 +44,7 @@ ALIbool FittedEntriesReader::readFittedEntriesFromFile() {
       if (affAngles.find(opto) == affAngles.end()) {
         affAngles[opto] = ALIRmDataFromFile();
       }
-      std::map<OpticalObject*, ALIRmDataFromFile>::iterator ite = affAngles.find(opto);
+      auto ite = affAngles.find(opto);
       (*ite).second.setAngle(optOentryName.substr(optOentryName.size() - 1, 1),
                              ALIUtils::getFloat(wl[ii + 1]) * theAngleDim);
       if (ALIUtils::debug >= 5)

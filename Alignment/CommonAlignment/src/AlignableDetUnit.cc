@@ -179,7 +179,7 @@ Alignments* AlignableDetUnit::alignments() const {
 
 //__________________________________________________________________________________________________
 AlignmentErrorsExtended* AlignableDetUnit::alignmentErrors() const {
-  AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();
+  auto* m_alignmentErrors = new AlignmentErrorsExtended();
 
   uint32_t detId = this->geomDetId().rawId();
 

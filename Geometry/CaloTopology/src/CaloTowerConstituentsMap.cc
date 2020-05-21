@@ -26,7 +26,7 @@ CaloTowerConstituentsMap::CaloTowerConstituentsMap(const HcalTopology* hcaltopo,
 CaloTowerDetId CaloTowerConstituentsMap::towerOf(const DetId& id) const {
   CaloTowerDetId tid;  // null to start with
 
-  edm::SortedCollection<MapItem>::const_iterator i = m_items.find(id);
+  auto i = m_items.find(id);
   if (i != m_items.end())
     tid = i->tower;
 

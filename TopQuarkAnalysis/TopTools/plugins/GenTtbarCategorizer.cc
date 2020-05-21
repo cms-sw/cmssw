@@ -249,7 +249,7 @@ void GenTtbarCategorizer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   // Cleaning up b jets from W->b decays
-  for (std::map<int, int>::iterator it = bJetFromWIds.begin(); it != bJetFromWIds.end();) {
+  for (auto it = bJetFromWIds.begin(); it != bJetFromWIds.end();) {
     // Cannot be a b jet from t->b decay
     if (bJetFromTopIds.count(it->first) > 0)
       bJetFromWIds.erase(it++);
@@ -258,7 +258,7 @@ void GenTtbarCategorizer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   // Cleaning up additional b jets
-  for (std::map<int, int>::iterator it = bJetAdditionalIds.begin(); it != bJetAdditionalIds.end();) {
+  for (auto it = bJetAdditionalIds.begin(); it != bJetAdditionalIds.end();) {
     // Cannot be a b jet from t->b decay
     if (bJetFromTopIds.count(it->first) > 0)
       bJetAdditionalIds.erase(it++);
@@ -309,7 +309,7 @@ void GenTtbarCategorizer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   // Cleaning up additional c jets
-  for (std::map<int, int>::iterator it = cJetAdditionalIds.begin(); it != cJetAdditionalIds.end();) {
+  for (auto it = cJetAdditionalIds.begin(); it != cJetAdditionalIds.end();) {
     // Cannot be a c jet from W->c decay
     if (cJetFromWIds.count(it->first) > 0)
       cJetAdditionalIds.erase(it++);
@@ -429,7 +429,7 @@ std::vector<int> GenTtbarCategorizer::nHadronsOrderedJetIndices(const std::map<i
   const int nElements = m_jetIndex.size();
   std::vector<std::pair<int, int> > v_jetNhadIndexPair;
   v_jetNhadIndexPair.reserve(nElements);
-  for (std::map<int, int>::const_iterator it = m_jetIndex.begin(); it != m_jetIndex.end(); ++it) {
+  for (auto it = m_jetIndex.begin(); it != m_jetIndex.end(); ++it) {
     const int jetIndex = it->first;
     const int nHadrons = it->second;
     v_jetNhadIndexPair.push_back(std::pair<int, int>(nHadrons, jetIndex));
@@ -439,9 +439,7 @@ std::vector<int> GenTtbarCategorizer::nHadronsOrderedJetIndices(const std::map<i
   // Building the vector of indices in the proper order
   std::vector<int> v_orderedJetIndices;
   v_orderedJetIndices.reserve(nElements);
-  for (std::vector<std::pair<int, int> >::const_iterator it = v_jetNhadIndexPair.begin();
-       it != v_jetNhadIndexPair.end();
-       ++it) {
+  for (auto it = v_jetNhadIndexPair.begin(); it != v_jetNhadIndexPair.end(); ++it) {
     v_orderedJetIndices.push_back(it->second);
   }
 

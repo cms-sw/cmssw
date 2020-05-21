@@ -64,9 +64,7 @@ namespace {
                          NbRows);
 
         double row = NbRows - 0.5;
-        for (std::vector<AlignTransform>::const_iterator it = (*payload).m_align.begin();
-             it != (*payload).m_align.end();
-             it++) {
+        for (auto it = (*payload).m_align.begin(); it != (*payload).m_align.end(); it++) {
           align->Fill(0.5, row, (*it).translation().x());
           align->Fill(1.5, row, (*it).translation().y());
           align->Fill(2.5, row, (*it).translation().z());
@@ -165,9 +163,7 @@ namespace {
 
           double row = NbRows - 0.5;
           int irow = 0;
-          for (std::vector<AlignTransform>::const_iterator it = (*payload).m_align.begin();
-               it != (*payload).m_align.end();
-               it++) {
+          for (auto it = (*payload).m_align.begin(); it != (*payload).m_align.end(); it++) {
             if (irun == 0) {
               val[0][irow] = (*it).translation().x();
               val[1][irow] = (*it).translation().y();

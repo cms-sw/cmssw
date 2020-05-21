@@ -77,7 +77,7 @@ int HIPUserVariablesIORoot::findEntry(unsigned int detId, int comp) {
   }
 
   // now we have filled the map
-  treemaptype::iterator imap = treemap.find(std::make_pair(detId, comp));
+  auto imap = treemap.find(std::make_pair(detId, comp));
   int result = -1;
   if (imap != treemap.end())
     result = (*imap).second;
@@ -101,7 +101,7 @@ int HIPUserVariablesIORoot::writeOne(Alignable* ali) {
     return -1;
   }
 
-  HIPUserVariables* uvar = dynamic_cast<HIPUserVariables*>(ap->userVariables());
+  auto* uvar = dynamic_cast<HIPUserVariables*>(ap->userVariables());
 
   AlgebraicSymMatrix jtvj = uvar->jtvj;
   AlgebraicVector jtve = uvar->jtve;

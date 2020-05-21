@@ -399,7 +399,7 @@ bool EcalElectronicsMapper::isTCCExternal(unsigned int TCCId) {
 
 unsigned int EcalElectronicsMapper::getDCCId(unsigned int aSMId_) const {
   //get iterator for SM id
-  std::map<unsigned int, unsigned int>::const_iterator it = myDCCMap_.find(aSMId_);
+  auto it = myDCCMap_.find(aSMId_);
 
   //check if SMid exists and return DCC id
   if (it != myDCCMap_.end())
@@ -438,11 +438,11 @@ void EcalElectronicsMapper::fillMaps() {
         // Builds Ecal Trigger Tower Det Id
 
         unsigned int rawid = (mappingBuilder_->getTrigTowerDetId(tccId, feChannel)).rawId();
-        EcalTrigTowerDetId* ttDetId = new EcalTrigTowerDetId(rawid);
+        auto* ttDetId = new EcalTrigTowerDetId(rawid);
         ttDetIds_[tccId - 1][feChannel - 1] = ttDetId;
-        EcalElectronicsId* ttEleId = new EcalElectronicsId(smId, feChannel, 1, 1);
+        auto* ttEleId = new EcalElectronicsId(smId, feChannel, 1, 1);
         ttEleIds_[tccId - 1][feChannel - 1] = ttEleId;
-        EcalTriggerPrimitiveDigi* tp = new EcalTriggerPrimitiveDigi(*ttDetId);
+        auto* tp = new EcalTriggerPrimitiveDigi(*ttDetId);
         tp->setSize(numbTriggerTSamples_);
         for (unsigned int i = 0; i < numbTriggerTSamples_; i++) {
           tp->setSample(i, EcalTriggerPrimitiveSample(0));
@@ -491,7 +491,7 @@ void EcalElectronicsMapper::fillMaps() {
           EcalTrigTowerDetId ttDetId = mappingBuilder_->getTrigTowerDetId(tccId, towerInTCC);
 
           ttDetIds_[tccId - 1][towerInTCC - 1] = new EcalTrigTowerDetId(ttDetId.rawId());
-          EcalTriggerPrimitiveDigi* tp = new EcalTriggerPrimitiveDigi(ttDetId);
+          auto* tp = new EcalTriggerPrimitiveDigi(ttDetId);
           tp->setSize(numbTriggerTSamples_);
           for (unsigned int i = 0; i < numbTriggerTSamples_; i++) {
             tp->setSample(i, EcalTriggerPrimitiveSample(0));

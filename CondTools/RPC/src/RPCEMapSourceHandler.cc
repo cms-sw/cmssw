@@ -405,8 +405,8 @@ int popcon::RPCEMapSourceHandler::Compare2EMaps(const Ref& _map1, RPCEMap* map2)
     return 1;
   }
   typedef std::vector<const DccSpec*>::const_iterator IDCC;
-  IDCC idcc2 = dccs2.begin();
-  for (IDCC idcc1 = dccs1.begin(); idcc1 != dccs1.end(); idcc1++) {
+  auto idcc2 = dccs2.begin();
+  for (auto idcc1 = dccs1.begin(); idcc1 != dccs1.end(); idcc1++) {
     int dccNo = (**idcc1).id();
     std::string dccContents = (**idcc1).print(4);
     if ((**idcc2).id() != dccNo) {

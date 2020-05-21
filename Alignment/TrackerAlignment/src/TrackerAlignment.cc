@@ -40,9 +40,7 @@ void TrackerAlignment::moveAlignablePixelEndCaps(int rawid,
                                                  const align::Scalars& local_rotations) {
   // Displace and rotate pixelEndCaps
   const align::Alignables& thePixelEndCapsAlignables = theAlignableTracker->pixelEndcapGeomDets();
-  for (align::Alignables::const_iterator iter = thePixelEndCapsAlignables.begin();
-       iter != thePixelEndCapsAlignables.end();
-       ++iter) {
+  for (auto iter = thePixelEndCapsAlignables.begin(); iter != thePixelEndCapsAlignables.end(); ++iter) {
     // Get the raw ID of the associated GeomDet
     int id = (*iter)->geomDetId().rawId();
 
@@ -69,8 +67,7 @@ void TrackerAlignment::moveAlignableEndCaps(int rawid,
                                             const align::Scalars& local_rotations) {
   // Displace and rotate EndCaps
   const align::Alignables& theEndCapsAlignables = theAlignableTracker->endcapGeomDets();
-  for (align::Alignables::const_iterator iter = theEndCapsAlignables.begin(); iter != theEndCapsAlignables.end();
-       ++iter) {
+  for (auto iter = theEndCapsAlignables.begin(); iter != theEndCapsAlignables.end(); ++iter) {
     // Get the raw ID of the associated GeomDet
     int id = (*iter)->geomDetId().rawId();
 
@@ -97,9 +94,7 @@ void TrackerAlignment::moveAlignablePixelHalfBarrels(int rawid,
                                                      const align::Scalars& local_rotations) {
   // Displace and rotate PixelHalfBarrels
   const align::Alignables& thePixelHalfBarrelsAlignables = theAlignableTracker->pixelHalfBarrelGeomDets();
-  for (align::Alignables::const_iterator iter = thePixelHalfBarrelsAlignables.begin();
-       iter != thePixelHalfBarrelsAlignables.end();
-       ++iter) {
+  for (auto iter = thePixelHalfBarrelsAlignables.begin(); iter != thePixelHalfBarrelsAlignables.end(); ++iter) {
     // Get the raw ID of the associated GeomDet
     int id = (*iter)->geomDetId().rawId();
 
@@ -126,9 +121,7 @@ void TrackerAlignment::moveAlignableOuterHalfBarrels(int rawid,
                                                      const align::Scalars& local_rotations) {
   // Displace and rotate OuterHalfBarrels
   const align::Alignables& theOuterHalfBarrelsAlignables = theAlignableTracker->outerBarrelGeomDets();
-  for (align::Alignables::const_iterator iter = theOuterHalfBarrelsAlignables.begin();
-       iter != theOuterHalfBarrelsAlignables.end();
-       ++iter) {
+  for (auto iter = theOuterHalfBarrelsAlignables.begin(); iter != theOuterHalfBarrelsAlignables.end(); ++iter) {
     // Get the raw ID of the associated GeomDet
     int id = (*iter)->geomDetId().rawId();
 
@@ -155,9 +148,7 @@ void TrackerAlignment::moveAlignableInnerHalfBarrels(int rawid,
                                                      const align::Scalars& local_rotations) {
   // Displace and rotate InnerHalfBarrels
   const align::Alignables& theInnerHalfBarrelsAlignables = theAlignableTracker->innerBarrelGeomDets();
-  for (align::Alignables::const_iterator iter = theInnerHalfBarrelsAlignables.begin();
-       iter != theInnerHalfBarrelsAlignables.end();
-       ++iter) {
+  for (auto iter = theInnerHalfBarrelsAlignables.begin(); iter != theInnerHalfBarrelsAlignables.end(); ++iter) {
     // Get the raw ID of the associated GeomDet
     int id = (*iter)->geomDetId().rawId();
 
@@ -184,7 +175,7 @@ void TrackerAlignment::moveAlignableTIDs(int rawid,
                                          const align::Scalars& local_rotations) {
   // Displace and rotate TIDs
   const align::Alignables& theTIDsAlignables = theAlignableTracker->TIDGeomDets();
-  for (align::Alignables::const_iterator iter = theTIDsAlignables.begin(); iter != theTIDsAlignables.end(); ++iter) {
+  for (auto iter = theTIDsAlignables.begin(); iter != theTIDsAlignables.end(); ++iter) {
     // Get the raw ID of the associated GeomDet
     int id = (*iter)->geomDetId().rawId();
 
@@ -214,8 +205,7 @@ void TrackerAlignment::moveAlignableTIBTIDs(int rawId,
                                             bool toAndFro) {
   // Displace and rotate TIB and TID
   const align::Alignables& theTIBTIDAlignables = theAlignableTracker->TIBTIDGeomDets();
-  for (align::Alignables::const_iterator iter = theTIBTIDAlignables.begin(); iter != theTIBTIDAlignables.end();
-       ++iter) {
+  for (auto iter = theTIBTIDAlignables.begin(); iter != theTIBTIDAlignables.end(); ++iter) {
     // Get the raw ID of the associated GeomDet
     int id = (*iter)->geomDetId().rawId();
 

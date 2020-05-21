@@ -179,7 +179,7 @@ void FWPFCandidateDetailView::build(const FWModelId& id, const reco::PFCandidate
   makeLegend();
   setTextInfo(id, candidate);
 
-  TGCompositeFrame* p = (TGCompositeFrame*)m_guiFrame->GetParent();
+  auto* p = (TGCompositeFrame*)m_guiFrame->GetParent();
   p->MapSubwindows();
   p->Layout();
 
@@ -236,7 +236,7 @@ void FWPFCandidateDetailView::voteMaxEtEVal(const std::vector<reco::PFRecHit>* h
 
   // FIXME: require access to geometry while reading from reco file
   if ((!hits->empty()) && hits->front().hasCaloCell())
-    for (std::vector<reco::PFRecHit>::const_iterator it = hits->begin(); it != hits->end(); ++it) {
+    for (auto it = hits->begin(); it != hits->end(); ++it) {
       TEveVector centre(it->position().x(), it->position().y(), it->position().z());
       float E = it->energy();
       float Et = FWPFMaths::calculateEt(centre, E);
@@ -247,7 +247,7 @@ void FWPFCandidateDetailView::voteMaxEtEVal(const std::vector<reco::PFRecHit>* h
 //______________________________________________________________________________
 
 void FWPFCandidateDetailView::addTracks(const std::vector<reco::PFRecTrack>* tracks) {
-  for (std::vector<reco::PFRecTrack>::const_iterator it = tracks->begin(); it != tracks->end(); ++it) {
+  for (auto it = tracks->begin(); it != tracks->end(); ++it) {
     /// AMT trackRef() is a collection !!!
     /*
       if (!isPntInRng(it->trackRef().innerMomentum().Eta(), it->position().Phi()))
@@ -276,7 +276,7 @@ void FWPFCandidateDetailView::addClusters(const std::vector<reco::PFCluster>* cl
 
   Color_t col = kViolet + 9;
 
-  TEveStraightLineSet* ls = new TEveStraightLineSet("cluster_ls");
+  auto* ls = new TEveStraightLineSet("cluster_ls");
   ls->SetMainColor(col);
   m_eventList->AddElement(ls);
 
@@ -286,7 +286,7 @@ void FWPFCandidateDetailView::addClusters(const std::vector<reco::PFCluster>* cl
   ps->SetMarkerSize(0.005);
   m_eventList->AddElement(ps);
 
-  for (std::vector<reco::PFCluster>::const_iterator it = cluster->begin(); it != cluster->end(); ++it) {
+  for (auto it = cluster->begin(); it != cluster->end(); ++it) {
     if (!isPntInRng(it->position().Eta(), it->position().Phi()))
       continue;
 
@@ -344,7 +344,7 @@ void FWPFCandidateDetailView::addHits(const std::vector<reco::PFRecHit>* hits) {
 
   // FIXME, requires access to geometry
   if ((!hits->empty()) && hits->front().hasCaloCell())
-    for (std::vector<reco::PFRecHit>::const_iterator it = hits->begin(); it != hits->end(); ++it) {
+    for (auto it = hits->begin(); it != hits->end(); ++it) {
       const auto& corners = it->getCornersXYZ();
       if (!isPntInRng(corners[0].eta(), corners[0].phi()))
         continue;
@@ -400,7 +400,7 @@ void FWPFCandidateDetailView::buildGLEventScene() {
     m_eventList->DestroyElements();
 
   for (int depth = 0; depth < 6; ++depth) {
-    TEveStraightLineSet* ls = new TEveStraightLineSet(Form("%d_rechit", depth));
+    auto* ls = new TEveStraightLineSet(Form("%d_rechit", depth));
 
     if (depth == 0)
       ls->SetLineColor(kGray);
@@ -419,7 +419,7 @@ void FWPFCandidateDetailView::buildGLEventScene() {
     m_eventList->AddElement(ls);
   }
 
-  TEveStraightLineSet* ls = new TEveStraightLineSet("outlines");
+  auto* ls = new TEveStraightLineSet("outlines");
   ls->SetLineColor(kGray);
   ls->SetMainTransparency(80);
   m_eventList->AddElement(ls);

@@ -99,11 +99,9 @@ namespace {
       containers allCounts;
 
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
       auto DetInfos = reader->getAllData();
-      for (std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = DetInfos.begin();
-           it != DetInfos.end();
-           it++) {
+      for (auto it = DetInfos.begin(); it != DetInfos.end(); it++) {
         // check if det id is correct and if it is actually cabled in the detector
         if (it->first == 0 || it->first == 0xFFFFFFFF) {
           edm::LogError("DetIdNotGood") << "@SUB=analyze"

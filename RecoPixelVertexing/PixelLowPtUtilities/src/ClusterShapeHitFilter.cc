@@ -120,7 +120,7 @@ void ClusterShapeHitFilter::fillPixelData() {
   //barrel
   for (auto det : theTracker->detsPXB()) {
     // better not to fail..
-    const PixelGeomDetUnit* pixelDet = dynamic_cast<const PixelGeomDetUnit*>(det);
+    const auto* pixelDet = dynamic_cast<const PixelGeomDetUnit*>(det);
     assert(pixelDet);
     PixelData& pd = pixelData[pixelDet->geographicalId()];
     pd.det = pixelDet;
@@ -133,7 +133,7 @@ void ClusterShapeHitFilter::fillPixelData() {
   //endcap
   for (auto det : theTracker->detsPXF()) {
     // better not to fail..
-    const PixelGeomDetUnit* pixelDet = dynamic_cast<const PixelGeomDetUnit*>(det);
+    const auto* pixelDet = dynamic_cast<const PixelGeomDetUnit*>(det);
     assert(pixelDet);
     PixelData& pd = pixelData[pixelDet->geographicalId()];
     pd.det = pixelDet;
@@ -158,7 +158,7 @@ void ClusterShapeHitFilter::fillStripData() {
   }
 
   for (auto i = offset; i != dus.size(); ++i) {
-    const StripGeomDetUnit* stripdet = (const StripGeomDetUnit*)(dus[i]);
+    const auto* stripdet = (const StripGeomDetUnit*)(dus[i]);
     assert(stripdet->index() == int(i));
     assert(stripdet->type().isTrackerStrip());  // not pixel
     auto const& bounds = stripdet->specificSurface().bounds();

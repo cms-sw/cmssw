@@ -128,9 +128,7 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
     // SimTracks inside TrackingParticle
     EncodedEventId eid(trackingParticle->eventId());
     //size_t index = 0;
-    for (std::vector<SimTrack>::const_iterator itrk = trackingParticle->g4Track_begin();
-         itrk != trackingParticle->g4Track_end();
-         ++itrk) {
+    for (auto itrk = trackingParticle->g4Track_begin(); itrk != trackingParticle->g4Track_end(); ++itrk) {
       std::pair<uint32_t, EncodedEventId> trkid(itrk->trackId(), eid);
       //std::cout << "creating map for id: " << trkid.first << " with tp: " << trackingParticle.key() << std::endl;
       mapping.insert(std::make_pair(trkid, trackingParticle));
@@ -161,9 +159,7 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
             simTkIds.insert(trkid.begin(), trkid.end());
           }
         }
-        for (std::set<std::pair<uint32_t, EncodedEventId> >::const_iterator iset = simTkIds.begin();
-             iset != simTkIds.end();
-             iset++) {
+        for (auto iset = simTkIds.begin(); iset != simTkIds.end(); iset++) {
           auto ipos = mapping.find(*iset);
           if (ipos != mapping.end()) {
             //std::cout << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << iset->first << std::endl;
@@ -201,9 +197,7 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
             continue;
           simTkIds.insert(trkid.begin(), trkid.end());
         }
-        for (std::set<std::pair<uint32_t, EncodedEventId> >::const_iterator iset = simTkIds.begin();
-             iset != simTkIds.end();
-             iset++) {
+        for (auto iset = simTkIds.begin(); iset != simTkIds.end(); iset++) {
           auto ipos = mapping.find(*iset);
           if (ipos != mapping.end()) {
             //std::cout << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << iset->first << std::endl;
@@ -244,9 +238,7 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
             simTkIds.insert(trkid.begin(), trkid.end());
           }
 
-          for (std::set<std::pair<uint32_t, EncodedEventId> >::const_iterator iset = simTkIds.begin();
-               iset != simTkIds.end();
-               iset++) {
+          for (auto iset = simTkIds.begin(); iset != simTkIds.end(); iset++) {
             auto ipos = mapping.find(*iset);
             if (ipos != mapping.end()) {
               clusterTPList->emplace_back(OmniClusterRef(c_ref), ipos->second);
@@ -272,7 +264,7 @@ ClusterTPAssociationProducer::getSimTrackId(const edm::Handle<edm::DetSetVector<
   if (isearch != simLinks->end()) {
     // Loop over DigiSimLink in this det unit
     edm::DetSet<T> link_detset = (*isearch);
-    for (typename edm::DetSet<T>::const_iterator it = link_detset.data.begin(); it != link_detset.data.end(); ++it) {
+    for (auto it = link_detset.data.begin(); it != link_detset.data.end(); ++it) {
       if (channel == it->channel()) {
         simTrkId.push_back(std::make_pair(it->SimTrackId(), it->eventId()));
       }

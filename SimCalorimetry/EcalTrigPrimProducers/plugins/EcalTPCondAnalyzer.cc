@@ -210,7 +210,7 @@ void EcalTPCondAnalyzer::printSTRIP(const EcalTPGSlidingWindow *slWin,
           std::cout << "STRIP_EB " << std::dec << (*it).first << std::endl;
           std::cout << std::hex << "0x" << (*it).second << std::endl;
           std::cout << "" << (*groupId).second << std::endl;  // weightgroupid
-          EcalTPGFineGrainStripEEMapIterator it2 = fgstripEEmap.find((*it).first);
+          auto it2 = fgstripEEmap.find((*it).first);
           if (it2 == fgstripEEmap.end()) {
             edm::LogWarning("EcalTPGCondAnalyzer") << " could not find strip Id " << (*it).first
                                                    << ", given in sliding window, inside the "
@@ -223,7 +223,7 @@ void EcalTPCondAnalyzer::printSTRIP(const EcalTPGSlidingWindow *slWin,
           std::cout << "STRIP_EE " << std::dec << (*it).first << std::endl;
           std::cout << std::hex << "0x" << (*it).second << std::endl;
           std::cout << " " << (*groupId).second << std::endl;  // weightgroupid
-          EcalTPGFineGrainStripEEMapIterator it2 = fgstripEEmap.find((*it).first);
+          auto it2 = fgstripEEmap.find((*it).first);
           if (it2 == fgstripEEmap.end()) {
             edm::LogWarning("EcalTPGCondAnalyzer") << " could not find strip Id " << (*it).first
                                                    << ", given in sliding window, inside the "
@@ -287,7 +287,7 @@ void EcalTPCondAnalyzer::printCRYSTAL(const EcalTPGPedestals *ecaltpPed, const E
   const std::vector<DetId> &ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
 
   std::cout << "COMMENT ====== barrel crystals ====== " << std::endl;
-  for (std::vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
+  for (auto it = ebCells.begin(); it != ebCells.end(); ++it) {
     EBDetId id(*it);
     std::cout << "CRYSTAL " << std::dec << id.rawId() << std::endl;
     const EcalTPGPedestal &ped = pedMap[id.rawId()];
@@ -299,7 +299,7 @@ void EcalTPCondAnalyzer::printCRYSTAL(const EcalTPGPedestals *ecaltpPed, const E
 
   const std::vector<DetId> &eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
   std::cout << "COMMENT ====== endcap crystals ====== " << std::endl;
-  for (std::vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
+  for (auto it = eeCells.begin(); it != eeCells.end(); ++it) {
     EEDetId id(*it);
     std::cout << "CRYSTAL " << std::dec << id.rawId() << std::endl;
     const EcalTPGPedestal &ped = pedMap[id.rawId()];

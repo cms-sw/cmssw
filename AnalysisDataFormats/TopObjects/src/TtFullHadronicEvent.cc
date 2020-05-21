@@ -57,7 +57,7 @@ void TtFullHadronicEvent::print(const int verbosity) const {
 
   // get details from the hypotheses
   typedef std::map<HypoClassKey, std::vector<HypoCombPair> >::const_iterator EventHypo;
-  for (EventHypo hyp = evtHyp_.begin(); hyp != evtHyp_.end(); ++hyp) {
+  for (auto hyp = evtHyp_.begin(); hyp != evtHyp_.end(); ++hyp) {
     HypoClassKey hypKey = (*hyp).first;
     // header for each hypothesis
     log << "---------------------------------------------------------------------------- \n";

@@ -105,7 +105,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
   edm::LogInfo("EcalTrivialObjectAnalyzer: using EBDetId: ") << ebid;
 
   const EcalPedestals* myped = pPeds.product();
-  EcalPedestals::const_iterator it = myped->find(ebid.rawId());
+  auto it = myped->find(ebid.rawId());
   if (it != myped->end()) {
     edm::LogInfo("EcalPedestal: ") << "  mean_x1:  " << std::setprecision(8) << (*it).mean_x1
                                    << " rms_x1: " << (*it).rms_x1 << "  mean_x6:  " << (*it).mean_x6
@@ -120,7 +120,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
   context.get<EcalWeightXtalGroupsRcd>().get(pGrp);
   const EcalWeightXtalGroups* grp = pGrp.product();
 
-  EcalXtalGroupsMap::const_iterator git = grp->getMap().find(ebid.rawId());
+  auto git = grp->getMap().find(ebid.rawId());
   EcalXtalGroupId gid;
   if (git != grp->getMap().end()) {
     edm::LogInfo("XtalGroupId.id() = ") << std::setprecision(3) << (*git).id();
@@ -134,7 +134,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
   context.get<EcalGainRatiosRcd>().get(pRatio);
   const EcalGainRatios* gr = pRatio.product();
 
-  EcalGainRatioMap::const_iterator grit = gr->getMap().find(ebid.rawId());
+  auto grit = gr->getMap().find(ebid.rawId());
   EcalMGPAGainRatio mgpa;
   if (grit != gr->getMap().end()) {
     mgpa = (*grit);
@@ -150,7 +150,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
   context.get<EcalIntercalibConstantsRcd>().get(pIcal);
   const EcalIntercalibConstants* ical = pIcal.product();
 
-  EcalIntercalibConstantMap::const_iterator icalit = ical->getMap().find(ebid.rawId());
+  auto icalit = ical->getMap().find(ebid.rawId());
   EcalIntercalibConstant icalconst;
   if (icalit != ical->getMap().end()) {
     icalconst = (*icalit);
@@ -165,7 +165,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
   context.get<EcalIntercalibErrorsRcd>().get(pIcalErr);
   const EcalIntercalibErrors* icalErr = pIcalErr.product();
 
-  EcalIntercalibErrorMap::const_iterator icalitErr = icalErr->getMap().find(ebid.rawId());
+  auto icalitErr = icalErr->getMap().find(ebid.rawId());
   EcalIntercalibError icalconstErr;
   if (icalitErr != icalErr->getMap().end()) {
     icalconstErr = (*icalitErr);
@@ -181,7 +181,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
     context.get<EcalTimeCalibConstantsRcd>().get(pIcal);
     const EcalTimeCalibConstants* ical = pIcal.product();
 
-    EcalTimeCalibConstantMap::const_iterator icalit = ical->getMap().find(ebid.rawId());
+    auto icalit = ical->getMap().find(ebid.rawId());
     EcalTimeCalibConstant icalconst;
     if (icalit != ical->getMap().end()) {
       icalconst = (*icalit);
@@ -196,7 +196,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
     context.get<EcalTimeCalibErrorsRcd>().get(pIcalErr);
     const EcalTimeCalibErrors* icalErr = pIcalErr.product();
 
-    EcalTimeCalibErrorMap::const_iterator icalitErr = icalErr->getMap().find(ebid.rawId());
+    auto icalitErr = icalErr->getMap().find(ebid.rawId());
     EcalTimeCalibError icalconstErr;
     if (icalitErr != icalErr->getMap().end()) {
       icalconstErr = (*icalitErr);
@@ -229,7 +229,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
   EcalTBWeights::EcalTDCId tdcid(1);
 
   edm::LogInfo("Lookup EcalWeightSet for groupid: ") << std::setprecision(3) << gid.id() << " and TDC id " << tdcid;
-  EcalTBWeights::EcalTBWeightMap::const_iterator wit = wgts->getMap().find(std::make_pair(gid, tdcid));
+  auto wit = wgts->getMap().find(std::make_pair(gid, tdcid));
   EcalWeightSet wset;
   if (wit != wgts->getMap().end()) {
     wset = wit->second;
@@ -263,9 +263,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
   context.get<EcalClusterLocalContCorrParametersRcd>().get(pLocalCont);
   const EcalClusterLocalContCorrParameters* paramLocalCont = pLocalCont.product();
   edm::LogInfo("LocalContCorrParameters:");
-  for (EcalFunctionParameters::const_iterator it = paramLocalCont->params().begin();
-       it != paramLocalCont->params().end();
-       ++it) {
+  for (auto it = paramLocalCont->params().begin(); it != paramLocalCont->params().end(); ++it) {
     // edm::LogInfo(" ") << *it;
   }
   // std::cout << "\n";
@@ -273,8 +271,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
   context.get<EcalClusterCrackCorrParametersRcd>().get(pCrack);
   const EcalClusterCrackCorrParameters* paramCrack = pCrack.product();
   edm::LogInfo("CrackCorrParameters:");
-  for (EcalFunctionParameters::const_iterator it = paramCrack->params().begin(); it != paramCrack->params().end();
-       ++it) {
+  for (auto it = paramCrack->params().begin(); it != paramCrack->params().end(); ++it) {
     //  edm::LogInfo(" ") << *it;
   }
   // std::cout << "\n";
@@ -282,9 +279,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
   context.get<EcalClusterEnergyCorrectionParametersRcd>().get(pEnergyCorrection);
   const EcalClusterEnergyCorrectionParameters* paramEnergyCorrection = pEnergyCorrection.product();
   edm::LogInfo("EnergyCorrectionParameters:");
-  for (EcalFunctionParameters::const_iterator it = paramEnergyCorrection->params().begin();
-       it != paramEnergyCorrection->params().end();
-       ++it) {
+  for (auto it = paramEnergyCorrection->params().begin(); it != paramEnergyCorrection->params().end(); ++it) {
     // edm::LogInfo(" ") << *it;
   }
   // std::cout << "\n";
@@ -292,9 +287,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
   context.get<EcalClusterEnergyUncertaintyParametersRcd>().get(pEnergyUncertainty);
   const EcalClusterEnergyUncertaintyParameters* paramEnergyUncertainty = pEnergyUncertainty.product();
   edm::LogInfo("EnergyCorrectionParameters:");
-  for (EcalFunctionParameters::const_iterator it = paramEnergyUncertainty->params().begin();
-       it != paramEnergyUncertainty->params().end();
-       ++it) {
+  for (auto it = paramEnergyUncertainty->params().begin(); it != paramEnergyUncertainty->params().end(); ++it) {
     // edm::LogInfo(" ") << *it;
   }
   // std::cout << "\n";
@@ -303,7 +296,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
   const EcalClusterEnergyCorrectionObjectSpecificParameters* paramEnergyCorrectionObjectSpecific =
       pEnergyCorrectionObjectSpecific.product();
   edm::LogInfo("EnergyCorrectionObjectSpecificParameters:");
-  for (EcalFunctionParameters::const_iterator it = paramEnergyCorrectionObjectSpecific->params().begin();
+  for (auto it = paramEnergyCorrectionObjectSpecific->params().begin();
        it != paramEnergyCorrectionObjectSpecific->params().end();
        ++it) {
     //  edm::LogInfo(" ") << *it;

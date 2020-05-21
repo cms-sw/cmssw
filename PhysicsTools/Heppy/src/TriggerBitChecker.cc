@@ -29,7 +29,7 @@ namespace heppy {
       syncIndices(event, result);
       lastID_ = result.parameterSetID();
     }
-    for (std::vector<unsigned int>::const_iterator it = indices_.begin(), ed = indices_.end(); it != ed; ++it) {
+    for (auto it = indices_.begin(), ed = indices_.end(); it != ed; ++it) {
       if (result.accept(*it))
         return true;
     }
@@ -44,7 +44,7 @@ namespace heppy {
       lastID_ = result_tr.parameterSetID();
     }
     bool outcome = true;
-    for (std::vector<unsigned int>::const_iterator it = indices_.begin(), ed = indices_.end(); it != ed; ++it) {
+    for (auto it = indices_.begin(), ed = indices_.end(); it != ed; ++it) {
       if (result.getPrescaleForIndex(*it) != 1) {
         outcome = false;
         break;

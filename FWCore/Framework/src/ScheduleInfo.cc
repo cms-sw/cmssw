@@ -74,7 +74,7 @@ const ParameterSet* ScheduleInfo::parametersForModule(const std::string& iLabel)
   using std::placeholders::_1;
   std::vector<ModuleDescription const*> desc = schedule_->getAllModuleDescriptions();
 
-  std::vector<ModuleDescription const*>::iterator itFound =
+  auto itFound =
       std::find_if(desc.begin(),
                    desc.end(),
                    std::bind(std::equal_to<std::string>(), iLabel, std::bind(&ModuleDescription::moduleLabel, _1)));

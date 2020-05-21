@@ -166,27 +166,25 @@ void L1TStage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup) {
   //the firmware to handle
   for (int i = bxFirst; i <= bxLast; ++i) {
     //make local inputs
-    std::vector<CaloRegion>* localRegions = new std::vector<CaloRegion>();
-    std::vector<CaloEmCand>* localEmCands = new std::vector<CaloEmCand>();
+    auto* localRegions = new std::vector<CaloRegion>();
+    auto* localEmCands = new std::vector<CaloEmCand>();
 
     //make local outputs
-    std::vector<EGamma>* localEGammas = new std::vector<EGamma>();
-    std::vector<Tau>* localTaus = new std::vector<Tau>();
-    std::vector<Tau>* localIsoTaus = new std::vector<Tau>();
-    std::vector<Jet>* localJets = new std::vector<Jet>();
-    std::vector<Jet>* localPreGtJets = new std::vector<Jet>();
-    std::vector<EtSum>* localEtSums = new std::vector<EtSum>();
+    auto* localEGammas = new std::vector<EGamma>();
+    auto* localTaus = new std::vector<Tau>();
+    auto* localIsoTaus = new std::vector<Tau>();
+    auto* localJets = new std::vector<Jet>();
+    auto* localPreGtJets = new std::vector<Jet>();
+    auto* localEtSums = new std::vector<EtSum>();
     CaloSpare* localHfSums = new CaloSpare();
     localHfSums->setType(CaloSpare::HFRingSum);
     CaloSpare* localHfCounts = new CaloSpare();
     localHfCounts->setType(CaloSpare::HFBitCount);
 
     // copy over the inputs -> there must be a better way to do this
-    for (std::vector<CaloRegion>::const_iterator region = caloRegions->begin(i); region != caloRegions->end(i);
-         ++region)
+    for (auto region = caloRegions->begin(i); region != caloRegions->end(i); ++region)
       localRegions->push_back(*region);
-    for (std::vector<CaloEmCand>::const_iterator emcand = caloEmCands->begin(i); emcand != caloEmCands->end(i);
-         ++emcand)
+    for (auto emcand = caloEmCands->begin(i); emcand != caloEmCands->end(i); ++emcand)
       localEmCands->push_back(*emcand);
 
     //run the firmware on one event
@@ -202,17 +200,17 @@ void L1TStage1Layer2Producer::produce(Event& iEvent, const EventSetup& iSetup) {
                        localHfCounts);
 
     // copy the output into the BXVector -> there must be a better way
-    for (std::vector<EGamma>::const_iterator eg = localEGammas->begin(); eg != localEGammas->end(); ++eg)
+    for (auto eg = localEGammas->begin(); eg != localEGammas->end(); ++eg)
       egammas->push_back(i, *eg);
-    for (std::vector<Tau>::const_iterator tau = localTaus->begin(); tau != localTaus->end(); ++tau)
+    for (auto tau = localTaus->begin(); tau != localTaus->end(); ++tau)
       taus->push_back(i, *tau);
-    for (std::vector<Tau>::const_iterator isotau = localIsoTaus->begin(); isotau != localIsoTaus->end(); ++isotau)
+    for (auto isotau = localIsoTaus->begin(); isotau != localIsoTaus->end(); ++isotau)
       isoTaus->push_back(i, *isotau);
-    for (std::vector<Jet>::const_iterator jet = localJets->begin(); jet != localJets->end(); ++jet)
+    for (auto jet = localJets->begin(); jet != localJets->end(); ++jet)
       jets->push_back(i, *jet);
-    for (std::vector<Jet>::const_iterator jet = localPreGtJets->begin(); jet != localPreGtJets->end(); ++jet)
+    for (auto jet = localPreGtJets->begin(); jet != localPreGtJets->end(); ++jet)
       preGtJets->push_back(i, *jet);
-    for (std::vector<EtSum>::const_iterator etsum = localEtSums->begin(); etsum != localEtSums->end(); ++etsum)
+    for (auto etsum = localEtSums->begin(); etsum != localEtSums->end(); ++etsum)
       etsums->push_back(i, *etsum);
     hfSums->push_back(i, *localHfSums);
     hfCounts->push_back(i, *localHfCounts);

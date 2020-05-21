@@ -146,7 +146,7 @@ void EcalTrigPrimAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSet
     float theta = theBarrelGeometry->getGeometry(myid1)->getPosition().theta();
     float Etsum = ((*rechit_EB_col.product())[i].energy()) * sin(theta);
     bool test_alreadyin = false;
-    map<EcalTrigTowerDetId, float>::iterator ittest = mapTow_Et.find(towid1);
+    auto ittest = mapTow_Et.find(towid1);
     if (ittest != mapTow_Et.end())
       test_alreadyin = true;
     if (test_alreadyin)
@@ -175,7 +175,7 @@ void EcalTrigPrimAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSet
     float theta = theEndcapGeometry->getGeometry(myid1)->getPosition().theta();
     float Etsum = (*rechit_EE_col.product())[i].energy() * sin(theta);
     bool test_alreadyin = false;
-    map<EcalTrigTowerDetId, float>::iterator ittest = mapTow_Et.find(towid1);
+    auto ittest = mapTow_Et.find(towid1);
     if (ittest != mapTow_Et.end())
       test_alreadyin = true;
     if (test_alreadyin)
@@ -204,7 +204,7 @@ void EcalTrigPrimAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSet
   for (unsigned int i = 0; i < tp.product()->size(); i++) {
     EcalTriggerPrimitiveDigi d = (*(tp.product()))[i];
     const EcalTrigTowerDetId TPtowid = d.id();
-    map<EcalTrigTowerDetId, float>::iterator it = mapTow_Et.find(TPtowid);
+    auto it = mapTow_Et.find(TPtowid);
     float Et = ecalScale.getTPGInGeV(d.compressedEt(), TPtowid);
     if (d.id().ietaAbs() == 27 || d.id().ietaAbs() == 28)
       Et *= 2;

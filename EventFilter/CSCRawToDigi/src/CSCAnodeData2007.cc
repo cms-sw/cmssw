@@ -87,7 +87,7 @@ void CSCAnodeData2007::add(const CSCWireDigi &digi, int layer) {
   unsigned wireInPart = (wireGroup - 1) % 12;
 
   std::vector<int> timeBinsOn = digi.getTimeBinsOn();
-  for (std::vector<int>::const_iterator timeBinOn = timeBinsOn.begin(); timeBinOn != timeBinsOn.end(); ++timeBinOn) {
+  for (auto timeBinOn = timeBinsOn.begin(); timeBinOn != timeBinsOn.end(); ++timeBinOn) {
     // crash if there's a bad wire number, but don't freak out
     // if a time bin is out of range
     //  assert(alctBoard < nAFEBs_);

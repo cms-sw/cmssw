@@ -141,8 +141,7 @@ CommonModeAnalyzer::CommonModeAnalyzer(const edm::ParameterSet& iConfig)
 
   std::vector<edm::ParameterSet> selconfigs = iConfig.getParameter<std::vector<edm::ParameterSet> >("selections");
 
-  for (std::vector<edm::ParameterSet>::const_iterator selconfig = selconfigs.begin(); selconfig != selconfigs.end();
-       ++selconfig) {
+  for (auto selconfig = selconfigs.begin(); selconfig != selconfigs.end(); ++selconfig) {
     std::string label = selconfig->getParameter<std::string>("label");
     DetIdSelector selection(*selconfig);
     m_selections.push_back(selection);
@@ -226,7 +225,7 @@ void CommonModeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   std::vector<int> nmodules(m_selections.size(), 0);
   std::vector<int> napvs(m_selections.size(), 0);
 
-  for (edm::DetSetVector<SiStripRawDigi>::const_iterator mod = digis->begin(); mod != digis->end(); mod++) {
+  for (auto mod = digis->begin(); mod != digis->end(); mod++) {
     std::vector<const FedChannelConnection*> conns = m_detCabling->getConnections(mod->detId());
 
     if (!m_ignorebadfedmod || std::find(badmodules->begin(), badmodules->end(), mod->detId()) == badmodules->end()) {
@@ -234,7 +233,7 @@ void CommonModeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
         if (m_selections[isel].isSelected(mod->detId())) {
           unsigned int strip = 0;
           ++nmodules[isel];
-          for (edm::DetSet<SiStripRawDigi>::const_iterator digi = mod->begin(); digi != mod->end(); digi++, strip++) {
+          for (auto digi = mod->begin(); digi != mod->end(); digi++, strip++) {
             LogDebug("StripNumber") << "Strip number " << strip;
             if (!m_ignorenotconnected ||
                 ((conns.size() > strip / 2) && conns[strip / 2] && conns[strip / 2]->isConnected())) {
@@ -265,14 +264,13 @@ void CommonModeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 void CommonModeAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup&) {
   m_rhm.beginRun(iRun);
 
-  for (std::vector<TProfile**>::const_iterator cmvsbx = m_cmvsbxrun.begin(); cmvsbx != m_cmvsbxrun.end(); ++cmvsbx) {
+  for (auto cmvsbx = m_cmvsbxrun.begin(); cmvsbx != m_cmvsbxrun.end(); ++cmvsbx) {
     if (*cmvsbx && *(*cmvsbx)) {
       (*(*cmvsbx))->GetXaxis()->SetTitle("BX");
       (*(*cmvsbx))->GetYaxis()->SetTitle("CM (ADC counts)");
     }
   }
-  for (std::vector<TProfile**>::const_iterator cmvsorbit = m_cmvsorbitrun.begin(); cmvsorbit != m_cmvsorbitrun.end();
-       ++cmvsorbit) {
+  for (auto cmvsorbit = m_cmvsorbitrun.begin(); cmvsorbit != m_cmvsorbitrun.end(); ++cmvsorbit) {
     if (*cmvsorbit && *(*cmvsorbit)) {
       (*(*cmvsorbit))->GetXaxis()->SetTitle("orbit");
       (*(*cmvsorbit))->GetYaxis()->SetTitle("CM (ADC counts)");

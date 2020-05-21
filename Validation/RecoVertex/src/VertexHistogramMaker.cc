@@ -329,7 +329,7 @@ void VertexHistogramMaker::fill(const unsigned int orbit,
   m_hnvtx->Fill(vertices.size(), weight);
 
   int ntruevtx = 0;
-  for (reco::VertexCollection::const_iterator vtx = vertices.begin(); vtx != vertices.end(); ++vtx) {
+  for (auto vtx = vertices.begin(); vtx != vertices.end(); ++vtx) {
     if (!vtx->isFake())
       ntruevtx++;
 
@@ -386,7 +386,7 @@ void VertexHistogramMaker::fill(const unsigned int orbit,
       double sumpt2 = 0.;
       double sumpt2heavy = 0.;
 
-      for (reco::Vertex::trackRef_iterator trk = vtx->tracks_begin(); trk != vtx->tracks_end(); ++trk) {
+      for (auto trk = vtx->tracks_begin(); trk != vtx->tracks_end(); ++trk) {
         sumpt2 += (*trk)->pt() * (*trk)->pt();
 
         if (vtx->trackWeight(*trk) > m_weightThreshold) {

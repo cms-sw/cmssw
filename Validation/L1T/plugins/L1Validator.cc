@@ -151,7 +151,7 @@ void L1Validator::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetu
     for (int iBx = JetsBX->getFirstBX(); iBx <= JetsBX->getLastBX(); ++iBx) {
       if (iBx > 0)
         continue;
-      for (std::vector<l1t::Jet>::const_iterator jet = JetsBX->begin(iBx); jet != JetsBX->end(iBx); ++jet) {
+      for (auto jet = JetsBX->begin(iBx); jet != JetsBX->end(iBx); ++jet) {
         double idR = reco::deltaR((&Genjet)->eta(), (&Genjet)->phi(), jet->eta(), jet->phi());
         if (idR < minDR) {
           minDR = idR;
@@ -185,7 +185,7 @@ void L1Validator::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetu
       for (int iBx = MuonsBX->getFirstBX(); iBx <= MuonsBX->getLastBX(); ++iBx) {
         if (iBx > 0)
           continue;
-        for (std::vector<l1t::Muon>::const_iterator mu = MuonsBX->begin(iBx); mu != MuonsBX->end(iBx); ++mu) {
+        for (auto mu = MuonsBX->begin(iBx); mu != MuonsBX->end(iBx); ++mu) {
           double idR = reco::deltaR(GenPart->eta(), GenPart->phi(), mu->eta(), mu->phi());
           if (idR < minDR) {
             minDR = idR;
@@ -212,7 +212,7 @@ void L1Validator::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetu
       for (int iBx = EGammasBX->getFirstBX(); iBx <= EGammasBX->getLastBX(); ++iBx) {
         if (iBx > 0)
           continue;
-        for (std::vector<l1t::EGamma>::const_iterator eg = EGammasBX->begin(iBx); eg != EGammasBX->end(iBx); ++eg) {
+        for (auto eg = EGammasBX->begin(iBx); eg != EGammasBX->end(iBx); ++eg) {
           double idR = reco::deltaR(GenPart->eta(), GenPart->phi(), eg->eta(), eg->phi());
           if (idR < minDR) {
             minDR = idR;
@@ -235,7 +235,7 @@ void L1Validator::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetu
       for (int iBx = TausBX->getFirstBX(); iBx <= TausBX->getLastBX(); ++iBx) {
         if (iBx > 0)
           continue;
-        for (std::vector<l1t::Tau>::const_iterator tau = TausBX->begin(iBx); tau != TausBX->end(iBx); ++tau) {
+        for (auto tau = TausBX->begin(iBx); tau != TausBX->end(iBx); ++tau) {
           double idR = reco::deltaR(GenPart->eta(), GenPart->phi(), tau->eta(), tau->phi());
           if (idR < minDR) {
             minDR = idR;

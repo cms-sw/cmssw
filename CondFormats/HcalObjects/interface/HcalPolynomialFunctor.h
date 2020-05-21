@@ -37,7 +37,7 @@ public:
 
 protected:
   inline bool isEqual(const AbsHcalFunctor& other) const override {
-    const HcalPolynomialFunctor& r = static_cast<const HcalPolynomialFunctor&>(other);
+    const auto& r = static_cast<const HcalPolynomialFunctor&>(other);
     return coeffs_ == r.coeffs_ && shift_ == r.shift_ && xmin_ == r.xmin_ && xmax_ == r.xmax_ &&
            outOfRangeValue_ == r.outOfRangeValue_;
   }

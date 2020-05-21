@@ -314,8 +314,7 @@ namespace edm {
     // Replace BranchID of each dropped branch with that of the kept alias.
     for (BranchIDList& branchIDList : branchIDListHelper_->mutableBranchIDLists()) {
       for (BranchID::value_type& branchID : branchIDList) {
-        std::map<BranchID::value_type, BranchID::value_type>::const_iterator iter =
-            droppedBranchIDToKeptBranchID.find(branchID);
+        auto iter = droppedBranchIDToKeptBranchID.find(branchID);
         if (iter != droppedBranchIDToKeptBranchID.end()) {
           branchID = iter->second;
         }
@@ -458,7 +457,7 @@ namespace edm {
                                  int runNumber,
                                  MergeableRunProductMetadata const* mergeableRunProductMetadata) {
     ServiceRegistry::Operate operate(serviceToken_);
-    std::map<ProcessHistoryID, ProcessHistoryID>::const_iterator it = parentToChildPhID_.find(parentPhID);
+    auto it = parentToChildPhID_.find(parentPhID);
     assert(it != parentToChildPhID_.end());
     auto const& childPhID = it->second;
 
@@ -482,7 +481,7 @@ namespace edm {
   }
 
   void SubProcess::deleteRunFromCache(ProcessHistoryID const& parentPhID, int runNumber) {
-    std::map<ProcessHistoryID, ProcessHistoryID>::const_iterator it = parentToChildPhID_.find(parentPhID);
+    auto it = parentToChildPhID_.find(parentPhID);
     assert(it != parentToChildPhID_.end());
     auto const& childPhID = it->second;
     principalCache_.deleteRun(childPhID, runNumber);

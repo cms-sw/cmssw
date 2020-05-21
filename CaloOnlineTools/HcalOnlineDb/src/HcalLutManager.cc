@@ -190,28 +190,28 @@ HcalLutSet HcalLutManager::getLutSetFromFile(std::string _filename, int _type) {
     std::vector<std::string> buf_vec;
     getline(infile, buf);
     buf_vec = HcalQIEManager::splitString(buf);
-    for (std::vector<std::string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++) {
+    for (auto iter = buf_vec.begin(); iter != buf_vec.end(); iter++) {
       _lutset.eta_min.push_back(HcalLutManager::getInt(*iter));
     }
 
     //get max etas
     getline(infile, buf);
     buf_vec = HcalQIEManager::splitString(buf);
-    for (std::vector<std::string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++) {
+    for (auto iter = buf_vec.begin(); iter != buf_vec.end(); iter++) {
       _lutset.eta_max.push_back(HcalLutManager::getInt(*iter));
     }
 
     //get min phis
     getline(infile, buf);
     buf_vec = HcalQIEManager::splitString(buf);
-    for (std::vector<std::string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++) {
+    for (auto iter = buf_vec.begin(); iter != buf_vec.end(); iter++) {
       _lutset.phi_min.push_back(HcalLutManager::getInt(*iter));
     }
 
     //get max phis
     getline(infile, buf);
     buf_vec = HcalQIEManager::splitString(buf);
-    for (std::vector<std::string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++) {
+    for (auto iter = buf_vec.begin(); iter != buf_vec.end(); iter++) {
       _lutset.phi_max.push_back(HcalLutManager::getInt(*iter));
     }
 
@@ -219,14 +219,14 @@ HcalLutSet HcalLutManager::getLutSetFromFile(std::string _filename, int _type) {
       //get min depths
       getline(infile, buf);
       buf_vec = HcalQIEManager::splitString(buf);
-      for (std::vector<std::string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++) {
+      for (auto iter = buf_vec.begin(); iter != buf_vec.end(); iter++) {
         _lutset.depth_min.push_back(HcalLutManager::getInt(*iter));
       }
 
       //get max depths
       getline(infile, buf);
       buf_vec = HcalQIEManager::splitString(buf);
-      for (std::vector<std::string>::const_iterator iter = buf_vec.begin(); iter != buf_vec.end(); iter++) {
+      for (auto iter = buf_vec.begin(); iter != buf_vec.end(); iter++) {
         _lutset.depth_max.push_back(HcalLutManager::getInt(*iter));
       }
     }
@@ -269,7 +269,7 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getLutXmlFromAsciiMaster(
 
   RooGKCounter _counter;
   //loop over all HCAL channels
-  for (std::map<int, LMapRow>::const_iterator row = _map.begin(); row != _map.end(); row++) {
+  for (auto row = _map.begin(); row != _map.end(); row++) {
     LutXml::Config _cfg;
 
     // search for the correct LUT for a given channel,
@@ -359,7 +359,7 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getLinearizationLutXmlFro
 
   RooGKCounter _counter;
   //loop over all EMap channels
-  for (std::vector<EMap::EMapRow>::const_iterator row = _map.begin(); row != _map.end(); row++) {
+  for (auto row = _map.begin(); row != _map.end(); row++) {
     if ((row->subdet.find("HB") != string::npos || row->subdet.find("HE") != string::npos ||
          row->subdet.find("HO") != string::npos || row->subdet.find("HF") != string::npos) &&
         row->subdet.size() == 2) {
@@ -536,7 +536,7 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getCompressionLutXmlFromA
 
   //loop over all EMap channels
   RooGKCounter _counter;
-  for (std::vector<EMap::EMapRow>::const_iterator row = _map.begin(); row != _map.end(); row++) {
+  for (auto row = _map.begin(); row != _map.end(); row++) {
     LutXml::Config _cfg;
 
     // search for the correct LUT for a given channel,
@@ -621,7 +621,7 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getLinearizationLutXmlFro
 
   //loop over all HCAL channels
   RooGKCounter _counter;
-  for (std::map<int, LMapRow>::const_iterator row = _map.begin(); row != _map.end(); row++) {
+  for (auto row = _map.begin(); row != _map.end(); row++) {
     LutXml::Config _cfg;
 
     if (_xml.count(row->second.crate) == 0 && split_by_crate) {
@@ -661,7 +661,7 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getLinearizationLutXmlFro
 
     //std::cout << "### DEBUG: subdetector = " << row->second.det << std::endl;
     std::vector<unsigned short> coder_lut = _coder.getLinearizationLUT(_detid);
-    for (std::vector<unsigned short>::const_iterator _i = coder_lut.begin(); _i != coder_lut.end(); _i++) {
+    for (auto _i = coder_lut.begin(); _i != coder_lut.end(); _i++) {
       unsigned int _temp = (unsigned int)(*_i);
       //if (_temp!=0) std::cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << std::endl;
       //unsigned int _temp = 0;
@@ -766,7 +766,7 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getLinearizationLutXmlFro
 
   RooGKCounter _counter;
   //loop over all EMap channels
-  for (std::vector<EMap::EMapRow>::const_iterator row = _map.begin(); row != _map.end(); row++) {
+  for (auto row = _map.begin(); row != _map.end(); row++) {
     if ((row->subdet.find("HB") != string::npos || row->subdet.find("HE") != string::npos ||
          row->subdet.find("HF") != string::npos) &&
         row->subdet.size() == 2) {
@@ -842,7 +842,7 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getHEFineGrainLUTs(std::s
 
   RooGKCounter _counter;
   //loop over all EMap channels
-  for (std::vector<EMap::EMapRow>::const_iterator row = _map.begin(); row != _map.end(); row++) {
+  for (auto row = _map.begin(); row != _map.end(); row++) {
     if (row->subdet.find("HT") != string::npos && row->subdet.size() == 2) {
       int abseta = abs(row->ieta);
       const HcalTopology* topo = cq->topo();
@@ -938,7 +938,7 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getCompressionLutXmlFromC
   }
 
   RooGKCounter _counter;
-  for (std::vector<EMap::EMapRow>::const_iterator row = _map.begin(); row != _map.end(); row++) {
+  for (auto row = _map.begin(); row != _map.end(); row++) {
     LutXml::Config _cfg;
 
     if (row->subdet.find("HT") == std::string::npos)
@@ -1025,7 +1025,7 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getCompressionLutXmlFromC
 
   //loop over all EMap channels
   RooGKCounter _counter;
-  for (std::vector<EMap::EMapRow>::const_iterator row = _map.begin(); row != _map.end(); row++) {
+  for (auto row = _map.begin(); row != _map.end(); row++) {
     LutXml::Config _cfg;
 
     // only trigger tower channels
@@ -1086,7 +1086,7 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getCompressionLutXmlFromC
 int HcalLutManager::writeLutXmlFiles(std::map<int, std::shared_ptr<LutXml>>& _xml,
                                      std::string _tag,
                                      bool split_by_crate) {
-  for (std::map<int, std::shared_ptr<LutXml>>::const_iterator cr = _xml.begin(); cr != _xml.end(); cr++) {
+  for (auto cr = _xml.begin(); cr != _xml.end(); cr++) {
     std::stringstream output_file_name;
     if (split_by_crate) {
       output_file_name << _tag << "_" << cr->first << ".xml";
@@ -1269,7 +1269,7 @@ int HcalLutManager::createAllLutXmlFilesLinAsciiCompCoder(std::string _tag,
 
 void HcalLutManager::addLutMap(std::map<int, std::shared_ptr<LutXml>>& result,
                                const std::map<int, std::shared_ptr<LutXml>>& other) {
-  for (std::map<int, std::shared_ptr<LutXml>>::const_iterator lut = other.begin(); lut != other.end(); lut++) {
+  for (auto lut = other.begin(); lut != other.end(); lut++) {
     edm::LogInfo("HcalLutManager") << "Added LUTs for crate " << lut->first;
     if (result.count(lut->first) == 0) {
       result.insert(*lut);
@@ -1352,7 +1352,7 @@ int HcalLutManager::test_xml_access(std::string _tag, std::string _filename) {
                                  << "total time: " << d_time << std::endl;
 
   edm::LogInfo("HcalLutManager") << "LUT length = " << _lut.size();
-  for (std::vector<unsigned int>::const_iterator i = _lut.end() - 1; i != _lut.begin() - 1; i--) {
+  for (auto i = _lut.end() - 1; i != _lut.begin() - 1; i--) {
     edm::LogInfo("HcalLutManager") << (i - _lut.begin()) << "     " << _lut[(i - _lut.begin())];
     break;
   }
@@ -1455,7 +1455,7 @@ int HcalLutManager::get_xml_files_from_db(std::string tag, const std::string db_
     writeLutXmlFiles(lut_map, tag, split_by_crate);
   } else {
     LutXml result;
-    for (std::map<int, std::shared_ptr<LutXml>>::const_iterator xml = lut_map.begin(); xml != lut_map.end(); xml++) {
+    for (auto xml = lut_map.begin(); xml != lut_map.end(); xml++) {
       result += *(xml->second);
     }
     std::stringstream out_file;
@@ -1516,7 +1516,7 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::get_brickSet_from_oracle(
 	out_file . close();
 	*/
         const char* bs = brick_set.c_str();
-        MemBufInputSource* lut_clob = new MemBufInputSource((const XMLByte*)bs, strlen(bs), "lut_clob", false);
+        auto* lut_clob = new MemBufInputSource((const XMLByte*)bs, strlen(bs), "lut_clob", false);
         std::shared_ptr<LutXml> lut_xml = std::make_shared<LutXml>(*lut_clob);
         lut_map[crate] = lut_xml;
         edm::LogInfo("HcalLutManager") << "done";
@@ -1571,7 +1571,7 @@ int HcalLutManager::create_lut_loader(std::string file_list,
 
   std::vector<int> crate_number;
   std::vector<std::string> file_name = HcalQIEManager::splitString(file_list);
-  for (std::vector<std::string>::const_iterator _f = file_name.begin(); _f != file_name.end(); _f++) {
+  for (auto _f = file_name.begin(); _f != file_name.end(); _f++) {
     int crate_begin = _f->rfind("_");
     int crate_end = _f->rfind(".xml.dat");
     crate_number.push_back(getInt(_f->substr(crate_begin + 1, crate_end - crate_begin - 1)));
@@ -1586,7 +1586,7 @@ int HcalLutManager::create_lut_loader(std::string file_list,
   conf.version.append(_buf);
   CSconf.version = conf.version;
   //
-  for (std::vector<std::string>::const_iterator _file = file_name.begin(); _file != file_name.end(); _file++) {
+  for (auto _file = file_name.begin(); _file != file_name.end(); _file++) {
     conf.trig_prim_lookuptbl_data_file = *_file;
     //conf . trig_prim_lookuptbl_data_file += ".dat";
     conf.crate = crate_number[_file - file_name.begin()];
@@ -1623,7 +1623,7 @@ void HcalLutManager::test_emap(void) {
 
   //loop over all EMap channels
   //RooGKCounter _c;
-  for (std::vector<EMap::EMapRow>::const_iterator row = _map.begin(); row != _map.end(); row++) {
+  for (auto row = _map.begin(); row != _map.end(); row++) {
     // only trigger tower channels
     if (row->subdet.find("HT") != std::string::npos) {
       s << " -----> Subdet = " << row->subdet << std::endl;
@@ -1724,7 +1724,7 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getZdcLutXml(std::string 
 
   //loop over all EMap channels
   RooGKCounter _counter;
-  for (std::vector<EMap::EMapRow>::const_iterator row = _map.begin(); row != _map.end(); row++) {
+  for (auto row = _map.begin(); row != _map.end(); row++) {
     LutXml::Config _cfg;
 
     // only ZDC channels
@@ -1761,7 +1761,7 @@ std::map<int, std::shared_ptr<LutXml>> HcalLutManager::getZdcLutXml(std::string 
       std::vector<int> coder_lut = zdc.get_lut(row->zdc_section, row->zdc_zside, row->zdc_channel);
       edm::LogInfo("HcalLutManager") << "***DEBUG: ZDC lut size: " << coder_lut.size();
       if (!coder_lut.empty()) {
-        for (std::vector<int>::const_iterator _i = coder_lut.begin(); _i != coder_lut.end(); _i++) {
+        for (auto _i = coder_lut.begin(); _i != coder_lut.end(); _i++) {
           unsigned int _temp = (unsigned int)(*_i);
           //if (_temp!=0) std::cout << "DEBUG non-zero LUT!!!!!!!!!!!!!!!" << (*_i) << "     " << _temp << std::endl;
           //unsigned int _temp = 0;

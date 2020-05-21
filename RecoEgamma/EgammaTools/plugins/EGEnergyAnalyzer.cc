@@ -98,7 +98,7 @@ void EGEnergyAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   Handle<reco::VertexCollection> hVertexProduct;
   iEvent.getByLabel("offlinePrimaryVerticesWithBS", hVertexProduct);
 
-  for (reco::PhotonCollection::const_iterator it = hPhotonProduct->begin(); it != hPhotonProduct->end(); ++it) {
+  for (auto it = hPhotonProduct->begin(); it != hPhotonProduct->end(); ++it) {
     std::pair<double, double> corsfile = corfile.CorrectedEnergyWithError(*it, *hVertexProduct, lazyTools, iSetup);
     std::pair<double, double> corsdb = cordb.CorrectedEnergyWithError(*it, *hVertexProduct, lazyTools, iSetup);
 

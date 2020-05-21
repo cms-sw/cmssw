@@ -24,8 +24,7 @@ std::vector<std::pair<int, float> > CalibElectron::getCalibModulesWeights(TStrin
 
     std::vector<std::pair<DetId, float> > scDetIds = theElectron_->superCluster()->hitsAndFractions();
 
-    for (std::vector<std::pair<DetId, float> >::const_iterator idIt = scDetIds.begin(); idIt != scDetIds.end();
-         ++idIt) {
+    for (auto idIt = scDetIds.begin(); idIt != scDetIds.end(); ++idIt) {
       const EcalRecHit* rh = nullptr;
       if ((*idIt).first.subdetId() == EcalBarrel)
         rh = &*(theHits_->find((*idIt).first));
@@ -50,8 +49,7 @@ std::vector<std::pair<int, float> > CalibElectron::getCalibModulesWeights(TStrin
 
     std::vector<std::pair<DetId, float> > scDetIds = theElectron_->superCluster()->hitsAndFractions();
 
-    for (std::vector<std::pair<DetId, float> >::const_iterator idIt = scDetIds.begin(); idIt != scDetIds.end();
-         ++idIt) {
+    for (auto idIt = scDetIds.begin(); idIt != scDetIds.end(); ++idIt) {
       const EcalRecHit* rh = nullptr;
       if ((*idIt).first.subdetId() == EcalBarrel)
         rh = &*(theHits_->find((*idIt).first));
@@ -76,8 +74,7 @@ std::vector<std::pair<int, float> > CalibElectron::getCalibModulesWeights(TStrin
 
     std::vector<std::pair<DetId, float> > scDetIds = theElectron_->superCluster()->hitsAndFractions();
 
-    for (std::vector<std::pair<DetId, float> >::const_iterator idIt = scDetIds.begin(); idIt != scDetIds.end();
-         ++idIt) {
+    for (auto idIt = scDetIds.begin(); idIt != scDetIds.end(); ++idIt) {
       const EcalRecHit* rh = nullptr;
       if ((*idIt).first.subdetId() == EcalBarrel)
         rh = &*(theHits_->find((*idIt).first));
@@ -103,8 +100,7 @@ std::vector<std::pair<int, float> > CalibElectron::getCalibModulesWeights(TStrin
 
     std::vector<std::pair<DetId, float> > scDetIds = theElectron_->superCluster()->hitsAndFractions();
 
-    for (std::vector<std::pair<DetId, float> >::const_iterator idIt = scDetIds.begin(); idIt != scDetIds.end();
-         ++idIt) {
+    for (auto idIt = scDetIds.begin(); idIt != scDetIds.end(); ++idIt) {
       const EcalRecHit* rh = nullptr;
       if ((*idIt).first.subdetId() == EcalBarrel)
         rh = &*(theHits_->find((*idIt).first));

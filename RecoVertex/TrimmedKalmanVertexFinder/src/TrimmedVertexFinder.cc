@@ -55,7 +55,7 @@ std::vector<TransientVertex> TrimmedVertexFinder::vertices(std::vector<Transient
   bool found = false;
   while (!found && selected.size() >= 2) {
     // find track with worst compatibility
-    std::vector<RefCountedVertexTrack>::iterator iWorst = theWorst(vtx, selected, theMinProb);
+    auto iWorst = theWorst(vtx, selected, theMinProb);
 
     if (iWorst != selected.end()) {
       // reject track
@@ -94,7 +94,7 @@ std::vector<TransientVertex> TrimmedVertexFinder::vertices(std::vector<Transient
       int n_tracks_in_vertex = selected.size();
 
       // now return all tracks with weight < 0.5 to 'remain'.
-      for (std::vector<RefCountedVertexTrack>::const_iterator t = selected.begin(); t != selected.end(); ++t) {
+      for (auto t = selected.begin(); t != selected.end(); ++t) {
         if ((**t).weight() < 0.5) {
           /*
           cout << "[TrimmedVertexFinder] recycling track with weight "
@@ -114,7 +114,7 @@ std::vector<TransientVertex> TrimmedVertexFinder::vertices(std::vector<Transient
 
   // modify list of incompatible tracks
   tks.clear();
-  for (std::vector<RefCountedVertexTrack>::const_iterator i = remain.begin(); i != remain.end(); i++) {
+  for (auto i = remain.begin(); i != remain.end(); i++) {
     const PerigeeLinearizedTrackState* plts =
         dynamic_cast<const PerigeeLinearizedTrackState*>((**i).linearizedTrack().get());
     if (plts == nullptr) {
@@ -133,9 +133,9 @@ std::vector<TrimmedVertexFinder::RefCountedVertexTrack>::iterator TrimmedVertexF
   //  cout << "Cut is now " << cut << endl;
 
   // find track with worst compatibility
-  std::vector<RefCountedVertexTrack>::iterator iWorst = vtxTracks.end();
+  auto iWorst = vtxTracks.end();
   float worseChi2 = 0.;
-  for (std::vector<RefCountedVertexTrack>::iterator itr = vtxTracks.begin(); itr != vtxTracks.end(); itr++) {
+  for (auto itr = vtxTracks.begin(); itr != vtxTracks.end(); itr++) {
     CachingVertex<5> newV = theUpdator->remove(vtx, *itr);
     if (!newV.isValid())
       return itr;

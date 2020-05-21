@@ -373,7 +373,7 @@ void IsoTrackCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     edm::LogInfo("IsoTrack") << "menuName " << menuName << std::endl;
 
   std::vector<int> algbits;
-  for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
+  for (auto itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
     std::string algName = itAlgo->first;
     int algBitNumber = (itAlgo->second).algoBitNumber();
     bool decision = m_l1GtUtils.decision(iEvent, itAlgo->first, iErrorCode);
@@ -657,7 +657,7 @@ void IsoTrackCalib::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup
 
   if (verbosity_ % 10 > 0)
     edm::LogInfo("IsoTrack") << "menuName " << menuName;
-  for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
+  for (auto itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
     std::string algName = itAlgo->first;
     int algBitNumber = (itAlgo->second).algoBitNumber();
     l1AlgoMap_.insert(std::pair<std::pair<unsigned int, std::string>, int>(

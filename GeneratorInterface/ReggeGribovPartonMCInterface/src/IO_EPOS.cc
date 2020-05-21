@@ -49,7 +49,7 @@ namespace EPOS {
       hepevt_particle[i1] = build_particle(i1);
     }
 
-    HepMC::GenVertex* primaryVertex = new HepMC::GenVertex(HepMC::FourVector(0, 0, 0, 0), 0);
+    auto* primaryVertex = new HepMC::GenVertex(HepMC::FourVector(0, 0, 0, 0), 0);
     evt->add_vertex(primaryVertex);
     if (!evt->signal_process_vertex())
       evt->set_signal_process_vertex(primaryVertex);
@@ -93,7 +93,7 @@ namespace EPOS {
       if (m_skip_nucl_frag && abs(hepevt_particle[i3]->pdg_id()) >= 1000000000)
         continue;
       if (!hepevt_particle[i3]->end_vertex() && !hepevt_particle[i3]->production_vertex()) {
-        HepMC::GenVertex* prod_vtx = new GenVertex();
+        auto* prod_vtx = new GenVertex();
         prod_vtx->add_particle_out(hepevt_particle[i3]);
         evt->add_vertex(prod_vtx);
       }
@@ -114,9 +114,7 @@ namespace EPOS {
     for (HepMC::GenEvent::vertex_const_iterator v = evt->vertices_begin(); v != evt->vertices_end(); ++v) {
       // all "mothers" or particles_in are kept adjacent in the list
       // so that the mother indices in hepevt can be filled properly
-      for (HepMC::GenVertex::particles_in_const_iterator p1 = (*v)->particles_in_const_begin();
-           p1 != (*v)->particles_in_const_end();
-           ++p1) {
+      for (auto p1 = (*v)->particles_in_const_begin(); p1 != (*v)->particles_in_const_end(); ++p1) {
         ++particle_counter;
         if (particle_counter > EPOS_Wrapper::max_number_entries())
           break;
@@ -125,9 +123,7 @@ namespace EPOS {
       }
       // daughters are entered only if they aren't a mother of
       // another vtx
-      for (HepMC::GenVertex::particles_out_const_iterator p2 = (*v)->particles_out_const_begin();
-           p2 != (*v)->particles_out_const_end();
-           ++p2) {
+      for (auto p2 = (*v)->particles_out_const_begin(); p2 != (*v)->particles_out_const_end(); ++p2) {
         if (!(*p2)->end_vertex()) {
           ++particle_counter;
           if (particle_counter > EPOS_Wrapper::max_number_entries()) {
@@ -291,7 +287,7 @@ namespace EPOS {
 
   HepMC::GenParticle* IO_EPOS::build_particle(int index) {
     //
-    HepMC::GenParticle* p = new GenParticle(
+    auto* p = new GenParticle(
         FourVector(EPOS_Wrapper::px(index), EPOS_Wrapper::py(index), EPOS_Wrapper::pz(index), EPOS_Wrapper::e(index)),
         EPOS_Wrapper::id(index),
         EPOS_Wrapper::status(index));
@@ -301,7 +297,7 @@ namespace EPOS {
   }
 
   int IO_EPOS::find_in_map(const std::map<HepMC::GenParticle*, int>& m, HepMC::GenParticle* p) const {
-    std::map<HepMC::GenParticle*, int>::const_iterator iter = m.find(p);
+    auto iter = m.find(p);
     if (iter == m.end())
       return 0;
     return iter->second;

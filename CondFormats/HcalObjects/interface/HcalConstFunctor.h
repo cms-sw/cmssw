@@ -23,7 +23,7 @@ public:
 
 protected:
   inline bool isEqual(const AbsHcalFunctor& other) const override {
-    const HcalConstFunctor& r = static_cast<const HcalConstFunctor&>(other);
+    const auto& r = static_cast<const HcalConstFunctor&>(other);
     return value_ == r.value_;
   }
 

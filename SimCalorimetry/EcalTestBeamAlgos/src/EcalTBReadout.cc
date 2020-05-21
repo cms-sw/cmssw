@@ -27,7 +27,7 @@ void EcalTBReadout::findTTlist(const int &crysId, const EcalTrigTowerConstituent
   /// DetId assuming only 1 SM present
 
   EBDetId theTargetId;
-  std::vector<DetId>::const_iterator idItr = theDetIds->begin();
+  auto idItr = theDetIds->begin();
   unsigned int ncount = 0;
   bool found = false;
 
@@ -81,7 +81,7 @@ void EcalTBReadout::findTTlist(const int &crysId, const EcalTrigTowerConstituent
         if (theTTlist_.empty() || (theTTlist_.size() == 1 && theTTlist_[0] != thisTTdetId)) {
           theTTlist_.push_back(thisTTdetId);
         } else {
-          std::vector<EcalTrigTowerDetId>::iterator ttFound = find(theTTlist_.begin(), theTTlist_.end(), thisTTdetId);
+          auto ttFound = find(theTTlist_.begin(), theTTlist_.end(), thisTTdetId);
           if (theTTlist_.size() > 1 && ttFound == theTTlist_.end() && *(theTTlist_.end()) != thisTTdetId) {
             theTTlist_.push_back(thisTTdetId);
           }
@@ -119,7 +119,7 @@ void EcalTBReadout::readOut(const EBDigiCollection &input,
     EBDataFrame ebdf = input[digis];
 
     EcalTrigTowerDetId thisTTdetId = etmap.towerOf(ebdf.id());
-    std::vector<EcalTrigTowerDetId>::iterator ttFound = find(theTTlist_.begin(), theTTlist_.end(), thisTTdetId);
+    auto ttFound = find(theTTlist_.begin(), theTTlist_.end(), thisTTdetId);
 
     if ((ttFound != theTTlist_.end()) || *(theTTlist_.end()) == thisTTdetId) {
       output.push_back(ebdf.id());
@@ -137,7 +137,7 @@ void EcalTBReadout::readOut(const EEDigiCollection &input,
 
     EcalTrigTowerDetId thisTTdetId(etmap.towerOf(eedf.id()));
 
-    std::vector<EcalTrigTowerDetId>::iterator ttFound(find(theTTlist_.begin(), theTTlist_.end(), thisTTdetId));
+    auto ttFound(find(theTTlist_.begin(), theTTlist_.end(), thisTTdetId));
 
     if ((ttFound != theTTlist_.end()) || *(theTTlist_.end()) == thisTTdetId) {
       output.push_back(eedf.id());

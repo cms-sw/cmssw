@@ -61,7 +61,7 @@ L1TriggerKeyDummyProd::L1TriggerKeyDummyProd(const edm::ParameterSet& iConfig) {
     typedef std::vector<edm::ParameterSet> ObjectKeys;
     ObjectKeys keys = iConfig.getParameter<ObjectKeys>("objectKeys");
 
-    for (ObjectKeys::const_iterator it = keys.begin(); it != keys.end(); ++it) {
+    for (auto it = keys.begin(); it != keys.end(); ++it) {
       // Replace ?s with spaces.
       std::string key = it->getParameter<std::string>("key");
       replace(key.begin(), key.end(), '?', ' ');

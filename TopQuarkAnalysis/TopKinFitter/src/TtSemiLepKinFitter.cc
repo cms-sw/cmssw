@@ -75,7 +75,7 @@ TtSemiLepKinFitter::~TtSemiLepKinFitter() {
   delete lepton_;
   delete neutrino_;
   delete covM_;
-  for (std::map<Constraint, TFitConstraintM*>::iterator it = massConstr_.begin(); it != massConstr_.end(); ++it)
+  for (auto it = massConstr_.begin(); it != massConstr_.end(); ++it)
     delete it->second;
   delete sumPxConstr_;
   delete sumPyConstr_;

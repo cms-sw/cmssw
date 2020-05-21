@@ -206,7 +206,7 @@ int CaloTower::numCrystals() const {
     return 0;
 
   int nC = 0;
-  std::vector<DetId>::const_iterator it = constituents_.begin();
+  auto it = constituents_.begin();
   for (; it != constituents_.end(); ++it) {
     if (it->det() == DetId::Ecal)
       ++nC;

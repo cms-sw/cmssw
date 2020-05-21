@@ -362,15 +362,15 @@ unsigned int MuIsolatorResultProducer<BT>::initAssociation(edm::Event& event, Ca
     typename CandMap::handle_type keyH;
     event.get(depH->begin().id(), keyH);
     candMapT.setHandle(keyH);
-    typename CT::const_iterator depHCI = depH->begin().begin();
-    typename CT::const_iterator depEnd = depH->begin().end();
+    auto depHCI = depH->begin().begin();
+    auto depEnd = depH->begin().end();
     unsigned int keyI = 0;
     for (; depHCI != depEnd; ++depHCI, ++keyI) {
       typename CandMap::key_type muPtr(keyH->refAt(keyI));
       //! init {muon, {[deposit,veto]_type}} container
       if (iMap == 0)
         candMapT.get().push_back(typename CandMap::pair_type(muPtr, DepositContainer(theDepositConfs.size())));
-      typename CandMap::iterator muI = candMapT.get().begin();
+      auto muI = candMapT.get().begin();
       for (; muI != candMapT.get().end(); ++muI) {
         if (muI->first == muPtr)
           break;

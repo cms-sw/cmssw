@@ -304,7 +304,7 @@ void ConvertedPhotonProducer::buildCollections(
     if (aClus->energy() / cosh(aClus->eta()) <= minSCEt_)
       continue;
     const reco::CaloCluster* pClus = &(*aClus);
-    const reco::SuperCluster* sc = dynamic_cast<const reco::SuperCluster*>(pClus);
+    const auto* sc = dynamic_cast<const reco::SuperCluster*>(pClus);
     const CaloTowerCollection* hcalTowersColl = hcalTowersHandle.product();
     EgammaTowerIsolation towerIso(hOverEConeSize_, 0., 0., -1, hcalTowersColl);
     double HoE = towerIso.getTowerESum(sc) / sc->energy();
@@ -331,9 +331,7 @@ void ConvertedPhotonProducer::buildCollections(
     if (!allPairs.empty()) {
       nFound = 0;
 
-      for (std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>::const_iterator iPair = allPairs.begin();
-           iPair != allPairs.end();
-           ++iPair) {
+      for (auto iPair = allPairs.begin(); iPair != allPairs.end(); ++iPair) {
         scPtrVec.clear();
 
         reco::Vertex theConversionVertex;
@@ -377,13 +375,10 @@ void ConvertedPhotonProducer::buildCollections(
           trackPin.clear();
           trackPout.clear();
 
-          for (std::vector<reco::TransientTrack>::const_iterator iTk = (iPair->first).begin();
-               iTk != (iPair->first).end();
-               ++iTk) {
+          for (auto iTk = (iPair->first).begin(); iTk != (iPair->first).end(); ++iTk) {
             //LogDebug("ConvertedPhotonProducer")  << "  ConvertedPhotonProducer Transient Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << "\n";
 
-            const reco::TrackTransientTrack* ttt =
-                dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
+            const auto* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
             reco::TrackRef myTkRef = ttt->persistentTrackRef();
 
             //LogDebug("ConvertedPhotonProducer")  << " ConvertedPhotonProducer Ref to Rec Tracks in the pair  charge " << myTkRef->charge() << " Num of RecHits " << myTkRef->recHitsSize() << " inner momentum " << myTkRef->innerMomentum() << "\n";
@@ -435,10 +430,9 @@ void ConvertedPhotonProducer::buildCollections(
           trackInnPos.clear();
           trackPin.clear();
           trackPout.clear();
-          std::vector<reco::TransientTrack>::const_iterator iTk = (iPair->first).begin();
+          auto iTk = (iPair->first).begin();
           //std::cout  << "  ConvertedPhotonProducer Transient Tracks in the pair  charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner momentum " << iTk->track().innerMomentum() << " pt " << sqrt(iTk->track().innerMomentum().perp2()) << "\n";
-          const reco::TrackTransientTrack* ttt =
-              dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
+          const auto* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
           reco::TrackRef myTk = ttt->persistentTrackRef();
           if (myTk->extra().isNonnull()) {
             trackInnPos.push_back(toFConverterP(myTk->innerPosition()));
@@ -454,11 +448,8 @@ void ConvertedPhotonProducer::buildCollections(
             float dCotTheta = -999.;
             reco::TrackRef goodRef;
             std::vector<reco::TransientTrack>::const_iterator iGoodGenTran;
-            for (std::vector<reco::TransientTrack>::const_iterator iTran = t_generalTrk.begin();
-                 iTran != t_generalTrk.end();
-                 ++iTran) {
-              const reco::TrackTransientTrack* ttt =
-                  dynamic_cast<const reco::TrackTransientTrack*>(iTran->basicTransientTrack());
+            for (auto iTran = t_generalTrk.begin(); iTran != t_generalTrk.end(); ++iTran) {
+              const auto* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTran->basicTransientTrack());
               reco::TrackRef trRef = ttt->persistentTrackRef();
               if (trRef->charge() * myTk->charge() > 0)
                 continue;
@@ -538,7 +529,7 @@ void ConvertedPhotonProducer::cleanCollections(const edm::Handle<edm::View<reco:
       if (risolveAmbiguity_) {
         std::vector<reco::ConversionRef> bestRef = solveAmbiguity(conversionHandle, aClus);
 
-        for (std::vector<reco::ConversionRef>::iterator iRef = bestRef.begin(); iRef != bestRef.end(); iRef++) {
+        for (auto iRef = bestRef.begin(); iRef != bestRef.end(); iRef++) {
           if (iRef->isNonnull()) {
             newCandidate = (*iRef)->clone();
             outputConversionCollection.push_back(*newCandidate);

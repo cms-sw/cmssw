@@ -95,8 +95,7 @@ std::unique_ptr<L1GtPrescaleFactors> L1GtPrescaleFactorsTechTrigConfigOnlineProd
   int countSet = -1;
 
   for (int iRow = 0; iRow < resultsViewRows; ++iRow) {
-    for (std::vector<std::string>::const_iterator constIt = columnsView.begin(); constIt != columnsView.end();
-         ++constIt) {
+    for (auto constIt = columnsView.begin(); constIt != columnsView.end(); ++constIt) {
       if ((*constIt) == "PRESCALE_INDEX") {
         resultsView.fillVariableFromRow(*constIt, iRow, prescaleFactorsSetIndex);
       } else if ((*constIt) == "PRESCALE_FACTORS_TT_FK") {
@@ -126,7 +125,7 @@ std::unique_ptr<L1GtPrescaleFactors> L1GtPrescaleFactorsTechTrigConfigOnlineProd
       LogTrace("L1GtPrescaleFactorsTechTrigConfigOnlineProd")
           << "\nColumn names for GT_FDL_PRESCALE_FACTORS_TT" << std::endl;
 
-      for (std::vector<std::string>::const_iterator iter = columns.begin(); iter != columns.end(); iter++) {
+      for (auto iter = columns.begin(); iter != columns.end(); iter++) {
         LogTrace("L1GtPrescaleFactorsTechTrigConfigOnlineProd") << (*iter) << std::endl;
       }
     }

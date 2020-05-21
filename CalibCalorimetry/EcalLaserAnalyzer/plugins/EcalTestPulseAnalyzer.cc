@@ -264,8 +264,7 @@ void EcalTestPulseAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
   // Decode Basic DCCHeader Information
   // ====================================
 
-  for (EcalRawDataCollection::const_iterator headerItr = DCCHeader->begin(); headerItr != DCCHeader->end();
-       ++headerItr) {
+  for (auto headerItr = DCCHeader->begin(); headerItr != DCCHeader->end(); ++headerItr) {
     int fed = headerItr->fedId();
 
     if (fed != _fedid && _fedid != -999)
@@ -317,10 +316,9 @@ void EcalTestPulseAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& 
   std::map<int, std::vector<double> > allPNAmpl;
   std::map<int, std::vector<int> > allPNGain;
 
-  for (EcalPnDiodeDigiCollection::const_iterator pnItr = PNDigi->begin(); pnItr != PNDigi->end();
-       ++pnItr) {  // Loop on PNs
+  for (auto pnItr = PNDigi->begin(); pnItr != PNDigi->end(); ++pnItr) {  // Loop on PNs
 
-    EcalPnDiodeDetId pnDetId = EcalPnDiodeDetId((*pnItr).id());
+    auto pnDetId = EcalPnDiodeDetId((*pnItr).id());
 
     bool isMemRelevant = false;
     for (unsigned int imem = 0; imem < dccMEM.size(); imem++) {

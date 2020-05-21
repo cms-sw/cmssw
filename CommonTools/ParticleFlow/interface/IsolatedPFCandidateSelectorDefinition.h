@@ -52,7 +52,7 @@ namespace pf2pat {
       }
 
       unsigned key = 0;
-      for (collection::const_iterator pfc = hc->begin(); pfc != hc->end(); ++pfc, ++key) {
+      for (auto pfc = hc->begin(); pfc != hc->end(); ++pfc, ++key) {
         reco::PFCandidateRef candidate(hc, key);
 
         bool passed = true;

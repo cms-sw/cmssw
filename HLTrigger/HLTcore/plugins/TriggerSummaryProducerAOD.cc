@@ -271,15 +271,15 @@ void TriggerSummaryProducerAOD::produce(edm::StreamID, edm::Event& iEvent, const
     /// event-by-event tags
     const unsigned int nc(collectionTagsEvent.size());
     LogTrace("TriggerSummaryProducerAOD") << "Number of unique collections requested " << nc;
-    const InputTagSet::const_iterator cb(collectionTagsEvent.begin());
-    const InputTagSet::const_iterator ce(collectionTagsEvent.end());
+    const auto cb(collectionTagsEvent.begin());
+    const auto ce(collectionTagsEvent.end());
     for (InputTagSet::const_iterator ci = cb; ci != ce; ++ci) {
       LogTrace("TriggerSummaryProducerAOD") << distance(cb, ci) << " " << ci->encode();
     }
     const unsigned int nf(filterTagsEvent.size());
     LogTrace("TriggerSummaryProducerAOD") << "Number of unique filters requested " << nf;
-    const InputTagSet::const_iterator fb(filterTagsEvent.begin());
-    const InputTagSet::const_iterator fe(filterTagsEvent.end());
+    const auto fb(filterTagsEvent.begin());
+    const auto fe(filterTagsEvent.end());
     for (InputTagSet::const_iterator fi = fb; fi != fe; ++fi) {
       LogTrace("TriggerSummaryProducerAOD") << distance(fb, fi) << " " << fi->encode();
     }
@@ -717,15 +717,15 @@ void TriggerSummaryProducerAOD::endJob() {
   LogVerbatim("TriggerSummaryProducerAOD") << " Overall number of Collections/Filters: " << nc << "/" << nf << endl;
 
   LogVerbatim("TriggerSummaryProducerAOD") << " The collections: " << nc << endl;
-  const InputTagSet::const_iterator cb(collectionTags.begin());
-  const InputTagSet::const_iterator ce(collectionTags.end());
+  const auto cb(collectionTags.begin());
+  const auto ce(collectionTags.end());
   for (InputTagSet::const_iterator ci = cb; ci != ce; ++ci) {
     LogVerbatim("TriggerSummaryProducerAOD") << "  " << distance(cb, ci) << " " << ci->encode() << endl;
   }
 
   LogVerbatim("TriggerSummaryProducerAOD") << " The filters:" << nf << endl;
-  const InputTagSet::const_iterator fb(filterTags.begin());
-  const InputTagSet::const_iterator fe(filterTags.end());
+  const auto fb(filterTags.begin());
+  const auto fe(filterTags.end());
   for (InputTagSet::const_iterator fi = fb; fi != fe; ++fi) {
     LogVerbatim("TriggerSummaryProducerAOD") << "  " << distance(fb, fi) << " " << fi->encode() << endl;
   }

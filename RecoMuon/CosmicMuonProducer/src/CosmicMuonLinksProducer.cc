@@ -41,7 +41,7 @@ CosmicMuonLinksProducer::CosmicMuonLinksProducer(const ParameterSet& iConfig) {
   theService = new MuonServiceProxy(serviceParameters, consumesCollector());
 
   std::vector<edm::ParameterSet> theMapPSets = iConfig.getParameter<std::vector<edm::ParameterSet> >("Maps");
-  for (std::vector<edm::ParameterSet>::const_iterator iMPS = theMapPSets.begin(); iMPS != theMapPSets.end(); iMPS++) {
+  for (auto iMPS = theMapPSets.begin(); iMPS != theMapPSets.end(); iMPS++) {
     edm::InputTag sTag = (*iMPS).getParameter<edm::InputTag>("subTrack");
     edm::InputTag pTag = (*iMPS).getParameter<edm::InputTag>("parentTrack");
 
@@ -69,10 +69,7 @@ void CosmicMuonLinksProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 
   unsigned int counter =
       0;  ///DAMN I cannot read the label of the TOKEN so I need to do this stupid thing to create the labels of the products!
-  for (std::vector<std::pair<edm::EDGetTokenT<reco::TrackCollection>,
-                             edm::EDGetTokenT<reco::TrackCollection> > >::const_iterator iLink = theTrackLinks.begin();
-       iLink != theTrackLinks.end();
-       iLink++) {
+  for (auto iLink = theTrackLinks.begin(); iLink != theTrackLinks.end(); iLink++) {
 #ifdef EDM_ML_DEBUG
     edm::EDConsumerBase::Labels labels_first;
     edm::EDConsumerBase::Labels labels_second;
@@ -122,7 +119,7 @@ reco::TrackToTrackMap CosmicMuonLinksProducer::mapTracks(const Handle<reco::Trac
 int CosmicMuonLinksProducer::sharedHits(const reco::Track& track1, const reco::Track& track2) const {
   int match = 0;
 
-  for (trackingRecHit_iterator hit1 = track1.recHitsBegin(); hit1 != track1.recHitsEnd(); ++hit1) {
+  for (auto hit1 = track1.recHitsBegin(); hit1 != track1.recHitsEnd(); ++hit1) {
     if (!(*hit1)->isValid())
       continue;
     DetId id1 = (*hit1)->geographicalId();
@@ -131,7 +128,7 @@ int CosmicMuonLinksProducer::sharedHits(const reco::Track& track1, const reco::T
     LogTrace(category_) << "first ID " << id1.rawId() << " " << (*hit1)->localPosition() << endl;
     GlobalPoint pos1 = theService->trackingGeometry()->idToDet(id1)->surface().toGlobal((*hit1)->localPosition());
 
-    for (trackingRecHit_iterator hit2 = track2.recHitsBegin(); hit2 != track2.recHitsEnd(); ++hit2) {
+    for (auto hit2 = track2.recHitsBegin(); hit2 != track2.recHitsEnd(); ++hit2) {
       if (!(*hit2)->isValid())
         continue;
 

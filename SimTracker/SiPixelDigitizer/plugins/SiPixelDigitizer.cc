@@ -133,8 +133,7 @@ namespace cms {
       edm::ESHandle<TrackerTopology> tTopoHand;
       iSetup.get<TrackerTopologyRcd>().get(tTopoHand);
       const TrackerTopology* tTopo = tTopoHand.product();
-      for (std::vector<PSimHit>::const_iterator it = simHits.begin(), itEnd = simHits.end(); it != itEnd;
-           ++it, ++globalSimHitIndex) {
+      for (auto it = simHits.begin(), itEnd = simHits.end(); it != itEnd; ++it, ++globalSimHitIndex) {
         unsigned int detId = (*it).detUnitId();
         if (detIds.insert(detId).second) {
           // The insert succeeded, so this detector element has not yet been processed.
@@ -143,7 +142,7 @@ namespace cms {
               detectorUnits[detId]
                   ->type()
                   .isTrackerPixel()) {  // this test could be avoided and changed into a check of pixdet!=0
-            std::map<unsigned int, PixelGeomDetUnit const*>::iterator itDet = detectorUnits.find(detId);
+            auto itDet = detectorUnits.find(detId);
             if (itDet == detectorUnits.end())
               continue;
             auto pixdet = itDet->second;
@@ -206,7 +205,7 @@ namespace cms {
 
   void SiPixelDigitizer::accumulate(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
     // Step A: Get Inputs
-    for (vstring::const_iterator i = trackerContainers.begin(), iEnd = trackerContainers.end(); i != iEnd; ++i) {
+    for (auto i = trackerContainers.begin(), iEnd = trackerContainers.end(); i != iEnd; ++i) {
       edm::Handle<std::vector<PSimHit> > simHits;
       edm::InputTag tag(hitsProducer, *i);
 
@@ -229,7 +228,7 @@ namespace cms {
                                     edm::EventSetup const& iSetup,
                                     edm::StreamID const& streamID) {
     // Step A: Get Inputs
-    for (vstring::const_iterator i = trackerContainers.begin(), iEnd = trackerContainers.end(); i != iEnd; ++i) {
+    for (auto i = trackerContainers.begin(), iEnd = trackerContainers.end(); i != iEnd; ++i) {
       edm::Handle<std::vector<PSimHit> > simHits;
       edm::InputTag tag(hitsProducer, *i);
 

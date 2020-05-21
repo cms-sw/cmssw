@@ -308,7 +308,7 @@ void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt,
                 // Loop over all PFCands for cluster plots
                 std::vector<CandidatePtr> myPFCands = (*thePFTau).pfTauTagInfoRef()->PFCands();
                 for (int i = 0; i < (int)myPFCands.size(); i++) {
-                  const reco::PFCandidate* pfCand = dynamic_cast<const reco::PFCandidate*>(myPFCands[i].get());
+                  const auto* pfCand = dynamic_cast<const reco::PFCandidate*>(myPFCands[i].get());
                   if (pfCand == nullptr)
                     continue;
 

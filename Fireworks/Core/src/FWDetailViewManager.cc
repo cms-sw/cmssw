@@ -70,7 +70,7 @@ FWDetailViewManager::ViewFrame::~ViewFrame() = default;
 
 void FWDetailViewManager::openDetailViewFor(const FWModelId& id, const std::string& iViewName) {
   TEveWindowSlot* slot = TEveWindow::CreateWindowMainFrame();
-  TEveCompositeFrameInMainFrame* eveFrame = (TEveCompositeFrameInMainFrame*)slot->GetEveFrame();
+  auto* eveFrame = (TEveCompositeFrameInMainFrame*)slot->GetEveFrame();
 
   // find the right viewer for this item
   std::string typeName = edm::TypeWithDict(*(id.item()->modelType()->GetTypeInfo())).name();
@@ -84,7 +84,7 @@ void FWDetailViewManager::openDetailViewFor(const FWModelId& id, const std::stri
 
   //see if one of the names matches iViewName
   std::string match;
-  for (std::vector<std::string>::iterator it = viewerNames.begin(), itEnd = viewerNames.end(); it != itEnd; ++it) {
+  for (auto it = viewerNames.begin(), itEnd = viewerNames.end(); it != itEnd; ++it) {
     std::string t = viewNameFrom(*it);
     //std::cout <<"'"<<iViewName<< "' '"<<t<<"'"<<std::endl;
     if (t == iViewName) {
@@ -130,7 +130,7 @@ namespace {
 std::vector<std::string> FWDetailViewManager::findViewersFor(const std::string& iType) const {
   std::vector<std::string> returnValue;
 
-  std::map<std::string, std::vector<std::string> >::const_iterator itFind = m_typeToViewers.find(iType);
+  auto itFind = m_typeToViewers.find(iType);
   if (itFind != m_typeToViewers.end()) {
     return itFind->second;
   }
@@ -145,7 +145,7 @@ std::vector<std::string> FWDetailViewManager::findViewersFor(const std::string& 
                  boost::bind(&edmplugin::PluginInfo::name_, _1));
   unsigned int closestMatch = 0xFFFFFFFF;
 
-  for (std::set<std::string>::iterator it = detailViews.begin(), itEnd = detailViews.end(); it != itEnd; ++it) {
+  for (auto it = detailViews.begin(), itEnd = detailViews.end(); it != itEnd; ++it) {
     if (m_context->getHidePFBuilders()) {
       std::size_t found = it->find("PF ");
       if (found != std::string::npos)
@@ -192,7 +192,7 @@ std::vector<std::string> FWDetailViewManager::findViewersFor(const std::string& 
 }
 
 void FWDetailViewManager::colorsChanged() {
-  for (vViews_i i = m_views.begin(); i != m_views.end(); ++i)
+  for (auto i = m_views.begin(); i != m_views.end(); ++i)
     (*i).m_detailView->setBackgroundColor(m_context->colorManager()->background());
 }
 
@@ -203,7 +203,7 @@ void FWDetailViewManager::newEventCallback() {
 }
 
 void FWDetailViewManager::eveWindowDestroyed(TEveWindow* ew) {
-  for (vViews_i i = m_views.begin(); i != m_views.end(); ++i) {
+  for (auto i = m_views.begin(); i != m_views.end(); ++i) {
     if (ew == i->m_eveWindow) {
       // printf("========================== delete %s \n", ew->GetElementName());
       m_views.erase(i);

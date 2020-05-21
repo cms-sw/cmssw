@@ -197,7 +197,7 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
   gtRecordMap.reserve(boardMapsSize);
 
   for (int iPos = 0; iPos < boardMapsSize; ++iPos) {
-    for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
+    for (auto itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
       if (itBoard->gtPositionDaqRecord() == iPos) {
         gtRecordMap.push_back(*itBoard);
         break;
@@ -277,7 +277,7 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
 
   bool gtfeUnpacked = false;
 
-  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
+  for (auto itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
     if (itBoard->gtBoardType() == GTFE) {
       // unpack GTFE
       if (itBoard->gtPositionDaqRecord() == 1) {
@@ -353,7 +353,7 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
   int numberTcsBoards = 0;
   int numberTimBoards = 0;
 
-  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
+  for (auto itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
     int iActiveBit = itBoard->gtBitDaqActiveBoards();
     bool activeBoardToUnpack = false;
 
@@ -442,7 +442,7 @@ void L1GlobalTriggerRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup
 
   // ... then unpack modules other than GTFE, if requested
 
-  for (CItBoardMaps itBoard = gtRecordMap.begin(); itBoard != gtRecordMap.end(); ++itBoard) {
+  for (auto itBoard = gtRecordMap.begin(); itBoard != gtRecordMap.end(); ++itBoard) {
     int iActiveBit = itBoard->gtBitDaqActiveBoards();
 
     bool activeBoardToUnpack = false;

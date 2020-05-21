@@ -42,7 +42,7 @@ void l1t::Stage1Layer2SingleTrackHI::processEvent(const std::vector<l1t::CaloEmC
 }
 
 void findRegions(const std::vector<l1t::CaloRegion>* sr, std::vector<l1t::Tau>* t, const int etaMask) {
-  for (std::vector<l1t::CaloRegion>::const_iterator region = sr->begin(); region != sr->end(); region++) {
+  for (auto region = sr->begin(); region != sr->end(); region++) {
     int tauEta = region->hwEta();
     if (tauEta < 4 || tauEta > 17)
       continue;  // taus CANNOT be in the forward region

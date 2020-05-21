@@ -55,9 +55,7 @@ void ConvertObjectMapRecord::produce(edm::Event &event, const edm::EventSetup &e
   std::vector<int> algoBitNumbers;
   std::vector<L1GlobalTriggerObjectMap> const &vectorInRecord = gtObjectMapRecord->gtObjectMap();
   algoBitNumbers.reserve(vectorInRecord.size());
-  for (std::vector<L1GlobalTriggerObjectMap>::const_iterator i = vectorInRecord.begin(), iEnd = vectorInRecord.end();
-       i != iEnd;
-       ++i) {
+  for (auto i = vectorInRecord.begin(), iEnd = vectorInRecord.end(); i != iEnd; ++i) {
     algoBitNumbers.push_back(i->algoBitNumber());
   }
   edm::sort_all(algoBitNumbers);
@@ -83,8 +81,7 @@ void ConvertObjectMapRecord::produce(edm::Event &event, const edm::EventSetup &e
   unsigned startIndexOfConditions = 0;
   unsigned nIndexes = 0;
 
-  for (std::vector<int>::const_iterator iBit = algoBitNumbers.begin(), endBits = algoBitNumbers.end(); iBit != endBits;
-       ++iBit) {
+  for (auto iBit = algoBitNumbers.begin(), endBits = algoBitNumbers.end(); iBit != endBits; ++iBit) {
     L1GlobalTriggerObjectMap const *objMap = gtObjectMapRecord->getObjectMap(*iBit);
 
     gtObjectMaps->pushBackAlgorithm(startIndexOfConditions, objMap->algoBitNumber(), objMap->algoGtlResult());
@@ -96,9 +93,7 @@ void ConvertObjectMapRecord::produce(edm::Event &event, const edm::EventSetup &e
     startIndexOfConditions += operandTokens.size();
 
     int tokenCounter = 0;
-    for (std::vector<L1GtLogicParser::OperandToken>::const_iterator iToken = operandTokens.begin(),
-                                                                    endTokens = operandTokens.end();
-         iToken != endTokens;
+    for (auto iToken = operandTokens.begin(), endTokens = operandTokens.end(); iToken != endTokens;
          ++iToken, ++tokenCounter) {
       if (tokenCounter != iToken->tokenNumber) {
         cms::Exception ex("L1GlobalTrigger");
@@ -108,11 +103,8 @@ void ConvertObjectMapRecord::produce(edm::Event &event, const edm::EventSetup &e
       }
 
       CombinationsInCond const *combos = objMap->getCombinationsInCond(iToken->tokenNumber);
-      for (CombinationsInCond::const_iterator iCombo = combos->begin(), endCombos = combos->end(); iCombo != endCombos;
-           ++iCombo) {
-        for (std::vector<int>::const_iterator iIndex = iCombo->begin(), endIndexes = iCombo->end();
-             iIndex != endIndexes;
-             ++iIndex) {
+      for (auto iCombo = combos->begin(), endCombos = combos->end(); iCombo != endCombos; ++iCombo) {
+        for (auto iIndex = iCombo->begin(), endIndexes = iCombo->end(); iIndex != endIndexes; ++iIndex) {
           ++nIndexes;
         }
       }
@@ -127,8 +119,7 @@ void ConvertObjectMapRecord::produce(edm::Event &event, const edm::EventSetup &e
   // Now loop a second time and fill the condition and index
   // information.
   unsigned startIndexOfCombinations = 0;
-  for (std::vector<int>::const_iterator iBit = algoBitNumbers.begin(), endBits = algoBitNumbers.end(); iBit != endBits;
-       ++iBit) {
+  for (auto iBit = algoBitNumbers.begin(), endBits = algoBitNumbers.end(); iBit != endBits; ++iBit) {
     L1GlobalTriggerObjectMap const *objMap = gtObjectMapRecord->getObjectMap(*iBit);
 
     std::vector<L1GtLogicParser::OperandToken> const &operandTokens = objMap->operandTokenVector();
@@ -138,10 +129,7 @@ void ConvertObjectMapRecord::produce(edm::Event &event, const edm::EventSetup &e
       savedNames.reserve(operandTokens.size());
     }
 
-    for (std::vector<L1GtLogicParser::OperandToken>::const_iterator iToken = operandTokens.begin(),
-                                                                    endTokens = operandTokens.end();
-         iToken != endTokens;
-         ++iToken) {
+    for (auto iToken = operandTokens.begin(), endTokens = operandTokens.end(); iToken != endTokens; ++iToken) {
       savedNames.push_back(iToken->tokenName);
 
       unsigned short nObjectsPerCombination = 0;
@@ -149,8 +137,7 @@ void ConvertObjectMapRecord::produce(edm::Event &event, const edm::EventSetup &e
       unsigned nIndexesInCombination = 0;
 
       CombinationsInCond const *combos = objMap->getCombinationsInCond(iToken->tokenNumber);
-      for (CombinationsInCond::const_iterator iCombo = combos->begin(), endCombos = combos->end(); iCombo != endCombos;
-           ++iCombo) {
+      for (auto iCombo = combos->begin(), endCombos = combos->end(); iCombo != endCombos; ++iCombo) {
         if (first) {
           if (iCombo->size() > std::numeric_limits<unsigned short>::max()) {
             cms::Exception ex("L1GlobalTrigger");
@@ -169,9 +156,7 @@ void ConvertObjectMapRecord::produce(edm::Event &event, const edm::EventSetup &e
           }
         }
 
-        for (std::vector<int>::const_iterator iIndex = iCombo->begin(), endIndexes = iCombo->end();
-             iIndex != endIndexes;
-             ++iIndex) {
+        for (auto iIndex = iCombo->begin(), endIndexes = iCombo->end(); iIndex != endIndexes; ++iIndex) {
           if (*iIndex < 0 || *iIndex > std::numeric_limits<unsigned char>::max()) {
             cms::Exception ex("L1GlobalTrigger");
             ex << "object index too large, out of range";

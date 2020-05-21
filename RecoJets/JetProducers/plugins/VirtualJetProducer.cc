@@ -621,8 +621,7 @@ void VirtualJetProducer::writeJets(edm::Event& iEvent, edm::EventSetup const& iS
       int nEta = puCenters_.size();
       rhos->reserve(nEta);
       sigmas->reserve(nEta);
-      fastjet::ClusterSequenceAreaBase const* clusterSequenceWithArea =
-          dynamic_cast<fastjet::ClusterSequenceAreaBase const*>(fjClusterSeq_.get());
+      auto const* clusterSequenceWithArea = dynamic_cast<fastjet::ClusterSequenceAreaBase const*>(fjClusterSeq_.get());
 
       if (clusterSequenceWithArea == nullptr) {
         if (!fjJets_.empty()) {
@@ -647,8 +646,7 @@ void VirtualJetProducer::writeJets(edm::Event& iEvent, edm::EventSetup const& iS
       auto sigma = std::make_unique<double>(0.0);
       double mean_area = 0;
 
-      fastjet::ClusterSequenceAreaBase const* clusterSequenceWithArea =
-          dynamic_cast<fastjet::ClusterSequenceAreaBase const*>(fjClusterSeq_.get());
+      auto const* clusterSequenceWithArea = dynamic_cast<fastjet::ClusterSequenceAreaBase const*>(fjClusterSeq_.get());
       if (clusterSequenceWithArea == nullptr) {
         if (!fjJets_.empty()) {
           throw cms::Exception("LogicError") << "fjClusterSeq is not initialized while inputs are present\n ";
@@ -784,7 +782,7 @@ void VirtualJetProducer::writeCompoundJets(edm::Event& iEvent, edm::EventSetup c
   std::vector<double> area_hardJets;
 
   // Loop over the hard jets
-  std::vector<fastjet::PseudoJet>::const_iterator it = fjJets_.begin(), iEnd = fjJets_.end(), iBegin = fjJets_.begin();
+  auto it = fjJets_.begin(), iEnd = fjJets_.end(), iBegin = fjJets_.begin();
   indices.resize(fjJets_.size());
   for (; it != iEnd; ++it) {
     fastjet::PseudoJet const& localJet = *it;
@@ -805,8 +803,7 @@ void VirtualJetProducer::writeCompoundJets(edm::Event& iEvent, edm::EventSetup c
       constituents = it->constituents();
     }
 
-    std::vector<fastjet::PseudoJet>::const_iterator itSubJetBegin = constituents.begin(), itSubJet = itSubJetBegin,
-                                                    itSubJetEnd = constituents.end();
+    auto itSubJetBegin = constituents.begin(), itSubJet = itSubJetBegin, itSubJetEnd = constituents.end();
     for (; itSubJet != itSubJetEnd; ++itSubJet) {
       fastjet::PseudoJet const& subjet = *itSubJet;
       if (verbosity_ >= 1) {
@@ -815,9 +812,7 @@ void VirtualJetProducer::writeCompoundJets(edm::Event& iEvent, edm::EventSetup c
                   << " (#constituents = " << subjet.constituents().size() << ")" << std::endl;
         std::vector<fastjet::PseudoJet> subjet_constituents = subjet.constituents();
         int idx_constituent = 0;
-        for (std::vector<fastjet::PseudoJet>::const_iterator constituent = subjet_constituents.begin();
-             constituent != subjet_constituents.end();
-             ++constituent) {
+        for (auto constituent = subjet_constituents.begin(); constituent != subjet_constituents.end(); ++constituent) {
           if (constituent->pt() < 1.e-3)
             continue;  // CV: skip ghosts
           std::cout << "  constituent #" << idx_constituent << ": Pt = " << constituent->pt()
@@ -833,9 +828,7 @@ void VirtualJetProducer::writeCompoundJets(edm::Event& iEvent, edm::EventSetup c
                   << " (#constituents = " << subjet.constituents().size() << ")" << std::endl;
         std::vector<fastjet::PseudoJet> subjet_constituents = subjet.constituents();
         int idx_constituent = 0;
-        for (std::vector<fastjet::PseudoJet>::const_iterator constituent = subjet_constituents.begin();
-             constituent != subjet_constituents.end();
-             ++constituent) {
+        for (auto constituent = subjet_constituents.begin(); constituent != subjet_constituents.end(); ++constituent) {
           if (constituent->pt() < 1.e-3)
             continue;  // CV: skip ghosts
           std::cout << " constituent #" << idx_constituent << ": Pt = " << constituent->pt()
@@ -877,15 +870,14 @@ void VirtualJetProducer::writeCompoundJets(edm::Event& iEvent, edm::EventSetup c
   subjetHandleAfterPut = iEvent.put(std::move(subjetCollection), jetCollInstanceName_);
 
   // Now create the hard jets with ptr's to the subjets as constituents
-  std::vector<math::XYZTLorentzVector>::const_iterator ip4 = p4_hardJets.begin(), ip4Begin = p4_hardJets.begin(),
-                                                       ip4End = p4_hardJets.end();
+  auto ip4 = p4_hardJets.begin(), ip4Begin = p4_hardJets.begin(), ip4End = p4_hardJets.end();
 
   for (; ip4 != ip4End; ++ip4) {
     int p4_index = ip4 - ip4Begin;
     std::vector<int>& ind = indices[p4_index];
     std::vector<reco::CandidatePtr> i_hardJetConstituents;
     // Add the subjets to the hard jet
-    for (std::vector<int>::const_iterator isub = ind.begin(); isub != ind.end(); ++isub) {
+    for (auto isub = ind.begin(); isub != ind.end(); ++isub) {
       reco::CandidatePtr candPtr(subjetHandleAfterPut, *isub, false);
       i_hardJetConstituents.push_back(candPtr);
     }
@@ -929,7 +921,7 @@ void VirtualJetProducer::writeJetsWithConstituents(edm::Event& iEvent, edm::Even
 
   // Loop over the jets and extract constituents
   std::vector<fastjet::PseudoJet> constituentsSub;
-  std::vector<fastjet::PseudoJet>::const_iterator it = fjJets_.begin(), iEnd = fjJets_.end(), iBegin = fjJets_.begin();
+  auto it = fjJets_.begin(), iEnd = fjJets_.end(), iBegin = fjJets_.begin();
   indices.resize(fjJets_.size());
 
   for (; it != iEnd; ++it) {
@@ -975,15 +967,14 @@ void VirtualJetProducer::writeJetsWithConstituents(edm::Event& iEvent, edm::Even
   constituentHandleAfterPut = iEvent.put(std::move(constituentCollection), jetCollInstanceName_);
 
   // Now create the jets with ptr's to the constituents
-  std::vector<math::XYZTLorentzVector>::const_iterator ip4 = p4_Jets.begin(), ip4Begin = p4_Jets.begin(),
-                                                       ip4End = p4_Jets.end();
+  auto ip4 = p4_Jets.begin(), ip4Begin = p4_Jets.begin(), ip4End = p4_Jets.end();
 
   for (; ip4 != ip4End; ++ip4) {
     int p4_index = ip4 - ip4Begin;
     std::vector<int>& ind = indices[p4_index];
     std::vector<reco::CandidatePtr> i_jetConstituents;
     // Add the constituents to the jet
-    for (std::vector<int>::const_iterator iconst = ind.begin(); iconst != ind.end(); ++iconst) {
+    for (auto iconst = ind.begin(); iconst != ind.end(); ++iconst) {
       reco::CandidatePtr candPtr(constituentHandleAfterPut, *iconst, false);
       i_jetConstituents.push_back(candPtr);
     }

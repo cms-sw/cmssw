@@ -110,7 +110,7 @@ namespace cms {
       for (auto const& det_u : pDD_->detUnits()) {
         uint32_t rawId = det_u->geographicalId().rawId();
         if (DetId(rawId).det() == DetId::Detector::Tracker) {
-          const Phase2TrackerGeomDetUnit* pixdet = dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u);
+          const auto* pixdet = dynamic_cast<const Phase2TrackerGeomDetUnit*>(det_u);
           assert(pixdet);
           detectorUnits_.emplace(rawId, pixdet);
         }

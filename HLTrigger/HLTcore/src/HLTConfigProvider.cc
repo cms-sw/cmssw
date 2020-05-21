@@ -53,8 +53,8 @@ void HLTConfigProvider::init(const edm::ProcessHistory& iHistory, const std::str
   using namespace std;
   using namespace edm;
 
-  const ProcessHistory::const_iterator hb(iHistory.begin());
-  const ProcessHistory::const_iterator he(iHistory.end());
+  const auto hb(iHistory.begin());
+  const auto he(iHistory.end());
 
   ProcessConfiguration processConfiguration;
   const edm::ParameterSet* processPSet(nullptr);

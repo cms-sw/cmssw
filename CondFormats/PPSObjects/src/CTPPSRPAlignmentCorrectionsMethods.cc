@@ -396,7 +396,7 @@ void CTPPSRPAlignmentCorrectionsMethods::writeXMLBlock(const CTPPSRPAlignmentCor
 
   // write remaining RPs
   for (auto it = rps.begin(); it != rps.end(); ++it) {
-    std::set<unsigned int>::iterator wit = writtenRPs.find(it->first);
+    auto wit = writtenRPs.find(it->first);
     if (wit == writtenRPs.end()) {
       CTPPSDetId rpId(it->first);
       unsigned int decRPId = rpId.arm() * 100 + rpId.station() * 10 + rpId.rp();

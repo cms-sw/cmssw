@@ -445,7 +445,7 @@ void JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iS
           fastjet::sorted_by_pt(inclusiveJets.at(reclusteredIndices.at(i)).constituents());
 
       // loop over jet constituents and try to find "ghosts"
-      for (std::vector<fastjet::PseudoJet>::const_iterator it = constituents.begin(); it != constituents.end(); ++it) {
+      for (auto it = constituents.begin(); it != constituents.end(); ++it) {
         if (!it->has_user_info())
           continue;  // skip if not a "ghost"
 
@@ -638,7 +638,7 @@ void JetFlavourClustering::matchGroomedJets(const edm::Handle<edm::View<reco::Je
   }
 
   for (size_t j = 0; j < jets->size(); ++j) {
-    std::vector<int>::iterator matchedIndex = std::find(jetIndices.begin(), jetIndices.end(), j);
+    auto matchedIndex = std::find(jetIndices.begin(), jetIndices.end(), j);
 
     matchedIndices.push_back(matchedIndex != jetIndices.end() ? std::distance(jetIndices.begin(), matchedIndex) : -1);
   }

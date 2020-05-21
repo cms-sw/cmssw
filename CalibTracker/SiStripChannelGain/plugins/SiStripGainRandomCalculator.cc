@@ -79,8 +79,7 @@ std::unique_ptr<SiStripApvGain> SiStripGainRandomCalculator::getNewObject() {
 
   auto obj = std::make_unique<SiStripApvGain>();
 
-  for (std::vector<pair<uint32_t, unsigned short> >::const_iterator it = detid_apvs_.begin(); it != detid_apvs_.end();
-       it++) {
+  for (auto it = detid_apvs_.begin(); it != detid_apvs_.end(); it++) {
     //Generate Gain for det detid
     std::vector<float> theSiStripVector;
     for (unsigned short j = 0; j < it->second; j++) {

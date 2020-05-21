@@ -139,7 +139,7 @@ bool AlCaGammaJetProducer::select(const reco::PhotonCollection& ph, const reco::
   if (ph.empty())
     return false;
   bool ok(false);
-  for (reco::PFJetCollection::const_iterator itr = jt.begin(); itr != jt.end(); ++itr) {
+  for (auto itr = jt.begin(); itr != jt.end(); ++itr) {
     if (itr->pt() >= minPtJet_) {
       ok = true;
       break;
@@ -147,7 +147,7 @@ bool AlCaGammaJetProducer::select(const reco::PhotonCollection& ph, const reco::
   }
   if (!ok)
     return ok;
-  for (reco::PhotonCollection::const_iterator itr = ph.begin(); itr != ph.end(); ++itr) {
+  for (auto itr = ph.begin(); itr != ph.end(); ++itr) {
     if (itr->pt() >= minPtPhoton_)
       return ok;
   }
@@ -290,50 +290,43 @@ void AlCaGammaJetProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     nSelect_++;
 
     //Copy from standard place
-    for (reco::PFJetCollection::const_iterator pfjetItr = pfjets.begin(); pfjetItr != pfjets.end(); pfjetItr++) {
+    for (auto pfjetItr = pfjets.begin(); pfjetItr != pfjets.end(); pfjetItr++) {
       miniPFjetCollection->push_back(*pfjetItr);
     }
 
-    for (reco::PhotonCollection::const_iterator phoItr = photon.begin(); phoItr != photon.end(); phoItr++) {
+    for (auto phoItr = photon.begin(); phoItr != photon.end(); phoItr++) {
       miniPhotonCollection->push_back(*phoItr);
     }
 
-    for (reco::PFCandidateCollection::const_iterator pfcItr = pfcand.begin(); pfcItr != pfcand.end(); pfcItr++) {
+    for (auto pfcItr = pfcand.begin(); pfcItr != pfcand.end(); pfcItr++) {
       miniPFCandCollection->push_back(*pfcItr);
     }
 
-    for (reco::VertexCollection::const_iterator vtxItr = vtx.begin(); vtxItr != vtx.end(); vtxItr++) {
+    for (auto vtxItr = vtx.begin(); vtxItr != vtx.end(); vtxItr++) {
       miniVtxCollection->push_back(*vtxItr);
     }
 
-    for (reco::PFMETCollection::const_iterator pfmetItr = pfmet.begin(); pfmetItr != pfmet.end(); pfmetItr++) {
+    for (auto pfmetItr = pfmet.begin(); pfmetItr != pfmet.end(); pfmetItr++) {
       miniPFMETCollection->push_back(*pfmetItr);
     }
 
-    for (edm::SortedCollection<HBHERecHit, edm::StrictWeakOrdering<HBHERecHit>>::const_iterator hbheItr =
-             Hithbhe.begin();
-         hbheItr != Hithbhe.end();
-         hbheItr++) {
+    for (auto hbheItr = Hithbhe.begin(); hbheItr != Hithbhe.end(); hbheItr++) {
       miniHBHECollection->push_back(*hbheItr);
     }
 
-    for (edm::SortedCollection<HORecHit, edm::StrictWeakOrdering<HORecHit>>::const_iterator hoItr = Hitho.begin();
-         hoItr != Hitho.end();
-         hoItr++) {
+    for (auto hoItr = Hitho.begin(); hoItr != Hitho.end(); hoItr++) {
       miniHOCollection->push_back(*hoItr);
     }
 
-    for (edm::SortedCollection<HFRecHit, edm::StrictWeakOrdering<HFRecHit>>::const_iterator hfItr = Hithf.begin();
-         hfItr != Hithf.end();
-         hfItr++) {
+    for (auto hfItr = Hithf.begin(); hfItr != Hithf.end(); hfItr++) {
       miniHFCollection->push_back(*hfItr);
     }
 
-    for (reco::GsfElectronCollection::const_iterator gsfItr = gsfele.begin(); gsfItr != gsfele.end(); gsfItr++) {
+    for (auto gsfItr = gsfele.begin(); gsfItr != gsfele.end(); gsfItr++) {
       miniGSFeleCollection->push_back(*gsfItr);
     }
 
-    for (reco::ConversionCollection::const_iterator convItr = conv.begin(); convItr != conv.end(); convItr++) {
+    for (auto convItr = conv.begin(); convItr != conv.end(); convItr++) {
       miniConversionCollection->push_back(*convItr);
     }
 

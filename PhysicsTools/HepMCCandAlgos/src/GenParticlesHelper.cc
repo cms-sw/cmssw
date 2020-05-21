@@ -10,7 +10,7 @@ namespace GenParticlesHelper {
                      int pdgId,
                      int status) {
     unsigned index = 0;
-    for (IG ig = sourceParticles.begin(); ig != sourceParticles.end(); ++ig, ++index) {
+    for (auto ig = sourceParticles.begin(); ig != sourceParticles.end(); ++ig, ++index) {
       const GenParticle& gen = *ig;
 
       // status has been specified, and this one does not have the correct

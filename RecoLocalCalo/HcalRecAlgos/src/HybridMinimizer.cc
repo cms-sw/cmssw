@@ -265,7 +265,7 @@ namespace PSFitter {
       fMinuitFCN = new ROOT::Minuit2::FCNAdapter<ROOT::Math::IMultiGenFunction>(func, ErrorDef());
     } else {
       // for Fumili the fit method function interface is required
-      const ROOT::Math::FitMethodFunction *fcnfunc = dynamic_cast<const ROOT::Math::FitMethodFunction *>(&func);
+      const auto *fcnfunc = dynamic_cast<const ROOT::Math::FitMethodFunction *>(&func);
       if (!fcnfunc) {
         MN_ERROR_MSG("HybridMinimizer: Wrong Fit method function for Fumili");
         return;
@@ -283,7 +283,7 @@ namespace PSFitter {
       fMinuitFCN = new ROOT::Minuit2::FCNGradAdapter<ROOT::Math::IMultiGradFunction>(func, ErrorDef());
     } else {
       // for Fumili the fit method function interface is required
-      const ROOT::Math::FitMethodGradFunction *fcnfunc = dynamic_cast<const ROOT::Math::FitMethodGradFunction *>(&func);
+      const auto *fcnfunc = dynamic_cast<const ROOT::Math::FitMethodGradFunction *>(&func);
       if (!fcnfunc) {
         MN_ERROR_MSG("HybridMinimizer: Wrong Fit method function for Fumili");
         return;
@@ -374,7 +374,7 @@ namespace PSFitter {
       }
     }
 
-    const ROOT::Minuit2::FCNGradientBase *gradFCN = dynamic_cast<const ROOT::Minuit2::FCNGradientBase *>(fMinuitFCN);
+    const auto *gradFCN = dynamic_cast<const ROOT::Minuit2::FCNGradientBase *>(fMinuitFCN);
     if (gradFCN != nullptr) {
       // use gradient
       //SetPrintLevel(3);

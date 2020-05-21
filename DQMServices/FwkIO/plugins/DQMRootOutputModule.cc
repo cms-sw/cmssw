@@ -355,9 +355,7 @@ void DQMRootOutputModule::openFile(edm::FileBlock const&) {
   m_indicesTree->SetDirectory(m_file.get());
 
   unsigned int i = 0;
-  for (std::vector<std::shared_ptr<TreeHelperBase> >::iterator it = m_treeHelpers.begin(), itEnd = m_treeHelpers.end();
-       it != itEnd;
-       ++it, ++i) {
+  for (auto it = m_treeHelpers.begin(), itEnd = m_treeHelpers.end(); it != itEnd; ++it, ++i) {
     //std::cout <<"making "<<kTypeNames[i]<<std::endl;
     TTree* tree = new TTree(kTypeNames[i], kTypeNames[i]);
     *it = std::shared_ptr<TreeHelperBase>(makeHelper(i, tree, m_fullNameBufferPtr));
@@ -392,15 +390,15 @@ void DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput con
   if (!shouldWrite)
     return;
   std::vector<MonitorElement*> items(dstore->getAllContents("", m_run, m_lumi));
-  for (std::vector<MonitorElement*>::iterator it = items.begin(), itEnd = items.end(); it != itEnd; ++it) {
+  for (auto it = items.begin(), itEnd = items.end(); it != itEnd; ++it) {
     assert((*it)->getScope() == MonitorElementData::Scope::LUMI);
-    std::map<unsigned int, unsigned int>::iterator itFound = m_dqmKindToTypeIndex.find((int)(*it)->kind());
+    auto itFound = m_dqmKindToTypeIndex.find((int)(*it)->kind());
     assert(itFound != m_dqmKindToTypeIndex.end());
     m_treeHelpers[itFound->second]->fill(*it);
   }
 
   const edm::ProcessHistoryID& id = iLumi.processHistoryID();
-  std::vector<edm::ProcessHistoryID>::iterator itFind = std::find(m_seenHistories.begin(), m_seenHistories.end(), id);
+  auto itFind = std::find(m_seenHistories.begin(), m_seenHistories.end(), id);
   if (itFind == m_seenHistories.end()) {
     m_processHistoryRegistry.registerProcessHistory(iLumi.processHistory());
     m_presentHistoryIndex = m_seenHistories.size();
@@ -412,9 +410,7 @@ void DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput con
   //Now store the relationship between run/lumi and indices in the other TTrees
   bool storedLumiIndex = false;
   unsigned int typeIndex = 0;
-  for (std::vector<std::shared_ptr<TreeHelperBase> >::iterator it = m_treeHelpers.begin(), itEnd = m_treeHelpers.end();
-       it != itEnd;
-       ++it, ++typeIndex) {
+  for (auto it = m_treeHelpers.begin(), itEnd = m_treeHelpers.end(); it != itEnd; ++it, ++typeIndex) {
     if ((*it)->wasFilled()) {
       m_type = typeIndex;
       (*it)->getRangeAndReset(m_firstIndex, m_lastIndex);
@@ -448,15 +444,15 @@ void DQMRootOutputModule::writeRun(edm::RunForOutput const& iRun) {
     return;
 
   std::vector<MonitorElement*> items(dstore->getAllContents("", m_run, 0));
-  for (std::vector<MonitorElement*>::iterator it = items.begin(), itEnd = items.end(); it != itEnd; ++it) {
+  for (auto it = items.begin(), itEnd = items.end(); it != itEnd; ++it) {
     assert((*it)->getScope() == MonitorElementData::Scope::RUN);
-    std::map<unsigned int, unsigned int>::iterator itFound = m_dqmKindToTypeIndex.find((int)(*it)->kind());
+    auto itFound = m_dqmKindToTypeIndex.find((int)(*it)->kind());
     assert(itFound != m_dqmKindToTypeIndex.end());
     m_treeHelpers[itFound->second]->fill(*it);
   }
 
   const edm::ProcessHistoryID& id = iRun.processHistoryID();
-  std::vector<edm::ProcessHistoryID>::iterator itFind = std::find(m_seenHistories.begin(), m_seenHistories.end(), id);
+  auto itFind = std::find(m_seenHistories.begin(), m_seenHistories.end(), id);
   if (itFind == m_seenHistories.end()) {
     m_processHistoryRegistry.registerProcessHistory(iRun.processHistory());
     m_presentHistoryIndex = m_seenHistories.size();
@@ -467,9 +463,7 @@ void DQMRootOutputModule::writeRun(edm::RunForOutput const& iRun) {
 
   //Now store the relationship between run/lumi and indices in the other TTrees
   unsigned int typeIndex = 0;
-  for (std::vector<std::shared_ptr<TreeHelperBase> >::iterator it = m_treeHelpers.begin(), itEnd = m_treeHelpers.end();
-       it != itEnd;
-       ++it, ++typeIndex) {
+  for (auto it = m_treeHelpers.begin(), itEnd = m_treeHelpers.end(); it != itEnd; ++it, ++typeIndex) {
     if ((*it)->wasFilled()) {
       m_type = typeIndex;
       (*it)->getRangeAndReset(m_firstIndex, m_lastIndex);
@@ -507,15 +501,11 @@ void DQMRootOutputModule::startEndFile() {
   std::string passID;
   processHistoryTree->Branch(kProcessConfigurationPassID, &passID);
 
-  for (std::vector<edm::ProcessHistoryID>::iterator it = m_seenHistories.begin(), itEnd = m_seenHistories.end();
-       it != itEnd;
-       ++it) {
+  for (auto it = m_seenHistories.begin(), itEnd = m_seenHistories.end(); it != itEnd; ++it) {
     const edm::ProcessHistory* history = m_processHistoryRegistry.getMapped(*it);
     assert(nullptr != history);
     index = 0;
-    for (edm::ProcessHistory::collection_type::const_iterator itPC = history->begin(), itPCEnd = history->end();
-         itPC != itPCEnd;
-         ++itPC, ++index) {
+    for (auto itPC = history->begin(), itPCEnd = history->end(); itPC != itPCEnd; ++itPC, ++index) {
       processName = itPC->processName();
       releaseVersion = itPC->releaseVersion();
       passID = itPC->passID();

@@ -123,7 +123,7 @@ namespace lumi {
     cmsrunsum result;
     std::string runinfoschema("CMS_RUNINFO");
     std::string runsessionParamTable("RUNSESSION_PARAMETER");
-    coral::ConnectionService* svc = new coral::ConnectionService;
+    auto* svc = new coral::ConnectionService;
     lumi::DBConfig dbconf(*svc);
     if (!m_authpath.empty()) {
       dbconf.setAuthentication(m_authpath);
@@ -172,7 +172,7 @@ namespace lumi {
       //priority pick the one contains PHYS if not found pick the first
       //
       std::string amd;
-      for (std::vector<std::string>::iterator it = amodes.begin(); it != amodes.end(); ++it) {
+      for (auto it = amodes.begin(); it != amodes.end(); ++it) {
         if (it->find("PHYS") == std::string::npos)
           continue;
         amd = *it;

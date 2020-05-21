@@ -17,7 +17,7 @@ using namespace edm;
 namespace {
   template <class T>
   const typename T::value_type* getHit(const T& fCollection, DetId fId) {
-    typename T::const_iterator hit = fCollection.find(fId);
+    auto hit = fCollection.find(fId);
     if (hit != fCollection.end())
       return &*hit;
     return nullptr;

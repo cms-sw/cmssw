@@ -84,7 +84,7 @@ void TtHadEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& i
   // Build Event solutions according to the ambiguity in the jet combination
   // Note, hardcoded to only run through the 6 most energetic jets - could be changed ....
 
-  std::vector<TtHadEvtSolution>* evtsols = new std::vector<TtHadEvtSolution>();
+  auto* evtsols = new std::vector<TtHadEvtSolution>();
   if (jetsFound) {
     for (unsigned int p = 0; p < 3; p++) {                         // loop over light jet p
       for (unsigned int q = p + 1; q < 4; q++) {                   // loop over light jet q

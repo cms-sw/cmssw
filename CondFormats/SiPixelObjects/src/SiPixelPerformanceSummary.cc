@@ -38,7 +38,7 @@ pair<bool, vector<SiPixelPerformanceSummary::DetSummary>::iterator> SiPixelPerfo
 
 pair<bool, vector<SiPixelPerformanceSummary::DetSummary>::iterator> SiPixelPerformanceSummary::setDet(
     const uint32_t detId, const vector<float>& performanceValues) {
-  vector<DetSummary>::iterator iDetSumm = allDetSummaries_.end();
+  auto iDetSumm = allDetSummaries_.end();
 
   if (performanceValues.size() != kDetSummarySize) {  // for inappropriate input
     cout << "not adding these " << performanceValues.size() << " values; "
@@ -172,17 +172,15 @@ bool SiPixelPerformanceSummary::setClusterSizeOffTrack(uint32_t detId, float mea
 
 vector<uint32_t> SiPixelPerformanceSummary::getAllDetIds() const {
   vector<uint32_t> allDetIds;
-  for (vector<DetSummary>::const_iterator iDetSumm = allDetSummaries_.begin(); iDetSumm != allDetSummaries_.end();
-       ++iDetSumm)
+  for (auto iDetSumm = allDetSummaries_.begin(); iDetSumm != allDetSummaries_.end(); ++iDetSumm)
     allDetIds.push_back(iDetSumm->detId_);
   return allDetIds;
 }
 
 vector<float> SiPixelPerformanceSummary::getDetSummary(const uint32_t detId) const {
-  vector<DetSummary>::const_iterator iDetSumm =
-      find_if(allDetSummaries_.begin(), allDetSummaries_.end(), [&detId](const DetSummary& detSumm) -> bool {
-        return detSumm.detId_ == detId;
-      });
+  auto iDetSumm = find_if(allDetSummaries_.begin(),
+                          allDetSummaries_.end(),
+                          [&detId](const DetSummary& detSumm) -> bool { return detSumm.detId_ == detId; });
   if (iDetSumm == allDetSummaries_.end()) {
     vector<float> performanceValues;
     cout << "cannot get DetSummary for detId = " << detId;
@@ -194,7 +192,7 @@ vector<float> SiPixelPerformanceSummary::getDetSummary(const uint32_t detId) con
 void SiPixelPerformanceSummary::print(const uint32_t detId) const {
   vector<float> performanceValues = getDetSummary(detId);
   cout << "DetSummary for detId " << detId << " : ";
-  for (vector<float>::const_iterator v = performanceValues.begin(); v != performanceValues.end(); ++v)
+  for (auto v = performanceValues.begin(); v != performanceValues.end(); ++v)
     cout << " " << *v;
   cout << endl;
 }
@@ -209,7 +207,6 @@ void SiPixelPerformanceSummary::print() const {
 
 void SiPixelPerformanceSummary::printAll() const {
   print();
-  for (vector<DetSummary>::const_iterator iDetSumm = allDetSummaries_.begin(); iDetSumm != allDetSummaries_.end();
-       ++iDetSumm)
+  for (auto iDetSumm = allDetSummaries_.begin(); iDetSumm != allDetSummaries_.end(); ++iDetSumm)
     print(iDetSumm->detId_);
 }

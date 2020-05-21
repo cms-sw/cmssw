@@ -19,7 +19,7 @@ public:
 };
 
 void PTrackerParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
-  PTrackerParameters* ptp = new PTrackerParameters;
+  auto* ptp = new PTrackerParameters;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
     edm::LogError("PTrackerParametersDBBuilder") << "PoolDBOutputService unavailable";

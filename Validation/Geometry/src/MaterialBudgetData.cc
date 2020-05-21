@@ -478,8 +478,7 @@ void MaterialBudgetData::dataPerStep(const G4Step* aStep) {
           << theVolumeZaxis3[theStepN] << ")" << std::endl
           << " Secondaries" << std::endl;
 
-    for (G4TrackVector::const_iterator iSec = aStep->GetSecondary()->begin(); iSec != aStep->GetSecondary()->end();
-         iSec++) {
+    for (auto iSec = aStep->GetSecondary()->begin(); iSec != aStep->GetSecondary()->end(); iSec++) {
       LogDebug("MaterialBudget") << "MaterialBudgetData: tid " << (*iSec)->GetDefinition()->GetPDGEncoding()
                                  << " created through process type " << (*iSec)->GetCreatorProcess()->GetProcessType()
                                  << (*iSec)->GetCreatorProcess()->GetProcessTypeName(

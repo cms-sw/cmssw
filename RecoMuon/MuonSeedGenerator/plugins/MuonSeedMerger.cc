@@ -24,12 +24,10 @@ MuonSeedMerger::MuonSeedMerger(const ParameterSet& parameterSet) {
   theSeedCollectionLabels = parameterSet.getParameter<vector<InputTag> >("SeedCollections");
 
   LogTrace(metname) << "MuonSeedMerger will Merge the following seed collections:";
-  for (vector<InputTag>::const_iterator label = theSeedCollectionLabels.begin(); label != theSeedCollectionLabels.end();
-       ++label)
+  for (auto label = theSeedCollectionLabels.begin(); label != theSeedCollectionLabels.end(); ++label)
     LogTrace(metname) << *label;
 
-  for (vector<InputTag>::const_iterator label = theSeedCollectionLabels.begin(); label != theSeedCollectionLabels.end();
-       ++label) {
+  for (auto label = theSeedCollectionLabels.begin(); label != theSeedCollectionLabels.end(); ++label) {
     seedTokens.push_back(consumes<edm::View<TrajectorySeed> >(*label));
   }
 

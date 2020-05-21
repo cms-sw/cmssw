@@ -268,7 +268,7 @@ bool Hydjet2Hadronizer::initializeForInternalPartons() {
     fMuS = 0.;
 
     //create strange potential object and set strangeness density 0
-    NAStrangePotential* psp = new NAStrangePotential(0., fDatabase);
+    auto* psp = new NAStrangePotential(0., fDatabase);
     psp->SetBaryonPotential(fMuB);
     psp->SetTemperature(fT);
 
@@ -1179,12 +1179,12 @@ HepMC::GenParticle* Hydjet2Hadronizer::build_hyjet2(int index, int barcode) {
   double px = px0 * cosphi0_ - py0 * sinphi0_;
   double py = py0 * cosphi0_ + px0 * sinphi0_;
   // cout<< "status: "<<convertStatus(final[index], type[index])<<endl;
-  HepMC::GenParticle* p = new HepMC::GenParticle(HepMC::FourVector(px,                                  // px
-                                                                   py,                                  // py
-                                                                   Pz[index],                           // pz
-                                                                   E[index]),                           // E
-                                                 pdg[index],                                            // id
-                                                 convertStatusForComponents(final[index], type[index])  // status
+  auto* p = new HepMC::GenParticle(HepMC::FourVector(px,                                  // px
+                                                     py,                                  // py
+                                                     Pz[index],                           // pz
+                                                     E[index]),                           // E
+                                   pdg[index],                                            // id
+                                   convertStatusForComponents(final[index], type[index])  // status
 
   );
 
@@ -1203,7 +1203,7 @@ HepMC::GenVertex* Hydjet2Hadronizer::build_hyjet2_vertex(int i, int id) {
   double z = Z[i];
   double t = T[i];
 
-  HepMC::GenVertex* vertex = new HepMC::GenVertex(HepMC::FourVector(x, y, z, t), id);
+  auto* vertex = new HepMC::GenVertex(HepMC::FourVector(x, y, z, t), id);
   return vertex;
 }
 

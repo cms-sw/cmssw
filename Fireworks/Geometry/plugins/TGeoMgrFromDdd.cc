@@ -310,7 +310,7 @@ TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& 
           temp[1] = params[1] / deg;
           temp[2] = (params.size() - 2) / 3;
           std::copy(params.begin() + 2, params.end(), temp.begin() + 3);
-          for (std::vector<double>::iterator it = temp.begin() + 3; it != temp.end(); ++it) {
+          for (auto it = temp.begin() + 3; it != temp.end(); ++it) {
             *it /= cm;
           }
           rSolid->SetDimensions(&(*(temp.begin())));
@@ -326,7 +326,7 @@ TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& 
           temp[2] = params[0];
           temp[3] = (params.size() - 3) / 3;
           std::copy(params.begin() + 3, params.end(), temp.begin() + 4);
-          for (std::vector<double>::iterator it = temp.begin() + 4; it != temp.end(); ++it) {
+          for (auto it = temp.begin() + 4; it != temp.end(); ++it) {
             *it /= cm;
           }
           rSolid->SetDimensions(&(*(temp.begin())));
@@ -561,11 +561,10 @@ TGeoShape* TGeoMgrFromDdd::createShape(const std::string& iName, const DDSolid& 
         std::unique_ptr<TGeoShape> left(createShape(nameA, boolSolid.solidA()));
         std::unique_ptr<TGeoShape> right(createShape(nameB, boolSolid.solidB()));
         if (nullptr != left.get() && nullptr != right.get()) {
-          TGeoIntersection* boolS =
-              new TGeoIntersection(left.release(),
-                                   right.release(),
-                                   nullptr,
-                                   createPlacement(boolSolid.rotation().matrix(), boolSolid.translation()));
+          auto* boolS = new TGeoIntersection(left.release(),
+                                             right.release(),
+                                             nullptr,
+                                             createPlacement(boolSolid.rotation().matrix(), boolSolid.translation()));
           rSolid = new TGeoCompositeShape(iName.c_str(), boolS);
         }
         break;

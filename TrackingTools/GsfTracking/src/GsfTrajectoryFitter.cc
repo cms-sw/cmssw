@@ -88,7 +88,7 @@ Trajectory GsfTrajectoryFitter::fitOne(const TrajectorySeed& aSeed,
   }
 
   int hitcounter = 1;
-  for (RecHitContainer::const_iterator ihit = hits.begin() + 1; ihit != hits.end(); ihit++) {
+  for (auto ihit = hits.begin() + 1; ihit != hits.end(); ihit++) {
     ++hitcounter;
 
     //

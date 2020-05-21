@@ -93,7 +93,7 @@ bool CmsShowNavigator::openFile(const std::string& fileName) {
     setCurrentFile(m_files.begin());
 
     // set filters
-    for (std::list<FWEventSelector*>::iterator i = m_selectors.begin(); i != m_selectors.end(); ++i)
+    for (auto i = m_selectors.begin(); i != m_selectors.end(); ++i)
       newFile->filters().push_back(new FWFileEntry::Filter(*i));
 
     if (m_filterState != kOff)
@@ -145,7 +145,7 @@ bool CmsShowNavigator::appendFile(const std::string& fileName, bool checkFileQue
       setCurrentFile(m_files.begin());
 
     // set filters
-    for (std::list<FWEventSelector*>::iterator i = m_selectors.begin(); i != m_selectors.end(); ++i)
+    for (auto i = m_selectors.begin(); i != m_selectors.end(); ++i)
       newFile->filters().push_back(new FWFileEntry::Filter(*i));
 
     if (m_filterState != kOff)
@@ -484,8 +484,8 @@ void CmsShowNavigator::applyFiltersFromGUI() {
   }
 
   // compare changes and then call updateFileFilters
-  std::list<FWEventSelector*>::iterator si = m_selectors.begin();
-  std::list<FWGUIEventSelector*>::iterator gi = m_guiFilter->guiSelectors().begin();
+  auto si = m_selectors.begin();
+  auto gi = m_guiFilter->guiSelectors().begin();
 
   if (m_filterMode != m_guiFilter->getFilterMode()) {
     m_filterMode = m_guiFilter->getFilterMode();
@@ -572,7 +572,7 @@ bool CmsShowNavigator::isLastEvent() {
 //______________________________________________________________________________
 void CmsShowNavigator::updateSelectorsInfo() {
   // reset
-  std::list<FWEventSelector*>::const_iterator sel = m_selectors.begin();
+  auto sel = m_selectors.begin();
   while (sel != m_selectors.end()) {
     (*sel)->m_selected = 0;
     (*sel)->m_updated = true;
@@ -593,7 +593,7 @@ void CmsShowNavigator::updateSelectorsInfo() {
     }
   }
   if (m_guiFilter) {
-    std::list<FWGUIEventSelector*>::const_iterator gs = m_guiFilter->guiSelectors().begin();
+    auto gs = m_guiFilter->guiSelectors().begin();
     while (gs != m_guiFilter->guiSelectors().end()) {
       (*gs)->updateNEvents();
       ++gs;
@@ -671,7 +671,7 @@ void CmsShowNavigator::setFrom(const FWConfiguration& iFrom) {
   if (sConf) {
     const FWConfiguration::KeyValues* keyVals = sConf->keyValues();
     if (keyVals) {
-      for (FWConfiguration::KeyValuesIt it = keyVals->begin(); it != keyVals->end(); ++it) {
+      for (auto it = keyVals->begin(); it != keyVals->end(); ++it) {
         const FWConfiguration& conf = (*it).second;
         FWEventSelector* selector = new FWEventSelector();
         selector->m_expression = conf.valueForKey("expression")->value();
@@ -735,7 +735,7 @@ void CmsShowNavigator::setFrom(const FWConfiguration& iFrom) {
     // change filters in existing files
     for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file) {
       (*file)->filters().clear();
-      for (std::list<FWEventSelector*>::iterator i = m_selectors.begin(); i != m_selectors.end(); ++i)
+      for (auto i = m_selectors.begin(); i != m_selectors.end(); ++i)
         (*file)->filters().push_back(new FWFileEntry::Filter(*i));
     }
 
@@ -754,7 +754,7 @@ void CmsShowNavigator::addTo(FWConfiguration& iTo) const {
   // selectors
   FWConfiguration tmp;
   int cnt = 0;
-  for (std::list<FWEventSelector*>::const_iterator sel = m_selectors.begin(); sel != m_selectors.end(); ++sel) {
+  for (auto sel = m_selectors.begin(); sel != m_selectors.end(); ++sel) {
     FWConfiguration filter;
 
     filter.addKeyValue("expression", FWConfiguration((*sel)->m_expression));
@@ -794,7 +794,7 @@ const char* CmsShowNavigator::frameTitle() {
     return "";
 
   int nf = 0;
-  for (FileQueue_t::const_iterator i = m_files.begin(); i != m_files.end(); i++) {
+  for (auto i = m_files.begin(); i != m_files.end(); i++) {
     if (i == m_currentFile)
       break;
     nf++;

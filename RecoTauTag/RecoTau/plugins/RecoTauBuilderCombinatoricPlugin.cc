@@ -70,7 +70,7 @@ namespace reco {
           minRelPhotonSumPt_outsideSignalCone_(pset.getParameter<double>("minRelPhotonSumPt_outsideSignalCone")) {
       typedef std::vector<edm::ParameterSet> VPSet;
       const VPSet& decayModes = pset.getParameter<VPSet>("decayModes");
-      for (VPSet::const_iterator decayMode = decayModes.begin(); decayMode != decayModes.end(); ++decayMode) {
+      for (auto decayMode = decayModes.begin(); decayMode != decayModes.end(); ++decayMode) {
         decayModeInfo info;
         info.nCharged_ = decayMode->getParameter<uint32_t>("nCharged");
         info.nPiZeros_ = decayMode->getParameter<uint32_t>("nPiZeros");
@@ -100,9 +100,7 @@ namespace reco {
               toRemove_.insert(reco::CandidatePtr(chargedHadron->getChargedPFCandidate()));
           } else if (mode_ == kRemoveChargedAndNeutralDaughterOverlaps) {
             const reco::CompositePtrCandidate::daughters& daughters = chargedHadron->daughterPtrVector();
-            for (reco::CompositePtrCandidate::daughters::const_iterator daughter = daughters.begin();
-                 daughter != daughters.end();
-                 ++daughter) {
+            for (auto daughter = daughters.begin(); daughter != daughters.end(); ++daughter) {
               toRemove_.insert(reco::CandidatePtr(*daughter));
             }
           } else
@@ -126,9 +124,7 @@ namespace reco {
         for (ChargedHadronCombo::combo_iterator chargedHadron = chargedHadronsBegin; chargedHadron != chargedHadronsEnd;
              ++chargedHadron) {
           const reco::CompositePtrCandidate::daughters& daughters = chargedHadron->daughterPtrVector();
-          for (reco::CompositePtrCandidate::daughters::const_iterator daughter = daughters.begin();
-               daughter != daughters.end();
-               ++daughter) {
+          for (auto daughter = daughters.begin(); daughter != daughters.end(); ++daughter) {
             //std::cout << " adding PFCandidate = " << daughter->id() << ":" << daughter->key() << std::endl;
             toRemove_.insert(reco::CandidatePtr(*daughter));
           }
@@ -143,9 +139,7 @@ namespace reco {
         for (ChargedHadronList::const_iterator chargedHadron = chargedHadronsBegin; chargedHadron != chargedHadronsEnd;
              ++chargedHadron) {
           const reco::CompositePtrCandidate::daughters& daughters = chargedHadron->daughterPtrVector();
-          for (reco::CompositePtrCandidate::daughters::const_iterator daughter = daughters.begin();
-               daughter != daughters.end();
-               ++daughter) {
+          for (auto daughter = daughters.begin(); daughter != daughters.end(); ++daughter) {
             //std::cout << " adding PFCandidate = " << daughter->id() << ":" << daughter->key() << std::endl;
             toRemove_.insert(reco::CandidatePtr(*daughter));
           }
@@ -187,16 +181,14 @@ namespace reco {
       if (verbosity_) {
         std::cout << "#chargedHadrons = " << chargedHadrons.size() << std::endl;
         int idx = 0;
-        for (ChargedHadronList::const_iterator chargedHadron = chargedHadrons.begin();
-             chargedHadron != chargedHadrons.end();
-             ++chargedHadron) {
+        for (auto chargedHadron = chargedHadrons.begin(); chargedHadron != chargedHadrons.end(); ++chargedHadron) {
           std::cout << "chargedHadron #" << idx << ":" << std::endl;
           chargedHadron->print(std::cout);
           ++idx;
         }
         std::cout << "#piZeros = " << piZeros.size() << std::endl;
         idx = 0;
-        for (PiZeroList::const_iterator piZero = piZeros.begin(); piZero != piZeros.end(); ++piZero) {
+        for (auto piZero = piZeros.begin(); piZero != piZeros.end(); ++piZero) {
           std::cout << "piZero #" << idx << ":" << std::endl;
           piZero->print(std::cout);
           ++idx;
@@ -212,9 +204,7 @@ namespace reco {
       CandPtrs regionalJunk = qcuts_->filterCandRefs(regionalExtras);
 
       // Loop over the decay modes we want to build
-      for (std::vector<decayModeInfo>::const_iterator decayMode = decayModesToBuild_.begin();
-           decayMode != decayModesToBuild_.end();
-           ++decayMode) {
+      for (auto decayMode = decayModesToBuild_.begin(); decayMode != decayModesToBuild_.end(); ++decayMode) {
         // Find how many piZeros are in this decay mode
         size_t piZerosToBuild = decayMode->nPiZeros_;
         // Find how many tracks are in this decay mode
@@ -231,14 +221,14 @@ namespace reco {
           continue;
 
         // Find the start and end of potential signal tracks
-        ChargedHadronList::const_iterator chargedHadron_begin = chargedHadrons.begin();
-        ChargedHadronList::const_iterator chargedHadron_end = chargedHadrons.end();
+        auto chargedHadron_begin = chargedHadrons.begin();
+        auto chargedHadron_end = chargedHadrons.end();
         chargedHadron_end = takeNElements(chargedHadron_begin, chargedHadron_end, decayMode->maxPFCHs_);
 
         // Build our track combo generator
         ChargedHadronCombo trackCombos(chargedHadron_begin, chargedHadron_end, tracksToBuild);
 
-        CandPtrs::iterator pfch_end = pfchs.end();
+        auto pfch_end = pfchs.end();
         pfch_end = takeNElements(pfchs.begin(), pfch_end, decayMode->maxPFCHs_);
 
         //-------------------------------------------------------
@@ -264,8 +254,8 @@ namespace reco {
             continue;
 
           // Find the start and end of potential signal tracks
-          PiZeroList::iterator signalPiZero_begin = cleanSignalPiZeros.begin();
-          PiZeroList::iterator signalPiZero_end = cleanSignalPiZeros.end();
+          auto signalPiZero_begin = cleanSignalPiZeros.begin();
+          auto signalPiZero_end = cleanSignalPiZeros.end();
           signalPiZero_end = takeNElements(signalPiZero_begin, signalPiZero_end, decayMode->maxPiZeros_);
 
           // Build our piZero combo generator
@@ -314,9 +304,7 @@ namespace reco {
             if (verbosity_) {
               std::cout << "#cleanIsolationPiZeros = " << cleanIsolationPiZeros.size() << std::endl;
               int idx = 0;
-              for (PiZeroList::const_iterator piZero = cleanIsolationPiZeros.begin();
-                   piZero != cleanIsolationPiZeros.end();
-                   ++piZero) {
+              for (auto piZero = cleanIsolationPiZeros.begin(); piZero != cleanIsolationPiZeros.end(); ++piZero) {
                 std::cout << "piZero #" << idx << ":" << std::endl;
                 piZero->print(std::cout);
                 ++idx;

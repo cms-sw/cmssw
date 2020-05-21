@@ -181,7 +181,7 @@ inline double ecalEnergyInCone(const GlobalPoint center,
   std::vector<int> usedHitsEcal;
   usedHitsEcal.clear();
 
-  for (std::vector<EcalRecHit>::const_iterator ehit = ecalCol.begin(); ehit != ecalCol.end(); ehit++) {
+  for (auto ehit = ecalCol.begin(); ehit != ecalCol.end(); ehit++) {
     //This is a precaution for the case when hitCollection contains duplicats.
     bool hitIsUsed = false;
     int hitHashedIndex = -10000;
@@ -220,7 +220,7 @@ inline double ecalEnergyInCone(const GlobalVector trackMom,
   double eECALcone = 0;
   std::vector<int> usedHitsEcal;
   usedHitsEcal.clear();
-  for (std::vector<EcalRecHit>::const_iterator ehit = ecalCol.begin(); ehit != ecalCol.end(); ehit++) {
+  for (auto ehit = ecalCol.begin(); ehit != ecalCol.end(); ehit++) {
     //This is a precaution for the case when hitCollection contains duplicats.
     bool hitIsUsed = false;
     int hitHashedIndex = -10000;

@@ -245,7 +245,7 @@ void PileupJetIdProducer::initJetEnergyCorrector(const edm::EventSetup& iSetup, 
   //check the corrector parameters needed according to the correction levels
   edm::ESHandle<JetCorrectorParametersCollection> parameters;
   iSetup.get<JetCorrectionsRecord>().get(gc->jec(), parameters);
-  for (std::vector<std::string>::const_iterator ll = jecLevels.begin(); ll != jecLevels.end(); ++ll) {
+  for (auto ll = jecLevels.begin(); ll != jecLevels.end(); ++ll) {
     const JetCorrectorParameters& ip = (*parameters)[*ll];
     jetCorPars_.push_back(ip);
   }

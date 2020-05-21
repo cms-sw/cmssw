@@ -55,7 +55,7 @@ std::string Cuts::print() const {
   std::ostringstream result;
   typedef std::vector<CutSpec>::const_iterator IT;
   result << "Cuts : " << std::endl;
-  for (IT it = theCuts.begin(), itEnd = theCuts.end(); it < itEnd; ++it) {
+  for (auto it = theCuts.begin(), itEnd = theCuts.end(); it < itEnd; ++it) {
     result << "eta: " << (*it).etaRange << ", cone: " << (*it).conesize << ", cut: " << (*it).threshold << std::endl;
   }
   return result.str();

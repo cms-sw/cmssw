@@ -220,12 +220,12 @@ void SeedClusterRemover::process(const TrackingRecHit *hit, float chi2, const Tr
       const SiStripRecHit1D *hit1D = static_cast<const SiStripRecHit1D *>(hit);
       process(hit1D->omniClusterRef(), subdet);
     } else if (hitType == typeid(SiStripMatchedRecHit2D)) {
-      const SiStripMatchedRecHit2D *matchHit = static_cast<const SiStripMatchedRecHit2D *>(hit);
+      const auto *matchHit = static_cast<const SiStripMatchedRecHit2D *>(hit);
       //DBG//     cout << "Matched RecHit 2D: " << endl;
       process(matchHit->monoClusterRef(), subdet);
       process(matchHit->stereoClusterRef(), subdet);
     } else if (hitType == typeid(ProjectedSiStripRecHit2D)) {
-      const ProjectedSiStripRecHit2D *projHit = static_cast<const ProjectedSiStripRecHit2D *>(hit);
+      const auto *projHit = static_cast<const ProjectedSiStripRecHit2D *>(hit);
       //DBG//     cout << "Projected RecHit 2D: " << endl;
       process(projHit->originalHit().omniClusterRef(), subdet);
     } else

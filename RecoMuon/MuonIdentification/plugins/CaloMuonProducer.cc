@@ -33,7 +33,7 @@ void CaloMuonProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::Handle<reco::CaloMuonCollection> iMuons;
   iEvent.getByToken(muonToken_, iMuons);
   auto oMuons = std::make_unique<reco::CaloMuonCollection>();
-  for (reco::CaloMuonCollection::const_iterator muon = iMuons->begin(); muon != iMuons->end(); ++muon)
+  for (auto muon = iMuons->begin(); muon != iMuons->end(); ++muon)
     oMuons->push_back(*muon);
   iEvent.put(std::move(oMuons));
 }

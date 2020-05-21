@@ -65,10 +65,10 @@ void HcalTestNumberingTester::analyze(const edm::Event& iEvent, const edm::Event
 
   if (pHSNDC.isValid() && pHRNDC.isValid()) {
     std::cout << "about to de-reference the edm's" << std::endl;
-    HcalDDDSimConstants* hcs = (HcalDDDSimConstants*)(&(*pHSNDC));
-    HcalDDDRecConstants* hcr = (HcalDDDRecConstants*)(&(*pHRNDC));
-    HcalNumberingScheme* schme1 = new HcalNumberingScheme();
-    HcalNumberingScheme* schme2 = dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme(false));
+    auto* hcs = (HcalDDDSimConstants*)(&(*pHSNDC));
+    auto* hcr = (HcalDDDRecConstants*)(&(*pHRNDC));
+    auto* schme1 = new HcalNumberingScheme();
+    auto* schme2 = dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme(false));
 
     for (int type = 0; type < 2; ++type) {
       HcalSubdetector sub = (type == 0) ? HcalBarrel : HcalEndcap;

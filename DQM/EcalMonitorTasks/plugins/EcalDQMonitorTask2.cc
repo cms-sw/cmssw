@@ -45,8 +45,7 @@ void EcalDQMonitorTask::runOnCollection(edm::Event const& _evt,
 
 void EcalDQMonitorTask::formSchedule(std::vector<ecaldqm::Collections> const& _preSchedule,
                                      edm::ParameterSet const& _tagPSet) {
-  for (std::vector<ecaldqm::Collections>::const_iterator colItr(_preSchedule.begin()); colItr != _preSchedule.end();
-       ++colItr) {
+  for (auto colItr(_preSchedule.begin()); colItr != _preSchedule.end(); ++colItr) {
     std::pair<Processor, ecaldqm::Collections> sch;
 
     edm::InputTag tag(_tagPSet.getUntrackedParameter<edm::InputTag>(ecaldqm::collectionName[*colItr]));

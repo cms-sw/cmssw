@@ -302,7 +302,7 @@ edm::Ptr<TrackingParticle> TTClusterAssociationMap<T>::findTrackingParticlePtr(
     return this->findTrackingParticlePtrs(aCluster).at(0);
   }
 
-  edm::Ptr<TrackingParticle>* temp = new edm::Ptr<TrackingParticle>();
+  auto* temp = new edm::Ptr<TrackingParticle>();
   return *temp;
 }
 

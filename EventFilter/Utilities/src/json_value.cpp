@@ -731,7 +731,7 @@ namespace Json {
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
       case arrayValue:  // size of the array is highest index + 1
         if (!value_.map_->empty()) {
-          ObjectValues::const_iterator itLast = value_.map_->end();
+          auto itLast = value_.map_->end();
           --itLast;
           return (*itLast).first.index() + 1;
         }
@@ -807,7 +807,7 @@ namespace Json {
       *this = Value(arrayValue);
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
     CZString key(index);
-    ObjectValues::iterator it = value_.map_->lower_bound(key);
+    auto it = value_.map_->lower_bound(key);
     if (it != value_.map_->end() && (*it).first == key)
       return (*it).second;
 
@@ -825,7 +825,7 @@ namespace Json {
       return null;
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
     CZString key(index);
-    ObjectValues::const_iterator it = value_.map_->find(key);
+    auto it = value_.map_->find(key);
     if (it == value_.map_->end())
       return null;
     return (*it).second;
@@ -843,7 +843,7 @@ namespace Json {
       *this = Value(objectValue);
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
     CZString actualKey(key, isStatic ? CZString::noDuplication : CZString::duplicateOnCopy);
-    ObjectValues::iterator it = value_.map_->lower_bound(actualKey);
+    auto it = value_.map_->lower_bound(actualKey);
     if (it != value_.map_->end() && (*it).first == actualKey)
       return (*it).second;
 
@@ -869,7 +869,7 @@ namespace Json {
       return null;
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
     CZString actualKey(key, CZString::noDuplication);
-    ObjectValues::const_iterator it = value_.map_->find(actualKey);
+    auto it = value_.map_->find(actualKey);
     if (it == value_.map_->end())
       return null;
     return (*it).second;
@@ -906,7 +906,7 @@ namespace Json {
       return null;
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
     CZString actualKey(key, CZString::noDuplication);
-    ObjectValues::iterator it = value_.map_->find(actualKey);
+    auto it = value_.map_->find(actualKey);
     if (it == value_.map_->end())
       return null;
     Value old(it->second);
@@ -950,8 +950,8 @@ namespace Json {
     Members members;
     members.reserve(value_.map_->size());
 #ifndef JSON_VALUE_USE_INTERNAL_MAP
-    ObjectValues::const_iterator it = value_.map_->begin();
-    ObjectValues::const_iterator itEnd = value_.map_->end();
+    auto it = value_.map_->begin();
+    auto itEnd = value_.map_->end();
     for (; it != itEnd; ++it)
       members.push_back(std::string((*it).first.c_str()));
 #else
@@ -1187,7 +1187,7 @@ namespace Json {
   void Path::makePath(const std::string &path, const InArgs &in) {
     const char *current = path.c_str();
     const char *end = current + path.length();
-    InArgs::const_iterator itInArg = in.begin();
+    auto itInArg = in.begin();
     while (current != end) {
       if (*current == '[') {
         ++current;
@@ -1234,7 +1234,7 @@ namespace Json {
 
   const Value &Path::resolve(const Value &root) const {
     const Value *node = &root;
-    for (Args::const_iterator it = args_.begin(); it != args_.end(); ++it) {
+    for (auto it = args_.begin(); it != args_.end(); ++it) {
       const PathArgument &arg = *it;
       if (arg.kind_ == PathArgument::kindIndex) {
         if (!node->isArray() || node->isValidIndex(arg.index_)) {
@@ -1256,7 +1256,7 @@ namespace Json {
 
   Value Path::resolve(const Value &root, const Value &defaultValue) const {
     const Value *node = &root;
-    for (Args::const_iterator it = args_.begin(); it != args_.end(); ++it) {
+    for (auto it = args_.begin(); it != args_.end(); ++it) {
       const PathArgument &arg = *it;
       if (arg.kind_ == PathArgument::kindIndex) {
         if (!node->isArray() || node->isValidIndex(arg.index_))
@@ -1275,7 +1275,7 @@ namespace Json {
 
   Value &Path::make(Value &root) const {
     Value *node = &root;
-    for (Args::const_iterator it = args_.begin(); it != args_.end(); ++it) {
+    for (auto it = args_.begin(); it != args_.end(); ++it) {
       const PathArgument &arg = *it;
       if (arg.kind_ == PathArgument::kindIndex) {
         if (!node->isArray()) {

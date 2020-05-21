@@ -28,9 +28,8 @@ RPCAMCLinkMapHandler::RPCAMCLinkMapHandler(edm::ParameterSet const& config)
                                                  << "sizes of wheelOrSideFED and wheelOrSideSectorAMC don't match";
   }
 
-  std::vector<std::vector<int> >::iterator sector_amc = wos_sector_amc_.begin();
-  for (std::vector<long long>::const_iterator sector_amc_packed = wos_sector_amc_packed.begin();
-       sector_amc_packed != wos_sector_amc_packed.end();
+  auto sector_amc = wos_sector_amc_.begin();
+  for (auto sector_amc_packed = wos_sector_amc_packed.begin(); sector_amc_packed != wos_sector_amc_packed.end();
        ++sector_amc_packed, ++sector_amc) {
     for (unsigned int sector = 0; sector < n_sectors_; ++sector) {
       sector_amc->at(sector) = ((*sector_amc_packed) >> (4 * (n_sectors_ - sector - 1))) & 0xf;

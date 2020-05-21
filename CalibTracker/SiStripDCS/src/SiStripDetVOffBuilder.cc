@@ -207,10 +207,8 @@ void SiStripDetVOffBuilder::BuildDetVOffObj() {
         if (!excludedDetIdListFile_.empty()) {
           map.BuildMap(excludedDetIdListFile_, excludedDetIdMap);
         }
-        for (std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = detInfos.begin();
-             it != detInfos.end();
-             ++it) {
-          std::vector<std::pair<uint32_t, std::string> >::const_iterator exclIt = excludedDetIdMap.begin();
+        for (auto it = detInfos.begin(); it != detInfos.end(); ++it) {
+          auto exclIt = excludedDetIdMap.begin();
           bool excluded = false;
           for (; exclIt != excludedDetIdMap.end(); ++exclIt) {
             if (it->first == exclIt->first) {
@@ -495,7 +493,7 @@ coral::TimeStamp SiStripDetVOffBuilder::getCoralTime(cond::Time_t iovTime) {
 
 void SiStripDetVOffBuilder::removeDuplicates(std::vector<uint32_t>& vec) {
   std::sort(vec.begin(), vec.end());
-  std::vector<uint32_t>::iterator it = std::unique(vec.begin(), vec.end());
+  auto it = std::unique(vec.begin(), vec.end());
   vec.resize(it - vec.begin());
 }
 
@@ -593,7 +591,7 @@ void SiStripDetVOffBuilder::reduction(const uint32_t deltaTmin, const uint32_t m
   int resultsIndex = 0;
 
   if (resultVecSize > 1) {
-    std::vector<std::pair<SiStripDetVOff*, cond::Time_t> >::iterator it = modulesOff.begin();
+    auto it = modulesOff.begin();
     for (; it != modulesOff.end() - 1; ++it, ++resultsIndex) {
       unsigned long long deltaT = ((it + 1)->second - it->second) >> 32;
       unsigned long long deltaTsequence = 0;
@@ -807,7 +805,7 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues& psuStruct, DetIdLis
         //Extract the PSU from the PSUChannel (since the HVUnmapped_Map uses PSU as key
         std::string PSU = PSUChannel.substr(0, PSUChannel.size() - 10);
         //Look for the PSU in the unmapped map!
-        std::map<std::string, std::vector<uint32_t> >::iterator iter = UnmappedPSUs.find(PSU);
+        auto iter = UnmappedPSUs.find(PSU);
         if (iter != UnmappedPSUs.end()) {
           UnmappedState[PSUChannel] = HVStatus;
         } else {
@@ -820,10 +818,10 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues& psuStruct, DetIdLis
     //Extra check:
     //Should check if there any HVUnmapped channels in the map that are not listed in the local file!
     bool MissingChannels = false;
-    for (std::map<std::string, vector<uint32_t> >::iterator it = UnmappedPSUs.begin(); it != UnmappedPSUs.end(); it++) {
+    for (auto it = UnmappedPSUs.begin(); it != UnmappedPSUs.end(); it++) {
       std::string chan002 = it->first + "channel002";
       std::string chan003 = it->first + "channel003";
-      std::map<std::string, bool>::iterator iter = UnmappedState.find(chan002);
+      auto iter = UnmappedState.find(chan002);
       if (iter == UnmappedState.end()) {
         std::cout << "ERROR! The local file with the channel status for HVUnmapped channels IS MISSING one of the "
                      "following unmapped channel voltage status information:"
@@ -849,7 +847,7 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues& psuStruct, DetIdLis
     }
   } else {  //If the file HVUnmappedChannelState.dat does not exist, initialize the map to all OFF.
     //(see below for creating the file at the end of the execution with the latest state of unmapped channels.
-    for (std::map<std::string, vector<uint32_t> >::iterator it = UnmappedPSUs.begin(); it != UnmappedPSUs.end(); it++) {
+    for (auto it = UnmappedPSUs.begin(); it != UnmappedPSUs.end(); it++) {
       std::string chan002 = it->first + "channel002";
       std::string chan003 = it->first + "channel003";
       UnmappedState[chan002] = false;
@@ -874,7 +872,7 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues& psuStruct, DetIdLis
         //Extract the PSU from the PSUChannel (since the HVCrosstalking_Map uses PSU as key
         std::string PSU = PSUChannel.substr(0, PSUChannel.size() - 10);
         //Look for the PSU in the unmapped map!
-        std::map<std::string, std::vector<uint32_t> >::iterator iter = CrosstalkingPSUs.find(PSU);
+        auto iter = CrosstalkingPSUs.find(PSU);
         if (iter != CrosstalkingPSUs.end()) {
           CrosstalkingState[PSUChannel] = HVStatus;
         } else {
@@ -887,11 +885,10 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues& psuStruct, DetIdLis
     //Extra check:
     //Should check if there any HVCrosstalking channels in the map that are not listed in the local file!
     bool MissingChannels = false;
-    for (std::map<std::string, vector<uint32_t> >::iterator it = CrosstalkingPSUs.begin(); it != CrosstalkingPSUs.end();
-         it++) {
+    for (auto it = CrosstalkingPSUs.begin(); it != CrosstalkingPSUs.end(); it++) {
       std::string chan002 = it->first + "channel002";
       std::string chan003 = it->first + "channel003";
-      std::map<std::string, bool>::iterator iter = CrosstalkingState.find(chan002);
+      auto iter = CrosstalkingState.find(chan002);
       if (iter == CrosstalkingState.end()) {
         std::cout << "ERROR! The local file with the channel status for HVCrosstalking channels IS MISSING one of the "
                      "following unmapped channel voltage status information:"
@@ -917,8 +914,7 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues& psuStruct, DetIdLis
     }
   } else {  //If the file HVCrosstalkingChannelState.dat does not exist, initialize the map to all OFF.
     //(see below for creating the file at the end of the execution with the latest state of unmapped channels.
-    for (std::map<std::string, vector<uint32_t> >::iterator it = CrosstalkingPSUs.begin(); it != CrosstalkingPSUs.end();
-         it++) {
+    for (auto it = CrosstalkingPSUs.begin(); it != CrosstalkingPSUs.end(); it++) {
       std::string chan002 = it->first + "channel002";
       std::string chan003 = it->first + "channel003";
       CrosstalkingState[chan002] = false;
@@ -930,13 +926,13 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues& psuStruct, DetIdLis
     //print out the UnmappedState map:
     std::cout << "Printing the UnmappedChannelState initial map:" << std::endl;
     std::cout << "PSUChannel\t\tHVON?(true or false)" << std::endl;
-    for (std::map<std::string, bool>::iterator it = UnmappedState.begin(); it != UnmappedState.end(); it++) {
+    for (auto it = UnmappedState.begin(); it != UnmappedState.end(); it++) {
       std::cout << it->first << "\t\t" << it->second << std::endl;
     }
     //print out the CrosstalkingState map:
     std::cout << "Printing the CrosstalkingChannelState initial map:" << std::endl;
     std::cout << "PSUChannel\t\tHVON?(true or false)" << std::endl;
-    for (std::map<std::string, bool>::iterator it = CrosstalkingState.begin(); it != CrosstalkingState.end(); it++) {
+    for (auto it = CrosstalkingState.begin(); it != CrosstalkingState.end(); it++) {
       std::cout << it->first << "\t\t" << it->second << std::endl;
     }
   }
@@ -1223,11 +1219,11 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues& psuStruct, DetIdLis
   }  //End of the loop over all PSUChannels reported by the DB query.
   //At this point we need to (over)write the 2 files that will keep the HVUnmapped and HVCrosstalking channels status:
   std::ofstream ofsUnmapped("HVUnmappedChannelState.dat");
-  for (std::map<std::string, bool>::iterator it = UnmappedState.begin(); it != UnmappedState.end(); it++) {
+  for (auto it = UnmappedState.begin(); it != UnmappedState.end(); it++) {
     ofsUnmapped << it->first << "\t" << it->second << std::endl;
   }
   std::ofstream ofsCrosstalking("HVCrosstalkingChannelState.dat");
-  for (std::map<std::string, bool>::iterator it = CrosstalkingState.begin(); it != CrosstalkingState.end(); it++) {
+  for (auto it = CrosstalkingState.begin(); it != CrosstalkingState.end(); it++) {
     ofsCrosstalking << it->first << "\t" << it->second << std::endl;
   }
 
@@ -1252,7 +1248,7 @@ void SiStripDetVOffBuilder::buildPSUdetIdMap(TimesAndValues& psuStruct, DetIdLis
 
   unsigned int dupCount = 0;
   for (unsigned int t = 0; t < numLvBad.size(); t++) {
-    std::vector<unsigned int>::iterator iter = std::find(numHvBad.begin(), numHvBad.end(), numLvBad[t]);
+    auto iter = std::find(numHvBad.begin(), numHvBad.end(), numLvBad[t]);
     if (iter != numHvBad.end()) {
       dupCount++;
     }

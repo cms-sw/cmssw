@@ -551,7 +551,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
 
         // Modules Constraints
 
-        for (std::vector<TrajectoryAtInvalidHit>::const_iterator TM = TMs.begin(); TM != TMs.end(); ++TM) {
+        for (auto TM = TMs.begin(); TM != TMs.end(); ++TM) {
           // --> Get trajectory from combinatedState
           iidd = TM->monodet_id();
           LogDebug("SiStripHitEfficiency:HitEff") << "setting iidd = " << iidd << " before checking efficiency and ";
@@ -620,7 +620,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
                   LogDebug("SiStripHitEfficiency:HitEff")
                       << "found  (ClusterId == iidd) with ClusterId = " << ClusterId << " and iidd = " << iidd << endl;
                   DetId ClusterDetId(ClusterId);
-                  const StripGeomDetUnit* stripdet = (const StripGeomDetUnit*)tkgeom->idToDetUnit(ClusterDetId);
+                  const auto* stripdet = (const StripGeomDetUnit*)tkgeom->idToDetUnit(ClusterDetId);
                   const StripTopology& Topo = stripdet->specificTopology();
 
                   float hbedge = 0.0;
@@ -630,8 +630,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
                   float uxlden = 0.0;
                   if (TKlayers >= 11) {
                     const BoundPlane& plane = stripdet->surface();
-                    const TrapezoidalPlaneBounds* trapezoidalBounds(
-                        dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
+                    const auto* trapezoidalBounds(dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
                     std::array<const float, 4> const& parameterTrap =
                         (*trapezoidalBounds).parameters();  // el bueno aqui
                     hbedge = parameterTrap[0];
@@ -833,7 +832,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es) {
               // CM of APV crossed by traj
               if (addCommonMode_)
                 if (commonModeDigis.isValid() && TrajStrip >= 0 && TrajStrip <= 768) {
-                  edm::DetSetVector<SiStripRawDigi>::const_iterator digiframe = commonModeDigis->find(iidd);
+                  auto digiframe = commonModeDigis->find(iidd);
                   if (digiframe != commonModeDigis->end())
                     if ((unsigned)TrajStrip / 128 < digiframe->data.size())
                       commonMode = digiframe->data.at(TrajStrip / 128).adc();
@@ -892,7 +891,7 @@ double HitEff::checkConsistency(const StripClusterParameterEstimator::LocalValue
 }
 
 bool HitEff::isDoubleSided(unsigned int iidd, const TrackerTopology* tTopo) const {
-  StripSubdetector strip = StripSubdetector(iidd);
+  auto strip = StripSubdetector(iidd);
   unsigned int subid = strip.subdetId();
   unsigned int layer = 0;
   if (subid == StripSubdetector::TIB) {
@@ -933,7 +932,7 @@ bool HitEff::check2DPartner(unsigned int iidd, const std::vector<TrajectoryMeasu
     partner_iidd = iidd - 1;
   // next look in the trajectory measurements for a measurement from that detector
   // loop through trajectory measurements to find the partner_iidd
-  for (std::vector<TrajectoryMeasurement>::const_iterator iTM = traj.begin(); iTM != traj.end(); ++iTM) {
+  for (auto iTM = traj.begin(); iTM != traj.end(); ++iTM) {
     if (iTM->recHit()->geographicalId().rawId() == partner_iidd) {
       found2DPartner = true;
     }
@@ -942,7 +941,7 @@ bool HitEff::check2DPartner(unsigned int iidd, const std::vector<TrajectoryMeasu
 }
 
 unsigned int HitEff::checkLayer(unsigned int iidd, const TrackerTopology* tTopo) {
-  StripSubdetector strip = StripSubdetector(iidd);
+  auto strip = StripSubdetector(iidd);
   unsigned int subid = strip.subdetId();
   if (subid == StripSubdetector::TIB) {
     return tTopo->tibLayer(iidd);

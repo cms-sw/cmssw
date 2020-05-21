@@ -110,8 +110,7 @@ void VertexFitterResult::fill(const TransientVertex& recVertex,
 
   // now store all the recTrack...
 
-  for (TTrackCont::const_iterator recTrack = recTrackV.begin();
-       (recTrack != recTrackV.end() && (numberOfRecTracks < theMaxTracks));
+  for (auto recTrack = recTrackV.begin(); (recTrack != recTrackV.end() && (numberOfRecTracks < theMaxTracks));
        recTrack++) {
     //    std::cout << "Input; 1/Pt " << 1./(*recTrack).momentumAtVertex().transverse() << std::endl;
 
@@ -120,7 +119,7 @@ void VertexFitterResult::fill(const TransientVertex& recVertex,
 
     std::vector<std::pair<TrackingParticleRef, double> > simFound;
     try {
-      const TrackTransientTrack* ttt = dynamic_cast<const TrackTransientTrack*>(recTrack->basicTransientTrack());
+      const auto* ttt = dynamic_cast<const TrackTransientTrack*>(recTrack->basicTransientTrack());
       if ((ttt != nullptr) && (recSimColl != nullptr))
         simFound = (*recSimColl)[ttt->trackBaseRef()];
       //       if (recSimColl!=0) simFound = (*recSimColl)[recTrack->persistentTrackRef()];

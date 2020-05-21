@@ -43,7 +43,7 @@ std::pair<AlgebraicVector, AlgebraicVector> BackToBackKinematicConstraint::value
     throw VertexException("BackToBackKinematicConstraint::number of tracks is not equal to 2");
   AlgebraicVector point(14, 0);
   int co = 0;
-  for (std::vector<RefCountedKinematicParticle>::const_iterator i = par.begin(); i != par.end(); i++) {
+  for (auto i = par.begin(); i != par.end(); i++) {
     AlgebraicVector7 cPar = (*i)->currentState().kinematicParameters().vector();
     for (int j = 1; j < 8; j++) {
       point((co - 1) * 7 + j) = cPar(j - 1);
@@ -67,7 +67,7 @@ std::pair<AlgebraicMatrix, AlgebraicVector> BackToBackKinematicConstraint::deriv
     throw VertexException("BackToBackKinematicConstraint::number of tracks is not equal to 2");
   AlgebraicVector point(14, 0);
   int co = 0;
-  for (std::vector<RefCountedKinematicParticle>::const_iterator i = par.begin(); i != par.end(); i++) {
+  for (auto i = par.begin(); i != par.end(); i++) {
     AlgebraicVector7 cPar = (*i)->currentState().kinematicParameters().vector();
     for (int j = 1; j < 8; j++) {
       point((co - 1) * 7 + j) = cPar(j - 1);

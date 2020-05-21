@@ -44,7 +44,7 @@ public:
 
 protected:
   inline bool isEqual(const AbsHcalFunctor& other) const override {
-    const HcalInterpolatedTableFunctor& r = static_cast<const HcalInterpolatedTableFunctor&>(other);
+    const auto& r = static_cast<const HcalInterpolatedTableFunctor&>(other);
     return values_ == r.values_ && xmin_ == r.xmin_ && xmax_ == r.xmax_ &&
            leftExtrapolationLinear_ == r.leftExtrapolationLinear_ &&
            rightExtrapolationLinear_ == r.rightExtrapolationLinear_;

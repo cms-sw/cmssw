@@ -314,9 +314,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets(const reco::GenParticleColle
   int topBarDaughterQId = -1;
 
   // Looping over all jets to get hadrons associated to them
-  for (reco::JetFlavourInfoMatchingCollection::const_iterator i_info = jetFlavourInfos->begin();
-       i_info != jetFlavourInfos->end();
-       ++i_info) {
+  for (auto i_info = jetFlavourInfos->begin(); i_info != jetFlavourInfos->end(); ++i_info) {
     reco::JetFlavourInfo jetInfo = i_info->second;
     const int jetIndex = i_info - jetFlavourInfos->begin();
     // Looping over each hadron associated with the jet and finding its origin
@@ -345,9 +343,7 @@ std::vector<int> GenHFHadronMatcher::findHadronJets(const reco::GenParticleColle
 
   // Access all hadrons which are not associated with jets, if requested
   if (!onlyJetClusteredHadrons_) {
-    for (reco::GenParticleCollection::const_iterator i_particle = genParticles->begin();
-         i_particle != genParticles->end();
-         ++i_particle) {
+    for (auto i_particle = genParticles->begin(); i_particle != genParticles->end(); ++i_particle) {
       const reco::GenParticle *thisParticle = &*i_particle;
       if (!isHadron(flavour_, thisParticle))
         continue;
@@ -366,14 +362,12 @@ std::vector<int> GenHFHadronMatcher::findHadronJets(const reco::GenParticleColle
 
   // Transfering Candidates to the list of processed particles for further analysis
   for (int i = 0; i < (int)hadMothersCand.size(); i++) {
-    const reco::GenParticle *particle = dynamic_cast<const reco::GenParticle *>(hadMothersCand.at(i));
+    const auto *particle = dynamic_cast<const reco::GenParticle *>(hadMothersCand.at(i));
     hadMothers.push_back(*particle);
   }
 
   // Adding leptons from hadron decays
-  for (reco::GenParticleCollection::const_iterator i_particle = genParticles->begin();
-       i_particle != genParticles->end();
-       ++i_particle) {
+  for (auto i_particle = genParticles->begin(); i_particle != genParticles->end(); ++i_particle) {
     const reco::GenParticle lepton = *i_particle;
     const int pdg_abs = lepton.pdgId();
     // Skipping if not a lepton: e/mu

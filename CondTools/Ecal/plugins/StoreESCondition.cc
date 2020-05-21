@@ -24,7 +24,7 @@ StoreESCondition::StoreESCondition(const edm::ParameterSet& iConfig) {
 
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters toPut = iConfig.getParameter<Parameters>("toPut");
-  for (Parameters::iterator itToPut = toPut.begin(); itToPut != toPut.end(); ++itToPut) {
+  for (auto itToPut = toPut.begin(); itToPut != toPut.end(); ++itToPut) {
     inpFileName_.push_back(itToPut->getUntrackedParameter<std::string>("inputFile"));
     objectName_.push_back(itToPut->getUntrackedParameter<std::string>("conditionType"));
     since_.push_back(itToPut->getUntrackedParameter<unsigned int>("since"));
@@ -242,22 +242,22 @@ ESEEIntercalibConstants* StoreESCondition::readESEEIntercalibConstantsFromFile(c
   ESEEIntercalibFile >> alphaLow3;
   ESEEIntercalibFile >> gammaHigh3;
   ESEEIntercalibFile >> alphaHigh3;
-  ESEEIntercalibConstants* eseeIntercalibConstants = new ESEEIntercalibConstants(gammaLow0,
-                                                                                 alphaLow0,
-                                                                                 gammaHigh0,
-                                                                                 alphaHigh0,
-                                                                                 gammaLow1,
-                                                                                 alphaLow1,
-                                                                                 gammaHigh1,
-                                                                                 alphaHigh1,
-                                                                                 gammaLow2,
-                                                                                 alphaLow2,
-                                                                                 gammaHigh2,
-                                                                                 alphaHigh2,
-                                                                                 gammaLow3,
-                                                                                 alphaLow3,
-                                                                                 gammaHigh3,
-                                                                                 alphaHigh3);
+  auto* eseeIntercalibConstants = new ESEEIntercalibConstants(gammaLow0,
+                                                              alphaLow0,
+                                                              gammaHigh0,
+                                                              alphaHigh0,
+                                                              gammaLow1,
+                                                              alphaLow1,
+                                                              gammaHigh1,
+                                                              alphaHigh1,
+                                                              gammaLow2,
+                                                              alphaLow2,
+                                                              gammaHigh2,
+                                                              alphaHigh2,
+                                                              gammaLow3,
+                                                              alphaLow3,
+                                                              gammaHigh3,
+                                                              alphaHigh3);
 
   return eseeIntercalibConstants;
 }
@@ -273,7 +273,7 @@ ESMissingEnergyCalibration* StoreESCondition::readESMissingEnergyFromFile(const 
   ESMissingEnergyFile >> ConstBEta2;
   ESMissingEnergyFile >> ConstAEta3;
   ESMissingEnergyFile >> ConstBEta3;
-  ESMissingEnergyCalibration* esMissingEnergy = new ESMissingEnergyCalibration(
+  auto* esMissingEnergy = new ESMissingEnergyCalibration(
       ConstAEta0, ConstBEta0, ConstAEta1, ConstBEta1, ConstAEta2, ConstBEta2, ConstAEta3, ConstBEta3);
 
   return esMissingEnergy;
@@ -333,7 +333,7 @@ ESRecHitRatioCuts* StoreESCondition::readESRecHitRatioCutsFromFile(const char* i
   ESRecHitRatioCutsFile >> r23Low;
   ESRecHitRatioCutsFile >> r12High;
   ESRecHitRatioCutsFile >> r23High;
-  ESRecHitRatioCuts* esRecHitRatioCuts = new ESRecHitRatioCuts(r12Low, r23Low, r12High, r23High);
+  auto* esRecHitRatioCuts = new ESRecHitRatioCuts(r12Low, r23Low, r12High, r23High);
   //  cout<<"We are in RH ratio cut : gain : " << esgain_<<endl;
 
   // HG (R12Low, R23Low, R12High, R23High)
@@ -370,12 +370,12 @@ ESTimeSampleWeights* StoreESCondition::readESTimeSampleWeightsFromFile(const cha
     edm::LogInfo("StoreESCondition") << "weight : " << k << " " << w[k] << "\n";
   }
 
-  ESTimeSampleWeights* esWeights = new ESTimeSampleWeights(w[0], w[1], w[2]);
+  auto* esWeights = new ESTimeSampleWeights(w[0], w[1], w[2]);
   return esWeights;
 }
 
 ESIntercalibConstants* StoreESCondition::readESIntercalibConstantsFromFile(const char* inputFile) {
-  ESIntercalibConstants* ical = new ESIntercalibConstants();
+  auto* ical = new ESIntercalibConstants();
 
   std::ifstream mipFile(edm::FileInPath(inputFile).fullPath().c_str());
 

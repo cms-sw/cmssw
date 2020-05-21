@@ -335,9 +335,7 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
   LogDebug("") << " Start loop over " << clusterHandle->end() - clusterHandle->begin() << "  superClusters ";
 
-  for (reco::SuperClusterCollection::const_iterator clusterIter = clusterHandle->begin();
-       clusterIter != clusterHandle->end();
-       ++clusterIter) {
+  for (auto clusterIter = clusterHandle->begin(); clusterIter != clusterHandle->end(); ++clusterIter) {
     double energy = clusterIter->energy();
     math::XYZPoint position = clusterIter->position();
     std::ostringstream str;
@@ -433,8 +431,7 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   // need to check if fit succeeded
   LogDebug("") << " Number of SiStripElectrons  " << siStripElectronHandle->size();
 
-  for (reco::SiStripElectronCollection::const_iterator electronIter = siStripElectronHandle->begin();
-       electronIter != siStripElectronHandle->end();
+  for (auto electronIter = siStripElectronHandle->begin(); electronIter != siStripElectronHandle->end();
        ++electronIter) {
     LogDebug("") << "about to get stuff from electroncandidate " << numberOfElectrons << "\n"
                  << "supercluster energy = " << electronIter->superCluster()->energy() << "\n"
@@ -518,8 +515,7 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   }
 
   unsigned int ecount = 0;
-  for (reco::ElectronCollection::const_iterator electronIter = electrons->begin(); electronIter != electrons->end();
-       ++electronIter) {
+  for (auto electronIter = electrons->begin(); electronIter != electrons->end(); ++electronIter) {
     LogDebug("") << " Associating Electrons to Strippies ";
     LogDebug("") << " PT is " << electronIter->track()->pt();
 
@@ -532,23 +528,18 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
                  << " \n "
                  << " icount " << icount << " max " << siStripElectronHandle->end() - siStripElectronHandle->begin();
 
-    for (reco::SiStripElectronCollection::const_iterator strippyiter = siStripElectronHandle->begin();
-         strippyiter != siStripElectronHandle->end();
+    for (auto strippyiter = siStripElectronHandle->begin(); strippyiter != siStripElectronHandle->end();
          ++strippyiter) {
       bool hitInCommon = false;
       // loop over rphi hits
-      for (std::vector<SiStripRecHit2D>::const_iterator hiter = strippyiter->rphiRecHits().begin();
-           hiter != strippyiter->rphiRecHits().end();
-           ++hiter) {
+      for (auto hiter = strippyiter->rphiRecHits().begin(); hiter != strippyiter->rphiRecHits().end(); ++hiter) {
         if (hiter->geographicalId().rawId() == id && (hiter->localPosition() - pos).mag() < 1e-10) {
           hitInCommon = true;
           break;
         }
       }
 
-      for (std::vector<SiStripRecHit2D>::const_iterator hiter = strippyiter->stereoRecHits().begin();
-           hiter != strippyiter->stereoRecHits().end();
-           ++hiter) {
+      for (auto hiter = strippyiter->stereoRecHits().begin(); hiter != strippyiter->stereoRecHits().end(); ++hiter) {
         if (hiter->geographicalId().rawId() == id && (hiter->localPosition() - pos).mag() < 1e-10) {
           hitInCommon = true;
           break;
@@ -568,9 +559,7 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   LogDebug("") << " Done looping over Electrons ";
 
   unsigned int counter = 0;
-  for (reco::SiStripElectronCollection::const_iterator strippyIter = siStripElectronHandle->begin();
-       strippyIter != siStripElectronHandle->end();
-       ++strippyIter) {
+  for (auto strippyIter = siStripElectronHandle->begin(); strippyIter != siStripElectronHandle->end(); ++strippyIter) {
     bool skipThis = !hasElectron_[counter];
     if (skipThis) {
       // plot stuff for SIStripElectrons that don't have fits associated
@@ -615,15 +604,13 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
   LogDebug("") << "Dump info for all electrons ";
 
-  for (reco::ElectronCollection::const_iterator electronIter1 = electrons->begin(); electronIter1 != electrons->end();
-       ++electronIter1) {
+  for (auto electronIter1 = electrons->begin(); electronIter1 != electrons->end(); ++electronIter1) {
     reco::TrackRef tr1 = (*electronIter1).track();
     // let's find its associated SiStripElectron and SuperCluster
     unsigned int ecount1 = electronIter1 - electrons->begin();
     unsigned int stripCount1 = 0;
     reco::SiStripElectronCollection::const_iterator strippyIter1;
-    for (reco::SiStripElectronCollection::const_iterator strippyIter = siStripElectronHandle->begin();
-         strippyIter != siStripElectronHandle->end();
+    for (auto strippyIter = siStripElectronHandle->begin(); strippyIter != siStripElectronHandle->end();
          ++strippyIter) {
       if (Electron_to_strippy[ecount1] == stripCount1) {
         strippyIter1 = strippyIter;
@@ -672,9 +659,7 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   /// For events w/ more than 1 electron candidate, try to plot m(e,e)
   if (electrons->end() - electrons->begin() > 1) {
     edm::LogInfo("") << " Two electrons in this event " << std::endl;
-    for (reco::ElectronCollection::const_iterator electronIter1 = electrons->begin();
-         electronIter1 != electrons->end() - 1;
-         ++electronIter1) {
+    for (auto electronIter1 = electrons->begin(); electronIter1 != electrons->end() - 1; ++electronIter1) {
       reco::TrackRef tr1 = (*electronIter1).track();
 
       // let's find its associated SiStripElectron and SuperCluster
@@ -683,8 +668,7 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
       // loop over strippies to find the corresponding one
       unsigned int stripCount1 = 0;
       reco::SiStripElectronCollection::const_iterator strippyIter1;
-      for (reco::SiStripElectronCollection::const_iterator strippyIter = siStripElectronHandle->begin();
-           strippyIter != siStripElectronHandle->end();
+      for (auto strippyIter = siStripElectronHandle->begin(); strippyIter != siStripElectronHandle->end();
            ++strippyIter) {
         if (Electron_to_strippy[ecount1] == stripCount1) {
           strippyIter1 = strippyIter;
@@ -698,16 +682,13 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
       double YClust1 = strippyIter1->superCluster()->y();
       double ZClust1 = strippyIter1->superCluster()->z();
 
-      for (reco::ElectronCollection::const_iterator electronIter2 = electronIter1 + 1;
-           electronIter2 != electrons->end();
-           ++electronIter2) {
+      for (auto electronIter2 = electronIter1 + 1; electronIter2 != electrons->end(); ++electronIter2) {
         reco::TrackRef tr2 = (*electronIter2).track();
 
         unsigned int ecount2 = electronIter2 - electrons->begin();
         unsigned int stripCount2 = 0;
         reco::SiStripElectronCollection::const_iterator strippyIter2;
-        for (reco::SiStripElectronCollection::const_iterator strippyIter = siStripElectronHandle->begin();
-             strippyIter != siStripElectronHandle->end();
+        for (auto strippyIter = siStripElectronHandle->begin(); strippyIter != siStripElectronHandle->end();
              ++strippyIter) {
           if (Electron_to_strippy[ecount2] == stripCount2) {
             strippyIter2 = strippyIter;
@@ -800,9 +781,7 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
   ////// get cluster
   NShowers_ = 0;
-  for (reco::SuperClusterCollection::const_iterator clusterIter = clusterHandle->begin();
-       clusterIter != clusterHandle->end();
-       ++clusterIter) {
+  for (auto clusterIter = clusterHandle->begin(); clusterIter != clusterHandle->end(); ++clusterIter) {
     double energy = clusterIter->energy();
     math::XYZPoint position = clusterIter->position();
     if (NShowers_ < myMaxHits) {
@@ -823,10 +802,7 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
   /////// Loop over Stereo Hits
   int myHits = 0;
-  for (SiStripRecHit2DCollection::DataContainer::const_iterator hit = stereoHitsHandle->data().begin(),
-                                                                hitend = stereoHitsHandle->data().end();
-       hit != hitend;
-       ++hit) {
+  for (auto hit = stereoHitsHandle->data().begin(), hitend = stereoHitsHandle->data().end(); hit != hitend; ++hit) {
     DetId id(hit->geographicalId());
     if ((hit->geographicalId()).subdetId() == StripSubdetector::TIB ||
         (hit->geographicalId()).subdetId() == StripSubdetector::TOB) {
@@ -930,10 +906,7 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   LogDebug("") << " Looping over Mono Hits ";
   /////// Loop over Mono Hits
   myHits = 0;
-  for (SiStripRecHit2DCollection::DataContainer::const_iterator hit = rphiHitsHandle->data().begin(),
-                                                                hitend = rphiHitsHandle->data().end();
-       hit != hitend;
-       ++hit) {
+  for (auto hit = rphiHitsHandle->data().begin(), hitend = rphiHitsHandle->data().end(); hit != hitend; ++hit) {
     DetId id(hit->geographicalId());
 
     if ((hit->geographicalId()).subdetId() == StripSubdetector::TIB ||
@@ -1043,10 +1016,7 @@ void SiStripElectronAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
   /////// Loop over Matched Hits
   myHits = 0;
-  for (SiStripMatchedRecHit2DCollection::DataContainer::const_iterator hit = matchedHitsHandle->data().begin(),
-                                                                       hitend = matchedHitsHandle->data().end();
-       hit != hitend;
-       ++hit) {
+  for (auto hit = matchedHitsHandle->data().begin(), hitend = matchedHitsHandle->data().end(); hit != hitend; ++hit) {
     DetId id(hit->geographicalId());
     if ((hit->geographicalId()).subdetId() == StripSubdetector::TIB ||
         (hit->geographicalId()).subdetId() == StripSubdetector::TOB) {

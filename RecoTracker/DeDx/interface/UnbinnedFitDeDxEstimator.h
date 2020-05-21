@@ -30,7 +30,7 @@ public:
     f1->SetParameters(3.0, 0.3);
     // fills a temporary array and performs the fit
     uint32_t i = 0;
-    for (reco::DeDxHitCollection::const_iterator hit = Hits.begin(); hit != Hits.end(); ++hit, ++i) {
+    for (auto hit = Hits.begin(); hit != Hits.end(); ++hit, ++i) {
       data[i] = hit->charge();
     }
     // fit !

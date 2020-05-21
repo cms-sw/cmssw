@@ -52,7 +52,7 @@ int EcalChannelStatusXMLTranslator::readXML(const std::string& filename,
     DOMNode* c_node = getChildNode(cellnode, ChannelStatusCode_tag);
     GetNodeData(c_node, csc);
 
-    EcalChannelStatusCode ecalCSC = EcalChannelStatusCode(csc);
+    auto ecalCSC = EcalChannelStatusCode(csc);
     record[detid] = ecalCSC;
 
     cellnode = cellnode->getNextSibling();

@@ -38,7 +38,7 @@ std::vector<reco::PFCandidateRef> PFBlockBasedIsolation::calculate(
   math::XYZVector candidateDirection = candidateMomentum.Unit();
 
   const reco::PFCandidate::ElementsInBlocks& theElementsInpfEGcand = (*pfEGCand).elementsInBlocks();
-  reco::PFCandidate::ElementsInBlocks::const_iterator ieg = theElementsInpfEGcand.begin();
+  auto ieg = theElementsInpfEGcand.begin();
   const reco::PFBlockRef egblock = ieg->first;
 
   unsigned nObj = pfCandidateHandle->size();
@@ -55,9 +55,7 @@ std::vector<reco::PFCandidateRef> PFBlockBasedIsolation::calculate(
     const reco::PFCandidate::ElementsInBlocks& theElementsInPFcand = pfCandRef->elementsInBlocks();
 
     bool elementFound = false;
-    for (reco::PFCandidate::ElementsInBlocks::const_iterator ipf = theElementsInPFcand.begin();
-         ipf < theElementsInPFcand.end();
-         ++ipf) {
+    for (auto ipf = theElementsInPFcand.begin(); ipf < theElementsInPFcand.end(); ++ipf) {
       if (ipf->first == egblock && !elementFound) {
         for (ieg = theElementsInpfEGcand.begin(); ieg < theElementsInpfEGcand.end(); ++ieg) {
           if (ipf->second == ieg->second && !elementFound) {

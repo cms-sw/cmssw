@@ -92,7 +92,7 @@ void CleanAndMergeProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   // the collections to be produced:
   reco::BasicClusterCollection basicClusters;
   reco::SuperClusterCollection superClusters;
-  reco::SuperClusterRefVector* scRefs = new reco::SuperClusterRefVector;
+  auto* scRefs = new reco::SuperClusterRefVector;
 
   //
   // run over the uncleaned SC and check how many of them are matched to the cleaned ones

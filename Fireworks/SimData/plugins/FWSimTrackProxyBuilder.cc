@@ -190,7 +190,7 @@ void FWSimTrackProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pr
   event->getByLabel(edm::InputTag("g4SimHits"), hitColl);
 
   int i = 0;
-  for (std::vector<SimTrack>::const_iterator it = collection->begin(), end = collection->end(); it != end; ++it) {
+  for (auto it = collection->begin(), end = collection->end(); it != end; ++it) {
     const SimTrack& iData = (*it);
     double vx = 0.0;
     double vy = 0.0;

@@ -30,8 +30,8 @@ bool HFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(genJetsCollToken_, hGenJets);
 
   // Loop over the GenJetCollection
-  vector<GenJet>::const_iterator ijet = hGenJets->begin();
-  vector<GenJet>::const_iterator end = hGenJets->end();
+  auto ijet = hGenJets->begin();
+  auto end = hGenJets->end();
   for (; ijet != end; ++ijet) {
     // Check to make sure the GenJet satisfies kinematic cuts. Ignore those that don't.
     if (ijet->pt() < ptMin_ || fabs(ijet->eta()) > etaMax_)
@@ -41,8 +41,8 @@ bool HFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     vector<const GenParticle*> particles = ijet->getGenConstituents();
 
     // Loop over the constituent particles
-    vector<const GenParticle*>::const_iterator genit = particles.begin();
-    vector<const GenParticle*>::const_iterator genend = particles.end();
+    auto genit = particles.begin();
+    auto genend = particles.end();
     for (; genit != genend; ++genit) {
       // See if any of them come from B or C hadrons
       const GenParticle& genitref = **genit;

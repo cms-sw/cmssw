@@ -105,14 +105,10 @@ void MuonAlignmentOutputXML::write(AlignableMuon *alignableMuon, const edm::Even
   std::map<align::ID, CLHEP::HepSymMatrix> errors;
   AlignmentErrorsExtended *dtErrors = alignableMuon->dtAlignmentErrorsExtended();
   AlignmentErrorsExtended *cscErrors = alignableMuon->cscAlignmentErrorsExtended();
-  for (std::vector<AlignTransformErrorExtended>::const_iterator dtError = dtErrors->m_alignError.begin();
-       dtError != dtErrors->m_alignError.end();
-       ++dtError) {
+  for (auto dtError = dtErrors->m_alignError.begin(); dtError != dtErrors->m_alignError.end(); ++dtError) {
     errors[dtError->rawId()] = dtError->matrix();
   }
-  for (std::vector<AlignTransformErrorExtended>::const_iterator cscError = cscErrors->m_alignError.begin();
-       cscError != cscErrors->m_alignError.end();
-       ++cscError) {
+  for (auto cscError = cscErrors->m_alignError.begin(); cscError != cscErrors->m_alignError.end(); ++cscError) {
     errors[cscError->rawId()] = cscError->matrix();
   }
 
@@ -157,8 +153,8 @@ void MuonAlignmentOutputXML::writeComponents(align::Alignables &alignables,
                                              std::ofstream &outputFile,
                                              bool DT,
                                              const AlignableObjectId &objectIdProvider) const {
-  align::Alignables::const_iterator ideal = ideals.begin();
-  for (align::Alignables::const_iterator alignable = alignables.begin(); alignable != alignables.end(); ++alignable) {
+  auto ideal = ideals.begin();
+  for (auto alignable = alignables.begin(); alignable != alignables.end(); ++alignable) {
     if (m_survey && (*alignable)->survey() == nullptr) {
       throw cms::Exception("Alignment") << "SurveyDets must all be defined when writing to XML" << std::endl;
     }  // now I can assume it's okay everywhere

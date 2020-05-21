@@ -110,9 +110,7 @@ std::vector<const TrackingRecHit *> TrackerMuonHitExtractor::getMuonHits(const r
   unsigned int index_chamber = 0;
   int n_segments_noArb = 0;
 
-  for (std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch = mu.matches().begin();
-       chamberMatch != mu.matches().end();
-       ++chamberMatch, index_chamber++) {
+  for (auto chamberMatch = mu.matches().begin(); chamberMatch != mu.matches().end(); ++chamberMatch, index_chamber++) {
     std::stringstream chamberStr;
     chamberStr << "\nchamber index: " << index_chamber;
 
@@ -140,8 +138,7 @@ std::vector<const TrackingRecHit *> TrackerMuonHitExtractor::getMuonHits(const r
 
     unsigned int index_segment = 0;
 
-    for (std::vector<reco::MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
-         segmentMatch != chamberMatch->segmentMatches.end();
+    for (auto segmentMatch = chamberMatch->segmentMatches.begin(); segmentMatch != chamberMatch->segmentMatches.end();
          ++segmentMatch, index_segment++) {
       float segmentX = segmentMatch->x;
       float segmentY = segmentMatch->y;
@@ -183,8 +180,7 @@ std::vector<const TrackingRecHit *> TrackerMuonHitExtractor::getMuonHits(const r
           if (segment->hasPhi()) {
             const DTChamberRecSegment2D *phiSeg = segment->phiSegment();
             std::vector<const TrackingRecHit *> phiHits = phiSeg->recHits();
-            for (std::vector<const TrackingRecHit *>::const_iterator ihit = phiHits.begin(); ihit != phiHits.end();
-                 ++ihit) {
+            for (auto ihit = phiHits.begin(); ihit != phiHits.end(); ++ihit) {
               ret.push_back(*ihit);
             }
           }
@@ -192,8 +188,7 @@ std::vector<const TrackingRecHit *> TrackerMuonHitExtractor::getMuonHits(const r
           if (segment->hasZed()) {
             const DTSLRecSegment2D *zSeg = (*segment).zSegment();
             std::vector<const TrackingRecHit *> zedHits = zSeg->recHits();
-            for (std::vector<const TrackingRecHit *>::const_iterator ihit = zedHits.begin(); ihit != zedHits.end();
-                 ++ihit) {
+            for (auto ihit = zedHits.begin(); ihit != zedHits.end(); ++ihit) {
               ret.push_back(*ihit);
             }
           }
@@ -220,7 +215,7 @@ std::vector<const TrackingRecHit *> TrackerMuonHitExtractor::getMuonHits(const r
               << "\t ===> MATCHING with CSC segment with index = " << segmentCSC.key();
 
           std::vector<const TrackingRecHit *> hits = segment->recHits();
-          for (std::vector<const TrackingRecHit *>::const_iterator ihit = hits.begin(); ihit != hits.end(); ++ihit) {
+          for (auto ihit = hits.begin(); ihit != hits.end(); ++ihit) {
             ret.push_back(*ihit);
           }
         } else

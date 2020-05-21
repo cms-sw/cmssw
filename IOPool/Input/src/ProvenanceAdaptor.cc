@@ -22,14 +22,14 @@ namespace edm {
 
   void ProvenanceAdaptor::fixProcessHistory(ProcessHistoryMap& pHistMap, ProcessHistoryVector& pHistVector) {
     assert(pHistMap.empty() != pHistVector.empty());
-    for (ProcessHistoryVector::const_iterator i = pHistVector.begin(), e = pHistVector.end(); i != e; ++i) {
+    for (auto i = pHistVector.begin(), e = pHistVector.end(); i != e; ++i) {
       pHistMap.insert(std::make_pair(i->id(), *i));
     }
     pHistVector.clear();
-    for (ProcessHistoryMap::const_iterator i = pHistMap.begin(), e = pHistMap.end(); i != e; ++i) {
+    for (auto i = pHistMap.begin(), e = pHistMap.end(); i != e; ++i) {
       ProcessHistory newHist;
       ProcessHistoryID const& oldphID = i->first;
-      for (ProcessHistory::const_iterator it = i->second.begin(), et = i->second.end(); it != et; ++it) {
+      for (auto it = i->second.begin(), et = i->second.end(); it != et; ++it) {
         ParameterSetID const& newPsetID = convertID(it->parameterSetID());
         newHist.emplace_back(it->processName(), newPsetID, it->releaseVersion(), it->passID());
       }
@@ -58,11 +58,11 @@ namespace edm {
       if (a.first == b.first)
         return false;
       bool mayBeTrue = false;
-      for (Histories::const_iterator it = histories_.begin(), itEnd = histories_.end(); it != itEnd; ++it) {
-        OneHistory::const_iterator itA = find_in_all(*it, a.first);
+      for (auto it = histories_.begin(), itEnd = histories_.end(); it != itEnd; ++it) {
+        auto itA = find_in_all(*it, a.first);
         if (itA == it->end())
           continue;
-        OneHistory::const_iterator itB = find_in_all(*it, b.first);
+        auto itB = find_in_all(*it, b.first);
         if (itB == it->end())
           continue;
         assert(itA != itB);
@@ -106,10 +106,10 @@ namespace edm {
       assert(!orderedProducts.empty());
       Histories processHistories;
       size_t max = 0;
-      for (ProcessHistoryMap::const_iterator it = pHistMap.begin(), itEnd = pHistMap.end(); it != itEnd; ++it) {
+      for (auto it = pHistMap.begin(), itEnd = pHistMap.end(); it != itEnd; ++it) {
         ProcessHistory const& pHist = it->second;
         OneHistory processHistory;
-        for (ProcessHistory::const_iterator i = pHist.begin(), iEnd = pHist.end(); i != iEnd; ++i) {
+        for (auto i = pHist.begin(), iEnd = pHist.end(); i != iEnd; ++i) {
           if (processNamesThatProduced.find(i->processName()) != processNamesThatProduced.end()) {
             processHistory.push_back(i->processName());
           }
@@ -126,8 +126,7 @@ namespace edm {
       auto p = std::make_unique<BranchIDList>();
       std::string processName;
       BranchListIndex blix = 0;
-      for (OrderedProducts::const_iterator it = orderedProducts.begin(), itEnd = orderedProducts.end(); it != itEnd;
-           ++it) {
+      for (auto it = orderedProducts.begin(), itEnd = orderedProducts.end(); it != itEnd; ++it) {
         if (it->first != processName) {
           if (!processName.empty()) {
             branchListIndexes.push_back(blix);
@@ -165,7 +164,7 @@ namespace edm {
   ProvenanceAdaptor::~ProvenanceAdaptor() {}
 
   ParameterSetID const& ProvenanceAdaptor::convertID(ParameterSetID const& oldID) const {
-    ParameterSetIdConverter::const_iterator it = parameterSetIdConverter_.find(oldID);
+    auto it = parameterSetIdConverter_.find(oldID);
     if (it == parameterSetIdConverter_.end()) {
       return oldID;
     }
@@ -173,7 +172,7 @@ namespace edm {
   }
 
   ProcessHistoryID const& ProvenanceAdaptor::convertID(ProcessHistoryID const& oldID) const {
-    ProcessHistoryIdConverter::const_iterator it = processHistoryIdConverter_.find(oldID);
+    auto it = processHistoryIdConverter_.find(oldID);
     if (it == processHistoryIdConverter_.end()) {
       return oldID;
     }

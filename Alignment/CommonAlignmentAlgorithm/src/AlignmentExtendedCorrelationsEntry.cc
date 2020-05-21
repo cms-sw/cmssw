@@ -34,7 +34,7 @@ AlignmentExtendedCorrelationsEntry::AlignmentExtendedCorrelationsEntry(const Alg
 }
 
 void AlignmentExtendedCorrelationsEntry::operator*=(const float multiply) {
-  for (std::vector<float>::iterator it = theData.begin(); it != theData.end(); ++it)
+  for (auto it = theData.begin(); it != theData.end(); ++it)
     (*it) *= multiply;
 }
 

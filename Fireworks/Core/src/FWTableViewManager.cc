@@ -245,7 +245,7 @@ FWTableViewManager::TableHandle &FWTableViewManager::TableHandle::column(const c
     table description for a given type @a key.
  */
 FWTableViewManager::TableSpecs::iterator FWTableViewManager::tableFormatsImpl(const edm::TypeWithDict &key) {
-  TableSpecs::iterator ret = m_tableFormats.find(key.name());
+  auto ret = m_tableFormats.find(key.name());
   if (ret != m_tableFormats.end())
     return ret;
 
@@ -281,7 +281,7 @@ FWTableViewManager::TableSpecs::iterator FWTableViewManager::tableFormats(const 
 
   std::string keyType = key.name();
 
-  TableSpecs::iterator ret = m_tableFormats.find(keyType);
+  auto ret = m_tableFormats.find(keyType);
 
   if (ret != m_tableFormats.end())
     return ret;
@@ -348,7 +348,7 @@ class FWViewBase *FWTableViewManager::buildView(TEveWindowSlot *iParent, const s
 }
 
 void FWTableViewManager::beingDestroyed(const FWViewBase *iView) {
-  for (Views::iterator it = m_views.begin(), itEnd = m_views.end(); it != itEnd; ++it) {
+  for (auto it = m_views.begin(), itEnd = m_views.end(); it != itEnd; ++it) {
     if (it->get() == iView) {
       m_views.erase(it);
       return;
@@ -441,8 +441,7 @@ void FWTableViewManager::addToImpl(FWConfiguration &iTo) const {
   FWConfiguration typeNames(1);
   char prec[100];
 
-  for (TableSpecs::const_iterator iType = m_tableFormats.begin(), iType_end = m_tableFormats.end(); iType != iType_end;
-       ++iType) {
+  for (auto iType = m_tableFormats.begin(), iType_end = m_tableFormats.end(); iType != iType_end; ++iType) {
     const std::string &typeName = iType->first;
     typeNames.addValue(typeName);
     FWConfiguration columns(1);
@@ -470,18 +469,14 @@ void FWTableViewManager::setFrom(const FWConfiguration &iFrom) {
     // clear it those pointers would be invalid
     // instead we will just clear the lists and fill them with their new values
     //m_tableFormats.clear();
-    for (FWConfiguration::StringValuesIt iType = typeNames->stringValues()->begin(),
-                                         iTypeEnd = typeNames->stringValues()->end();
+    for (auto iType = typeNames->stringValues()->begin(), iTypeEnd = typeNames->stringValues()->end();
          iType != iTypeEnd;
          ++iType) {
       //std::cout << "reading type " << *iType << std::endl;
       const FWConfiguration *columns = iFrom.valueForKey(*iType);
       assert(columns != nullptr);
       TableHandle handle = table(iType->c_str());
-      for (FWConfiguration::StringValuesIt it = columns->stringValues()->begin(),
-                                           itEnd = columns->stringValues()->end();
-           it != itEnd;
-           ++it) {
+      for (auto it = columns->stringValues()->begin(), itEnd = columns->stringValues()->end(); it != itEnd; ++it) {
         const std::string &name = *it++;
         const std::string &expr = *it++;
         int prec = atoi(it->c_str());

@@ -61,7 +61,7 @@ RecoToGenCollection TrackGenAssociatorByChi2Impl::associateRecoToGen(
       if (charge == 0)
         continue;
       Basic3DVector<double> momAtVtx((*tp)->momentum().x(), (*tp)->momentum().y(), (*tp)->momentum().z());
-      Basic3DVector<double> vert = (Basic3DVector<double>)(*tp)->vertex();
+      auto vert = (Basic3DVector<double>)(*tp)->vertex();
 
       double chi2 = getChi2(rParameters, recoTrackCovMatrix, momAtVtx, vert, charge, bs);
 

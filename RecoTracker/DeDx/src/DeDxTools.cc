@@ -411,8 +411,8 @@ namespace DeDxTools {
     LocalError HitLocalError = trajState.localError().positionError();
 
     const BoundPlane plane = it->surface();
-    const TrapezoidalPlaneBounds* trapezoidalBounds(dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
-    const RectangularPlaneBounds* rectangularBounds(dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));
+    const auto* trapezoidalBounds(dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
+    const auto* rectangularBounds(dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));
 
     if (!trapezoidalBounds && !rectangularBounds)
       return false;

@@ -181,14 +181,14 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420>& input,
               std::cout << " FP420ClusterMain: input->get DONE dcollector.size()=" << dcollector.size() << std::endl;
             }
 
-            DigiCollectionFP420::ContainerIterator sort_begin = digiRange.first;
-            DigiCollectionFP420::ContainerIterator sort_end = digiRange.second;
+            auto sort_begin = digiRange.first;
+            auto sort_end = digiRange.second;
             for (; sort_begin != sort_end; ++sort_begin) {
               dcollector.push_back(*sort_begin);
             }  // for
             if (!dcollector.empty()) {
-              DigiCollectionFP420::ContainerIterator digiRangeIteratorBegin = digiRange.first;
-              DigiCollectionFP420::ContainerIterator digiRangeIteratorEnd = digiRange.second;
+              auto digiRangeIteratorBegin = digiRange.first;
+              auto digiRangeIteratorEnd = digiRange.second;
               if (verbosity > 0) {
                 std::cout << " FP420ClusterMain: channel Begin = " << (digiRangeIteratorBegin)->channel() << std::endl;
                 std::cout << " FP420ClusterMain: channel end = " << (digiRangeIteratorEnd - 1)->channel() << std::endl;
@@ -305,8 +305,8 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420>& input,
               ClusterCollectionFP420::Range outputRange;
               outputRange = soutput->get(iu);
               // fill output in collector vector (for may be sorting? or other checks)
-              ClusterCollectionFP420::ContainerIterator sort_begin = outputRange.first;
-              ClusterCollectionFP420::ContainerIterator sort_end = outputRange.second;
+              auto sort_begin = outputRange.first;
+              auto sort_end = outputRange.second;
               for (; sort_begin != sort_end; ++sort_begin) {
                 collector.push_back(*sort_begin);
               }  // for
@@ -316,8 +316,8 @@ void FP420ClusterMain::run(edm::Handle<DigiCollectionFP420>& input,
               std::cout << "  ======renew collector size = " << collector.size() << std::endl;
               std::cout << " ===" << std::endl;
               std::cout << " ===" << std::endl;
-              std::vector<ClusterFP420>::const_iterator simHitIter = collector.begin();
-              std::vector<ClusterFP420>::const_iterator simHitIterEnd = collector.end();
+              auto simHitIter = collector.begin();
+              auto simHitIterEnd = collector.end();
               // loop in #clusters
               for (; simHitIter != simHitIterEnd; ++simHitIter) {
                 const ClusterFP420 icluster = *simHitIter;

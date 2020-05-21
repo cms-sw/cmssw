@@ -161,8 +161,8 @@ void IslandClusterAlgo::searchNorth(const CaloNavigator<DetId> &navigator) {
   if (used_s.find(northern) != used_s.end())
     return;
 
-  EcalRecHitCollection::const_iterator southern_it = recHits_->find(southern);
-  EcalRecHitCollection::const_iterator northern_it = recHits_->find(northern);
+  auto southern_it = recHits_->find(southern);
+  auto northern_it = recHits_->find(northern);
 
   if (shouldBeAdded(northern_it, southern_it)) {
     current_v.push_back(std::pair<DetId, float>(northern, 1.));  // by default hit energy fractions are set at 1.
@@ -180,8 +180,8 @@ void IslandClusterAlgo::searchSouth(const CaloNavigator<DetId> &navigator) {
   if (used_s.find(southern) != used_s.end())
     return;
 
-  EcalRecHitCollection::const_iterator northern_it = recHits_->find(northern);
-  EcalRecHitCollection::const_iterator southern_it = recHits_->find(southern);
+  auto northern_it = recHits_->find(northern);
+  auto southern_it = recHits_->find(southern);
 
   if (shouldBeAdded(southern_it, northern_it)) {
     current_v.push_back(std::pair<DetId, float>(southern, 1.));  // by default hit energy fractions are set at 1.
@@ -192,12 +192,12 @@ void IslandClusterAlgo::searchSouth(const CaloNavigator<DetId> &navigator) {
 
 void IslandClusterAlgo::searchWest(const CaloNavigator<DetId> &navigator, const CaloSubdetectorTopology *topology) {
   DetId eastern = navigator.pos();
-  EcalRecHitCollection::const_iterator eastern_it = recHits_->find(eastern);
+  auto eastern_it = recHits_->find(eastern);
 
   DetId western = navigator.west();
   if (western == DetId(0))
     return;  // This means that we went off the ECAL!
-  EcalRecHitCollection::const_iterator western_it = recHits_->find(western);
+  auto western_it = recHits_->find(western);
 
   if (shouldBeAdded(western_it, eastern_it)) {
     CaloNavigator<DetId> nsNavigator(western, topology);
@@ -215,12 +215,12 @@ void IslandClusterAlgo::searchWest(const CaloNavigator<DetId> &navigator, const 
 
 void IslandClusterAlgo::searchEast(const CaloNavigator<DetId> &navigator, const CaloSubdetectorTopology *topology) {
   DetId western = navigator.pos();
-  EcalRecHitCollection::const_iterator western_it = recHits_->find(western);
+  auto western_it = recHits_->find(western);
 
   DetId eastern = navigator.east();
   if (eastern == DetId(0))
     return;  // This means that we went off the ECAL!
-  EcalRecHitCollection::const_iterator eastern_it = recHits_->find(eastern);
+  auto eastern_it = recHits_->find(eastern);
 
   if (shouldBeAdded(eastern_it, western_it)) {
     CaloNavigator<DetId> nsNavigator(eastern, topology);
@@ -261,7 +261,7 @@ void IslandClusterAlgo::makeCluster(const EcalRecHitCollection *hits,
 
   std::vector<std::pair<DetId, float> >::iterator it;
   for (it = current_v.begin(); it != current_v.end(); it++) {
-    EcalRecHitCollection::const_iterator itt = hits->find((*it).first);
+    auto itt = hits->find((*it).first);
     EcalRecHit hit_p = *itt;
     if ((*it).first.subdetId() == EcalBarrel) {
       caloID = reco::CaloID::DET_ECAL_BARREL;

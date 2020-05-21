@@ -2,7 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 bool SiPixelVCal::putSlopeAndOffset(const uint32_t& pixid, float& slopeValue, float& offsetValue) {
-  std::map<unsigned int, VCal>::const_iterator id = m_vcal.find(pixid);
+  auto id = m_vcal.find(pixid);
   if (id != m_vcal.end()) {
     edm::LogError("SiPixelVCal") << "SiPixelVCal for pixid " << pixid << " is already stored. Skippig this put"
                                  << std::endl;
@@ -14,7 +14,7 @@ bool SiPixelVCal::putSlopeAndOffset(const uint32_t& pixid, float& slopeValue, fl
 }
 
 SiPixelVCal::VCal SiPixelVCal::getSlopeAndOffset(const uint32_t& pixid) const {
-  std::map<unsigned int, VCal>::const_iterator id = m_vcal.find(pixid);
+  auto id = m_vcal.find(pixid);
   if (id != m_vcal.end())
     return id->second;
   else
@@ -24,7 +24,7 @@ SiPixelVCal::VCal SiPixelVCal::getSlopeAndOffset(const uint32_t& pixid) const {
 }
 
 float SiPixelVCal::getSlope(const uint32_t& pixid) const {
-  std::map<unsigned int, VCal>::const_iterator id = m_vcal.find(pixid);
+  auto id = m_vcal.find(pixid);
   if (id != m_vcal.end())
     return id->second.slope;
   else
@@ -33,7 +33,7 @@ float SiPixelVCal::getSlope(const uint32_t& pixid) const {
 }
 
 float SiPixelVCal::getOffset(const uint32_t& pixid) const {
-  std::map<unsigned int, VCal>::const_iterator id = m_vcal.find(pixid);
+  auto id = m_vcal.find(pixid);
   if (id != m_vcal.end())
     return id->second.offset;
   else

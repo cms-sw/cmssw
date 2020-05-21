@@ -41,7 +41,7 @@ void EcalFenixTcpFgvbEE::process(std::vector<std::vector<int>> &bypasslin_out,
 void EcalFenixTcpFgvbEE::setParameters(uint32_t towid, const EcalTPGFineGrainTowerEE *ecaltpgFineGrainTowerEE) {
   const EcalTPGFineGrainTowerEEMap &fgee_map = ecaltpgFineGrainTowerEE->getMap();
 
-  EcalTPGFineGrainTowerEEMapIterator it = fgee_map.find(towid);
+  auto it = fgee_map.find(towid);
   if (it != fgee_map.end())
     fgee_lut_ = (*it).second;
   else

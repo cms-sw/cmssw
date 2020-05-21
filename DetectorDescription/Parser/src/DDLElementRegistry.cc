@@ -40,7 +40,7 @@ DDLElementRegistry::DDLElementRegistry(void) {}
 DDLElementRegistry::~DDLElementRegistry(void) { registry_.clear(); }
 
 std::shared_ptr<DDXMLElement> DDLElementRegistry::getElement(const std::string& name) {
-  RegistryMap::iterator it = registry_.find(name);
+  auto it = registry_.find(name);
   std::shared_ptr<DDXMLElement> myret(nullptr);
   if (it != registry_.end()) {
     return it->second;

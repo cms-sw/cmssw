@@ -100,9 +100,7 @@ void L1TdeStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
   emtfComparenMuonsEvent->Fill(dataMuons->size(), emulMuons->size());
 
   for (int itBX = dataMuons->getFirstBX(); itBX <= dataMuons->getLastBX(); ++itBX) {
-    for (l1t::RegionalMuonCandBxCollection::const_iterator dataMuon = dataMuons->begin(itBX);
-         dataMuon != dataMuons->end(itBX);
-         ++dataMuon) {
+    for (auto dataMuon = dataMuons->begin(itBX); dataMuon != dataMuons->end(itBX); ++dataMuon) {
       emtfDataBX->Fill(itBX);
       emtfDatahwPt->Fill(dataMuon->hwPt());
       emtfDatahwEta->Fill(dataMuon->hwEta());
@@ -112,9 +110,7 @@ void L1TdeStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
   }
 
   for (int itBX = emulMuons->getFirstBX(); itBX <= emulMuons->getLastBX(); ++itBX) {
-    for (l1t::RegionalMuonCandBxCollection::const_iterator emulMuon = emulMuons->begin(itBX);
-         emulMuon != emulMuons->end(itBX);
-         ++emulMuon) {
+    for (auto emulMuon = emulMuons->begin(itBX); emulMuon != emulMuons->end(itBX); ++emulMuon) {
       emtfEmulBX->Fill(itBX);
       emtfEmulhwPt->Fill(emulMuon->hwPt());
       emtfEmulhwEta->Fill(emulMuon->hwEta());

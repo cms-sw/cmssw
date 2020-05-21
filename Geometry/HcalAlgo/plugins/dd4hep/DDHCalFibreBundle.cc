@@ -18,10 +18,10 @@ static long algorithm(dd4hep::Detector& /* description */,
   double deltaZ = args.value<double>("DeltaZ");
   int numberPhi = args.value<int>("NumberPhi");
   std::string material = args.value<std::string>("Material");
-  std::vector<double> areaSection = args.value<std::vector<double> >("AreaSection");
-  std::vector<double> rStart = args.value<std::vector<double> >("RadiusStart");
-  std::vector<double> rEnd = args.value<std::vector<double> >("RadiusEnd");
-  std::vector<int> bundle = args.value<std::vector<int> >("Bundles");
+  auto areaSection = args.value<std::vector<double> >("AreaSection");
+  auto rStart = args.value<std::vector<double> >("RadiusStart");
+  auto rEnd = args.value<std::vector<double> >("RadiusEnd");
+  auto bundle = args.value<std::vector<int> >("Bundles");
   double tilt = args.value<double>("TiltAngle");
   std::string childPrefix = args.value<std::string>("Child");
 #ifdef EDM_ML_DEBUG

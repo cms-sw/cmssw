@@ -277,7 +277,7 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
   // Central jets
 
-  for (L1GctJetCandCollection::const_iterator cj = l1CenJets->begin(); cj != l1CenJets->end(); cj++) {
+  for (auto cj = l1CenJets->begin(); cj != l1CenJets->end(); cj++) {
     // only plot central BX
     if (cj->bx() == 0) {
       l1GctCenJetsRank_->Fill(cj->rank());
@@ -289,7 +289,7 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
     if (cj->rank())
       l1GctAllJetsOccRankBx_->Fill(cj->bx(), cj->rank());  // for all BX
-    for (L1GctJetCandCollection::const_iterator j = l1CenJetsEmul->begin(); j != l1CenJetsEmul->end(); j++) {
+    for (auto j = l1CenJetsEmul->begin(); j != l1CenJetsEmul->end(); j++) {
       if (cj->bx() == 0 && j->bx() == 0 &&
           std::distance(l1CenJets->begin(), cj) == std::distance(l1CenJetsEmul->begin(), j)) {
         //std::cout<<std::to_string(j)<<std::endl;
@@ -299,11 +299,11 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
       }
     }
   }
-  for (L1GctJetCandCollection::const_iterator j = l1CenJetsEmul->begin(); j != l1CenJetsEmul->end(); j++) {
+  for (auto j = l1CenJetsEmul->begin(); j != l1CenJetsEmul->end(); j++) {
   }
 
   // Forward jets
-  for (L1GctJetCandCollection::const_iterator fj = l1ForJets->begin(); fj != l1ForJets->end(); fj++) {
+  for (auto fj = l1ForJets->begin(); fj != l1ForJets->end(); fj++) {
     // only plot central BX
     if (fj->bx() == 0) {
       l1GctForJetsRank_->Fill(fj->rank());
@@ -315,7 +315,7 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
     if (fj->rank())
       l1GctAllJetsOccRankBx_->Fill(fj->bx(), fj->rank());  // for all BX
-    for (L1GctJetCandCollection::const_iterator j = l1ForJetsEmul->begin(); j != l1ForJetsEmul->end(); j++) {
+    for (auto j = l1ForJetsEmul->begin(); j != l1ForJetsEmul->end(); j++) {
       if (fj->bx() == 0 && j->bx() == 0 &&
           std::distance(l1ForJets->begin(), fj) == std::distance(l1ForJetsEmul->begin(), j)) {
         DECorr_[0][1]->Fill(fj->rank(), j->rank());
@@ -325,7 +325,7 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
   }
 
-  for (L1GctJetCandCollection::const_iterator tj = l1TauJets->begin(); tj != l1TauJets->end(); tj++) {
+  for (auto tj = l1TauJets->begin(); tj != l1TauJets->end(); tj++) {
     // only plot central BX
     if (tj->bx() == 0) {
       l1GctTauJetsRank_->Fill(tj->rank());
@@ -337,7 +337,7 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
     if (tj->rank())
       l1GctAllJetsOccRankBx_->Fill(tj->bx(), tj->rank());  // for all BX
-    for (L1GctJetCandCollection::const_iterator j = l1TauJetsEmul->begin(); j != l1TauJetsEmul->end(); j++) {
+    for (auto j = l1TauJetsEmul->begin(); j != l1TauJetsEmul->end(); j++) {
       if (tj->bx() == 0 && j->bx() == 0 &&
           std::distance(l1TauJets->begin(), tj) == std::distance(l1TauJetsEmul->begin(), j)) {
         DECorr_[0][2]->Fill(tj->rank(), j->rank());
@@ -347,7 +347,7 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
   }
 
-  for (L1GctEtMissCollection::const_iterator met = l1EtMiss->begin(); met != l1EtMiss->end(); met++) {
+  for (auto met = l1EtMiss->begin(); met != l1EtMiss->end(); met++) {
     // only plot central BX
     if (met->bx() == 0) {
       if (met->overFlow() == 0 && met->et() > 0) {
@@ -359,7 +359,7 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
     if (met->overFlow() == 0 && met->et() > 0)
       l1GctEtMissOccBx_->Fill(met->bx(), met->et());  // for all BX
-    for (L1GctEtMissCollection::const_iterator j = l1EtMissEmul->begin(); j != l1EtMissEmul->end(); j++) {
+    for (auto j = l1EtMissEmul->begin(); j != l1EtMissEmul->end(); j++) {
       if (met->bx() == 0 && j->bx() == 0) {
         DECorr_[0][6]->Fill(met->et(), j->et());
         DECorr_[2][6]->Fill(met->phi(), j->phi());
@@ -367,14 +367,14 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
   }
 
-  for (L1GctEtHadCollection::const_iterator ht = l1EtHad->begin(); ht != l1EtHad->end(); ht++) {
+  for (auto ht = l1EtHad->begin(); ht != l1EtHad->end(); ht++) {
     // only plot central BX
     if (ht->bx() == 0) {
       l1GctEtHad_->Fill(ht->et());
       l1GctEtHadOf_->Fill(ht->overFlow());
     }
     l1GctEtHadOccBx_->Fill(ht->bx(), ht->et());  // for all BX
-    for (L1GctEtHadCollection::const_iterator j = l1EtHadEmul->begin(); j != l1EtHadEmul->end(); j++) {
+    for (auto j = l1EtHadEmul->begin(); j != l1EtHadEmul->end(); j++) {
       if (ht->bx() == 0 && j->bx() == 0) {
         DECorr_[0][7]->Fill(ht->et(), j->et());
         //DECorr_[2][7]->Fill(ht->ieta(),j->ieta());
@@ -383,14 +383,14 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
   }
 
-  for (L1GctEtTotalCollection::const_iterator et = l1EtTotal->begin(); et != l1EtTotal->end(); et++) {
+  for (auto et = l1EtTotal->begin(); et != l1EtTotal->end(); et++) {
     // only plot central BX
     if (et->bx() == 0) {
       l1GctEtTotal_->Fill(et->et());
       l1GctEtTotalOf_->Fill(et->overFlow());
     }
     l1GctEtTotalOccBx_->Fill(et->bx(), et->et());  // for all BX
-    for (L1GctEtTotalCollection::const_iterator j = l1EtTotalEmul->begin(); j != l1EtTotalEmul->end(); j++) {
+    for (auto j = l1EtTotalEmul->begin(); j != l1EtTotalEmul->end(); j++) {
       if (et->bx() == 0 && j->bx() == 0) {
         DECorr_[0][5]->Fill(et->et(), j->et());
         //DECorr_[2][5]->Fill(et->eta(),j->eta());
@@ -399,7 +399,7 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
   }
 
-  for (L1GctEmCandCollection::const_iterator ie = l1IsoEm->begin(); ie != l1IsoEm->end(); ie++) {
+  for (auto ie = l1IsoEm->begin(); ie != l1IsoEm->end(); ie++) {
     // only plot central BX
     if (ie->bx() == 0) {
       l1GctIsoEmRank_->Fill(ie->rank());
@@ -411,7 +411,7 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
     if (ie->rank())
       l1GctAllEmOccRankBx_->Fill(ie->bx(), ie->rank());  // for all BX
-    for (L1GctEmCandCollection::const_iterator j = l1IsoEmEmul->begin(); j != l1IsoEmEmul->end(); j++) {
+    for (auto j = l1IsoEmEmul->begin(); j != l1IsoEmEmul->end(); j++) {
       if (ie->bx() == 0 && j->bx() == 0 &&
           std::distance(l1IsoEm->begin(), ie) == std::distance(l1IsoEmEmul->begin(), j)) {
         DECorr_[0][3]->Fill(ie->rank(), j->rank());
@@ -421,7 +421,7 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
   }
 
-  for (L1GctEmCandCollection::const_iterator ne = l1NonIsoEm->begin(); ne != l1NonIsoEm->end(); ne++) {
+  for (auto ne = l1NonIsoEm->begin(); ne != l1NonIsoEm->end(); ne++) {
     // only plot central BX
     if (ne->bx() == 0) {
       l1GctNonIsoEmRank_->Fill(ne->rank());
@@ -433,7 +433,7 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
     if (ne->rank())
       l1GctAllEmOccRankBx_->Fill(ne->bx(), ne->rank());  // for all BX
-    for (L1GctEmCandCollection::const_iterator j = l1NonIsoEmEmul->begin(); j != l1NonIsoEmEmul->end(); j++) {
+    for (auto j = l1NonIsoEmEmul->begin(); j != l1NonIsoEmEmul->end(); j++) {
       if (ne->bx() == 0 && j->bx() == 0 &&
           std::distance(l1NonIsoEm->begin(), ne) == std::distance(l1NonIsoEmEmul->begin(), j)) {
         DECorr_[0][4]->Fill(ne->rank(), j->rank());
@@ -443,7 +443,7 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
   }
 
-  for (L1GctHFBitCountsCollection::const_iterator hfc = l1HFCounts->begin(); hfc != l1HFCounts->end(); hfc++) {
+  for (auto hfc = l1HFCounts->begin(); hfc != l1HFCounts->end(); hfc++) {
     // only plot central BX
     if (hfc->bx() == 0) {
       // Individual ring counts
@@ -461,7 +461,7 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
   }
 
-  for (L1GctHFRingEtSumsCollection::const_iterator hfs = l1HFSums->begin(); hfs != l1HFSums->end(); hfs++) {
+  for (auto hfs = l1HFSums->begin(); hfs != l1HFSums->end(); hfs++) {
     if (hfs->bx() == 0) {
       l1GctHFRing1ETSumPosEta_->Fill(hfs->etSum(0));
       l1GctHFRing1ETSumNegEta_->Fill(hfs->etSum(1));
@@ -471,14 +471,14 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
         l1GctHFRingRatioPosEta_->Fill((hfs->etSum(0)) / (hfs->etSum(1)));
       l1GctHFRing1PosEtaNegEta_->Fill(hfs->etSum(0), hfs->etSum(1));
       std::vector<int> bit = SortMinBiasBit(hfs->etSum(2), hfs->etSum(3));
-      for (std::vector<int>::const_iterator it = bit.begin(); it != bit.end(); it++) {
+      for (auto it = bit.begin(); it != bit.end(); it++) {
         l1GctMinBiasBitHFEt_->Fill(it - bit.begin(), *it);
       }
     }
     for (unsigned i = 0; i < 4; i++) {
       l1GctHFRingETSumOccBx_->Fill(hfs->bx(), hfs->etSum(i));
     }
-    for (L1GctHFRingEtSumsCollection::const_iterator j = l1HFSumsEmul->begin(); j != l1HFSumsEmul->end(); j++) {
+    for (auto j = l1HFSumsEmul->begin(); j != l1HFSumsEmul->end(); j++) {
       if (hfs->bx() == 0 && j->bx() == 0 &&
           std::distance(l1HFSums->begin(), hfs) == std::distance(l1HFSumsEmul->begin(), j)) {
         centralityCorr_->Fill(hfs->etSum(0), j->etSum(0));
@@ -489,7 +489,7 @@ void L1THIonImp::analyze(const edm::Event& e, const edm::EventSetup& c) {
     }
   }
 
-  for (L1CaloRegionCollection::const_iterator it = rgn->begin(); it != rgn->end(); it++) {
+  for (auto it = rgn->begin(); it != rgn->end(); it++) {
     if (it->bx() == 0) {
       int totm = 0;
       int totp = 0;

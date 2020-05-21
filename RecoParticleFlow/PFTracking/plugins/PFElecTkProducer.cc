@@ -442,9 +442,7 @@ void PFElecTkProducer::createGsfPFRecTrackRef(
     const std::map<unsigned int, std::vector<reco::GsfPFRecTrack> >& MapPrimSec) {
   unsigned int cgsf = 0;
   unsigned int csecgsf = 0;
-  for (std::map<unsigned int, std::vector<reco::GsfPFRecTrack> >::const_iterator igsf = MapPrimSec.begin();
-       igsf != MapPrimSec.end();
-       igsf++, cgsf++) {
+  for (auto igsf = MapPrimSec.begin(); igsf != MapPrimSec.end(); igsf++, cgsf++) {
     vector<reco::GsfPFRecTrack> SecGsfPF = igsf->second;
     for (unsigned int iSecGsf = 0; iSecGsf < SecGsfPF.size(); iSecGsf++) {
       edm::Ref<reco::GsfPFRecTrackCollection> refgprt(gsfPfHandle, csecgsf);
@@ -464,8 +462,8 @@ int PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection& PfRTkColl,
   auto const& ElSeedFromRef = static_cast<ElectronSeed const&>(*(gsftk.extra()->seedRef()));
   //CASE 1 ELECTRONSEED DOES NOT HAVE A REF TO THE CKFTRACK
   if (ElSeedFromRef.ctfTrack().isNull()) {
-    reco::PFRecTrackCollection::const_iterator pft = PfRTkColl.begin();
-    reco::PFRecTrackCollection::const_iterator pftend = PfRTkColl.end();
+    auto pft = PfRTkColl.begin();
+    auto pftend = PfRTkColl.end();
     unsigned int i_pf = 0;
     int ibest = -1;
     unsigned int ish_max = 0;
@@ -515,8 +513,8 @@ int PFElecTkProducer::FindPfRef(const reco::PFRecTrackCollection& PfRTkColl,
   } else {
     //ELECTRON SEED HAS A REFERENCE
 
-    reco::PFRecTrackCollection::const_iterator pft = PfRTkColl.begin();
-    reco::PFRecTrackCollection::const_iterator pftend = PfRTkColl.end();
+    auto pft = PfRTkColl.begin();
+    auto pftend = PfRTkColl.end();
     unsigned int i_pf = 0;
 
     for (; pft != pftend; ++pft) {
@@ -900,7 +898,7 @@ bool PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nG
     vector<PFCluster> vecPFClusters;
     vecPFClusters.clear();
 
-    for (PFClusterCollection::const_iterator clus = theEClus.begin(); clus != theEClus.end(); clus++) {
+    for (auto clus = theEClus.begin(); clus != theEClus.end(); clus++) {
       PFCluster clust = *clus;
       clust.calculatePositionREP();
 
@@ -963,7 +961,7 @@ bool PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nG
     nPFCluster.clear();
     iPFCluster.clear();
 
-    for (PFClusterCollection::const_iterator clus = theEClus.begin(); clus != theEClus.end(); clus++) {
+    for (auto clus = theEClus.begin(); clus != theEClus.end(); clus++) {
       PFCluster clust = *clus;
       clust.calculatePositionREP();
 

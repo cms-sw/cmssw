@@ -19,7 +19,7 @@ namespace {
   };
 
   CastorRawGains::Container::const_iterator find(const CastorRawGains::Container& container, unsigned long id) {
-    CastorRawGains::Container::const_iterator result = container.begin();
+    auto result = container.begin();
     for (; result != container.end(); result++) {
       if (result->rawId() == id)
         break;  // found
@@ -50,7 +50,7 @@ const CastorRawGain* CastorRawGains::getValues(DetId fId) const {
 
 std::vector<DetId> CastorRawGains::getAllChannels() const {
   std::vector<DetId> result;
-  for (std::vector<Item>::const_iterator item = mItems.begin(); item != mItems.end(); item++) {
+  for (auto item = mItems.begin(); item != mItems.end(); item++) {
     result.push_back(DetId(item->rawId()));
   }
   return result;

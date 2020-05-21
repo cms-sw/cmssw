@@ -97,7 +97,7 @@ void EGammaPCAHelper::storeRecHits(const std::vector<std::pair<DetId, float>>& h
     unsigned int layer = recHitTools_->getLayerWithOffset(hf[j].first);
 
     const DetId rh_detid = hf[j].first;
-    std::map<DetId, const HGCRecHit*>::const_iterator itcheck = hitMap_->find(rh_detid);
+    auto itcheck = hitMap_->find(rh_detid);
     if (itcheck == hitMap_->end()) {
       edm::LogWarning("EgammaPCAHelper") << " Big problem, unable to find a hit " << rh_detid.rawId() << " "
                                          << rh_detid.det() << " " << HGCalDetId(rh_detid) << std::endl;

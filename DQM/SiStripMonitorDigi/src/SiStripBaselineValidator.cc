@@ -54,12 +54,12 @@ void SiStripBaselineValidator::bookHistograms(DQMStore::IBooker& ibooker,
 void SiStripBaselineValidator::analyze(const edm::Event& e, const edm::EventSetup& es) {
   edm::Handle<edm::DetSetVector<SiStripDigi> > moduleRawDigi;
   e.getByToken(moduleRawDigiToken_, moduleRawDigi);
-  edm::DetSetVector<SiStripDigi>::const_iterator itRawDigis = moduleRawDigi->begin();
+  auto itRawDigis = moduleRawDigi->begin();
 
   int NumResAPVs = 0;
   for (; itRawDigis != moduleRawDigi->end(); ++itRawDigis) {  ///loop over modules
 
-    edm::DetSet<SiStripDigi>::const_iterator itRaw = itRawDigis->begin();
+    auto itRaw = itRawDigis->begin();
     int strip = 0, totStripAPV = 0, apv = 0, prevapv = itRaw->strip() / 128;
 
     for (; itRaw != itRawDigis->end(); ++itRaw) {  /// loop over strips

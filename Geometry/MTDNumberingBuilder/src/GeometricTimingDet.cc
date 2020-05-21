@@ -20,7 +20,7 @@ namespace {
     DDValue val(s);
     std::vector<const DDsvalues_type*> result;
     ev.specificsV(result);
-    std::vector<const DDsvalues_type*>::iterator it = result.begin();
+    auto it = result.begin();
     bool foundIt = false;
     for (; it != result.end(); ++it) {
       foundIt = DDfetch(*it, val);
@@ -42,7 +42,7 @@ namespace {
     DDValue val(s);
     std::vector<const DDsvalues_type*> result;
     ev.specificsV(result);
-    std::vector<const DDsvalues_type*>::iterator it = result.begin();
+    auto it = result.begin();
     bool foundIt = false;
     for (; it != result.end(); ++it) {
       foundIt = DDfetch(*it, val);

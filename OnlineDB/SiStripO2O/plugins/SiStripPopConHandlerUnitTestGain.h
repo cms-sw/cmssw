@@ -178,9 +178,7 @@ namespace popcon {
         const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& DetInfos = reader.getAllData();
 
         int count = -1;
-        for (std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = DetInfos.begin();
-             it != DetInfos.end();
-             it++) {
+        for (auto it = DetInfos.begin(); it != DetInfos.end(); it++) {
           count++;
           //Generate Gains for det detid
           SiStripApvGain::InputVector inputApvGain;

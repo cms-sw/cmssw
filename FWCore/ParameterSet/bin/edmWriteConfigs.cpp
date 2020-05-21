@@ -225,7 +225,7 @@ int main(int argc, char** argv) try {
         typedef edmplugin::PluginManager::CategoryToInfos CatToInfos;
         CatToInfos const& catToInfos = edmplugin::PluginManager::get()->categoryToInfos();
         factory = edm::ParameterSetDescriptionFillerPluginFactory::get();
-        CatToInfos::const_iterator itPlugins = catToInfos.find(factory->category());
+        auto itPlugins = catToInfos.find(factory->category());
 
         // No plugins in this category at all
         if (itPlugins == catToInfos.end())

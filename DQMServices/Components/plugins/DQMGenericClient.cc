@@ -252,7 +252,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
 
   // Parse efficiency commands
   vstring effCmds = pset.getParameter<vstring>("efficiency");
-  for (vstring::const_iterator effCmd = effCmds.begin(); effCmd != effCmds.end(); ++effCmd) {
+  for (auto effCmd = effCmds.begin(); effCmd != effCmds.end(); ++effCmd) {
     if (effCmd->empty())
       continue;
 
@@ -291,7 +291,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   }
 
   VPSet efficSets = pset.getUntrackedParameter<VPSet>("efficiencySets", VPSet());
-  for (VPSet::const_iterator efficSet = efficSets.begin(); efficSet != efficSets.end(); ++efficSet) {
+  for (auto efficSet = efficSets.begin(); efficSet != efficSets.end(); ++efficSet) {
     EfficOption opt;
     opt.name = efficSet->getUntrackedParameter<string>("name");
     opt.title = efficSet->getUntrackedParameter<string>("title");
@@ -314,8 +314,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
 
   // Parse efficiency profiles
   vstring effProfileCmds = pset.getUntrackedParameter<vstring>("efficiencyProfile", vstring());
-  for (vstring::const_iterator effProfileCmd = effProfileCmds.begin(); effProfileCmd != effProfileCmds.end();
-       ++effProfileCmd) {
+  for (auto effProfileCmd = effProfileCmds.begin(); effProfileCmd != effProfileCmds.end(); ++effProfileCmd) {
     if (effProfileCmd->empty())
       continue;
 
@@ -354,8 +353,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   }
 
   VPSet effProfileSets = pset.getUntrackedParameter<VPSet>("efficiencyProfileSets", VPSet());
-  for (VPSet::const_iterator effProfileSet = effProfileSets.begin(); effProfileSet != effProfileSets.end();
-       ++effProfileSet) {
+  for (auto effProfileSet = effProfileSets.begin(); effProfileSet != effProfileSets.end(); ++effProfileSet) {
     EfficOption opt;
     opt.name = effProfileSet->getUntrackedParameter<string>("name");
     opt.title = effProfileSet->getUntrackedParameter<string>("title");
@@ -378,7 +376,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
 
   // Parse resolution commands
   vstring resCmds = pset.getParameter<vstring>("resolution");
-  for (vstring::const_iterator resCmd = resCmds.begin(); resCmd != resCmds.end(); ++resCmd) {
+  for (auto resCmd = resCmds.begin(); resCmd != resCmds.end(); ++resCmd) {
     if (resCmd->empty())
       continue;
     boost::tokenizer<elsc> tokens(*resCmd, commonEscapes);
@@ -404,7 +402,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   }
 
   VPSet resolSets = pset.getUntrackedParameter<VPSet>("resolutionSets", VPSet());
-  for (VPSet::const_iterator resolSet = resolSets.begin(); resolSet != resolSets.end(); ++resolSet) {
+  for (auto resolSet = resolSets.begin(); resolSet != resolSets.end(); ++resolSet) {
     ResolOption opt;
     opt.namePrefix = resolSet->getUntrackedParameter<string>("namePrefix");
     opt.titlePrefix = resolSet->getUntrackedParameter<string>("titlePrefix");
@@ -450,7 +448,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
 
   // Parse Normalization commands
   vstring normCmds = pset.getUntrackedParameter<vstring>("normalization", vstring());
-  for (vstring::const_iterator normCmd = normCmds.begin(); normCmd != normCmds.end(); ++normCmd) {
+  for (auto normCmd = normCmds.begin(); normCmd != normCmds.end(); ++normCmd) {
     if (normCmd->empty())
       continue;
     boost::tokenizer<elsc> tokens(*normCmd, commonEscapes);
@@ -475,7 +473,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   }
 
   VPSet normSets = pset.getUntrackedParameter<VPSet>("normalizationSets", VPSet());
-  for (VPSet::const_iterator normSet = normSets.begin(); normSet != normSets.end(); ++normSet) {
+  for (auto normSet = normSets.begin(); normSet != normSets.end(); ++normSet) {
     NormOption opt;
     opt.name = normSet->getUntrackedParameter<string>("name");
     opt.normHistName = normSet->getUntrackedParameter<string>("normalizedTo", opt.name);
@@ -485,7 +483,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
 
   // Cumulative distributions
   vstring cdCmds = pset.getUntrackedParameter<vstring>("cumulativeDists", vstring());
-  for (vstring::const_iterator cdCmd = cdCmds.begin(); cdCmd != cdCmds.end(); ++cdCmd) {
+  for (auto cdCmd = cdCmds.begin(); cdCmd != cdCmds.end(); ++cdCmd) {
     if (cdCmd->empty())
       continue;
     boost::tokenizer<elsc> tokens(*cdCmd, commonEscapes);
@@ -510,7 +508,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   }
 
   VPSet cdSets = pset.getUntrackedParameter<VPSet>("cumulativeDistSets", VPSet());
-  for (VPSet::const_iterator cdSet = cdSets.begin(); cdSet != cdSets.end(); ++cdSet) {
+  for (auto cdSet = cdSets.begin(); cdSet != cdSets.end(); ++cdSet) {
     CDOption opt;
     opt.name = cdSet->getUntrackedParameter<string>("name");
     opt.ascending = cdSet->getUntrackedParameter<bool>("ascending", true);
@@ -520,7 +518,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
 
   // move under/overflows to first/last bins
   vstring noFlowCmds = pset.getUntrackedParameter<vstring>("noFlowDists", vstring());
-  for (vstring::const_iterator noFlowCmd = noFlowCmds.begin(); noFlowCmd != noFlowCmds.end(); ++noFlowCmd) {
+  for (auto noFlowCmd = noFlowCmds.begin(); noFlowCmd != noFlowCmds.end(); ++noFlowCmd) {
     if (noFlowCmd->empty())
       continue;
     boost::tokenizer<elsc> tokens(*noFlowCmd, commonEscapes);
@@ -544,7 +542,7 @@ DQMGenericClient::DQMGenericClient(const ParameterSet& pset)
   }
 
   VPSet noFlowSets = pset.getUntrackedParameter<VPSet>("noFlowDistSets", VPSet());
-  for (VPSet::const_iterator noFlowSet = noFlowSets.begin(); noFlowSet != noFlowSets.end(); ++noFlowSet) {
+  for (auto noFlowSet = noFlowSets.begin(); noFlowSet != noFlowSets.end(); ++noFlowSet) {
     NoFlowOption opt;
     opt.name = noFlowSet->getUntrackedParameter<string>("name");
 
@@ -601,7 +599,7 @@ void DQMGenericClient::makeAllPlots(DQMStore::IBooker& ibooker, DQMStore::IGette
   // Process wildcard in the sub-directory
   set<string> subDirSet;
 
-  for (vstring::const_iterator iSubDir = subDirs_.begin(); iSubDir != subDirs_.end(); ++iSubDir) {
+  for (auto iSubDir = subDirs_.begin(); iSubDir != subDirs_.end(); ++iSubDir) {
     string subDir = *iSubDir;
 
     if (subDir[subDir.size() - 1] == '/')
@@ -622,29 +620,25 @@ void DQMGenericClient::makeAllPlots(DQMStore::IBooker& ibooker, DQMStore::IGette
     }
   }
 
-  for (set<string>::const_iterator iSubDir = subDirSet.begin(); iSubDir != subDirSet.end(); ++iSubDir) {
+  for (auto iSubDir = subDirSet.begin(); iSubDir != subDirSet.end(); ++iSubDir) {
     const string& dirName = *iSubDir;
 
     // First normalize, then move under/overflows, then make
     // cumulative, and only then efficiency This allows to use the
     // cumulative distributions for efficiency calculation
-    for (vector<NormOption>::const_iterator normOption = normOptions_.begin(); normOption != normOptions_.end();
-         ++normOption) {
+    for (auto normOption = normOptions_.begin(); normOption != normOptions_.end(); ++normOption) {
       normalizeToEntries(ibooker, igetter, dirName, normOption->name, normOption->normHistName);
     }
 
-    for (vector<NoFlowOption>::const_iterator noFlowOption = noFlowOptions_.begin();
-         noFlowOption != noFlowOptions_.end();
-         ++noFlowOption) {
+    for (auto noFlowOption = noFlowOptions_.begin(); noFlowOption != noFlowOptions_.end(); ++noFlowOption) {
       makeNoFlowDist(ibooker, igetter, dirName, noFlowOption->name);
     }
 
-    for (vector<CDOption>::const_iterator cdOption = cdOptions_.begin(); cdOption != cdOptions_.end(); ++cdOption) {
+    for (auto cdOption = cdOptions_.begin(); cdOption != cdOptions_.end(); ++cdOption) {
       makeCumulativeDist(ibooker, igetter, dirName, cdOption->name, cdOption->ascending);
     }
 
-    for (vector<EfficOption>::const_iterator efficOption = efficOptions_.begin(); efficOption != efficOptions_.end();
-         ++efficOption) {
+    for (auto efficOption = efficOptions_.begin(); efficOption != efficOptions_.end(); ++efficOption) {
       computeEfficiency(ibooker,
                         igetter,
                         dirName,
@@ -656,8 +650,7 @@ void DQMGenericClient::makeAllPlots(DQMStore::IBooker& ibooker, DQMStore::IGette
                         efficOption->isProfile);
     }
 
-    for (vector<ResolOption>::const_iterator resolOption = resolOptions_.begin(); resolOption != resolOptions_.end();
-         ++resolOption) {
+    for (auto resolOption = resolOptions_.begin(); resolOption != resolOptions_.end(); ++resolOption) {
       computeResolution(
           ibooker, igetter, dirName, resolOption->namePrefix, resolOption->titlePrefix, resolOption->srcName);
     }
@@ -1203,7 +1196,7 @@ void DQMGenericClient::findAllSubdirectories(DQMStore::IBooker& ibooker,
     TPRegexp regexp(pattern);
     ibooker.cd(dir);
     vector<string> foundDirs = igetter.getSubdirs();
-    for (vector<string>::const_iterator iDir = foundDirs.begin(); iDir != foundDirs.end(); ++iDir) {
+    for (auto iDir = foundDirs.begin(); iDir != foundDirs.end(); ++iDir) {
       TString dirName = iDir->substr(iDir->rfind('/') + 1, iDir->length());
       if (dirName.Contains(regexp))
         findAllSubdirectories(ibooker, igetter, *iDir, myList);

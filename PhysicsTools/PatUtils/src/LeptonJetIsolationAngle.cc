@@ -53,7 +53,7 @@ float LeptonJetIsolationAngle::calculate(const CLHEP::HepLorentzVector& aLepton,
   }
   // determine the collections of jets, cleaned from electrons
   std::vector<reco::CaloJet> theJets;
-  for (reco::CaloJetCollection::const_iterator itJet = jetColl.begin(); itJet != jetColl.end(); itJet++) {
+  for (auto itJet = jetColl.begin(); itJet != jetColl.end(); itJet++) {
     float mindr2 = 9999.;
     for (size_t ie = 0; ie < isoElectrons.size(); ie++) {
       float dr2 = ::deltaR2(*itJet, isoElectrons[ie]);
@@ -67,7 +67,7 @@ float LeptonJetIsolationAngle::calculate(const CLHEP::HepLorentzVector& aLepton,
   }
   // calculate finally the isolation angle
   float isoAngle = 1000;  // default to some craze impossible number to inhibit compiler warnings
-  for (std::vector<reco::CaloJet>::const_iterator itJet = theJets.begin(); itJet != theJets.end(); itJet++) {
+  for (auto itJet = theJets.begin(); itJet != theJets.end(); itJet++) {
     float curDR = this->spaceAngle(aLepton, *itJet);
     if (curDR < isoAngle)
       isoAngle = curDR;

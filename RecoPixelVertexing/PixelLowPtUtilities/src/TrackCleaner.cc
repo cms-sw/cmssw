@@ -136,9 +136,8 @@ bool TrackCleaner::canBeMerged(const vector<const TrackingRecHit *> &recHitsA,
                                const vector<const TrackingRecHit *> &recHitsB) const {
   bool ok = true;
 
-  for (vector<const TrackingRecHit *>::const_iterator recHitA = recHitsA.begin(); recHitA != recHitsA.end(); recHitA++)
-    for (vector<const TrackingRecHit *>::const_iterator recHitB = recHitsB.begin(); recHitB != recHitsB.end();
-         recHitB++)
+  for (auto recHitA = recHitsA.begin(); recHitA != recHitsA.end(); recHitA++)
+    for (auto recHitB = recHitsB.begin(); recHitB != recHitsB.end(); recHitB++)
       if (!areSame(*recHitA, *recHitB))
         if (!isCompatible((*recHitA)->geographicalId(), (*recHitB)->geographicalId()))
           ok = false;
@@ -175,9 +174,7 @@ TracksWithRecHits TrackCleaner::cleanTracks(const TracksWithRecHits &tracks_) co
     // Fill the rechit map
     for (unsigned int i = 0; i < tracks.size(); i++)
       if (keep[i]) {
-        for (vector<const TrackingRecHit *>::const_iterator recHit = tracks[i].second.begin();
-             recHit != tracks[i].second.end();
-             recHit++)
+        for (auto recHit = tracks[i].second.begin(); recHit != tracks[i].second.end(); recHit++)
           recHitMap[*recHit].push_back(i);
       }
 
@@ -198,19 +195,17 @@ TracksWithRecHits TrackCleaner::cleanTracks(const TracksWithRecHits &tracks_) co
       TrackMap trackMap;
 
       // Go trough all rechits of this track
-      for (vector<const TrackingRecHit *>::const_iterator recHit = tracks[i].second.begin();
-           recHit != tracks[i].second.end();
-           recHit++) {
+      for (auto recHit = tracks[i].second.begin(); recHit != tracks[i].second.end(); recHit++) {
         // Get tracks sharing this rechit
         vector<unsigned int> sharing = recHitMap[*recHit];
 
-        for (vector<unsigned int>::iterator j = sharing.begin(); j != sharing.end(); j++)
+        for (auto j = sharing.begin(); j != sharing.end(); j++)
           if (i < *j)
             trackMap[*j]++;
       }
 
       // Check for tracks with shared rechits
-      for (TrackMap::iterator sharing = trackMap.begin(); sharing != trackMap.end(); sharing++) {
+      for (auto sharing = trackMap.begin(); sharing != trackMap.end(); sharing++) {
         unsigned int j = (*sharing).first;
         if (!keep[i] || !keep[j])
           continue;
@@ -221,13 +216,9 @@ TracksWithRecHits TrackCleaner::cleanTracks(const TracksWithRecHits &tracks_) co
                                       2) {                          // more than min(hits1,hits2)/2 rechits are shared
             if (canBeMerged(tracks[i].second, tracks[j].second)) {  // no common layer
               // merge tracks, add separate hits of the second to the first one
-              for (vector<const TrackingRecHit *>::const_iterator recHit = tracks[j].second.begin();
-                   recHit != tracks[j].second.end();
-                   recHit++) {
+              for (auto recHit = tracks[j].second.begin(); recHit != tracks[j].second.end(); recHit++) {
                 bool ok = true;
-                for (vector<const TrackingRecHit *>::const_iterator recHitA = tracks[i].second.begin();
-                     recHitA != tracks[i].second.end();
-                     recHitA++)
+                for (auto recHitA = tracks[i].second.begin(); recHitA != tracks[i].second.end(); recHitA++)
                   if (areSame(*recHit, *recHitA))
                     ok = false;
 

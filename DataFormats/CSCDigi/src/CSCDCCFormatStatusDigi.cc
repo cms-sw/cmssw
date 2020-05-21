@@ -79,7 +79,7 @@ void CSCDCCFormatStatusDigi::print() const {
   std::ostringstream ost;
 
   std::set<DDUIdType> ddu_list = getListOfDDUs();
-  for (std::set<DDUIdType>::iterator itr = ddu_list.begin(); itr != ddu_list.end(); ++itr) {
+  for (auto itr = ddu_list.begin(); itr != ddu_list.end(); ++itr) {
     ost << "DDU_" << std::dec << ((*itr) & 0xFF) << " Errors=0x" << std::hex << std::setw(8) << std::setfill('0')
         << getDDUErrors(*itr);
     edm::LogVerbatim("CSCDigi") << ost.str();
@@ -87,7 +87,7 @@ void CSCDCCFormatStatusDigi::print() const {
   }
 
   std::set<CSCIdType> csc_list = getListOfCSCs();
-  for (std::set<CSCIdType>::iterator itr = csc_list.begin(); itr != csc_list.end(); ++itr) {
+  for (auto itr = csc_list.begin(); itr != csc_list.end(); ++itr) {
     ost << "CSC_" << std::dec << (((*itr) >> 4) & 0xFF) << "_" << ((*itr) & 0xF) << " Errors=0x" << std::hex
         << std::setw(8) << std::setfill('0') << getCSCErrors(*itr) << " Payload=0x" << std::setw(8) << std::setfill('0')
         << getCSCPayload(*itr) << " Status=0x" << std::setw(8) << std::setfill('0') << getCSCStatus(*itr);
@@ -102,12 +102,12 @@ std::ostream& operator<<(std::ostream& o, const CSCDCCFormatStatusDigi& digi) {
     << digi.getCSCMask() << " DCCErrors=0x" << std::hex << std::setw(8) << std::setfill('0')
     << digi.getDDUSummaryErrors() << std::dec << "\n";
   std::set<DDUIdType> ddu_list = digi.getListOfDDUs();
-  for (std::set<DDUIdType>::iterator itr = ddu_list.begin(); itr != ddu_list.end(); ++itr) {
+  for (auto itr = ddu_list.begin(); itr != ddu_list.end(); ++itr) {
     o << "DDU_" << std::dec << ((*itr) & 0xFF) << " Errors=0x" << std::hex << std::setw(8) << std::setfill('0')
       << digi.getDDUErrors(*itr) << "\n";
   }
   std::set<CSCIdType> csc_list = digi.getListOfCSCs();
-  for (std::set<CSCIdType>::iterator itr = csc_list.begin(); itr != csc_list.end(); ++itr) {
+  for (auto itr = csc_list.begin(); itr != csc_list.end(); ++itr) {
     o << "CSC_" << std::dec << (((*itr) >> 4) & 0xFF) << "_" << ((*itr) & 0xF) << " Errors=0x" << std::hex
       << std::setw(8) << std::setfill('0') << digi.getCSCErrors(*itr) << " Payload=0x" << std::setw(8)
       << std::setfill('0') << digi.getCSCPayload(*itr) << " Status=0x" << std::setw(8) << std::setfill('0')

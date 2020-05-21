@@ -21,7 +21,7 @@ namespace reco::tau {
           return nullptr;
       }
 
-      const pat::PackedCandidate* packedCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
+      const auto* packedCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
       if (packedCand && packedCand->hasTrackDetails())
         return &packedCand->pseudoTrack();
 
@@ -240,7 +240,7 @@ namespace reco::tau {
         return minTrackVertexWeight(gsfTrack, pv, cut);
       }
 
-      const pat::PackedCandidate* pCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
+      const auto* pCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
       if (pCand != nullptr && cand.charge() != 0) {
         return minPackedCandVertexWeight(*pCand, pv, cut);
       }
@@ -284,7 +284,7 @@ namespace reco::tau {
     // Get the set of Q cuts for a given type (i.e. gamma)
     bool mapAndCutByType(const Candidate& cand, const RecoTauQualityCuts::CandQCutFuncMap& funcMap) {
       // Find the cuts that for this particle type
-      RecoTauQualityCuts::CandQCutFuncMap::const_iterator cuts = funcMap.find(std::abs(cand.pdgId()));
+      auto cuts = funcMap.find(std::abs(cand.pdgId()));
       // Return false if we dont' know how to deal with this particle type
       if (cuts == funcMap.end())
         return false;
@@ -454,7 +454,7 @@ namespace reco::tau {
   bool RecoTauQualityCuts::filterChargedCand(const reco::Candidate& cand) const {
     if (cand.charge() == 0)
       return true;
-    const pat::PackedCandidate* pCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
+    const auto* pCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
     if (pCand == nullptr)
       return true;
 

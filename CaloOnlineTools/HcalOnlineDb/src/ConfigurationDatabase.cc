@@ -20,7 +20,7 @@ namespace hcal {
     if (m_implementationOptions.empty()) {
       std::vector<hcal::AbstractPluginFactory*> facts;
       hcal::PluginManager::getFactories("hcal::ConfigurationDatabaseImpl", facts);
-      for (std::vector<hcal::AbstractPluginFactory*>::iterator j = facts.begin(); j != facts.end(); j++)
+      for (auto j = facts.begin(); j != facts.end(); j++)
         m_implementationOptions.push_back(dynamic_cast<hcal::ConfigurationDatabaseImpl*>((*j)->newInstance()));
     }
 

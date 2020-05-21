@@ -31,7 +31,7 @@ KinematicConstrainedVertexUpdator::update(const AlgebraicVector& inPar,
   d_a(3) = lPoint.z();
 
   int cst = 0;
-  for (std::vector<KinematicState>::const_iterator i = lStates.begin(); i != lStates.end(); i++) {
+  for (auto i = lStates.begin(); i != lStates.end(); i++) {
     AlgebraicVector lst_par = asHepVector<7>(i->kinematicParameters().vector());
     for (int j = 1; j < lst_par.num_row() + 1; j++) {
       d_a(3 + 7 * cst + j) = lst_par(j);
@@ -159,7 +159,7 @@ KinematicConstrainedVertexUpdator::update(const AlgebraicVector& inPar,
   //making refitted states of Kinematic Particles
   int i_int = 0;
   std::vector<KinematicState> ns;
-  for (std::vector<KinematicState>::const_iterator i_st = lStates.begin(); i_st != lStates.end(); i_st++) {
+  for (auto i_st = lStates.begin(); i_st != lStates.end(); i_st++) {
     AlgebraicVector7 newPar;
     for (int i = 0; i < 7; i++) {
       newPar(i) = finPar(4 + i_int * 7 + i);

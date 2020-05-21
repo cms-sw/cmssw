@@ -63,7 +63,7 @@ void L1TMuonBarrelParamsViewer::analyze(const edm::Event &iEvent, const edm::Eve
   evSetup.get<L1TMuonBarrelParamsRcd>().get(handle1);
   std::shared_ptr<L1TMuonBarrelParams> ptr(new L1TMuonBarrelParams(*(handle1.product())));
 
-  L1TMuonBarrelParamsHelper *ptr1 = (L1TMuonBarrelParamsHelper *)ptr.get();
+  auto *ptr1 = (L1TMuonBarrelParamsHelper *)ptr.get();
 
   cout << "AssLUTPath: " << ptr1->AssLUTPath() << endl;
 

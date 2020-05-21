@@ -16,9 +16,7 @@ void L1Analysis::L1AnalysisBMTFInputs::SetBMPH(const edm::Handle<L1MuDTChambPhCo
 
   bmtf_.phSize = PhContainer->size();
   int iphtr = 0;
-  for (L1MuDTChambPhContainer::Phi_Container::const_iterator DTPhDigiItr = PhContainer->begin();
-       DTPhDigiItr != PhContainer->end();
-       ++DTPhDigiItr) {
+  for (auto DTPhDigiItr = PhContainer->begin(); DTPhDigiItr != PhContainer->end(); ++DTPhDigiItr) {
     if ((unsigned int)iphtr > maxDTPH - 1)
       continue;
     bmtf_.phBx.push_back(DTPhDigiItr->bxNum());
@@ -41,9 +39,7 @@ void L1Analysis::L1AnalysisBMTFInputs::SetBMTH(const edm::Handle<L1MuDTChambThCo
   int ithtr = 0;
   bmtf_.thSize = ThContainer->size();
 
-  for (L1MuDTChambThContainer::The_Container::const_iterator DTThDigiItr = ThContainer->begin();
-       DTThDigiItr != ThContainer->end();
-       ++DTThDigiItr) {
+  for (auto DTThDigiItr = ThContainer->begin(); DTThDigiItr != ThContainer->end(); ++DTThDigiItr) {
     if ((unsigned int)ithtr > maxDTTH - 1)
       continue;
     bmtf_.thBx.push_back(DTThDigiItr->bxNum());

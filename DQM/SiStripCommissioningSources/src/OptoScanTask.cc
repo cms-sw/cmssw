@@ -165,9 +165,9 @@ void OptoScanTask::locateTicks(const edm::DetSet<SiStripRawDigi>& digis,
 
     // Construct vector to hold "baseline samples" (exclude tick mark samples)
     std::vector<uint16_t> truncated;
-    std::vector<uint16_t>::const_iterator ii = adc.begin();
+    auto ii = adc.begin();
     // remove twice the expected number of tick samples, otherwise you bias the baseline mean and rms
-    std::vector<uint16_t>::const_iterator jj = adc.end() - 4 * ((adc.size() / 70) + 1);
+    auto jj = adc.end() - 4 * ((adc.size() / 70) + 1);
     truncated.resize(jj - ii);
     std::copy(ii, jj, truncated.begin());
     if (truncated.empty()) {
@@ -176,8 +176,8 @@ void OptoScanTask::locateTicks(const edm::DetSet<SiStripRawDigi>& digis,
 
     // Calc mean baseline level
     float b_mean = 0.;
-    std::vector<uint16_t>::const_iterator iii = truncated.begin();
-    std::vector<uint16_t>::const_iterator jjj = truncated.end();
+    auto iii = truncated.begin();
+    auto jjj = truncated.end();
     for (; iii != jjj; ++iii) {
       b_mean += *iii;
     }
@@ -186,8 +186,8 @@ void OptoScanTask::locateTicks(const edm::DetSet<SiStripRawDigi>& digis,
 
     // Calc baseline noise
     float b_rms = 0.;
-    std::vector<uint16_t>::const_iterator iiii = truncated.begin();
-    std::vector<uint16_t>::const_iterator jjjj = truncated.end();
+    auto iiii = truncated.begin();
+    auto jjjj = truncated.end();
     for (; iiii != jjjj; ++iiii) {
       b_rms += fabs(*iiii - b_mean);
     }

@@ -34,8 +34,8 @@ std::list<LMFTrigType> LMFDefFabric::getTriggerTypes() const { return _lmfTrigTy
 std::list<LMFRunTag> LMFDefFabric::getRunTags() const { return _lmfRunTags; }
 
 LMFColor LMFDefFabric::getColor(std::string name) const {
-  std::list<LMFColor>::const_iterator i = _lmfColors.begin();
-  std::list<LMFColor>::const_iterator e = _lmfColors.end();
+  auto i = _lmfColors.begin();
+  auto e = _lmfColors.end();
   LMFColor ret;
   bool loop = true;
   while ((loop) && (i != e)) {
@@ -49,8 +49,8 @@ LMFColor LMFDefFabric::getColor(std::string name) const {
 }
 
 LMFColor LMFDefFabric::getColorFromID(int id) const {
-  std::list<LMFColor>::const_iterator i = _lmfColors.begin();
-  std::list<LMFColor>::const_iterator e = _lmfColors.end();
+  auto i = _lmfColors.begin();
+  auto e = _lmfColors.end();
   LMFColor ret;
   bool loop = true;
   while ((loop) && (i != e)) {
@@ -64,8 +64,8 @@ LMFColor LMFDefFabric::getColorFromID(int id) const {
 }
 
 LMFColor LMFDefFabric::getColor(int index) const {
-  std::list<LMFColor>::const_iterator i = _lmfColors.begin();
-  std::list<LMFColor>::const_iterator e = _lmfColors.end();
+  auto i = _lmfColors.begin();
+  auto e = _lmfColors.end();
   LMFColor ret;
   bool loop = true;
   while ((loop) && (i != e)) {
@@ -85,8 +85,8 @@ int LMFDefFabric::getColorID(int index) const { return getColor(index).getID(); 
 int LMFDefFabric::getTrigTypeID(std::string sname) const { return getTrigType(sname).getID(); }
 
 LMFTrigType LMFDefFabric::getTrigType(std::string sname) const {
-  std::list<LMFTrigType>::const_iterator i = _lmfTrigTypes.begin();
-  std::list<LMFTrigType>::const_iterator e = _lmfTrigTypes.end();
+  auto i = _lmfTrigTypes.begin();
+  auto e = _lmfTrigTypes.end();
   LMFTrigType tt;
   bool loop = true;
   while ((loop) && (i != e)) {
@@ -100,8 +100,8 @@ LMFTrigType LMFDefFabric::getTrigType(std::string sname) const {
 }
 
 LMFTrigType LMFDefFabric::getTrigTypeFromID(int id) const {
-  std::list<LMFTrigType>::const_iterator i = _lmfTrigTypes.begin();
-  std::list<LMFTrigType>::const_iterator e = _lmfTrigTypes.end();
+  auto i = _lmfTrigTypes.begin();
+  auto e = _lmfTrigTypes.end();
   LMFTrigType tt;
   bool loop = true;
   while ((loop) && (i != e)) {
@@ -115,8 +115,8 @@ LMFTrigType LMFDefFabric::getTrigTypeFromID(int id) const {
 }
 
 LMFRunTag LMFDefFabric::getRunTag(std::string tag, int version) const {
-  std::list<LMFRunTag>::const_iterator i = _lmfRunTags.begin();
-  std::list<LMFRunTag>::const_iterator e = _lmfRunTags.end();
+  auto i = _lmfRunTags.begin();
+  auto e = _lmfRunTags.end();
   LMFRunTag rt;
   bool loop = true;
   while ((loop) && (i != e)) {
@@ -129,8 +129,8 @@ LMFRunTag LMFDefFabric::getRunTag(std::string tag, int version) const {
 }
 
 LMFRunTag LMFDefFabric::getRunTagFromID(int id) const {
-  std::list<LMFRunTag>::const_iterator i = _lmfRunTags.begin();
-  std::list<LMFRunTag>::const_iterator e = _lmfRunTags.end();
+  auto i = _lmfRunTags.begin();
+  auto e = _lmfRunTags.end();
   LMFRunTag rt;
   bool loop = true;
   while ((loop) && (i != e)) {
@@ -224,18 +224,18 @@ void LMFDefFabric::initialize() noexcept(false) {
 
 void LMFDefFabric::dump() {
   std::cout << "========= Fabric dump @ address " << this << " ============" << std::endl;
-  std::list<LMFColor>::const_iterator i1 = _lmfColors.begin();
-  std::list<LMFTrigType>::const_iterator i2 = _lmfTrigTypes.begin();
-  std::list<LMFRunTag>::const_iterator i3 = _lmfRunTags.begin();
-  std::list<LMFPrimVers>::const_iterator i4 = _lmfPrimVersions.begin();
-  std::list<LMFSeqVers>::const_iterator i5 = _lmfSeqVersions.begin();
-  std::list<LMFCorrVers>::const_iterator i6 = _lmfCorrVersions.begin();
-  std::list<LMFColor>::const_iterator e1 = _lmfColors.end();
-  std::list<LMFTrigType>::const_iterator e2 = _lmfTrigTypes.end();
-  std::list<LMFRunTag>::const_iterator e3 = _lmfRunTags.end();
-  std::list<LMFPrimVers>::const_iterator e4 = _lmfPrimVersions.end();
-  std::list<LMFSeqVers>::const_iterator e5 = _lmfSeqVersions.end();
-  std::list<LMFCorrVers>::const_iterator e6 = _lmfCorrVersions.end();
+  auto i1 = _lmfColors.begin();
+  auto i2 = _lmfTrigTypes.begin();
+  auto i3 = _lmfRunTags.begin();
+  auto i4 = _lmfPrimVersions.begin();
+  auto i5 = _lmfSeqVersions.begin();
+  auto i6 = _lmfCorrVersions.begin();
+  auto e1 = _lmfColors.end();
+  auto e2 = _lmfTrigTypes.end();
+  auto e3 = _lmfRunTags.end();
+  auto e4 = _lmfPrimVersions.end();
+  auto e5 = _lmfSeqVersions.end();
+  auto e6 = _lmfCorrVersions.end();
   std::cout << "=== Colors" << std::endl;
   while (i1 != e1) {
     i1++->dump();

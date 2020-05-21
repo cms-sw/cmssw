@@ -71,7 +71,7 @@ void CandidateBoostedDoubleSecondaryVertexComputer::initialize(const JetTagCompu
 
 float CandidateBoostedDoubleSecondaryVertexComputer::discriminator(const TagInfoHelper& tagInfo) const {
   // get the TagInfo
-  const reco::BoostedDoubleSVTagInfo& bdsvTagInfo = tagInfo.get<reco::BoostedDoubleSVTagInfo>(0);
+  const auto& bdsvTagInfo = tagInfo.get<reco::BoostedDoubleSVTagInfo>(0);
 
   // get the TaggingVariables
   const reco::TaggingVariableList vars = bdsvTagInfo.taggingVariables();

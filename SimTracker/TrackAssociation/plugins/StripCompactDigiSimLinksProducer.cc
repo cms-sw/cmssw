@@ -62,7 +62,7 @@ void StripCompactDigiSimLinksProducer::produce(edm::Event &iEvent, const edm::Ev
                              // link if there are overlapping clusters)
     thisStripSignals.clear();
     previousStripSignals.clear();
-    for (DetSet<StripDigiSimLink>::const_iterator it = det.begin(), ed = det.end(); it != ed; ++it) {
+    for (auto it = det.begin(), ed = det.end(); it != ed; ++it) {
       DEBUG(std::cerr << "  processing digiSimLink on strip " << it->channel() << " left by particle "
                       << it->SimTrackId() << ", event " << it->eventId().rawId() << std::endl;)
       if (int(it->channel()) != previousLinkStrip) {
@@ -92,7 +92,7 @@ void StripCompactDigiSimLinksProducer::produce(edm::Event &iEvent, const edm::Ev
         DEBUG(std::cerr << "   clusterize!" << std::endl;)
         unsigned int size = 1;
         int myLastStrip = it->channel();  // last known strip with signals from this particle
-        for (DetSet<StripDigiSimLink>::const_iterator it2 = it + 1; it2 < ed; ++it2) {
+        for (auto it2 = it + 1; it2 < ed; ++it2) {
           DEBUG(std::cerr << "     digiSimLink on strip " << it2->channel() << " left by particle " << it2->SimTrackId()
                           << ", event " << it2->eventId().rawId() << std::endl;)
           if ((it2->channel() - myLastStrip) > maxHoleSize_ + 1) {

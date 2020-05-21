@@ -17,19 +17,19 @@ namespace {
   vector<vector<TrackAndWeight> > recover(const vector<TransientVertex>& vtces,
                                           const vector<reco::TransientTrack>& trks) {
     set<reco::TransientTrack> st;
-    for (vector<reco::TransientTrack>::const_iterator i = trks.begin(); i != trks.end(); ++i) {
+    for (auto i = trks.begin(); i != trks.end(); ++i) {
       st.insert(*i);
     }
 
     vector<vector<TrackAndWeight> > bundles;
-    for (vector<TransientVertex>::const_iterator vtx = vtces.begin(); vtx != vtces.end(); ++vtx) {
+    for (auto vtx = vtces.begin(); vtx != vtces.end(); ++vtx) {
       vector<reco::TransientTrack> trks = vtx->originalTracks();
       vector<TrackAndWeight> tnws;
-      for (vector<reco::TransientTrack>::const_iterator trk = trks.begin(); trk != trks.end(); ++trk) {
+      for (auto trk = trks.begin(); trk != trks.end(); ++trk) {
         float w = vtx->trackWeight(*trk);
         if (w > 1e-5) {
           TrackAndWeight tmp(*trk, w);
-          set<reco::TransientTrack>::iterator pos = st.find(*trk);
+          auto pos = st.find(*trk);
           if (pos != st.end()) {
             st.erase(pos);
           }
@@ -43,7 +43,7 @@ namespace {
       return bundles;
 
     // now add not-yet assigned tracks
-    for (set<reco::TransientTrack>::const_iterator i = st.begin(); i != st.end(); ++i) {
+    for (auto i = st.begin(); i != st.end(); ++i) {
       // cout << "[MultiVertexReconstructor] recovering " << i->id() << endl;
       TrackAndWeight tmp(*i, 0.);
       bundles[0].push_back(tmp);
@@ -92,7 +92,7 @@ vector<TransientVertex> MultiVertexReconstructor::vertices(const vector<reco::Tr
   vector<vector<TrackAndWeight> > rc = recover(tmp, trks);
   vector<CachingVertex<5> > cvts = theFitter.vertices(rc);
   vector<TransientVertex> ret;
-  for (vector<CachingVertex<5> >::const_iterator i = cvts.begin(); i != cvts.end(); ++i) {
+  for (auto i = cvts.begin(); i != cvts.end(); ++i) {
     ret.push_back(*i);
   };
 
@@ -113,12 +113,12 @@ vector<TransientVertex> MultiVertexReconstructor::vertices(const vector<reco::Tr
   map<reco::TransientTrack, bool> st;
 
   vector<reco::TransientTrack> total = trks;
-  for (vector<reco::TransientTrack>::const_iterator i = trks.begin(); i != trks.end(); ++i) {
+  for (auto i = trks.begin(); i != trks.end(); ++i) {
     st[(*i)] = true;
   }
 
   // cout << "[MultiVertexReconstructor] FIXME dont just add up tracks. superpose" << endl;
-  for (vector<reco::TransientTrack>::const_iterator i = primaries.begin(); i != primaries.end(); ++i) {
+  for (auto i = primaries.begin(); i != primaries.end(); ++i) {
     if (!(st[(*i)])) {
       total.push_back(*i);
     }
@@ -134,7 +134,7 @@ vector<TransientVertex> MultiVertexReconstructor::vertices(const vector<reco::Tr
   vector<CachingVertex<5> > cvts = theFitter.vertices(rc, primaries);
 
   vector<TransientVertex> ret;
-  for (vector<CachingVertex<5> >::const_iterator i = cvts.begin(); i != cvts.end(); ++i) {
+  for (auto i = cvts.begin(); i != cvts.end(); ++i) {
     ret.push_back(*i);
   };
   if (verbose()) {

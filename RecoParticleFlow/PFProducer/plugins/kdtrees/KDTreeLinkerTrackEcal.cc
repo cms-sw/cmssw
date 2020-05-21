@@ -102,7 +102,7 @@ void KDTreeLinkerTrackEcal::buildTree() {
   std::vector<KDTreeNodeInfo<reco::PFRecHit const *, 2>> eltList;
 
   // Filling of this list
-  for (RecHitSet::const_iterator it = rechitsSet_.begin(); it != rechitsSet_.end(); it++) {
+  for (auto it = rechitsSet_.begin(); it != rechitsSet_.end(); it++) {
     const reco::PFRecHit::REPPoint &posrep = (*it)->positionREP();
 
     KDTreeNodeInfo<reco::PFRecHit const *, 2> rh1(*it, posrep.eta(), posrep.phi());
@@ -138,7 +138,7 @@ void KDTreeLinkerTrackEcal::searchLinks() {
   // Most of the code has been taken from LinkByRecHit.cc
 
   // We iterate over the tracks.
-  for (BlockEltSet::iterator it = targetSet_.begin(); it != targetSet_.end(); it++) {
+  for (auto it = targetSet_.begin(); it != targetSet_.end(); it++) {
     reco::PFRecTrackRef trackref = (*it)->trackRefPF();
 
     // We set the multilinks flag of the track to true. It will allow us to
@@ -187,9 +187,9 @@ void KDTreeLinkerTrackEcal::searchLinks() {
         dphi = 2. * M_PI - dphi;
 
       // Find all clusters associated to given rechit
-      RecHit2BlockEltMap::iterator ret = rechit2ClusterLinks_.find(recHit);
+      auto ret = rechit2ClusterLinks_.find(recHit);
 
-      for (BlockEltSet::const_iterator clusterIt = ret->second.begin(); clusterIt != ret->second.end(); clusterIt++) {
+      for (auto clusterIt = ret->second.begin(); clusterIt != ret->second.end(); clusterIt++) {
         reco::PFClusterRef clusterref = (*clusterIt)->clusterRef();
         double clusterz = clusterref->position().z();
         int fracsNbr = clusterref->recHitFractions().size();
@@ -242,10 +242,10 @@ void KDTreeLinkerTrackEcal::updatePFBlockEltWithLinks() {
   //TODO YG : Check if cluster positionREP() is valid ?
 
   // Here we save in each track the list of phi/eta values of linked clusters.
-  for (BlockElt2BlockEltMap::iterator it = target2ClusterLinks_.begin(); it != target2ClusterLinks_.end(); ++it) {
+  for (auto it = target2ClusterLinks_.begin(); it != target2ClusterLinks_.end(); ++it) {
     reco::PFMultiLinksTC multitracks(true);
 
-    for (BlockEltSet::iterator jt = it->second.begin(); jt != it->second.end(); ++jt) {
+    for (auto jt = it->second.begin(); jt != it->second.end(); ++jt) {
       double clusterphi = (*jt)->clusterRef()->positionREP().phi();
       double clustereta = (*jt)->clusterRef()->positionREP().eta();
 

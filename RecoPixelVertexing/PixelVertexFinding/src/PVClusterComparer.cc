@@ -49,7 +49,7 @@ double PVClusterComparer::pTSquaredSum(const PVCluster &v) {
 
 double PVClusterComparer::pTSquaredSum(const reco::Vertex &v) {
   double sum = 0;
-  for (reco::Vertex::trackRef_iterator i = v.tracks_begin(), ie = v.tracks_end(); i != ie; ++i) {
+  for (auto i = v.tracks_begin(), ie = v.tracks_end(); i != ie; ++i) {
     double pt = (*i)->pt();
     if (pt < track_pT_min_)
       continue;  // Don't count tracks below track_pT_min_ (2.5 GeV)

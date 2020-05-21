@@ -186,8 +186,7 @@ void SUSY_HLT_alphaT::analyze(edm::Event const &e, edm::EventSetup const &eSetup
   if (hasFiredAuxiliaryForHadronicLeg) {
     float pfHT = 0.0;
     std::vector<LorentzV> pfJets;
-    for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end();
-         ++i_pfjet) {
+    for (auto i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end(); ++i_pfjet) {
       if (i_pfjet->pt() < ptThrJet_)
         continue;
       if (fabs(i_pfjet->eta()) > etaThrJet_)

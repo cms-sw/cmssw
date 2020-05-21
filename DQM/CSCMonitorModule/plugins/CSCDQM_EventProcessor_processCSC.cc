@@ -681,8 +681,7 @@ namespace cscdqm {
             bool CheckLayerALCT = true;
 
             std::vector<CSCWireDigi> wireDigis = alctData->wireDigis(nLayer);
-            for (std::vector<CSCWireDigi>::iterator wireDigisItr = wireDigis.begin(); wireDigisItr != wireDigis.end();
-                 ++wireDigisItr) {
+            for (auto wireDigisItr = wireDigis.begin(); wireDigisItr != wireDigis.end(); ++wireDigisItr) {
               int wg = wireDigisItr->getWireGroup();
               /**  int tbin = wireDigisItr->getBeamCrossingTag(); */
               std::vector<int> tbins = wireDigisItr->getTimeBinsOn();
@@ -1270,9 +1269,7 @@ namespace cscdqm {
 
                 std::vector<CSCComparatorDigi> compOutData = clctData->comparatorDigis(nLayer, nCFEB);
 
-                for (std::vector<CSCComparatorDigi>::iterator compOutDataItr = compOutData.begin();
-                     compOutDataItr != compOutData.end();
-                     ++compOutDataItr) {
+                for (auto compOutDataItr = compOutData.begin(); compOutDataItr != compOutData.end(); ++compOutDataItr) {
                   /**  =VB= Fix to get right hafstrip */
                   int hstrip = 2 * (compOutDataItr->getStrip() - 1) + compOutDataItr->getComparator();
                   std::vector<int> tbins_clct = compOutDataItr->getTimeBinsOn();

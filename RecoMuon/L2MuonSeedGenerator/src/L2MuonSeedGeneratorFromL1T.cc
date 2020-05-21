@@ -288,7 +288,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event &iEvent, const edm::EventSet
 
         double dRcone = matchingDR[0];
         if (fabs(eta) < etaBins.back()) {
-          std::vector<double>::iterator lowEdge = std::upper_bound(etaBins.begin(), etaBins.end(), fabs(eta));
+          auto lowEdge = std::upper_bound(etaBins.begin(), etaBins.end(), fabs(eta));
           dRcone = matchingDR.at(lowEdge - etaBins.begin() - 1);
         }
 
@@ -540,7 +540,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event &iEvent, const edm::EventSet
 
         double dRcone = matchingDR[0];
         if (fabs(eta) < etaBins.back()) {
-          std::vector<double>::iterator lowEdge = std::upper_bound(etaBins.begin(), etaBins.end(), fabs(eta));
+          auto lowEdge = std::upper_bound(etaBins.begin(), etaBins.end(), fabs(eta));
           dRcone = matchingDR.at(lowEdge - etaBins.begin() - 1);
         }
 
@@ -663,7 +663,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event &iEvent, const edm::EventSet
 
           double newDRcone = matchingDR[0];
           if (fabs(it->eta()) < etaBins.back()) {
-            std::vector<double>::iterator lowEdge = std::upper_bound(etaBins.begin(), etaBins.end(), fabs(it->eta()));
+            auto lowEdge = std::upper_bound(etaBins.begin(), etaBins.end(), fabs(it->eta()));
             newDRcone = matchingDR.at(lowEdge - etaBins.begin() - 1);
           }
 
@@ -718,7 +718,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event &iEvent, const edm::EventSet
 
           double newDRcone = matchingDR[0];
           if (fabs(it->eta()) < etaBins.back()) {
-            std::vector<double>::iterator lowEdge = std::upper_bound(etaBins.begin(), etaBins.end(), fabs(it->eta()));
+            auto lowEdge = std::upper_bound(etaBins.begin(), etaBins.end(), fabs(it->eta()));
             newDRcone = matchingDR.at(lowEdge - etaBins.begin() - 1);
           }
 
@@ -819,7 +819,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event &iEvent, const edm::EventSet
 
           double newDRcone = matchingDR[0];
           if (fabs(it->eta()) < etaBins.back()) {
-            std::vector<double>::iterator lowEdge = std::upper_bound(etaBins.begin(), etaBins.end(), fabs(it->eta()));
+            auto lowEdge = std::upper_bound(etaBins.begin(), etaBins.end(), fabs(it->eta()));
             newDRcone = matchingDR.at(lowEdge - etaBins.begin() - 1);
           }
 
@@ -857,7 +857,7 @@ void L2MuonSeedGeneratorFromL1T::produce(edm::Event &iEvent, const edm::EventSet
 
           double newDRcone = matchingDR[0];
           if (fabs(it->eta()) < etaBins.back()) {
-            std::vector<double>::iterator lowEdge = std::upper_bound(etaBins.begin(), etaBins.end(), fabs(it->eta()));
+            auto lowEdge = std::upper_bound(etaBins.begin(), etaBins.end(), fabs(it->eta()));
             newDRcone = matchingDR.at(lowEdge - etaBins.begin() - 1);
           }
 

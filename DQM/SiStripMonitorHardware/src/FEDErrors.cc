@@ -427,7 +427,7 @@ bool FEDErrors::fillFEErrors(const sistrip::FEDBuffer& aBuffer,
 
     //need fullDebugHeader to fill histo with time difference between APVe and FEmajAddress
     const sistrip::FEDFEHeader* header = aBuffer.feHeader();
-    const sistrip::FEDFullDebugHeader* debugHeader = dynamic_cast<const sistrip::FEDFullDebugHeader*>(header);
+    const auto* debugHeader = dynamic_cast<const sistrip::FEDFullDebugHeader*>(header);
     // if (debugHeader) {
     //   unsigned int apveTime = static_cast<unsigned int>(sistrip::FEDAddressConversion::timeLocation(aBuffer.apveAddress()));
     //   unsigned int feTime = static_cast<unsigned int>(sistrip::FEDAddressConversion::timeLocation(debugHeader->feUnitMajorityAddress(iFE)));
@@ -516,7 +516,7 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer& aBuffer,
   bool foundError = false;
 
   const sistrip::FEDFEHeader* header = aBuffer.feHeader();
-  const sistrip::FEDFullDebugHeader* debugHeader = dynamic_cast<const sistrip::FEDFullDebugHeader*>(header);
+  const auto* debugHeader = dynamic_cast<const sistrip::FEDFullDebugHeader*>(header);
 
   aFullDebug = debugHeader;
 

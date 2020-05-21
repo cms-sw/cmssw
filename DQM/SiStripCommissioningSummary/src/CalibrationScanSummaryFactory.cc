@@ -10,7 +10,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 void CalibrationScanSummaryFactory::extract(Iterator iter) {
-  CalibrationScanAnalysis* anal = dynamic_cast<CalibrationScanAnalysis*>(iter->second);
+  auto* anal = dynamic_cast<CalibrationScanAnalysis*>(iter->second);
   if (!anal) {
     return;
   }

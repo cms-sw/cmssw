@@ -84,7 +84,7 @@ G4bool GFlashHadronShowerModel::ModelTrigger(const G4FastTrack& fastTrack) {
 
   // This will be changed accordingly when the way
   // dealing with CaloRegion changes later.
-  G4TouchableHistory* touch = (G4TouchableHistory*)(fastTrack.GetPrimaryTrack()->GetTouchable());
+  auto* touch = (G4TouchableHistory*)(fastTrack.GetPrimaryTrack()->GetTouchable());
   G4VPhysicalVolume* pCurrentVolume = touch->GetVolume();
   if (pCurrentVolume == nullptr) {
     return false;
@@ -150,8 +150,8 @@ void GFlashHadronShowerModel::makeHits(const G4FastTrack& fastTrack) {
   theGflashNavigator->SetWorldVolume(
       G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
 
-  std::vector<GflashHit>::const_iterator spotIter = gflashHitList.begin();
-  std::vector<GflashHit>::const_iterator spotIterEnd = gflashHitList.end();
+  auto spotIter = gflashHitList.begin();
+  auto spotIterEnd = gflashHitList.end();
 
   for (; spotIter != spotIterEnd; spotIter++) {
     theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(

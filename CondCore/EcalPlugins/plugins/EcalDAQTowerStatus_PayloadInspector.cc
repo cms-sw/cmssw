@@ -104,7 +104,7 @@ namespace {
     }  // fill method
 
     void getSummary(std::vector<EcalDAQStatusCode> vItems, float& vals, long unsigned int& total) {
-      for (std::vector<EcalDAQStatusCode>::const_iterator iItems = vItems.begin(); iItems != vItems.end(); ++iItems) {
+      for (auto iItems = vItems.begin(); iItems != vItems.end(); ++iItems) {
         if (iItems->getStatusCode() > 0)
           vals++;
       }

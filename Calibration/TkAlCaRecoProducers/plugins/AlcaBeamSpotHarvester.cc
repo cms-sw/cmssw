@@ -84,7 +84,7 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run &iRun, const edm::EventSetup &
   outFile.open(outTxt.c_str(), std::ios::app);
 
   if (poolDbService.isAvailable()) {
-    for (AlcaBeamSpotManager::bsMap_iterator it = beamSpotMap.begin(); it != beamSpotMap.end(); it++) {
+    for (auto it = beamSpotMap.begin(); it != beamSpotMap.end(); it++) {
       BeamSpotObjects *aBeamSpot = new BeamSpotObjects();
       aBeamSpot->SetType(it->second.second.type());
       aBeamSpot->SetPosition(it->second.second.x0(), it->second.second.y0(), it->second.second.z0());

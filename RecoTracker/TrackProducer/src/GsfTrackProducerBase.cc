@@ -164,7 +164,7 @@ void GsfTrackProducerBase::putInEvt(edm::Event& evt,
       math::XYZVector momentum;
       Measurement1D deltaP;
       // only measurements on "mono" detectors
-      for (Trajectory::DataContainer::const_iterator i = ibegin; i != iend; i += increment) {
+      for (auto i = ibegin; i != iend; i += increment) {
         if (i->recHit().get()) {
           DetId detId(i->recHit()->geographicalId());
           if (detId.det() == DetId::Tracker) {
@@ -206,7 +206,7 @@ void GsfTrackProducerBase::putInEvt(edm::Event& evt,
 
   LogTrace("TrackingRegressionTest") << "========== TrackProducer Info ===================";
   LogTrace("TrackingRegressionTest") << "number of finalGsfTracks: " << selTracks->size();
-  for (reco::GsfTrackCollection::const_iterator it = selTracks->begin(); it != selTracks->end(); it++) {
+  for (auto it = selTracks->begin(); it != selTracks->end(); it++) {
     LogTrace("TrackingRegressionTest") << "track's n valid and invalid hit, chi2, pt : " << it->found() << " , "
                                        << it->lost() << " , " << it->normalizedChi2() << " , " << it->pt() << " , "
                                        << it->eta();
@@ -224,7 +224,7 @@ void GsfTrackProducerBase::putInEvt(edm::Event& evt,
     // Now Create traj<->tracks association map
     std::unique_ptr<TrajGsfTrackAssociationCollection> trajTrackMap(
         new TrajGsfTrackAssociationCollection(rTrajs, rTracks_));
-    for (std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); i != tjTkMap.end(); i++) {
+    for (auto i = tjTkMap.begin(); i != tjTkMap.end(); i++) {
       edm::Ref<std::vector<Trajectory> > trajRef(rTrajs, (*i).first);
       edm::Ref<reco::GsfTrackCollection> tkRef(rTracks_, (*i).second);
       trajTrackMap->insert(edm::Ref<std::vector<Trajectory> >(rTrajs, (*i).first),

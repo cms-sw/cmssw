@@ -79,14 +79,14 @@ bool CocoaDaqReaderRoot::ReadEvent(int nev) {
               << theEvent->GetNumPosCOPS() << std::endl;
 
   for (int ii = 0; ii < theEvent->GetNumPos2D(); ii++) {
-    AliDaqPosition2D* pos2D = (AliDaqPosition2D*)theEvent->GetArray_Position2D()->At(ii);
+    auto* pos2D = (AliDaqPosition2D*)theEvent->GetArray_Position2D()->At(ii);
     if (ALIUtils::debug >= 4)
       std::cout << "2D sensor " << ii << " has ID = " << pos2D->GetID() << std::endl;
     pos2D->DumpIt("2DSENSOR");
     measList.push_back(GetMeasFromPosition2D(pos2D));
   }
   for (int ii = 0; ii < theEvent->GetNumPosCOPS(); ii++) {
-    AliDaqPositionCOPS* posCOPS = (AliDaqPositionCOPS*)theEvent->GetArray_PositionCOPS()->At(ii);
+    auto* posCOPS = (AliDaqPositionCOPS*)theEvent->GetArray_PositionCOPS()->At(ii);
     measList.push_back(GetMeasFromPositionCOPS(posCOPS));
     if (ALIUtils::debug >= 4) {
       std::cout << "COPS sensor " << ii << " has ID = " << posCOPS->GetID() << std::endl;

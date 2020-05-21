@@ -952,11 +952,11 @@ void ZToMuMuGammaAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& e
   if (muonCollection.size() < 2)
     return;
 
-  for (reco::MuonCollection::const_iterator iMu = muonCollection.begin(); iMu != muonCollection.end(); iMu++) {
+  for (auto iMu = muonCollection.begin(); iMu != muonCollection.end(); iMu++) {
     if (!basicMuonSelection(*iMu))
       continue;
 
-    for (reco::MuonCollection::const_iterator iMu2 = iMu + 1; iMu2 != muonCollection.end(); iMu2++) {
+    for (auto iMu2 = iMu + 1; iMu2 != muonCollection.end(); iMu2++) {
       if (!basicMuonSelection(*iMu2))
         continue;
       if (iMu->charge() * iMu2->charge() > 0)
@@ -1132,9 +1132,7 @@ void ZToMuMuGammaAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& e
               }
               ////////// acces the value map to access the PFCandidates in overlap with the photon which need to be excluded from the isolation
               bool skip = false;
-              for (std::vector<reco::PFCandidateRef>::const_iterator i = phoToParticleBasedIsoMap[aPho].begin();
-                   i != phoToParticleBasedIsoMap[aPho].end();
-                   ++i) {
+              for (auto i = phoToParticleBasedIsoMap[aPho].begin(); i != phoToParticleBasedIsoMap[aPho].end(); ++i) {
                 //	      std::cout << " PhotonValidator PfCand pt " << pfCandRef->pt() << " id " <<pfCandRef->particleId() <<  " and in the map " << (*i)->pt() << " type " << (*i)->particleId() << std::endl;
                 if ((*i) == pfCandRef) {
                   skip = true;

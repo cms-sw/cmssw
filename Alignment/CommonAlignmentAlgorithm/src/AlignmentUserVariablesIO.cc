@@ -18,7 +18,7 @@
 
 int AlignmentUserVariablesIO::write(const align::Alignables& alivec, bool validCheck) {
   int icount = 0;
-  for (align::Alignables::const_iterator it = alivec.begin(); it != alivec.end(); ++it) {
+  for (auto it = alivec.begin(); it != alivec.end(); ++it) {
     if ((*it)->alignmentParameters()->isValid() || !(validCheck)) {
       icount++;
       int iret = writeOne(*it);
@@ -40,7 +40,7 @@ std::vector<AlignmentUserVariables*> AlignmentUserVariablesIO::read(const align:
   int ierr2;
   int icount = 0;
   int icount2 = 0;
-  for (align::Alignables::const_iterator it = alivec.begin(); it != alivec.end(); ++it) {
+  for (auto it = alivec.begin(); it != alivec.end(); ++it) {
     AlignmentUserVariables* ad = readOne(*it, ierr2);  // should create with new!
     if (ierr2 == 0) {
       retvec.push_back(ad);

@@ -32,7 +32,7 @@ void L1GtPatternLine::push(const std::string& prefix, uint32_t value) {
 }
 
 void L1GtPatternLine::set(const std::string& name, uint32_t value) {
-  ColumnMap::iterator it = m_columns.find(name);
+  auto it = m_columns.find(name);
   if (it == m_columns.end()) {
     throw cms::Exception(__func__) << "Can't set field " << name << " to " << std::hex << value << ": not found";
   }
@@ -44,7 +44,7 @@ void L1GtPatternLine::set(const std::string& name, uint32_t value) {
 
 void L1GtPatternLine::print(std::ostream& out) const {
   out << "BEGIN Columns: " << std::endl;
-  for (L1GtPatternLine::ColumnMap::const_iterator it = m_columns.begin(); it != m_columns.end(); ++it) {
+  for (auto it = m_columns.begin(); it != m_columns.end(); ++it) {
     out << it->first << ": " << std::hex << it->second << std::endl;
   }
   out << "END Columns." << std::endl;
@@ -69,7 +69,7 @@ std::string L1GtPatternLine::name(const std::string& prefix, unsigned int i) con
 }
 
 uint32_t L1GtPatternLine::get(const std::string& name) const {
-  ColumnMap::const_iterator it = m_columns.find(name);
+  auto it = m_columns.find(name);
   if (it != m_columns.end()) {
     return it->second;
   }

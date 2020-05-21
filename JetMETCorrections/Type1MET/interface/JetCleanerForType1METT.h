@@ -153,8 +153,8 @@ private:
 
       if (skipMuons_) {
         const std::vector<reco::CandidatePtr>& cands = jet.daughterPtrVector();
-        for (std::vector<reco::CandidatePtr>::const_iterator cand = cands.begin(); cand != cands.end(); ++cand) {
-          const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(cand->get());
+        for (auto cand = cands.begin(); cand != cands.end(); ++cand) {
+          const auto* pfcand = dynamic_cast<const reco::PFCandidate*>(cand->get());
           const reco::Candidate* mu =
               (pfcand != nullptr ? (pfcand->muonRef().isNonnull() ? pfcand->muonRef().get() : nullptr) : cand->get());
           if (mu != nullptr && (*skipMuonSelection_)(*mu)) {

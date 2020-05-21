@@ -119,7 +119,7 @@ bool PythiaFilterGammaJetWithOutBg::filter(edm::StreamID, edm::Event& iEvent, co
   //  <<" Phi "<<myGenEvent->particle(7)->momentum().phi()<<std::endl;
   //  std::cout<<" ParticleId 8= "<<myGenEvent->particle(8)->pdg_id()<<" pT "<<myGenEvent->particle(8)->momentum().perp()<<" Eta "<<myGenEvent->particle(8)->momentum().eta()<<" Phi "<<myGenEvent->particle(8)->momentum().phi()<<std::endl;
 
-  for (std::list<const HepMC::GenParticle*>::const_iterator is = seeds.begin(); is != seeds.end(); is++) {
+  for (auto is = seeds.begin(); is != seeds.end(); is++) {
     double etaPhoton = (*is)->momentum().eta();
     double phiPhoton = (*is)->momentum().phi();
 

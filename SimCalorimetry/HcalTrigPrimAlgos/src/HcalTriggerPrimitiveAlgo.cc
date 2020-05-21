@@ -273,7 +273,7 @@ void HcalTriggerPrimitiveAlgo::addSignal(const QIE11DataFrame& frame) {
 
 void HcalTriggerPrimitiveAlgo::addSignal(const IntegerCaloSamples& samples) {
   HcalTrigTowerDetId id(samples.id());
-  SumMap::iterator itr = theSumMap.find(id);
+  auto itr = theSumMap.find(id);
   if (itr == theSumMap.end()) {
     theSumMap.insert(std::make_pair(id, samples));
   } else {
@@ -458,13 +458,13 @@ void HcalTriggerPrimitiveAlgo::analyzeHF(IntegerCaloSamples& samples,
 
   std::vector<int> finegrain(tpSamples, false);
 
-  TowerMapFGSum::const_iterator tower2fg = theTowerMapFGSum.find(detId);
+  auto tower2fg = theTowerMapFGSum.find(detId);
   assert(tower2fg != theTowerMapFGSum.end());
 
   const SumFGContainer& sumFG = tower2fg->second;
   // Loop over all L+S pairs that mapped from samples.id()
   // Note: 1 samples.id() = 6 x (L+S) without noZS
-  for (SumFGContainer::const_iterator sumFGItr = sumFG.begin(); sumFGItr != sumFG.end(); ++sumFGItr) {
+  for (auto sumFGItr = sumFG.begin(); sumFGItr != sumFG.end(); ++sumFGItr) {
     const std::vector<bool>& veto = HF_Veto[sumFGItr->id().rawId()];
     for (int ibin = 0; ibin < tpSamples; ++ibin) {
       int idx = ibin + shift;
@@ -501,7 +501,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHF2016(const IntegerCaloSamples& samples,
 
   // Try to find the HFDetails from the map corresponding to our samples
   const HcalTrigTowerDetId detId(samples.id());
-  HFDetailMap::const_iterator it = theHFDetailMap.find(detId);
+  auto it = theHFDetailMap.find(detId);
   // Missing values will give an empty digi
   if (it == theHFDetailMap.end()) {
     return;
@@ -688,7 +688,7 @@ void HcalTriggerPrimitiveAlgo::analyzeHFQIE10(const IntegerCaloSamples& samples,
 }
 
 void HcalTriggerPrimitiveAlgo::runZS(HcalTrigPrimDigiCollection& result) {
-  for (HcalTrigPrimDigiCollection::iterator tp = result.begin(); tp != result.end(); ++tp) {
+  for (auto tp = result.begin(); tp != result.end(); ++tp) {
     bool ZS = true;
     for (int i = 0; i < tp->size(); ++i) {
       if (tp->sample(i).compressedEt() > ZS_threshold_I_) {
@@ -737,8 +737,7 @@ void HcalTriggerPrimitiveAlgo::runFEFormatError(const FEDRawDataCollection* rawr
             if (detId.det() != 4 || (subdet != HcalBarrel && subdet != HcalEndcap && subdet != HcalForward))
               continue;
             std::vector<HcalTrigTowerDetId> ids = theTrigTowerGeometry->towerIds(detId);
-            for (std::vector<HcalTrigTowerDetId>::const_iterator triggerId = ids.begin(); triggerId != ids.end();
-                 ++triggerId) {
+            for (auto triggerId = ids.begin(); triggerId != ids.end(); ++triggerId) {
               FrontEndErrors.insert(triggerId->rawId());
             }
             //valid = true;
@@ -751,7 +750,7 @@ void HcalTriggerPrimitiveAlgo::runFEFormatError(const FEDRawDataCollection* rawr
   // Loop over TP collection
   // Set TP to zero if there is FE Format Error
   HcalTriggerPrimitiveSample zeroSample(0);
-  for (HcalTrigPrimDigiCollection::iterator tp = result.begin(); tp != result.end(); ++tp) {
+  for (auto tp = result.begin(); tp != result.end(); ++tp) {
     if (FrontEndErrors.find(tp->id().rawId()) != FrontEndErrors.end()) {
       for (int i = 0; i < tp->size(); ++i)
         tp->setSample(i, zeroSample);
@@ -760,7 +759,7 @@ void HcalTriggerPrimitiveAlgo::runFEFormatError(const FEDRawDataCollection* rawr
 }
 
 void HcalTriggerPrimitiveAlgo::addFG(const HcalTrigTowerDetId& id, std::vector<bool>& msb) {
-  FGbitMap::iterator itr = fgMap_.find(id);
+  auto itr = fgMap_.find(id);
   if (itr != fgMap_.end()) {
     std::vector<bool>& _msb = itr->second;
     for (size_t i = 0; i < msb.size(); ++i)

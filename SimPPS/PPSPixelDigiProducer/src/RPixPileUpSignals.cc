@@ -12,7 +12,7 @@ void RPixPileUpSignals::reset() {
 }
 
 void RPixPileUpSignals::add(const std::map<unsigned short, double> &charge_induced, int PSimHitIndex) {
-  for (std::map<unsigned short, double>::const_iterator i = charge_induced.begin(); i != charge_induced.end(); ++i) {
+  for (auto i = charge_induced.begin(); i != charge_induced.end(); ++i) {
     the_pixel_charge_piled_up_map_[i->first] += i->second;
     if (links_persistence_ && i->second > 0) {
       the_pixel_charge_piled_up_map_links_[i->first].push_back(std::pair<int, double>(PSimHitIndex, i->second));

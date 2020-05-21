@@ -750,7 +750,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     edm::Handle<LumiScalersCollection> lumiScalers;
     iEvent.getByToken(lumiscalersToken_, lumiScalers);
     if (lumiScalers.isValid() && !lumiScalers->empty()) {
-      LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
+      auto scalit = lumiScalers->begin();
       lumi = scalit->instantLumi();
     }
   } else {
@@ -914,8 +914,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
           FractionCandidatesOverSeeds->Fill(double(theTCCollection.size()) / double(seedCollection.size()));
 
         TransientTrackingRecHitBuilder const& theTTRHBuilder = iSetup.getData(transientTrackingRecHitBuilderToken_);
-        for (TrackCandidateCollection::const_iterator cand = theTCCollection.begin(); cand != theTCCollection.end();
-             ++cand) {
+        for (auto cand = theTCCollection.begin(); cand != theTCCollection.end(); ++cand) {
           theTrackBuildingAnalyzer->analyze(iEvent, iSetup, *cand, bs, theMF, theTTRHBuilder);
         }
       } else {
@@ -1042,7 +1041,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     if (doPlotsVsGoodPVtx_) {
       size_t totalNumGoodPV = 0;
       if (pvHandle.isValid()) {
-        for (reco::VertexCollection::const_iterator pv = pvHandle->begin(); pv != pvHandle->end(); ++pv) {
+        for (auto pv = pvHandle->begin(); pv != pvHandle->end(); ++pv) {
           //--- pv fake (the pv collection should have size==1 and the pv==beam spot)
           if (pv->isFake() || pv->tracksSize() == 0)
             continue;

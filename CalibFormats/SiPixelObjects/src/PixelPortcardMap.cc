@@ -190,7 +190,7 @@ void PixelPortcardMap::writeASCII(std::string dir) const {
   }
 
   out << "# Portcard          Module                     AOH channel" << endl;
-  std::map<PixelChannel, std::pair<std::string, int> >::const_iterator i = map_.begin();
+  auto i = map_.begin();
   for (; i != map_.end(); ++i) {
     out << i->second.first << "   " << i->first.module() << "       " << i->first.TBMChannel() << "       "
         << i->second.second << endl;
@@ -202,9 +202,7 @@ const std::set<std::pair<std::string, int> > PixelPortcardMap::PortCardAndAOHs(c
   std::set<std::pair<std::string, int> > returnThis;
 
   // Loop over the entire map, searching for elements matching PixelModuleName.  Add matching elements to returnThis.
-  for (std::map<PixelChannel, std::pair<std::string, int> >::const_iterator map_itr = map_.begin();
-       map_itr != map_.end();
-       ++map_itr) {
+  for (auto map_itr = map_.begin(); map_itr != map_.end(); ++map_itr) {
     if (map_itr->first.modulename() == aModule.modulename()) {
       returnThis.insert(map_itr->second);
     }
@@ -215,9 +213,7 @@ const std::set<std::pair<std::string, int> > PixelPortcardMap::PortCardAndAOHs(c
 
 // Added by Dario for Debbie (the PixelPortcardMap::portcards is way to slow for the interactive tool)
 bool PixelPortcardMap::getName(std::string moduleName, std::string &portcardName) {
-  for (std::map<PixelChannel, std::pair<std::string, int> >::const_iterator map_itr = map_.begin();
-       map_itr != map_.end();
-       ++map_itr) {
+  for (auto map_itr = map_.begin(); map_itr != map_.end(); ++map_itr) {
     if (map_itr->first.modulename() == moduleName) {
       portcardName = map_itr->second.first;
       return true;
@@ -229,8 +225,7 @@ bool PixelPortcardMap::getName(std::string moduleName, std::string &portcardName
 const std::set<std::string> PixelPortcardMap::portcards(const PixelModuleName &aModule) const {
   std::set<std::string> returnThis;
   const std::set<std::pair<std::string, int> > portCardAndAOHs = PortCardAndAOHs(aModule);
-  for (std::set<std::pair<std::string, int> >::const_iterator portCardAndAOHs_itr = portCardAndAOHs.begin();
-       portCardAndAOHs_itr != portCardAndAOHs.end();
+  for (auto portCardAndAOHs_itr = portCardAndAOHs.begin(); portCardAndAOHs_itr != portCardAndAOHs.end();
        ++portCardAndAOHs_itr) {
     returnThis.insert((*portCardAndAOHs_itr).first);
   }
@@ -248,7 +243,7 @@ const std::pair<std::string, int> PixelPortcardMap::PortCardAndAOH(const PixelMo
 }
 
 const std::pair<std::string, int> PixelPortcardMap::PortCardAndAOH(const PixelChannel &aChannel) const {
-  std::map<PixelChannel, std::pair<std::string, int> >::const_iterator found = map_.find(aChannel);
+  auto found = map_.find(aChannel);
   if (found == map_.end()) {
     std::pair<std::string, int> returnThis("none", 0);
     return returnThis;
@@ -261,9 +256,7 @@ std::set<PixelModuleName> PixelPortcardMap::modules(std::string portCardName) co
   std::set<PixelModuleName> returnThis;
 
   // Loop over the entire map, searching for elements matching portCardName.  Add matching elements to returnThis.
-  for (std::map<PixelChannel, std::pair<std::string, int> >::const_iterator map_itr = map_.begin();
-       map_itr != map_.end();
-       ++map_itr) {
+  for (auto map_itr = map_.begin(); map_itr != map_.end(); ++map_itr) {
     if (map_itr->second.first == portCardName) {
       returnThis.insert(map_itr->first.module());
     }
@@ -280,23 +273,18 @@ std::set<std::string> PixelPortcardMap::portcards(const PixelDetectorConfig *det
     //double nested loop that we had in the first implementation
     const std::vector<PixelModuleName> &moduleList = detconfig->getModuleList();
     std::set<std::string> moduleNames;
-    for (std::vector<PixelModuleName>::const_iterator it = moduleList.begin(), it_end = moduleList.end(); it != it_end;
-         ++it) {
+    for (auto it = moduleList.begin(), it_end = moduleList.end(); it != it_end; ++it) {
       moduleNames.insert(it->modulename());
     }
 
-    for (std::map<PixelChannel, std::pair<std::string, int> >::const_iterator map_itr = map_.begin();
-         map_itr != map_.end();
-         ++map_itr) {
+    for (auto map_itr = map_.begin(); map_itr != map_.end(); ++map_itr) {
       if (moduleNames.find(map_itr->first.modulename()) != moduleNames.end()) {
         returnThis.insert(map_itr->second.first);
       }
     }
 
   } else {
-    for (std::map<PixelChannel, std::pair<std::string, int> >::const_iterator map_itr = map_.begin();
-         map_itr != map_.end();
-         ++map_itr) {
+    for (auto map_itr = map_.begin(); map_itr != map_.end(); ++map_itr) {
       returnThis.insert(map_itr->second.first);
     }
   }
@@ -347,7 +335,7 @@ void PixelPortcardMap::writeXMLHeader(pos::PixelConfigKey key,
 void PixelPortcardMap::writeXML(std::ofstream *outstream, std::ofstream *out1stream, std::ofstream *out2stream) const {
   std::string mthn = "[PixelPortcardMap::writeXML()]\t\t\t    ";
 
-  std::map<PixelChannel, std::pair<std::string, int> >::const_iterator i = map_.begin();
+  auto i = map_.begin();
   for (; i != map_.end(); ++i) {
     *outstream << "  <DATA>" << std::endl;
     *outstream << "   <PORT_CARD>" << i->second.first << "</PORT_CARD>" << std::endl;

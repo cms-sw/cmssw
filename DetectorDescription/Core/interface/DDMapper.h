@@ -95,7 +95,7 @@ unsigned int DDMapper<K, V>::noSpecifics(const K &key, const std::string &name) 
   typename std::map<K, V>::const_iterator it = keyToValue_.find(key);
   if (it != keyToValue_.end()) {
     sv_type sv = it->second.specifics();
-    sv_type::const_iterator it = sv.begin();
+    auto it = sv.begin();
     DDValue v(name);
     for (; it != sv.end(); ++it) {
       if (DDfetch(*it, v)) {
@@ -114,8 +114,8 @@ unsigned int DDMapper<K, V>::toDouble(const std::string &name, const K &key, dou
   typename std::map<K, V>::const_iterator it = keyToValue_.find(key);
   if (it != keyToValue_.end()) {
     sv_type sv = it->second.specifics();
-    sv_type::const_iterator svIt = sv.begin();
-    sv_type::const_iterator svEd = sv.end();
+    auto svIt = sv.begin();
+    auto svEd = sv.end();
     DDValue v(name);
     for (; svIt != svEd; ++svIt) {
       if (DDfetch(*svIt, v)) {
@@ -133,8 +133,8 @@ unsigned int DDMapper<K, V>::toDouble(const std::string &name, const V &val, dou
   typedef std::vector<const DDsvalues_type *> sv_type;
   unsigned int result = 0;
   sv_type sv = val.specifics();
-  sv_type::const_iterator svIt = sv.begin();
-  sv_type::const_iterator svEd = sv.end();
+  auto svIt = sv.begin();
+  auto svEd = sv.end();
   DDValue v(name);
   for (; svIt != svEd; ++svIt) {
     if (DDfetch(*svIt, v)) {
@@ -154,8 +154,8 @@ unsigned int DDMapper<K, V>::toString(const std::string &name,
   typedef std::vector<const DDsvalues_type *> sv_type;
   unsigned int result = 0;
   sv_type sv = val.specifics();
-  sv_type::const_iterator svIt = sv.begin();
-  sv_type::const_iterator svEd = sv.end();
+  auto svIt = sv.begin();
+  auto svEd = sv.end();
   DDValue v(name);
   for (; svIt != svEd; ++svIt) {
     if (DDfetch(*svIt, v)) {
@@ -178,8 +178,8 @@ unsigned int DDMapper<K, V>::toString(const std::string &name,
   typename std::map<K, V>::const_iterator it = keyToValue_.find(key);
   if (it != keyToValue_.end()) {
     sv_type sv = it->second.specifics();
-    sv_type::const_iterator svIt = sv.begin();
-    sv_type::const_iterator svEd = sv.end();
+    auto svIt = sv.begin();
+    auto svEd = sv.end();
     DDValue v(name);
     //std::cout << "DDValue=" << name << std::endl;
     for (; svIt != svEd; ++svIt) {
@@ -206,8 +206,8 @@ std::vector<std::pair<K, V> > DDMapper<K, V>::all(const std::string &name, const
   for (; it != ed; ++it) {
     sv_type sv = it->first.specifics();
     //std::cout << "now at: " << it->first.name() << std::endl;
-    sv_type::const_iterator svIt = sv.begin();
-    sv_type::const_iterator svEd = sv.end();
+    auto svIt = sv.begin();
+    auto svEd = sv.end();
     DDValue v(name);
     for (; svIt != svEd; ++svIt) {
       if (DDfetch(*svIt, v)) {
@@ -238,8 +238,8 @@ std::vector<std::pair<K, V> > DDMapper<K, V>::all(const std::string &name, const
   for (; it != ed; ++it) {
     sv_type sv = it->first.specifics();
     //std::cout << "now at: " << it->first.name() << std::endl;
-    sv_type::const_iterator svIt = sv.begin();
-    sv_type::const_iterator svEd = sv.end();
+    auto svIt = sv.begin();
+    auto svEd = sv.end();
     DDValue v(name);
     for (; svIt != svEd; ++svIt) {
       if (DDfetch(*svIt, v)) {
@@ -263,15 +263,15 @@ template <class K, class V>
 std::vector<std::pair<K, V> > DDMapper<K, V>::all(const std::string &name) const {
   std::vector<std::pair<K, V> > result;
   typedef std::vector<const DDsvalues_type *> sv_type;
-  typename std::map<V, K>::const_iterator it = valueToKey_.begin();
-  typename std::map<V, K>::const_iterator ed = valueToKey_.end();
+  auto it = valueToKey_.begin();
+  auto ed = valueToKey_.end();
 
   // loop over all registered ValueTypes
   for (; it != ed; ++it) {
     sv_type sv = it->first.specifics();
     //std::cout << "now at: " << it->first.name() << std::endl;
-    sv_type::const_iterator svIt = sv.begin();
-    sv_type::const_iterator svEd = sv.end();
+    auto svIt = sv.begin();
+    auto svEd = sv.end();
     DDValue v(name);
     for (; svIt != svEd; ++svIt) {
       if (DDfetch(*svIt, v)) {

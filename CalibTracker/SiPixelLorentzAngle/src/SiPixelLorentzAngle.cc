@@ -236,8 +236,7 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
       std::vector<PSimHit> matched;
       h_tracks_->Fill(0);
       bool pixeltrack = false;
-      for (std::vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj != tmColl.end();
-           itTraj++) {
+      for (auto itTraj = tmColl.begin(); itTraj != tmColl.end(); itTraj++) {
         if (!itTraj->updatedState().isValid())
           continue;
         TransientTrackingRecHit::ConstRecHitPointer recHit = itTraj->recHit();
@@ -255,7 +254,7 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
           hitCounter_++;
 
           DetId detIdObj = recHit->geographicalId();
-          const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(tracker->idToDet(detIdObj));
+          const auto* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(tracker->idToDet(detIdObj));
           if (!theGeomDet)
             continue;
 
@@ -315,7 +314,7 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
             matched.clear();
             matched = associate->associateHit((*recHitPix));
             float dr_start = 9999.;
-            for (std::vector<PSimHit>::iterator isim = matched.begin(); isim != matched.end(); ++isim) {
+            for (auto isim = matched.begin(); isim != matched.end(); ++isim) {
               DetId simdetIdObj((*isim).detUnitId());
               if (simdetIdObj == detIdObj) {
                 float sim_x1 = (*isim).entryPoint().x();  // width (row index, in col direction)
@@ -380,7 +379,7 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
           }
         } else if (subDetID == PixelSubdetector::PixelEndcap) {
           DetId detIdObj = recHit->geographicalId();
-          const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(tracker->idToDet(detIdObj));
+          const auto* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(tracker->idToDet(detIdObj));
           if (!theGeomDet)
             continue;
 
@@ -440,7 +439,7 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
             matched.clear();
             matched = associate->associateHit((*recHitPix));
             float dr_start = 9999.;
-            for (std::vector<PSimHit>::iterator isim = matched.begin(); isim != matched.end(); ++isim) {
+            for (auto isim = matched.begin(); isim != matched.end(); ++isim) {
               DetId simdetIdObj((*isim).detUnitId());
               if (simdetIdObj == detIdObj) {
                 float sim_x1 = (*isim).entryPoint().x();  // width (row index, in col direction)
@@ -558,8 +557,7 @@ inline void SiPixelLorentzAngle::fillPix(const SiPixelCluster& LocPix, const Pix
 {
   const std::vector<SiPixelCluster::Pixel>& pixvector = LocPix.pixels();
   pixinfo.npix = 0;
-  for (std::vector<SiPixelCluster::Pixel>::const_iterator itPix = pixvector.begin(); itPix != pixvector.end();
-       itPix++) {
+  for (auto itPix = pixvector.begin(); itPix != pixvector.end(); itPix++) {
     // 	for(pixinfo.npix = 0; pixinfo.npix < static_cast<int>(pixvector.size()); ++pixinfo.npix) {
     pixinfo.row[pixinfo.npix] = itPix->x;
     pixinfo.col[pixinfo.npix] = itPix->y;

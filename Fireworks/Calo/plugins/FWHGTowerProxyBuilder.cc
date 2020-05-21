@@ -52,7 +52,7 @@ bool FWHGTowerProxyBuilderBase::assertCaloDataSlice() {
     // add new selector
     FWFromTEveCaloDataSelector* sel = nullptr;
     if (m_caloData->GetUserData()) {
-      FWFromEveSelectorBase* base = reinterpret_cast<FWFromEveSelectorBase*>(m_caloData->GetUserData());
+      auto* base = reinterpret_cast<FWFromEveSelectorBase*>(m_caloData->GetUserData());
       assert(nullptr != base);
       sel = dynamic_cast<FWFromTEveCaloDataSelector*>(base);
       assert(nullptr != sel);
@@ -81,7 +81,7 @@ void FWHGTowerProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem) {
   if (nullptr != m_hits) {
     //reset values for this slice
     std::vector<float>& sliceVals = m_vecData->GetSliceVals(m_sliceIndex);
-    for (std::vector<float>::iterator i = sliceVals.begin(); i != sliceVals.end(); ++i) {
+    for (auto i = sliceVals.begin(); i != sliceVals.end(); ++i) {
       *i = 0;
     }
   }
@@ -91,7 +91,7 @@ void FWHGTowerProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem) {
 void FWHGTowerProxyBuilderBase::fillCaloData() {
   //reset values for this slice
   std::vector<float>& sliceVals = m_vecData->GetSliceVals(m_sliceIndex);
-  for (std::vector<float>::iterator i = sliceVals.begin(); i != sliceVals.end(); ++i) {
+  for (auto i = sliceVals.begin(); i != sliceVals.end(); ++i) {
     *i = 0;
   }
 
@@ -103,7 +103,7 @@ void FWHGTowerProxyBuilderBase::fillCaloData() {
 
       unsigned int index = 0;
       TEveCaloData::vCellId_t cellId;
-      for (HGCRecHitCollection::const_iterator it = m_hits->begin(); it != m_hits->end(); ++it, ++index) {
+      for (auto it = m_hits->begin(); it != m_hits->end(); ++it, ++index) {
         const FWEventItem::ModelInfo& info = item()->modelInfo(index);
         if (info.displayProperties().isVisible()) {
           unsigned int rawid = (*it).detid().rawId();
@@ -184,8 +184,7 @@ int FWHGTowerProxyBuilderBase::fillTowerForDetId(unsigned int rawid, float val) 
   Float_t cphi = (phim + phiM) * 0.5;
   int tower = -1;
   int idx = 0;
-  for (TEveCaloData::vCellGeom_i i = m_vecData->GetCellGeom().begin(); i != m_vecData->GetCellGeom().end();
-       ++i, ++idx) {
+  for (auto i = m_vecData->GetCellGeom().begin(); i != m_vecData->GetCellGeom().end(); ++i, ++idx) {
     const TEveCaloData::CellGeom_t& cg = *i;
     if ((ceta > cg.fEtaMin && ceta < cg.fEtaMax) && (cphi > cg.fPhiMin && cphi < cg.fPhiMax)) {
       tower = idx;

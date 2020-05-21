@@ -341,7 +341,7 @@ bool GenParticleProducer::fillDaughters(reco::GenParticleCollection& cands,
   const GenVertex* productionVertex = part->production_vertex();
   size_t numberOfMothers = productionVertex->particles_in_size();
   if (numberOfMothers > 0) {
-    GenVertex::particles_in_const_iterator motherIt = productionVertex->particles_in_const_begin();
+    auto motherIt = productionVertex->particles_in_const_begin();
     for (; motherIt != productionVertex->particles_in_const_end(); motherIt++) {
       const HepMC::GenParticle* mother = *motherIt;
       size_t m = barcodes.find(mother->barcode())->second;

@@ -386,7 +386,7 @@ void FWGUIEventDataAdder::addNewItem() {
     if (*(m_manager->begin()))
       largest = (*(m_manager->begin()))->layer();
   }
-  for (FWEventItemsManager::const_iterator it = m_manager->begin(), itEnd = m_manager->end(); it != itEnd; ++it) {
+  for (auto it = m_manager->begin(), itEnd = m_manager->end(); it != itEnd; ++it) {
     if ((*it) && largest < (*it)->layer()) {
       largest = (*it)->layer();
     }
@@ -553,9 +553,7 @@ void FWGUIEventDataAdder::newIndexSelected(int iSelectedIndex) {
     // process name in order to correctly get the data they want
     bool isMostRecentProcess = true;
     int index = 0;
-    for (std::vector<FWJobMetadataManager::Data>::iterator it = metadata.begin(), itEnd = metadata.end();
-         it != itEnd && isMostRecentProcess;
-         ++it, ++index) {
+    for (auto it = metadata.begin(), itEnd = metadata.end(); it != itEnd && isMostRecentProcess; ++it, ++index) {
       if (index == iSelectedIndex) {
         continue;
       }

@@ -151,7 +151,7 @@ void EopTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   for (i = ecalLabels_.begin(); i != ecalLabels_.end(); i++) {
     edm::Handle<EcalRecHitCollection> ec;
     iEvent.getByLabel(*i, ec);
-    for (EcalRecHitCollection::const_iterator recHit = (*ec).begin(); recHit != (*ec).end(); ++recHit) {
+    for (auto recHit = (*ec).begin(); recHit != (*ec).end(); ++recHit) {
       tmpEcalRecHitCollection->push_back(*recHit);
     }
   }
@@ -182,7 +182,7 @@ void EopTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (isoPixelTracks->empty())
       return;
 
-  for (reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); ++track) {
+  for (auto track = tracks->begin(); track != tracks->end(); ++track) {
     bool noChargedTracks = true;
 
     if (track->p() < 9.)
@@ -207,7 +207,7 @@ void EopTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     maxPNearby = -10;
     dist = 50;
-    for (reco::TrackCollection::const_iterator track1 = tracks->begin(); track1 != tracks->end(); track1++) {
+    for (auto track1 = tracks->begin(); track1 != tracks->end(); track1++) {
       if (track == track1)
         continue;
       TrackDetMatchInfo info1 = trackAssociator_.associate(iEvent, iSetup, *track1, parameters_);
@@ -236,9 +236,7 @@ void EopTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     EnergyIn = 0;
     EnergyOut = 0;
     if (noChargedTracks) {
-      for (std::vector<EcalRecHit>::const_iterator ehit = tmpEcalRecHitCollection->begin();
-           ehit != tmpEcalRecHitCollection->end();
-           ehit++) {
+      for (auto ehit = tmpEcalRecHitCollection->begin(); ehit != tmpEcalRecHitCollection->end(); ehit++) {
         ////////////////////// FIND ECAL CLUSTER ENERGY
         // R-scheme of ECAL CLUSTERIZATION
         const GlobalPoint& posH = geo->getPosition((*ehit).detid());

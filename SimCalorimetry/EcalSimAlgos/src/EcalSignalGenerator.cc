@@ -22,7 +22,7 @@ CaloSamples EcalSignalGenerator<EBDigitizerTraits>::samplesInPE(const DIGI &digi
   double icalconst = 1.;  // find the correct value.
 
   const EcalIntercalibConstantMCMap &icalMap = ical->getMap();
-  EcalIntercalibConstantMCMap::const_iterator icalit = icalMap.find(detId);
+  auto icalit = icalMap.find(detId);
   if (icalit != icalMap.end()) {
     icalconst = (*icalit);
   }
@@ -129,7 +129,7 @@ CaloSamples EcalSignalGenerator<EEDigitizerTraits>::samplesInPE(const DIGI &digi
   double icalconst = 1.;  //findIntercalibConstant( detId );
 
   const EcalIntercalibConstantMCMap &icalMap = ical->getMap();
-  EcalIntercalibConstantMCMap::const_iterator icalit = icalMap.find(detId);
+  auto icalit = icalMap.find(detId);
   if (icalit != icalMap.end()) {
     icalconst = (*icalit);
   }
@@ -230,7 +230,7 @@ CaloSamples EcalSignalGenerator<ESDigitizerTraits>::samplesInPE(const DIGI &digi
   double icalconst = 1.;  //findIntercalibConstant( detId );
 
   const ESIntercalibConstantMap &icalMap = esmips->getMap();
-  ESIntercalibConstantMap::const_iterator icalit = icalMap.find(detId);
+  auto icalit = icalMap.find(detId);
   if (icalit != icalMap.end()) {
     icalconst = double(*icalit);
   }

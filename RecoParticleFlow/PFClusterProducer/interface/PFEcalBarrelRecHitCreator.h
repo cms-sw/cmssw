@@ -56,7 +56,7 @@ public:
     // get the ecal geometry
     const CaloSubdetectorGeometry* gTmp = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
 
-    const EcalBarrelGeometry* ecalGeo = dynamic_cast<const EcalBarrelGeometry*>(gTmp);
+    const auto* ecalGeo = dynamic_cast<const EcalBarrelGeometry*>(gTmp);
 
     iEvent.getByToken(recHitToken_, recHitHandle);
     for (const auto& erh : *recHitHandle) {

@@ -485,7 +485,7 @@ void HcalDigisValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
   if (skipDataTPs)
     return;
 
-  for (HcalTrigPrimDigiCollection::const_iterator itr = dataTPs->begin(); itr != dataTPs->end(); ++itr) {
+  for (auto itr = dataTPs->begin(); itr != dataTPs->end(); ++itr) {
     int ieta = itr->id().ieta();
     int iphi = itr->id().iphi();
 
@@ -651,8 +651,7 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
 
     if (isubdet != 0 && noise_ == 0) {  // signal only SimHits
 
-      for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end();
-           ++simhits) {
+      for (auto simhits = simhitResult->begin(); simhits != simhitResult->end(); ++simhits) {
         unsigned int id_ = simhits->id();
         int sub, ieta, iphi;
         HcalDetId hid;
@@ -843,8 +842,7 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
       edm::Handle<edm::PCaloHitContainer> hcalHits;
       iEvent.getByToken(tok_mc_, hcalHits);
       const edm::PCaloHitContainer* simhitResult = hcalHits.product();
-      for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end();
-           ++simhits) {
+      for (auto simhits = simhitResult->begin(); simhits != simhitResult->end(); ++simhits) {
         unsigned int id_ = simhits->id();
         int sub, depth, ieta, iphi;
         HcalDetId hid;
@@ -968,8 +966,7 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
 
     if (isubdet != 0 && noise_ == 0) {  // signal only SimHits
 
-      for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end();
-           ++simhits) {
+      for (auto simhits = simhitResult->begin(); simhits != simhitResult->end(); ++simhits) {
         unsigned int id_ = simhits->id();
         int sub, ieta, iphi;
         HcalDetId hid;
@@ -1203,8 +1200,7 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
       edm::Handle<edm::PCaloHitContainer> hcalHits;
       iEvent.getByToken(tok_mc_, hcalHits);
       const edm::PCaloHitContainer* simhitResult = hcalHits.product();
-      for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin(); simhits != simhitResult->end();
-           ++simhits) {
+      for (auto simhits = simhitResult->begin(); simhits != simhitResult->end(); ++simhits) {
         unsigned int id_ = simhits->id();
         int sub, depth, ieta, iphi;
         HcalDetId hid;

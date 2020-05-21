@@ -78,7 +78,7 @@ void SimplePedestalCalculator::initializePedestal(ApvAnalysis::RawSignalType& in
   //eventsRequiredToCalibrate is considered the minimum number of events to be used
 
   if (numberOfEvents <= eventsRequiredToCalibrate) {
-    edm::DetSet<SiStripRawDigi>::const_iterator i = in.data.begin();
+    auto i = in.data.begin();
     int ii = 0;
     for (; i != in.data.end(); i++) {
       thePedSum[ii] += (*i).adc();
@@ -90,7 +90,7 @@ void SimplePedestalCalculator::initializePedestal(ApvAnalysis::RawSignalType& in
   if (numberOfEvents == eventsRequiredToCalibrate) {
     thePedestal.clear();
     theRawNoise.clear();
-    edm::DetSet<SiStripRawDigi>::const_iterator i = in.data.begin();
+    auto i = in.data.begin();
     int ii = 0;
     for (; i != in.data.end(); i++) {
       // the pedestal is calculated as int, as required by FED.
@@ -114,7 +114,7 @@ void SimplePedestalCalculator::refinePedestal(ApvAnalysis::RawSignalType& in) {
   // keep adding th adc count for any events
 
   unsigned int ii = 0;
-  ApvAnalysis::RawSignalType::const_iterator i = in.data.begin();
+  auto i = in.data.begin();
   for (; i < in.data.end(); i++) {
     thePedSum[ii] += (*i).adc();
     thePedSqSum[ii] += ((*i).adc()) * ((*i).adc());

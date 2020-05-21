@@ -201,7 +201,7 @@ namespace edm {
     std::set_difference(parNames.begin(), parNames.end(), validatedLabels.begin(), validatedLabels.end(), insertIter);
 
     std::stringstream ss;
-    for (std::set<std::string>::const_iterator iter = diffNames.begin(), iEnd = diffNames.end(); iter != iEnd; ++iter) {
+    for (auto iter = diffNames.begin(), iEnd = diffNames.end(); iter != iEnd; ++iter) {
       ss << " '" << *iter << "'\n";
     }
     if (diffNames.size() == 1U) {
@@ -240,9 +240,7 @@ namespace edm {
       usedLabels_.insert(nodeLabels.begin(), nodeLabels.end());
     } else {
       std::stringstream ss;
-      for (std::set<std::string>::const_iterator iter = duplicateLabels.begin(), iEnd = duplicateLabels.end();
-           iter != iEnd;
-           ++iter) {
+      for (auto iter = duplicateLabels.begin(), iEnd = duplicateLabels.end(); iter != iEnd; ++iter) {
         ss << " \"" << *iter << "\"\n";
       }
       throw edm::Exception(errors::LogicError) << "Labels used in different nodes of a ParameterSetDescription\n"
@@ -275,9 +273,7 @@ namespace edm {
 
       if (!duplicateTypes1.empty()) {
         std::stringstream ss;
-        for (std::set<ParameterTypes>::const_iterator iter = duplicateTypes1.begin(), iEnd = duplicateTypes1.end();
-             iter != iEnd;
-             ++iter) {
+        for (auto iter = duplicateTypes1.begin(), iEnd = duplicateTypes1.end(); iter != iEnd; ++iter) {
           ss << " \"" << parameterTypeEnumToString(*iter) << "\"\n";
         }
         throw edm::Exception(errors::LogicError)
@@ -299,9 +295,7 @@ namespace edm {
 
       if (!duplicateTypes2.empty()) {
         std::stringstream ss;
-        for (std::set<ParameterTypes>::const_iterator iter = duplicateTypes2.begin(), iEnd = duplicateTypes2.end();
-             iter != iEnd;
-             ++iter) {
+        for (auto iter = duplicateTypes2.begin(), iEnd = duplicateTypes2.end(); iter != iEnd; ++iter) {
           ss << " \"" << parameterTypeEnumToString(*iter) << "\"\n";
         }
         throw edm::Exception(errors::LogicError)

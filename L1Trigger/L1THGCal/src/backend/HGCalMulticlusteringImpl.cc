@@ -75,8 +75,7 @@ void HGCalMulticlusteringImpl::clusterizeDR(const std::vector<edm::Ptr<l1t::HGCa
   std::vector<l1t::HGCalMulticluster> multiclustersTmp;
 
   int iclu = 0;
-  for (std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end();
-       ++clu, ++iclu) {
+  for (auto clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu, ++iclu) {
     double minDist = dr_;
     int targetMulticlu = -1;
 
@@ -115,8 +114,7 @@ void HGCalMulticlusteringImpl::clusterizeDBSCAN(const std::vector<edm::Ptr<l1t::
   int iclu = 0, imclu = 0, neighNo;
   double dist = 0.;
 
-  for (std::vector<edm::Ptr<l1t::HGCalCluster>>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end();
-       ++clu, ++iclu) {
+  for (auto clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu, ++iclu) {
     dist = (*clu)->centreProj().mag() * triggerTools_.zside((*clu)->detId());
     rankedList.push_back(std::make_pair(iclu, dist));
   }

@@ -164,7 +164,7 @@ namespace sistrip {
     //this is a map: no reserve/resize
     std::map<uint32_t, std::vector<uint32_t> > medsData;
 
-    edm::DetSetVector<SiStripRawDigi>::const_iterator inputChannel = lInputDigis->begin();
+    auto inputChannel = lInputDigis->begin();
 
     for (; inputChannel != lInputDigis->end(); ++inputChannel) {  //loop on input channels
       uint32_t lDetId = inputChannel->detId();                    //either fedIndex or detId

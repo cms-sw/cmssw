@@ -201,8 +201,7 @@ void TopProjector<Top, Bottom, Matcher>::produce(edm::Event& iEvent, const edm::
   iEvent.getByToken(tokenTop_, tops);
   std::list<TopFwdPtr> topsList;
 
-  for (typename TopFwdPtrCollection::const_iterator ibegin = tops->begin(), iend = tops->end(), i = ibegin; i != iend;
-       ++i) {
+  for (auto ibegin = tops->begin(), iend = tops->end(), i = ibegin; i != iend; ++i) {
     topsList.push_back(*i);
   }
 
@@ -259,12 +258,10 @@ void TopProjector<Top, Bottom, Matcher>::produce(edm::Event& iEvent, const edm::
 
   LogDebug("TopProjection") << " Remaining candidates in the bottom collection ------ ";
 
-  for (typename BottomFwdPtrCollection::const_iterator i = bottoms->begin(), iend = bottoms->end(), ibegin = i;
-       i != iend;
-       ++i) {
+  for (auto i = bottoms->begin(), iend = bottoms->end(), ibegin = i; i != iend; ++i) {
     BottomFwdPtr const& bottom = *i;
     match_.setBottom(bottom);
-    typename std::list<TopFwdPtr>::iterator found = topsList.end();
+    auto found = topsList.end();
     if (enable_) {
       found = std::find_if(topsList.begin(), topsList.end(), match_);
     }

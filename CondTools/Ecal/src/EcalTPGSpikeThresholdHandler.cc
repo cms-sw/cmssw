@@ -190,7 +190,7 @@ void popcon::EcalTPGSpikeThresholdHandler::getNewObjects() {
             FEConfigSpikeDat rd_spike;
             int itowers = 0;
 
-            for (CIfelut p = dataset_TpgSpike.begin(); p != dataset_TpgSpike.end(); p++) {
+            for (auto p = dataset_TpgSpike.begin(); p != dataset_TpgSpike.end(); p++) {
               ecid_xt = p->first;
               rd_spike = p->second;
 

@@ -181,7 +181,7 @@ void HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSet
                         (trkfide > LooseRBXEne2_ && nhits >= LooseRBXHits2_))) ||
         (isTightIso && ((trkfide > TightRBXEne1_ && nhits >= TightRBXHits1_) ||
                         (trkfide > TightRBXEne2_ && nhits >= TightRBXHits2_)))) {
-      for (HBHEHitMap::hitmap_const_iterator it = rbxs[i].beginHits(); it != rbxs[i].endHits(); ++it)
+      for (auto it = rbxs[i].beginHits(); it != rbxs[i].endHits(); ++it)
         noisehits.insert(it->first);
       //      result=false;
     }
@@ -202,7 +202,7 @@ void HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSet
          isoltrke / ene < TightTrackIsol_ &&
          ((trkfide > TightHPDEne1_ && nhits >= TightHPDHits1_) ||
           (trkfide > TightHPDEne2_ && nhits >= TightHPDHits2_)))) {
-      for (HBHEHitMap::hitmap_const_iterator it = hpds[i].beginHits(); it != hpds[i].endHits(); ++it)
+      for (auto it = hpds[i].beginHits(); it != hpds[i].endHits(); ++it)
         noisehits.insert(it->first);
       //      result=false;
     }
@@ -218,7 +218,7 @@ void HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSet
          isoltrke / ene < LooseTrackIsol_ && trkfide > 0.99 * ene && trkfide > LooseDiHitEne_) ||
         (ene > 0 && isolhcale / ene < TightHcalIsol_ && isolecale / ene < TightEcalIsol_ &&
          isoltrke / ene < TightTrackIsol_ && ene > TightDiHitEne_)) {
-      for (HBHEHitMap::hitmap_const_iterator it = dihits[i].beginHits(); it != dihits[i].endHits(); ++it)
+      for (auto it = dihits[i].beginHits(); it != dihits[i].endHits(); ++it)
         noisehits.insert(it->first);
       //      result=false;
     }
@@ -234,7 +234,7 @@ void HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSet
          isoltrke / ene < LooseTrackIsol_ && trkfide > 0.99 * ene && trkfide > LooseMonoHitEne_) ||
         (ene > 0 && isolhcale / ene < TightHcalIsol_ && isolecale / ene < TightEcalIsol_ &&
          isoltrke / ene < TightTrackIsol_ && ene > TightMonoHitEne_)) {
-      for (HBHEHitMap::hitmap_const_iterator it = monohits[i].beginHits(); it != monohits[i].endHits(); ++it)
+      for (auto it = monohits[i].beginHits(); it != monohits[i].endHits(); ++it)
         noisehits.insert(it->first);
       //      result=false;
     }
@@ -243,7 +243,7 @@ void HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSet
   // prepare the output HBHE RecHit collection
   auto pOut = std::make_unique<HBHERecHitCollection>();
   // loop over rechits, and set the new bit you wish to use
-  for (HBHERecHitCollection::const_iterator it = hbhehits_h->begin(); it != hbhehits_h->end(); ++it) {
+  for (auto it = hbhehits_h->begin(); it != hbhehits_h->end(); ++it) {
     const HBHERecHit* hit = &(*it);
     HBHERecHit newhit(*hit);
     if (noisehits.end() != noisehits.find(hit)) {
@@ -258,14 +258,14 @@ void HBHEIsolatedNoiseReflagger::produce(edm::Event& iEvent, const edm::EventSet
 }
 
 void HBHEIsolatedNoiseReflagger::DumpHBHEHitMap(std::vector<HBHEHitMap>& i) const {
-  for (std::vector<HBHEHitMap>::const_iterator it = i.begin(); it != i.end(); ++it) {
+  for (auto it = i.begin(); it != i.end(); ++it) {
     edm::LogInfo("HBHEIsolatedNoiseReflagger")
         << "hit energy=" << it->hitEnergy() << "; # hits=" << it->nHits()
         << "; hcal energy same=" << it->hcalEnergySameTowers() << "; ecal energy same=" << it->ecalEnergySameTowers()
         << "; track energy same=" << it->trackEnergySameTowers()
         << "; neighbor hcal energy=" << it->hcalEnergyNeighborTowers() << std::endl;
     edm::LogInfo("HBHEIsolatedNoiseReflagger") << "hits:" << std::endl;
-    for (HBHEHitMap::hitmap_const_iterator it2 = it->beginHits(); it2 != it->endHits(); ++it2) {
+    for (auto it2 = it->beginHits(); it2 != it->endHits(); ++it2) {
       const HBHERecHit* hit = it2->first;
       edm::LogInfo("HBHEIsolatedNoiseReflagger")
           << "RBX #=" << hfemap->lookupRBX(hit->id()) << "; HPD #=" << hfemap->lookupRMIndex(hit->id()) << "; "

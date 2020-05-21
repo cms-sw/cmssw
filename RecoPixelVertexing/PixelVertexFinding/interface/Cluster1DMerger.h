@@ -48,7 +48,7 @@ namespace pixeltemp {
   Cluster1D<T> Cluster1DMerger<T>::operator()(const Cluster1D<T> &first, const Cluster1D<T> &second) const {
     std::vector<const T *> tracks = first.tracks();
     std::vector<const T *> sectracks = second.tracks();
-    for (typename std::vector<const T *>::const_iterator i = sectracks.begin(); i != sectracks.end(); ++i) {
+    for (auto i = sectracks.begin(); i != sectracks.end(); ++i) {
       tracks.push_back(*i);
     };
     float newpos =

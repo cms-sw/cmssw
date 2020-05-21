@@ -191,7 +191,7 @@ void PixelFECConfig::writeASCII(std::string dir) const {
   std::string filename = dir + "fecconfig.dat";
   std::ofstream out(filename.c_str());
 
-  std::vector<PixelFECParameters>::const_iterator i = fecconfig_.begin();
+  auto i = fecconfig_.begin();
 
   out << "#FEC number     crate     vme base address" << endl;
   for (; i != fecconfig_.end(); ++i) {
@@ -243,7 +243,7 @@ void PixelFECConfig::writeXMLHeader(pos::PixelConfigKey key,
 void PixelFECConfig::writeXML(std::ofstream *outstream, std::ofstream *out1stream, std::ofstream *out2stream) const {
   std::string mthn = "[PixelFECConfig::writeXML()]\t\t\t    ";
 
-  std::vector<PixelFECParameters>::const_iterator i = fecconfig_.begin();
+  auto i = fecconfig_.begin();
 
   for (; i != fecconfig_.end(); ++i) {
     *outstream << "" << endl;

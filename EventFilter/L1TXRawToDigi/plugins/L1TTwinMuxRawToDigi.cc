@@ -221,8 +221,8 @@ void L1TTwinMuxRawToDigi::processFed(int twinMuxFed,
   }
 
   ///--> Store payloads
-  std::map<int, int>::iterator AMCiterator = AMCsizes.begin();
-  std::map<int, int>::iterator AMCitend = AMCsizes.end();
+  auto AMCiterator = AMCsizes.begin();
+  auto AMCitend = AMCsizes.end();
   for (; AMCiterator != AMCitend; ++AMCiterator) {
     for (int k = 0; k < AMCiterator->second; ++k) {
       lineFED = readline(lineFED, nline, dataWord);
@@ -268,8 +268,8 @@ void L1TTwinMuxRawToDigi::processFed(int twinMuxFed,
   }
 
   // --> Analyze event
-  std::vector<long>::iterator DTTM7iterator = DTTM7WordContainer.begin();
-  std::vector<long>::iterator DTTM7itend = DTTM7WordContainer.end();
+  auto DTTM7iterator = DTTM7WordContainer.begin();
+  auto DTTM7itend = DTTM7WordContainer.end();
 
   int lcounter = 0;
   for (; DTTM7iterator != DTTM7itend; ++DTTM7iterator) {

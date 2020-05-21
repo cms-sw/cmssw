@@ -174,7 +174,7 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params)
     std::string datfile = SherpaPath + "/" + setNames[i] + ".dat";
     std::ofstream os(datfile.c_str());
     // Loop over all strings and write the according *.dat
-    for (std::vector<std::string>::const_iterator itPar = pars.begin(); itPar != pars.end(); ++itPar) {
+    for (auto itPar = pars.begin(); itPar != pars.end(); ++itPar) {
       os << (*itPar) << std::endl;
     }
   }

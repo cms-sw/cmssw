@@ -205,7 +205,7 @@ void NamedCandCombinerBase::combine(size_t collectionIndex,
     if (decayType != wrongDecay) {
       NamedCompositeCandidate c;
       int ii = 0;
-      for (CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i, ++ii) {
+      for (auto i = stack.begin(); i != stack.end(); ++i, ++ii) {
         addDaughter(c, i->first.first, names[ii]);
       }
       setup(c);
@@ -215,7 +215,7 @@ void NamedCandCombinerBase::combine(size_t collectionIndex,
   } else {
     const CandidatePtrVector& src = *collBegin;
     size_t candBegin = 0, candEnd = src.size();
-    for (CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i)
+    for (auto i = stack.begin(); i != stack.end(); ++i)
       if (src == *i->second)
         candBegin = i->first.second + 1;
     for (size_t candIndex = candBegin; candIndex != candEnd; ++candIndex) {
@@ -223,7 +223,7 @@ void NamedCandCombinerBase::combine(size_t collectionIndex,
 
       bool noOverlap = true;
       const Candidate& cand = *candPtr;
-      for (CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i)
+      for (auto i = stack.begin(); i != stack.end(); ++i)
         if (checkOverlap_ && overlap_(cand, *(i->first.first))) {
           noOverlap = false;
           break;

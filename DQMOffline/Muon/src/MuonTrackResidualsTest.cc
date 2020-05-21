@@ -81,7 +81,7 @@ void MuonTrackResidualsTest::dqmEndRun(DQMStore::IBooker& ibooker,
   ////////////////////////////////////////////////////
   ////   OPERATIONS WITH OTHER HISTOGRAMS
   ////////////////////////////////////////////////////
-  for (map<string, vector<string> >::const_iterator histo = histoNames.begin(); histo != histoNames.end(); histo++) {
+  for (auto histo = histoNames.begin(); histo != histoNames.end(); histo++) {
     for (unsigned int type = 0; type < (*histo).second.size(); type++) {
       string path = "Muons/MuonRecoAnalyzer/" + (*histo).second[type];
       MonitorElement* res_histo = igetter.get(path);

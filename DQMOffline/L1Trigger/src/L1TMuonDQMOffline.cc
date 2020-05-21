@@ -189,8 +189,8 @@ void L1TMuonDQMOffline::bookHistograms(DQMStore::IBooker& ibooker, const edm::Ru
   bookEfficiencyHistos(ibooker);
   bookResolutionHistos(ibooker);
 
-  vector<string>::const_iterator trigNamesIt = m_trigNames.begin();
-  vector<string>::const_iterator trigNamesEnd = m_trigNames.end();
+  auto trigNamesIt = m_trigNames.begin();
+  auto trigNamesEnd = m_trigNames.end();
 
   for (; trigNamesIt != trigNamesEnd; ++trigNamesIt) {
     TString tNameTmp = TString(*trigNamesIt);  // use TString as it handles regex
@@ -235,8 +235,8 @@ void L1TMuonDQMOffline::analyze(const Event& iEvent, const EventSetup& eventSetu
   if (m_verbose)
     cout << "[L1TMuonDQMOffline:] Computing efficiencies" << endl;
 
-  vector<MuonGmtPair>::const_iterator muonGmtPairsIt = m_MuonGmtPairs.begin();
-  vector<MuonGmtPair>::const_iterator muonGmtPairsEnd = m_MuonGmtPairs.end();
+  auto muonGmtPairsIt = m_MuonGmtPairs.begin();
+  auto muonGmtPairsEnd = m_MuonGmtPairs.end();
 
   // To fill once for global eta and once for TF eta region of the L1T muon.
   // The second entry is a placeholder and will be replaced by the TF eta region of the L1T muon.
@@ -451,8 +451,8 @@ const reco::Vertex L1TMuonDQMOffline::getPrimaryVertex(Handle<VertexCollection>&
   bool hasPrimaryVertex = false;
 
   if (vertex.isValid()) {
-    vector<Vertex>::const_iterator vertexIt = vertex->begin();
-    vector<Vertex>::const_iterator vertexEnd = vertex->end();
+    auto vertexIt = vertex->begin();
+    auto vertexEnd = vertex->end();
 
     for (; vertexIt != vertexEnd; ++vertexIt) {
       if (vertexIt->isValid() && !vertexIt->isFake()) {
@@ -479,8 +479,8 @@ void L1TMuonDQMOffline::getTightMuons(edm::Handle<reco::MuonCollection>& muons, 
   if (m_verbose)
     cout << "[L1TMuonDQMOffline:] Getting tight muons" << endl;
   m_TightMuons.clear();
-  MuonCollection::const_iterator muonIt = muons->begin();
-  MuonCollection::const_iterator muonEnd = muons->end();
+  auto muonIt = muons->begin();
+  auto muonEnd = muons->end();
 
   for (; muonIt != muonEnd; ++muonIt) {
     if (muon::isTightMuon((*muonIt), vertex)) {
@@ -500,12 +500,12 @@ void L1TMuonDQMOffline::getProbeMuons(Handle<edm::TriggerResults>& trigResults,
 
   tagMuonsInHist.clear();
 
-  vector<const reco::Muon*>::const_iterator probeCandIt = m_TightMuons.begin();
-  vector<const reco::Muon*>::const_iterator tightMuonsEnd = m_TightMuons.end();
+  auto probeCandIt = m_TightMuons.begin();
+  auto tightMuonsEnd = m_TightMuons.end();
 
   for (; probeCandIt != tightMuonsEnd; ++probeCandIt) {
     bool isProbe = false;
-    vector<const reco::Muon*>::const_iterator tagCandIt = m_TightMuons.begin();
+    auto tagCandIt = m_TightMuons.begin();
     float deltar = 0.;
 
     for (; tagCandIt != tightMuonsEnd; ++tagCandIt) {
@@ -525,8 +525,7 @@ void L1TMuonDQMOffline::getProbeMuons(Handle<edm::TriggerResults>& trigResults,
       isProbe |= tagHasTrig;
       if (tagHasTrig) {
         if (std::distance(m_TightMuons.begin(), m_TightMuons.end()) > 2) {
-          for (vector<const reco::Muon*>::const_iterator tagMuonsInHistIt = tagMuonsInHist.begin();
-               tagMuonsInHistIt != tagMuonsInHist.end();
+          for (auto tagMuonsInHistIt = tagMuonsInHist.begin(); tagMuonsInHistIt != tagMuonsInHist.end();
                ++tagMuonsInHistIt) {
             if ((*tagCandIt) == (*tagMuonsInHistIt)) {
               tagMuonAlreadyInHist = true;
@@ -557,11 +556,11 @@ void L1TMuonDQMOffline::getMuonGmtPairs(edm::Handle<l1t::MuonBxCollection>& gmtC
   if (m_verbose)
     cout << "[L1TMuonDQMOffline:] Getting muon GMT pairs" << endl;
 
-  vector<const reco::Muon*>::const_iterator probeMuIt = m_ProbeMuons.begin();
-  vector<const reco::Muon*>::const_iterator probeMuEnd = m_ProbeMuons.end();
+  auto probeMuIt = m_ProbeMuons.begin();
+  auto probeMuEnd = m_ProbeMuons.end();
 
   l1t::MuonBxCollection::const_iterator gmtIt;
-  l1t::MuonBxCollection::const_iterator gmtEnd = gmtCands->end(0);
+  auto gmtEnd = gmtCands->end(0);
 
   for (; probeMuIt != probeMuEnd; ++probeMuIt) {
     MuonGmtPair pairBestCand((*probeMuIt), nullptr, m_propagator, m_useAtVtxCoord);
@@ -591,8 +590,8 @@ double L1TMuonDQMOffline::matchHlt(edm::Handle<TriggerEvent>& triggerEvent, cons
 
   TriggerObjectCollection trigObjs = triggerEvent->getObjects();
 
-  vector<int>::const_iterator trigIndexIt = m_trigIndices.begin();
-  vector<int>::const_iterator trigIndexEnd = m_trigIndices.end();
+  auto trigIndexIt = m_trigIndices.begin();
+  auto trigIndexEnd = m_trigIndices.end();
 
   for (; trigIndexIt != trigIndexEnd; ++trigIndexIt) {
     const vector<string> moduleLabels(m_hltConfig.moduleLabels(*trigIndexIt));

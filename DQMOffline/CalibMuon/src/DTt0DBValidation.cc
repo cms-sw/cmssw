@@ -83,7 +83,7 @@ void DTt0DBValidation::beginRun(const edm::Run &run, const EventSetup &setup) {
   setup.get<MuonGeometryRecord>().get(dtGeom_);
 
   // Loop over Ref DB entries
-  for (DTT0::const_iterator tzero = tZeroRefMap_->begin(); tzero != tZeroRefMap_->end(); tzero++) {
+  for (auto tzero = tZeroRefMap_->begin(); tzero != tZeroRefMap_->end(); tzero++) {
     // t0s and rms are TDC counts
     // @@@ NEW DTT0 FORMAT
     //    DTWireId wireId((*tzero).first.wheelId,
@@ -108,7 +108,7 @@ void DTt0DBValidation::beginRun(const edm::Run &run, const EventSetup &setup) {
   }
 
   // Loop over Ref DB entries
-  for (DTT0::const_iterator tzero = tZeroMap_->begin(); tzero != tZeroMap_->end(); tzero++) {
+  for (auto tzero = tZeroMap_->begin(); tzero != tZeroMap_->end(); tzero++) {
     // t0s and rms are TDC counts
     // @@@ NEW DTT0 FORMAT
     //    DTWireId wireId((*tzero).first.wheelId,
@@ -133,7 +133,7 @@ void DTt0DBValidation::beginRun(const edm::Run &run, const EventSetup &setup) {
   }
 
   double difference = 0;
-  for (map<DTWireId, vector<float>>::const_iterator theMap = t0RefMap_.begin(); theMap != t0RefMap_.end(); theMap++) {
+  for (auto theMap = t0RefMap_.begin(); theMap != t0RefMap_.end(); theMap++) {
     if (t0Map_.find((*theMap).first) != t0Map_.end()) {
       // Compute the difference
       difference = t0Map_[(*theMap).first][0] - (*theMap).second[0];
@@ -156,8 +156,7 @@ void DTt0DBValidation::beginRun(const edm::Run &run, const EventSetup &setup) {
 void DTt0DBValidation::endRun(edm::Run const &run, edm::EventSetup const &setup) {
   // Check the histos
   string testCriterionName = t0TestName_;
-  for (map<DTLayerId, MonitorElement *>::const_iterator hDiff = t0DiffHistos_.begin(); hDiff != t0DiffHistos_.end();
-       hDiff++) {
+  for (auto hDiff = t0DiffHistos_.begin(); hDiff != t0DiffHistos_.end(); hDiff++) {
     const QReport *theDiffQReport = (*hDiff).second->getQReport(testCriterionName);
     if (theDiffQReport) {
       int xBin = ((*hDiff).first.station() - 1) * 12 + (*hDiff).first.layer() + 4 * ((*hDiff).first.superlayer() - 1);
@@ -171,8 +170,7 @@ void DTt0DBValidation::endRun(edm::Run const &run, edm::EventSetup const &setup)
                             << " ------- " << theDiffQReport->getStatus() << " ------- " << setprecision(3)
                             << theDiffQReport->getQTresult();
       vector<dqm::me_util::Channel> badChannels = theDiffQReport->getBadChannels();
-      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-           channel++) {
+      for (auto channel = badChannels.begin(); channel != badChannels.end(); channel++) {
         LogVerbatim(metname_) << "layer: " << (*hDiff).first << " Bad channel: " << (*channel).getBin()
                               << "  Contents : " << (*channel).getContents();
 

@@ -70,7 +70,7 @@ std::vector<double> L1GctHtMissLut::getThresholdsGeV() const { return m_etScale-
 std::vector<unsigned> L1GctHtMissLut::getThresholdsGct() const {
   std::vector<unsigned> result;
   std::vector<double> thresholdsGeV = m_etScale->getThresholds();
-  for (std::vector<double>::const_iterator thr = thresholdsGeV.begin(); thr != thresholdsGeV.end(); thr++) {
+  for (auto thr = thresholdsGeV.begin(); thr != thresholdsGeV.end(); thr++) {
     result.push_back(static_cast<unsigned>((*thr) / (m_componentLsb)));
   }
   return result;
@@ -84,7 +84,7 @@ L1GctHtMissLut L1GctHtMissLut::operator=(const L1GctHtMissLut& lut) {
 std::ostream& operator<<(std::ostream& os, const L1GctHtMissLut& lut) {
   os << "===L1GctHtMissLut===" << std::endl;
   std::vector<double> thresholds = lut.m_etScale->getThresholds();
-  std::vector<double>::const_iterator thr = thresholds.begin();
+  auto thr = thresholds.begin();
   os << "Thresholds are: " << *(thr++);
   for (; thr != thresholds.end(); thr++) {
     os << ", " << *thr;

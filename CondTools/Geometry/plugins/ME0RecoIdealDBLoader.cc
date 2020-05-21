@@ -39,7 +39,7 @@ void ME0RecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) 
     const DDCompactView& cpv = *pDD;
     ME0GeometryParsFromDD me0pd;
 
-    RecoIdealGeometry* rig = new RecoIdealGeometry;
+    auto* rig = new RecoIdealGeometry;
     me0pd.build(&cpv, *pMNDC, *rig);
 
     mydbservice->createNewIOV<RecoIdealGeometry>(

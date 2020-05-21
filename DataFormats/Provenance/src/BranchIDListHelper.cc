@@ -28,7 +28,7 @@ namespace edm {
       BranchListIndex blix = j - branchIDLists_.begin();
       if (j == branchIDLists_.end()) {
         branchIDLists_.push_back(*it);
-        for (BranchIDList::const_iterator i = it->begin(), iEnd = it->end(); i != iEnd; ++i) {
+        for (auto i = it->begin(), iEnd = it->end(); i != iEnd; ++i) {
           ProductIndex pix = i - it->begin();
           branchIDToIndexMap_.insert(std::make_pair(BranchID(*i), std::make_pair(blix, pix)));
         }
@@ -47,7 +47,7 @@ namespace edm {
       BranchListIndex oldBlix = it - bidlists.begin();
       BranchListIndex blix = branchIDLists_.size();
       branchIDLists_.push_back(*it);
-      for (BranchIDList::const_iterator i = it->begin(), iEnd = it->end(); i != iEnd; ++i) {
+      for (auto i = it->begin(), iEnd = it->end(); i != iEnd; ++i) {
         ProductIndex pix = i - it->begin();
         branchIDToIndexMap_.insert(std::make_pair(BranchID(*i), std::make_pair(blix, pix)));
       }
@@ -59,9 +59,7 @@ namespace edm {
   void BranchIDListHelper::updateFromRegistry(ProductRegistry const& preg) {
     BranchIDList bidlist;
     // Add entries for current process for ProductID to BranchID mapping.
-    for (ProductRegistry::ProductList::const_iterator it = preg.productList().begin(), itEnd = preg.productList().end();
-         it != itEnd;
-         ++it) {
+    for (auto it = preg.productList().begin(), itEnd = preg.productList().end(); it != itEnd; ++it) {
       //In the case of the alias, we always use the original branches BranchID
       if (it->second.produced() and not it->second.isAlias()) {
         if (it->second.branchType() == InEvent) {
@@ -74,7 +72,7 @@ namespace edm {
       producedBranchListIndex_ = blix;
       //preg.setProducedBranchListIndex(blix);
       branchIDLists_.push_back(bidlist);
-      for (BranchIDList::const_iterator i = bidlist.begin(), iEnd = bidlist.end(); i != iEnd; ++i) {
+      for (auto i = bidlist.begin(), iEnd = bidlist.end(); i != iEnd; ++i) {
         ProductIndex pix = i - bidlist.begin();
         branchIDToIndexMap_.insert(std::make_pair(BranchID(*i), std::make_pair(blix, pix)));
       }

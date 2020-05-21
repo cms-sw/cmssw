@@ -46,8 +46,7 @@ AlignableSurface AlignableCSCEndcap::computeSurface() {
 AlignableCSCEndcap::PositionType AlignableCSCEndcap::computePosition() {
   float zz = 0.;
 
-  for (std::vector<AlignableCSCStation*>::iterator ilayer = theCSCStations.begin(); ilayer != theCSCStations.end();
-       ilayer++)
+  for (auto ilayer = theCSCStations.begin(); ilayer != theCSCStations.end(); ilayer++)
     zz += (*ilayer)->globalPosition().z();
 
   zz /= static_cast<float>(theCSCStations.size());
@@ -70,9 +69,7 @@ std::ostream& operator<<(std::ostream& os, const AlignableCSCEndcap& b) {
 /// Recursive printout of whole Half Barrel structure
 void AlignableCSCEndcap::dump(void) const {
   edm::LogInfo("AlignableDump") << (*this);
-  for (std::vector<AlignableCSCStation*>::const_iterator iLayer = theCSCStations.begin();
-       iLayer != theCSCStations.end();
-       iLayer++)
+  for (auto iLayer = theCSCStations.begin(); iLayer != theCSCStations.end(); iLayer++)
     (*iLayer)->dump();
 }
 
@@ -96,7 +93,7 @@ Alignments* AlignableCSCEndcap::alignments(void) const {
 //__________________________________________________________________________________________________
 
 AlignmentErrorsExtended* AlignableCSCEndcap::alignmentErrors(void) const {
-  AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();
+  auto* m_alignmentErrors = new AlignmentErrorsExtended();
 
   // Add components recursively
   for (const auto& i : this->components()) {

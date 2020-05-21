@@ -53,9 +53,7 @@ void CollectionMerger<T1, T2>::fill_output_obj_tracker(std::unique_ptr<MergeColl
     }
   }
   // Now save it into the standard CMSSW format, with the standard Filler
-  for (typename std::map<uint32_t, std::vector<BaseHit> >::const_iterator outHits = output_map.begin();
-       outHits != output_map.end();
-       ++outHits) {
+  for (auto outHits = output_map.begin(); outHits != output_map.end(); ++outHits) {
     DetId detIdObject(outHits->first);
     typename MergeCollection::FastFiller spc(*output, detIdObject);
     for (auto Hit : outHits->second) {
@@ -70,8 +68,7 @@ void CollectionMerger<T1, T2>::fill_output_obj_calo(std::unique_ptr<MergeCollect
   std::map<uint32_t, BaseHit> output_map;
   // First merge the two collections again
   for (auto const &inputCollection : inputCollections) {
-    for (typename MergeCollection::const_iterator recHit = inputCollection->begin(); recHit != inputCollection->end();
-         ++recHit) {
+    for (auto recHit = inputCollection->begin(); recHit != inputCollection->end(); ++recHit) {
       DetId detIdObject(recHit->detid().rawId());
       T2 *akt_calo_obj = &output_map[detIdObject.rawId()];
       float new_energy = akt_calo_obj->energy() + recHit->energy();
@@ -81,8 +78,7 @@ void CollectionMerger<T1, T2>::fill_output_obj_calo(std::unique_ptr<MergeCollect
     }
   }
   // Now save it into the standard CMSSW format
-  for (typename std::map<uint32_t, BaseHit>::const_iterator outHits = output_map.begin(); outHits != output_map.end();
-       ++outHits) {
+  for (auto outHits = output_map.begin(); outHits != output_map.end(); ++outHits) {
     output->push_back(outHits->second);
   }
   output->sort();  //Do a sort for this collection
@@ -102,9 +98,7 @@ void CollectionMerger<T1, T2>::fill_output_obj_muonchamber(
     }
   }
   // Now save it into the standard CMSSW format, with the standard Filler
-  for (typename std::map<uint32_t, std::vector<BaseHit> >::const_iterator outHits = output_map.begin();
-       outHits != output_map.end();
-       ++outHits) {
+  for (auto outHits = output_map.begin(); outHits != output_map.end(); ++outHits) {
     output->put((typename T1::id_iterator::value_type)outHits->first,
                 outHits->second.begin(),
                 outHits->second.end());  // The DTLayerId misses the automatic type cast

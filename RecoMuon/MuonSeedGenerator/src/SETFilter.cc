@@ -110,7 +110,7 @@ bool SETFilter::fwfit_SET(std::vector<SeedCandidate> &validSegmentsSet_in,
         findMinChi2(iSet, origin, validSegmentsSet_in[iSet], lastUpdatedTSOS_Vect, trajectoryMeasurementsInTheSet_tmp);
   }
   //---- Find the best muon candidate (min chi2) in the cluster; find more candidates?
-  std::vector<double>::iterator itMin = min_element(chi2AllCombinations.begin(), chi2AllCombinations.end());
+  auto itMin = min_element(chi2AllCombinations.begin(), chi2AllCombinations.end());
 
   int positionMin = itMin - chi2AllCombinations.begin();
 
@@ -689,12 +689,12 @@ void SETFilter::pickElements(std::vector<double> &chi2Feet,
                              unsigned int &low) {
   // a SIMPLEX function
   std::vector<double> chi2Feet_tmp = chi2Feet;
-  std::vector<double>::iterator minEl = min_element(chi2Feet.begin(), chi2Feet.end());
-  std::vector<double>::iterator maxEl = max_element(chi2Feet.begin(), chi2Feet.end());
+  auto minEl = min_element(chi2Feet.begin(), chi2Feet.end());
+  auto maxEl = max_element(chi2Feet.begin(), chi2Feet.end());
   high = maxEl - chi2Feet.begin();
   low = minEl - chi2Feet.begin();
   chi2Feet_tmp[high] = chi2Feet_tmp[low];
-  std::vector<double>::iterator second_maxEl = max_element(chi2Feet_tmp.begin(), chi2Feet_tmp.end());
+  auto second_maxEl = max_element(chi2Feet_tmp.begin(), chi2Feet_tmp.end());
   second_high = second_maxEl - chi2Feet_tmp.begin();
 
   return;

@@ -58,7 +58,7 @@ namespace ecaldqm {
 
   void TimingTask::beginEvent(edm::Event const& _evt, edm::EventSetup const& _es) {
     using namespace std;
-    std::vector<int>::iterator pBin = std::upper_bound(bxBinEdges_.begin(), bxBinEdges_.end(), _evt.bunchCrossing());
+    auto pBin = std::upper_bound(bxBinEdges_.begin(), bxBinEdges_.end(), _evt.bunchCrossing());
     bxBin_ = static_cast<int>(pBin - bxBinEdges_.begin()) - 0.5;
   }
 
@@ -137,7 +137,7 @@ namespace ecaldqm {
     MESet& meTimeAmpBXm(MEs_.at("TimeAmpBXm"));
     MESet& meTimeAmpBXp(MEs_.at("TimeAmpBXp"));
 
-    for (EcalUncalibratedRecHitCollection::const_iterator uhitItr(_uhits.begin()); uhitItr != _uhits.end(); ++uhitItr) {
+    for (auto uhitItr(_uhits.begin()); uhitItr != _uhits.end(); ++uhitItr) {
       // Apply reconstruction quality cuts
       if (!uhitItr->checkFlag(EcalUncalibratedRecHit::kGood))
         continue;

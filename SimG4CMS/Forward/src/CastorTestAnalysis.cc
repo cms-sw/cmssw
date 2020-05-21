@@ -216,7 +216,7 @@ void CastorTestAnalysis::update(const EndOfEvent* evt) {
 
   int CAFIid = G4SDManager::GetSDMpointer()->GetCollectionID("CastorFI");
 
-  CaloG4HitCollection* theCAFI = (CaloG4HitCollection*)allHC->GetHC(CAFIid);
+  auto* theCAFI = (CaloG4HitCollection*)allHC->GetHC(CAFIid);
 
   theCastorNumScheme = new CastorNumberingScheme();
   // CastorNumberingScheme *theCastorNumScheme = new CastorNumberingScheme();

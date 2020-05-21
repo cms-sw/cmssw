@@ -75,13 +75,12 @@ private:
     jobEntryType(const edm::ParameterSet& cfg) {
       if (cfg.exists("categories")) {
         edm::VParameterSet cfgCategories = cfg.getParameter<edm::VParameterSet>("categories");
-        for (edm::VParameterSet::const_iterator cfgCategory = cfgCategories.begin(); cfgCategory != cfgCategories.end();
-             ++cfgCategory) {
-          categoryEntryType* category = new categoryEntryType(*cfgCategory);
+        for (auto cfgCategory = cfgCategories.begin(); cfgCategory != cfgCategories.end(); ++cfgCategory) {
+          auto* category = new categoryEntryType(*cfgCategory);
           categories_.push_back(category);
         }
       } else {
-        categoryEntryType* category = new categoryEntryType(cfg);
+        auto* category = new categoryEntryType(cfg);
         categories_.push_back(category);
       }
       std::string outputFileType_string = cfg.getParameter<std::string>("outputFileType");
@@ -100,7 +99,7 @@ private:
       }
     }
     ~jobEntryType() {
-      for (std::vector<categoryEntryType*>::iterator it = categories_.begin(); it != categories_.end(); ++it) {
+      for (auto it = categories_.begin(); it != categories_.end(); ++it) {
         delete (*it);
       }
     }
@@ -116,24 +115,22 @@ private:
 GBRForestWriter::GBRForestWriter(const edm::ParameterSet& cfg)
     : moduleLabel_(cfg.getParameter<std::string>("@module_label")) {
   edm::VParameterSet cfgJobs = cfg.getParameter<edm::VParameterSet>("jobs");
-  for (edm::VParameterSet::const_iterator cfgJob = cfgJobs.begin(); cfgJob != cfgJobs.end(); ++cfgJob) {
+  for (auto cfgJob = cfgJobs.begin(); cfgJob != cfgJobs.end(); ++cfgJob) {
     jobEntryType* job = new jobEntryType(*cfgJob);
     jobs_.push_back(job);
   }
 }
 
 GBRForestWriter::~GBRForestWriter() {
-  for (std::vector<jobEntryType*>::iterator it = jobs_.begin(); it != jobs_.end(); ++it) {
+  for (auto it = jobs_.begin(); it != jobs_.end(); ++it) {
     delete (*it);
   }
 }
 
 void GBRForestWriter::analyze(const edm::Event&, const edm::EventSetup&) {
-  for (std::vector<jobEntryType*>::iterator job = jobs_.begin(); job != jobs_.end(); ++job) {
+  for (auto job = jobs_.begin(); job != jobs_.end(); ++job) {
     std::map<std::string, const GBRForest*> gbrForests;  // key = name
-    for (std::vector<categoryEntryType*>::iterator category = (*job)->categories_.begin();
-         category != (*job)->categories_.end();
-         ++category) {
+    for (auto category = (*job)->categories_.begin(); category != (*job)->categories_.end(); ++category) {
       const GBRForest* gbrForest = nullptr;
       if ((*category)->inputFileType_ == categoryEntryType::kXML) {
         gbrForest = createGBRForest((*category)->inputFileName_).release();
@@ -152,9 +149,7 @@ void GBRForestWriter::analyze(const edm::Event&, const edm::EventSetup&) {
     if ((*job)->outputFileType_ == jobEntryType::kGBRForest) {
       TFile* outputFile = new TFile((*job)->outputFileName_.data(), "RECREATE");
 
-      for (std::map<std::string, const GBRForest*>::iterator gbrForest = gbrForests.begin();
-           gbrForest != gbrForests.end();
-           ++gbrForest) {
+      for (auto gbrForest = gbrForests.begin(); gbrForest != gbrForests.end(); ++gbrForest) {
         outputFile->WriteObject(gbrForest->second, gbrForest->first.data());
       }
       delete outputFile;
@@ -163,9 +158,7 @@ void GBRForestWriter::analyze(const edm::Event&, const edm::EventSetup&) {
       if (!dbService.isAvailable())
         throw cms::Exception("GBRForestWriter") << " Failed to access PoolDBOutputService !!\n";
 
-      for (std::map<std::string, const GBRForest*>::iterator gbrForest = gbrForests.begin();
-           gbrForest != gbrForests.end();
-           ++gbrForest) {
+      for (auto gbrForest = gbrForests.begin(); gbrForest != gbrForests.end(); ++gbrForest) {
         std::string outputRecord = (*job)->outputRecord_;
         if (gbrForests.size() > 1)
           outputRecord.append("_").append(gbrForest->first);
@@ -174,9 +167,7 @@ void GBRForestWriter::analyze(const edm::Event&, const edm::EventSetup&) {
     }
 
     // gbrforest deletion
-    for (std::map<std::string, const GBRForest*>::iterator gbrForest = gbrForests.begin();
-         gbrForest != gbrForests.end();
-         ++gbrForest) {
+    for (auto gbrForest = gbrForests.begin(); gbrForest != gbrForests.end(); ++gbrForest) {
       delete gbrForest->second;
     }
   }

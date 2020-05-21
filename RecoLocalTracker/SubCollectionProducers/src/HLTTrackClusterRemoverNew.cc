@@ -326,7 +326,7 @@ void HLTTrackClusterRemoverNew::process(const TrackingRecHit *hit, float chi2, c
       //	  for ( auto cAmp : hit1D->omniClusterRef().stripCluster().amplitudes() ) clusCharge+=cAmp;
       //	  std::cout << "[HLTTrackClusterRemoverNew::process (SiStripRecHit1D) chi2: " << chi2 << " [" << subdet << " --> charge: " << clusCharge << "]" << std::endl;
     } else if (hitType == typeid(SiStripMatchedRecHit2D)) {
-      const SiStripMatchedRecHit2D *matchHit = static_cast<const SiStripMatchedRecHit2D *>(hit);
+      const auto *matchHit = static_cast<const SiStripMatchedRecHit2D *>(hit);
       //DBG//     cout << "Matched RecHit 2D: " << endl;
       process(matchHit->monoClusterRef(), subdet);
       //	    int clusCharge=0;
@@ -339,7 +339,7 @@ void HLTTrackClusterRemoverNew::process(const TrackingRecHit *hit, float chi2, c
       //	    std::cout << "[HLTTrackClusterRemoverNew::process (SiStripMatchedRecHit2D:stereo) chi2: " << chi2 << " [" << subdet << " --> charge: " << clusCharge << "]" << std::endl;
 
     } else if (hitType == typeid(ProjectedSiStripRecHit2D)) {
-      const ProjectedSiStripRecHit2D *projHit = static_cast<const ProjectedSiStripRecHit2D *>(hit);
+      const auto *projHit = static_cast<const ProjectedSiStripRecHit2D *>(hit);
       //DBG//     cout << "Projected RecHit 2D: " << endl;
       process(projHit->originalHit().omniClusterRef(), subdet);
       //	    int clusCharge=0;
@@ -401,7 +401,7 @@ void HLTTrackClusterRemoverNew::produce(Event &iEvent, const EventSetup &iSetup)
   //for (TrajTrackAssociationCollection::const_iterator it = trajectories->begin(), ed = trajectories->end(); it != ed; ++it)  {
   //    const Trajectory &tj = * it->key;
 
-  for (std::vector<Trajectory>::const_iterator it = trajectories->begin(), ed = trajectories->end(); it != ed; ++it) {
+  for (auto it = trajectories->begin(), ed = trajectories->end(); it != ed; ++it) {
     const Trajectory &tj = *it;
     const std::vector<TrajectoryMeasurement> &tms = tj.measurements();
 

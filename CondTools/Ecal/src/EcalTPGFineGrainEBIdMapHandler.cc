@@ -168,13 +168,13 @@ void popcon::EcalTPGFineGrainEBIdMapHandler::getNewObjects() {
             std::map<EcalLogicID, FEConfigFgrGroupDat> dataset_TpgFineGrainEB;
             econn->fetchDataSet(&dataset_TpgFineGrainEB, &fe_fgr_info);
             edm::LogInfo("EcalTPGFineGrainEBIdMapHandler") << "Got object!";
-            EcalTPGFineGrainEBIdMap *fgrMap = new EcalTPGFineGrainEBIdMap;
+            auto *fgrMap = new EcalTPGFineGrainEBIdMap;
             typedef std::map<EcalLogicID, FEConfigFgrGroupDat>::const_iterator CIfefgr;
             EcalLogicID ecid_xt;
             FEConfigFgrGroupDat rd_fgr;
 
             int igroups = 0;
-            for (CIfefgr p = dataset_TpgFineGrainEB.begin(); p != dataset_TpgFineGrainEB.end(); p++) {
+            for (auto p = dataset_TpgFineGrainEB.begin(); p != dataset_TpgFineGrainEB.end(); p++) {
               ecid_xt = p->first;
               rd_fgr = p->second;
 

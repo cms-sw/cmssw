@@ -56,8 +56,8 @@ void EcalFEtoDigi::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
       // EcalElectronicsMapping::getTrigTowerDetId(int TCCid, int iTT)
 
       /// create EcalTriggerPrimitiveDigi
-      EcalTriggerPrimitiveDigi *e_digi = new EcalTriggerPrimitiveDigi(e_id);
-      EcalTriggerPrimitiveDigi *e_digiTcp = new EcalTriggerPrimitiveDigi(e_id);
+      auto *e_digi = new EcalTriggerPrimitiveDigi(e_id);
+      auto *e_digiTcp = new EcalTriggerPrimitiveDigi(e_id);
 
       /// create EcalTriggerPrimitiveSample
       EcalTriggerPrimitiveSample e_sample = create_TPSample(*it, iSetup);
@@ -100,7 +100,7 @@ void EcalFEtoDigi::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   /// in case no info was found for the event:need to create something
   if (e_tpdigis->empty()) {
     std::cout << "[EcalFEtoDigi] creating empty collection for the event!\n";
-    EcalTriggerPrimitiveDigi *e_digi = new EcalTriggerPrimitiveDigi();
+    auto *e_digi = new EcalTriggerPrimitiveDigi();
     e_tpdigis->push_back(*e_digi);
   }
 
@@ -304,7 +304,7 @@ void EcalFEtoDigi::getLUT(unsigned int *lut, const int towerId, const edm::Event
   edm::ESHandle<EcalTPGLutGroup> lutGrpHandle;
   evtSetup.get<EcalTPGLutGroupRcd>().get(lutGrpHandle);
   const EcalTPGGroups::EcalTPGGroupsMap &lutGrpMap = lutGrpHandle.product()->getMap();
-  EcalTPGGroups::EcalTPGGroupsMapItr itgrp = lutGrpMap.find(towerId);
+  auto itgrp = lutGrpMap.find(towerId);
   uint32_t lutGrp = 999;
   if (itgrp != lutGrpMap.end())
     lutGrp = itgrp->second;
@@ -312,7 +312,7 @@ void EcalFEtoDigi::getLUT(unsigned int *lut, const int towerId, const edm::Event
   edm::ESHandle<EcalTPGLutIdMap> lutMapHandle;
   evtSetup.get<EcalTPGLutIdMapRcd>().get(lutMapHandle);
   const EcalTPGLutIdMap::EcalTPGLutMap &lutMap = lutMapHandle.product()->getMap();
-  EcalTPGLutIdMap::EcalTPGLutMapItr itLut = lutMap.find(lutGrp);
+  auto itLut = lutMap.find(lutGrp);
   if (itLut != lutMap.end()) {
     const unsigned int *theLut = (itLut->second).getLut();
     for (unsigned int i = 0; i < 1024; i++)

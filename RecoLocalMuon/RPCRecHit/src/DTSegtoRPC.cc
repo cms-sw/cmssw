@@ -173,8 +173,7 @@ DTSegtoRPC::DTSegtoRPC(const DTRecSegment4DCollection* all4DSegments,
 
         if (debug)
           std::cout << "DT  \t \t Loop over all the rolls asociated to this DT" << std::endl;
-        for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisDT.begin(); iteraRoll != rollsForThisDT.end();
-             iteraRoll++) {
+        for (auto iteraRoll = rollsForThisDT.begin(); iteraRoll != rollsForThisDT.end(); iteraRoll++) {
           const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
           RPCDetId rpcId = rollasociated->id();
           const BoundPlane& RPCSurface = rollasociated->surface();
@@ -206,8 +205,7 @@ DTSegtoRPC::DTSegtoRPC(const DTRecSegment4DCollection* all4DSegments,
           float Y = Yo + dy * D / dz;
           float Z = D;
 
-          const RectangularStripTopology* top_ =
-              dynamic_cast<const RectangularStripTopology*>(&(rollasociated->topology()));
+          const auto* top_ = dynamic_cast<const RectangularStripTopology*>(&(rollasociated->topology()));
           LocalPoint xmin = top_->localPosition(0.);
           if (debug)
             std::cout << "DT  \t \t \t xmin of this  Roll " << xmin << "cm" << std::endl;
@@ -413,9 +411,7 @@ DTSegtoRPC::DTSegtoRPC(const DTRecSegment4DCollection* all4DSegments,
 
                     if (debug)
                       std::cout << "MB4  \t \t Loop over all the rolls asociated to this DT" << std::endl;
-                    for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisDT.begin();
-                         iteraRoll != rollsForThisDT.end();
-                         iteraRoll++) {
+                    for (auto iteraRoll = rollsForThisDT.begin(); iteraRoll != rollsForThisDT.end(); iteraRoll++) {
                       const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);  //roll asociado a MB4
                       RPCDetId rpcId = rollasociated->id();
                       const BoundPlane& RPCSurfaceRB4 = rollasociated->surface();  //surface MB4
@@ -458,7 +454,7 @@ DTSegtoRPC::DTSegtoRPC(const DTRecSegment4DCollection* all4DSegments,
 
                       float Y = Yo34 + dy34 * Dy / dz34;  //In MB4 Frame
 
-                      const RectangularStripTopology* top_ = dynamic_cast<const RectangularStripTopology*>(
+                      const auto* top_ = dynamic_cast<const RectangularStripTopology*>(
                           &(rollasociated->topology()));  //Topology roll asociated MB4
                       LocalPoint xmin = top_->localPosition(0.);
                       LocalPoint xmax = top_->localPosition((float)rollasociated->nstrips());

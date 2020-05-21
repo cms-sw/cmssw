@@ -35,7 +35,7 @@ SuperCluster::SuperCluster(double energy,
 
     // updated list of used hits
     const std::vector<std::pair<DetId, float> >& v1 = (*bcit)->hitsAndFractions();
-    for (std::vector<std::pair<DetId, float> >::const_iterator diIt = v1.begin(); diIt != v1.end(); ++diIt) {
+    for (auto diIt = v1.begin(); diIt != v1.end(); ++diIt) {
       hitsAndFractions_.push_back((*diIt));
     }  // loop over rechits
   }    // loop over basic clusters
@@ -67,7 +67,7 @@ SuperCluster::SuperCluster(double energy,
 
     // updated list of used hits
     const std::vector<std::pair<DetId, float> >& v1 = (*bcit)->hitsAndFractions();
-    for (std::vector<std::pair<DetId, float> >::const_iterator diIt = v1.begin(); diIt != v1.end(); ++diIt) {
+    for (auto diIt = v1.begin(); diIt != v1.end(); ++diIt) {
       hitsAndFractions_.push_back((*diIt));
     }  // loop over rechits
   }    // loop over basic clusters

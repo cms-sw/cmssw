@@ -91,7 +91,7 @@ namespace helper {
 
       auto const firstHitIndex = hidx_;
       unsigned int nHitsAdded = 0;
-      for (trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++hit, ++hidx_) {
+      for (auto hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++hit, ++hidx_) {
         selTracksHits_->push_back((*hit)->clone());
         TrackingRecHit *newHit = &(selTracksHits_->back());
         ++nHitsAdded;
@@ -126,7 +126,7 @@ namespace helper {
       TrackExtra &tx = selGlobalMuonTracksExtras_->back();
       auto const firstHitIndex = higbdx_;
       unsigned int nHitsAdded = 0;
-      for (trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++hit, ++higbdx_) {
+      for (auto hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++hit, ++higbdx_) {
         selGlobalMuonTracksHits_->push_back((*hit)->clone());
         TrackingRecHit *newHit = &(selGlobalMuonTracksHits_->back());
         ++nHitsAdded;
@@ -161,7 +161,7 @@ namespace helper {
       TrackExtra &tx = selStandAloneTracksExtras_->back();
       auto const firstHitIndex = hisadx_;
       unsigned int nHitsAdded = 0;
-      for (trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++hit) {
+      for (auto hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++hit) {
         selStandAloneTracksHits_->push_back((*hit)->clone());
         ++nHitsAdded;
         hisadx_++;
@@ -176,7 +176,7 @@ namespace helper {
   //!  Check if all references to silicon strip/pixel clusters are available.
   //-------------------------------------------------------------------------
   bool MuonCollectionStoreManager::clusterRefsOK(const reco::Track &track) const {
-    for (trackingRecHit_iterator hitIt = track.recHitsBegin(); hitIt != track.recHitsEnd(); ++hitIt) {
+    for (auto hitIt = track.recHitsBegin(); hitIt != track.recHitsEnd(); ++hitIt) {
       const TrackingRecHit &hit = **hitIt;
       if (!hit.isValid() || hit.geographicalId().det() != DetId::Tracker)
         continue;
@@ -193,13 +193,13 @@ namespace helper {
         if (!static_cast<const SiStripRecHit1D &>(hit).cluster().isAvailable())
           return false;
       } else if (hit_type == typeid(SiStripMatchedRecHit2D)) {
-        const SiStripMatchedRecHit2D &mHit = static_cast<const SiStripMatchedRecHit2D &>(hit);
+        const auto &mHit = static_cast<const SiStripMatchedRecHit2D &>(hit);
         if (!mHit.monoHit().cluster().isAvailable())
           return false;
         if (!mHit.stereoHit().cluster().isAvailable())
           return false;
       } else if (hit_type == typeid(ProjectedSiStripRecHit2D)) {
-        const ProjectedSiStripRecHit2D &pHit = static_cast<const ProjectedSiStripRecHit2D &>(hit);
+        const auto &pHit = static_cast<const ProjectedSiStripRecHit2D &>(hit);
         if (!pHit.originalHit().cluster().isAvailable())
           return false;
       } else {

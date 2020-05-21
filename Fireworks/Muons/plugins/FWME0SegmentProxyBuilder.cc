@@ -36,7 +36,7 @@ void FWME0SegmentProxyBuilder::build(const ME0Segment& iData,
     return;
   }
 
-  TEveStraightLineSet* segmentSet = new TEveStraightLineSet();
+  auto* segmentSet = new TEveStraightLineSet();
   // FIXME: This should be set elsewhere.
   segmentSet->SetLineWidth(5);
   setupAddElement(segmentSet, &oItemHolder);

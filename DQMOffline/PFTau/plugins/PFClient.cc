@@ -37,12 +37,10 @@ void PFClient::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter)
 // -- Create Summaries
 //
 void PFClient::doSummaries(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
-  for (std::vector<std::string>::const_iterator ifolder = folderNames_.begin(); ifolder != folderNames_.end();
-       ifolder++) {
+  for (auto ifolder = folderNames_.begin(); ifolder != folderNames_.end(); ifolder++) {
     std::string path = "ParticleFlow/" + (*ifolder);
 
-    for (std::vector<std::string>::const_iterator ihist = histogramNames_.begin(); ihist != histogramNames_.end();
-         ihist++) {
+    for (auto ihist = histogramNames_.begin(); ihist != histogramNames_.end(); ihist++) {
       std::string hname = (*ihist);
       createResolutionPlots(ibooker, igetter, path, hname);
     }
@@ -53,13 +51,10 @@ void PFClient::doSummaries(DQMStore::IBooker &ibooker, DQMStore::IGetter &igette
 // -- Create Projection
 //
 void PFClient::doProjection(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
-  for (std::vector<std::string>::const_iterator ifolder = folderNames_.begin(); ifolder != folderNames_.end();
-       ifolder++) {
+  for (auto ifolder = folderNames_.begin(); ifolder != folderNames_.end(); ifolder++) {
     std::string path = "ParticleFlow/" + (*ifolder);
 
-    for (std::vector<std::string>::const_iterator ihist = projectionHistogramNames_.begin();
-         ihist != projectionHistogramNames_.end();
-         ihist++) {
+    for (auto ihist = projectionHistogramNames_.begin(); ihist != projectionHistogramNames_.end(); ihist++) {
       std::string hname = (*ihist);
       createProjectionPlots(ibooker, igetter, path, hname);
     }
@@ -70,13 +65,10 @@ void PFClient::doProjection(DQMStore::IBooker &ibooker, DQMStore::IGetter &igett
 // -- Create Profile
 //
 void PFClient::doProfiles(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
-  for (std::vector<std::string>::const_iterator ifolder = folderNames_.begin(); ifolder != folderNames_.end();
-       ifolder++) {
+  for (auto ifolder = folderNames_.begin(); ifolder != folderNames_.end(); ifolder++) {
     std::string path = "ParticleFlow/" + (*ifolder);
 
-    for (std::vector<std::string>::const_iterator ihist = profileHistogramNames_.begin();
-         ihist != profileHistogramNames_.end();
-         ihist++) {
+    for (auto ihist = profileHistogramNames_.begin(); ihist != profileHistogramNames_.end(); ihist++) {
       std::string hname = (*ihist);
       createProfilePlots(ibooker, igetter, path, hname);
     }
@@ -87,12 +79,10 @@ void PFClient::doProfiles(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter
 // -- Create Efficiency
 //
 void PFClient::doEfficiency(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter) {
-  for (std::vector<std::string>::const_iterator ifolder = folderNames_.begin(); ifolder != folderNames_.end();
-       ifolder++) {
+  for (auto ifolder = folderNames_.begin(); ifolder != folderNames_.end(); ifolder++) {
     std::string path = "ParticleFlow/" + (*ifolder);
 
-    for (std::vector<std::string>::const_iterator ihist = effHistogramNames_.begin(); ihist != effHistogramNames_.end();
-         ihist++) {
+    for (auto ihist = effHistogramNames_.begin(); ihist != effHistogramNames_.end(); ihist++) {
       std::string hname = (*ihist);
       createEfficiencyPlots(ibooker, igetter, path, hname);
     }

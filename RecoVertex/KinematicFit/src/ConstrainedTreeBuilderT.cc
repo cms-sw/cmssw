@@ -14,7 +14,7 @@ RefCountedKinematicTree ConstrainedTreeBuilderT::buildRealTree(
   resTree->addParticle(fVertex, vtx, virtualParticle);
 
   //adding final state
-  for (std::vector<RefCountedKinematicParticle>::const_iterator il = particles.begin(); il != particles.end(); il++) {
+  for (auto il = particles.begin(); il != particles.end(); il++) {
     if ((*il)->previousParticle()->correspondingTree() != nullptr) {
       KinematicTree* tree = (*il)->previousParticle()->correspondingTree();
       tree->movePointerToTheTop();

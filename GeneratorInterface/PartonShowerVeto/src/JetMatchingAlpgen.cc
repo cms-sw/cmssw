@@ -95,9 +95,7 @@ namespace gen {
     ahppara_.ihrd = header.ihrd;
     ahppara_.ebeam = header.ebeam;
 
-    for (std::map<AlpgenHeader::Parameter, double>::const_iterator iter = header.params.begin();
-         iter != header.params.end();
-         ++iter) {
+    for (auto iter = header.params.begin(); iter != header.params.end(); ++iter) {
       if (iter->first <= 0 || iter->first >= (int)AHPARS::nparam - 1)
         continue;
       ahpars_.parval[(int)iter->first - 1] = iter->second;

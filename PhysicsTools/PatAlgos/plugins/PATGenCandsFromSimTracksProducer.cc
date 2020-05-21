@@ -151,7 +151,7 @@ const SimTrack *PATGenCandsFromSimTracksProducer::findGeantMother(const SimTrack
     const SimVertex &vtx = g.simvtxs[tk.vertIndex()];
     if (!vtx.noParent()) {
       unsigned int idx = vtx.parentIndex();
-      SimTrackContainer::const_iterator it = std::lower_bound(g.simtks.begin(), g.simtks.end(), idx, LessById());
+      auto it = std::lower_bound(g.simtks.begin(), g.simtks.end(), idx, LessById());
       if ((it != g.simtks.end()) && (it->trackId() == idx)) {
         return &*it;
       }
@@ -173,7 +173,7 @@ edm::Ref<reco::GenParticleCollection> PATGenCandsFromSimTracksProducer::findRef(
   if (writeAncestors_) {
     // If writing ancestors, I need to serialize myself, and then to return a ref to me
     // But first check if I've already been serialized
-    std::map<unsigned int, int>::const_iterator it = g.simTksProcessed.find(tk.trackId());
+    auto it = g.simTksProcessed.find(tk.trackId());
     if (it != g.simTksProcessed.end()) {
       // just return a ref to it
       assert(it->second > 0);
@@ -229,7 +229,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event &event, const EventSetup &i
   if (firstEvent_) {
     if (!pdts_.empty()) {
       pdgIds_.clear();
-      for (vector<PdtEntry>::iterator itp = pdts_.begin(), edp = pdts_.end(); itp != edp; ++itp) {
+      for (auto itp = pdts_.begin(), edp = pdts_.end(); itp != edp; ++itp) {
         itp->setup(iSetup);  // decode string->pdgId and vice-versa
         pdgIds_.insert(std::abs(itp->pdgId()));
       }
@@ -237,7 +237,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event &event, const EventSetup &i
     }
     if (!motherPdts_.empty()) {
       motherPdgIds_.clear();
-      for (vector<PdtEntry>::iterator itp = motherPdts_.begin(), edp = motherPdts_.end(); itp != edp; ++itp) {
+      for (auto itp = motherPdts_.begin(), edp = motherPdts_.end(); itp != edp; ++itp) {
         itp->setup(iSetup);  // decode string->pdgId and vice-versa
         motherPdgIds_.insert(std::abs(itp->pdgId()));
       }
@@ -283,7 +283,7 @@ void PATGenCandsFromSimTracksProducer::produce(Event &event, const EventSetup &i
 
   GlobalContext globals(*simtracksSorted, *simvertices, gens, genBarcodes, barcodesAreSorted, *cands, refprod);
 
-  for (SimTrackContainer::const_iterator isimtrk = simtracks->begin(); isimtrk != simtracks->end(); ++isimtrk) {
+  for (auto isimtrk = simtracks->begin(); isimtrk != simtracks->end(); ++isimtrk) {
     // Skip PYTHIA tracks.
     if (isimtrk->genpartIndex() != -1)
       continue;

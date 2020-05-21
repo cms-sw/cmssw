@@ -137,18 +137,18 @@ void EcalFenixTcpFormat::setParameters(uint32_t towid,
   spikeZeroThresh_ = 1023;
   if (ecaltpgSpike != nullptr) {
     const EcalTPGSpike::EcalTPGSpikeMap &spikeMap = ecaltpgSpike->getMap();
-    EcalTPGSpike::EcalTPGSpikeMapIterator sit = spikeMap.find(towid);
+    auto sit = spikeMap.find(towid);
     if (sit != spikeMap.end()) {
       spikeZeroThresh_ = sit->second;
     }
   }
 
   const EcalTPGGroups::EcalTPGGroupsMap &groupmap = ecaltpgLutGroup->getMap();
-  EcalTPGGroups::EcalTPGGroupsMapItr it = groupmap.find(towid);
+  auto it = groupmap.find(towid);
   if (it != groupmap.end()) {
     uint32_t lutid = (*it).second;
     const EcalTPGLutIdMap::EcalTPGLutMap &lutmap = ecaltpgLut->getMap();
-    EcalTPGLutIdMap::EcalTPGLutMapItr itl = lutmap.find(lutid);
+    auto itl = lutmap.find(lutid);
     if (itl != lutmap.end()) {
       lut_ = (*itl).second.getLut();
       //std::cout << " FenixTcpFormatter lut_ " << std::dec<<lut_ << std::endl;
@@ -159,7 +159,7 @@ void EcalFenixTcpFormat::setParameters(uint32_t towid,
     edm::LogWarning("EcalTPG") << " could not find EcalTPGFineGrainTowerEEMap for " << towid;
 
   const EcalTPGTowerStatusMap &badTTMap = ecaltpgbadTT->getMap();
-  EcalTPGTowerStatusMapIterator itbadTT = badTTMap.find(towid);
+  auto itbadTT = badTTMap.find(towid);
   if (itbadTT != badTTMap.end()) {
     badTTStatus_ = &(*itbadTT).second;
   }

@@ -35,7 +35,7 @@ bool SiStripDelay::makeDelay() {
   if (baseDelayVector_.empty()) {
     return false;
   }
-  std::vector<const SiStripBaseDelay *>::const_iterator it = baseDelayVector_.begin();
+  auto it = baseDelayVector_.begin();
   // Check for consistent size in all baseDelays
   if (baseDelayVector_.size() > 1) {
     for (; it != baseDelayVector_.end() - 1; ++it) {
@@ -77,7 +77,7 @@ bool SiStripDelay::makeDelay() {
   it = baseDelayVector_.begin();
   std::vector<uint32_t> detIds;
   (*it)->detIds(detIds);
-  std::vector<uint32_t>::const_iterator detIdIt = detIds.begin();
+  auto detIdIt = detIds.begin();
   for (; detIdIt != detIds.end(); ++detIdIt) {
     delays_[*detIdIt] = (*it)->delay(*detIdIt) * sumSign;
   }

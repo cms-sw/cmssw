@@ -188,7 +188,7 @@ void FWEventItem::runFilter() {
     //std::cout <<"runFilter"<<std::endl;
     FWChangeSentry sentry(*(this->changeManager()));
     int size = m_accessor->size();
-    std::vector<ModelInfo>::iterator itInfo = m_itemInfos.begin();
+    auto itInfo = m_itemInfos.begin();
     try {
       for (int index = 0; index != size; ++index, ++itInfo) {
         bool changed = false;
@@ -257,7 +257,7 @@ void FWEventItem::setDisplayProperties(int iIndex, const FWDisplayProperties& iP
     if (iProps.isVisible()) {
       FWChangeSentry sentry(*(this->changeManager()));
       int size = m_accessor->size();
-      std::vector<ModelInfo>::iterator itInfo = m_itemInfos.begin();
+      auto itInfo = m_itemInfos.begin();
       for (int index = 0; index != size; ++index, ++itInfo) {
         if (itInfo->m_displayProperties.isVisible()) {
           itInfo->m_displayProperties.setIsVisible(false);
@@ -278,9 +278,7 @@ void FWEventItem::setDisplayProperties(int iIndex, const FWDisplayProperties& iP
 void FWEventItem::moveToFront() {
   assert(nullptr != m_context->eventItemsManager());
   int largest = layer();
-  for (FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
-                                           itEnd = m_context->eventItemsManager()->end();
-       it != itEnd;
+  for (auto it = m_context->eventItemsManager()->begin(), itEnd = m_context->eventItemsManager()->end(); it != itEnd;
        ++it) {
     if ((*it) && (*it != this) && (*it)->layer() > largest) {
       largest = (*it)->layer();
@@ -299,9 +297,7 @@ void FWEventItem::moveToFront() {
 void FWEventItem::moveToBack() {
   assert(nullptr != m_context->eventItemsManager());
   int smallest = layer();
-  for (FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
-                                           itEnd = m_context->eventItemsManager()->end();
-       it != itEnd;
+  for (auto it = m_context->eventItemsManager()->begin(), itEnd = m_context->eventItemsManager()->end(); it != itEnd;
        ++it) {
     if ((*it) && (*it != this) && (*it)->layer() < smallest) {
       smallest = (*it)->layer();
@@ -406,9 +402,7 @@ int FWEventItem::layer() const { return m_layer; }
 
 bool FWEventItem::isInFront() const {
   assert(nullptr != m_context->eventItemsManager());
-  for (FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
-                                           itEnd = m_context->eventItemsManager()->end();
-       it != itEnd;
+  for (auto it = m_context->eventItemsManager()->begin(), itEnd = m_context->eventItemsManager()->end(); it != itEnd;
        ++it) {
     if ((*it) && (*it != this) && (*it)->layer() >= layer()) {
       return false;
@@ -419,9 +413,7 @@ bool FWEventItem::isInFront() const {
 
 bool FWEventItem::isInBack() const {
   assert(nullptr != m_context->eventItemsManager());
-  for (FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
-                                           itEnd = m_context->eventItemsManager()->end();
-       it != itEnd;
+  for (auto it = m_context->eventItemsManager()->begin(), itEnd = m_context->eventItemsManager()->end(); it != itEnd;
        ++it) {
     if ((*it) && (*it != this) && (*it)->layer() <= layer()) {
       return false;

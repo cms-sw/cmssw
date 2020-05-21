@@ -90,8 +90,7 @@ void GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSet
   valuesQual.reserve(glbMuons->size());
 
   int trackIndex = 0;
-  for (reco::TrackCollection::const_iterator track = glbMuons->begin(); track != glbMuons->end();
-       ++track, ++trackIndex) {
+  for (auto track = glbMuons->begin(); track != glbMuons->end(); ++track, ++trackIndex) {
     reco::TrackRef glbRef(glbMuons, trackIndex);
     reco::TrackRef staTrack = reco::TrackRef();
 
@@ -121,9 +120,7 @@ void GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSet
     bool passTight = false;
     typedef MuonTrajectoryBuilder::TrackCand TrackCand;
     if (linkCollectionHandle.isValid()) {
-      for (reco::MuonTrackLinksCollection::const_iterator links = linkCollectionHandle->begin();
-           links != linkCollectionHandle->end();
-           ++links) {
+      for (auto links = linkCollectionHandle->begin(); links != linkCollectionHandle->end(); ++links) {
         if (links->trackerTrack().isNull() || links->standAloneTrack().isNull() || links->globalTrack().isNull()) {
           edm::LogWarning(theCategory) << "Global muon links to constituent tracks are invalid. There should be no "
                                           "such object. Muon is skipped.";
@@ -197,7 +194,7 @@ std::pair<double, double> GlobalTrackQualityProducer::kink(Trajectory& muon) con
 
   vector<TrajectoryMeasurement> meas = muon.measurements();
 
-  for (TMI m = meas.begin(); m != meas.end(); m++) {
+  for (auto m = meas.begin(); m != meas.end(); m++) {
     TransientTrackingRecHit::ConstRecHitPointer hit = m->recHit();
 
     //not used    double estimate = 0.0;
@@ -264,7 +261,7 @@ std::pair<double, double> GlobalTrackQualityProducer::newChi2(Trajectory& muon) 
 
   vector<TrajectoryMeasurement> meas = muon.measurements();
 
-  for (TMI m = meas.begin(); m != meas.end(); m++) {
+  for (auto m = meas.begin(); m != meas.end(); m++) {
     TransientTrackingRecHit::ConstRecHitPointer hit = m->recHit();
     const TrajectoryStateOnSurface& uptsos = (*m).updatedState();
     // FIXME FIXME CLONE!!!

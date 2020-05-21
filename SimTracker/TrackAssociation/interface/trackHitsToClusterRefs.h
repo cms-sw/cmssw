@@ -32,7 +32,7 @@ namespace track_associator {
                    subdetid == SiStripDetId::TEC) {
           const std::type_info &tid = typeid(*rhit);
           if (tid == typeid(SiStripMatchedRecHit2D)) {
-            const SiStripMatchedRecHit2D *sMatchedRHit = dynamic_cast<const SiStripMatchedRecHit2D *>(rhit);
+            const auto *sMatchedRHit = dynamic_cast<const SiStripMatchedRecHit2D *>(rhit);
             if (!sMatchedRHit->monoHit().cluster().isNonnull() || !sMatchedRHit->stereoHit().cluster().isNonnull())
               edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!"
                                                << " file: " << __FILE__ << " line: " << __LINE__;
@@ -51,7 +51,7 @@ namespace track_associator {
                                                << " file: " << __FILE__ << " line: " << __LINE__;
             returnValue.push_back(sRHit->omniClusterRef());
           } else if (tid == typeid(Phase2TrackerRecHit1D)) {
-            const Phase2TrackerRecHit1D *ph2Hit = dynamic_cast<const Phase2TrackerRecHit1D *>(rhit);
+            const auto *ph2Hit = dynamic_cast<const Phase2TrackerRecHit1D *>(rhit);
             if (!ph2Hit->cluster().isNonnull())
               edm::LogError("TrackAssociator") << ">>> RecHit does not have an associated cluster!"
                                                << " file: " << __FILE__ << " line: " << __LINE__;

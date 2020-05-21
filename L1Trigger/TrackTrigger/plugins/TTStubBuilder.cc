@@ -139,7 +139,7 @@ void TTStubBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const ed
         std::sort(tempOutput.begin(), tempOutput.end(), TTStubBuilder<Ref_Phase2TrackerDigi_>::SortStubsBend);
 
         /// Get to the second element (the switch above ensures there are min 2)
-        typename std::vector<TTStub<Ref_Phase2TrackerDigi_>>::iterator tempIter = tempOutput.begin();
+        auto tempIter = tempOutput.begin();
         ++tempIter;
 
         /// tempIter points now to the second element

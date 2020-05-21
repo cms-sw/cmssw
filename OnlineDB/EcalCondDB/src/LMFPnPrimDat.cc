@@ -71,8 +71,8 @@ LMFPnPrimDat &LMFPnPrimDat::setSystem(std::string s) {
     if (m_debug) {
       std::cout << "Data: " << m_data.size() << " Keys: " << m_keys.size() << " Type: " << m_type.size() << std::endl;
     }
-    std::map<std::string, unsigned int>::iterator i = m_keys.begin();
-    std::map<std::string, unsigned int>::iterator e = m_keys.end();
+    auto i = m_keys.begin();
+    auto e = m_keys.end();
     while (i != e) {
       // modify indexes
       (i->second)--;

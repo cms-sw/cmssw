@@ -272,7 +272,7 @@ void SimG4HcalValidation::fill(const EndOfEvent *evt) {
 
   // Hcal
   int HCHCid = G4SDManager::GetSDMpointer()->GetCollectionID(names[0]);
-  CaloG4HitCollection *theHCHC = (CaloG4HitCollection *)allHC->GetHC(HCHCid);
+  auto *theHCHC = (CaloG4HitCollection *)allHC->GetHC(HCHCid);
   LogDebug("ValidHcal") << "SimG4HcalValidation :: Hit Collection for " << names[0] << " of ID " << HCHCid
                         << " is obtained at " << theHCHC;
   if (HCHCid >= 0 && theHCHC != nullptr) {
@@ -351,7 +351,7 @@ void SimG4HcalValidation::fill(const EndOfEvent *evt) {
 
       int nec = 0;
       int ECHCid = G4SDManager::GetSDMpointer()->GetCollectionID(names[idty]);
-      CaloG4HitCollection *theECHC = (CaloG4HitCollection *)allHC->GetHC(ECHCid);
+      auto *theECHC = (CaloG4HitCollection *)allHC->GetHC(ECHCid);
       LogDebug("ValidHcal") << "SimG4HcalValidation:: Hit Collection for " << names[idty] << " of ID " << ECHCid
                             << " is obtained at " << theECHC;
       int theechc_entries = theECHC->entries();

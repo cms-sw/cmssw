@@ -70,8 +70,8 @@ void GeometryAligner::applyAlignments(C* geometry,
   const AlignTransform::Rotation inverseGlobalRotation = globalRotation.inverse();
 
   // Parallel loop on alignments, alignment errors and geomdets
-  std::vector<AlignTransform>::const_iterator iAlign = alignments->m_align.begin();
-  std::vector<AlignTransformErrorExtended>::const_iterator iAlignError = alignmentErrors->m_alignError.begin();
+  auto iAlign = alignments->m_align.begin();
+  auto iAlignError = alignmentErrors->m_alignError.begin();
   //copy  geometry->theMap to a real map to order it....
   std::map<unsigned int, GeomDet const*> theMap;
   std::copy(geometry->theMap.begin(), geometry->theMap.end(), std::inserter(theMap, theMap.begin()));
@@ -128,8 +128,7 @@ void GeometryAligner::attachSurfaceDeformations(C* geometry, const AlignmentSurf
   unsigned int nSurfDef = 0;
   unsigned int itemIndex = 0;
   auto iPair = theMap.begin();
-  for (std::vector<AlignmentSurfaceDeformations::Item>::const_iterator iItem = surfaceDeformations->items().begin();
-       iItem != surfaceDeformations->items().end();
+  for (auto iItem = surfaceDeformations->items().begin(); iItem != surfaceDeformations->items().end();
        ++iItem, ++iPair) {
     // Check DetIds
     // go forward in map of GeomDetUnits until DetId is found
@@ -188,8 +187,8 @@ void GeometryAligner::removeGlobalTransform(const Alignments* alignments,
   AlignTransform::Translation newPosition;
   AlignTransform::Rotation newRotation;
 
-  std::vector<AlignTransform>::const_iterator iAlign = alignments->m_align.begin();
-  std::vector<AlignTransformErrorExtended>::const_iterator iAlignError = alignmentErrors->m_alignError.begin();
+  auto iAlign = alignments->m_align.begin();
+  auto iAlignError = alignmentErrors->m_alignError.begin();
   unsigned int nAPE = 0;
   for (iAlign = alignments->m_align.begin(); iAlign != alignments->m_align.end(); ++iAlign, ++iAlignError) {
     // Remove global position transformation from alignment

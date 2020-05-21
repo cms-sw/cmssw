@@ -56,7 +56,7 @@ void BasicToPFJet::produce(edm::Event& Event, const edm::EventSetup& EventSetup)
   reco::PFJet::Specific specific;
 
   //now get iterator
-  reco::BasicJetCollection::const_iterator i = BasicJetColl->begin();
+  auto i = BasicJetColl->begin();
 
   //loop over basic jets and convert them to pfjets
   for (; i != BasicJetColl->end(); i++) {

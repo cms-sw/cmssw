@@ -129,7 +129,7 @@ OscarProducer::OscarProducer(edm::ParameterSet const& p) {
   //register any products
   m_producers = m_runManager->producers();
 
-  for (Producers::iterator itProd = m_producers.begin(); itProd != m_producers.end(); ++itProd) {
+  for (auto itProd = m_producers.begin(); itProd != m_producers.end(); ++itProd) {
     (*itProd)->registerProducts(producesCollector());
   }
 

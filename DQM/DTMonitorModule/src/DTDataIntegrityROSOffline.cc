@@ -346,8 +346,7 @@ void DTDataIntegrityROSOffline::processROS25(DTROS25Data& data, int ddu, int ros
     ROSSummary->Fill(10, code.getROS());
   }
 
-  for (vector<DTROSErrorWord>::const_iterator error_it = data.getROSErrors().begin();
-       error_it != data.getROSErrors().end();
+  for (auto error_it = data.getROSErrors().begin(); error_it != data.getROSErrors().end();
        error_it++) {  // Loop over ROS error words
 
     LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityROSOffline")
@@ -366,8 +365,8 @@ void DTDataIntegrityROSOffline::processROS25(DTROS25Data& data, int ddu, int ros
     } else if ((*error_it).errorType() == 4) {
       vector<int> channelBins;
       channelsInROS((*error_it).cerosID(), channelBins);
-      vector<int>::const_iterator channelIt = channelBins.begin();
-      vector<int>::const_iterator channelEnd = channelBins.end();
+      auto channelIt = channelBins.begin();
+      auto channelEnd = channelBins.end();
       for (; channelIt != channelEnd; ++channelIt) {
         ROSError->Fill(4, (*channelIt));
       }
@@ -376,8 +375,7 @@ void DTDataIntegrityROSOffline::processROS25(DTROS25Data& data, int ddu, int ros
 
   int ROSDebug_BunchNumber = -1;
 
-  for (vector<DTROSDebugWord>::const_iterator debug_it = data.getROSDebugs().begin();
-       debug_it != data.getROSDebugs().end();
+  for (auto debug_it = data.getROSDebugs().begin(); debug_it != data.getROSDebugs().end();
        debug_it++) {  // Loop over ROS debug words
 
     int debugROSSummary = 0;
@@ -412,8 +410,8 @@ void DTDataIntegrityROSOffline::processROS25(DTROS25Data& data, int ddu, int ros
 
     if (debugROSSummary) {
       ROSSummary->Fill(debugROSSummary, code.getROS());
-      vector<int>::const_iterator channelIt = debugBins.begin();
-      vector<int>::const_iterator channelEnd = debugBins.end();
+      auto channelIt = debugBins.begin();
+      auto channelEnd = debugBins.end();
       for (; channelIt != channelEnd; ++channelIt) {
         ROSError->Fill(debugROSError, (*channelIt));
       }
@@ -421,8 +419,8 @@ void DTDataIntegrityROSOffline::processROS25(DTROS25Data& data, int ddu, int ros
 
     if (hasEvIdMis) {
       ROSSummary->Fill(12, code.getROS());
-      vector<int>::const_iterator channelIt = evIdMisBins.begin();
-      vector<int>::const_iterator channelEnd = evIdMisBins.end();
+      auto channelIt = evIdMisBins.begin();
+      auto channelEnd = evIdMisBins.end();
       for (; channelIt != channelEnd; ++channelIt) {
         ROSError->Fill(9, (*channelIt));
       }
@@ -431,7 +429,7 @@ void DTDataIntegrityROSOffline::processROS25(DTROS25Data& data, int ddu, int ros
 
   // ROB Group Header
   // Check the BX of the ROB headers against the BX of the ROS
-  for (vector<DTROBHeader>::const_iterator rob_it = data.getROBHeaders().begin(); rob_it != data.getROBHeaders().end();
+  for (auto rob_it = data.getROBHeaders().begin(); rob_it != data.getROBHeaders().end();
        rob_it++) {  // loop over ROB headers
 
     code.setROB((*rob_it).first);
@@ -450,8 +448,7 @@ void DTDataIntegrityROSOffline::processROS25(DTROS25Data& data, int ddu, int ros
   }
 
   // TDC Data
-  for (vector<DTTDCData>::const_iterator tdc_it = data.getTDCData().begin(); tdc_it != data.getTDCData().end();
-       tdc_it++) {  // loop over TDC data
+  for (auto tdc_it = data.getTDCData().begin(); tdc_it != data.getTDCData().end(); tdc_it++) {  // loop over TDC data
 
     DTTDCMeasurementWord tdcDatum = (*tdc_it).second;
 
@@ -469,7 +466,7 @@ void DTDataIntegrityROSOffline::processROS25(DTROS25Data& data, int ddu, int ros
   }
 
   // TDC Error
-  for (vector<DTTDCError>::const_iterator tdc_it = data.getTDCError().begin(); tdc_it != data.getTDCError().end();
+  for (auto tdc_it = data.getTDCError().begin(); tdc_it != data.getTDCError().end();
        tdc_it++) {  // loop over TDC errors
 
     code.setROB((*tdc_it).first);
@@ -594,9 +591,7 @@ void DTDataIntegrityROSOffline::processFED(DTDDUData& data, const std::vector<DT
   }
 
   int channel = 0;
-  for (vector<DTDDUFirstStatusWord>::const_iterator fsw_it = data.getFirstStatusWord().begin();
-       fsw_it != data.getFirstStatusWord().end();
-       fsw_it++) {
+  for (auto fsw_it = data.getFirstStatusWord().begin(); fsw_it != data.getFirstStatusWord().end(); fsw_it++) {
     // assuming association one-to-one between DDU channel and ROS
     hROSStatus->Fill(0, channel, (*fsw_it).channelEnabled());
     hROSStatus->Fill(1, channel, (*fsw_it).timeout());
@@ -622,10 +617,9 @@ void DTDataIntegrityROSOffline::processFED(DTDDUData& data, const std::vector<DT
   set<int> rosBXIds = rosBxIdsPerFED[ddu];
   if ((rosBXIds.size() > 1 || rosBXIds.find(header.bxID()) == rosBXIds.end()) &&
       !rosBXIds.empty()) {  // in this case look for faulty ROSs
-    for (vector<DTROS25Data>::const_iterator rosControlData = rosData.begin(); rosControlData != rosData.end();
+    for (auto rosControlData = rosData.begin(); rosControlData != rosData.end();
          ++rosControlData) {  // loop over the ROS data
-      for (vector<DTROSDebugWord>::const_iterator debug_it = (*rosControlData).getROSDebugs().begin();
-           debug_it != (*rosControlData).getROSDebugs().end();
+      for (auto debug_it = (*rosControlData).getROSDebugs().begin(); debug_it != (*rosControlData).getROSDebugs().end();
            debug_it++) {                                                                    // Loop over ROS debug words
         if ((*debug_it).debugType() == 0 && (*debug_it).debugMessage() != header.bxID()) {  // check the BX
           int ros = (*rosControlData).getROSID();
@@ -654,7 +648,7 @@ void DTDataIntegrityROSOffline::processFED(DTDDUData& data, const std::vector<DT
   if ((rosL1AIds.size() > 1 || rosL1AIds.find(header.lvl1ID() - 1) == rosL1AIds.end()) &&
       !rosL1AIds.empty()) {  // in this case look for faulty ROSs
     //If L1A_ID error identify which ROS has wrong L1A
-    for (vector<DTROS25Data>::const_iterator rosControlData = rosData.begin(); rosControlData != rosData.end();
+    for (auto rosControlData = rosData.begin(); rosControlData != rosData.end();
          rosControlData++) {  // loop over the ROS data
       unsigned int ROSHeader_TTCCount =
           ((*rosControlData).getROSHeader().TTCEventCounter() + 1) %
@@ -719,14 +713,13 @@ void DTDataIntegrityROSOffline::analyze(const edm::Event& e, const edm::EventSet
 
   //Legacy ROS
   // clear the set of BXids from the ROSs
-  for (map<int, set<int> >::iterator rosBxIds = rosBxIdsPerFED.begin(); rosBxIds != rosBxIdsPerFED.end(); ++rosBxIds) {
+  for (auto rosBxIds = rosBxIdsPerFED.begin(); rosBxIds != rosBxIdsPerFED.end(); ++rosBxIds) {
     (*rosBxIds).second.clear();
   }
 
   fedBXIds.clear();
 
-  for (map<int, set<int> >::iterator rosL1AIds = rosL1AIdsPerFED.begin(); rosL1AIds != rosL1AIdsPerFED.end();
-       ++rosL1AIds) {
+  for (auto rosL1AIds = rosL1AIdsPerFED.begin(); rosL1AIds != rosL1AIdsPerFED.end(); ++rosL1AIds) {
     (*rosL1AIds).second.clear();
   }
 

@@ -417,9 +417,9 @@ void EcalRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   //  double TIME_START = clock();
 
   // Step C: unpack all requested FEDs
-  for (std::vector<int>::const_iterator i = fedUnpackList_.begin(); i != fedUnpackList_.end(); i++) {
+  for (auto i = fedUnpackList_.begin(); i != fedUnpackList_.end(); i++) {
     if (REGIONAL_) {
-      std::vector<int>::const_iterator fed_it = find(FEDS_to_unpack.begin(), FEDS_to_unpack.end(), *i);
+      auto fed_it = find(FEDS_to_unpack.begin(), FEDS_to_unpack.end(), *i);
       if (fed_it == FEDS_to_unpack.end())
         continue;
     }

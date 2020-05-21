@@ -240,11 +240,10 @@ void TransientVertex::tkToTkCovariance(const TTtoTTmap& covMap) {
 
 float TransientVertex::trackWeight(const TransientTrack& track) const {
   if (!theWeightMapIsAvailable) {
-    std::vector<TransientTrack>::const_iterator foundTrack =
-        find(theOriginalTracks.begin(), theOriginalTracks.end(), track);
+    auto foundTrack = find(theOriginalTracks.begin(), theOriginalTracks.end(), track);
     return ((foundTrack != theOriginalTracks.end()) ? 1. : 0.);
   }
-  TransientTrackToFloatMap::const_iterator it = theWeightMap.find(track);
+  auto it = theWeightMap.find(track);
   if (it != theWeightMap.end()) {
     return (it->second);
   }
@@ -264,10 +263,10 @@ AlgebraicMatrix33 TransientVertex::tkToTkCovariance(const TransientTrack& t1, co
     tr1 = &t2;
     tr2 = &t1;
   }
-  TTtoTTmap::const_iterator it = theCovMap.find(*tr1);
+  auto it = theCovMap.find(*tr1);
   if (it != theCovMap.end()) {
     const TTmap& tm = it->second;
-    TTmap::const_iterator nit = tm.find(*tr2);
+    auto nit = tm.find(*tr2);
     if (nit != tm.end()) {
       return (nit->second);
     } else {
@@ -281,7 +280,7 @@ AlgebraicMatrix33 TransientVertex::tkToTkCovariance(const TransientTrack& t1, co
 TransientTrack TransientVertex::originalTrack(const TransientTrack& refTrack) const {
   if (theRefittedTracks.empty())
     throw VertexException("No refitted tracks stored in vertex");
-  std::vector<TransientTrack>::const_iterator it = find(theRefittedTracks.begin(), theRefittedTracks.end(), refTrack);
+  auto it = find(theRefittedTracks.begin(), theRefittedTracks.end(), refTrack);
   if (it == theRefittedTracks.end())
     throw VertexException("Refitted track not found in list");
   size_t pos = it - theRefittedTracks.begin();
@@ -291,7 +290,7 @@ TransientTrack TransientVertex::originalTrack(const TransientTrack& refTrack) co
 TransientTrack TransientVertex::refittedTrack(const TransientTrack& track) const {
   if (theRefittedTracks.empty())
     throw VertexException("No refitted tracks stored in vertex");
-  std::vector<TransientTrack>::const_iterator it = find(theOriginalTracks.begin(), theOriginalTracks.end(), track);
+  auto it = find(theOriginalTracks.begin(), theOriginalTracks.end(), track);
   if (it == theOriginalTracks.end())
     throw VertexException("Track not found in list");
   size_t pos = it - theOriginalTracks.begin();
@@ -310,7 +309,7 @@ TransientVertex::operator reco::Vertex() const {
                 totalChiSquared(),
                 degreesOfFreedom(),
                 theOriginalTracks.size());
-  for (std::vector<TransientTrack>::const_iterator i = theOriginalTracks.begin(); i != theOriginalTracks.end(); ++i) {
+  for (auto i = theOriginalTracks.begin(); i != theOriginalTracks.end(); ++i) {
     //     const TrackTransientTrack* ttt = dynamic_cast<const TrackTransientTrack*>((*i).basicTransientTrack());
     //     if ((ttt!=0) && (ttt->persistentTrackRef().isNonnull()))
     //     {
@@ -339,12 +338,11 @@ TransientVertex::operator reco::VertexCompositePtrCandidate() const {
   vtxCompPtrCand.setVertex(Candidate::Point(position().x(), position().y(), position().z()));
 
   Candidate::LorentzVector p4;
-  for (std::vector<reco::TransientTrack>::const_iterator tt = theOriginalTracks.begin(); tt != theOriginalTracks.end();
-       ++tt) {
+  for (auto tt = theOriginalTracks.begin(); tt != theOriginalTracks.end(); ++tt) {
     if (trackWeight(*tt) < 0.5)
       continue;
 
-    const CandidatePtrTransientTrack* cptt = dynamic_cast<const CandidatePtrTransientTrack*>(tt->basicTransientTrack());
+    const auto* cptt = dynamic_cast<const CandidatePtrTransientTrack*>(tt->basicTransientTrack());
     if (cptt == nullptr)
       edm::LogError("DynamicCastingFailed") << "Casting of TransientTrack to CandidatePtrTransientTrack failed!";
     else {

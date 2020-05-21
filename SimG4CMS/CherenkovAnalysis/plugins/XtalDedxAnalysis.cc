@@ -220,7 +220,7 @@ void XtalDedxAnalysis::analyzeHits(std::vector<PCaloHit> &hits,
         for (int iv = 0; iv < vertIndex; iv++)
           simVtxItr++;
         int parent = simVtxItr->parentIndex(), k2 = 0;
-        for (edm::SimTrackContainer::const_iterator trkItr = SimTk->begin(); trkItr != SimTk->end(); trkItr++, ++k2) {
+        for (auto trkItr = SimTk->begin(); trkItr != SimTk->end(); trkItr++, ++k2) {
 #ifdef EDM_ML_DEBUG
           edm::LogVerbatim("CherenkovAnalysis") << "XtalDedxAnalysis::Track " << k2 << " ID " << trkItr->trackId()
                                                 << " (" << parent << ")  Generator " << trkItr->noGenpart();

@@ -185,7 +185,7 @@ void ShallowTrackClustersProducer::produce(edm::Event& iEvent, const edm::EventS
       const TrackingRecHit* hit = measurement.recHit()->hit();
       const SiStripRecHit1D* hit1D = dynamic_cast<const SiStripRecHit1D*>(hit);
       const SiStripRecHit2D* hit2D = dynamic_cast<const SiStripRecHit2D*>(hit);
-      const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
+      const auto* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
 
       for (unsigned h = 0; h < 2; h++) {  //loop over possible Hit options (1D, 2D)
         const SiStripCluster* cluster_ptr;
@@ -202,8 +202,7 @@ void ShallowTrackClustersProducer::produce(edm::Event& iEvent, const edm::EventS
         else
           continue;
 
-        shallow::CLUSTERMAP::const_iterator cluster =
-            clustermap.find(std::make_pair(hit->geographicalId().rawId(), cluster_ptr->firstStrip()));
+        auto cluster = clustermap.find(std::make_pair(hit->geographicalId().rawId(), cluster_ptr->firstStrip()));
         if (cluster == clustermap.end())
           throw cms::Exception("Logic Error") << "Cluster not found: this could be a configuration error" << std::endl;
 
@@ -223,7 +222,7 @@ void ShallowTrackClustersProducer::produce(edm::Event& iEvent, const edm::EventS
           mapping.insert(std::make_pair(i, single));
         }
 
-        const StripGeomDetUnit* theStripDet =
+        const auto* theStripDet =
             dynamic_cast<const StripGeomDetUnit*>(theTrackerGeometry->idToDet(hit->geographicalId()));
         LocalVector drift = shallow::drift(theStripDet, *magfield, *SiStripLorentzAngle);
 

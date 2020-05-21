@@ -50,12 +50,12 @@ void RPCMonitorDigi::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& 
 
   //loop on geometry to book all MEs
   edm::LogInfo("rpcmonitordigi") << "[RPCMonitorDigi]: Booking histograms per roll. ";
-  for (TrackingGeometry::DetContainer::const_iterator it = rpcGeo->dets().begin(); it < rpcGeo->dets().end(); it++) {
+  for (auto it = rpcGeo->dets().begin(); it < rpcGeo->dets().end(); it++) {
     if (dynamic_cast<const RPCChamber*>(*it) != nullptr) {
       const RPCChamber* ch = dynamic_cast<const RPCChamber*>(*it);
       std::vector<const RPCRoll*> roles = (ch->rolls());
       if (useRollInfo_) {
-        for (std::vector<const RPCRoll*>::const_iterator r = roles.begin(); r != roles.end(); ++r) {
+        for (auto r = roles.begin(); r != roles.end(); ++r) {
           RPCDetId rpcId = (*r)->id();
 
           //get station and inner ring
@@ -141,7 +141,7 @@ void RPCMonitorDigi::analyze(const edm::Event& event, const edm::EventSetup& set
       reco::Track muTrack = (*(muCand->outerTrack()));
       std::vector<TrackingRecHitRef> rpcTrackRecHits;
       //loop on mu rechits
-      for (trackingRecHit_iterator it = muTrack.recHitsBegin(); it != muTrack.recHitsEnd(); it++) {
+      for (auto it = muTrack.recHitsBegin(); it != muTrack.recHitsEnd(); it++) {
         if (!(*it)->isValid())
           continue;
         int muSubDetId = (*it)->geographicalId().subdetId();
@@ -242,9 +242,7 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
   std::stringstream os;
 
   //Loop on Rolls
-  for (std::map<RPCDetId, std::vector<RPCRecHit> >::const_iterator detIdIter = recHitMap.begin();
-       detIdIter != recHitMap.end();
-       detIdIter++) {
+  for (auto detIdIter = recHitMap.begin(); detIdIter != recHitMap.end(); detIdIter++) {
     RPCDetId detId = (*detIdIter).first;
 
     //get roll number
@@ -324,8 +322,7 @@ void RPCMonitorDigi::performSourceOperation(std::map<RPCDetId, std::vector<RPCRe
     std::map<std::string, MonitorElement*> meMap = meRollCollection[nameRoll];
 
     //Loop on recHits
-    for (std::vector<RPCRecHit>::const_iterator recHitIter = recHits.begin(); recHitIter != recHits.end();
-         recHitIter++) {
+    for (auto recHitIter = recHits.begin(); recHitIter != recHits.end(); recHitIter++) {
       RPCRecHit recHit = (*recHitIter);
 
       int bx = recHit.BunchX();

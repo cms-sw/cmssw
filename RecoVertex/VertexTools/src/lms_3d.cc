@@ -14,7 +14,7 @@ GlobalPoint lms_3d(std::vector<GlobalPoint> values) {
   x_vals.reserve(sze - 1);
   y_vals.reserve(sze - 1);
   z_vals.reserve(sze - 1);
-  for (std::vector<GlobalPoint>::iterator i = values.begin(); i != values.end(); i++) {
+  for (auto i = values.begin(); i != values.end(); i++) {
     x_vals.push_back(i->x());
     y_vals.push_back(i->y());
     z_vals.push_back(i->z());

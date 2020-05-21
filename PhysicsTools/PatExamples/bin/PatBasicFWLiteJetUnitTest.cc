@@ -80,9 +80,7 @@ int main(int argc, char* argv[]) {
           disc_->Fill(svTagInfos->flightDistance(0).value());
       }
       std::vector<CaloTowerPtr> const& caloConstituents = (*jets)[i].getCaloConstituents();
-      for (std::vector<CaloTowerPtr>::const_iterator ibegin = caloConstituents.begin(),
-                                                     iend = caloConstituents.end(),
-                                                     iconstituent = ibegin;
+      for (auto ibegin = caloConstituents.begin(), iend = caloConstituents.end(), iconstituent = ibegin;
            iconstituent != iend;
            ++iconstituent) {
         constituentPt_->Fill((*iconstituent)->pt());

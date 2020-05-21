@@ -159,7 +159,7 @@ void IsolatedParticlesGeneratedJets::analyze(const edm::Event &iEvent, const edm
 
   if (debug_) {
     unsigned int indx = 0;
-    reco::GenParticleCollection::const_iterator ig = genParticles->begin();
+    auto ig = genParticles->begin();
     for (; ig != genParticles->end(); ++ig, ++indx) {
       edm::LogVerbatim("IsoTrack") << "Track " << indx << " Status " << ig->status() << " charge " << ig->charge()
                                    << " pdgId " << ig->pdgId() << " mass " << ig->mass() << " P " << ig->momentum()

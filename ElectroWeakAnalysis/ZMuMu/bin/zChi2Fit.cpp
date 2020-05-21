@@ -92,7 +92,7 @@ int main_t(const vector<string>& v_file) {
   funct::Constant rebinMuMuNoIsoConst(rebinMuMuNoIso), rebinMuMuConst(rebinMuMu), rebinMuMu1HLTConst(rebinMuMu1HLT),
       rebinMuMu2HLTConst(rebinMuMu2HLT), rebinMuTkConst(rebinMuTk), rebinMuSaConst(rebinMuSa);
 
-  for (vector<string>::const_iterator it = v_file.begin(); it != v_file.end(); ++it) {
+  for (auto it = v_file.begin(); it != v_file.end(); ++it) {
     TFile* root_file = new TFile(it->c_str(), "read");
 
     // default when region==all

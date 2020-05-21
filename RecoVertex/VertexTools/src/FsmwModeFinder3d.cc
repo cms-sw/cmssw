@@ -20,7 +20,7 @@ GlobalPoint FsmwModeFinder3d::operator()(const std::vector<PointAndDistance>& va
   vz.reserve(values.size() - 1);
   std::vector<const void*> emptyvec;
 
-  for (std::vector<PointAndDistance>::const_iterator i = values.begin(); i != values.end(); ++i) {
+  for (auto i = values.begin(); i != values.end(); ++i) {
     float weight = 1.;
     if (static_cast<int>(values.size()) < theNoWeightsAbove) {
       // compute weights if we have fewer than theNoWeightsAbove

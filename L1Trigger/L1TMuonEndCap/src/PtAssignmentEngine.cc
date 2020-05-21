@@ -41,8 +41,7 @@ void PtAssignmentEngine::load(int pt_lut_version, const L1TMuonEndCapForest* pay
   for (unsigned i = 0; i < allowedModes_.size(); ++i) {
     int mode = allowedModes_.at(i);
 
-    L1TMuonEndCapForest::DForestMap::const_iterator index =
-        payload->forest_map_.find(mode);  // associates mode to index
+    auto index = payload->forest_map_.find(mode);  // associates mode to index
     if (index == payload->forest_map_.end())
       continue;
 

@@ -167,8 +167,7 @@ float MuonCosmicCompatibilityFiller::muonTiming(const edm::Event& iEvent, const 
           iEvent.getByToken(muonTokens_[1], muonHandle);
 
           if (!muonHandle.failedToGet()) {
-            for (reco::MuonCollection::const_iterator iMuon = muonHandle->begin(); iMuon != muonHandle->end();
-                 ++iMuon) {
+            for (auto iMuon = muonHandle->begin(); iMuon != muonHandle->end(); ++iMuon) {
               if (!iMuon->isGlobalMuon())
                 continue;
 
@@ -241,7 +240,7 @@ unsigned int MuonCosmicCompatibilityFiller::nMuons(const edm::Event& iEvent) con
   iEvent.getByToken(muonTokens_[1], muonHandle);
 
   if (!muonHandle.failedToGet()) {
-    for (reco::MuonCollection::const_iterator iMuon = muonHandle->begin(); iMuon != muonHandle->end(); ++iMuon) {
+    for (auto iMuon = muonHandle->begin(); iMuon != muonHandle->end(); ++iMuon) {
       if (!iMuon->isGlobalMuon())
         continue;
       nGlb++;
@@ -283,13 +282,12 @@ bool MuonCosmicCompatibilityFiller::isOverlappingMuon(const edm::Event& iEvent,
   edm::Handle<reco::VertexCollection> pvHandle;
   iEvent.getByToken(vertexToken_, pvHandle);
   const reco::VertexCollection& vertices = *pvHandle.product();
-  for (reco::VertexCollection::const_iterator it = vertices.begin(); it != vertices.end(); ++it) {
+  for (auto it = vertices.begin(); it != vertices.end(); ++it) {
     RefVtx = it->position();
   }
 
   if (!muonHandle.failedToGet()) {
-    for (reco::MuonCollection::const_iterator cosmicMuon = muonHandle->begin(); cosmicMuon != muonHandle->end();
-         ++cosmicMuon) {
+    for (auto cosmicMuon = muonHandle->begin(); cosmicMuon != muonHandle->end(); ++cosmicMuon) {
       if (cosmicMuon->innerTrack() == muon.innerTrack() || cosmicMuon->outerTrack() == muon.outerTrack())
         return true;
 
@@ -313,7 +311,7 @@ bool MuonCosmicCompatibilityFiller::isOverlappingMuon(const edm::Event& iEvent,
         //	bool isCloseIP = false;
         //	bool isCloseRef = false;
 
-        for (trackingRecHit_iterator coshit = costrack->recHitsBegin(); coshit != costrack->recHitsEnd(); coshit++) {
+        for (auto coshit = costrack->recHitsBegin(); coshit != costrack->recHitsEnd(); coshit++) {
           if ((*coshit)->isValid()) {
             DetId id((*coshit)->geographicalId());
             double hity = trackingGeometry->idToDet(id)->position().y();
@@ -346,11 +344,9 @@ bool MuonCosmicCompatibilityFiller::isOverlappingMuon(const edm::Event& iEvent,
           //UNUSED:	  if( dist < 0.1 ) isCloseRef = true;
           //if( !isCloseRef ) continue;
 
-          for (trackingRecHit_iterator trkhit = outertrack->recHitsBegin(); trkhit != outertrack->recHitsEnd();
-               trkhit++) {
+          for (auto trkhit = outertrack->recHitsBegin(); trkhit != outertrack->recHitsEnd(); trkhit++) {
             if ((*trkhit)->isValid()) {
-              for (trackingRecHit_iterator coshit = costrack->recHitsBegin(); coshit != costrack->recHitsEnd();
-                   coshit++) {
+              for (auto coshit = costrack->recHitsBegin(); coshit != costrack->recHitsEnd(); coshit++) {
                 if ((*coshit)->isValid()) {
                   if ((*trkhit)->geographicalId() == (*coshit)->geographicalId()) {
                     if (((*trkhit)->localPosition() - (*coshit)->localPosition()).mag() < 10e-5)
@@ -418,7 +414,7 @@ unsigned int MuonCosmicCompatibilityFiller::pvMatches(const edm::Event& iEvent,
   edm::Handle<reco::VertexCollection> pvHandle;
   iEvent.getByToken(vertexToken_, pvHandle);
   const reco::VertexCollection& vertices = *pvHandle.product();
-  for (reco::VertexCollection::const_iterator it = vertices.begin(); it != vertices.end(); ++it) {
+  for (auto it = vertices.begin(); it != vertices.end(); ++it) {
     RefVtx = it->position();
 
     if (track.isNonnull()) {
@@ -459,7 +455,7 @@ unsigned int MuonCosmicCompatibilityFiller::pvMatches(const edm::Event& iEvent,
 
     //find the "other" one
     if (!muonHandle.failedToGet()) {
-      for (reco::MuonCollection::const_iterator muons = muonHandle->begin(); muons != muonHandle->end(); ++muons) {
+      for (auto muons = muonHandle->begin(); muons != muonHandle->end(); ++muons) {
         if (!muons->isGlobalMuon())
           continue;
         //skip this track
@@ -605,7 +601,7 @@ unsigned int MuonCosmicCompatibilityFiller::eventActivity(const edm::Event& iEve
     //check if vertex collection is empty
     if (vertices.begin() == vertices.end())
       return 0;
-    for (reco::VertexCollection::const_iterator it = vertices.begin(); it != vertices.end(); ++it) {
+    for (auto it = vertices.begin(); it != vertices.end(); ++it) {
       if ((TMath::Prob(it->chi2(), (int)it->ndof()) > minvProb_) && (fabs(it->z()) <= maxvertZ_) &&
           (fabs(it->position().rho()) <= maxvertRho_))
         result++;

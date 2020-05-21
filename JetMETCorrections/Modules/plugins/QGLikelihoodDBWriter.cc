@@ -104,7 +104,7 @@ void QGLikelihoodDBWriter::tryToMerge(std::map<std::vector<int>, QGLikelihoodCat
 
 // Begin Job
 void QGLikelihoodDBWriter::beginJob() {
-  QGLikelihoodObject* payload = new QGLikelihoodObject();
+  auto* payload = new QGLikelihoodObject();
   payload->data.clear();
 
   // Get the ROOT file

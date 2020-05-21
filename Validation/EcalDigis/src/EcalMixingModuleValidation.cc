@@ -608,7 +608,7 @@ void EcalMixingModuleValidation::checkCalibrations(edm::EventSetup const& eventS
   eventSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
   const EcalADCToGeVConstant* agc = pAgc.product();
 
-  EcalMGPAGainRatio* defaultRatios = new EcalMGPAGainRatio();
+  auto* defaultRatios = new EcalMGPAGainRatio();
 
   gainConv_[1] = 1.;
   gainConv_[2] = defaultRatios->gain12Over6();
@@ -662,7 +662,7 @@ void EcalMixingModuleValidation::checkPedestals(const edm::EventSetup& eventSetu
 }
 
 void EcalMixingModuleValidation::findPedestal(const DetId& detId, int gainId, double& ped) const {
-  EcalPedestalsMapIterator mapItr = thePedestals->getMap().find(detId);
+  auto mapItr = thePedestals->getMap().find(detId);
   // should I care if it doesn't get found?
   if (mapItr == thePedestals->getMap().end()) {
     edm::LogError("EcalMMValid") << "Could not find pedestal for " << detId.rawId() << " among the "
@@ -754,8 +754,7 @@ void EcalMixingModuleValidation::computeSDBunchDigi(const edm::EventSetup& event
 
     int iHisto = iBunch - theMinBunch;
 
-    for (std::vector<DetId>::const_iterator idItr = theOverThresholdId.begin(); idItr != theOverThresholdId.end();
-         ++idItr) {
+    for (auto idItr = theOverThresholdId.begin(); idItr != theOverThresholdId.end(); ++idItr) {
       CaloSamples* analogSignal;
       //if ( isCrystal )
       if (thisDet == EcalBarrel) {

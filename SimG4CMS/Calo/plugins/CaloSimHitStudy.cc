@@ -364,7 +364,7 @@ void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
       else if (dep == 2)
         id_ |= 0x40000;
     }
-    std::map<unsigned int, double>::const_iterator it = hitMap.find(id_);
+    auto it = hitMap.find(id_);
     if (it == hitMap.end()) {
       hitMap.insert(std::pair<unsigned int, double>(id_, time));
     }
@@ -461,7 +461,7 @@ void CaloSimHitStudy::analyzeHits(std::vector<PCaloHit>& hits, int indx) {
   edm::LogVerbatim("HitStudy") << "CaloSimHitStudy::analyzeHits: EB " << nEB << ", " << nEBAPD << ", " << nEBATJ
                                << " EE " << nEE << " ES " << nES << " HB " << nHB << " HE " << nHE << " HO " << nHO
                                << " HF " << nHF << " Bad " << nBad << " All " << nHit << " Reduced " << hitMap.size();
-  std::map<unsigned int, double>::const_iterator it = hitMap.begin();
+  auto it = hitMap.begin();
   for (; it != hitMap.end(); it++) {
     double time = it->second;
     unsigned int id_ = (it->first);

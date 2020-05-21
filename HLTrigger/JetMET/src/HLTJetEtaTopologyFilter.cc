@@ -81,8 +81,8 @@ bool HLTJetEtaTopologyFilter<T>::hltFilter(edm::Event& iEvent,
   int n(0);
 
   if (!objects->empty()) {  // events with two or more jets
-    typename TCollection::const_iterator iEnd(objects->end());
-    typename TCollection::const_iterator iJet(objects->begin());
+    auto iEnd(objects->end());
+    auto iJet(objects->begin());
     for (; iJet != iEnd; ++iJet) {
       if (iJet->pt() < minPtJet_)
         continue;

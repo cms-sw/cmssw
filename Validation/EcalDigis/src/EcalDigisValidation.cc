@@ -180,14 +180,14 @@ void EcalDigisValidation::analyze(edm::Event const& e, edm::EventSetup const& c)
   }
 
   int nvtx = 0;
-  for (std::vector<SimVertex>::iterator isimvtx = theSimVertexes.begin(); isimvtx != theSimVertexes.end(); ++isimvtx) {
+  for (auto isimvtx = theSimVertexes.begin(); isimvtx != theSimVertexes.end(); ++isimvtx) {
     LogDebug("EventInfo") << " Vertex index = " << nvtx << " event Id = " << isimvtx->eventId().rawId() << "\n"
                           << " vertex dump: " << *isimvtx;
     ++nvtx;
   }
 
   int ntrk = 0;
-  for (std::vector<SimTrack>::iterator isimtrk = theSimTracks.begin(); isimtrk != theSimTracks.end(); ++isimtrk) {
+  for (auto isimtrk = theSimTracks.begin(); isimtrk != theSimTracks.end(); ++isimtrk) {
     LogDebug("EventInfo") << " Track index = " << ntrk << " track Id = " << isimtrk->trackId()
                           << " event Id = " << isimtrk->eventId().rawId() << "\n"
                           << " track dump: " << *isimtrk;
@@ -386,7 +386,7 @@ void EcalDigisValidation::checkCalibrations(edm::EventSetup const& eventSetup) {
   eventSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
   const EcalADCToGeVConstant* agc = pAgc.product();
 
-  EcalMGPAGainRatio* defaultRatios = new EcalMGPAGainRatio();
+  auto* defaultRatios = new EcalMGPAGainRatio();
 
   gainConv_[1] = 1.;
   gainConv_[2] = defaultRatios->gain12Over6();

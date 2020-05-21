@@ -27,7 +27,7 @@ void CSCCondSegFit::fit(bool condpass1, bool condpass2) {
   SMatrix4 M;  // 4x4, init to 0
   SVector4 B;  // 4x1, init to 0;
 
-  CSCSetOfHits::const_iterator ih = hits_.begin();
+  auto ih = hits_.begin();
 
   for (ih = hits_.begin(); ih != hits_.end(); ++ih) {
     const CSCRecHit2D& hit = (**ih);
@@ -184,7 +184,7 @@ void CSCCondSegFit::correctTheCovX(void) {
   std::vector<double> chiUZind;
   std::vector<double>::iterator chiContribution;
   double chiUZ = 0.0;
-  CSCSetOfHits::const_iterator ih = hits_.begin();
+  auto ih = hits_.begin();
   for (ih = hits_.begin(); ih != hits_.end(); ++ih) {
     const CSCRecHit2D& hit = (**ih);
     lex_.push_back(hit.localPositionError().xx());

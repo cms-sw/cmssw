@@ -136,8 +136,7 @@ void DTTPAnalyzer::endJob() {
   rootFile_->cd();
   std::map<DTLayerId, TH1F*> meanHistoMap;
   std::map<DTLayerId, TH1F*> sigmaHistoMap;
-  for (std::map<DTWireId, int>::const_iterator wireIdIt = nDigisPerWire_.begin(); wireIdIt != nDigisPerWire_.end();
-       ++wireIdIt) {
+  for (auto wireIdIt = nDigisPerWire_.begin(); wireIdIt != nDigisPerWire_.end(); ++wireIdIt) {
     DTWireId wireId((*wireIdIt).first);
 
     int nDigis = nDigisPerWire_[wireId];
@@ -172,7 +171,7 @@ void DTTPAnalyzer::endJob() {
     sigmaHistoMap[layerId]->SetBinContent(nBin, rms);
   }
 
-  for (std::map<DTLayerId, TH1F*>::const_iterator key = meanHistoMap.begin(); key != meanHistoMap.end(); ++key) {
+  for (auto key = meanHistoMap.begin(); key != meanHistoMap.end(); ++key) {
     meanHistoMap[(*key).first]->Write();
     sigmaHistoMap[(*key).first]->Write();
   }

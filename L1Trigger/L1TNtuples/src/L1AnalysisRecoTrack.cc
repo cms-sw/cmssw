@@ -4,7 +4,7 @@ void L1Analysis::L1AnalysisRecoTrack::SetTracks(const reco::TrackCollection& tra
   track_.nTrk = trackColl.size();
 
   reco::TrackBase::TrackQuality hiPurity = reco::TrackBase::qualityByName("highPurity");
-  for (reco::TrackCollection::const_iterator itk = trackColl.begin(); itk != trackColl.end(); ++itk) {
+  for (auto itk = trackColl.begin(); itk != trackColl.end(); ++itk) {
     if (itk->quality(hiPurity))
       track_.nHighPurity++;
   }

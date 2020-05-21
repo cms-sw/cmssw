@@ -47,7 +47,7 @@ TOWER_EE                     375017/379768 : 4752 lines  1584 towers 2 lines : 0
     getline(fLin, line);
   char tower[8];
   unsigned int towerId, LUTFg;
-  EcalTPGFineGrainTowerEE* fgrMap = new EcalTPGFineGrainTowerEE;
+  auto* fgrMap = new EcalTPGFineGrainTowerEE;
   for (int itower = 0; itower < 1584; itower++) {
     getline(fLin, line);
     sscanf(line.c_str(), "%s %u", tower, &towerId);

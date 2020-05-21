@@ -655,9 +655,7 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
     ugmtBMTFnMuons->Fill(BMTFBxCollection->size(0));
 
     for (int itBX = BMTFBxCollection->getFirstBX(); itBX <= BMTFBxCollection->getLastBX(); ++itBX) {
-      for (l1t::RegionalMuonCandBxCollection::const_iterator BMTF = BMTFBxCollection->begin(itBX);
-           BMTF != BMTFBxCollection->end(itBX);
-           ++BMTF) {
+      for (auto BMTF = BMTFBxCollection->begin(itBX); BMTF != BMTFBxCollection->end(itBX); ++BMTF) {
         ugmtBMTFBX->Fill(itBX);
         ugmtBMTFhwPt->Fill(BMTF->hwPt());
         ugmtBMTFhwEta->Fill(BMTF->hwEta());
@@ -676,8 +674,7 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
         ugmtBXvsLink->Fill(BMTF->link(), itBX);
 
         // Analyse muon correlations
-        for (l1t::RegionalMuonCandBxCollection::const_iterator BMTF2 = BMTF + 1; BMTF2 != BMTFBxCollection->end(itBX);
-             ++BMTF2) {
+        for (auto BMTF2 = BMTF + 1; BMTF2 != BMTFBxCollection->end(itBX); ++BMTF2) {
           int global_hw_phi2 =
               l1t::MicroGMTConfiguration::calcGlobalPhi(BMTF2->hwPhi(), BMTF2->trackFinderType(), BMTF2->processor());
           float dEta = (BMTF->hwEta() - BMTF2->hwEta()) * etaScale_;
@@ -700,9 +697,7 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
     ugmtOMTFnMuons->Fill(OMTFBxCollection->size(0));
 
     for (int itBX = OMTFBxCollection->getFirstBX(); itBX <= OMTFBxCollection->getLastBX(); ++itBX) {
-      for (l1t::RegionalMuonCandBxCollection::const_iterator OMTF = OMTFBxCollection->begin(itBX);
-           OMTF != OMTFBxCollection->end(itBX);
-           ++OMTF) {
+      for (auto OMTF = OMTFBxCollection->begin(itBX); OMTF != OMTFBxCollection->end(itBX); ++OMTF) {
         ugmtOMTFBX->Fill(itBX);
         ugmtOMTFhwPt->Fill(OMTF->hwPt());
         ugmtOMTFhwEta->Fill(OMTF->hwEta());
@@ -731,8 +726,7 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
         ugmtBXvsLink->Fill(OMTF->link(), itBX);
 
         // Analyse muon correlations
-        for (l1t::RegionalMuonCandBxCollection::const_iterator OMTF2 = OMTF + 1; OMTF2 != OMTFBxCollection->end(itBX);
-             ++OMTF2) {
+        for (auto OMTF2 = OMTF + 1; OMTF2 != OMTFBxCollection->end(itBX); ++OMTF2) {
           int global_hw_phi2 =
               l1t::MicroGMTConfiguration::calcGlobalPhi(OMTF2->hwPhi(), OMTF2->trackFinderType(), OMTF2->processor());
           float dEta = (OMTF->hwEta() - OMTF2->hwEta()) * etaScale_;
@@ -755,9 +749,7 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
     ugmtEMTFnMuons->Fill(EMTFBxCollection->size(0));
 
     for (int itBX = EMTFBxCollection->getFirstBX(); itBX <= EMTFBxCollection->getLastBX(); ++itBX) {
-      for (l1t::RegionalMuonCandBxCollection::const_iterator EMTF = EMTFBxCollection->begin(itBX);
-           EMTF != EMTFBxCollection->end(itBX);
-           ++EMTF) {
+      for (auto EMTF = EMTFBxCollection->begin(itBX); EMTF != EMTFBxCollection->end(itBX); ++EMTF) {
         ugmtEMTFBX->Fill(itBX);
         ugmtEMTFhwPt->Fill(EMTF->hwPt());
         ugmtEMTFhwEta->Fill(EMTF->hwEta());
@@ -786,8 +778,7 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
         ugmtBXvsLink->Fill(EMTF->link(), itBX);
 
         // Analyse muon correlations
-        for (l1t::RegionalMuonCandBxCollection::const_iterator EMTF2 = EMTF + 1; EMTF2 != EMTFBxCollection->end(itBX);
-             ++EMTF2) {
+        for (auto EMTF2 = EMTF + 1; EMTF2 != EMTFBxCollection->end(itBX); ++EMTF2) {
           int global_hw_phi2 =
               l1t::MicroGMTConfiguration::calcGlobalPhi(EMTF2->hwPhi(), EMTF2->trackFinderType(), EMTF2->processor());
           float dEta = (EMTF->hwEta() - EMTF2->hwEta()) * etaScale_;
@@ -813,15 +804,11 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
       if (BMTFBxCollection->size(itBX) < 1 || OMTFBxCollection->size(itBX) < 1) {
         continue;
       }
-      for (l1t::RegionalMuonCandBxCollection::const_iterator BMTF = BMTFBxCollection->begin(itBX);
-           BMTF != BMTFBxCollection->end(itBX);
-           ++BMTF) {
+      for (auto BMTF = BMTFBxCollection->begin(itBX); BMTF != BMTFBxCollection->end(itBX); ++BMTF) {
         int global_hw_phi_bmtf =
             l1t::MicroGMTConfiguration::calcGlobalPhi(BMTF->hwPhi(), BMTF->trackFinderType(), BMTF->processor());
 
-        for (l1t::RegionalMuonCandBxCollection::const_iterator OMTF = OMTFBxCollection->begin(itBX);
-             OMTF != OMTFBxCollection->end(itBX);
-             ++OMTF) {
+        for (auto OMTF = OMTFBxCollection->begin(itBX); OMTF != OMTFBxCollection->end(itBX); ++OMTF) {
           int global_hw_phi_omtf =
               l1t::MicroGMTConfiguration::calcGlobalPhi(OMTF->hwPhi(), OMTF->trackFinderType(), OMTF->processor());
           float dEta = (BMTF->hwEta() - OMTF->hwEta()) * etaScale_;
@@ -849,15 +836,11 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
       if (EMTFBxCollection->size(itBX) < 1 || OMTFBxCollection->size(itBX) < 1) {
         continue;
       }
-      for (l1t::RegionalMuonCandBxCollection::const_iterator EMTF = EMTFBxCollection->begin(itBX);
-           EMTF != EMTFBxCollection->end(itBX);
-           ++EMTF) {
+      for (auto EMTF = EMTFBxCollection->begin(itBX); EMTF != EMTFBxCollection->end(itBX); ++EMTF) {
         int global_hw_phi_emtf =
             l1t::MicroGMTConfiguration::calcGlobalPhi(EMTF->hwPhi(), EMTF->trackFinderType(), EMTF->processor());
 
-        for (l1t::RegionalMuonCandBxCollection::const_iterator OMTF = OMTFBxCollection->begin(itBX);
-             OMTF != OMTFBxCollection->end(itBX);
-             ++OMTF) {
+        for (auto OMTF = OMTFBxCollection->begin(itBX); OMTF != OMTFBxCollection->end(itBX); ++OMTF) {
           int global_hw_phi_omtf =
               l1t::MicroGMTConfiguration::calcGlobalPhi(OMTF->hwPhi(), OMTF->trackFinderType(), OMTF->processor());
           float dEta = (EMTF->hwEta() - OMTF->hwEta()) * etaScale_;
@@ -883,9 +866,7 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
   ugmtnMuons->Fill(MuonBxCollection->size(0));
 
   for (int itBX = MuonBxCollection->getFirstBX(); itBX <= MuonBxCollection->getLastBX(); ++itBX) {
-    for (l1t::MuonBxCollection::const_iterator Muon = MuonBxCollection->begin(itBX);
-         Muon != MuonBxCollection->end(itBX);
-         ++Muon) {
+    for (auto Muon = MuonBxCollection->begin(itBX); Muon != MuonBxCollection->end(itBX); ++Muon) {
       int tfMuonIndex = Muon->tfMuonIndex();
 
       ugmtMuonBX->Fill(itBX);
@@ -943,7 +924,7 @@ void L1TStage2uGMT::analyze(const edm::Event& e, const edm::EventSetup& c) {
       reco::Candidate::PolarLorentzVector muAtVtx1{Muon->pt(), Muon->etaAtVtx(), Muon->phiAtVtx(), 0.106};
 
       // Analyse multi muon events
-      for (l1t::MuonBxCollection::const_iterator Muon2 = Muon + 1; Muon2 != MuonBxCollection->end(itBX); ++Muon2) {
+      for (auto Muon2 = Muon + 1; Muon2 != MuonBxCollection->end(itBX); ++Muon2) {
         reco::Candidate::PolarLorentzVector mu2{Muon2->pt(), Muon2->eta(), Muon2->phi(), 0.106};
         reco::Candidate::PolarLorentzVector muAtVtx2{Muon2->pt(), Muon2->etaAtVtx(), Muon2->phiAtVtx(), 0.106};
         ugmtMuMuInvMass->Fill((mu1 + mu2).M());

@@ -9,6 +9,7 @@ Checks: -*,
   ,modernize-use-equals-delete,
   ,modernize-use-nullptr,
   ,modernize-use-override,
+  ,modernize-use-auto,
   ,performance-unnecessary-copy-initialization,
   ,readability-container-size-empty,
   ,readability-redundant-string-cstr,
@@ -36,6 +37,8 @@ CheckOptions:
     value:           llvm
   - key:             modernize-replace-auto-ptr.IncludeStyle
     value:           llvm
+  - key:             modernize-use-auto.MinTypeNameLength
+    value:           16
   - key:             modernize-use-nullptr.NullMacros
     value:           'NULL'
 ...

@@ -12,8 +12,8 @@ std::pair<typename std::vector<T>::iterator, typename std::vector<T>::iterator> 
     std::vector<T>& values) {
   sort(values.begin(), values.end());
 
-  typename std::vector<T>::iterator begin = values.begin();
-  typename std::vector<T>::iterator end = values.end() - 1;
+  auto begin = values.begin();
+  auto end = values.end() - 1;
 
   while (true) {
     const int size = (int)(end - begin);
@@ -24,10 +24,10 @@ std::pair<typename std::vector<T>::iterator, typename std::vector<T>::iterator> 
 
     end = begin + stepsize;
     T div = (T)fabs((T)(*end) - (T)(*begin));
-    typename std::vector<T>::iterator new_begin = begin;
-    typename std::vector<T>::iterator new_end = end;
+    auto new_begin = begin;
+    auto new_end = end;
 
-    for (typename std::vector<T>::iterator i = (begin + 1); i != (begin + size - stepsize + 1); ++i) {
+    for (auto i = (begin + 1); i != (begin + size - stepsize + 1); ++i) {
       if (fabs((*i) - (*(i + stepsize))) < div) {
         new_begin = i;
         new_end = i + stepsize;

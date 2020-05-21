@@ -38,7 +38,7 @@ namespace trigger {
 
     /// high-level user access method: prescale for given trigger path
     unsigned int prescale(unsigned int set, const std::string& trigger) const {
-      const std::map<std::string, std::vector<unsigned int> >::const_iterator it(table_.find(trigger));
+      const auto it(table_.find(trigger));
       if ((it == table_.end()) || (set >= it->second.size())) {
         return 1;
       } else {

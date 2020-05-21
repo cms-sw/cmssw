@@ -52,7 +52,7 @@ void CaloTPGTranscoderULUT::loadHCALCompress(HcalLutMetadata const& lutMetadata,
 
   std::vector<DetId> allChannels = lutMetadata.getAllChannels();
 
-  for (std::vector<DetId>::iterator i = allChannels.begin(); i != allChannels.end(); ++i) {
+  for (auto i = allChannels.begin(); i != allChannels.end(); ++i) {
     if (not HcalGenericDetId(*i).isHcalTrigTowerDetId()) {
       if ((not HcalGenericDetId(*i).isHcalDetId()) and (not HcalGenericDetId(*i).isHcalZDCDetId()) and
           (not HcalGenericDetId(*i).isHcalCastorDetId()))

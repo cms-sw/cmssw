@@ -42,7 +42,7 @@ void GEMSignalModel::simulate(const GEMEtaPartition* roll,
                               DetectorHitMap& detectorHitMap_) {
   bool digiMuon = false;
   bool digiElec = false;
-  const TrapezoidalStripTopology* top(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
+  const auto* top(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
   for (const auto& hit : simHits) {
     if (std::abs(hit.particleType()) != muonPdgId && digitizeOnlyMuons_)
       continue;
@@ -100,7 +100,7 @@ int GEMSignalModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* e
                          globMiddleRol.z() * globMiddleRol.z());
   double timeCalibrationOffset_ = muRadius / cspeed;  //[ns]
 
-  const TrapezoidalStripTopology* top(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
+  const auto* top(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
   const float halfStripLength(0.5 * top->stripLength());
   const float distanceFromEdge(halfStripLength - simHitPos.y());
 

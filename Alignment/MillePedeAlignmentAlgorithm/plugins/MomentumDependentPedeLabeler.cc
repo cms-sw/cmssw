@@ -54,7 +54,7 @@ unsigned int MomentumDependentPedeLabeler::alignableLabel(Alignable *alignable) 
   if (!alignable)
     return 0;
 
-  AlignableToIdMap::const_iterator position = theAlignableToIdMap.find(alignable);
+  auto position = theAlignableToIdMap.find(alignable);
   if (position != theAlignableToIdMap.end()) {
     return position->second;
   } else {
@@ -76,11 +76,11 @@ unsigned int MomentumDependentPedeLabeler::alignableLabelFromParamAndInstance(Al
   if (!alignable)
     return 0;
 
-  AlignableToIdMap::const_iterator position = theAlignableToIdMap.find(alignable);
+  auto position = theAlignableToIdMap.find(alignable);
   if (position != theAlignableToIdMap.end()) {
-    AlignableToMomentumRangeMap::const_iterator positionAli = theAlignableToMomentumRangeMap.find(alignable);
+    auto positionAli = theAlignableToMomentumRangeMap.find(alignable);
     if (positionAli != theAlignableToMomentumRangeMap.end()) {
-      MomentumRangeParamMap::const_iterator positionParam = (*positionAli).second.find(param);
+      auto positionParam = (*positionAli).second.find(param);
       if (positionParam != (*positionAli).second.end()) {
         if (instance >= (*positionParam).second.size()) {
           throw cms::Exception("Alignment") << "@SUB=MomentumDependentPedeLabeler::alignableLabelFromParamAndMomentum"
@@ -106,7 +106,7 @@ unsigned int MomentumDependentPedeLabeler::alignableLabelFromParamAndInstance(Al
 
 //_________________________________________________________________________
 unsigned int MomentumDependentPedeLabeler::lasBeamLabel(unsigned int lasBeamId) const {
-  UintUintMap::const_iterator position = theLasBeamToLabelMap.find(lasBeamId);
+  auto position = theLasBeamToLabelMap.find(lasBeamId);
   if (position != theLasBeamToLabelMap.end()) {
     return position->second;
   } else {
@@ -139,11 +139,11 @@ unsigned int MomentumDependentPedeLabeler::parameterLabel(Alignable *alignable,
                                       << "Parameter number " << parNum << " out of range 0 <= num < " << theMaxNumParam;
   }
 
-  AlignableToIdMap::const_iterator position = theAlignableToIdMap.find(alignable);
+  auto position = theAlignableToIdMap.find(alignable);
   if (position != theAlignableToIdMap.end()) {
-    AlignableToMomentumRangeMap::const_iterator positionAli = theAlignableToMomentumRangeMap.find(alignable);
+    auto positionAli = theAlignableToMomentumRangeMap.find(alignable);
     if (positionAli != theAlignableToMomentumRangeMap.end()) {
-      MomentumRangeParamMap::const_iterator positionParam = (*positionAli).second.find(parNum);
+      auto positionParam = (*positionAli).second.find(parNum);
       if (positionParam != (*positionAli).second.end()) {
         int offset = 0;
         float mom = tsos.globalMomentum().mag();
@@ -180,7 +180,7 @@ unsigned int MomentumDependentPedeLabeler::parameterLabel(Alignable *alignable,
 
 //_________________________________________________________________________
 bool MomentumDependentPedeLabeler::hasSplitParameters(Alignable *alignable) const {
-  AlignableToMomentumRangeMap::const_iterator positionAli = theAlignableToMomentumRangeMap.find(alignable);
+  auto positionAli = theAlignableToMomentumRangeMap.find(alignable);
   if (positionAli != theAlignableToMomentumRangeMap.end())
     return true;
   return false;
@@ -188,7 +188,7 @@ bool MomentumDependentPedeLabeler::hasSplitParameters(Alignable *alignable) cons
 
 //_________________________________________________________________________
 unsigned int MomentumDependentPedeLabeler::numberOfParameterInstances(Alignable *alignable, int param) const {
-  AlignableToMomentumRangeMap::const_iterator positionAli = theAlignableToMomentumRangeMap.find(alignable);
+  auto positionAli = theAlignableToMomentumRangeMap.find(alignable);
   if (positionAli != theAlignableToMomentumRangeMap.end()) {
     size_t nMomentums = 1;
     if (param == -1) {
@@ -197,7 +197,7 @@ unsigned int MomentumDependentPedeLabeler::numberOfParameterInstances(Alignable 
       }
       return nMomentums;
     } else {
-      MomentumRangeParamMap::const_iterator iParam = (*positionAli).second.find(param);
+      auto iParam = (*positionAli).second.find(param);
       if (iParam != (*positionAli).second.end()) {
         return iParam->second.size();
       } else {
@@ -230,12 +230,12 @@ Alignable *MomentumDependentPedeLabeler::alignableFromLabel(unsigned int label) 
   if (aliLabel < theMinLabel)
     return nullptr;  // error already given
 
-  IdToAlignableMap::const_iterator position = theIdToAlignableMap.find(aliLabel);
+  auto position = theIdToAlignableMap.find(aliLabel);
   if (position != theIdToAlignableMap.end()) {
     return position->second;
   } else {
     // error only if not in lasBeamMap:
-    UintUintMap::const_iterator position = theLabelToLasBeamMap.find(aliLabel);
+    auto position = theLabelToLasBeamMap.find(aliLabel);
     if (position == theLabelToLasBeamMap.end()) {
       edm::LogError("LogicError") << "@SUB=MomentumDependentPedeLabeler::alignableFromLabel"
                                   << "Alignable label " << aliLabel << " not in map.";
@@ -250,7 +250,7 @@ unsigned int MomentumDependentPedeLabeler::lasBeamIdFromLabel(unsigned int label
   if (aliLabel < theMinLabel)
     return 0;  // error already given
 
-  UintUintMap::const_iterator position = theLabelToLasBeamMap.find(aliLabel);
+  auto position = theLabelToLasBeamMap.find(aliLabel);
   if (position != theLabelToLasBeamMap.end()) {
     return position->second;
   } else {
@@ -346,7 +346,7 @@ unsigned int MomentumDependentPedeLabeler::buildMomentumDependencyMap(AlignableT
         }
 
         for (const auto &iParam : selParam) {
-          AlignableToMomentumRangeMap::const_iterator positionAli = theAlignableToMomentumRangeMap.find(iAli);
+          auto positionAli = theAlignableToMomentumRangeMap.find(iAli);
           if (positionAli != theAlignableToMomentumRangeMap.end()) {
             AlignmentParameters *AliParams = (*positionAli).first->alignmentParameters();
             if (static_cast<int>(selParam[selParam.size() - 1]) >= AliParams->size()) {
@@ -354,7 +354,7 @@ unsigned int MomentumDependentPedeLabeler::buildMomentumDependencyMap(AlignableT
                                                 << "mismatch in number of parameters\n";
             }
 
-            MomentumRangeParamMap::const_iterator positionParam = (*positionAli).second.find(iParam);
+            auto positionParam = (*positionAli).second.find(iParam);
             if (positionParam != (*positionAli).second.end()) {
               throw cms::Exception("BadConfig") << "@SUB=MomentumDependentPedeLabeler::buildMomentumDependencyMap\n"
                                                 << "Momentum range for parameter specified twice\n";

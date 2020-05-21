@@ -79,7 +79,7 @@ bool AcceptJet::operator()(const reco::Jet& jet,
 
 double AcceptJet::ratio(const reco::Jet& jet, const edm::Handle<reco::SoftLeptonTagInfoCollection>& infos) const {
   double jetRatio = 0.0;
-  reco::SoftLeptonTagInfoCollection::const_iterator infoiter = infos->begin();
+  auto infoiter = infos->begin();
   for (; infoiter != infos->end(); ++infoiter) {
     if (reco::deltaR(jet.eta(), jet.phi(), infoiter->jet()->eta(), infoiter->jet()->phi()) > 1e-4)
       continue;

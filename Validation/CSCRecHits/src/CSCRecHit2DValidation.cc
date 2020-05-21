@@ -77,7 +77,7 @@ void CSCRecHit2DValidation::analyze(const edm::Event &e, const edm::EventSetup &
   std::vector<int> layersWithSimHits = theSimHitMap->detsWithHits();
   for (unsigned i = 0; i < layersWithSimHits.size(); ++i) {
     edm::PSimHitContainer simHits = theSimHitMap->hits(layersWithSimHits[i]);
-    for (edm::PSimHitContainer::const_iterator hitItr = simHits.begin(); hitItr != simHits.end(); ++hitItr) {
+    for (auto hitItr = simHits.begin(); hitItr != simHits.end(); ++hitItr) {
       const CSCLayer *layer = findLayer(layersWithSimHits[i]);
       int chamberType = layer->chamber()->specs()->chamberType();
       float localX = hitItr->localPosition().x();

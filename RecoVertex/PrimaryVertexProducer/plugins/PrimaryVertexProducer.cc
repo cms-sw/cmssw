@@ -70,9 +70,7 @@ PrimaryVertexProducer::PrimaryVertexProducer(const edm::ParameterSet& conf) : th
     std::vector<edm::ParameterSet> vertexCollections =
         conf.getParameter<std::vector<edm::ParameterSet> >("vertexCollections");
 
-    for (std::vector<edm::ParameterSet>::const_iterator algoconf = vertexCollections.begin();
-         algoconf != vertexCollections.end();
-         algoconf++) {
+    for (auto algoconf = vertexCollections.begin(); algoconf != vertexCollections.end(); algoconf++) {
       algo algorithm;
       std::string fitterAlgorithm = algoconf->getParameter<std::string>("algorithm");
       if (fitterAlgorithm == "KalmanVertexFitter") {
@@ -122,7 +120,7 @@ PrimaryVertexProducer::~PrimaryVertexProducer() {
     delete theTrackFilter;
   if (theTrackClusterizer)
     delete theTrackClusterizer;
-  for (std::vector<algo>::const_iterator algorithm = algorithms.begin(); algorithm != algorithms.end(); algorithm++) {
+  for (auto algorithm = algorithms.begin(); algorithm != algorithms.end(); algorithm++) {
     if (algorithm->fitter)
       delete algorithm->fitter;
     if (algorithm->vertexSelector)
@@ -186,14 +184,12 @@ void PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   }
 
   // vertex fits
-  for (std::vector<algo>::const_iterator algorithm = algorithms.begin(); algorithm != algorithms.end(); algorithm++) {
+  for (auto algorithm = algorithms.begin(); algorithm != algorithms.end(); algorithm++) {
     auto result = std::make_unique<reco::VertexCollection>();
     reco::VertexCollection& vColl = (*result);
 
     std::vector<TransientVertex> pvs;
-    for (std::vector<std::vector<reco::TransientTrack> >::const_iterator iclus = clusters.begin();
-         iclus != clusters.end();
-         iclus++) {
+    for (auto iclus = clusters.begin(); iclus != clusters.end(); iclus++) {
       double sumwt = 0.;
       double sumwt2 = 0.;
       double sumw = 0.;
@@ -277,7 +273,7 @@ void PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     }
 
     // convert transient vertices returned by the theAlgo to (reco) vertices
-    for (std::vector<TransientVertex>::const_iterator iv = pvs.begin(); iv != pvs.end(); iv++) {
+    for (auto iv = pvs.begin(); iv != pvs.end(); iv++) {
       reco::Vertex v = *iv;
       vColl.push_back(v);
     }
@@ -306,7 +302,7 @@ void PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
     if (fVerbose) {
       int ivtx = 0;
-      for (reco::VertexCollection::const_iterator v = vColl.begin(); v != vColl.end(); ++v) {
+      for (auto v = vColl.begin(); v != vColl.end(); ++v) {
         std::cout << "recvtx " << ivtx++ << "#trk " << std::setw(3) << v->tracksSize() << " chi2 " << std::setw(4)
                   << v->chi2() << " ndof " << std::setw(3) << v->ndof() << " x " << std::setw(6) << v->position().x()
                   << " dx " << std::setw(6) << v->xError() << " y " << std::setw(6) << v->position().y() << " dy "

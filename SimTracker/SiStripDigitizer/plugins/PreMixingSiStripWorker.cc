@@ -228,7 +228,7 @@ void PreMixingSiStripWorker::DMinitializeDetUnit(StripGeomDetUnit const* det, co
   hipChannels.clear();
   hipChannels.insert(hipChannels.begin(), numStrips, false);
 
-  for (SiStripBadStrip::ContainerIterator it = detBadStripRange.first; it != detBadStripRange.second; ++it) {
+  for (auto it = detBadStripRange.first; it != detBadStripRange.second; ++it) {
     SiStripBadStrip::data fs = deadChannelHandle->decode(*it);
     for (int strip = fs.firstStrip; strip < fs.firstStrip + fs.range; ++strip)
       badChannels[strip] = true;
@@ -246,7 +246,7 @@ void PreMixingSiStripWorker::addSignals(const edm::Event& e, edm::EventSetup con
     OneDetectorMap LocalMap;
 
     //loop on all detsets (detectorIDs) inside the input collection
-    edm::DetSetVector<SiStripDigi>::const_iterator DSViter = input->begin();
+    auto DSViter = input->begin();
     for (; DSViter != input->end(); DSViter++) {
 #ifdef DEBUG
       LogDebug("PreMixingSiStripWorker") << "Processing DetID " << DSViter->id;
@@ -290,7 +290,7 @@ void PreMixingSiStripWorker::addPileups(PileUpEventPrincipal const& pep, edm::Ev
     OneDetectorMap LocalMap;
 
     //loop on all detsets (detectorIDs) inside the input collection
-    edm::DetSetVector<SiStripDigi>::const_iterator DSViter = input.begin();
+    auto DSViter = input.begin();
     for (; DSViter != input.end(); DSViter++) {
 #ifdef DEBUG
       LogDebug("PreMixingSiStripWorker") << "Pileups: Processing DetID " << DSViter->id;
@@ -328,7 +328,7 @@ void PreMixingSiStripWorker::addPileups(PileUpEventPrincipal const& pep, edm::Ev
       if (inputAPVHandle.isValid()) {
         const auto& APVinput = inputAPVHandle;
 
-        std::vector<std::pair<int, std::bitset<6>>>::const_iterator entry = APVinput->begin();
+        auto entry = APVinput->begin();
         for (; entry != APVinput->end(); entry++) {
           theAffectedAPVmap_.insert(APVMap::value_type(entry->first, entry->second));
         }
@@ -395,7 +395,7 @@ void PreMixingSiStripWorker::put(edm::Event& e,
   // be done in this routine.  So, yes, there is an extra loop over hits here in the current code,
   // because, in principle, one could convert to pulse height during the read/store phase.
 
-  for (SiGlobalIndex::const_iterator IDet = SiHitStorage_.begin(); IDet != SiHitStorage_.end(); IDet++) {
+  for (auto IDet = SiHitStorage_.begin(); IDet != SiHitStorage_.end(); IDet++) {
     uint32_t detID = IDet->first;
 
     OneDetectorMap LocalMap = IDet->second;
@@ -404,7 +404,7 @@ void PreMixingSiStripWorker::put(edm::Event& e,
 
     LocalRawMap.clear();
 
-    OneDetectorMap::const_iterator iLocal = LocalMap.begin();
+    auto iLocal = LocalMap.begin();
     for (; iLocal != LocalMap.end(); ++iLocal) {
       uint16_t currentStrip = iLocal->strip();
       float signal = float(iLocal->adc());
@@ -449,7 +449,7 @@ void PreMixingSiStripWorker::put(edm::Event& e,
     uint32_t currentID;
     std::bitset<6> NewAPVBits;
 
-    for (APVMap::const_iterator iAPV = theAffectedAPVmap_.begin(); iAPV != theAffectedAPVmap_.end(); ++iAPV) {
+    for (auto iAPV = theAffectedAPVmap_.begin(); iAPV != theAffectedAPVmap_.end(); ++iAPV) {
       currentID = iAPV->first;
 
       if (currentID == formerID) {  // we have to OR these
@@ -483,7 +483,7 @@ void PreMixingSiStripWorker::put(edm::Event& e,
   signals_.clear();
 
   // big loop over Detector IDs:
-  for (SiGlobalRawIndex::const_iterator IDet = SiRawDigis_.begin(); IDet != SiRawDigis_.end(); IDet++) {
+  for (auto IDet = SiRawDigis_.begin(); IDet != SiRawDigis_.end(); IDet++) {
     uint32_t detID = IDet->first;
 
     SignalMapType Signals;
@@ -499,7 +499,7 @@ void PreMixingSiStripWorker::put(edm::Event& e,
     //loop over hit strips for this DetId, add duplicates
 
     OneDetectorRawMap::const_iterator iLocalchk;
-    OneDetectorRawMap::const_iterator iLocal = LocalMap.begin();
+    auto iLocal = LocalMap.begin();
     for (; iLocal != LocalMap.end(); ++iLocal) {
       currentStrip = iLocal->first;  // strip is first element
 
@@ -528,7 +528,7 @@ void PreMixingSiStripWorker::put(edm::Event& e,
   // This section stolen from SiStripDigitizerAlgorithm
   // must loop over all detIds in the tracker to get all of the noise added properly.
   for (const auto& iu : pDD->detUnits()) {
-    const StripGeomDetUnit* sgd = dynamic_cast<const StripGeomDetUnit*>(iu);
+    const auto* sgd = dynamic_cast<const StripGeomDetUnit*>(iu);
     if (sgd != nullptr) {
       uint32_t detID = sgd->geographicalId().rawId();
 

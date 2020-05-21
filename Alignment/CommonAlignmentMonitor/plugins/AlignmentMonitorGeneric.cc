@@ -85,7 +85,7 @@ void AlignmentMonitorGeneric::event(const edm::Event& iEvent,
         const Alignable* ali = pNavigator()->alignableFromDetId(hit.geographicalId());
 
         while (ali) {
-          std::map<const Alignable*, Hist1Ds>::iterator h = m_resHists.find(ali);
+          auto h = m_resHists.find(ali);
           if (h != m_resHists.end()) {
             TrajectoryStateOnSurface tsos = tsoscomb(meas.forwardPredictedState(), meas.backwardPredictedState());
 

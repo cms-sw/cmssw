@@ -196,9 +196,7 @@ bool RPCRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   std::map<int, bool> vectorEndcapCandsNegative;
 
   // barrel
-  for (std::map<pair<int, int>, std::vector<RPCDetId> >::const_iterator iter =
-           numberOfRecHitsSameWheelSameSector.begin();
-       iter != numberOfRecHitsSameWheelSameSector.end();
+  for (auto iter = numberOfRecHitsSameWheelSameSector.begin(); iter != numberOfRecHitsSameWheelSameSector.end();
        ++iter) {
     vectorBarrelCands[1] = false;
     vectorBarrelCands[2] = false;
@@ -225,9 +223,7 @@ bool RPCRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   }
 
   // endcap positive
-  for (std::map<pair<int, int>, std::vector<RPCDetId> >::const_iterator iter =
-           numberOfHitsSameDiskSectorPositive.begin();
-       iter != numberOfHitsSameDiskSectorPositive.end();
+  for (auto iter = numberOfHitsSameDiskSectorPositive.begin(); iter != numberOfHitsSameDiskSectorPositive.end();
        ++iter) {
     vectorEndcapCandsPositive[1] = false;
     vectorEndcapCandsPositive[2] = false;
@@ -253,9 +249,7 @@ bool RPCRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   }
 
   // endcap negative
-  for (std::map<pair<int, int>, std::vector<RPCDetId> >::const_iterator iter =
-           numberOfHitsSameDiskSectorNegative.begin();
-       iter != numberOfHitsSameDiskSectorNegative.end();
+  for (auto iter = numberOfHitsSameDiskSectorNegative.begin(); iter != numberOfHitsSameDiskSectorNegative.end();
        ++iter) {
     vectorEndcapCandsNegative[1] = false;
     vectorEndcapCandsNegative[2] = false;

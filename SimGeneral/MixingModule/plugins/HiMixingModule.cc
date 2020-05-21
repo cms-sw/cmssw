@@ -181,7 +181,7 @@ namespace edm {
     if (simtags.size() != gentags.size())
       LogError("MixingInput") << "Generator and Simulation input lists are not matching each other" << endl;
 
-    for (std::vector<string>::iterator it = names.begin(); it != names.end(); ++it) {
+    for (auto it = names.begin(); it != names.end(); ++it) {
       ParameterSet pstag = ps.getParameter<ParameterSet>((*it));
       if (!pstag.exists("type"))
         continue;  //to allow replacement by empty pset
@@ -270,9 +270,7 @@ namespace edm {
     else
       lookfor = "std::vector<" + object + ">";
     bool found = false;
-    for (edm::ProductRegistry::ProductList::const_iterator it = reg->productList().begin();
-         it != reg->productList().end();
-         ++it) {
+    for (auto it = reg->productList().begin(); it != reg->productList().end(); ++it) {
       // See FWCore/Framework/interface/BranchDescription.h
       // BranchDescription contains all the information for the product.
       edm::BranchDescription desc = it->second;

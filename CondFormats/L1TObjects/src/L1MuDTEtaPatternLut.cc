@@ -132,7 +132,7 @@ void L1MuDTEtaPatternLut::print() const {
   cout << "======================" << endl;
   cout << endl;
 
-  LUT::const_iterator iter = m_lut.begin();
+  auto iter = m_lut.begin();
   while (iter != m_lut.end()) {
     cout << (*iter).second << endl;
     iter++;
@@ -145,7 +145,7 @@ void L1MuDTEtaPatternLut::print() const {
 // get pattern with a given ID
 //
 L1MuDTEtaPattern L1MuDTEtaPatternLut::getPattern(int id) const {
-  LUT::const_iterator it = m_lut.find(id);
+  auto it = m_lut.find(id);
   if (it == m_lut.end()) {
     cerr << "Error: L1MuDTEtaPatternLut: pattern not found : " << id << endl;
     //    return 0;

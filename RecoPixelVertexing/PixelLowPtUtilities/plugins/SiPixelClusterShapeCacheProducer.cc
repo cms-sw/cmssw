@@ -71,7 +71,7 @@ void SiPixelClusterShapeCacheProducer::produce(edm::StreamID, edm::Event& iEvent
 
   for (const auto& detSet : *input) {
     const GeomDetUnit* genericDet = geom->idToDetUnit(detSet.detId());
-    const PixelGeomDetUnit* pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
+    const auto* pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
     assert(pixDet);
 
     edmNew::DetSet<SiPixelCluster>::const_iterator iCluster = detSet.begin(), endCluster = detSet.end();

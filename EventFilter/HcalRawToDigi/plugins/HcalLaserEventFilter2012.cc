@@ -178,7 +178,7 @@ bool HcalLaserEventFilter2012::filter(edm::Event& iEvent, const edm::EventSetup&
   thisevent << run << ":" << iEvent.luminosityBlock() << ":" << iEvent.id().event();
 
   // Event not found in bad list; it is a good event
-  strVecI it = std::lower_bound(EventList_.begin(), EventList_.end(), thisevent.str());
+  auto it = std::lower_bound(EventList_.begin(), EventList_.end(), thisevent.str());
   if (it == EventList_.end() || thisevent.str() < *it)
     return true;
   // Otherwise, this is a bad event

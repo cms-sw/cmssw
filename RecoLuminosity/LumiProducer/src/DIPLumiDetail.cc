@@ -27,8 +27,8 @@ std::ostream& operator<<(std::ostream& s, DIPLumiDetail const& diplumiDetail) {
   s << "\nDumping DIPLumiDetail\n";
   std::cout.setf(std::ios::fixed, std::ios::floatfield);
   std::cout.setf(std::ios::showpoint);
-  std::vector<float>::const_iterator lumivalueIt = diplumiDetail.lumiValues().first;
-  std::vector<float>::const_iterator lumivalueEnd = diplumiDetail.lumiValues().second;
+  auto lumivalueIt = diplumiDetail.lumiValues().first;
+  auto lumivalueEnd = diplumiDetail.lumiValues().second;
   for (unsigned int i = 0; lumivalueIt != lumivalueEnd; ++lumivalueIt, ++i) {
     s << std::setw(10) << " bunch = " << i << " bunchlumi = " << *lumivalueIt << "\n";
   }

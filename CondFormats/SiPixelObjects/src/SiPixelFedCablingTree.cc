@@ -101,7 +101,7 @@ string SiPixelFedCablingTree::print(int depth) const {
   ostringstream out;
   if (depth-- >= 0) {
     out << theVersion << endl;
-    for (IMAP it = theFedCablings.begin(); it != theFedCablings.end(); it++) {
+    for (auto it = theFedCablings.begin(); it != theFedCablings.end(); it++) {
       out << (*it).second.print(depth);
     }
   }
@@ -111,7 +111,7 @@ string SiPixelFedCablingTree::print(int depth) const {
 
 std::vector<const PixelFEDCabling*> SiPixelFedCablingTree::fedList() const {
   std::vector<const PixelFEDCabling*> result;
-  for (IMAP im = theFedCablings.begin(); im != theFedCablings.end(); im++) {
+  for (auto im = theFedCablings.begin(); im != theFedCablings.end(); im++) {
     result.push_back(&(im->second));
   }
   std::sort(result.begin(), result.end(), [](const PixelFEDCabling* a, const PixelFEDCabling* b) {

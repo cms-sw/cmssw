@@ -164,7 +164,7 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event &iEvent, const EventSetup &iSetu
     return;
   }
 
-  for (EcalRecHitCollection::const_iterator ecItr = (*ec).begin(); ecItr != (*ec).end(); ++ecItr) {
+  for (auto ecItr = (*ec).begin(); ecItr != (*ec).end(); ++ecItr) {
     hiDistrRecHitEnergyEBEE_->Fill(ecItr->energy());
   }
 
@@ -176,7 +176,7 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event &iEvent, const EventSetup &iSetu
     return;
   }
 
-  for (HBHERecHitCollection::const_iterator hbheItr = hbhe->begin(); hbheItr != hbhe->end(); hbheItr++) {
+  for (auto hbheItr = hbhe->begin(); hbheItr != hbhe->end(); hbheItr++) {
     hiDistrRecHitEnergyHBHE_->Fill(hbheItr->energy());
   }
 
@@ -188,7 +188,7 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event &iEvent, const EventSetup &iSetu
     return;
   }
 
-  for (HORecHitCollection::const_iterator hoItr = ho->begin(); hoItr != ho->end(); hoItr++) {
+  for (auto hoItr = ho->begin(); hoItr != ho->end(); hoItr++) {
     hiDistrRecHitEnergyHO_->Fill(hoItr->energy());
   }
 
@@ -200,7 +200,7 @@ void DQMHcalDiJetsAlCaReco::analyze(const Event &iEvent, const EventSetup &iSetu
     return;
   }
 
-  for (HFRecHitCollection::const_iterator hfItr = hf->begin(); hfItr != hf->end(); hfItr++) {
+  for (auto hfItr = hf->begin(); hfItr != hf->end(); hfItr++) {
     hiDistrRecHitEnergyHF_->Fill(hfItr->energy());
   }
 

@@ -930,8 +930,8 @@ namespace spr {
 
     spr::trackAtOrigin trk;
 
-    edm::SimTrackContainer::const_iterator itr = SimTk->end();
-    for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
+    auto itr = SimTk->end();
+    for (auto simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
       if (simTrkItr->trackId() == thisTrk) {
 #ifdef EDM_ML_DEBUG
         if (debug)
@@ -945,7 +945,7 @@ namespace spr {
     if (itr != SimTk->end()) {
       int vertIndex = itr->vertIndex();
       if (vertIndex != -1 && vertIndex < (int)SimVtx->size()) {
-        edm::SimVertexContainer::const_iterator simVtxItr = SimVtx->begin();
+        auto simVtxItr = SimVtx->begin();
         for (int iv = 0; iv < vertIndex; iv++)
           simVtxItr++;
         const math::XYZTLorentzVectorD pos = simVtxItr->position();

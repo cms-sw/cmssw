@@ -109,7 +109,7 @@ void GenParticles2HepMCConverter::produce(edm::Event& event, const edm::EventSet
   const reco::Candidate *parton1 = nullptr, *parton2 = nullptr;
   for (unsigned int i = 0, n = genParticlesHandle->size(); i < n; ++i) {
     const reco::Candidate* p = &genParticlesHandle->at(i);
-    HepMC::GenParticle* hepmc_particle = new HepMC::GenParticle(FourVector(p->p4()), p->pdgId(), p->status());
+    auto* hepmc_particle = new HepMC::GenParticle(FourVector(p->p4()), p->pdgId(), p->status());
     hepmc_particle->suggest_barcode(i + 1);
 
     // Assign particle's generated mass from the standard particle data table

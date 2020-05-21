@@ -86,7 +86,7 @@ namespace {
     int neutralMultiplicity = 0;
     int muonMultiplicity = 0;
     for (auto const& jetConstituent : jetConstituents) {
-      const reco::PFCandidate* pfCandidate = dynamic_cast<const reco::PFCandidate*>(jetConstituent.get());
+      const auto* pfCandidate = dynamic_cast<const reco::PFCandidate*>(jetConstituent.get());
       if (pfCandidate) {
         switch (pfCandidate->particleId()) {
           case reco::PFCandidate::h:  // charged hadron

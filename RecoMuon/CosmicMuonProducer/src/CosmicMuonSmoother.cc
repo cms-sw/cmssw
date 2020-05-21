@@ -163,7 +163,7 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
   }
   //const TransientTrackingRecHit& firsthit = *hits.front();
 
-  for (ConstRecHitContainer::const_iterator ihit = hits.begin() + 1; ihit != hits.end(); ++ihit) {
+  for (auto ihit = hits.begin() + 1; ihit != hits.end(); ++ihit) {
     if (!(**ihit).isValid()) {
       LogTrace(category_) << "Error: invalid hit.";
       continue;
@@ -226,7 +226,7 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
 
   std::vector<TrajectoryMeasurement> mytms = myTraj.measurements();
   LogTrace(category_) << "fit result " << mytms.size();
-  for (std::vector<TrajectoryMeasurement>::const_iterator itm = mytms.begin(); itm != mytms.end(); ++itm) {
+  for (auto itm = mytms.begin(); itm != mytms.end(); ++itm) {
     LogTrace(category_) << "updated pos " << itm->updatedState().globalPosition() << "mom "
                         << itm->updatedState().globalMomentum();
   }
@@ -240,7 +240,7 @@ vector<Trajectory> CosmicMuonSmoother::fit(const TrajectorySeed& seed,
 vector<Trajectory> CosmicMuonSmoother::smooth(const vector<Trajectory>& tc) const {
   vector<Trajectory> result;
 
-  for (vector<Trajectory>::const_iterator it = tc.begin(); it != tc.end(); ++it) {
+  for (auto it = tc.begin(); it != tc.end(); ++it) {
     vector<Trajectory> smoothed = smooth(*it);
     result.insert(result.end(), smoothed.begin(), smoothed.end());
   }
@@ -300,7 +300,7 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const Trajectory& t) const {
 
   TrajectoryStateCombiner combiner;
 
-  for (vector<TrajectoryMeasurement>::reverse_iterator itm = avtm.rbegin() + 1; itm != avtm.rend() - 1; ++itm) {
+  for (auto itm = avtm.rbegin() + 1; itm != avtm.rend() - 1; ++itm) {
     if (currTsos.isValid()) {
       LogTrace(category_) << "current pos " << currTsos.globalPosition() << "mom " << currTsos.globalMomentum();
     } else {

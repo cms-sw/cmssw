@@ -209,7 +209,7 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c) {
   // DCC
   vector<int> fiberStatus;
   if (e.getByToken(dccCollections_, dccs)) {
-    for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
+    for (auto dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
       ESDCCHeaderBlock dcc = (*dccItr);
 
       meFED_->Fill(dcc.fedId());
@@ -286,7 +286,7 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c) {
 
   // KCHIP's
   if (e.getByToken(kchipCollections_, kchips)) {
-    for (ESLocalRawDataCollection::const_iterator kItr = kchips->begin(); kItr != kchips->end(); ++kItr) {
+    for (auto kItr = kchips->begin(); kItr != kchips->end(); ++kItr) {
       ESKCHIPBlock kchip = (*kItr);
 
       meKF1_->Fill(kchip.id(), kchip.getFlag1());

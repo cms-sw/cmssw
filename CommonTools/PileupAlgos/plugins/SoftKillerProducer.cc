@@ -113,7 +113,7 @@ void SoftKillerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   for (auto j = fjInputs.begin(), jend = fjInputs.end(); j != jend; ++j) {
     const reco::Candidate& cand = pfCandidates->at(j->user_index());
     auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(cand.pdgId());
-    const reco::PFCandidate* pPF = dynamic_cast<const reco::PFCandidate*>(&cand);
+    const auto* pPF = dynamic_cast<const reco::PFCandidate*>(&cand);
     reco::PFCandidate pCand(pPF ? *pPF : reco::PFCandidate(cand.charge(), cand.p4(), id));
     auto val = j->user_index();
     auto skmatch = find_if(soft_killed_event.begin(), soft_killed_event.end(), [&val](fastjet::PseudoJet const& i) {

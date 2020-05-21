@@ -46,7 +46,7 @@ DTSLRecCluster::DTSLRecCluster(const DTSuperLayerId id,
 vector<const TrackingRecHit*> DTSLRecCluster::recHits() const {
   std::vector<const TrackingRecHit*> pointersOfRecHits;
 
-  for (std::vector<DTRecHit1DPair>::const_iterator rechit = thePairs.begin(); rechit != thePairs.end(); rechit++)
+  for (auto rechit = thePairs.begin(); rechit != thePairs.end(); rechit++)
     pointersOfRecHits.push_back(&(*rechit));
 
   return pointersOfRecHits;
@@ -55,7 +55,7 @@ vector<const TrackingRecHit*> DTSLRecCluster::recHits() const {
 vector<TrackingRecHit*> DTSLRecCluster::recHits() {
   std::vector<TrackingRecHit*> pointersOfRecHits;
 
-  for (std::vector<DTRecHit1DPair>::iterator rechit = thePairs.begin(); rechit != thePairs.end(); rechit++)
+  for (auto rechit = thePairs.begin(); rechit != thePairs.end(); rechit++)
     pointersOfRecHits.push_back(&(*rechit));
 
   return pointersOfRecHits;

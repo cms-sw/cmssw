@@ -111,7 +111,7 @@ void InterestingTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::E
   iEvent.getByToken(trackCollectionToken_, tracks);
 
   // Loop over tracks
-  for (reco::TrackCollection::const_iterator tkItr = tracks->begin(); tkItr != tracks->end(); ++tkItr) {
+  for (auto tkItr = tracks->begin(); tkItr != tracks->end(); ++tkItr) {
     if (tkItr->pt() < minTrackPt_)
       continue;
 
@@ -126,7 +126,7 @@ void InterestingTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::E
     // Find 5x5 around max
     const CaloSubdetectorTopology* topology = caloTopology_->getSubdetectorTopology(DetId::Ecal, centerId.subdetId());
     const std::vector<DetId>& ids = topology->getWindow(centerId, 5, 5);
-    for (std::vector<DetId>::const_iterator idItr = ids.begin(); idItr != ids.end(); ++idItr) {
+    for (auto idItr = ids.begin(); idItr != ids.end(); ++idItr) {
       if (std::find(interestingDetIdCollection->begin(), interestingDetIdCollection->end(), *idItr) ==
           interestingDetIdCollection->end())
         interestingDetIdCollection->push_back(*idItr);

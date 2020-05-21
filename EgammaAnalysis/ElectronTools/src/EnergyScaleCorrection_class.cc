@@ -72,7 +72,7 @@ correctionValue_class EnergyScaleCorrection_class::getScaleCorrection(
     unsigned int runNumber, bool isEBEle, double R9Ele, double etaSCEle, double EtEle) const {
   // buld the category based on the values of the object
   correctionCategory_class category(runNumber, etaSCEle, R9Ele, EtEle);
-  correction_map_t::const_iterator corr_itr =
+  auto corr_itr =
       scales.find(category);  // find the correction value in the map that associates the category to the correction
 
   if (corr_itr == scales.end()) {  // if not in the standard classes, add it in the list of not defined classes
@@ -106,7 +106,7 @@ float EnergyScaleCorrection_class::getScaleOffset(
     unsigned int runNumber, bool isEBEle, double R9Ele, double etaSCEle, double EtEle) const {
   // buld the category based on the values of the object
   correctionCategory_class category(runNumber, etaSCEle, R9Ele, EtEle);
-  correction_map_t::const_iterator corr_itr =
+  auto corr_itr =
       scales.find(category);  // find the correction value in the map that associates the category to the correction
 
   if (corr_itr == scales.end()) {  // if not in the standard classes, add it in the list of not defined classes
@@ -345,7 +345,7 @@ float EnergyScaleCorrection_class::getSmearingSigma(
 float EnergyScaleCorrection_class::getSmearingSigma(
     int runNumber, bool isEBEle, float R9Ele, float etaSCEle, float EtEle, float nSigma_rho, float nSigma_phi) const {
   correctionCategory_class category(runNumber, etaSCEle, R9Ele, EtEle);
-  correction_map_t::const_iterator corr_itr = smearings.find(category);
+  auto corr_itr = smearings.find(category);
   if (corr_itr == smearings.end()) {  // if not in the standard classes, add it in the list of not defined classes
     // the following commented part makes the method non const
     // if(smearings_not_defined.count(category) == 0) {
@@ -376,7 +376,7 @@ float EnergyScaleCorrection_class::getSmearingSigma(
 float EnergyScaleCorrection_class::getSmearingRho(
     int runNumber, bool isEBEle, float R9Ele, float etaSCEle, float EtEle) const {
   correctionCategory_class category(runNumber, etaSCEle, R9Ele, EtEle);
-  correction_map_t::const_iterator corr_itr = smearings.find(category);
+  auto corr_itr = smearings.find(category);
   if (corr_itr == smearings.end()) {  // if not in the standard classes, add it in the list of not defined classes
     // if(smearings_not_defined.count(category) == 0) {
     // 	correctionValue_class corr;

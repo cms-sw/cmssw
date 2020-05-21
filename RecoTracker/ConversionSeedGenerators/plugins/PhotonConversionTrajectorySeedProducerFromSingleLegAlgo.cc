@@ -115,8 +115,7 @@ void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::loopOnTracks() {
   ss.str("");
 #endif
 
-  for (reco::TrackCollection::const_iterator tr = trackCollectionH->begin(); tr != trackCollectionH->end();
-       tr++, idx++) {
+  for (auto tr = trackCollectionH->begin(); tr != trackCollectionH->end(); tr++, idx++) {
     if (rejectTrack(*tr))
       continue;
     std::vector<reco::Vertex> selectedPriVtxCompatibleWithTrack;
@@ -206,7 +205,7 @@ void PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::loopOnPriVtx(
   for (auto const& vtx : selectedPriVtxCompatibleWithTrack) {
     math::XYZPoint primaryVertexPoint = math::XYZPoint(vtx.position());
 
-    for (IR ir = regions.begin(), irEnd = regions.end(); ir < irEnd; ++ir) {
+    for (auto ir = regions.begin(), irEnd = regions.end(); ir < irEnd; ++ir) {
       const TrackingRegion& region = **ir;
 
 #ifdef debugTSPFSLA

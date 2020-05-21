@@ -110,11 +110,11 @@ void DTLocalTriggerBaseTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg
       << "[DTLocalTriggerBaseTask]: Begin of LS transition" << endl;
 
   if (nLumis % resetCycle == 0) {
-    map<uint32_t, map<string, MonitorElement*> >::const_iterator chambIt = chamberHistos.begin();
-    map<uint32_t, map<string, MonitorElement*> >::const_iterator chambEnd = chamberHistos.end();
+    auto chambIt = chamberHistos.begin();
+    auto chambEnd = chamberHistos.end();
     for (; chambIt != chambEnd; ++chambIt) {
-      map<string, MonitorElement*>::const_iterator histoIt = chambIt->second.begin();
-      map<string, MonitorElement*>::const_iterator histoEnd = chambIt->second.end();
+      auto histoIt = chambIt->second.begin();
+      auto histoEnd = chambIt->second.end();
       for (; histoIt != histoEnd; ++histoIt) {
         histoIt->second->Reset();
       }
@@ -125,8 +125,8 @@ void DTLocalTriggerBaseTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg
 void DTLocalTriggerBaseTask::endLuminosityBlock(const LuminosityBlock& lumiSeg, const EventSetup& context) {
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask") << "[DTLocalTriggerBaseTask]: End of LS transition" << endl;
 
-  map<uint32_t, DTTimeEvolutionHisto*>::const_iterator chambIt = trendHistos.begin();
-  map<uint32_t, DTTimeEvolutionHisto*>::const_iterator chambEnd = trendHistos.end();
+  auto chambIt = trendHistos.begin();
+  auto chambEnd = trendHistos.end();
   for (; chambIt != chambEnd; ++chambIt) {
     cout << "updating time slot in DTLocalTriggerBaseTask" << endl;
     chambIt->second->updateTimeSlot(lumiSeg.luminosityBlock(), nEventsInLS);
@@ -190,8 +190,8 @@ void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker& ibooker, const DTCham
   string chTag = "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
   string labelInOut = "";
 
-  vector<string>::const_iterator typeIt = theTypes.begin();
-  vector<string>::const_iterator typeEnd = theTypes.end();
+  auto typeIt = theTypes.begin();
+  auto typeEnd = theTypes.end();
 
   for (; typeIt != typeEnd; ++typeIt) {
     LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerBaseTask")
@@ -316,8 +316,8 @@ void DTLocalTriggerBaseTask::bookHistos(DQMStore::IBooker& ibooker, const DTCham
 void DTLocalTriggerBaseTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phInTrigs,
                                            std::vector<L1MuDTChambPhDigi> const* phOutTrigs,
                                            std::vector<L1MuDTChambThDigi> const* thTrigs) {
-  vector<L1MuDTChambPhDigi>::const_iterator iph = phInTrigs->begin();
-  vector<L1MuDTChambPhDigi>::const_iterator iphe = phInTrigs->end();
+  auto iph = phInTrigs->begin();
+  auto iphe = phInTrigs->end();
 
   for (; iph != iphe; ++iph) {
     int wh = iph->whNum();
@@ -396,8 +396,8 @@ void DTLocalTriggerBaseTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const*
     }
   }
 
-  vector<L1MuDTChambThDigi>::const_iterator ith = thTrigs->begin();
-  vector<L1MuDTChambThDigi>::const_iterator ithe = thTrigs->end();
+  auto ith = thTrigs->begin();
+  auto ithe = thTrigs->end();
 
   for (; ith != ithe; ++ith) {
     int wh = ith->whNum();
@@ -424,8 +424,8 @@ void DTLocalTriggerBaseTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const*
   }
   // Fill Quality plots with best TM triggers (phi view In)
   if (!tpMode) {
-    map<uint32_t, DTTPGCompareUnit>::const_iterator compIt = theCompMapIn.begin();
-    map<uint32_t, DTTPGCompareUnit>::const_iterator compEnd = theCompMapIn.end();
+    auto compIt = theCompMapIn.begin();
+    auto compEnd = theCompMapIn.end();
     for (; compIt != compEnd; ++compIt) {
       int bestQual = compIt->second.qualTM();
       if (bestQual > -1)
@@ -435,8 +435,8 @@ void DTLocalTriggerBaseTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const*
 
   // Fill Quality plots with best TM triggers (phi view Out)
   if (!tpMode) {
-    map<uint32_t, DTTPGCompareUnit>::const_iterator compIt = theCompMapOut.begin();
-    map<uint32_t, DTTPGCompareUnit>::const_iterator compEnd = theCompMapOut.end();
+    auto compIt = theCompMapOut.begin();
+    auto compEnd = theCompMapOut.end();
     for (; compIt != compEnd; ++compIt) {
       int bestQual = compIt->second.qualTM();
       if (bestQual > -1)

@@ -56,7 +56,7 @@ public:
   float discriminator(const TagInfoHelper& ti) const override {
     const TagInfo& tkip = ti.get<TagInfo>();
     std::multiset<float> significances = orderedSignificances(tkip);
-    std::multiset<float>::reverse_iterator nth = significances.rbegin();
+    auto nth = significances.rbegin();
     for (int i = 0; i < m_nthTrack - 1 && nth != significances.rend(); i++)
       nth++;
     if (nth != significances.rend())
@@ -79,9 +79,7 @@ protected:
                    tkip.primaryVertex()->position().y(),
                    tkip.primaryVertex()->position().z());
 
-    for (std::vector<reco::btag::TrackIPData>::const_iterator it = impactParameters.begin();
-         it != impactParameters.end();
-         ++it, i++) {
+    for (auto it = impactParameters.begin(); it != impactParameters.end(); ++it, i++) {
       if (fabs(impactParameters[i].distanceToJetAxis.value()) < m_cutMaxDistToAxis &&  // distance to JetAxis
           (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen &&      // max decay len
           (m_useAllQualities == true ||

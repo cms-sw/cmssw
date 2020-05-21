@@ -17,7 +17,7 @@ typename KalmanSmoothedVertexChi2Estimator<N>::BDpair KalmanSmoothedVertexChi2Es
   std::vector<RefCountedVertexTrack> tracks = vertex.tracks();
   float sum = 0.;
   bool success = true;
-  for (typename std::vector<RefCountedVertexTrack>::iterator i = tracks.begin(); i != tracks.end(); i++) {
+  for (auto i = tracks.begin(); i != tracks.end(); i++) {
     BDpair result = helper.trackParameterChi2((*i)->linearizedTrack(), (*i)->refittedState());
     success = success && result.first;
     sum += (*i)->weight() * result.second;

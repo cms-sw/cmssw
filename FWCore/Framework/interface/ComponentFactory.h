@@ -55,7 +55,7 @@ namespace edm {
                                        bool replaceExisting = false) const {
         std::string modtype = iConfiguration.template getParameter<std::string>("@module_type");
         //cerr << "Factory: module_type = " << modtype << endl;
-        typename MakerMap::iterator it = makers_.find(modtype);
+        auto it = makers_.find(modtype);
 
         if (it == makers_.end()) {
           std::shared_ptr<Maker> wm(edmplugin::PluginFactory<ComponentMakerBase<T>*()>::get()->create(modtype));

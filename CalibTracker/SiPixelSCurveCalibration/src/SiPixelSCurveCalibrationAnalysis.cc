@@ -24,7 +24,7 @@ void SiPixelSCurveCalibrationAnalysis::calibrationEnd() {
 void SiPixelSCurveCalibrationAnalysis::makeThresholdSummary(void) {
   std::ofstream myfile;
   myfile.open(thresholdfilename_.c_str());
-  for (detIDHistogramMap::iterator thisDetIdHistoGrams = histograms_.begin(); thisDetIdHistoGrams != histograms_.end();
+  for (auto thisDetIdHistoGrams = histograms_.begin(); thisDetIdHistoGrams != histograms_.end();
        ++thisDetIdHistoGrams) {
     // loop over det id (det id = number (unsigned int) of pixel module
     const MonitorElement *sigmahist = (*thisDetIdHistoGrams).second[kSigmas];

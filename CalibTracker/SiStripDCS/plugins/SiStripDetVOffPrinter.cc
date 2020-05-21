@@ -113,7 +113,7 @@ void SiStripDetVOffPrinter::analyze(const edm::Event& evt, const edm::EventSetup
     payload->getDetIds(detIds);
     std::set<uint32_t> detIds_HVOff;
     std::set<uint32_t> detIds_LVOff;
-    std::vector<uint32_t>::const_iterator it = detIds.begin();
+    auto it = detIds.begin();
     for (; it != detIds.end(); ++it) {
       if (payload->IsModuleHVOff(*it))
         detIds_HVOff.insert(*it);
@@ -150,8 +150,8 @@ void SiStripDetVOffPrinter::analyze(const edm::Event& evt, const edm::EventSetup
 
   // Create a map of IOVs time_duration
   std::map<cond::Time_t, boost::posix_time::time_duration> mIOVsDuration;
-  std::vector<cond::Time_t>::const_iterator itTime = ++vTime.begin();
-  std::vector<cond::Time_t>::const_iterator itPreviousTime = vTime.begin();
+  auto itTime = ++vTime.begin();
+  auto itPreviousTime = vTime.begin();
   //std::vector< cond::Time_t >::const_iterator itLastTime = --vTime.end();
   for (; itTime != vTime.end(); ++itTime) {
     mIOVsDuration[*itPreviousTime] = cond::time::to_boost(*itTime) - cond::time::to_boost(*itPreviousTime);
@@ -171,14 +171,14 @@ void SiStripDetVOffPrinter::analyze(const edm::Event& evt, const edm::EventSetup
   ss.str("");
 
   // Loop over detIds
-  std::map<uint32_t, std::vector<cond::Time_t> >::const_iterator itMap = detidMap.begin();
+  auto itMap = detidMap.begin();
   for (; itMap != detidMap.end(); ++itMap) {
     std::vector<cond::Time_t> vecTime = itMap->second;
 
     boost::posix_time::time_duration cumul_time_HVOff(0, 0, 0, 0);
     boost::posix_time::time_duration cumul_time_LVOff(0, 0, 0, 0);
     // Loop over IOVs
-    std::vector<cond::Time_t>::const_iterator itTime = vecTime.begin();
+    auto itTime = vecTime.begin();
     for (; itTime != vecTime.end(); ++itTime) {
       if (iovMap_HVOff[*itTime].find(itMap->first) != iovMap_HVOff[*itTime].end())
         cumul_time_HVOff += mIOVsDuration[*itTime];

@@ -100,7 +100,7 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
     double y = fR * sin(phi);
     constexpr double c = 2.99792458e+1;  // cm/ns
     double timeOffset = sqrt(x * x + y * y + fZ * fZ) / c * ns * c_light;
-    HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(x * cm, y * cm, fZ * cm, timeOffset));
+    auto* Vtx = new HepMC::GenVertex(HepMC::FourVector(x * cm, y * cm, fZ * cm, timeOffset));
 
     HepMC::FourVector p(px, py, pz, energy);
     // If we are requested to be pointing to (0,0,0), correct the momentum direction
@@ -111,7 +111,7 @@ void CloseByParticleGunProducer::produce(Event& e, const EventSetup& es) {
       p.setY(momentum.y());
       p.setZ(momentum.z());
     }
-    HepMC::GenParticle* Part = new HepMC::GenParticle(p, PartID, 1);
+    auto* Part = new HepMC::GenParticle(p, PartID, 1);
     Part->suggest_barcode(barcode);
     barcode++;
 

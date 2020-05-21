@@ -124,7 +124,7 @@ namespace {
         TCanvas canvas("ByDetId", "ByDetId", 1200, 1000);
 
         edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-        SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+        auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
         unsigned int nAPVs = reader->getNumberOfApvsAndStripLength(the_detid).first;
 
         auto hnoise = std::unique_ptr<TH1F>(
@@ -609,7 +609,7 @@ namespace {
       std::shared_ptr<SiStripPedestals> payload = fetchPayload(std::get<1>(iov));
 
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::string titleMap =
           "Tracker Map of Zero SiStrip Pedestals fraction per module (payload : " + std::get<1>(iov) + ")";

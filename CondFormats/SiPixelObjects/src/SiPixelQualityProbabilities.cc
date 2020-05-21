@@ -17,7 +17,7 @@ void SiPixelQualityProbabilities::setProbabilities(const unsigned int puBin, con
 //****************************************************************************//
 SiPixelQualityProbabilities::probabilityVec SiPixelQualityProbabilities::getProbabilities(
     const unsigned int puBin) const {
-  probabilityMap::const_iterator it = m_probabilities.find(puBin);
+  auto it = m_probabilities.find(puBin);
 
   if (it != m_probabilities.end()) {
     return it->second;
@@ -29,7 +29,7 @@ SiPixelQualityProbabilities::probabilityVec SiPixelQualityProbabilities::getProb
 //****************************************************************************//
 const SiPixelQualityProbabilities::probabilityVec &SiPixelQualityProbabilities::getProbabilities(
     const unsigned int puBin) {
-  probabilityMap::const_iterator it = m_probabilities.find(puBin);
+  auto it = m_probabilities.find(puBin);
 
   if (it != m_probabilities.end()) {
     return it->second;

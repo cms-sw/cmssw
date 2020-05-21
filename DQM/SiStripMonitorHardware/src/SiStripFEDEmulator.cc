@@ -87,7 +87,7 @@ namespace sistrip {
                                       std::vector<SiStripRawDigi>& pedSubtrDetSetData,
                                       std::vector<uint32_t>& medsDetSetData,
                                       const bool fillApvsForCM) {
-    edm::DetSet<SiStripRawDigi>::const_iterator digi_it = inputChannel->begin();
+    auto digi_it = inputChannel->begin();
     ////for median calculation
     uint32_t lCount = 0;
     std::vector<std::vector<uint16_t> > apvs;
@@ -151,7 +151,7 @@ namespace sistrip {
       for (uint32_t iapv(0); iapv < apvs.size(); iapv++) {
         std::vector<uint16_t> lVec = apvs[iapv];
 
-        std::vector<uint16_t>::iterator mid = lVec.begin() + (lVec.size() / 2 - 1);
+        auto mid = lVec.begin() + (lVec.size() / 2 - 1);
         std::nth_element(lVec.begin(), mid, lVec.end());
 
         //std::sort(lVec.begin(),lVec.end());
@@ -169,7 +169,7 @@ namespace sistrip {
   void FEDEmulator::subtractCM(const std::vector<SiStripRawDigi>& pedSubtrDetSetData,
                                std::vector<SiStripRawDigi>& cmSubtrDetSetData) {
     //subtract Medians
-    std::vector<SiStripRawDigi>::const_iterator lDigi = pedSubtrDetSetData.begin();
+    auto lDigi = pedSubtrDetSetData.begin();
     uint32_t lCount = 0;
 
     for (uint32_t st = minStrip_; st < maxStrip_; st++) {
@@ -201,19 +201,19 @@ namespace sistrip {
   }  //end of FEDEmulator::zeroSuppress method.
 
   void FEDEmulator::fillPeds(const edm::DetSetVector<SiStripRawDigi>::const_iterator& peds) {
-    for (edm::DetSet<SiStripRawDigi>::const_iterator iApv = peds->begin(); iApv != peds->end(); ++iApv) {
+    for (auto iApv = peds->begin(); iApv != peds->end(); ++iApv) {
       pedestals_.push_back(iApv->adc());
     }
   }
 
   void FEDEmulator::fillNoises(const edm::DetSetVector<SiStripProcessedRawDigi>::const_iterator& noises) {
-    for (edm::DetSet<SiStripProcessedRawDigi>::const_iterator iApv = noises->begin(); iApv != noises->end(); ++iApv) {
+    for (auto iApv = noises->begin(); iApv != noises->end(); ++iApv) {
       noises_.push_back(iApv->adc());
     }
   }
 
   void FEDEmulator::fillMedians(const std::map<uint32_t, std::vector<uint32_t> >::const_iterator& meds) {
-    std::vector<uint32_t>::const_iterator iApv = (meds->second).begin();
+    auto iApv = (meds->second).begin();
     for (; iApv != (meds->second).end(); ++iApv) {
       medians_.push_back(*iApv);
     }

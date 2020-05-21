@@ -248,7 +248,7 @@ double CocoaDBMgr::GetEntryError(const Entry* entry1, const Entry* entry2) {
 
 //-----------------------------------------------------------------------
 OpticalAlignments* CocoaDBMgr::BuildOpticalAlignments() {
-  OpticalAlignments* optalign = new OpticalAlignments;
+  auto* optalign = new OpticalAlignments;
 
   static std::vector<OpticalObject*> optolist = Model::OptOList();
   static std::vector<OpticalObject*>::const_iterator ite;
@@ -267,7 +267,7 @@ OpticalAlignments* CocoaDBMgr::BuildOpticalAlignments() {
 //-----------------------------------------------------------------------
 std::pair<Alignments*, AlignmentErrorsExtended*> CocoaDBMgr::BuildAlignments(bool bDT) {
   Alignments* alignments = new Alignments;
-  AlignmentErrorsExtended* alignmentErrors = new AlignmentErrorsExtended;
+  auto* alignmentErrors = new AlignmentErrorsExtended;
 
   //read
   static std::vector<OpticalObject*> optolist = Model::OptOList();
@@ -324,7 +324,7 @@ AlignTransformErrorExtended* CocoaDBMgr::GetAlignInfoErrorFromOptO(OpticalObject
   GlobalError gerr(1., 0., 1., 0., 0., 1.);
   //double(dx*dx),  0., double(dy*dy),     0., 0., double(dz*dz) ) ;
   CLHEP::HepSymMatrix errms = asHepMatrix(gerr.matrix());
-  AlignTransformErrorExtended* alignError = new AlignTransformErrorExtended(errms, cmsswID);
+  auto* alignError = new AlignTransformErrorExtended(errms, cmsswID);
   return alignError;
 
   CLHEP::HepMatrix errm(3, 3);

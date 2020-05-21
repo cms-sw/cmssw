@@ -143,7 +143,7 @@ void TauJetCorrectorExample::analyze(const edm::Event& iEvent, const edm::EventS
   // get taus
   Handle<reco::IsolatedTauTagInfoCollection> tauTagInfoHandle;
   iEvent.getByToken(tautoken, tauTagInfoHandle);
-  reco::IsolatedTauTagInfoCollection::const_iterator tau = tauTagInfoHandle->begin();
+  auto tau = tauTagInfoHandle->begin();
 
   //  std::cout << "setting everything to 0 just before tau loop" << std::endl;
   njets = 0;

@@ -18,7 +18,7 @@ CSCCFEBData::CSCCFEBData(unsigned number, const uint16_t *buf, uint16_t format_v
   theSliceStarts.reserve(8);
   while (theNumberOfSamples < maxSamples) {
     // first see if it's a bad slice
-    const CSCBadCFEBTimeSlice *badSlice = reinterpret_cast<const CSCBadCFEBTimeSlice *>(buf + pos);
+    const auto *badSlice = reinterpret_cast<const CSCBadCFEBTimeSlice *>(buf + pos);
     if (badSlice->check()) {
       //show that a bad slice starts here
       theSliceStarts.push_back(std::pair<int, bool>(pos, false));
@@ -27,7 +27,7 @@ CSCCFEBData::CSCCFEBData(unsigned number, const uint16_t *buf, uint16_t format_v
       bWords.push_back(badSlice->word(1).data());  //all 4 words are assumed identical so saving #1 only
     } else {
       // OK.  Maybe it's good.
-      const CSCCFEBTimeSlice *goodSlice = reinterpret_cast<const CSCCFEBTimeSlice *>(buf + pos);
+      const auto *goodSlice = reinterpret_cast<const CSCCFEBTimeSlice *>(buf + pos);
       if (goodSlice->check()) {
         // show that a good slice starts here
         theSliceStarts.push_back(std::pair<int, bool>(pos, true));

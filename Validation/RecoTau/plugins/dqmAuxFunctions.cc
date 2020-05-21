@@ -120,7 +120,7 @@ void dqmCopyRecursively(dqm::legacy::DQMStore& dqmStore,
   //--- copy all monitor elements in current inputDirectory to the outputDirectory
   dqmStore.setCurrentFolder(inputDirectory);
   std::vector<std::string> meNames = dqmStore.getMEs();
-  for (std::vector<std::string>::const_iterator meName = meNames.begin(); meName != meNames.end(); ++meName) {
+  for (auto meName = meNames.begin(); meName != meNames.end(); ++meName) {
     std::string meName_full = dqmDirectoryName(inputDirectory).append(*meName);
     //std::cout << " meName_full = " <<  meName_full << std::endl;
 
@@ -170,7 +170,7 @@ void dqmCopyRecursively(dqm::legacy::DQMStore& dqmStore,
   //--- call function recursively for all sub-directories
   dqmStore.setCurrentFolder(inputDirectory);
   std::vector<std::string> dirNames = dqmStore.getSubdirs();
-  for (std::vector<std::string>::const_iterator dirName = dirNames.begin(); dirName != dirNames.end(); ++dirName) {
+  for (auto dirName = dirNames.begin(); dirName != dirNames.end(); ++dirName) {
     std::string subDirName = dqmSubDirectoryName_merged(inputDirectory, *dirName);
     //std::cout << " subDirName = " << subDirName << std::endl;
 

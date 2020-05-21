@@ -171,8 +171,8 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
     if (thedet == nullptr)
       throw cms::Exception("BtlLocalRecoValidation") << "GeographicalID: " << std::hex << geoId.rawId() << " ("
                                                      << detId.rawId() << ") is invalid!" << std::dec << std::endl;
-    const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
-    const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
+    const auto& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
+    const auto& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
     Local3DPoint local_point(0., 0., 0.);
     local_point = topo.pixelToModuleLocalPoint(local_point, detId.row(topo.nrows()), detId.column(topo.nrows()));
@@ -229,8 +229,8 @@ void BtlLocalRecoValidation::analyze(const edm::Event& iEvent, const edm::EventS
             << "GeographicalID: " << std::hex << cluId << " is invalid!" << std::dec << std::endl;
       }
 
-      const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(genericDet->topology());
-      const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
+      const auto& topoproxy = static_cast<const ProxyMTDTopology&>(genericDet->topology());
+      const auto& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
       Local3DPoint local_point(cluster.x() * 5.7, cluster.y() * 0.3, 0.);
       local_point = topo.pixelToModuleLocalPoint(local_point, cluId.row(topo.nrows()), cluId.column(topo.ncolumns()));

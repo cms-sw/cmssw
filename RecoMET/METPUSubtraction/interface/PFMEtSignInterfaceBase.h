@@ -140,7 +140,7 @@ public:
       }
       return pfJetResolution;
     } else if (dynamic_cast<const reco::PFCandidate*>(particle) != nullptr) {
-      const reco::PFCandidate* pfCandidate = dynamic_cast<const reco::PFCandidate*>(particle);
+      const auto* pfCandidate = dynamic_cast<const reco::PFCandidate*>(particle);
       //std::cout << "pfCandidate: pt = " << pt << ", eta = " << eta << ", phi = " << phi << std::endl;
       return pfMEtResolution_->evalPF(pfCandidate);
     } else

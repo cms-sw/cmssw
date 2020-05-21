@@ -78,21 +78,21 @@ void CSCTFConfigTestAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
 
   std::cout << "Found " << pList->tscKeyToTokenMap().size() << " TSC keys:" << std::endl;
 
-  L1TriggerKeyList::KeyToToken::const_iterator iTSCKey = pList->tscKeyToTokenMap().begin();
-  L1TriggerKeyList::KeyToToken::const_iterator eTSCKey = pList->tscKeyToTokenMap().end();
+  auto iTSCKey = pList->tscKeyToTokenMap().begin();
+  auto eTSCKey = pList->tscKeyToTokenMap().end();
   for (; iTSCKey != eTSCKey; ++iTSCKey) {
     std::cout << iTSCKey->first << " " << iTSCKey->second << std::endl;
   }
   std::cout << std::endl;
 
-  L1TriggerKeyList::RecordToKeyToToken::const_iterator iRec = pList->recordTypeToKeyToTokenMap().begin();
-  L1TriggerKeyList::RecordToKeyToToken::const_iterator eRec = pList->recordTypeToKeyToTokenMap().end();
+  auto iRec = pList->recordTypeToKeyToTokenMap().begin();
+  auto eRec = pList->recordTypeToKeyToTokenMap().end();
   for (; iRec != eRec; ++iRec) {
     const L1TriggerKeyList::KeyToToken& keyTokenMap = iRec->second;
     std::cout << "For record@type " << iRec->first << ", found " << keyTokenMap.size() << " keys:" << std::endl;
 
-    L1TriggerKeyList::KeyToToken::const_iterator iKey = keyTokenMap.begin();
-    L1TriggerKeyList::KeyToToken::const_iterator eKey = keyTokenMap.end();
+    auto iKey = keyTokenMap.begin();
+    auto eKey = keyTokenMap.end();
     for (; iKey != eKey; ++iKey) {
       std::cout << iKey->first << " " << iKey->second << std::endl;
     }
@@ -116,8 +116,8 @@ void CSCTFConfigTestAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
     std::cout << "TSP0 " << pKey->subsystemKey(L1TriggerKey::kTSP0) << std::endl;
 
     const L1TriggerKey::RecordToKey& recKeyMap = pKey->recordToKeyMap();
-    L1TriggerKey::RecordToKey::const_iterator iRec = recKeyMap.begin();
-    L1TriggerKey::RecordToKey::const_iterator eRec = recKeyMap.end();
+    auto iRec = recKeyMap.begin();
+    auto eRec = recKeyMap.end();
     for (; iRec != eRec; ++iRec) {
       std::cout << iRec->first << " " << iRec->second << std::endl;
     }

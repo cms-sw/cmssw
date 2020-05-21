@@ -119,8 +119,7 @@ private:
 template <class OBJECT_TYPE>
 int MillePedeMonitor::GetIndex(const std::vector<OBJECT_TYPE *> &vec, const TString &name) {
   int result = 0;
-  for (typename std::vector<OBJECT_TYPE *>::const_iterator iter = vec.begin(), iterEnd = vec.end(); iter != iterEnd;
-       ++iter, ++result) {
+  for (auto iter = vec.begin(), iterEnd = vec.end(); iter != iterEnd; ++iter, ++result) {
     if (*iter && (*iter)->GetName() == name)
       return result;
   }
@@ -135,8 +134,7 @@ std::vector<OBJECT_TYPE *> MillePedeMonitor::cloneHists(const std::vector<OBJECT
                                                         const TString &titAd) const {
   // OBJECT_TYPE required to have methods Clone(const char*), GetName(), SetTitle(const char*) and GetTitle()
   std::vector<OBJECT_TYPE *> result;
-  for (typename std::vector<OBJECT_TYPE *>::const_iterator iter = orgs.begin(), iterEnd = orgs.end(); iter != iterEnd;
-       ++iter) {
+  for (auto iter = orgs.begin(), iterEnd = orgs.end(); iter != iterEnd; ++iter) {
     if (!(*iter))
       continue;
     result.push_back(static_cast<OBJECT_TYPE *>((*iter)->Clone(namAd + (*iter)->GetName())));
@@ -153,8 +151,7 @@ std::vector<OBJECT_TYPE *> MillePedeMonitor::cloneHists(const std::vector<OBJECT
 template <class OBJECT_TYPE>
 void MillePedeMonitor::addToDirectory(const std::vector<OBJECT_TYPE *> &obs, TDirectory *dir) const {
   // OBJECT_TYPE is required to have method SetDirectory(TDirectory *dir)
-  for (typename std::vector<OBJECT_TYPE *>::const_iterator iter = obs.begin(), iterEnd = obs.end(); iter != iterEnd;
-       ++iter) {
+  for (auto iter = obs.begin(), iterEnd = obs.end(); iter != iterEnd; ++iter) {
     if (*iter)
       (*iter)->SetDirectory(dir);
   }

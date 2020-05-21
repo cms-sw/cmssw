@@ -390,7 +390,7 @@ void PhotosInterface::attachParticles(HepMC::GenEvent* evt, HepMC::GenVertex* vt
       double e = HepMC::HEPEVT_Wrapper::e(nentries + ipnw);
       double m = HepMC::HEPEVT_Wrapper::m(nentries + ipnw);
 
-      HepMC::GenParticle* NewPart = new HepMC::GenParticle(HepMC::FourVector(px, py, pz, e), pdg_id, status);
+      auto* NewPart = new HepMC::GenParticle(HepMC::FourVector(px, py, pz, e), pdg_id, status);
       NewPart->set_generated_mass(m);
       NewPart->suggest_barcode(nbcode);
       vtx->add_particle_out(NewPart);

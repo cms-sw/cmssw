@@ -41,7 +41,7 @@ public:
         // loop over detids...
         typename edm::SortedCollection<T>::const_iterator j, je = inputCollection.end();
 
-        for (CaloSubdetectorGeometry::DetIdSet::iterator i = dis.begin(); i != dis.end(); i++) {
+        for (auto i = dis.begin(); i != dis.end(); i++) {
           if (i->subdetId() != subdet)
             continue;  // possible for HCAL where the same geometry object handles all the detectors
           j = inputCollection.find(*i);

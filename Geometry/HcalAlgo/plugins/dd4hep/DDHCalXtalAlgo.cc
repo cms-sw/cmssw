@@ -20,7 +20,7 @@ static long algorithm(dd4hep::Detector& /* description */,
   double dz = args.value<double>("Dz");                           //Half size along z
   double angwidth = args.value<double>("AngWidth");               //Angular width
   int iaxis = args.value<int>("Axis");                            //Axis of rotation
-  std::vector<std::string> names = args.value<std::vector<std::string> >("Names");  //Names for rotation matrices
+  auto names = args.value<std::vector<std::string> >("Names");    //Names for rotation matrices
   std::string idName = args.value<std::string>("ChildName");                        //Children name
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("HCalGeom") << "DDHCalXtalAlgo::Parameters for positioning:"

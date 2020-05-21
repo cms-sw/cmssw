@@ -108,7 +108,7 @@ void CATopJetAlgorithm::run(const vector<fastjet::PseudoJet>& cell_particles,
   vector<vector<int> > indices(centralJets.size());
 
   // Loop over central jets, attempt to find substructure
-  vector<fastjet::PseudoJet>::iterator jetIt = centralJets.begin(), centralJetsEnd = centralJets.end();
+  auto jetIt = centralJets.begin(), centralJetsEnd = centralJets.end();
   if (verbose_)
     cout << "Loop over jets" << endl;
   int i = 0;
@@ -274,9 +274,7 @@ void CATopJetAlgorithm::run(const vector<fastjet::PseudoJet>& cell_particles,
                 << candidate.phi() << ", " << candidate.m() << ")" << std::endl;
       std::vector<fastjet::PseudoJet> pieces = candidate.pieces();
       std::cout << "Number of pieces = " << pieces.size() << std::endl;
-      for (std::vector<fastjet::PseudoJet>::const_iterator ibegin = pieces.begin(), iend = pieces.end(), i = ibegin;
-           i != iend;
-           ++i) {
+      for (auto ibegin = pieces.begin(), iend = pieces.end(), i = ibegin; i != iend; ++i) {
         std::cout << "   Piece : " << i - ibegin << ", (Pt,Y,Phi,M) = (" << i->pt() << ", " << i->rapidity() << ", "
                   << i->phi() << ", " << i->m() << ")" << std::endl;
       }

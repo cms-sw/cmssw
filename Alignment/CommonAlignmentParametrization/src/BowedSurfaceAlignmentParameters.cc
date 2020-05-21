@@ -51,8 +51,7 @@ BowedSurfaceAlignmentParameters ::BowedSurfaceAlignmentParameters(Alignable *ali
 //_________________________________________________________________________________________________
 BowedSurfaceAlignmentParameters *BowedSurfaceAlignmentParameters::clone(const AlgebraicVector &parameters,
                                                                         const AlgebraicSymMatrix &covMatrix) const {
-  BowedSurfaceAlignmentParameters *rbap =
-      new BowedSurfaceAlignmentParameters(this->alignable(), parameters, covMatrix, selector());
+  auto *rbap = new BowedSurfaceAlignmentParameters(this->alignable(), parameters, covMatrix, selector());
 
   if (this->userVariables())
     rbap->setUserVariables(this->userVariables()->clone());

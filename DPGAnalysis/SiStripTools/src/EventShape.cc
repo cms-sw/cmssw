@@ -12,13 +12,13 @@ using namespace std;
 using reco::TrackCollection;
 
 EventShape::EventShape(reco::TrackCollection& tracks) : eigenvalues(3) {
-  for (reco::TrackCollection::const_iterator itTrack = tracks.begin(); itTrack < tracks.end(); ++itTrack) {
+  for (auto itTrack = tracks.begin(); itTrack < tracks.end(); ++itTrack) {
     p.push_back(TVector3(itTrack->px(), itTrack->py(), itTrack->pz()));
   }
 
   // first fill the momentum tensor
   TMatrixDSym MomentumTensor(3);
-  for (std::vector<TVector3>::const_iterator momentum = p.begin(); momentum < p.end(); ++momentum) {
+  for (auto momentum = p.begin(); momentum < p.end(); ++momentum) {
     for (unsigned int i = 0; i < 3; i++)
       for (unsigned int j = 0; j <= i; j++) {
         MomentumTensor[i][j] += momentum[i] * momentum[j];
@@ -125,7 +125,7 @@ math::XYZTLorentzVectorF EventShape::thrust(const reco::TrackCollection& tracks)
   std::vector<TVector3> pp;
   uint32_t Np = tracks.size();
   math::XYZTLorentzVectorF output = math::XYZTLorentzVectorF(0, 0, 0, 0);
-  for (reco::TrackCollection::const_iterator itTrack = tracks.begin(); itTrack < tracks.end(); ++itTrack) {
+  for (auto itTrack = tracks.begin(); itTrack < tracks.end(); ++itTrack) {
     pp.push_back(TVector3(itTrack->px(), itTrack->py(), itTrack->pz()));
   }
   TVector3 qtbo;
@@ -219,7 +219,7 @@ float EventShape::sphericity(const reco::TrackCollection& tracks) {
 
   // first fill the momentum tensor
   TMatrixDSym MomentumTensor(3);
-  for (reco::TrackCollection::const_iterator itTrack = tracks.begin(); itTrack < tracks.end(); ++itTrack) {
+  for (auto itTrack = tracks.begin(); itTrack < tracks.end(); ++itTrack) {
     std::vector<double> momentum(3);
     momentum[0] = itTrack->px();
     momentum[1] = itTrack->py();
@@ -249,7 +249,7 @@ float EventShape::aplanarity(const reco::TrackCollection& tracks) {
     return 0;
   // first fill the momentum tensor
   TMatrixDSym MomentumTensor(3);
-  for (reco::TrackCollection::const_iterator itTrack = tracks.begin(); itTrack < tracks.end(); ++itTrack) {
+  for (auto itTrack = tracks.begin(); itTrack < tracks.end(); ++itTrack) {
     std::vector<double> momentum(3);
     momentum[0] = itTrack->px();
     momentum[1] = itTrack->py();
@@ -278,7 +278,7 @@ float EventShape::planarity(const reco::TrackCollection& tracks) {
     return 0;
   // first fill the momentum tensor
   TMatrixDSym MomentumTensor(3);
-  for (reco::TrackCollection::const_iterator itTrack = tracks.begin(); itTrack < tracks.end(); ++itTrack) {
+  for (auto itTrack = tracks.begin(); itTrack < tracks.end(); ++itTrack) {
     std::vector<double> momentum(3);
     momentum[0] = itTrack->px();
     momentum[1] = itTrack->py();

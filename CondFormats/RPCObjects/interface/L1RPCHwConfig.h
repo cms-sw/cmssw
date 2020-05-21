@@ -87,7 +87,7 @@ public:
 
   int size() const { return m_disabledDevices.size(); };
   void dump() const {
-    for (std::set<L1RPCDevCoords>::const_iterator it = m_disabledDevices.begin(); it != m_disabledDevices.end(); ++it) {
+    for (auto it = m_disabledDevices.begin(); it != m_disabledDevices.end(); ++it) {
       std::cout << it->toString() << std::endl;
     }
   };

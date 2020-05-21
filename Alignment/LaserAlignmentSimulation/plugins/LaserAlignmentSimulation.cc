@@ -126,7 +126,7 @@ void LaserAlignmentSimulation::update(const G4Step *myStep) {
 
       if (theStep->GetTotalEnergyDeposit() > 0.0) {
         // process a hit
-        TkAccumulatingSensitiveDetector *theSD =
+        auto *theSD =
             (TkAccumulatingSensitiveDetector
                  *)(theStep->GetPreStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetSensitiveDetector());
 

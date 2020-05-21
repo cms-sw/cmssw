@@ -287,6 +287,6 @@ void TotemRPSD::update(const ::EndOfEvent*) {}
 void TotemRPSD::clearHits() { slave_->Initialize(); }
 
 bool TotemRPSD::isPrimary(const G4Track* track) {
-  TrackInformation* info = dynamic_cast<TrackInformation*>(track->GetUserInformation());
+  auto* info = dynamic_cast<TrackInformation*>(track->GetUserInformation());
   return info && info->isPrimary();
 }

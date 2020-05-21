@@ -88,11 +88,11 @@ void EcalFenixAmplitudeFilter::setParameters(uint32_t raw,
                                              const EcalTPGWeightGroup *ecaltpgWeightGroup) {
   uint32_t params_[5];
   const EcalTPGGroups::EcalTPGGroupsMap &groupmap = ecaltpgWeightGroup->getMap();
-  EcalTPGGroups::EcalTPGGroupsMapItr it = groupmap.find(raw);
+  auto it = groupmap.find(raw);
   if (it != groupmap.end()) {
     uint32_t weightid = (*it).second;
     const EcalTPGWeightIdMap::EcalTPGWeightMap &weightmap = ecaltpgWeightMap->getMap();
-    EcalTPGWeightIdMap::EcalTPGWeightMapItr itw = weightmap.find(weightid);
+    auto itw = weightmap.find(weightid);
     (*itw).second.getValues(params_[0], params_[1], params_[2], params_[3], params_[4]);
 
     // we have to transform negative coded in 7 bits into negative coded in 32

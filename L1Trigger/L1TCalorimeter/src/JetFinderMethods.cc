@@ -27,7 +27,7 @@ namespace l1t {
 
   // turn each central region into a jet
   void passThroughJets(const std::vector<l1t::CaloRegion>* regions, std::vector<l1t::Jet>* uncalibjets) {
-    for (std::vector<CaloRegion>::const_iterator region = regions->begin(); region != regions->end(); region++) {
+    for (auto region = regions->begin(); region != regions->end(); region++) {
       int jetQual = 0;
       if (region->hwEta() < 4 || region->hwEta() > 17)
         jetQual = 2;
@@ -44,7 +44,7 @@ namespace l1t {
   void slidingWindowJetFinder(const int jetSeedThreshold,
                               const std::vector<l1t::CaloRegion>* regions,
                               std::vector<l1t::Jet>* uncalibjets) {
-    for (std::vector<CaloRegion>::const_iterator region = regions->begin(); region != regions->end(); region++) {
+    for (auto region = regions->begin(); region != regions->end(); region++) {
       int regionET = region->hwPt();  //regionPhysicalEt(*region);
       if (regionET <= jetSeedThreshold)
         continue;
@@ -57,8 +57,7 @@ namespace l1t {
       int neighborNW_et = 0;
       int neighborSE_et = 0;
       unsigned int nNeighbors = 0;
-      for (std::vector<CaloRegion>::const_iterator neighbor = regions->begin(); neighbor != regions->end();
-           neighbor++) {
+      for (auto neighbor = regions->begin(); neighbor != regions->end(); neighbor++) {
         int neighborET = neighbor->hwPt();  //regionPhysicalEt(*neighbor);
         if (deltaGctPhi(*region, *neighbor) == 1 && (region->hwEta()) == neighbor->hwEta()) {
           neighborN_et = neighborET;
@@ -145,7 +144,7 @@ namespace l1t {
   void TwelveByTwelveFinder(const int jetSeedThreshold,
                             const std::vector<l1t::CaloRegion>* regions,
                             std::vector<l1t::Jet>* uncalibjets) {
-    for (std::vector<CaloRegion>::const_iterator region = regions->begin(); region != regions->end(); region++) {
+    for (auto region = regions->begin(); region != regions->end(); region++) {
       int regionET = region->hwPt();  //regionPhysicalEt(*region);
       if (regionET < jetSeedThreshold)
         continue;
@@ -158,8 +157,7 @@ namespace l1t {
       int neighborNW_et = 0;
       int neighborSE_et = 0;
       unsigned int nNeighbors = 0;
-      for (std::vector<CaloRegion>::const_iterator neighbor = regions->begin(); neighbor != regions->end();
-           neighbor++) {
+      for (auto neighbor = regions->begin(); neighbor != regions->end(); neighbor++) {
         int neighborET = neighbor->hwPt();  //regionPhysicalEt(*neighbor);
         if (deltaGctPhi(*region, *neighbor) == 1 && (region->hwEta()) == neighbor->hwEta()) {
           neighborN_et = neighborET;
@@ -230,7 +228,7 @@ namespace l1t {
                       const int etaMask,
                       const std::vector<l1t::CaloRegion>* regions,
                       std::vector<l1t::Jet>* uncalibjets) {
-    for (std::vector<CaloRegion>::const_iterator region = regions->begin(); region != regions->end(); region++) {
+    for (auto region = regions->begin(); region != regions->end(); region++) {
       int regionET = region->hwPt();
       if (regionET <= jetSeedThreshold)
         continue;
@@ -246,8 +244,7 @@ namespace l1t {
       int neighborNW_et = 0;
       int neighborSE_et = 0;
       unsigned int nNeighbors = 0;
-      for (std::vector<CaloRegion>::const_iterator neighbor = regions->begin(); neighbor != regions->end();
-           neighbor++) {
+      for (auto neighbor = regions->begin(); neighbor != regions->end(); neighbor++) {
         int neighborET = neighbor->hwPt();
         int subEta2 = neighbor->hwEta();
         if ((etaMask & (1 << subEta2)) >> subEta2)

@@ -332,7 +332,7 @@ void CandCombinerBase<OutputCollection, CandPtr>::combine(
     if (decayType != wrongDecay) {
       typename OutputCollection::value_type c;
       size_t nameIndex = 0;
-      for (typename CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i, ++nameIndex) {
+      for (auto i = stack.begin(); i != stack.end(); ++i, ++nameIndex) {
         if (!names.empty())
           addDaughter(c, i->first.first, names[nameIndex]);
         else
@@ -346,14 +346,14 @@ void CandCombinerBase<OutputCollection, CandPtr>::combine(
     const edm::Handle<reco::CandidateView> &srcRef = *collBegin;
     const reco::CandidateView &src = *srcRef;
     size_t candBegin = 0, candEnd = src.size();
-    for (typename CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i)
+    for (auto i = stack.begin(); i != stack.end(); ++i)
       if (srcRef.id() == i->second->id())
         candBegin = i->first.second + 1;
     for (size_t candIndex = candBegin; candIndex != candEnd; ++candIndex) {
       CandPtr candRef(srcRef, candIndex);
       bool noOverlap = true;
       const reco::Candidate &cand = *candRef;
-      for (typename CandStack::const_iterator i = stack.begin(); i != stack.end(); ++i)
+      for (auto i = stack.begin(); i != stack.end(); ++i)
         if (checkOverlap_ && overlap_(cand, *(i->first.first))) {
           noOverlap = false;
           break;

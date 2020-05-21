@@ -25,7 +25,7 @@ namespace hcaldqm {
 
     if (_ptype != fOffline) {  // hidefed2crate
       _vFEDs = utilities::getFEDList(_emap);
-      for (std::vector<int>::const_iterator it = _vFEDs.begin(); it != _vFEDs.end(); ++it) {
+      for (auto it = _vFEDs.begin(); it != _vFEDs.end(); ++it) {
         //
         //	FIXME
         //	until there exists a map of FED2Crate and Crate2FED,
@@ -49,7 +49,7 @@ namespace hcaldqm {
         edm::ESHandle<RunInfo> ri;
         runInfoRec->get(ri);
         std::vector<int> vfeds = ri->m_fed_in;
-        for (std::vector<int>::const_iterator it = vfeds.begin(); it != vfeds.end(); ++it) {
+        for (auto it = vfeds.begin(); it != vfeds.end(); ++it) {
           if (*it >= constants::FED_VME_MIN && *it <= FED_VME_MAX)
             _vcdaqEids.push_back(
                 HcalElectronicsId(constants::FIBERCH_MIN, constants::FIBER_VME_MIN, SPIGOT_MIN, (*it) - FED_VME_MIN)
@@ -83,7 +83,7 @@ namespace hcaldqm {
     es.get<HcalChannelQualityRcd>().get("withTopo", hcq);
     const HcalChannelQuality *cq = hcq.product();
     std::vector<DetId> detids = cq->getAllChannels();
-    for (std::vector<DetId>::const_iterator it = detids.begin(); it != detids.end(); ++it) {
+    for (auto it = detids.begin(); it != detids.end(); ++it) {
       if (HcalGenericDetId(*it).genericSubdet() == HcalGenericDetId::HcalGenUnknown)
         continue;
 

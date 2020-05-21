@@ -58,9 +58,7 @@ PrimaryVertexProducerAlgorithm::PrimaryVertexProducerAlgorithm(const edm::Parame
     std::vector<edm::ParameterSet> vertexCollections =
         conf.getParameter<std::vector<edm::ParameterSet> >("vertexCollections");
 
-    for (std::vector<edm::ParameterSet>::const_iterator algoconf = vertexCollections.begin();
-         algoconf != vertexCollections.end();
-         algoconf++) {
+    for (auto algoconf = vertexCollections.begin(); algoconf != vertexCollections.end(); algoconf++) {
       algo algorithm;
       std::string fitterAlgorithm = algoconf->getParameter<std::string>("algorithm");
       if (fitterAlgorithm == "KalmanVertexFitter") {
@@ -107,7 +105,7 @@ PrimaryVertexProducerAlgorithm::~PrimaryVertexProducerAlgorithm() {
     delete theTrackFilter;
   if (theTrackClusterizer)
     delete theTrackClusterizer;
-  for (std::vector<algo>::const_iterator algorithm = algorithms.begin(); algorithm != algorithms.end(); algorithm++) {
+  for (auto algorithm = algorithms.begin(); algorithm != algorithms.end(); algorithm++) {
     if (algorithm->fitter)
       delete algorithm->fitter;
     if (algorithm->vertexSelector)
@@ -154,7 +152,7 @@ std::vector<TransientVertex> PrimaryVertexProducerAlgorithm::vertices(const std:
   }
 
   // vertex fits
-  for (std::vector<algo>::const_iterator algorithm = algorithms.begin(); algorithm != algorithms.end(); algorithm++) {
+  for (auto algorithm = algorithms.begin(); algorithm != algorithms.end(); algorithm++) {
     if (!(algorithm->label == label))
       continue;
 
@@ -162,9 +160,7 @@ std::vector<TransientVertex> PrimaryVertexProducerAlgorithm::vertices(const std:
     // reco::VertexCollection vColl;
 
     std::vector<TransientVertex> pvs;
-    for (std::vector<std::vector<reco::TransientTrack> >::const_iterator iclus = clusters.begin();
-         iclus != clusters.end();
-         iclus++) {
+    for (auto iclus = clusters.begin(); iclus != clusters.end(); iclus++) {
       TransientVertex v;
       if (algorithm->useBeamConstraint && validBS && ((*iclus).size() > 1)) {
         v = algorithm->fitter->vertex(*iclus, beamSpot);

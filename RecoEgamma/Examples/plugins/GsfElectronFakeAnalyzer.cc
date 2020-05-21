@@ -1751,8 +1751,7 @@ void GsfElectronFakeAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
   histNum_->Fill((*gsfElectrons).size());
 
   // all rec electrons
-  for (reco::GsfElectronCollection::const_iterator gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end();
-       gsfIter++) {
+  for (auto gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end(); gsfIter++) {
     // preselect electrons
     if (gsfIter->pt() > maxPt_ || std::abs(gsfIter->eta()) > maxAbsEta_)
       continue;
@@ -1771,8 +1770,7 @@ void GsfElectronFakeAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
     h_ele_vertexPt_all->Fill(gsfIter->pt());
     float enrj1 = gsfIter->superCluster()->energy();
     // mee
-    for (reco::GsfElectronCollection::const_iterator gsfIter2 = gsfIter + 1; gsfIter2 != gsfElectrons->end();
-         gsfIter2++) {
+    for (auto gsfIter2 = gsfIter + 1; gsfIter2 != gsfElectrons->end(); gsfIter2++) {
       math::XYZTLorentzVector p12 = (*gsfIter).p4() + (*gsfIter2).p4();
       float mee2 = p12.Dot(p12);
       h_ele_mee_all->Fill(sqrt(mee2));
@@ -1788,8 +1786,7 @@ void GsfElectronFakeAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
   // association matching object-reco electrons
   int matchingObjectNum = 0;
 
-  for (reco::CaloJetCollection::const_iterator moIter = recoCaloJets->begin(); moIter != recoCaloJets->end();
-       moIter++) {
+  for (auto moIter = recoCaloJets->begin(); moIter != recoCaloJets->end(); moIter++) {
     // number of matching objects
     matchingObjectNum++;
 
@@ -1814,8 +1811,7 @@ void GsfElectronFakeAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
 
     // find best matched electron
     reco::GsfElectron bestGsfElectron;
-    for (reco::GsfElectronCollection::const_iterator gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end();
-         gsfIter++) {
+    for (auto gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end(); gsfIter++) {
       double dphi = gsfIter->phi() - moIter->phi();
       if (std::abs(dphi) > CLHEP::pi)
         dphi = dphi < 0 ? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;

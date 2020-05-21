@@ -140,7 +140,7 @@ void EcalTPGAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   int iDaq = 0;
   int iBit = -1;
   treeVariables_.nbOfActiveTriggers = 0;
-  for (std::vector<bool>::iterator itBit = dWord.begin(); itBit != dWord.end(); ++itBit) {
+  for (auto itBit = dWord.begin(); itBit != dWord.end(); ++itBit) {
     iBit++;
     int maskBit = triggerMaskAlgoTrig[iBit] & (1 << iDaq);
     if (maskBit)

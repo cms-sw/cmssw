@@ -26,7 +26,7 @@ namespace edm {
   std::vector<std::vector<std::string>::const_iterator> regexMatch(std::vector<std::string> const& strings,
                                                                    std::regex const& regexp) {
     std::vector<std::vector<std::string>::const_iterator> matches;
-    for (std::vector<std::string>::const_iterator i = strings.begin(), iEnd = strings.end(); i != iEnd; ++i) {
+    for (auto i = strings.begin(), iEnd = strings.end(); i != iEnd; ++i) {
       if (std::regex_match((*i), regexp)) {
         matches.push_back(i);
       }

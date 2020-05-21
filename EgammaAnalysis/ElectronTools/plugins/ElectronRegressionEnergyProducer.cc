@@ -146,7 +146,7 @@ bool ElectronRegressionEnergyProducer::filter(edm::Event& iEvent, const edm::Eve
 
   // loop through all vertices
   Int_t nvertices = 0;
-  for (reco::VertexCollection::const_iterator inV = inVertices.begin(); inV != inVertices.end(); ++inV) {
+  for (auto inV = inVertices.begin(); inV != inVertices.end(); ++inV) {
     // pass these vertex cuts
     if (inV->ndof() >= 4 && inV->position().Rho() <= 2.0 && fabs(inV->z()) <= 24.0) {
       nvertices++;
@@ -161,8 +161,7 @@ bool ElectronRegressionEnergyProducer::filter(edm::Event& iEvent, const edm::Eve
   iEvent.getByToken(hRhoKt6PFJetsToken_, hRhoKt6PFJets);
   rho = (*hRhoKt6PFJets);
 
-  for (reco::GsfElectronCollection::const_iterator egIter = egCandidates.begin(); egIter != egCandidates.end();
-       ++egIter) {
+  for (auto egIter = egCandidates.begin(); egIter != egCandidates.end(); ++egIter) {
     const EcalRecHitCollection* recHits = nullptr;
     if (egIter->isEB())
       recHits = pEBRecHits.product();

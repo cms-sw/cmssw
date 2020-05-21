@@ -36,7 +36,7 @@ void SiPixelPhase1RecHitsV::analyze(const edm::Event& iEvent, const edm::EventSe
     for (SiPixelRecHit const& rechit : *it) {
       std::vector<PSimHit> associateSimHit;
       associateSimHit = associate.associateHit(rechit);
-      std::vector<PSimHit>::const_iterator closestIt = associateSimHit.begin();
+      auto closestIt = associateSimHit.begin();
 
       LocalPoint lp = rechit.localPosition();
       float rechit_x = lp.x();
@@ -50,7 +50,7 @@ void SiPixelPhase1RecHitsV::analyze(const edm::Event& iEvent, const edm::EventSe
       if (!associateSimHit.empty()) {
         float closestSimHit = 9999.9;
 
-        for (std::vector<PSimHit>::const_iterator m = associateSimHit.begin(); m < associateSimHit.end(); m++) {
+        for (auto m = associateSimHit.begin(); m < associateSimHit.end(); m++) {
           float sim_x1((*m).entryPoint().x()), sim_x2((*m).exitPoint().x()), sim_xpos(0.5 * (sim_x1 + sim_x2));
           float sim_y1((*m).entryPoint().y()), sim_y2((*m).exitPoint().y()), sim_ypos(0.5 * (sim_y1 + sim_y2));
 

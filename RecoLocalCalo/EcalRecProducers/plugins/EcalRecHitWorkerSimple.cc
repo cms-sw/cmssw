@@ -32,12 +32,11 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet& ps, edm:
   v_DB_reco_flags_.resize(32);
 
   for (unsigned int i = 0; i != recoflagbitsStrings.size(); ++i) {
-    EcalRecHit::Flags recoflagbit = (EcalRecHit::Flags)StringToEnumValue<EcalRecHit::Flags>(recoflagbitsStrings[i]);
+    auto recoflagbit = (EcalRecHit::Flags)StringToEnumValue<EcalRecHit::Flags>(recoflagbitsStrings[i]);
     std::vector<std::string> dbstatus_s = p.getParameter<std::vector<std::string> >(recoflagbitsStrings[i]);
     std::vector<uint32_t> dbstatuses;
     for (unsigned int j = 0; j != dbstatus_s.size(); ++j) {
-      EcalChannelStatusCode::Code dbstatus =
-          (EcalChannelStatusCode::Code)StringToEnumValue<EcalChannelStatusCode::Code>(dbstatus_s[j]);
+      auto dbstatus = (EcalChannelStatusCode::Code)StringToEnumValue<EcalChannelStatusCode::Code>(dbstatus_s[j]);
       dbstatuses.push_back(dbstatus);
     }
 
@@ -72,12 +71,12 @@ bool EcalRecHitWorkerSimple::run(const edm::Event& evt,
                                  EcalRecHitCollection& result) {
   DetId detid = uncalibRH.id();
 
-  EcalChannelStatusMap::const_iterator chit = chStatus->find(detid);
+  auto chit = chStatus->find(detid);
   EcalChannelStatusCode::Code dbstatus = chit->getStatusCode();
 
   // check for channels to be excluded from reconstruction
   if (!v_chstatus_.empty()) {
-    std::vector<int>::const_iterator res = std::find(v_chstatus_.begin(), v_chstatus_.end(), dbstatus);
+    auto res = std::find(v_chstatus_.begin(), v_chstatus_.end(), dbstatus);
     if (res != v_chstatus_.end())
       return false;
   }
@@ -97,7 +96,7 @@ bool EcalRecHitWorkerSimple::run(const edm::Event& evt,
   }
 
   // first intercalibration constants
-  EcalIntercalibConstantMap::const_iterator icalit = icalMap.find(detid);
+  auto icalit = icalMap.find(detid);
   EcalIntercalibConstant icalconst = 1;
   if (icalit != icalMap.end()) {
     icalconst = (*icalit);
@@ -116,7 +115,7 @@ bool EcalRecHitWorkerSimple::run(const edm::Event& evt,
 
   if (!skipTimeCalib_) {
     const EcalTimeCalibConstantMap& itimeMap = itime->getMap();
-    EcalTimeCalibConstantMap::const_iterator itime = itimeMap.find(detid);
+    auto itime = itimeMap.find(detid);
 
     if (itime != itimeMap.end()) {
       itimeconst = (*itime);

@@ -104,7 +104,7 @@ ZDCTask::ZDCTask(edm::ParameterSet const& ps) {
   hcaldqm::quantity::ValueQuantity xAxisADC(hcaldqm::quantity::fADC_128);
 
   //book histos per channel
-  for (std::map<HcalElectronicsId, DetId>::const_iterator itr = myEMap.begin(); itr != myEMap.end(); ++itr) {
+  for (auto itr = myEMap.begin(); itr != myEMap.end(); ++itr) {
     char histoname[300];
 
     sprintf(histoname,

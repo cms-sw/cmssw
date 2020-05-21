@@ -144,7 +144,7 @@ bool PythiaFilterIsolatedTrack::filter(edm::Event &iEvent, edm::EventSetup const
 
   // loop over all the seeds and see if any of them are isolated
   unsigned int ntrk(0);
-  for (std::vector<const HepMC::GenParticle *>::const_iterator it1 = seeds.begin(); it1 != seeds.end(); ++it1) {
+  for (auto it1 = seeds.begin(); it1 != seeds.end(); ++it1) {
     const HepMC::GenParticle *p1 = *it1;
     if (!(pdt->particle(p1->pdg_id())))
       continue;
@@ -157,9 +157,7 @@ bool PythiaFilterIsolatedTrack::filter(edm::Event &iEvent, edm::EventSetup const
 
       // loop over all of the other charged particles in the event, and see if any are close by
       bool failsIso = false;
-      for (std::vector<const HepMC::GenParticle *>::const_iterator it2 = chargedParticles.begin();
-           it2 != chargedParticles.end();
-           ++it2) {
+      for (auto it2 = chargedParticles.begin(); it2 != chargedParticles.end(); ++it2) {
         const HepMC::GenParticle *p2 = *it2;
 
         // don't consider the seed particle among the other charge particles

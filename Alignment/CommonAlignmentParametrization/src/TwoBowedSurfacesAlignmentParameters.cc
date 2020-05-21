@@ -54,8 +54,7 @@ TwoBowedSurfacesAlignmentParameters ::TwoBowedSurfacesAlignmentParameters(Aligna
 //_________________________________________________________________________________________________
 TwoBowedSurfacesAlignmentParameters *TwoBowedSurfacesAlignmentParameters::clone(
     const AlgebraicVector &parameters, const AlgebraicSymMatrix &covMatrix) const {
-  TwoBowedSurfacesAlignmentParameters *rbap =
-      new TwoBowedSurfacesAlignmentParameters(this->alignable(), parameters, covMatrix, selector());
+  auto *rbap = new TwoBowedSurfacesAlignmentParameters(this->alignable(), parameters, covMatrix, selector());
 
   if (this->userVariables())
     rbap->setUserVariables(this->userVariables()->clone());

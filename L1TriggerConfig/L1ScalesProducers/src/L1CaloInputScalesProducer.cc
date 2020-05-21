@@ -65,8 +65,8 @@ L1CaloInputScalesProducer::~L1CaloInputScalesProducer() {
 std::unique_ptr<L1CaloEcalScale> L1CaloInputScalesProducer::produceEcalScale(const L1CaloEcalScaleRcd& iRecord) {
   auto pL1CaloEcalScale = std::make_unique<L1CaloEcalScale>();
 
-  std::vector<double>::const_iterator posItr = m_ecalEtThresholdsPosEta.begin();
-  std::vector<double>::const_iterator negItr = m_ecalEtThresholdsNegEta.begin();
+  auto posItr = m_ecalEtThresholdsPosEta.begin();
+  auto negItr = m_ecalEtThresholdsNegEta.begin();
 
   for (unsigned short ieta = 1; ieta <= L1CaloEcalScale::nBinEta; ++ieta) {
     for (unsigned short irank = 0; irank < L1CaloEcalScale::nBinRank; ++irank) {
@@ -85,9 +85,9 @@ std::unique_ptr<L1CaloEcalScale> L1CaloInputScalesProducer::produceEcalScale(con
 std::unique_ptr<L1CaloHcalScale> L1CaloInputScalesProducer::produceHcalScale(const L1CaloHcalScaleRcd& iRecord) {
   auto pL1CaloHcalScale = std::make_unique<L1CaloHcalScale>();
 
-  std::vector<double>::const_iterator posItr = m_hcalEtThresholdsPosEta.begin();
+  auto posItr = m_hcalEtThresholdsPosEta.begin();
 
-  std::vector<double>::const_iterator negItr = m_hcalEtThresholdsNegEta.begin();
+  auto negItr = m_hcalEtThresholdsNegEta.begin();
 
   for (unsigned short ieta = 1; ieta <= L1CaloHcalScale::nBinEta; ++ieta) {
     for (unsigned short irank = 0; irank < L1CaloHcalScale::nBinRank; ++irank) {

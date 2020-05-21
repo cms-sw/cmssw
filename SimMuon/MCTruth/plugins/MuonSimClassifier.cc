@@ -243,7 +243,7 @@ void MuonSimClassifier::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
 
     TrackingParticleRef tp;
     edm::RefToBase<reco::Muon> muMatchBack;
-    r2s_it match = recSimColl.find(allMuons.at(i));
+    auto match = recSimColl.find(allMuons.at(i));
     s2r_it matchback;
     if (match != recSimColl.end()) {
       // match->second is vector, front is first element, first is the ref
@@ -251,7 +251,7 @@ void MuonSimClassifier::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
       tp = match->second.front().first;
       simInfo[i].tpId = tp.isNonnull() ? tp.key() : -1;  // we check, even if null refs should not appear here at all
       simInfo[i].tpAssoQuality = match->second.front().second;
-      s2r_it matchback = simRecColl.find(tp);
+      auto matchback = simRecColl.find(tp);
       if (matchback != simRecColl.end()) {
         muMatchBack = matchback->second.front().first;
       } else {
@@ -261,13 +261,13 @@ void MuonSimClassifier::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
     } else {
       if ((trackType_ == reco::GlobalTk) && allMuons.at(i)->isGlobalMuon()) {
         // perform a second attempt, matching with the standalone muon
-        r2s_it matchSta = updSTA_recSimColl.find(allMuons.at(i));
+        auto matchSta = updSTA_recSimColl.find(allMuons.at(i));
         if (matchSta != updSTA_recSimColl.end()) {
           tp = matchSta->second.front().first;
           simInfo[i].tpId = tp.isNonnull() ? tp.key() : -1;  // we check, even if null refs
                                                              // should not appear here at all
           simInfo[i].tpAssoQuality = matchSta->second.front().second;
-          s2r_it matchback = updSTA_simRecColl.find(tp);
+          auto matchback = updSTA_simRecColl.find(tp);
           if (matchback != updSTA_simRecColl.end()) {
             muMatchBack = matchback->second.front().first;
           } else {

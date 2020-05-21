@@ -103,7 +103,7 @@ void PatBJetTagAnalyzer::analyze(const edm::Event &event, const edm::EventSetup 
   event.getByToken(jetsToken_, jetsHandle);
 
   // now go through all jets
-  for (pat::JetCollection::const_iterator jet = jetsHandle->begin(); jet != jetsHandle->end(); ++jet) {
+  for (auto jet = jetsHandle->begin(); jet != jetsHandle->end(); ++jet) {
     // only look at jets that pass the pt and eta cut
     if (jet->pt() < jetPtCut_ || std::abs(jet->eta()) > jetEtaCut_)
       continue;

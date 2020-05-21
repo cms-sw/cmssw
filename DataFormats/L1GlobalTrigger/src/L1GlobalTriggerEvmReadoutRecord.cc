@@ -117,7 +117,7 @@ bool L1GlobalTriggerEvmReadoutRecord::operator!=(const L1GlobalTriggerEvmReadout
 // get Global Trigger decision and the decision word
 //    general bxInEvent
 const bool L1GlobalTriggerEvmReadoutRecord::decision(int bxInEventValue) const {
-  for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin(); itBx != m_gtFdlWord.end(); ++itBx) {
+  for (auto itBx = m_gtFdlWord.begin(); itBx != m_gtFdlWord.end(); ++itBx) {
     if ((*itBx).bxInEvent() == bxInEventValue) {
       return (*itBx).finalOR();
     }
@@ -133,7 +133,7 @@ const bool L1GlobalTriggerEvmReadoutRecord::decision(int bxInEventValue) const {
 }
 
 const DecisionWord L1GlobalTriggerEvmReadoutRecord::decisionWord(int bxInEventValue) const {
-  for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin(); itBx != m_gtFdlWord.end(); ++itBx) {
+  for (auto itBx = m_gtFdlWord.begin(); itBx != m_gtFdlWord.end(); ++itBx) {
     if ((*itBx).bxInEvent() == bxInEventValue) {
       return (*itBx).gtDecisionWord();
     }
@@ -163,7 +163,7 @@ const DecisionWord L1GlobalTriggerEvmReadoutRecord::decisionWord() const {
 // set global decision and the decision word
 //    general
 void L1GlobalTriggerEvmReadoutRecord::setDecision(bool t, int bxInEventValue) {
-  for (std::vector<L1GtFdlWord>::iterator itBx = m_gtFdlWord.begin(); itBx != m_gtFdlWord.end(); ++itBx) {
+  for (auto itBx = m_gtFdlWord.begin(); itBx != m_gtFdlWord.end(); ++itBx) {
     if ((*itBx).bxInEvent() == bxInEventValue) {
       (*itBx).setFinalOR(static_cast<uint16_t>(t));  // TODO FIXME when manipulating partitions
     }
@@ -177,7 +177,7 @@ void L1GlobalTriggerEvmReadoutRecord::setDecision(bool t, int bxInEventValue) {
 }
 
 void L1GlobalTriggerEvmReadoutRecord::setDecisionWord(const DecisionWord& decisionWordValue, int bxInEventValue) {
-  for (std::vector<L1GtFdlWord>::iterator itBx = m_gtFdlWord.begin(); itBx != m_gtFdlWord.end(); ++itBx) {
+  for (auto itBx = m_gtFdlWord.begin(); itBx != m_gtFdlWord.end(); ++itBx) {
     if ((*itBx).bxInEvent() == bxInEventValue) {
       (*itBx).setGtDecisionWord(decisionWordValue);
     }
@@ -203,7 +203,7 @@ void L1GlobalTriggerEvmReadoutRecord::setDecisionWord(const DecisionWord& decisi
 
 // print global decision and algorithm decision word
 void L1GlobalTriggerEvmReadoutRecord::printGtDecision(std::ostream& myCout, int bxInEventValue) const {
-  for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin(); itBx != m_gtFdlWord.end(); ++itBx) {
+  for (auto itBx = m_gtFdlWord.begin(); itBx != m_gtFdlWord.end(); ++itBx) {
     if ((*itBx).bxInEvent() == bxInEventValue) {
       myCout << "\nL1 Global Trigger Record: " << std::endl;
 
@@ -225,7 +225,7 @@ void L1GlobalTriggerEvmReadoutRecord::printGtDecision(std::ostream& myCout) cons
 
 // print technical trigger word (reverse order for vector<bool>)
 void L1GlobalTriggerEvmReadoutRecord::printTechnicalTrigger(std::ostream& myCout, int bxInEventValue) const {
-  for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin(); itBx != m_gtFdlWord.end(); ++itBx) {
+  for (auto itBx = m_gtFdlWord.begin(); itBx != m_gtFdlWord.end(); ++itBx) {
     if ((*itBx).bxInEvent() == bxInEventValue) {
       myCout << "\nL1 Global Trigger Record: " << std::endl;
 
@@ -257,7 +257,7 @@ void L1GlobalTriggerEvmReadoutRecord::setTcsWord(const L1TcsWord& tcsWordValue) 
 
 // get / set FDL word (record) in the GT readout record
 const L1GtFdlWord L1GlobalTriggerEvmReadoutRecord::gtFdlWord(int bxInEventValue) const {
-  for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin(); itBx != m_gtFdlWord.end(); ++itBx) {
+  for (auto itBx = m_gtFdlWord.begin(); itBx != m_gtFdlWord.end(); ++itBx) {
     if ((*itBx).bxInEvent() == bxInEventValue) {
       return (*itBx);
     }
@@ -280,7 +280,7 @@ const L1GtFdlWord L1GlobalTriggerEvmReadoutRecord::gtFdlWord() const {
 
 void L1GlobalTriggerEvmReadoutRecord::setGtFdlWord(const L1GtFdlWord& gtFdlWordValue, int bxInEventValue) {
   // if a L1GtFdlWord exists for bxInEventValue, replace it
-  for (std::vector<L1GtFdlWord>::iterator itBx = m_gtFdlWord.begin(); itBx != m_gtFdlWord.end(); ++itBx) {
+  for (auto itBx = m_gtFdlWord.begin(); itBx != m_gtFdlWord.end(); ++itBx) {
     if ((*itBx).bxInEvent() == bxInEventValue) {
       *itBx = gtFdlWordValue;
       LogDebug("L1GlobalTriggerEvmReadoutRecord") << "Replacing L1GtFdlWord for bunch bx = " << bxInEventValue << "\n"
@@ -315,7 +315,7 @@ void L1GlobalTriggerEvmReadoutRecord::print(std::ostream& myCout) const {
 
   m_tcsWord.print(myCout);
 
-  for (std::vector<L1GtFdlWord>::const_iterator itFdl = m_gtFdlWord.begin(); itFdl != m_gtFdlWord.end(); ++itFdl) {
+  for (auto itFdl = m_gtFdlWord.begin(); itFdl != m_gtFdlWord.end(); ++itFdl) {
     itFdl->print(myCout);
   }
 }

@@ -9,12 +9,11 @@ static bool MuonResiduals1DOFFitter_weightAlignment;
 void MuonResiduals1DOFFitter::inform(TMinuit *tMinuit) { MuonResiduals1DOFFitter_TMinuit = tMinuit; }
 
 void MuonResiduals1DOFFitter_FCN(int &npar, double *gin, double &fval, double *par, int iflag) {
-  MuonResidualsFitterFitInfo *fitinfo = (MuonResidualsFitterFitInfo *)(MuonResiduals1DOFFitter_TMinuit->GetObjectFit());
+  auto *fitinfo = (MuonResidualsFitterFitInfo *)(MuonResiduals1DOFFitter_TMinuit->GetObjectFit());
   MuonResidualsFitter *fitter = fitinfo->fitter();
 
   fval = 0.;
-  for (std::vector<double *>::const_iterator resiter = fitter->residuals_begin(); resiter != fitter->residuals_end();
-       ++resiter) {
+  for (auto resiter = fitter->residuals_begin(); resiter != fitter->residuals_end(); ++resiter) {
     const double residual = (*resiter)[MuonResiduals1DOFFitter::kResid];
     const double redchi2 = (*resiter)[MuonResiduals1DOFFitter::kRedChi2];
 
@@ -46,7 +45,7 @@ double MuonResiduals1DOFFitter::sumofweights() {
   MuonResiduals1DOFFitter_sum_of_weights = 0.;
   MuonResiduals1DOFFitter_number_of_hits = 0.;
   MuonResiduals1DOFFitter_weightAlignment = m_weightAlignment;
-  for (std::vector<double *>::const_iterator resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
+  for (auto resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
     if (m_weightAlignment) {
       double redchi2 = (*resiter)[MuonResiduals1DOFFitter::kRedChi2];
       if (TMath::Prob(redchi2 * 8, 8) < 0.99) {  // no spikes allowed
@@ -70,7 +69,7 @@ bool MuonResiduals1DOFFitter::fit(Alignable *ali) {
   double resid_N = 0.;
   int N = 0;
 
-  for (std::vector<double *>::const_iterator resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
+  for (auto resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
     const double residual = (*resiter)[MuonResiduals1DOFFitter::kResid];
     const double redchi2 = (*resiter)[MuonResiduals1DOFFitter::kRedChi2];
     double weight = 1. / redchi2;
@@ -94,7 +93,7 @@ bool MuonResiduals1DOFFitter::fit(Alignable *ali) {
   resid_sum2 = 0.;
   resid_N = 0.;
 
-  for (std::vector<double *>::const_iterator resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
+  for (auto resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
     const double residual = (*resiter)[MuonResiduals1DOFFitter::kResid];
     const double redchi2 = (*resiter)[MuonResiduals1DOFFitter::kRedChi2];
     double weight = 1. / redchi2;
@@ -201,7 +200,7 @@ double MuonResiduals1DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
   fit_residual->SetLineWidth(2);
   fit_residual->Write();
 
-  for (std::vector<double *>::const_iterator resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
+  for (auto resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
     const double resid = (*resiter)[MuonResiduals1DOFFitter::kResid];
     const double redchi2 = (*resiter)[MuonResiduals1DOFFitter::kRedChi2];
     double weight = 1. / redchi2;

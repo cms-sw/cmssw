@@ -106,7 +106,7 @@ void RegressionEnergyPatElectronProducer::produce(edm::Event& event, const edm::
 
   // loop through all vertices
   Int_t nvertices = 0;
-  for (reco::VertexCollection::const_iterator inV = inVertices.begin(); inV != inVertices.end(); ++inV) {
+  for (auto inV = inVertices.begin(); inV != inVertices.end(); ++inV) {
     //pass these vertex cuts
     if (inV->ndof() >= 4 && inV->position().Rho() <= 2.0 && fabs(inV->z()) <= 24.0) {
       nvertices++;

@@ -56,7 +56,7 @@ void DTKeyedConfigDBInit::endJob() {
   cond::KeyedElement k(bk, 999999999);
   outdb->writeOne(k.m_obj, k.m_key, container);
 
-  std::vector<cond::Time_t>* kl = new std::vector<cond::Time_t>;
+  auto* kl = new std::vector<cond::Time_t>;
   kl->push_back(999999999);
   outdb->writeOne(kl, 1, iov);
 

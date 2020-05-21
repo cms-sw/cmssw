@@ -17,7 +17,7 @@ void PixelClusterSelectorTopBottom::produce(edm::StreamID, edm::Event& event, co
 
     DetId detIdObject(clustSet->detId());
     edmNew::DetSetVector<SiPixelCluster>::FastFiller spc(*output, detIdObject);
-    const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detIdObject));
+    const auto* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detIdObject));
     const PixelTopology* topol = (&(theGeomDet->specificTopology()));
 
     for (; clustIt != end; ++clustIt) {

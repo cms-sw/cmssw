@@ -358,7 +358,7 @@ void EcalSimple2007H4TBAnalyzer::analyze(edm::Event const& iEvent, edm::EventSet
   // Searching for max amplitude xtal alternative to use xtalInBeam_
   EEDetId maxHitId(0);
   float maxHit = -999999.;
-  for (EEUncalibratedRecHitCollection::const_iterator ithit = hits->begin(); ithit != hits->end(); ++ithit) {
+  for (auto ithit = hits->begin(); ithit != hits->end(); ++ithit) {
     if (ithit->amplitude() >= maxHit) {
       maxHit = ithit->amplitude();
       maxHitId = ithit->id();

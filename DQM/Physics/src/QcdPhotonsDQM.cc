@@ -282,8 +282,7 @@ void QcdPhotonsDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
     }
 
     // Assumption: reco photons are ordered by Et
-    for (PhotonCollection::const_iterator recoPhoton = photonCollection->begin(); recoPhoton != photonCollection->end();
-         recoPhoton++) {
+    for (auto recoPhoton = photonCollection->begin(); recoPhoton != photonCollection->end(); recoPhoton++) {
       // stop looping over photons once we get to too low Et
       if (recoPhoton->et() < theMinPhotonEt_)
         break;

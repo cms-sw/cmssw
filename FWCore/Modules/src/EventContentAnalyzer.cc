@@ -102,7 +102,7 @@ namespace edm {
         addToMap<double>(s_map);
         isFirst = false;
       }
-      TypeToPrintMap::iterator itFound = s_map.find(iObject.typeOf().name());
+      auto itFound = s_map.find(iObject.typeOf().name());
       if (itFound == s_map.end()) {
         return false;
       }
@@ -437,7 +437,7 @@ namespace edm {
     LogAbsolute("EventContent") << "\nSummary for key being the concatenation of friendlyClassName, moduleLabel, "
                                    "productInstanceName and processName"
                                 << std::endl;
-    for (nameMap::const_iterator it = cumulates_.begin(), itEnd = cumulates_.end(); it != itEnd; ++it) {
+    for (auto it = cumulates_.begin(), itEnd = cumulates_.end(); it != itEnd; ++it) {
       LogAbsolute("EventContent") << std::setw(6) << it->second << " occurrences of key " << it->first << std::endl;
     }
 

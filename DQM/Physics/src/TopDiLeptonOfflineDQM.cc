@@ -482,8 +482,7 @@ namespace TopDiLeptonOffline {
       }
       // check for overlaps
       bool overlap = false;
-      for (std::vector<const reco::PFCandidate*>::const_iterator elec = isoElecs.begin(); elec != isoElecs.end();
-           ++elec) {
+      for (auto elec = isoElecs.begin(); elec != isoElecs.end(); ++elec) {
         if (reco::deltaR((*elec)->eta(), (*elec)->phi(), jet->eta(), jet->phi()) < 0.4) {
           overlap = true;
           break;
@@ -537,8 +536,7 @@ namespace TopDiLeptonOffline {
 
     // buffer for event logging
     reco::MET caloMET;
-    for (std::vector<edm::EDGetTokenT<edm::View<reco::MET>>>::const_iterator met_ = mets_.begin(); met_ != mets_.end();
-         ++met_) {
+    for (auto met_ = mets_.begin(); met_ != mets_.end(); ++met_) {
       edm::Handle<edm::View<reco::MET>> met;
       if (!event.getByToken(*met_, met))
         continue;
@@ -728,8 +726,7 @@ TopDiLeptonOfflineDQM::TopDiLeptonOfflineDQM(const edm::ParameterSet& cfg)
                        std::unique_ptr<TopDiLeptonOffline::MonitorEnsemble>(new TopDiLeptonOffline::MonitorEnsemble(
                            selectionStep(selectionOrder_.back()).c_str(), setup_, consumesCollector())));
   }
-  for (std::vector<std::string>::const_iterator selIt = selectionOrder_.begin(); selIt != selectionOrder_.end();
-       ++selIt) {
+  for (auto selIt = selectionOrder_.begin(); selIt != selectionOrder_.end(); ++selIt) {
     std::string key = selectionStep(*selIt), type = objectType(*selIt);
     if (selection_.find(key) != selection_.end()) {
       if (type == "muons") {
@@ -795,8 +792,7 @@ void TopDiLeptonOfflineDQM::analyze(const edm::Event& event, const edm::EventSet
 
   unsigned int nCaloJetSteps = -1;
   // apply selection steps
-  for (std::vector<std::string>::const_iterator selIt = selectionOrder_.begin(); selIt != selectionOrder_.end();
-       ++selIt) {
+  for (auto selIt = selectionOrder_.begin(); selIt != selectionOrder_.end(); ++selIt) {
     std::string key = selectionStep(*selIt), type = objectType(*selIt);
     if (selection_.find(key) != selection_.end()) {
       if (type == "empty") {

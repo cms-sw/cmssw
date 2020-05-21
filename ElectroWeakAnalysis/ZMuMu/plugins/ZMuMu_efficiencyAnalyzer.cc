@@ -554,7 +554,7 @@ void ZMuMu_efficiencyAnalyzer::analyze(const Event &event, const EventSetup &set
       const Candidate *lep1 = zMuTrackCand.daughter(1);
       const pat::Muon &muonDau0 = dynamic_cast<const pat::Muon &>(*lep0->masterClone());
       double trkiso0 = muonDau0.trackIso();
-      const pat::GenericParticle &trackDau1 = dynamic_cast<const pat::GenericParticle &>(*lep1->masterClone());
+      const auto &trackDau1 = dynamic_cast<const pat::GenericParticle &>(*lep1->masterClone());
       double trkiso1 = trackDau1.trackIso();
       double pt0 = zMuTrackCand.daughter(0)->pt();
       double pt1 = zMuTrackCand.daughter(1)->pt();

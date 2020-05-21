@@ -141,14 +141,12 @@ void EgammaHLTElectronTrackIsolationProducers::produce(edm::StreamID sid,
     iEvent.getByToken(recoEcalCandidateProducer_, recoEcalCandHandle);
     reco::RecoEcalCandidateIsolationMap recoEcalCandMap(recoEcalCandHandle);
 
-    for (reco::RecoEcalCandidateCollection::const_iterator iRecoEcalCand = recoEcalCandHandle->begin();
-         iRecoEcalCand != recoEcalCandHandle->end();
+    for (auto iRecoEcalCand = recoEcalCandHandle->begin(); iRecoEcalCand != recoEcalCandHandle->end();
          iRecoEcalCand++) {
       reco::RecoEcalCandidateRef recoEcalCandRef(recoEcalCandHandle, iRecoEcalCand - recoEcalCandHandle->begin());
 
       reco::ElectronRef eleRef;
-      for (reco::ElectronCollection::const_iterator eleIt = electronHandle->begin(); eleIt != electronHandle->end();
-           eleIt++) {
+      for (auto eleIt = electronHandle->begin(); eleIt != electronHandle->end(); eleIt++) {
         if (eleIt->superCluster() == recoEcalCandRef->superCluster()) {
           eleRef = reco::ElectronRef(electronHandle, eleIt - electronHandle->begin());
           break;
@@ -165,9 +163,7 @@ void EgammaHLTElectronTrackIsolationProducers::produce(edm::StreamID sid,
     iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(recoEcalCandMap));
 
   } else {  //we are going to loop over electron instead
-    for (reco::ElectronCollection::const_iterator iElectron = electronHandle->begin();
-         iElectron != electronHandle->end();
-         iElectron++) {
+    for (auto iElectron = electronHandle->begin(); iElectron != electronHandle->end(); iElectron++) {
       reco::ElectronRef eleRef(reco::ElectronRef(electronHandle, iElectron - electronHandle->begin()));
       const reco::Track* eleTrk = useGsfTrack_ ? &*eleRef->gsfTrack() : &*eleRef->track();
       float isol = isoAlgo.getIso(eleTrk).second;

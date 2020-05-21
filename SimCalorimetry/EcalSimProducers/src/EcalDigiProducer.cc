@@ -480,7 +480,7 @@ void EcalDigiProducer::checkCalibrations(const edm::Event &event, const edm::Eve
   if (nullptr != m_APDCoder)
     m_APDCoder->setGainRatios(gr);
 
-  EcalMGPAGainRatio *defaultRatios = new EcalMGPAGainRatio();
+  auto *defaultRatios = new EcalMGPAGainRatio();
 
   double theGains[m_Coder->NGAINS + 1];
   theGains[0] = 0.;

@@ -385,7 +385,7 @@ namespace dqmservices {
   }
 
   TriggerSelector::TreeElement::~TreeElement() {
-    for (std::vector<TreeElement*>::iterator it = children_.begin(); it != children_.end(); it++)
+    for (auto it = children_.begin(); it != children_.end(); it++)
       delete *it;
     children_.clear();
   }

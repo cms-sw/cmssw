@@ -122,8 +122,8 @@ void ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     gc.push_back(GoodCluster(theOutParticle, PPP, 0.5));
 
     vector<PFBrem> brem = (*pft).PFRecBrem();
-    vector<PFBrem>::iterator ib = brem.begin();
-    vector<PFBrem>::iterator ib_end = brem.end();
+    auto ib = brem.begin();
+    auto ib_end = brem.end();
     LogDebug("ConvBremSeedProducerProducer") << "NUMBER OF BREMS " << brem.size();
 
     ///LOOP OVER BREM PHOTONS
@@ -150,7 +150,7 @@ void ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
       ParticlePropagator PP(p, fieldMap_, nullptr);
 
       ///LOOP OVER TRACKER LAYER
-      list<TrackerLayer>::const_iterator cyliter = geometry_->cylinderBegin();
+      auto cyliter = geometry_->cylinderBegin();
       for (; cyliter != geometry_->cylinderEnd(); ++cyliter) {
         ///TRACKER LAYER SELECTION
         if (!(cyliter->sensitive()))
@@ -174,7 +174,7 @@ void ConvBremSeedProducer::produce(Event& iEvent, const EventSetup& iSetup) {
         if (compat.empty())
           continue;
 
-        for (std::vector<DetWithState>::const_iterator i = compat.begin(); i != compat.end(); i++) {
+        for (auto i = compat.begin(); i != compat.end(); i++) {
           long int detid = i->first->geographicalId().rawId();
 
           if (!GeomDetEnumerators::isTrackerPixel(tkLayer->subDetector())) {
@@ -405,7 +405,7 @@ void ConvBremSeedProducer::initializeLayerMap() {
   const float zTolerance = 3.;
 
   LogDebug("FastTracker") << "Dump of TrackerInteractionGeometry cylinders:";
-  for (std::list<TrackerLayer>::const_iterator i = geometry_->cylinderBegin(); i != geometry_->cylinderEnd(); ++i) {
+  for (auto i = geometry_->cylinderBegin(); i != geometry_->cylinderEnd(); ++i) {
     const BoundCylinder* cyl = i->cylinder();
     const BoundDisk* disk = i->disk();
 

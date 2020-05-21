@@ -48,9 +48,7 @@ namespace {  // anonymous
       return;
 
     unsigned int categories = 1;
-    for (std::vector<BinLimits>::const_iterator bin = calib->variableBinLimits.begin();
-         bin != calib->variableBinLimits.end();
-         bin++)
+    for (auto bin = calib->variableBinLimits.begin(); bin != calib->variableBinLimits.end(); bin++)
       categories *= (bin->size() + 1);
 
     if (calib->categoryMapping.size() != categories)
@@ -64,9 +62,7 @@ namespace {  // anonymous
 
   void ProcCategory::eval(ValueIterator iter, unsigned int n) const {
     unsigned int category = 0;
-    for (std::vector<BinLimits>::const_iterator vars = calib->variableBinLimits.begin();
-         vars != calib->variableBinLimits.end();
-         vars++, ++iter) {
+    for (auto vars = calib->variableBinLimits.begin(); vars != calib->variableBinLimits.end(); vars++, ++iter) {
       unsigned int idx = std::upper_bound(vars->begin(), vars->end(), *iter) - vars->begin();
       category *= vars->size() + 1;
       category += idx;

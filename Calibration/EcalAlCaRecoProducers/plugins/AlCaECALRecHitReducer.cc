@@ -157,8 +157,7 @@ void AlCaECALRecHitReducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   }
 
   //saving recHits for highEta SCs for highEta studies
-  for (reco::SuperClusterCollection::const_iterator SC_iter = EESCHandle->begin(); SC_iter != EESCHandle->end();
-       SC_iter++) {
+  for (auto SC_iter = EESCHandle->begin(); SC_iter != EESCHandle->end(); SC_iter++) {
     if (fabs(SC_iter->eta()) < minEta_highEtaSC_)
       continue;
     AddMiniRecHitCollection(*SC_iter, reducedRecHit_EEmap, caloTopology);
@@ -173,12 +172,12 @@ void AlCaECALRecHitReducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   }
 
   //------------------------------ fill the alcareco reduced recHit collection
-  for (std::set<DetId>::const_iterator itr = reducedRecHit_EBmap.begin(); itr != reducedRecHit_EBmap.end(); itr++) {
+  for (auto itr = reducedRecHit_EBmap.begin(); itr != reducedRecHit_EBmap.end(); itr++) {
     if (barrelHitsCollection->find(*itr) != barrelHitsCollection->end())
       miniEBRecHitCollection->push_back(*(barrelHitsCollection->find(*itr)));
   }
 
-  for (std::set<DetId>::const_iterator itr = reducedRecHit_EEmap.begin(); itr != reducedRecHit_EEmap.end(); itr++) {
+  for (auto itr = reducedRecHit_EEmap.begin(); itr != reducedRecHit_EEmap.end(); itr++) {
     if (endcapHitsCollection->find(*itr) != endcapHitsCollection->end())
       miniEERecHitCollection->push_back(*(endcapHitsCollection->find(*itr)));
   }
@@ -206,8 +205,7 @@ void AlCaECALRecHitReducer::AddMiniRecHitCollection(const reco::SuperCluster& sc
   }
 
   const std::vector<std::pair<DetId, float> >& scHits = sc.hitsAndFractions();
-  for (std::vector<std::pair<DetId, float> >::const_iterator scHit_itr = scHits.begin(); scHit_itr != scHits.end();
-       scHit_itr++) {
+  for (auto scHit_itr = scHits.begin(); scHit_itr != scHits.end(); scHit_itr++) {
     // the map fills just one time (avoiding double insert of recHits)
     reducedRecHitMap.insert(scHit_itr->first);
   }

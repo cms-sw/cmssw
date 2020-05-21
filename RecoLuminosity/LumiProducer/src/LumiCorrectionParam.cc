@@ -55,14 +55,14 @@ std::ostream& operator<<(std::ostream& s, LumiCorrectionParam const& lumiparam) 
   s << "   beamegev " << lumiparam.beamegev() << "\n";
   s << "   intglumi " << lumiparam.intglumi() << "\n";
   std::map<std::string, float>::const_iterator it;
-  std::map<std::string, float>::const_iterator itBeg = lumiparam.nonlinearCoeff().begin();
-  std::map<std::string, float>::const_iterator itEnd = lumiparam.nonlinearCoeff().end();
+  auto itBeg = lumiparam.nonlinearCoeff().begin();
+  auto itEnd = lumiparam.nonlinearCoeff().end();
   for (it = itBeg; it != itEnd; ++it) {
     s << "   params " << it->first << " " << it->second << "\n";
   }
   std::map<unsigned int, float>::const_iterator ait;
-  std::map<unsigned int, float>::const_iterator aitBeg = lumiparam.afterglows().begin();
-  std::map<unsigned int, float>::const_iterator aitEnd = lumiparam.afterglows().end();
+  auto aitBeg = lumiparam.afterglows().begin();
+  auto aitEnd = lumiparam.afterglows().end();
   for (ait = aitBeg; ait != aitEnd; ++ait) {
     s << "   afterglows " << ait->first << " " << ait->second << "\n";
   }

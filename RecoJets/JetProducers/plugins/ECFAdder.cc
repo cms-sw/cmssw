@@ -22,7 +22,7 @@ ECFAdder::ECFAdder(const edm::ParameterSet& iConfig)
   if (!srcWeights.label().empty())
     input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights);
 
-  for (std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n) {
+  for (auto n = Njets_.begin(); n != Njets_.end(); ++n) {
     std::ostringstream ecfN_str;
     std::shared_ptr<fastjet::FunctionOfPseudoJet<double>> pfunc;
 
@@ -64,7 +64,7 @@ void ECFAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     weightsHandle_ = &iEvent.get(input_weights_token_);
 
   unsigned i = 0;
-  for (std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n) {
+  for (auto n = Njets_.begin(); n != Njets_.end(); ++n) {
     // prepare room for output
     std::vector<float> ecfN;
     ecfN.reserve(jets->size());

@@ -111,7 +111,7 @@ int HBHETimingShapedFlagSetter::timingStatus(const HBHERecHit& hbhe) {
     } else {
       // Perform linear interpolation between energy boundaries
 
-      std::map<int, std::pair<double, double> >::const_iterator prev = it;
+      auto prev = it;
       prev--;
 
       // twinmax interpolation

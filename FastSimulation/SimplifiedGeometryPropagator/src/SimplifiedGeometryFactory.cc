@@ -180,8 +180,7 @@ std::unique_ptr<fastsim::SimplifiedGeometry> fastsim::SimplifiedGeometryFactory:
   std::vector<std::string> interactionModelLabels =
       cfg.getUntrackedParameter<std::vector<std::string> >("interactionModels");
   for (const auto &label : interactionModelLabels) {
-    std::map<std::string, fastsim::InteractionModel *>::const_iterator interactionModel =
-        interactionModelMap_->find(label);
+    auto interactionModel = interactionModelMap_->find(label);
     if (interactionModel == interactionModelMap_->end()) {
       throw cms::Exception("fastsim::SimplifiedGeometryFactory") << "unknown interaction model '" << label << "'";
     }

@@ -21,8 +21,8 @@ void TrackCollectionFP420::put(TrackCollectionFP420::Range input, unsigned int s
 
   // fill input in temporary vector for sorting
   std::vector<TrackFP420> temporary;
-  TrackCollectionFP420::ContainerIterator sort_begin = input.first;
-  TrackCollectionFP420::ContainerIterator sort_end = input.second;
+  auto sort_begin = input.first;
+  auto sort_end = input.second;
 #ifdef mydigidebug
   std::cout << "   !!!!!!!!!!!!!!!!    TrackCollectionFP420:: !!!!  put !!!!           start " << std::endl;
 #endif
@@ -35,8 +35,8 @@ void TrackCollectionFP420::put(TrackCollectionFP420::Range input, unsigned int s
   std::sort(temporary.begin(), temporary.end());
 
   // iterators over input
-  TrackCollectionFP420::ContainerIterator begin = temporary.begin();
-  TrackCollectionFP420::ContainerIterator end = temporary.end();
+  auto begin = temporary.begin();
+  auto end = temporary.end();
   for (; begin != end; ++begin) {
     container_.push_back(*begin);
     if (first) {
@@ -72,7 +72,7 @@ const TrackCollectionFP420::Range TrackCollectionFP420::get(unsigned int station
 #ifdef mydigidebug
   std::cout << "TrackCollectionFP420::get:stationID= " << stationID << std::endl;
 #endif
-  TrackCollectionFP420::RegistryIterator returnIndex = map_.find(stationID);
+  auto returnIndex = map_.find(stationID);
   TrackCollectionFP420::IndexRange returnIndexRange = returnIndex->second;
 #ifdef mydigidebug
   std::cout << "TrackCollectionFP420::get1: returnIndexRange.first= " << returnIndexRange.first << std::endl;
@@ -99,16 +99,16 @@ void TrackCollectionFP420::putclear(TrackCollectionFP420::Range input, unsigned 
   TrackCollectionFP420::IndexRange inputRange;
 
   std::vector<TrackFP420> temporary;
-  TrackCollectionFP420::ContainerIterator sort_begin = input.first;
-  TrackCollectionFP420::ContainerIterator sort_end = input.second;
+  auto sort_begin = input.first;
+  auto sort_end = input.second;
   for (; sort_begin != sort_end; ++sort_begin) {
     temporary.push_back(*sort_begin);
   }
   std::sort(temporary.begin(), temporary.end());
 
   //	temporary.clear();
-  TrackCollectionFP420::ContainerIterator begin = temporary.begin();
-  TrackCollectionFP420::ContainerIterator end = temporary.end();
+  auto begin = temporary.begin();
+  auto end = temporary.end();
   for (; begin != end; ++begin) {
     container_.push_back(*begin);
   }
@@ -131,8 +131,8 @@ const std::vector<unsigned int> TrackCollectionFP420::stationIDs() const {
 #ifdef mydigidebug
   std::cout << "TrackCollectionFP420::stationIDs:start " << std::endl;
 #endif
-  TrackCollectionFP420::RegistryIterator begin = map_.begin();
-  TrackCollectionFP420::RegistryIterator end = map_.end();
+  auto begin = map_.begin();
+  auto end = map_.end();
 
   std::vector<unsigned int> output;
 

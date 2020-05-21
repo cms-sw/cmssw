@@ -116,8 +116,7 @@ void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit>> hSi
   if (hSimHits.isValid()) {
     std::set<unsigned int> detIds;
     std::vector<PSimHit> const& simHits = *hSimHits.product();
-    for (std::vector<PSimHit>::const_iterator it = simHits.begin(), itEnd = simHits.end(); it != itEnd;
-         ++it, ++globalSimHitIndex) {
+    for (auto it = simHits.begin(), itEnd = simHits.end(); it != itEnd; ++it, ++globalSimHitIndex) {
       unsigned int detId = (*it).detUnitId();
       if (detIds.insert(detId).second) {
         // The insert succeeded, so this detector element has not yet been processed.

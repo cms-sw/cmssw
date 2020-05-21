@@ -95,8 +95,7 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
 
   int TrackNumber = 0;
 
-  for (std::vector<Track>::const_iterator thisTrack = generalTracks->begin(); thisTrack != generalTracks->end();
-       ++thisTrack, ++TrackNumber) {
+  for (auto thisTrack = generalTracks->begin(); thisTrack != generalTracks->end(); ++thisTrack, ++TrackNumber) {
     //Initializing our plane
 
     //Remove later

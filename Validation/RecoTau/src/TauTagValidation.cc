@@ -88,7 +88,7 @@ TauTagValidation::TauTagValidation(const edm::ParameterSet& iConfig)
   tauProducerInputTagToken_ = consumes<reco::PFTauCollection>(iConfig.getParameter<InputTag>("TauProducer"));
   std::vector<edm::ParameterSet> temp_plainDiscriminators;
   std::vector<edm::ParameterSet> temp_discriminatorContainers;
-  for (std::vector<edm::ParameterSet>::iterator it = discriminators_.begin(); it != discriminators_.end(); ++it) {
+  for (auto it = discriminators_.begin(); it != discriminators_.end(); ++it) {
     if (it->getParameter<string>("container").empty()) {
       temp_plainDiscriminators.push_back(*it);
       currentDiscriminatorToken_.push_back(
@@ -617,7 +617,7 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     PFTauCollection::size_type thePFTauClosest;
 
-    std::map<std::string, MonitorElement*>::const_iterator element = plotMap_.end();
+    auto element = plotMap_.end();
 
     //Run the Reference Collection
     for (genCandidateCollection::const_iterator RefJet = ReferenceCollection->begin();
@@ -859,9 +859,7 @@ void TauTagValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 double TauTagValidation::getSumPt(const std::vector<edm::Ptr<reco::Candidate>>& candidates) {
   double sumPt = 0.;
-  for (std::vector<edm::Ptr<reco::Candidate>>::const_iterator candidate = candidates.begin();
-       candidate != candidates.end();
-       ++candidate) {
+  for (auto candidate = candidates.begin(); candidate != candidates.end(); ++candidate) {
     sumPt += (*candidate)->pt();
   }
   return sumPt;

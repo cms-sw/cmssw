@@ -35,7 +35,7 @@ std::unique_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(c
             << ", lastHFRing = " << hcaltopo->lastHFRing() << std::endl;
 #endif
 
-  CaloTowerGeometry* geom = new CaloTowerGeometry(m_limits);
+  auto* geom = new CaloTowerGeometry(m_limits);
 
   if (nullptr == geom->cornersMgr())
     geom->allocateCorners(geom->numberOfCellsForCorners());

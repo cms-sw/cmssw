@@ -36,7 +36,7 @@ namespace multiTrajectoryStateMode {
     std::vector<SingleGaussianState1D> pzStates;
     pzStates.reserve(numb);
     // iteration over components
-    for (std::vector<TrajectoryStateOnSurface>::const_iterator ic = components.begin(); ic != components.end(); ++ic) {
+    for (auto ic = components.begin(); ic != components.end(); ++ic) {
       // extraction of parameters and variances
       GlobalVector mom(ic->globalMomentum());
       AlgebraicSymMatrix66 cov(ic->cartesianError().matrix());
@@ -84,7 +84,7 @@ namespace multiTrajectoryStateMode {
     std::vector<SingleGaussianState1D> zStates;
     zStates.reserve(numb);
     // iteration over components
-    for (std::vector<TrajectoryStateOnSurface>::const_iterator ic = components.begin(); ic != components.end(); ++ic) {
+    for (auto ic = components.begin(); ic != components.end(); ++ic) {
       // extraction of parameters and variances
       GlobalPoint pos(ic->globalPosition());
       AlgebraicSymMatrix66 cov(ic->cartesianError().matrix());
@@ -276,7 +276,7 @@ namespace multiTrajectoryStateMode {
     AlgebraicSymMatrix33 covCart;
     AlgebraicSymMatrix33 covPPhiEta;
     // iteration over components
-    for (std::vector<TrajectoryStateOnSurface>::const_iterator ic = components.begin(); ic != components.end(); ++ic) {
+    for (auto ic = components.begin(); ic != components.end(); ++ic) {
       // parameters
       GlobalVector mom(ic->globalMomentum());
       auto px = mom.x();

@@ -124,7 +124,7 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   bool filledOnce = false;
 
   // loop the requested selections
-  for (FilterSelections::iterator selection = selections_->begin(); selection != selections_->end(); ++selection) {
+  for (auto selection = selections_->begin(); selection != selections_->end(); ++selection) {
     //was this flow of filter actually asked for
     bool skip = true;
     unsigned int iFlow = 0;
@@ -155,7 +155,7 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
       plotter_->fill(fullContent, iEvent);
 
     //loop the filters to make cumulative and allButOne job
-    for (FilterSelection::iterator filterIt = selection->begin(); filterIt != selection->end(); ++filterIt) {
+    for (auto filterIt = selection->begin(); filterIt != selection->end(); ++filterIt) {
       SFilter& filter = (*filterIt);
       //      bool lastCut=((filterIt+1)==selection->end());
 
@@ -174,7 +174,7 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
         globalAccept = false;
         // did all the others filter fire
         bool goodForAllButThisOne = true;
-        for (std::map<std::string, bool>::iterator decision = accept.begin(); decision != accept.end(); ++decision) {
+        for (auto decision = accept.begin(); decision != accept.end(); ++decision) {
           if (decision->first == filter->name())
             continue;
           if (!decision->second) {

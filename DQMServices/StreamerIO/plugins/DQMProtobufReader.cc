@@ -78,7 +78,7 @@ edm::InputSource::ItemType DQMProtobufReader::getNextItemType() {
 std::shared_ptr<edm::RunAuxiliary> DQMProtobufReader::readRunAuxiliary_() {
   // fiterator_.logFileAction("readRunAuxiliary_");
 
-  edm::RunAuxiliary* aux = new edm::RunAuxiliary(fiterator_.runNumber(), edm::Timestamp(), edm::Timestamp());
+  auto* aux = new edm::RunAuxiliary(fiterator_.runNumber(), edm::Timestamp(), edm::Timestamp());
   return std::shared_ptr<edm::RunAuxiliary>(aux);
 }
 
@@ -97,7 +97,7 @@ std::shared_ptr<edm::LuminosityBlockAuxiliary> DQMProtobufReader::readLuminosity
   // fiterator_.logFileAction("readLuminosityBlockAuxiliary_");
 
   currentLumi_ = fiterator_.open();
-  edm::LuminosityBlockAuxiliary* aux = new edm::LuminosityBlockAuxiliary(
+  auto* aux = new edm::LuminosityBlockAuxiliary(
       fiterator_.runNumber(), currentLumi_.file_ls, edm::Timestamp(), edm::Timestamp());
 
   return std::shared_ptr<edm::LuminosityBlockAuxiliary>(aux);

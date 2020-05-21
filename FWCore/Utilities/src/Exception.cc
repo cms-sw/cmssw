@@ -113,8 +113,7 @@ namespace cms {
     } else {
       ost << "An exception of category '" << category_ << "' occurred while\n";
       int count = 0;
-      for (std::list<std::string>::const_reverse_iterator i = context_.rbegin(), iEnd = context_.rend(); i != iEnd;
-           ++i, ++count) {
+      for (auto i = context_.rbegin(), iEnd = context_.rend(); i != iEnd; ++i, ++count) {
         ost << "   [" << count << "] " << *i << "\n";
       }
     }
@@ -131,9 +130,7 @@ namespace cms {
     if (!additionalInfo_.empty()) {
       ost << "   Additional Info:\n";
       char c = 'a';
-      for (std::list<std::string>::const_reverse_iterator i = additionalInfo_.rbegin(), iEnd = additionalInfo_.rend();
-           i != iEnd;
-           ++i, ++c) {
+      for (auto i = additionalInfo_.rbegin(), iEnd = additionalInfo_.rend(); i != iEnd; ++i, ++c) {
         ost << "      [" << c << "] " << *i << "\n";
       }
     }

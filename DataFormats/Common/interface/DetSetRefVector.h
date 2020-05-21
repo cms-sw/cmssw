@@ -115,9 +115,7 @@ namespace edm {
     DetSetRefVector(const Handle<C>& iHandle, const std::vector<det_id_type>& iDets) : sets_() {
       sets_.reserve(iDets.size());
       det_id_type sanityCheck = 0;
-      for (std::vector<det_id_type>::const_iterator itDetId = iDets.begin(), itDetIdEnd = iDets.end();
-           itDetId != itDetIdEnd;
-           ++itDetId) {
+      for (auto itDetId = iDets.begin(), itDetIdEnd = iDets.end(); itDetId != itDetIdEnd; ++itDetId) {
         assert(sanityCheck <= *itDetId && "vector of det_id_type was not ordered");
         sanityCheck = *itDetId;
         //the last 'false' says to not get the data right now
@@ -128,9 +126,7 @@ namespace edm {
     DetSetRefVector(const OrphanHandle<C>& iHandle, const std::vector<det_id_type>& iDets) : sets_() {
       sets_.reserve(iDets.size());
       det_id_type sanityCheck = 0;
-      for (std::vector<det_id_type>::const_iterator itDetId = iDets.begin(), itDetIdEnd = iDets.end();
-           itDetId != itDetIdEnd;
-           ++itDetId) {
+      for (auto itDetId = iDets.begin(), itDetIdEnd = iDets.end(); itDetId != itDetIdEnd; ++itDetId) {
         assert(sanityCheck <= *itDetId && "vector of det_id_type was not ordered");
         sanityCheck = *itDetId;
         //the last 'false' says to not get the data right now
@@ -141,9 +137,7 @@ namespace edm {
     DetSetRefVector(const TestHandle<C>& iHandle, const std::vector<det_id_type>& iDets) : sets_() {
       sets_.reserve(iDets.size());
       det_id_type sanityCheck = 0;
-      for (std::vector<det_id_type>::const_iterator itDetId = iDets.begin(), itDetIdEnd = iDets.end();
-           itDetId != itDetIdEnd;
-           ++itDetId) {
+      for (auto itDetId = iDets.begin(), itDetIdEnd = iDets.end(); itDetId != itDetIdEnd; ++itDetId) {
         assert(sanityCheck <= *itDetId && "vector of det_id_type was not ordered");
         sanityCheck = *itDetId;
         //the last 'false' says to not get the data right now

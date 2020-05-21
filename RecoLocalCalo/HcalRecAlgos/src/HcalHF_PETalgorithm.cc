@@ -113,7 +113,7 @@ void HcalHF_PETalgorithm::HFSetFlagFromPET(HFRecHit& hf,
 
   // Step 3:  Compute ratio
   double Ratio = 0;
-  HFRecHitCollection::const_iterator part = rec.find(partner);
+  auto part = rec.find(partner);
   if (part != rec.end()) {
     HcalDetId neighbor(part->detid().rawId());
     const uint32_t chanstat = myqual->getValues(neighbor)->getValue();

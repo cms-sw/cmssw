@@ -136,7 +136,7 @@ void FastPrimaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const
 
   float lengthBmodule = 6.66;  //cm
   std::vector<float> zProjections;
-  for (CaloJetCollection::const_iterator jit = selectedJets.begin(); jit != selectedJets.end(); jit++) {
+  for (auto jit = selectedJets.begin(); jit != selectedJets.end(); jit++) {
     float px = jit->px();
     float py = jit->py();
     float pz = jit->pz();
@@ -180,9 +180,9 @@ void FastPrimaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const
   }  // loop on selected jets
   std::sort(zProjections.begin(), zProjections.end());
 
-  std::vector<float>::iterator itCenter = zProjections.begin();
-  std::vector<float>::iterator itLeftSide = zProjections.begin();
-  std::vector<float>::iterator itRightSide = zProjections.begin();
+  auto itCenter = zProjections.begin();
+  auto itLeftSide = zProjections.begin();
+  auto itRightSide = zProjections.begin();
   std::vector<int> counts;
   float zCluster = m_clusterLength / 2.0;  //cm
   int max = 0;

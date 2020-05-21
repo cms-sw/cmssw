@@ -143,7 +143,7 @@ static const std::string kTransparency("transparency");
 void FWEventItemsManager::addTo(FWConfiguration& iTo) const {
   FWColorManager* cm = m_context->colorManager();
   assert(nullptr != cm);
-  for (std::vector<FWEventItem*>::const_iterator it = m_items.begin(); it != m_items.end(); ++it) {
+  for (auto it = m_items.begin(); it != m_items.end(); ++it) {
     if (!*it)
       continue;
     FWConfiguration conf(6);
@@ -196,7 +196,7 @@ void FWEventItemsManager::setFrom(const FWConfiguration& iFrom) {
   std::vector<FWEventItem*> newItems;
   newItems.reserve(keyValues->size());
 
-  for (FWConfiguration::KeyValues::const_iterator it = keyValues->begin(); it != keyValues->end(); ++it) {
+  for (auto it = keyValues->begin(); it != keyValues->end(); ++it) {
     const std::string& name = it->first;
     const FWConfiguration& conf = it->second;
     const FWConfiguration::KeyValues* keyValues = conf.keyValues();

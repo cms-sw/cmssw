@@ -57,8 +57,7 @@ namespace edm {
         }
       }
       bool intervalsWereComparible = true;
-      for (Providers::iterator itProvider = providers_.begin(), itProviderEnd = providers_.end();
-           itProvider != itProviderEnd;
+      for (auto itProvider = providers_.begin(), itProviderEnd = providers_.end(); itProvider != itProviderEnd;
            ++itProvider) {
         if ((*itProvider)->setValidityIntervalFor(iTime)) {
           haveAValidDependentRecord = true;
@@ -111,9 +110,8 @@ namespace edm {
       //both start at the smallest value
       EventID closestID;
       Timestamp closestTimeStamp(0);
-      std::vector<ValidityInterval>::iterator itIOVs = previousIOVs_.begin();
-      for (Providers::iterator itProvider = providers_.begin(), itProviderEnd = providers_.end();
-           itProvider != itProviderEnd;
+      auto itIOVs = previousIOVs_.begin();
+      for (auto itProvider = providers_.begin(), itProviderEnd = providers_.end(); itProvider != itProviderEnd;
            ++itProvider, ++itIOVs) {
         if ((*itProvider)->setValidityIntervalFor(iTime)) {
           ValidityInterval providerInterval = (*itProvider)->validityInterval();

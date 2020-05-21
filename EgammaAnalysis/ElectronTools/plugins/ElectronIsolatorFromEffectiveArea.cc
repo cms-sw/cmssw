@@ -66,7 +66,7 @@ bool ElectronIsolatorFromEffectiveArea::filter(edm::Event& event, const edm::Eve
     event.getByToken(gsfElectronToken, gsfElectrons);
     std::vector<double> gsfCorrectionsEA;
     if (gsfElectrons.isValid()) {
-      for (reco::GsfElectronCollection::const_iterator it = gsfElectrons->begin(); it != gsfElectrons->end(); ++it)
+      for (auto it = gsfElectrons->begin(); it != gsfElectrons->end(); ++it)
         gsfCorrectionsEA.push_back((*rho) *
                                    EEA::GetElectronEffectiveArea(modeEEA, it->superCluster()->eta(), targetEEA));
       filler.insert(gsfElectrons, gsfCorrectionsEA.begin(), gsfCorrectionsEA.end());
@@ -78,7 +78,7 @@ bool ElectronIsolatorFromEffectiveArea::filter(edm::Event& event, const edm::Eve
     event.getByToken(pfElectronToken, pfElectrons);
     std::vector<double> pfCorrectionsEA;
     if (pfElectrons.isValid()) {
-      for (reco::PFCandidateCollection::const_iterator it = pfElectrons->begin(); it != pfElectrons->end(); ++it)
+      for (auto it = pfElectrons->begin(); it != pfElectrons->end(); ++it)
         pfCorrectionsEA.push_back(
             (*rho) * EEA::GetElectronEffectiveArea(modeEEA, it->gsfElectronRef()->superCluster()->eta(), targetEEA));
       filler.insert(pfElectrons, pfCorrectionsEA.begin(), pfCorrectionsEA.end());
@@ -90,7 +90,7 @@ bool ElectronIsolatorFromEffectiveArea::filter(edm::Event& event, const edm::Eve
     event.getByToken(patElectronToken, patElectrons);
     std::vector<double> patCorrectionsEA;
     if (patElectrons.isValid()) {
-      for (pat::ElectronCollection::const_iterator it = patElectrons->begin(); it != patElectrons->end(); ++it)
+      for (auto it = patElectrons->begin(); it != patElectrons->end(); ++it)
         patCorrectionsEA.push_back((*rho) *
                                    EEA::GetElectronEffectiveArea(modeEEA, it->superCluster()->eta(), targetEEA));
       filler.insert(patElectrons, patCorrectionsEA.begin(), patCorrectionsEA.end());

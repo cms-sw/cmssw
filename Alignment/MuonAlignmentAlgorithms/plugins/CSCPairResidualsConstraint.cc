@@ -92,9 +92,7 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
   std::vector<const TransientTrackingRecHit *> hits_i;
   std::vector<const TransientTrackingRecHit *> hits_j;
 
-  for (std::vector<TrajectoryMeasurement>::const_iterator measurement = measurements.begin();
-       measurement != measurements.end();
-       ++measurement) {
+  for (auto measurement = measurements.begin(); measurement != measurements.end(); ++measurement) {
     const TransientTrackingRecHit *hit = &*(measurement->recHit());
 
     DetId id = hit->geographicalId();
@@ -140,8 +138,7 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
     if (dphidzFromTrack(measurements, track, trackTransformer, dphidz)) {
       double sum1_i = 0.;
       double sumy_i = 0.;
-      for (std::vector<const TransientTrackingRecHit *>::const_iterator hit = hits_i.begin(); hit != hits_i.end();
-           ++hit) {
+      for (auto hit = hits_i.begin(); hit != hits_i.end(); ++hit) {
         double phi, phierr2;
         calculatePhi(*hit, phi, phierr2, false, true);
         double z = (*hit)->globalPosition().z() - m_Zplane;
@@ -155,8 +152,7 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
 
       double sum1_j = 0.;
       double sumy_j = 0.;
-      for (std::vector<const TransientTrackingRecHit *>::const_iterator hit = hits_j.begin(); hit != hits_j.end();
-           ++hit) {
+      for (auto hit = hits_j.begin(); hit != hits_j.end(); ++hit) {
         double phi, phierr2;
         calculatePhi(*hit, phi, phierr2, false, true);
         double z = (*hit)->globalPosition().z() - m_Zplane;
@@ -187,8 +183,7 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
     double sumy_i = 0.;
     double sumxx_i = 0.;
     double sumxy_i = 0.;
-    for (std::vector<const TransientTrackingRecHit *>::const_iterator hit = hits_i.begin(); hit != hits_i.end();
-         ++hit) {
+    for (auto hit = hits_i.begin(); hit != hits_i.end(); ++hit) {
       double phi, phierr2;
       calculatePhi(*hit, phi, phierr2, false, true);
       double z = (*hit)->globalPosition().z() - m_Zplane;
@@ -208,8 +203,7 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
     double sumy_j = 0.;
     double sumxx_j = 0.;
     double sumxy_j = 0.;
-    for (std::vector<const TransientTrackingRecHit *>::const_iterator hit = hits_j.begin(); hit != hits_j.end();
-         ++hit) {
+    for (auto hit = hits_j.begin(); hit != hits_j.end(); ++hit) {
       double phi, phierr2;
       calculatePhi(*hit, phi, phierr2, false, true);
       double z = (*hit)->globalPosition().z() - m_Zplane;
@@ -246,7 +240,7 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
   double sumy_ri = 0.;
   double sumxx_ri = 0.;
   double sumxy_ri = 0.;
-  for (std::vector<const TransientTrackingRecHit *>::const_iterator hit = hits_i.begin(); hit != hits_i.end(); ++hit) {
+  for (auto hit = hits_i.begin(); hit != hits_i.end(); ++hit) {
     double r = (*hit)->globalPosition().perp();
     double z = (*hit)->globalPosition().z() - m_Zplane;
     sum1_ri += 1.;
@@ -267,7 +261,7 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
   double sumy_rj = 0.;
   double sumxx_rj = 0.;
   double sumxy_rj = 0.;
-  for (std::vector<const TransientTrackingRecHit *>::const_iterator hit = hits_j.begin(); hit != hits_j.end(); ++hit) {
+  for (auto hit = hits_j.begin(); hit != hits_j.end(); ++hit) {
     double r = (*hit)->globalPosition().perp();
     double z = (*hit)->globalPosition().z() - m_Zplane;
     sum1_rj += 1.;
@@ -466,9 +460,7 @@ bool CSCPairResidualsConstraint::dphidzFromTrack(const std::vector<TrajectoryMea
   std::map<int, int> stations;
   int total = 0;
   TransientTrackingRecHit::ConstRecHitContainer cscHits;
-  for (std::vector<TrajectoryMeasurement>::const_iterator measurement = measurements.begin();
-       measurement != measurements.end();
-       ++measurement) {
+  for (auto measurement = measurements.begin(); measurement != measurements.end(); ++measurement) {
     DetId id = measurement->recHit()->geographicalId();
     if (id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::CSC) {
       CSCDetId cscid(id.rawId());
@@ -491,7 +483,7 @@ bool CSCPairResidualsConstraint::dphidzFromTrack(const std::vector<TrajectoryMea
 
   // for the fit to be reliable, it needs to cross multiple stations
   int numStations = 0;
-  for (std::map<int, int>::const_iterator station = stations.begin(); station != stations.end(); ++station) {
+  for (auto station = stations.begin(); station != stations.end(); ++station) {
     if (station->second >= m_parent->m_minHitsPerChamber) {
       numStations++;
     }
@@ -508,9 +500,7 @@ bool CSCPairResidualsConstraint::dphidzFromTrack(const std::vector<TrajectoryMea
       bool found_plus = false;
       bool found_minus = false;
       TrajectoryStateOnSurface tsos_plus, tsos_minus;
-      for (std::vector<TrajectoryMeasurement>::const_iterator measurement = measurements2.begin();
-           measurement != measurements2.end();
-           ++measurement) {
+      for (auto measurement = measurements2.begin(); measurement != measurements2.end(); ++measurement) {
         double z = measurement->recHit()->globalPosition().z();
         if (z > m_Zplane) {
           if (!found_plus || fabs(z - m_Zplane) < fabs(tsos_plus.globalPosition().z() - m_Zplane)) {
@@ -580,8 +570,8 @@ void CSCPairResidualsConstraint::read(std::vector<std::ifstream *> &input, std::
   m_sumyy = 0.;
   m_sumxy = 0.;
 
-  std::vector<std::ifstream *>::const_iterator inputiter = input.begin();
-  std::vector<std::string>::const_iterator filename = filenames.begin();
+  auto inputiter = input.begin();
+  auto filename = filenames.begin();
   for (; inputiter != input.end(); ++inputiter, ++filename) {
     int linenumber = 0;
     bool touched = false;
@@ -703,7 +693,7 @@ bool CSCPairResidualsConstraint::isFiducial(std::vector<const TransientTrackingR
   double sumy = 0.;
   double sumxx = 0.;
   double sumxy = 0.;
-  for (std::vector<const TransientTrackingRecHit *>::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
+  for (auto hit = hits.begin(); hit != hits.end(); ++hit) {
     double phi, phierr2;
     calculatePhi(*hit, phi, phierr2);
     double z = (is_i ? m_cscGeometry->idToDet(m_id_i)->surface() : m_cscGeometry->idToDet(m_id_j)->surface())

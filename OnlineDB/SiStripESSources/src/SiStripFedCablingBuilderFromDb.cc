@@ -49,7 +49,7 @@ SiStripFedCabling* SiStripFedCablingBuilderFromDb::make(const SiStripFedCablingR
                        << " Constructing FED cabling...";
 
   // Create FED cabling object
-  SiStripFedCabling* fed_cabling = new SiStripFedCabling();
+  auto* fed_cabling = new SiStripFedCabling();
 
   // Build and retrieve SiStripConfigDb object using service
   db_ = edm::Service<SiStripConfigDb>().operator->();
@@ -228,8 +228,8 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromFedConnections(SiStripCo
 
   // ---------- Populate FEC cabling object with retrieved info ----------
 
-  SiStripConfigDb::FedConnectionsV::const_iterator ifed = conns.begin();
-  SiStripConfigDb::FedConnectionsV::const_iterator jfed = conns.end();
+  auto ifed = conns.begin();
+  auto jfed = conns.end();
   for (; ifed != jfed; ++ifed) {
     if (!(*ifed)) {
       edm::LogWarning(mlCabling_) << "[SiStripFedCablingBuilderFromDb::" << __func__ << "]"
@@ -461,7 +461,7 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices(SiStripConfigDb*
 
   // ---------- Counters used in assigning "dummy" FED ids and channels ----------
 
-  std::vector<uint16_t>::const_iterator ifed = fed_ids.begin();
+  auto ifed = fed_ids.begin();
   uint16_t fed_ch = 0;
 
   // ---------- Assign "dummy" FED crates/slots/ids/chans to constructed modules ----------
@@ -476,20 +476,20 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDevices(SiStripConfigDb*
                               << " No FED ids retrieved from database! Unable to cable system!";
   } else {
     bool complete = false;
-    std::vector<SiStripFecCrate>::const_iterator icrate = fec_cabling.crates().begin();
-    std::vector<SiStripFecCrate>::const_iterator jcrate = fec_cabling.crates().end();
+    auto icrate = fec_cabling.crates().begin();
+    auto jcrate = fec_cabling.crates().end();
     while (!complete && icrate != jcrate) {
-      std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin();
-      std::vector<SiStripFec>::const_iterator jfec = icrate->fecs().end();
+      auto ifec = icrate->fecs().begin();
+      auto jfec = icrate->fecs().end();
       while (!complete && ifec != jfec) {
-        std::vector<SiStripRing>::const_iterator iring = ifec->rings().begin();
-        std::vector<SiStripRing>::const_iterator jring = ifec->rings().end();
+        auto iring = ifec->rings().begin();
+        auto jring = ifec->rings().end();
         while (!complete && iring != jring) {
-          std::vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin();
-          std::vector<SiStripCcu>::const_iterator jccu = iring->ccus().end();
+          auto iccu = iring->ccus().begin();
+          auto jccu = iring->ccus().end();
           while (!complete && iccu != jccu) {
-            std::vector<SiStripModule>::const_iterator imod = iccu->modules().begin();
-            std::vector<SiStripModule>::const_iterator jmod = iccu->modules().end();
+            auto imod = iccu->modules().begin();
+            auto jmod = iccu->modules().end();
             while (!complete && imod != jmod) {
               // Set number of APV pairs based on devices found
               const_cast<SiStripModule&>(*imod).nApvPairs(0);
@@ -769,14 +769,11 @@ void SiStripFedCablingBuilderFromDb::buildFecCablingFromDetIds(SiStripConfigDb* 
 
   uint32_t fed_id = 50;
   uint32_t fed_ch = 0;
-  for (vector<SiStripFecCrate>::const_iterator icrate = fec_cabling.crates().begin();
-       icrate != fec_cabling.crates().end();
-       icrate++) {
-    for (vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++) {
-      for (vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++) {
-        for (vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++) {
-          for (vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end();
-               imod++) {
+  for (auto icrate = fec_cabling.crates().begin(); icrate != fec_cabling.crates().end(); icrate++) {
+    for (auto ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++) {
+      for (auto iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++) {
+        for (auto iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++) {
+          for (auto imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++) {
             if (96 - fed_ch < imod->nApvPairs()) {
               fed_id++;
               fed_ch = 0;
@@ -821,14 +818,11 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds(SiStripFecCabling& fec_c
   uint16_t unknown = 0;
   uint16_t missing = 0;
 
-  for (vector<SiStripFecCrate>::const_iterator icrate = fec_cabling.crates().begin();
-       icrate != fec_cabling.crates().end();
-       icrate++) {
-    for (vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++) {
-      for (vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++) {
-        for (vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++) {
-          for (vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end();
-               imod++) {
+  for (auto icrate = fec_cabling.crates().begin(); icrate != fec_cabling.crates().end(); icrate++) {
+    for (auto ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++) {
+      for (auto iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++) {
+        for (auto iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++) {
+          for (auto imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++) {
             SiStripModule& module = const_cast<SiStripModule&>(*imod);
 
             //@@ TEMP FIX UNTIL LAURENT DEBUGS FedChannelConnectionDescription CLASS
@@ -853,7 +847,7 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds(SiStripFecCabling& fec_c
             if (!module.detId()) {
               // --- Search for DcuId in map ---
 
-              SiStripConfigDb::DcuDetIdsV::iterator iter = in.end();
+              auto iter = in.end();
               iter = SiStripConfigDb::findDcuDetId(in.begin(), in.end(), module.dcuId());
               if (iter != in.end()) {
                 if (!(iter->second)) {
@@ -946,20 +940,17 @@ void SiStripFedCablingBuilderFromDb::assignDcuAndDetIds(SiStripFecCabling& fec_c
                        << " Assigning \"random\" DetIds to modules with DCU ids not found in static table...";
 
   uint32_t detid = 0x10000;  // Incremented "dummy" DetId
-  for (vector<SiStripFecCrate>::const_iterator icrate = fec_cabling.crates().begin();
-       icrate != fec_cabling.crates().end();
-       icrate++) {
-    for (vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++) {
-      for (vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++) {
-        for (vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++) {
-          for (vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end();
-               imod++) {
+  for (auto icrate = fec_cabling.crates().begin(); icrate != fec_cabling.crates().end(); icrate++) {
+    for (auto ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++) {
+      for (auto iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++) {
+        for (auto iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++) {
+          for (auto imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++) {
             SiStripModule& module = const_cast<SiStripModule&>(*imod);
 
             // --- Check for null DetId and search for DCU in cached map ---
 
             if (!module.detId()) {
-              SiStripConfigDb::DcuDetIdsV::iterator iter = in.end();
+              auto iter = in.end();
               iter = SiStripConfigDb::findDcuDetId(in.begin(), in.end(), module.dcuId());
               if (iter != in.end()) {
                 // --- Search for "random" module with consistent number of APV pairs ---

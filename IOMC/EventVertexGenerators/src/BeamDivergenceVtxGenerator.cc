@@ -202,14 +202,14 @@ void BeamDivergenceVtxGenerator::addSmearedGenParticle(const reco::GenParticle &
                                                        const SmearingParameters &sp,
                                                        HepMC::GenEvent *genEvt) {
   // add vertex of the particle
-  HepMC::GenVertex *vtx = new HepMC::GenVertex(HepMC::FourVector((gp.vx() + sp.vtx_x) * 1E1,  // conversion: cm to mm
-                                                                 (gp.vy() + sp.vtx_y) * 1E1,
-                                                                 (gp.vz() + sp.vtx_z) * 1E1,
-                                                                 0.));
+  auto *vtx = new HepMC::GenVertex(HepMC::FourVector((gp.vx() + sp.vtx_x) * 1E1,  // conversion: cm to mm
+                                                     (gp.vy() + sp.vtx_y) * 1E1,
+                                                     (gp.vz() + sp.vtx_z) * 1E1,
+                                                     0.));
   genEvt->add_vertex(vtx);
 
   // add the particle itself
-  HepMC::GenParticle *particle = new HepMC::GenParticle(smearMomentum(gp.p4(), sp), gp.pdgId(), gp.status());
+  auto *particle = new HepMC::GenParticle(smearMomentum(gp.p4(), sp), gp.pdgId(), gp.status());
   vtx->add_particle_out(particle);
 }
 

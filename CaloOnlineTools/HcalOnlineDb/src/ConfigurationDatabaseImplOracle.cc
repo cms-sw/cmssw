@@ -108,7 +108,7 @@ void ConfigurationDatabaseImplOracle::getLUTChecksums(
 
       m_parser.parseMultiple(buffer, items);
 
-      for (std::list<ConfigurationDatabaseStandardXMLParser::Item>::iterator i = items.begin(); i != items.end(); ++i) {
+      for (auto i = items.begin(); i != items.end(); ++i) {
         hcal::ConfigurationDatabase::FPGASelection ifpga =
             (hcal::ConfigurationDatabase::FPGASelection)atoi(i->parameters["topbottom"].c_str());
         int islot = atoi(i->parameters["slot"].c_str());
@@ -181,7 +181,7 @@ void ConfigurationDatabaseImplOracle::getLUTs_real(
       std::string buffer = clobToString(clob);
       m_parser.parseMultiple(buffer, items);
 
-      for (std::list<ConfigurationDatabaseStandardXMLParser::Item>::iterator i = items.begin(); i != items.end(); ++i) {
+      for (auto i = items.begin(); i != items.end(); ++i) {
         hcal::ConfigurationDatabase::FPGASelection ifpga =
             (hcal::ConfigurationDatabase::FPGASelection)atoi(i->parameters["TOPBOTTOM"].c_str());
         int islot = atoi(i->parameters["SLOT"].c_str());
@@ -271,7 +271,7 @@ void ConfigurationDatabaseImplOracle::getPatterns_real(
 
       m_parser.parseMultiple(buffer, items);
 
-      for (std::list<ConfigurationDatabaseStandardXMLParser::Item>::iterator i = items.begin(); i != items.end(); ++i) {
+      for (auto i = items.begin(); i != items.end(); ++i) {
         int islot = atoi(i->parameters["SLOT"].c_str());
         //If this is the desired slot
         //if (islot == slot) {

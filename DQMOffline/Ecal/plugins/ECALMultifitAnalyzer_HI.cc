@@ -141,7 +141,7 @@ void ECALMultifitAnalyzer_HI::analyze(const edm::Event &iEvent, const edm::Event
   Handle<EcalRecHitCollection> eeHandle;
   iEvent.getByToken(RecHitCollection_EE_, eeHandle);
 
-  for (EcalRecHitCollection::const_iterator hit = ebHandle->begin(); hit != ebHandle->end(); ++hit) {
+  for (auto hit = ebHandle->begin(); hit != ebHandle->end(); ++hit) {
     eb_chi2->Fill(hit->chi2());
     eb_errors->Fill(hit->energyError());
     double eta = geom->getGeometry(hit->detid())->getPosition().eta();
@@ -155,8 +155,7 @@ void ECALMultifitAnalyzer_HI::analyze(const edm::Event &iEvent, const edm::Event
       eb_errors_e5_eta->Fill(eta, hit->energyError());
     }
 
-    for (std::vector<reco::Photon>::const_iterator pho = recoPhotonsHandle->begin(); pho != recoPhotonsHandle->end();
-         ++pho) {
+    for (auto pho = recoPhotonsHandle->begin(); pho != recoPhotonsHandle->end(); ++pho) {
       if (pho->et() < mRecoPhotonPtThreshold)
         continue;
       double dr = reco::deltaR(eta, phi, pho->eta(), pho->phi());
@@ -165,7 +164,7 @@ void ECALMultifitAnalyzer_HI::analyze(const edm::Event &iEvent, const edm::Event
         eb_errors_photon15->Fill(hit->energyError());
       }
     }
-    for (std::vector<reco::CaloJet>::const_iterator jet = recoJetHandle->begin(); jet != recoJetHandle->end(); ++jet) {
+    for (auto jet = recoJetHandle->begin(); jet != recoJetHandle->end(); ++jet) {
       if (jet->pt() < mRecoJetPtThreshold)
         continue;
       double dr = reco::deltaR(eta, phi, jet->eta(), jet->phi());
@@ -176,7 +175,7 @@ void ECALMultifitAnalyzer_HI::analyze(const edm::Event &iEvent, const edm::Event
     }
   }
 
-  for (EcalRecHitCollection::const_iterator hit = eeHandle->begin(); hit != eeHandle->end(); ++hit) {
+  for (auto hit = eeHandle->begin(); hit != eeHandle->end(); ++hit) {
     ee_chi2->Fill(hit->chi2());
     ee_errors->Fill(hit->energyError());
     double eta = geom->getGeometry(hit->detid())->getPosition().eta();
@@ -190,8 +189,7 @@ void ECALMultifitAnalyzer_HI::analyze(const edm::Event &iEvent, const edm::Event
       ee_errors_e5_eta->Fill(eta, hit->energyError());
     }
 
-    for (std::vector<reco::Photon>::const_iterator pho = recoPhotonsHandle->begin(); pho != recoPhotonsHandle->end();
-         ++pho) {
+    for (auto pho = recoPhotonsHandle->begin(); pho != recoPhotonsHandle->end(); ++pho) {
       if (pho->et() < mRecoPhotonPtThreshold)
         continue;
       double dr = reco::deltaR(eta, phi, pho->eta(), pho->phi());
@@ -200,7 +198,7 @@ void ECALMultifitAnalyzer_HI::analyze(const edm::Event &iEvent, const edm::Event
         ee_errors_photon15->Fill(hit->energyError());
       }
     }
-    for (std::vector<reco::CaloJet>::const_iterator jet = recoJetHandle->begin(); jet != recoJetHandle->end(); ++jet) {
+    for (auto jet = recoJetHandle->begin(); jet != recoJetHandle->end(); ++jet) {
       if (jet->pt() < mRecoJetPtThreshold)
         continue;
       double dr = reco::deltaR(eta, phi, jet->eta(), jet->phi());

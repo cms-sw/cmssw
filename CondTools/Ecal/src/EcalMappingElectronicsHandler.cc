@@ -22,7 +22,7 @@ EcalMappingElectronicsHandler::~EcalMappingElectronicsHandler() {}
 
 void EcalMappingElectronicsHandler::getNewObjects() {
   std::cout << "------- Ecal - > getNewObjects\n";
-  EcalMappingElectronics *payload = new EcalMappingElectronics;
+  auto *payload = new EcalMappingElectronics;
   std::unique_ptr<EcalMappingElectronics> mapping =
       std::unique_ptr<EcalMappingElectronics>(new EcalMappingElectronics());
   //Filling map reading from file

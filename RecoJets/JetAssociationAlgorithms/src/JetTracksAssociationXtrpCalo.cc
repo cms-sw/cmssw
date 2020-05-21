@@ -32,8 +32,7 @@ void JetTracksAssociationXtrpCalo::produce(Association* fAssociation,
                                            std::vector<reco::TrackExtrapolation> const& fExtrapolations,
                                            CaloGeometry const& fGeo,
                                            double dR) {
-  for (JetRefs::const_iterator jetsBegin = fJets.begin(), jetsEnd = fJets.end(), ijet = jetsBegin; ijet != jetsEnd;
-       ++ijet) {
+  for (auto jetsBegin = fJets.begin(), jetsEnd = fJets.end(), ijet = jetsBegin; ijet != jetsEnd; ++ijet) {
     reco::TrackRefVector associated;
     associateInputTracksToJet(associated, **ijet, fExtrapolations, dR);
     reco::JetTracksAssociation::setValue(fAssociation, *ijet, associated);
@@ -57,10 +56,7 @@ void JetTracksAssociationXtrpCalo::associateInputTracksToJet(
 
   //  std::cout<<" New jet "<<jetEta<<" "<<jetPhi<<" Jet ET "<<pCaloJet->et()<<std::endl;
 
-  for (std::vector<reco::TrackExtrapolation>::const_iterator xtrpBegin = fExtrapolations.begin(),
-                                                             xtrpEnd = fExtrapolations.end(),
-                                                             ixtrp = xtrpBegin;
-       ixtrp != xtrpEnd;
+  for (auto xtrpBegin = fExtrapolations.begin(), xtrpEnd = fExtrapolations.end(), ixtrp = xtrpBegin; ixtrp != xtrpEnd;
        ++ixtrp) {
     if (ixtrp->positions().empty())
       continue;

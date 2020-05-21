@@ -80,7 +80,7 @@ NoCQTask::NoCQTask(edm::ParameterSet const& ps) : DQTask(ps) {
                      _tagReport.instance());
 
   //	RAW Bad Quality
-  for (std::vector<DetId>::const_iterator it = creport->bad_quality_begin(); it != creport->bad_quality_end(); ++it) {
+  for (auto it = creport->bad_quality_begin(); it != creport->bad_quality_end(); ++it) {
     if (!HcalGenericDetId(*it).isHcalDetId())
       continue;
 
@@ -88,7 +88,7 @@ NoCQTask::NoCQTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 
   //	DIGI HBH, HO, HF
-  for (HBHEDigiCollection::const_iterator it = chbhe->begin(); it != chbhe->end(); ++it) {
+  for (auto it = chbhe->begin(); it != chbhe->end(); ++it) {
     double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(*it, 2.5, 0, it->size() - 1);
     HcalDetId const& did = it->id();
 
@@ -100,7 +100,7 @@ NoCQTask::NoCQTask(edm::ParameterSet const& ps) : DQTask(ps) {
     }
   }
 
-  for (HODigiCollection::const_iterator it = cho->begin(); it != cho->end(); ++it) {
+  for (auto it = cho->begin(); it != cho->end(); ++it) {
     double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size() - 1);
     HcalDetId const& did = it->id();
 
@@ -112,7 +112,7 @@ NoCQTask::NoCQTask(edm::ParameterSet const& ps) : DQTask(ps) {
     }
   }
 
-  for (HFDigiCollection::const_iterator it = chf->begin(); it != chf->end(); ++it) {
+  for (auto it = chf->begin(); it != chf->end(); ++it) {
     double sumQ = hcaldqm::utilities::sumQ<HFDataFrame>(*it, 2.5, 0, it->size() - 1);
     HcalDetId const& did = it->id();
 

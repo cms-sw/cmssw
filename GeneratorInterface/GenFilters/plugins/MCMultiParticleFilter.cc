@@ -118,7 +118,7 @@ bool MCMultiParticleFilter::filter(edm::StreamID, edm::Event& iEvent, const edm:
           break;  // only match a given particle once!
         } else {
           bool hascorrectmother = false;
-          for (HepMC::GenVertex::particles_in_const_iterator mo = (*p)->production_vertex()->particles_in_const_begin();
+          for (auto mo = (*p)->production_vertex()->particles_in_const_begin();
                mo != (*p)->production_vertex()->particles_in_const_end();
                ++mo) {
             if ((*mo)->pdg_id() == motherID_[i]) {

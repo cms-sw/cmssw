@@ -43,7 +43,7 @@ L1MuDTChambThContainer::The_Container const* L1MuDTChambThContainer::getContaine
 bool L1MuDTChambThContainer::bxEmpty(int step) const {
   bool empty = true;
 
-  for (The_iterator i = theSegments.begin(); i != theSegments.end(); i++) {
+  for (auto i = theSegments.begin(); i != theSegments.end(); i++) {
     if (step == i->bxNum())
       empty = false;
   }
@@ -54,7 +54,7 @@ bool L1MuDTChambThContainer::bxEmpty(int step) const {
 int L1MuDTChambThContainer::bxSize(int step1, int step2) const {
   int size = 0;
 
-  for (The_iterator i = theSegments.begin(); i != theSegments.end(); i++) {
+  for (auto i = theSegments.begin(); i != theSegments.end(); i++) {
     if (step1 <= i->bxNum() && step2 >= i->bxNum())
       size++;
   }
@@ -65,7 +65,7 @@ int L1MuDTChambThContainer::bxSize(int step1, int step2) const {
 L1MuDTChambThDigi const* L1MuDTChambThContainer::chThetaSegm(int wheel, int stat, int sect, int step) const {
   L1MuDTChambThDigi const* rT = nullptr;
 
-  for (The_iterator i = theSegments.begin(); i != theSegments.end(); i++) {
+  for (auto i = theSegments.begin(); i != theSegments.end(); i++) {
     if (step == i->bxNum() && wheel == i->whNum() && sect == i->scNum() && stat == i->stNum())
       rT = &(*i);
   }

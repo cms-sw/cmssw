@@ -43,12 +43,12 @@ SiPixelFakeLorentzAngleESSource::~SiPixelFakeLorentzAngleESSource() {
 std::unique_ptr<SiPixelLorentzAngle> SiPixelFakeLorentzAngleESSource::produce(const SiPixelLorentzAngleRcd&) {
   using namespace edm::es;
   unsigned int nmodules = 0;
-  SiPixelLorentzAngle* obj = new SiPixelLorentzAngle();
+  auto* obj = new SiPixelLorentzAngle();
   SiPixelDetInfoFileReader reader(fp_.fullPath());
   const std::vector<uint32_t>& DetIds = reader.getAllDetIds();
 
   // Loop over detectors
-  for (std::vector<uint32_t>::const_iterator detit = DetIds.begin(); detit != DetIds.end(); detit++) {
+  for (auto detit = DetIds.begin(); detit != DetIds.end(); detit++) {
     nmodules++;
     float langle = 0.106;
     //std::cout << "detid " << (*detit) << std::endl;

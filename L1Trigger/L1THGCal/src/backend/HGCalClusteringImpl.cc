@@ -45,9 +45,7 @@ void HGCalClusteringImpl::clusterizeDR(const std::vector<edm::Ptr<l1t::HGCalTrig
 
   /* search for cluster seeds */
   int itc(0);
-  for (std::vector<edm::Ptr<l1t::HGCalTriggerCell>>::const_iterator tc = triggerCellsPtrs.begin();
-       tc != triggerCellsPtrs.end();
-       ++tc, ++itc) {
+  for (auto tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc, ++itc) {
     double seedThreshold = ((*tc)->subdetId() == HGCHEB ? scintillatorSeedThreshold_ : siliconSeedThreshold_);
     isSeed[itc] = ((*tc)->mipPt() > seedThreshold) ? true : false;
   }
@@ -56,9 +54,7 @@ void HGCalClusteringImpl::clusterizeDR(const std::vector<edm::Ptr<l1t::HGCalTrig
   std::vector<l1t::HGCalCluster> clustersTmp;
 
   itc = 0;
-  for (std::vector<edm::Ptr<l1t::HGCalTriggerCell>>::const_iterator tc = triggerCellsPtrs.begin();
-       tc != triggerCellsPtrs.end();
-       ++tc, ++itc) {
+  for (auto tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc, ++itc) {
     double threshold = ((*tc)->subdetId() == HGCHEB ? scintillatorTriggerCellThreshold_ : siliconTriggerCellThreshold_);
     if ((*tc)->mipPt() < threshold) {
       continue;
@@ -256,9 +252,7 @@ void HGCalClusteringImpl::clusterizeDRNN(const std::vector<edm::Ptr<l1t::HGCalTr
 
   /* search for cluster seeds */
   int itc(0);
-  for (std::vector<edm::Ptr<l1t::HGCalTriggerCell>>::const_iterator tc = triggerCellsPtrs.begin();
-       tc != triggerCellsPtrs.end();
-       ++tc, ++itc) {
+  for (auto tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc, ++itc) {
     double seedThreshold = ((*tc)->subdetId() == HGCHEB ? scintillatorSeedThreshold_ : siliconSeedThreshold_);
 
     /* decide if is a seed, if yes store the position into of triggerCellsPtrs */
@@ -288,9 +282,7 @@ void HGCalClusteringImpl::clusterizeDRNN(const std::vector<edm::Ptr<l1t::HGCalTr
 
   /* add the tc to the clusters */
   itc = 0;
-  for (std::vector<edm::Ptr<l1t::HGCalTriggerCell>>::const_iterator tc = triggerCellsPtrs.begin();
-       tc != triggerCellsPtrs.end();
-       ++tc, ++itc) {
+  for (auto tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc, ++itc) {
     /* get the correct threshold for the different part of the detector */
     double threshold = ((*tc)->subdetId() == HGCHEB ? scintillatorTriggerCellThreshold_ : siliconTriggerCellThreshold_);
 

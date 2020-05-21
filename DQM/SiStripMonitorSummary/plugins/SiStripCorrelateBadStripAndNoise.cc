@@ -51,10 +51,10 @@ void SiStripCorrelateBadStripAndNoise::DoAnalysis(const edm::EventSetup &es) {
 }
 
 void SiStripCorrelateBadStripAndNoise::iterateOnDets(const TrackerTopology *tTopo, const TrackerGeometry *tGeom) {
-  SiStripQuality::RegistryIterator rbegin = qualityHandle_->getRegistryVectorBegin();
-  SiStripQuality::RegistryIterator rend = qualityHandle_->getRegistryVectorEnd();
+  auto rbegin = qualityHandle_->getRegistryVectorBegin();
+  auto rend = qualityHandle_->getRegistryVectorEnd();
 
-  for (SiStripBadStrip::RegistryIterator rp = rbegin; rp != rend; ++rp) {
+  for (auto rp = rbegin; rp != rend; ++rp) {
     const uint32_t detid = rp->detid;
 
     SiStripQuality::Range sqrange = SiStripQuality::Range(qualityHandle_->getDataVectorBegin() + rp->ibegin,

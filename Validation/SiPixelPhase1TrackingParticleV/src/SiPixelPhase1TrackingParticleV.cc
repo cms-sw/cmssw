@@ -69,7 +69,7 @@ void SiPixelPhase1TrackingParticleV::analyze(const edm::Event &iEvent, const edm
   std::stable_sort(trackIdToHitPtr.begin(), trackIdToHitPtr.end(), trackIdHitPairLessSort);
 
   // Loop over TrackingParticle's
-  for (TrackingParticleCollection::const_iterator t = tPC->begin(); t != tPC->end(); ++t) {
+  for (auto t = tPC->begin(); t != tPC->end(); ++t) {
     // histo manager requires a det ID, use first tracker hit
 
     bool isBpixtrack = false, isFpixtrack = false;

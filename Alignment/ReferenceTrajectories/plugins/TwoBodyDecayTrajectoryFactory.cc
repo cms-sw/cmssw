@@ -217,7 +217,7 @@ const TwoBodyDecayTrajectoryFactory::ReferenceTrajectoryCollection TwoBodyDecayT
   config.constructTsosWithErrors = theConstructTsosWithErrorsFlag;
   // set the flag for reversing the RecHits to false, since they are already in the correct order.
   config.hitsAreReverse = false;
-  TwoBodyDecayTrajectory *result = new TwoBodyDecayTrajectory(trajectoryState, recHits, magField, beamSpot, config);
+  auto *result = new TwoBodyDecayTrajectory(trajectoryState, recHits, magField, beamSpot, config);
   if (setParameterErrors && tbd.hasError())
     result->setParameterErrors(tbd.covariance());
   trajectories.push_back(ReferenceTrajectoryPtr(result));

@@ -51,7 +51,7 @@ void RandomXiThetaGunProducer::produce(edm::Event &e, const edm::EventSetup &es)
   HepMC::GenEvent *fEvt = new HepMC::GenEvent();
   fEvt->set_event_number(e.id().event());
 
-  HepMC::GenVertex *vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0., 0.));
+  auto *vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0., 0.));
   fEvt->add_vertex(vtx);
 
   const HepPDT::ParticleData *pData = pdgTable->particle(HepPDT::ParticleID(particleId_));
@@ -94,7 +94,7 @@ void RandomXiThetaGunProducer::generateParticle(double z_sign,
 
   HepMC::FourVector momentum(p * theta_x, p * theta_y, z_sign * p * cos_theta, e);
 
-  HepMC::GenParticle *particle = new HepMC::GenParticle(momentum, particleId_, 1);
+  auto *particle = new HepMC::GenParticle(momentum, particleId_, 1);
   particle->suggest_barcode(barcode);
   vtx->add_particle_out(particle);
 }

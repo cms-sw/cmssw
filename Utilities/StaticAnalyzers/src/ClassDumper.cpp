@@ -24,7 +24,7 @@ namespace clangcms {
     LangOpts.CPlusPlus = true;
     clang::PrintingPolicy Policy(LangOpts);
     std::string crname("class '");
-    const ClassTemplateSpecializationDecl *SD = dyn_cast_or_null<ClassTemplateSpecializationDecl>(RD);
+    const auto *SD = dyn_cast_or_null<ClassTemplateSpecializationDecl>(RD);
     if (SD) {
       std::string buf;
       llvm::raw_string_ostream os(buf);
@@ -79,7 +79,7 @@ namespace clangcms {
       if (const CXXRecordDecl *TRD = qual.getTypePtr()->getAsCXXRecordDecl()) {
         std::string fname = TRD->getQualifiedNameAsString();
         support::fixAnonNS(fname, sfile);
-        const ClassTemplateSpecializationDecl *SD = dyn_cast_or_null<ClassTemplateSpecializationDecl>(TRD);
+        const auto *SD = dyn_cast_or_null<ClassTemplateSpecializationDecl>(TRD);
         if (SD) {
           std::string buf;
           llvm::raw_string_ostream os(buf);

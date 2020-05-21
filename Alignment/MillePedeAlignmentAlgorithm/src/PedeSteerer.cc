@@ -163,7 +163,7 @@ unsigned int PedeSteerer::buildNoHierarchyCollection(const align::Alignables &al
 
   for (const auto &iAli : alis) {
     AlignmentParameters *params = iAli->alignmentParameters();
-    SelectionUserVariables *selVar = dynamic_cast<SelectionUserVariables *>(params->userVariables());
+    auto *selVar = dynamic_cast<SelectionUserVariables *>(params->userVariables());
     if (!selVar)
       continue;
     // Now check whether taking out of hierarchy is selected - must be consistent!
@@ -205,7 +205,7 @@ unsigned int PedeSteerer::buildNoHierarchyCollection(const align::Alignables &al
 bool PedeSteerer::checkParameterChoices(const align::Alignables &alis) const {
   for (const auto &iAli : alis) {
     AlignmentParameters *paras = iAli->alignmentParameters();
-    SelectionUserVariables *selVar = dynamic_cast<SelectionUserVariables *>(paras->userVariables());
+    auto *selVar = dynamic_cast<SelectionUserVariables *>(paras->userVariables());
     if (!selVar)
       continue;
     for (unsigned int iParam = 0; static_cast<int>(iParam) < paras->size(); ++iParam) {
@@ -238,7 +238,7 @@ std::pair<unsigned int, unsigned int> PedeSteerer::fixParameters(const align::Al
 
   for (const auto &iAli : alis) {
     AlignmentParameters *params = iAli->alignmentParameters();
-    SelectionUserVariables *selVar = dynamic_cast<SelectionUserVariables *>(params->userVariables());
+    auto *selVar = dynamic_cast<SelectionUserVariables *>(params->userVariables());
     if (!selVar)
       continue;
 
@@ -306,7 +306,7 @@ align::Alignables PedeSteerer::selectCoordinateAlis(const align::Alignables &ali
 
   for (const auto &iAli : alis) {
     AlignmentParameters *params = iAli->alignmentParameters();
-    SelectionUserVariables *selVar = dynamic_cast<SelectionUserVariables *>(params->userVariables());
+    auto *selVar = dynamic_cast<SelectionUserVariables *>(params->userVariables());
     if (!selVar)
       continue;
     unsigned int refParam = 0;
@@ -551,7 +551,7 @@ unsigned int PedeSteerer::presigmas(const std::vector<edm::ParameterSet> &cffPre
 
   AlignmentParameterSelector selector(aliTracker, aliMuon, aliExtras);
   AlignablePresigmasMap aliPresiMap;  // map to store alis with presigmas of their parameters
-  for (std::vector<edm::ParameterSet>::const_iterator iSet = cffPresi.begin(), iE = cffPresi.end(); iSet != iE;
+  for (auto iSet = cffPresi.begin(), iE = cffPresi.end(); iSet != iE;
        ++iSet) {  // loop on individual PSets defining ali-params with their presigma
     selector.clear();
     selector.addSelections((*iSet).getParameter<edm::ParameterSet>("Selector"));
@@ -598,7 +598,7 @@ unsigned int PedeSteerer::presigmasFile(const std::string &fileName,
   unsigned int nPresiParam = 0;
   for (const auto &iAli : alis) {
     // Any presigma chosen for alignable?
-    AlignablePresigmasMap::const_iterator presigmasIt = aliPresiMap.find(iAli);
+    auto presigmasIt = aliPresiMap.find(iAli);
     if (presigmasIt == aliPresiMap.end())
       continue;  // no presigma chosen for alignable
 
@@ -612,8 +612,7 @@ unsigned int PedeSteerer::presigmasFile(const std::string &fileName,
       // Do not apply presigma to inactive or fixed values.
       if (!(iAli->alignmentParameters()->selector()[iParam]))
         continue;
-      SelectionUserVariables *selVar =
-          dynamic_cast<SelectionUserVariables *>(iAli->alignmentParameters()->userVariables());
+      auto *selVar = dynamic_cast<SelectionUserVariables *>(iAli->alignmentParameters()->userVariables());
       const char selChar = (selVar ? selVar->fullSelection()[iParam] : '1');
       if (selChar == 'f' || selChar == 'F' || selChar == 'c' || selChar == 'C')
         continue;

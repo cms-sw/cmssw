@@ -17,7 +17,7 @@ Phase2OTBarrelLayer* Phase2OTBarrelLayerBuilder::build(const GeometricDet* aPhas
   vector<const GeometricDet*> theGeometricDetRods;
   vector<const GeometricDet*> theGeometricDetRings;
 
-  for (vector<const GeometricDet*>::const_iterator it = theGeometricDets.begin(); it != theGeometricDets.end(); it++) {
+  for (auto it = theGeometricDets.begin(); it != theGeometricDets.end(); it++) {
     if ((*it)->type() == GeometricDet::ladder) {
       theGeometricDetRods.push_back(*it);
     } else if ((*it)->type() == GeometricDet::panel) {
@@ -63,8 +63,7 @@ Phase2OTBarrelLayer* Phase2OTBarrelLayerBuilder::build(const GeometricDet* aPhas
   // properly calculate the meanR value to separate rod in inner/outer.
   double centralZ = 0.0;
 
-  for (vector<const GeometricDet*>::const_iterator it = theGeometricDetRings.begin(); it != theGeometricDetRings.end();
-       it++) {
+  for (auto it = theGeometricDetRings.begin(); it != theGeometricDetRings.end(); it++) {
     if ((*it)->positionBounds().z() < centralZ)
       theNegativeRings.push_back(myPhase2EndcapRingBuilder.build(*it, theGeomDetGeometry, true));
     if ((*it)->positionBounds().z() > centralZ)

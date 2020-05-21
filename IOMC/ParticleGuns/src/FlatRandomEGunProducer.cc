@@ -61,7 +61,7 @@ void FlatRandomEGunProducer::produce(Event& e, const EventSetup& es) {
 
   // 1st, primary vertex
   //
-  HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
+  auto* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
 
   // loop over particles
   //
@@ -86,7 +86,7 @@ void FlatRandomEGunProducer::produce(Event& e, const EventSetup& es) {
     double pz = mom * cos(theta);
 
     HepMC::FourVector p(px, py, pz, energy);
-    HepMC::GenParticle* Part = new HepMC::GenParticle(p, PartID, 1);
+    auto* Part = new HepMC::GenParticle(p, PartID, 1);
     Part->suggest_barcode(barcode);
     barcode++;
     Vtx->add_particle_out(Part);
@@ -97,7 +97,7 @@ void FlatRandomEGunProducer::produce(Event& e, const EventSetup& es) {
       if (PartID == 22 || PartID == 23) {
         APartID = PartID;
       }
-      HepMC::GenParticle* APart = new HepMC::GenParticle(ap, APartID, 1);
+      auto* APart = new HepMC::GenParticle(ap, APartID, 1);
       APart->suggest_barcode(barcode);
       barcode++;
       Vtx->add_particle_out(APart);

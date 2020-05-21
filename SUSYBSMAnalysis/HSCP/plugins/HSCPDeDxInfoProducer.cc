@@ -99,7 +99,7 @@ void HSCPDeDxInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       const edm::Ref<std::vector<Trajectory> > traj = cit->key;
       cit++;
       const vector<TrajectoryMeasurement>& measurements = traj->measurements();
-      for (vector<TrajectoryMeasurement>::const_iterator it = measurements.begin(); it != measurements.end(); it++) {
+      for (auto it = measurements.begin(); it != measurements.end(); it++) {
         TrajectoryStateOnSurface trajState = it->updatedState();
         if (!trajState.isValid())
           continue;
@@ -181,7 +181,7 @@ void HSCPDeDxInfoProducer::processHit(const TrackingRecHit* recHit,
   } else if (clus.isStrip() && thit.isMatched()) {
     if (!useStrip)
       return;
-    const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(recHit);
+    const auto* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(recHit);
     if (!matchedHit)
       return;
 

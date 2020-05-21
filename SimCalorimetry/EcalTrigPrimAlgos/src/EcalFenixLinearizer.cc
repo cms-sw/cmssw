@@ -21,21 +21,21 @@ void EcalFenixLinearizer::setParameters(uint32_t raw,
                                         const EcalTPGLinearizationConst *ecaltpLin,
                                         const EcalTPGCrystalStatus *ecaltpBadX) {
   const EcalTPGLinearizationConstMap &linMap = ecaltpLin->getMap();
-  EcalTPGLinearizationConstMapIterator it = linMap.find(raw);
+  auto it = linMap.find(raw);
   if (it != linMap.end()) {
     linConsts_ = &(*it);
   } else
     edm::LogWarning("EcalTPG") << " could not find EcalTPGLinearizationConstMap entry for " << raw;
 
   const EcalTPGPedestalsMap &pedMap = ecaltpPed->getMap();
-  EcalTPGPedestalsMapIterator itped = pedMap.find(raw);
+  auto itped = pedMap.find(raw);
   if (itped != pedMap.end())
     peds_ = &(*itped);
   else
     edm::LogWarning("EcalTPG") << " could not find EcalTPGPedestalsMap entry for " << raw;
 
   const EcalTPGCrystalStatusMap &badXMap = ecaltpBadX->getMap();
-  EcalTPGCrystalStatusMapIterator itbadX = badXMap.find(raw);
+  auto itbadX = badXMap.find(raw);
 
   if (itbadX != badXMap.end()) {
     badXStatus_ = &(*itbadX);

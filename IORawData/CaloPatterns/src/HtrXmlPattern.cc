@@ -73,7 +73,7 @@ void HtrXmlPattern::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       const HBHEDigiCollection& c = *(*i);
 
       int count = 0;
-      for (HBHEDigiCollection::const_iterator j = c.begin(); j != c.end(); j++) {
+      for (auto j = c.begin(); j != c.end(); j++) {
         const HcalElectronicsId HEID = readoutMap->lookup(j->id());
         m_tool->Fill(HEID, j);
 
@@ -97,7 +97,7 @@ void HtrXmlPattern::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       const HFDigiCollection& c = *(*i);
 
       int count = 0;
-      for (HFDigiCollection::const_iterator j = c.begin(); j != c.end(); j++) {
+      for (auto j = c.begin(); j != c.end(); j++) {
         const HcalElectronicsId HEID = readoutMap->lookup(j->id());
         m_tool->Fill(HEID, j);
 
@@ -121,7 +121,7 @@ void HtrXmlPattern::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       const HODigiCollection& c = *(*i);
 
       int count = 0;
-      for (HODigiCollection::const_iterator j = c.begin(); j != c.end(); j++) {
+      for (auto j = c.begin(); j != c.end(); j++) {
         const HcalElectronicsId HEID = readoutMap->lookup(j->id());
         m_tool->Fill(HEID, j);
 

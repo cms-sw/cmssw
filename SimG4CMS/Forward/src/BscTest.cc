@@ -312,7 +312,7 @@ void BscTest::update(const G4Step* aStep) {
   }
   // track on aStep:                                                                                         !
   G4Track* theTrack = aStep->GetTrack();
-  TrackInformation* trkInfo = dynamic_cast<TrackInformation*>(theTrack->GetUserInformation());
+  auto* trkInfo = dynamic_cast<TrackInformation*>(theTrack->GetUserInformation());
   if (trkInfo == nullptr) {
     std::cout << "BscTest on aStep: No trk info !!!! abort " << std::endl;
   }
@@ -616,7 +616,7 @@ void BscTest::update(const EndOfEvent* evt) {
     }
     int CAFIid = G4SDManager::GetSDMpointer()->GetCollectionID("BSCHits");
 
-    BscG4HitCollection* theCAFI = (BscG4HitCollection*)allHC->GetHC(CAFIid);
+    auto* theCAFI = (BscG4HitCollection*)allHC->GetHC(CAFIid);
     if (verbosity > 0) {
       std::cout << "BscTest: theCAFI->entries = " << theCAFI->entries() << std::endl;
     }

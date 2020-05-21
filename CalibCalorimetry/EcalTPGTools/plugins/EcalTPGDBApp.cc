@@ -128,7 +128,7 @@ void EcalTPGDBApp::readFromConfDB_TPGPedestals(int iconf_req) {
   EcalLogicID ecid_xt;
   FEConfigPedDat rd_ped;
 
-  for (CIfeped p = dataset_ped.begin(); p != dataset_ped.end(); ++p) {
+  for (auto p = dataset_ped.begin(); p != dataset_ped.end(); ++p) {
     ecid_xt = p->first;
     rd_ped = p->second;
     //int sm_num=ecid_xt.getID1();

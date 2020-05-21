@@ -60,8 +60,8 @@ void CustomPhysicsList::ConstructProcess() {
     if (particle->GetParticleType() == "simp") {
       G4ProcessManager* pmanager = particle->GetProcessManager();
       if (pmanager) {
-        CMSSIMPInelasticProcess* simpInelPr = new CMSSIMPInelasticProcess();
-        CMSQGSPSIMPBuilder* theQGSPSIMPB = new CMSQGSPSIMPBuilder();
+        auto* simpInelPr = new CMSSIMPInelasticProcess();
+        auto* theQGSPSIMPB = new CMSQGSPSIMPBuilder();
         theQGSPSIMPB->Build(simpInelPr);
         pmanager->AddDiscreteProcess(simpInelPr);
       } else
@@ -91,7 +91,7 @@ void CustomPhysicsList::ConstructProcess() {
           pmanager->AddDiscreteProcess(new FullModelHadronicProcess(myHelper.get()));
         }
         if (particle->GetParticleType() == "darkpho") {
-          CMSDarkPairProductionProcess* darkGamma = new CMSDarkPairProductionProcess(dfactor);
+          auto* darkGamma = new CMSDarkPairProductionProcess(dfactor);
           pmanager->AddDiscreteProcess(darkGamma);
         }
       }

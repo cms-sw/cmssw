@@ -127,7 +127,7 @@ void RPCLogCone::shift(int pos) {
   int shiftPos;
   for (int logPlane = RPCConst::m_FIRST_PLANE; logPlane <= RPCConst::m_LAST_PLANE; logPlane++) {
     TLogPlane shifted;
-    for (TLogPlane::iterator it = m_LogPlanesVec[logPlane].begin(); it != m_LogPlanesVec[logPlane].end(); it++) {
+    for (auto it = m_LogPlanesVec[logPlane].begin(); it != m_LogPlanesVec[logPlane].end(); it++) {
       shiftPos = it->first + pos;
       /*     std::cout << shiftPos << " "
                 << RPCConst::m_LOGPLANE_SIZE[abs(m_ConeCrdnts.m_Tower)] 
@@ -200,7 +200,7 @@ bool RPCLogCone::addLogHit(const RPCLogHit &logHit) {
 }
 
 std::vector<int> RPCLogCone::getLogStripDigisIdxs(int logPlane, unsigned int logStripNum) const {
-  TLogPlane::const_iterator it = m_LogPlanesVec[logPlane].find(logStripNum);
+  auto it = m_LogPlanesVec[logPlane].find(logStripNum);
   if (it != m_LogPlanesVec[logPlane].end())
     return it->second;
   else

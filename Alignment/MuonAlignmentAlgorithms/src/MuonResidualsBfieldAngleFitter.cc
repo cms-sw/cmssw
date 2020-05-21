@@ -5,13 +5,11 @@ static TMinuit *MuonResidualsBfieldAngleFitter_TMinuit;
 void MuonResidualsBfieldAngleFitter::inform(TMinuit *tMinuit) { MuonResidualsBfieldAngleFitter_TMinuit = tMinuit; }
 
 void MuonResidualsBfieldAngleFitter_FCN(int &npar, double *gin, double &fval, double *par, int iflag) {
-  MuonResidualsFitterFitInfo *fitinfo =
-      (MuonResidualsFitterFitInfo *)(MuonResidualsBfieldAngleFitter_TMinuit->GetObjectFit());
+  auto *fitinfo = (MuonResidualsFitterFitInfo *)(MuonResidualsBfieldAngleFitter_TMinuit->GetObjectFit());
   MuonResidualsFitter *fitter = fitinfo->fitter();
 
   fval = 0.;
-  for (std::vector<double *>::const_iterator resiter = fitter->residuals_begin(); resiter != fitter->residuals_end();
-       ++resiter) {
+  for (auto resiter = fitter->residuals_begin(); resiter != fitter->residuals_end(); ++resiter) {
     const double residual = (*resiter)[MuonResidualsBfieldAngleFitter::kResidual];
     const double qoverpt = (*resiter)[MuonResidualsBfieldAngleFitter::kQoverPt];
     const double qoverpz = (*resiter)[MuonResidualsBfieldAngleFitter::kQoverPz];
@@ -46,7 +44,7 @@ bool MuonResidualsBfieldAngleFitter::fit(Alignable *ali) {
   double sum_xx = 0.;
   int N = 0;
 
-  for (std::vector<double *>::const_iterator resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
+  for (auto resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
     const double residual = (*resiter)[kResidual];
     //     const double qoverpt = (*resiter)[kQoverPt];
 
@@ -68,7 +66,7 @@ bool MuonResidualsBfieldAngleFitter::fit(Alignable *ali) {
   sum_x = 0.;
   sum_xx = 0.;
   N = 0;
-  for (std::vector<double *>::const_iterator resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
+  for (auto resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
     const double residual = (*resiter)[kResidual];
     if (mean - 1.5 * stdev < residual && residual < mean + 1.5 * stdev) {
       sum_x += residual;
@@ -82,7 +80,7 @@ bool MuonResidualsBfieldAngleFitter::fit(Alignable *ali) {
   sum_x = 0.;
   sum_xx = 0.;
   N = 0;
-  for (std::vector<double *>::const_iterator resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
+  for (auto resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
     const double residual = (*resiter)[kResidual];
     if (mean - 1.5 * stdev < residual && residual < mean + 1.5 * stdev) {
       sum_x += residual;
@@ -199,7 +197,7 @@ double MuonResidualsBfieldAngleFitter::plot(std::string name, TFileDirectory *di
   psquared_fit->SetParameters(value(kAngle) * 1000., value(kdEdx) * 1000.);
   psquared_fit->Write();
 
-  for (std::vector<double *>::const_iterator resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
+  for (auto resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
     const double raw_residual = (*resiter)[kResidual];
     const double qoverpt = (*resiter)[kQoverPt];
     const double qoverpz = (*resiter)[kQoverPz];

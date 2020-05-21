@@ -205,8 +205,7 @@ void PhotonValidatorMiniAOD::analyze(const edm::Event &iEvent, const edm::EventS
   Handle<reco::GenParticleCollection> genParticles;
   iEvent.getByToken(genpartToken_, genParticles);
 
-  for (reco::GenParticleCollection::const_iterator mcIter = genParticles->begin(); mcIter != genParticles->end();
-       mcIter++) {
+  for (auto mcIter = genParticles->begin(); mcIter != genParticles->end(); mcIter++) {
     if (!(mcIter->pdgId() == 22))
       continue;
     if (mcIter->mother() != nullptr && !(mcIter->mother()->pdgId() == 25))

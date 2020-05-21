@@ -51,9 +51,9 @@ void ErrorsAnalyzer::fillValueError() {
   valuePlusError_.resize(parameters_.size());
   valueMinusError_.resize(parameters_.size());
 
-  std::vector<double>::const_iterator parIt = parameters_.begin();
-  std::vector<double>::const_iterator errIt = errors_.begin();
-  std::vector<int>::const_iterator errFactorIt = errorFactors_.begin();
+  auto parIt = parameters_.begin();
+  auto errIt = errors_.begin();
+  auto errFactorIt = errorFactors_.begin();
   int i = 0;
   for (; parIt != parameters_.end(); ++parIt, ++errIt, ++errFactorIt, ++i) {
     valuePlusError_[i] = *parIt + (*errIt) * (*errFactorIt);
@@ -122,7 +122,7 @@ void ErrorsAnalyzer::drawHistograms(const TProfile* histo,
   double* posErrors = new double[numBins];
   double* negErrors = new double[numBins];
 
-  TGraphAsymmErrors* graphAsymmErrors = new TGraphAsymmErrors(sigmaPtVsEtaTH1D);
+  auto* graphAsymmErrors = new TGraphAsymmErrors(sigmaPtVsEtaTH1D);
   TGraph* graph = new TGraph(sigmaPtVsEtaTH1D);
 
   for (int i = 1; i <= numBins; ++i) {
@@ -211,7 +211,7 @@ void ErrorsAnalyzer::fillHistograms() {
 
   // Loop on all the pairs
   unsigned int i = 0;
-  MuonPairVector::iterator it = savedPair.begin();
+  auto it = savedPair.begin();
   std::cout << "Starting loop on " << savedPair.size() << " muons" << std::endl;
   for (; it != savedPair.end(); ++it, ++i) {
     double pt1 = it->first.pt();

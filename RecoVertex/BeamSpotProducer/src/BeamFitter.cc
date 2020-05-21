@@ -267,7 +267,7 @@ void BeamFitter::readEvent(const edm::Event &iEvent) {
   double eventZ = 0;
   double averageZ = 0;
 
-  for (reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); ++track) {
+  for (auto track = tracks->begin(); track != tracks->end(); ++track) {
     if (!isMuon_) {
       const reco::HitPattern &trkHP = track->hitPattern();
 
@@ -397,7 +397,7 @@ void BeamFitter::readEvent(const edm::Event &iEvent) {
 
   averageZ = averageZ / (float)(fBSvector.size());
 
-  for (std::vector<BSTrkParameters>::const_iterator iparam = fBSvector.begin(); iparam != fBSvector.end(); ++iparam) {
+  for (auto iparam = fBSvector.begin(); iparam != fBSvector.end(); ++iparam) {
     eventZ += fabs(iparam->z0() - averageZ);
   }
 
@@ -646,8 +646,7 @@ void BeamFitter::dumpTxtFile(std::string &fileName, bool append) {
     outFile.open(fileName.c_str(), std::ios::app);
 
   if (MyPVFitter->IsFitPerBunchCrossing()) {
-    for (std::map<int, reco::BeamSpot>::const_iterator abspot = fbspotPVMap.begin(); abspot != fbspotPVMap.end();
-         ++abspot) {
+    for (auto abspot = fbspotPVMap.begin(); abspot != fbspotPVMap.end(); ++abspot) {
       reco::BeamSpot beamspottmp = abspot->second;
       int bx = abspot->first;
 

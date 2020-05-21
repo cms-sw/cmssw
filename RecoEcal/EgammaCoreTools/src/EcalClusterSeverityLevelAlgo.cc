@@ -15,7 +15,7 @@ float EcalClusterSeverityLevelAlgo::goodFraction(const reco::CaloCluster& cluste
   std::vector<std::pair<DetId, float> >::const_iterator it;
   for (it = hitsAndFracs.begin(); it != hitsAndFracs.end(); ++it) {
     DetId id = (*it).first;
-    EcalRecHitCollection::const_iterator jrh = recHits.find(id);
+    auto jrh = recHits.find(id);
     if (jrh == recHits.end()) {
       edm::LogError("EcalClusterSeverityLevelAlgo")
           << "The cluster DetId " << id.rawId() << " is not in the recHit collection!!";
@@ -57,7 +57,7 @@ float EcalClusterSeverityLevelAlgo::fractionAroundClosestProblematic(const reco:
       if (id != (*itn))
         continue;
       //	  std::cout << "Is in cluster detId " << EBDetId(id) << std::endl;
-      EcalRecHitCollection::const_iterator jrh = recHits.find(id);
+      auto jrh = recHits.find(id);
       if (jrh == recHits.end()) {
         edm::LogError("EcalClusterSeverityLevelAlgo")
             << "The cluster DetId " << id.rawId() << " is not in the recHit collection!!";
@@ -87,8 +87,8 @@ DetId EcalClusterSeverityLevelAlgo::closestProblematic(const reco::CaloCluster& 
   //Get a window of DetId around the seed crystal
   std::vector<DetId> neighbours = topology->getWindow(seed, 51, 11);
 
-  for (std::vector<DetId>::const_iterator it = neighbours.begin(); it != neighbours.end(); ++it) {
-    EcalRecHitCollection::const_iterator jrh = recHits.find(*it);
+  for (auto it = neighbours.begin(); it != neighbours.end(); ++it) {
+    auto jrh = recHits.find(*it);
     if (jrh == recHits.end())
       continue;
     //Now checking rh flag

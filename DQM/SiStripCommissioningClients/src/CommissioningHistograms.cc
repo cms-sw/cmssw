@@ -100,7 +100,7 @@ uint32_t CommissioningHistograms::runNumber(DQMStore* const bei, const std::vect
   }
 
   // Iterate through added contents
-  std::vector<std::string>::const_iterator istr = contents.begin();
+  auto istr = contents.begin();
   while (istr != contents.end()) {
     // Extract source directory path
     std::string source_dir = istr->substr(0, istr->find(":"));
@@ -116,7 +116,7 @@ uint32_t CommissioningHistograms::runNumber(DQMStore* const bei, const std::vect
 
     // Iterate though MonitorElements from source directory
     std::vector<MonitorElement*> me_list = bei->getContents(source_dir);
-    std::vector<MonitorElement*>::iterator ime = me_list.begin();
+    auto ime = me_list.begin();
     for (; ime != me_list.end(); ime++) {
       if (!(*ime)) {
         edm::LogError(mlDqmClient_) << "[CommissioningHistograms::" << __func__ << "]"
@@ -167,7 +167,7 @@ sistrip::RunType CommissioningHistograms::runType(DQMStore* const bei, const std
   }
 
   // Iterate through added contents
-  std::vector<std::string>::const_iterator istr = contents.begin();
+  auto istr = contents.begin();
   while (istr != contents.end()) {
     // Extract source directory path
     std::string source_dir = istr->substr(0, istr->find(":"));
@@ -190,7 +190,7 @@ sistrip::RunType CommissioningHistograms::runType(DQMStore* const bei, const std
       return sistrip::UNKNOWN_RUN_TYPE;
     }
 
-    std::vector<MonitorElement*>::iterator ime = me_list.begin();
+    auto ime = me_list.begin();
     for (; ime != me_list.end(); ime++) {
       if (!(*ime)) {
         edm::LogError(mlDqmClient_) << "[CommissioningHistograms::" << __func__ << "]"
@@ -240,7 +240,7 @@ void CommissioningHistograms::copyCustomInformation(DQMStore* const bei, const s
   }
 
   // Iterate through added contents
-  std::vector<std::string>::const_iterator istr = contents.begin();
+  auto istr = contents.begin();
   while (istr != contents.end()) {
     // Extract source directory path
     std::string source_dir = istr->substr(0, istr->find(":"));
@@ -255,7 +255,7 @@ void CommissioningHistograms::copyCustomInformation(DQMStore* const bei, const s
 
     // Iterate though MonitorElements from source directory
     std::vector<MonitorElement*> me_list = bei->getContents(source_dir);
-    std::vector<MonitorElement*>::iterator ime = me_list.begin();
+    auto ime = me_list.begin();
     for (; ime != me_list.end(); ime++) {
       if (!(*ime)) {
         edm::LogWarning(mlDqmClient_) << "[CommissioningHistograms::" << __func__ << "]"
@@ -362,7 +362,7 @@ void CommissioningHistograms::extractHistograms(const std::vector<std::string>& 
     std::vector<MonitorElement*> me_list = bei_->getContents(source_dir);
 
     // Iterate though MonitorElements and create CMEs
-    std::vector<MonitorElement*>::iterator ime = me_list.begin();
+    auto ime = me_list.begin();
     for (; ime != me_list.end(); ime++) {
       // Retrieve histogram title
       SiStripHistoTitle title((*ime)->getName());
@@ -418,9 +418,9 @@ void CommissioningHistograms::extractHistograms(const std::vector<std::string>& 
 
       // Find CME in histos map
       Histo* histo = nullptr;
-      HistosMap::iterator ihistos = histos_.find(key);
+      auto ihistos = histos_.find(key);
       if (ihistos != histos_.end()) {
-        Histos::iterator ihis = ihistos->second.begin();
+        auto ihis = ihistos->second.begin();
         while (!histo && ihis < ihistos->second.end()) {
           if ((*ime)->getName() == (*ihis)->title_) {
             histo = *ihis;
@@ -464,8 +464,8 @@ void CommissioningHistograms::histoAnalysis(bool debug) {
 // -----------------------------------------------------------------------------
 /** */
 void CommissioningHistograms::printAnalyses() {
-  Analyses::iterator ianal = data().begin();
-  Analyses::iterator janal = data().end();
+  auto ianal = data().begin();
+  auto janal = data().end();
   for (; ianal != janal; ++ianal) {
     if (ianal->second) {
       std::stringstream ss;
@@ -485,8 +485,8 @@ void CommissioningHistograms::printSummary() {
   std::stringstream good;
   std::stringstream bad;
 
-  Analyses::iterator ianal = data().begin();
-  Analyses::iterator janal = data().end();
+  auto ianal = data().begin();
+  auto janal = data().end();
   for (; ianal != janal; ++ianal) {
     if (ianal->second) {
       if (ianal->second->isValid()) {
@@ -519,12 +519,12 @@ void CommissioningHistograms::printSummary() {
 void CommissioningHistograms::printHistosMap() {
   LogTrace(mlDqmClient_) << "[CommissioningHistograms::" << __func__ << "]"
                          << " Printing histogram map, which has " << histos_.size() << " entries...";
-  HistosMap::const_iterator ihistos = histos_.begin();
+  auto ihistos = histos_.begin();
   for (; ihistos != histos_.end(); ihistos++) {
     std::stringstream ss;
     ss << " Found " << ihistos->second.size() << " histogram(s) for key: " << std::endl
        << SiStripFedKey(ihistos->first) << std::endl;
-    Histos::const_iterator ihisto = ihistos->second.begin();
+    auto ihisto = ihistos->second.begin();
     for (; ihisto != ihistos->second.end(); ihisto++) {
       if (*ihisto) {
         (*ihisto)->print(ss);
@@ -541,9 +541,9 @@ void CommissioningHistograms::printHistosMap() {
 void CommissioningHistograms::clearHistosMap() {
   LogTrace(mlDqmClient_) << "[CommissioningHistograms::" << __func__ << "]"
                          << " Clearing histogram map...";
-  HistosMap::iterator ihistos = histos_.begin();
+  auto ihistos = histos_.begin();
   for (; ihistos != histos_.end(); ihistos++) {
-    Histos::iterator ihisto = ihistos->second.begin();
+    auto ihisto = ihistos->second.begin();
     for (; ihisto != ihistos->second.end(); ihisto++) {
       if (*ihisto) {
         delete *ihisto;
@@ -722,8 +722,8 @@ CommissioningHistograms::Analyses& CommissioningHistograms::data(bool getMaskedD
     if (dataWithMaskCached_)
       return dataWithMask_;
     else {
-      Analyses::iterator ianal = data_.begin();
-      Analyses::iterator janal = data_.end();
+      auto ianal = data_.begin();
+      auto janal = data_.end();
       for (; ianal != janal; ++ianal) {
         CommissioningAnalysis* anal = ianal->second;
         SiStripFedKey fedkey = anal->fedKey();

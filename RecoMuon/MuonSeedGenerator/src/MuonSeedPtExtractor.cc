@@ -296,7 +296,7 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(
   //std::cout<<" combination = "<<combination<<std::endl;
   if (init_combination != combination) {
     //std::cout<<" combination = "<<combination<<" eta = "<<eta<<" dPhi = "<<dPhi<<std::endl;
-    ParametersMap::const_iterator parametersItr = theParametersForCombo.find(combination);
+    auto parametersItr = theParametersForCombo.find(combination);
     if (parametersItr == theParametersForCombo.end()) {
       //      edm::LogWarning("RecoMuon|MuonSeedGenerator|MuonSeedPtExtractor") << "Cannot find parameters for combo " << combination;
       edm::LogWarning("BadSegmentCombination") << "Cannot find parameters for combo " << combination;
@@ -385,7 +385,7 @@ std::vector<double> MuonSeedPtExtractor::getPt(const std::vector<double>& vPara,
   std::ostringstream os;
   os << combination << "_" << wheel << "_scale";
 
-  ScalesMap::const_iterator scalesItr = theScalesForCombo.find(os.str());
+  auto scalesItr = theScalesForCombo.find(os.str());
   if (scalesItr != theScalesForCombo.end()) {
     double t1 = scalesItr->second[0];
     double scaleFactor = 1. / (1. + t1 / (estPt + 10.));

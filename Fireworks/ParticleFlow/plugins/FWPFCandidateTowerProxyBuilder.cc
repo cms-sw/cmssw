@@ -58,7 +58,7 @@ void FWPFCandidateTowerProxyBuilder::fillCaloData() {
     if (item()->defaultDisplayProperties().isVisible()) {
       // assert(item()->size() >= m_towers->size());
       unsigned int index = 0;
-      for (reco::PFCandidateConstIterator tower = m_towers->begin(); tower != m_towers->end(); ++tower, ++index) {
+      for (auto tower = m_towers->begin(); tower != m_towers->end(); ++tower, ++index) {
         const FWEventItem::ModelInfo& info = item()->modelInfo(index);
         if (info.displayProperties().isVisible()) {
           addEntryToTEveCaloData(tower->eta(), tower->phi(), getEt(*tower), info.isSelected());

@@ -75,9 +75,7 @@ void FWL1TriggerTableView::fillTable(fwlite::Event* event) {
           (int)prescaleFactorsAlgoTrig.size());
 
     const DecisionWord dWord = triggerRecord->decisionWord();
-    for (L1GtTriggerMenuLite::CItL1Trig itTrig = algorithmMap.begin(), itTrigEnd = algorithmMap.end();
-         itTrig != itTrigEnd;
-         ++itTrig) {
+    for (auto itTrig = algorithmMap.begin(), itTrigEnd = algorithmMap.end(); itTrig != itTrigEnd; ++itTrig) {
       const unsigned int bitNumber = itTrig->first;
       const std::string& aName = itTrig->second;
       int errorCode = 0;
@@ -103,8 +101,7 @@ void FWL1TriggerTableView::fillTable(fwlite::Event* event) {
     int tBitNumber = 0;
     int tBitResult = 0;
     if (boost::regex_search(kTechTriggerName, filter)) {
-      for (TechnicalTriggerWord::const_iterator tBitIt = ttWord.begin(), tBitEnd = ttWord.end(); tBitIt != tBitEnd;
-           ++tBitIt, ++tBitNumber) {
+      for (auto tBitIt = ttWord.begin(), tBitEnd = ttWord.end(); tBitIt != tBitEnd; ++tBitIt, ++tBitNumber) {
         if (*tBitIt)
           tBitResult = 1;
         else

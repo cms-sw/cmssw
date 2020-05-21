@@ -71,12 +71,12 @@ void PrimitiveMatching::process(const std::deque<EMTFHitCollection>& extended_co
 
   bool use_fs_zone_code = true;  // use zone code as in firmware find_segment module
 
-  std::deque<EMTFHitCollection>::const_iterator ext_conv_hits_it = extended_conv_hits.begin();
-  std::deque<EMTFHitCollection>::const_iterator ext_conv_hits_end = extended_conv_hits.end();
+  auto ext_conv_hits_it = extended_conv_hits.begin();
+  auto ext_conv_hits_end = extended_conv_hits.end();
 
   for (; ext_conv_hits_it != ext_conv_hits_end; ++ext_conv_hits_it) {
-    EMTFHitCollection::const_iterator conv_hits_it = ext_conv_hits_it->begin();
-    EMTFHitCollection::const_iterator conv_hits_end = ext_conv_hits_it->end();
+    auto conv_hits_it = ext_conv_hits_it->begin();
+    auto conv_hits_end = ext_conv_hits_it->end();
 
     for (; conv_hits_it != conv_hits_end; ++conv_hits_it) {
       int istation = conv_hits_it->Station() - 1;
@@ -182,7 +182,7 @@ void PrimitiveMatching::process(const std::deque<EMTFHitCollection>& extended_co
 
         const EMTFHitCollection& conv_hits = zs_conv_hits.at(zs);
         int ph_diff = zs_phi_differences.at(zs).at(iroad).first;
-        hit_ptr_t conv_hit_ptr = zs_phi_differences.at(zs).at(iroad).second;
+        auto conv_hit_ptr = zs_phi_differences.at(zs).at(iroad).second;
 
         if (ph_diff != invalid_ph_diff) {
           // Inserts the conv_hit with the lowest phi_diff, as well as its duplicate
@@ -297,8 +297,8 @@ void PrimitiveMatching::process_single_zone_station(int zone,
   // ___________________________________________________________________________
   // For each road, find the segment with min phi difference in every station
 
-  EMTFRoadCollection::const_iterator roads_it = roads.begin();
-  EMTFRoadCollection::const_iterator roads_end = roads.end();
+  auto roads_it = roads.begin();
+  auto roads_end = roads.end();
 
   for (; roads_it != roads_end; ++roads_it) {
     int ph_pat = roads_it->Key_zhit();    // pattern key phi value
@@ -311,8 +311,8 @@ void PrimitiveMatching::process_single_zone_station(int zone,
 
     std::vector<hit_sort_pair_t> tmp_phi_differences;
 
-    EMTFHitCollection::const_iterator conv_hits_it = conv_hits.begin();
-    EMTFHitCollection::const_iterator conv_hits_end = conv_hits.end();
+    auto conv_hits_it = conv_hits.begin();
+    auto conv_hits_end = conv_hits.end();
 
     for (; conv_hits_it != conv_hits_end; ++conv_hits_it) {
       int ph_seg = conv_hits_it->Phi_fp();             // ph from segments
@@ -356,8 +356,8 @@ void PrimitiveMatching::process_single_zone_station(int zone,
         std::vector<hit_sort_pair_t> fw_sort_array(tot_diff, std::make_pair(invalid_ph_diff, conv_hits_end));
 
         // FW doesn't check if the hit is CSC or RPC
-        std::vector<hit_sort_pair_t>::const_iterator phdiffs_it = tmp_phi_differences.begin();
-        std::vector<hit_sort_pair_t>::const_iterator phdiffs_end = tmp_phi_differences.end();
+        auto phdiffs_it = tmp_phi_differences.begin();
+        auto phdiffs_end = tmp_phi_differences.end();
 
         for (; phdiffs_it != phdiffs_end; ++phdiffs_it) {
           //int ph_diff    = phdiffs_it->first;
@@ -433,8 +433,8 @@ void PrimitiveMatching::process_single_zone_station(int zone,
 void PrimitiveMatching::insert_hits(hit_ptr_t conv_hit_ptr,
                                     const EMTFHitCollection& conv_hits,
                                     EMTFTrack& track) const {
-  EMTFHitCollection::const_iterator conv_hits_it = conv_hits.begin();
-  EMTFHitCollection::const_iterator conv_hits_end = conv_hits.end();
+  auto conv_hits_it = conv_hits.begin();
+  auto conv_hits_end = conv_hits.end();
 
   const bool is_csc_me11 = (conv_hit_ptr->Subsystem() == TriggerPrimitive::kCSC) && (conv_hit_ptr->Station() == 1) &&
                            (conv_hit_ptr->Ring() == 1 || conv_hit_ptr->Ring() == 4);

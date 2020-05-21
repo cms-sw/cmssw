@@ -3,7 +3,7 @@
 MuPFIsoHelper::MuPFIsoHelper(const std::map<std::string, edm::ParameterSet>& labelMap, edm::ConsumesCollector&& iC)
     : labelMap_(labelMap) {
   edm::Handle<CandDoubleMap> nullHandle;
-  for (std::map<std::string, edm::ParameterSet>::const_iterator i = labelMap_.begin(); i != labelMap_.end(); ++i) {
+  for (auto i = labelMap_.begin(); i != labelMap_.end(); ++i) {
     chargedParticle_.push_back(nullHandle);
     chargedHadron_.push_back(nullHandle);
     neutralHadron_.push_back(nullHandle);
@@ -62,7 +62,7 @@ reco::MuonPFIsolation MuPFIsoHelper::makeIsoDeposit(reco::MuonRef& muonRef,
 
 int MuPFIsoHelper::embedPFIsolation(reco::Muon& muon, reco::MuonRef& muonRef) {
   unsigned int count = 0;
-  for (std::map<std::string, edm::ParameterSet>::const_iterator i = labelMap_.begin(); i != labelMap_.end(); ++i) {
+  for (auto i = labelMap_.begin(); i != labelMap_.end(); ++i) {
     reco::MuonPFIsolation iso = makeIsoDeposit(muonRef,
                                                chargedParticle_[count],
                                                chargedHadron_[count],
@@ -81,7 +81,7 @@ int MuPFIsoHelper::embedPFIsolation(reco::Muon& muon, reco::MuonRef& muonRef) {
 
 void MuPFIsoHelper::beginEvent(const edm::Event& iEvent) {
   unsigned int count = 0;
-  for (std::map<std::string, edm::ParameterSet>::const_iterator i = labelMap_.begin(); i != labelMap_.end(); ++i) {
+  for (auto i = labelMap_.begin(); i != labelMap_.end(); ++i) {
     iEvent.getByToken(chargedParticleToken_[count], chargedParticle_[count]);
     iEvent.getByToken(chargedHadronToken_[count], chargedHadron_[count]);
     iEvent.getByToken(neutralHadronToken_[count], neutralHadron_[count]);

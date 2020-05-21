@@ -217,7 +217,7 @@ NuclearInteractionFTFSimulator::NuclearInteractionFTFSimulator(unsigned int dist
   // FTF model
   theHadronicModel = new G4TheoFSGenerator("FTF");
   theStringModel = new G4FTFModel();
-  G4GeneratorPrecompoundInterface* cascade = new G4GeneratorPrecompoundInterface(new CMSDummyDeexcitation());
+  auto* cascade = new G4GeneratorPrecompoundInterface(new CMSDummyDeexcitation());
   theLund = new G4LundStringFragmentation();
   theStringDecay = new G4ExcitedStringDecay(theLund);
   theStringModel->SetFragmentationModel(theStringDecay);
@@ -382,7 +382,7 @@ void NuclearInteractionFTFSimulator::compute(ParticlePropagator& Particle, Rando
 	    << px << " " << py << " " << pz << ")" << std::endl;
   */
 
-  G4DynamicParticle* dynParticle = new G4DynamicParticle(theG4Hadron[currIdx], dir, ekin);
+  auto* dynParticle = new G4DynamicParticle(theG4Hadron[currIdx], dir, ekin);
   currTrack = new G4Track(dynParticle, 0.0, vectProj);
   currTrack->SetStep(dummyStep);
 

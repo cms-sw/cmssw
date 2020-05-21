@@ -67,7 +67,7 @@ namespace edm {
       std::cerr << "&&&--- adding to limits table: " << xid.id << '\n';
 #endif
 
-      ELmap_counts::iterator c = counts.find(xid);
+      auto c = counts.find(xid);
 
       if (c == counts.end()) {  // no such entry yet
 
@@ -83,7 +83,7 @@ namespace edm {
         int lim;
         int ivl;
         int ts;
-        ELmap_limits::iterator l = limits.find(xid.id);
+        auto l = limits.find(xid.id);
 
         if (l != limits.end()) {  // use limits previously established for this id
           lim = (*l).second.limit;

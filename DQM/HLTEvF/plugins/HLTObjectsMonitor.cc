@@ -888,9 +888,7 @@ double HLTObjectsMonitor::dxyFinder(double eta,
   }
 
   bool matched = false;
-  for (reco::RecoChargedCandidateCollection::const_iterator candidate = candidates->begin();
-       candidate != candidates->end();
-       ++candidate) {
+  for (auto candidate = candidates->begin(); candidate != candidates->end(); ++candidate) {
     if (deltaR(eta, phi, candidate->eta(), candidate->phi()) < dRcut) {
       matched = true;
       dxy = (-(candidate->vx() - beamspot->x0()) * candidate->py() +
@@ -925,9 +923,7 @@ double HLTObjectsMonitor::dzFinder(double eta1,
   const reco::RecoChargedCandidate* cand2;
   bool matched1 = false;
   bool matched2 = false;
-  for (reco::RecoChargedCandidateCollection::const_iterator candidate = candidates->begin();
-       candidate != candidates->end();
-       ++candidate) {
+  for (auto candidate = candidates->begin(); candidate != candidates->end(); ++candidate) {
     if (deltaR(eta1, phi1, candidate->eta(), candidate->phi()) < dRcut) {
       matched1 = true;
       cand1 = &*candidate;
@@ -943,9 +939,7 @@ double HLTObjectsMonitor::dzFinder(double eta1,
     return dz;
   }
 
-  for (reco::RecoChargedCandidateCollection::const_iterator candidate = candidates->begin();
-       candidate != candidates->end();
-       ++candidate) {
+  for (auto candidate = candidates->begin(); candidate != candidates->end(); ++candidate) {
     if (debug_) {
       std::cout << "candidate: " << candidate->pt() << " cand1: " << cand1->pt() << std::endl;
       std::cout << "candidate: " << candidate->eta() << " cand1: " << cand1->eta() << std::endl;

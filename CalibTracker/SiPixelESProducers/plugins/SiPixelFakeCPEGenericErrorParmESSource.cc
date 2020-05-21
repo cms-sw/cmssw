@@ -15,7 +15,7 @@ SiPixelFakeCPEGenericErrorParmESSource::~SiPixelFakeCPEGenericErrorParmESSource(
 std::unique_ptr<SiPixelCPEGenericErrorParm> SiPixelFakeCPEGenericErrorParmESSource::produce(
     const SiPixelCPEGenericErrorParmRcd&) {
   using namespace edm::es;
-  SiPixelCPEGenericErrorParm* obj = new SiPixelCPEGenericErrorParm();
+  auto* obj = new SiPixelCPEGenericErrorParm();
   obj->fillCPEGenericErrorParm(version_, fp_.fullPath());
   //std::cout << *obj << std::endl;
 

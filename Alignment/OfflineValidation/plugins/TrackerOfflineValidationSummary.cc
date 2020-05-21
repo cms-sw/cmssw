@@ -220,13 +220,13 @@ void TrackerOfflineValidationSummary::endJob() {
 
   TTree* tree = new TTree("TkOffVal", "TkOffVal");
 
-  TkOffTreeVariables* treeMemPtr = new TkOffTreeVariables;
+  auto* treeMemPtr = new TkOffTreeVariables;
   // We create branches for all members of 'TkOffTreeVariables' (even if not needed).
   // This works because we have a dictionary for 'TkOffTreeVariables'
   // (see src/classes_def.xml and src/classes.h):
   tree->Branch("TkOffTreeVariables", &treeMemPtr);  // address of pointer!
   // second branch needed for assigning names and titles to harvesting histograms consistent to others
-  std::map<std::string, std::string>* substructureName = new std::map<std::string, std::string>;
+  auto* substructureName = new std::map<std::string, std::string>;
   tree->Branch("SubstructureName", &substructureName, 32000, 00);  // SplitLevel must be set to zero
 
   this->fillTree(*tree, mPxbResiduals_, *treeMemPtr, *tkGeom_, *substructureName, tTopo);
@@ -256,10 +256,7 @@ void TrackerOfflineValidationSummary::fillTree(TTree& tree,
                                                const TrackerGeometry& tkgeom,
                                                std::map<std::string, std::string>& substructureName,
                                                const TrackerTopology* tTopo) {
-  for (std::map<int, TrackerOfflineValidationSummary::ModuleHistos>::iterator it = moduleHist.begin(),
-                                                                              itEnd = moduleHist.end();
-       it != itEnd;
-       ++it) {
+  for (auto it = moduleHist.begin(), itEnd = moduleHist.end(); it != itEnd; ++it) {
     treeMem.clear();  // make empty/default
 
     //variables concerning the tracker components/hierarchy levels
@@ -776,9 +773,7 @@ void TrackerOfflineValidationSummary::applyHarvestingHierarchy(TTree& tree) {
 void TrackerOfflineValidationSummary::bookHarvestingHists() {
   edm::LogInfo("TrackerOfflineValidationSummary") << "Harvesting histograms will be booked for "
                                                   << vHarvestingHierarchy_.size() << " different hierarchy selections";
-  for (std::vector<HarvestingHierarchy>::iterator iHier = vHarvestingHierarchy_.begin();
-       iHier != vHarvestingHierarchy_.end();
-       ++iHier) {
+  for (auto iHier = vHarvestingHierarchy_.begin(); iHier != vHarvestingHierarchy_.end(); ++iHier) {
     std::stringstream dmrXprimeHistoName, dmrYprimeHistoName, dmrXprimeHistoTitle, dmrYprimeHistoTitle;
     dmrXprimeHistoName << "h_DmrXprime_" << iHier->hierarchyName;
     dmrYprimeHistoName << "h_DmrYprime_" << iHier->hierarchyName;
@@ -833,12 +828,8 @@ void TrackerOfflineValidationSummary::fillHarvestingHists(TTree& tree) {
   edm::LogInfo("TrackerOfflineValidationSummary")
       << "Median of a module is added to DMR plots if it contains at least " << minEntriesPerModule << " hits";
 
-  for (std::vector<HarvestingHierarchy>::iterator iHier = vHarvestingHierarchy_.begin();
-       iHier != vHarvestingHierarchy_.end();
-       ++iHier) {
-    for (std::vector<unsigned int>::const_iterator iTreeEntries = iHier->treeEntries.begin();
-         iTreeEntries != iHier->treeEntries.end();
-         ++iTreeEntries) {
+  for (auto iHier = vHarvestingHierarchy_.begin(); iHier != vHarvestingHierarchy_.end(); ++iHier) {
+    for (auto iTreeEntries = iHier->treeEntries.begin(); iTreeEntries != iHier->treeEntries.end(); ++iTreeEntries) {
       tree.GetEntry(*iTreeEntries);
       if (treeMemPtr->entries < minEntriesPerModule)
         continue;

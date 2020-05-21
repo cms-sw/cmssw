@@ -127,8 +127,7 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
 
     edm::LogVerbatim("MuonTrackProducer") << "\nThere are " << muonCollectionH->size() << " reco::Muons.";
     unsigned int muon_index = 0;
-    for (reco::MuonCollection::const_iterator muon = muonCollectionH->begin(); muon != muonCollectionH->end();
-         ++muon, muon_index++) {
+    for (auto muon = muonCollectionH->begin(); muon != muonCollectionH->end(); ++muon, muon_index++) {
       edm::LogVerbatim("MuonTrackProducer") << "\n******* muon index : " << muon_index;
 
       std::vector<bool> isGood;
@@ -305,7 +304,7 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
         //      edm::LogVerbatim("MuonTrackProducer")<<"\n printing initial
         //      hit_pattern"; trk->hitPattern().print();
         unsigned int nHitsToAdd = 0;
-        for (trackingRecHit_iterator iHit = trk->recHitsBegin(); iHit != trk->recHitsEnd(); iHit++) {
+        for (auto iHit = trk->recHitsBegin(); iHit != trk->recHitsEnd(); iHit++) {
           TrackingRecHit *hit = (*iHit)->clone();
           selectedTrackHits->push_back(hit);
           ++nHitsToAdd;
@@ -320,8 +319,7 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
               << ", arbitrated: " << muon->numberOfMatches(reco::Muon::SegmentAndTrackArbitration);
           unsigned int index_chamber = 0;
 
-          for (std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch = muon->matches().begin();
-               chamberMatch != muon->matches().end();
+          for (auto chamberMatch = muon->matches().begin(); chamberMatch != muon->matches().end();
                ++chamberMatch, index_chamber++) {
             std::stringstream chamberStr;
             chamberStr << "\nchamber index: " << index_chamber;
@@ -349,8 +347,7 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
 
             unsigned int index_segment = 0;
 
-            for (std::vector<reco::MuonSegmentMatch>::const_iterator segmentMatch =
-                     chamberMatch->segmentMatches.begin();
+            for (auto segmentMatch = chamberMatch->segmentMatches.begin();
                  segmentMatch != chamberMatch->segmentMatches.end();
                  ++segmentMatch, index_segment++) {
               float segmentX = segmentMatch->x;
@@ -391,9 +388,7 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
                   if (segment->hasPhi()) {
                     const DTChamberRecSegment2D *phiSeg = segment->phiSegment();
                     std::vector<const TrackingRecHit *> phiHits = phiSeg->recHits();
-                    for (std::vector<const TrackingRecHit *>::const_iterator ihit = phiHits.begin();
-                         ihit != phiHits.end();
-                         ++ihit) {
+                    for (auto ihit = phiHits.begin(); ihit != phiHits.end(); ++ihit) {
                       TrackingRecHit *seghit = (*ihit)->clone();
                       newTrk->appendHitPattern(*seghit, ttopo);
                       //		    edm::LogVerbatim("MuonTrackProducer")<<"hit
@@ -408,9 +403,7 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
                   if (segment->hasZed()) {
                     const DTSLRecSegment2D *zSeg = (*segment).zSegment();
                     std::vector<const TrackingRecHit *> zedHits = zSeg->recHits();
-                    for (std::vector<const TrackingRecHit *>::const_iterator ihit = zedHits.begin();
-                         ihit != zedHits.end();
-                         ++ihit) {
+                    for (auto ihit = zedHits.begin(); ihit != zedHits.end(); ++ihit) {
                       TrackingRecHit *seghit = (*ihit)->clone();
                       newTrk->appendHitPattern(*seghit, ttopo);
                       //		    edm::LogVerbatim("MuonTrackProducer")<<"hit
@@ -442,8 +435,7 @@ void MuonTrackProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
                       << "\t ===> MATCHING with CSC segment with index = " << segmentCSC.key();
 
                   std::vector<const TrackingRecHit *> hits = segment->recHits();
-                  for (std::vector<const TrackingRecHit *>::const_iterator ihit = hits.begin(); ihit != hits.end();
-                       ++ihit) {
+                  for (auto ihit = hits.begin(); ihit != hits.end(); ++ihit) {
                     TrackingRecHit *seghit = (*ihit)->clone();
                     newTrk->appendHitPattern(*seghit, ttopo);
                     //		    edm::LogVerbatim("MuonTrackProducer")<<"hit

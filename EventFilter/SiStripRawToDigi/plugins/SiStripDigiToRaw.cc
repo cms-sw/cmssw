@@ -191,7 +191,7 @@ namespace sistrip {
           }
 
           std::unique_ptr<FEDFEHeader> tempFEHeader(fedbuffer.feHeader()->clone());
-          FEDFullDebugHeader* fedFeHeader = dynamic_cast<FEDFullDebugHeader*>(tempFEHeader.get());
+          auto* fedFeHeader = dynamic_cast<FEDFullDebugHeader*>(tempFEHeader.get());
           if (edm::isDebugEnabled()) {
             std::ostringstream debugStream;
             if (ifed == fed_ids.begin()) {
@@ -267,7 +267,7 @@ namespace sistrip {
               }
               break;
             }
-            typename std::vector<edm::DetSet<Digi_t> >::const_iterator digis = collection->find(key);
+            auto digis = collection->find(key);
             if (digis == collection->end()) {
               continue;
             }
@@ -370,7 +370,7 @@ namespace sistrip {
               }
               break;
             }
-            typename std::vector<edm::DetSet<Digi_t> >::const_iterator digis = collection->find(key);
+            auto digis = collection->find(key);
             if (digis == collection->end()) {
               continue;
             }

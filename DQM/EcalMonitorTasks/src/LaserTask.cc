@@ -64,7 +64,7 @@ namespace ecaldqm {
 
   void LaserTask::runOnRawData(EcalRawDataCollection const& _rawData) {
     MESet& meCalibStatus(MEs_.at("CalibStatus"));
-    for (EcalRawDataCollection::const_iterator rItr(_rawData.begin()); rItr != _rawData.end(); ++rItr) {
+    for (auto rItr(_rawData.begin()); rItr != _rawData.end(); ++rItr) {
       unsigned iDCC(rItr->id() - 1);
 
       if (!enable_[iDCC]) {
@@ -246,13 +246,13 @@ namespace ecaldqm {
 
     unsigned iME(-1);
 
-    for (EcalPnDiodeDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr) {
+    for (auto digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr) {
       if (digiItr->sample(0).gainId() != 0 && digiItr->sample(0).gainId() != 1)
         continue;
 
       const EcalPnDiodeDetId& id(digiItr->id());
 
-      std::map<uint32_t, float>::iterator ampItr(pnAmp_.find(id.rawId()));
+      auto ampItr(pnAmp_.find(id.rawId()));
       if (ampItr == pnAmp_.end())
         continue;
 
@@ -297,7 +297,7 @@ namespace ecaldqm {
 
     unsigned iME(-1);
 
-    for (EcalUncalibratedRecHitCollection::const_iterator uhitItr(_uhits.begin()); uhitItr != _uhits.end(); ++uhitItr) {
+    for (auto uhitItr(_uhits.begin()); uhitItr != _uhits.end(); ++uhitItr) {
       const DetId& id(uhitItr->id());
 
       unsigned iDCC(dccId(id) - 1);
@@ -324,8 +324,8 @@ namespace ecaldqm {
 
       float aop(0.);
 
-      map<uint32_t, float>::iterator ampItrA(pnAmp_.find(pnForCrystal(id, 'a')));
-      map<uint32_t, float>::iterator ampItrB(pnAmp_.find(pnForCrystal(id, 'b')));
+      auto ampItrA(pnAmp_.find(pnForCrystal(id, 'a')));
+      auto ampItrB(pnAmp_.find(pnForCrystal(id, 'b')));
       if (ampItrA == pnAmp_.end() && ampItrB == pnAmp_.end())
         continue;
       else if (ampItrB == pnAmp_.end())

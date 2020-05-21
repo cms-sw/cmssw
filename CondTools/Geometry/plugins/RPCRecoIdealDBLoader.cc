@@ -25,7 +25,7 @@ public:
 };
 
 void RPCRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) {
-  RecoIdealGeometry* rig = new RecoIdealGeometry;
+  auto* rig = new RecoIdealGeometry;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
     edm::LogError("RPCRecoIdealDBLoader") << "PoolDBOutputService unavailable";

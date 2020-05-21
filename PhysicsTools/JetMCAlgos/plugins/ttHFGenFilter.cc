@@ -218,8 +218,7 @@ std::vector<const reco::Candidate*> ttHFGenFilter::GetTops(const std::vector<rec
   //then find all mothers of the Tops
   //this is then used to  if the b-hadron is an inital state radiation particle
 
-  for (reco::GenParticleCollection::const_iterator i_particle = genParticles.begin(); i_particle != genParticles.end();
-       ++i_particle) {
+  for (auto i_particle = genParticles.begin(); i_particle != genParticles.end(); ++i_particle) {
     const reco::GenParticle* thisParticle = &*i_particle;
     if (!foundTop && thisParticle->pdgId() == 6) {
       firstTop = thisParticle;

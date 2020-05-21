@@ -118,7 +118,7 @@ public:
     if (!loadMVAfromDB_)
       delete mvaReader_;
     delete[] mvaInput_;
-    for (std::vector<TFile*>::iterator it = inputFilesToDelete_.begin(); it != inputFilesToDelete_.end(); ++it) {
+    for (auto it = inputFilesToDelete_.begin(); it != inputFilesToDelete_.end(); ++it) {
       delete (*it);
     }
   }

@@ -16,7 +16,7 @@ ParameterCollector::ParameterCollector() {}
 ParameterCollector::ParameterCollector(const edm::ParameterSet &pset) {
   std::vector<std::string> names = pset.getParameterNamesForType<std::vector<std::string> >();
 
-  for (std::vector<std::string>::const_iterator it = names.begin(); it != names.end(); ++it)
+  for (auto it = names.begin(); it != names.end(); ++it)
     contents_[*it] = pset.getParameter<std::vector<std::string> >(*it);
 }
 
@@ -60,7 +60,7 @@ void ParameterCollector::const_iterator::next() {
 
       std::string block = special ? line : line.substr(1);
 
-      std::map<std::string, std::vector<std::string> >::const_iterator pos = collector_->contents_.find(block);
+      auto pos = collector_->contents_.find(block);
       if (pos == collector_->contents_.end())
         throw edm::Exception(edm::errors::Configuration) << "ParameterCollector could not find configuration lines "
                                                             "block \""
@@ -81,7 +81,7 @@ void ParameterCollector::const_iterator::next() {
 }
 
 ParameterCollector::const_iterator ParameterCollector::begin() const {
-  std::map<std::string, std::vector<std::string> >::const_iterator pos = contents_.find("parameterSets");
+  auto pos = contents_.find("parameterSets");
   if (pos == contents_.end())
     throw edm::Exception(edm::errors::Configuration) << "ParameterCollector could not find \"parameterSets\" block.";
 
@@ -89,7 +89,7 @@ ParameterCollector::const_iterator ParameterCollector::begin() const {
 }
 
 ParameterCollector::const_iterator ParameterCollector::begin(std::ostream &dump) const {
-  std::map<std::string, std::vector<std::string> >::const_iterator pos = contents_.find("parameterSets");
+  auto pos = contents_.find("parameterSets");
   if (pos == contents_.end())
     throw edm::Exception(edm::errors::Configuration) << "ParameterCollector could not find \"parameterSets\" block.";
 
@@ -97,7 +97,7 @@ ParameterCollector::const_iterator ParameterCollector::begin(std::ostream &dump)
 }
 
 ParameterCollector::const_iterator ParameterCollector::begin(const std::string &block) const {
-  std::map<std::string, std::vector<std::string> >::const_iterator pos = contents_.find(block);
+  auto pos = contents_.find(block);
   if (pos == contents_.end())
     throw edm::Exception(edm::errors::Configuration) << "ParameterCollector could not find \"" << block << "\" block.";
 
@@ -105,7 +105,7 @@ ParameterCollector::const_iterator ParameterCollector::begin(const std::string &
 }
 
 ParameterCollector::const_iterator ParameterCollector::begin(const std::string &block, std::ostream &dump) const {
-  std::map<std::string, std::vector<std::string> >::const_iterator pos = contents_.find(block);
+  auto pos = contents_.find(block);
   if (pos == contents_.end())
     throw edm::Exception(edm::errors::Configuration) << "ParameterCollector could not find \"" << block << "\" block.";
 

@@ -29,7 +29,7 @@ struct Quantile {
 private:
   pair calculateQ(const double frac, const bool fromHead) const {
     const double f = frac < 0.5 ? frac : 1 - frac;
-    array::const_iterator begin(((frac < 0.5) == fromHead) ? head.begin() : tail.begin()),
+    auto begin(((frac < 0.5) == fromHead) ? head.begin() : tail.begin()),
         end(((frac < 0.5) == fromHead) ? head.end() : tail.end()), bin(begin);
 
     while (bin->second < f * Total)
@@ -38,7 +38,7 @@ private:
     if (bin == begin)
       return pair(-1, 0);
 
-    array::const_iterator binNext(next(bin, end)), binPrev(prev(bin, begin)), binPPrev(prev(binPrev, begin));
+    auto binNext(next(bin, end)), binPrev(prev(bin, begin)), binPPrev(prev(binPrev, begin));
 
     const double DX(binNext->first - binPPrev->first), DY((binNext->second - binPPrev->second) / Total),
 

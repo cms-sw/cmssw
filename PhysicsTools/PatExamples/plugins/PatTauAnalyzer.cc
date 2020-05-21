@@ -9,9 +9,7 @@
 
 const reco::GenParticle* getGenTau(const pat::Tau& patTau) {
   std::vector<reco::GenParticleRef> associatedGenParticles = patTau.genParticleRefs();
-  for (std::vector<reco::GenParticleRef>::const_iterator it = associatedGenParticles.begin();
-       it != associatedGenParticles.end();
-       ++it) {
+  for (auto it = associatedGenParticles.begin(); it != associatedGenParticles.end(); ++it) {
     if (it->isAvailable()) {
       const reco::GenParticleRef& genParticle = (*it);
       if (genParticle->pdgId() == -15 || genParticle->pdgId() == +15)
@@ -156,7 +154,7 @@ void PatTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es) {
 
   hNumTauJets_->Fill(patTaus->size());
 
-  for (pat::TauCollection::const_iterator patTau = patTaus->begin(); patTau != patTaus->end(); ++patTau) {
+  for (auto patTau = patTaus->begin(); patTau != patTaus->end(); ++patTau) {
     //--- skip fake taus in case configuration parameters set to do so...
     const reco::GenParticle* genTau = getGenTau(*patTau);
     if (requireGenTauMatch_ && !genTau)

@@ -29,7 +29,7 @@ PFClusterWidthAlgo::PFClusterWidthAlgo(const std::vector<const reco::PFCluster*>
     for (unsigned int icl = 0; icl < nclust; ++icl) {
       const std::vector<reco::PFRecHitFraction>& PFRecHits = pfclust[icl]->recHitFractions();
 
-      for (std::vector<reco::PFRecHitFraction>::const_iterator it = PFRecHits.begin(); it != PFRecHits.end(); ++it) {
+      for (auto it = PFRecHits.begin(); it != PFRecHits.end(); ++it) {
         const PFRecHitRef& RefPFRecHit = it->recHitRef();
         //compute rechit energy taking into account fractions
         double energyHit = RefPFRecHit->energy() * it->fraction();

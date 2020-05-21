@@ -20,7 +20,7 @@ namespace pf2pat {
       selected_.clear();
 
       unsigned key = 0;
-      for (collection::const_iterator pfc = hc->begin(); pfc != hc->end(); ++pfc, ++key) {
+      for (auto pfc = hc->begin(); pfc != hc->end(); ++pfc, ++key) {
         for (unsigned iId = 0; iId < pdgIds_.size(); iId++) {
           if (pfc->pdgId() == pdgIds_[iId]) {
             selected_.push_back(reco::PFCandidate(*pfc));

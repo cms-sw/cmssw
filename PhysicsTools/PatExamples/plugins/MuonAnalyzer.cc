@@ -70,7 +70,7 @@ void ExampleMuonAnalyzer::analyze(const Event& event, const EventSetup& eventSet
   pat::MuonCollection selectedMuons;
 
   // Let's look inside the muon collection.
-  for (pat::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
+  for (auto muon = muons->begin(); muon != muons->end(); ++muon) {
     // pT spectra of muons
     hPtRec->Fill(muon->pt());
 
@@ -176,7 +176,7 @@ void ExampleMuonAnalyzer::analyze(const Event& event, const EventSetup& eventSet
   /// simple selection... Do not want to write here my super-secret Higgs analysis ;-)
   if (selectedMuons.size() == 4) {
     reco::Candidate::LorentzVector p4CM;
-    for (pat::MuonCollection::const_iterator muon = selectedMuons.begin(); muon != selectedMuons.end(); ++muon) {
+    for (auto muon = selectedMuons.begin(); muon != selectedMuons.end(); ++muon) {
       p4CM = p4CM + muon->p4();
     }
     h4MuInvMass->Fill(p4CM.mass());

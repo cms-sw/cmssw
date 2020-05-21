@@ -38,7 +38,7 @@ void HcalTBParameterTester::analyze(const edm::Event& iEvent, const edm::EventSe
     const auto* php = &hcp;
     std::cout << "TB02Parameters for " << name_ << "\n";
     std::cout << "Length map with " << php->lengthMap_.size() << " elements\n";
-    std::map<std::string, double>::const_iterator itr = php->lengthMap_.begin();
+    auto itr = php->lengthMap_.begin();
     int i(0);
     for (; itr != php->lengthMap_.end(); ++itr, ++i)
       std::cout << "[" << i << "] " << itr->first << " " << itr->second << " mm\n";

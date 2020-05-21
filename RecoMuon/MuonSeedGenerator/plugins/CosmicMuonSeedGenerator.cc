@@ -126,22 +126,17 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
 
   stable_sort(allHits.begin(), allHits.end(), DecreasingGlobalY());
 
-  for (vector<const DetLayer*>::reverse_iterator icsclayer = cscForwardLayers.rbegin();
-       icsclayer != cscForwardLayers.rend() - 1;
-       ++icsclayer) {
+  for (auto icsclayer = cscForwardLayers.rbegin(); icsclayer != cscForwardLayers.rend() - 1; ++icsclayer) {
     MuonRecHitContainer RHMF = muonMeasurements->recHits(*icsclayer);
     allHits.insert(allHits.end(), RHMF.begin(), RHMF.end());
   }
 
-  for (vector<const DetLayer*>::reverse_iterator icsclayer = cscBackwardLayers.rbegin();
-       icsclayer != cscBackwardLayers.rend() - 1;
-       ++icsclayer) {
+  for (auto icsclayer = cscBackwardLayers.rbegin(); icsclayer != cscBackwardLayers.rend() - 1; ++icsclayer) {
     MuonRecHitContainer RHMF = muonMeasurements->recHits(*icsclayer);
     allHits.insert(allHits.end(), RHMF.begin(), RHMF.end());
   }
 
-  for (vector<const DetLayer*>::reverse_iterator idtlayer = dtLayers.rbegin(); idtlayer != dtLayers.rend();
-       ++idtlayer) {
+  for (auto idtlayer = dtLayers.rbegin(); idtlayer != dtLayers.rend(); ++idtlayer) {
     MuonRecHitContainer RHMB = muonMeasurements->recHits(*idtlayer);
     RHMBs.push_back(RHMB);
 
@@ -188,7 +183,7 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
 
   LogTrace(category) << "Seeds built: " << seeds.size();
 
-  for (std::vector<TrajectorySeed>::iterator seed = seeds.begin(); seed != seeds.end(); ++seed) {
+  for (auto seed = seeds.begin(); seed != seeds.end(); ++seed) {
     output->push_back(*seed);
   }
 
@@ -223,7 +218,7 @@ MuonRecHitContainer CosmicMuonSeedGenerator::selectSegments(const MuonRecHitCont
   const std::string category = "Muon|RecoMuon|CosmicMuonSeedGenerator";
 
   //Only select good quality Segments
-  for (MuonRecHitContainer::const_iterator hit = hits.begin(); hit != hits.end(); hit++) {
+  for (auto hit = hits.begin(); hit != hits.end(); hit++) {
     if (checkQuality(*hit))
       result.push_back(*hit);
   }
@@ -234,7 +229,7 @@ MuonRecHitContainer CosmicMuonSeedGenerator::selectSegments(const MuonRecHitCont
   MuonRecHitContainer result2;
 
   //avoid selecting Segments with similar direction
-  for (MuonRecHitContainer::iterator hit = result.begin(); hit != result.end(); hit++) {
+  for (auto hit = result.begin(); hit != result.end(); hit++) {
     if (*hit == nullptr)
       continue;
     if (!(*hit)->isValid())
@@ -242,7 +237,7 @@ MuonRecHitContainer CosmicMuonSeedGenerator::selectSegments(const MuonRecHitCont
     bool good = true;
     //UNUSED:    GlobalVector dir1 = (*hit)->globalDirection();
     //UNUSED:    GlobalPoint pos1 = (*hit)->globalPosition();
-    for (MuonRecHitContainer::iterator hit2 = hit + 1; hit2 != result.end(); hit2++) {
+    for (auto hit2 = hit + 1; hit2 != result.end(); hit2++) {
       if (*hit2 == nullptr)
         continue;
       if (!(*hit2)->isValid())
@@ -276,7 +271,7 @@ void CosmicMuonSeedGenerator::createSeeds(TrajectorySeedCollection& results,
 
   if (hits.empty() || results.size() >= theMaxSeeds)
     return;
-  for (MuonRecHitContainer::const_iterator ihit = hits.begin(); ihit != hits.end(); ihit++) {
+  for (auto ihit = hits.begin(); ihit != hits.end(); ihit++) {
     const std::vector<TrajectorySeed>& sds = createSeed((*ihit), eSetup);
     LogTrace(category) << "created seeds from rechit " << sds.size();
     results.insert(results.end(), sds.begin(), sds.end());
@@ -293,9 +288,7 @@ void CosmicMuonSeedGenerator::createSeeds(TrajectorySeedCollection& results,
 
   if (hitpairs.empty() || results.size() >= theMaxSeeds)
     return;
-  for (CosmicMuonSeedGenerator::MuonRecHitPairVector::const_iterator ihitpair = hitpairs.begin();
-       ihitpair != hitpairs.end();
-       ihitpair++) {
+  for (auto ihitpair = hitpairs.begin(); ihitpair != hitpairs.end(); ihitpair++) {
     const std::vector<TrajectorySeed>& sds = createSeed((*ihitpair), eSetup);
     LogTrace(category) << "created seeds from rechit " << sds.size();
     results.insert(results.end(), sds.begin(), sds.end());
@@ -420,11 +413,11 @@ CosmicMuonSeedGenerator::MuonRecHitPairVector CosmicMuonSeedGenerator::makeSegPa
   if (hits1.empty() || hits2.empty())
     return result;
 
-  for (MuonRecHitContainer::const_iterator ihit1 = hits1.begin(); ihit1 != hits1.end(); ihit1++) {
+  for (auto ihit1 = hits1.begin(); ihit1 != hits1.end(); ihit1++) {
     if (!checkQuality(*ihit1))
       continue;
 
-    for (MuonRecHitContainer::const_iterator ihit2 = hits2.begin(); ihit2 != hits2.end(); ihit2++) {
+    for (auto ihit2 = hits2.begin(); ihit2 != hits2.end(); ihit2++) {
       if (!checkQuality(*ihit2))
         continue;
 
@@ -458,7 +451,7 @@ std::vector<TrajectorySeed> CosmicMuonSeedGenerator::createSeed(const CosmicMuon
 
   LogTrace(category) << "hitpair.type " << hitpair.type;
 
-  map<string, float>::const_iterator iterPar = theParameters.find(hitpair.type);
+  auto iterPar = theParameters.find(hitpair.type);
   if (iterPar == theParameters.end()) {
     return result;
   }

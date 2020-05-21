@@ -63,7 +63,7 @@ namespace clangcms {
       os << "in function decl '" << mdname << "' with parameter '" << qname << " " << pname << "'\n";
       //                 }
     }
-    const CXXMemberCallExpr *CXE = llvm::dyn_cast_or_null<CXXMemberCallExpr>(CE);
+    const auto *CXE = llvm::dyn_cast_or_null<CXXMemberCallExpr>(CE);
     if (!CXE)
       return;
     const Expr *IOA = CXE->getImplicitObjectArgument();
@@ -243,7 +243,7 @@ namespace clangcms {
     std::string ups = "const class edm::UntrackedParameterSet ";
 
     for (clang::CXXRecordDecl::ctor_iterator I = RD->ctor_begin(), E = RD->ctor_end(); I != E; ++I) {
-      clang::CXXConstructorDecl *CD = llvm::dyn_cast<clang::CXXConstructorDecl>((*I)->getMostRecentDecl());
+      auto *CD = llvm::dyn_cast<clang::CXXConstructorDecl>((*I)->getMostRecentDecl());
       for (unsigned I = 0, E = CD->getNumParams(); I != E; ++I) {
         std::string pname = CD->getParamDecl(I)->getQualifiedNameAsString();
         std::string qname = CD->getParamDecl(I)->getType().getCanonicalType().getAsString();
@@ -272,7 +272,7 @@ namespace clangcms {
     }
 
     for (clang::CXXRecordDecl::method_iterator I = RD->method_begin(), E = RD->method_end(); I != E; ++I) {
-      clang::CXXMethodDecl *MD = llvm::cast<clang::CXXMethodDecl>((*I)->getMostRecentDecl());
+      auto *MD = llvm::cast<clang::CXXMethodDecl>((*I)->getMostRecentDecl());
       for (unsigned I = 0, E = MD->getNumParams(); I != E; ++I) {
         std::string pname = MD->getParamDecl(I)->getQualifiedNameAsString();
         std::string qname = MD->getParamDecl(I)->getType().getCanonicalType().getAsString();

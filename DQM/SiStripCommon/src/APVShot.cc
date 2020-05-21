@@ -22,7 +22,7 @@ void APVShot::computeShot(const std::vector<SiStripDigi>& digis, const DetId& de
   _median = -1;
 
   std::vector<unsigned int> charge;
-  for (std::vector<SiStripDigi>::const_iterator digi = digis.begin(); digi != digis.end(); ++digi) {
+  for (auto digi = digis.begin(); digi != digis.end(); ++digi) {
     if (!_zs || digi->adc() > 0) {
       int oldapv = _apv;
       _apv = digi->strip() / 128;

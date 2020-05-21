@@ -123,8 +123,7 @@ float trackWeight(const reco::Vertex &sv, const reco::TransientTrack &track) {
   return sv.trackWeight(track.trackBaseRef());
 }
 float trackWeight(const reco::VertexCompositePtrCandidate &sv, const reco::TransientTrack &tt) {
-  const reco::CandidatePtrTransientTrack *cptt =
-      dynamic_cast<const reco::CandidatePtrTransientTrack *>(tt.basicTransientTrack());
+  const auto *cptt = dynamic_cast<const reco::CandidatePtrTransientTrack *>(tt.basicTransientTrack());
   if (cptt == nullptr)
     edm::LogError("DynamicCastingFailed") << "Casting of TransientTrack to CandidatePtrTransientTrack failed!";
   else {
@@ -157,7 +156,7 @@ std::vector<VTX> TrackVertexArbitration<VTX>::trackVertexArbitrator(edm::Handle<
   GlobalPoint ppv(pv.position().x(), pv.position().y(), pv.position().z());
 
   std::unordered_map<unsigned int, Measurement1D> cachedIP;
-  for (typename std::vector<VTX>::const_iterator sv = secondaryVertices.begin(); sv != secondaryVertices.end(); ++sv) {
+  for (auto sv = secondaryVertices.begin(); sv != secondaryVertices.end(); ++sv) {
     const double svTime(sv->t()), svTimeCov(svhelper::cov33(*sv));
     const bool svHasTime = svTimeCov > 0.;
 

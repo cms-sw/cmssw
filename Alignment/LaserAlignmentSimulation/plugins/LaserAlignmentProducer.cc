@@ -37,11 +37,11 @@ void LaserAlignmentProducer::produce(edm::Event &iEvent, const edm::EventSetup &
   theEvent = new HepMC::GenEvent();
 
   // create a primary vertex
-  HepMC::GenVertex *theVtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
+  auto *theVtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
 
   // add a particle to the vertex; this is needed to avoid crashes in
   // OscarProducer. Use a electron neutrino, with zero energy and mass
-  HepMC::GenParticle *theParticle = new HepMC::GenParticle(HepMC::FourVector(0., 0., 0., 0.), 12, 1);
+  auto *theParticle = new HepMC::GenParticle(HepMC::FourVector(0., 0., 0., 0.), 12, 1);
 
   theVtx->add_particle_out(theParticle);
 

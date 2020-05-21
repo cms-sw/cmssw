@@ -5,13 +5,11 @@ static TMinuit *MuonResidualsAngleFitter_TMinuit;
 void MuonResidualsAngleFitter::inform(TMinuit *tMinuit) { MuonResidualsAngleFitter_TMinuit = tMinuit; }
 
 void MuonResidualsAngleFitter_FCN(int &npar, double *gin, double &fval, double *par, int iflag) {
-  MuonResidualsFitterFitInfo *fitinfo =
-      (MuonResidualsFitterFitInfo *)(MuonResidualsAngleFitter_TMinuit->GetObjectFit());
+  auto *fitinfo = (MuonResidualsFitterFitInfo *)(MuonResidualsAngleFitter_TMinuit->GetObjectFit());
   MuonResidualsFitter *fitter = fitinfo->fitter();
 
   fval = 0.;
-  for (std::vector<double *>::const_iterator resiter = fitter->residuals_begin(); resiter != fitter->residuals_end();
-       ++resiter) {
+  for (auto resiter = fitter->residuals_begin(); resiter != fitter->residuals_end(); ++resiter) {
     const double residual = (*resiter)[MuonResidualsAngleFitter::kResidual];
     const double xangle = (*resiter)[MuonResidualsAngleFitter::kXAngle];
     const double yangle = (*resiter)[MuonResidualsAngleFitter::kYAngle];
@@ -44,7 +42,7 @@ bool MuonResidualsAngleFitter::fit(Alignable *ali) {
   double sum_xx = 0.;
   int N = 0;
 
-  for (std::vector<double *>::const_iterator resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
+  for (auto resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
     const double residual = (*resiter)[kResidual];
     //     const double xangle = (*resiter)[kXAngle];
     //     const double yangle = (*resiter)[kYAngle];
@@ -67,7 +65,7 @@ bool MuonResidualsAngleFitter::fit(Alignable *ali) {
   sum_x = 0.;
   sum_xx = 0.;
   N = 0;
-  for (std::vector<double *>::const_iterator resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
+  for (auto resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
     const double residual = (*resiter)[kResidual];
     if (mean - 1.5 * stdev < residual && residual < mean + 1.5 * stdev) {
       sum_x += residual;
@@ -81,7 +79,7 @@ bool MuonResidualsAngleFitter::fit(Alignable *ali) {
   sum_x = 0.;
   sum_xx = 0.;
   N = 0;
-  for (std::vector<double *>::const_iterator resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
+  for (auto resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
     const double residual = (*resiter)[kResidual];
     if (mean - 1.5 * stdev < residual && residual < mean + 1.5 * stdev) {
       sum_x += residual;
@@ -184,7 +182,7 @@ double MuonResidualsAngleFitter::plot(std::string name, TFileDirectory *dir, Ali
   ycontrol_fit->SetParameters(value(kAngle) * 1000., value(kYControl) * 1000.);
   ycontrol_fit->Write();
 
-  for (std::vector<double *>::const_iterator resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
+  for (auto resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
     const double raw_residual = (*resiter)[kResidual];
     const double xangle = (*resiter)[kXAngle];
     const double yangle = (*resiter)[kYAngle];

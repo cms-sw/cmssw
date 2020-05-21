@@ -396,8 +396,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
                               << std::endl;
 
   // loop over all combinations which produced individually "true" as Type1s
-  for (std::vector<SingleCombInCond>::const_iterator it0Comb = cond0Comb.begin(); it0Comb != cond0Comb.end();
-       it0Comb++) {
+  for (auto it0Comb = cond0Comb.begin(); it0Comb != cond0Comb.end(); it0Comb++) {
     // Type1s: there is 1 object only, no need for a loop, index 0 should be OK
     // in (*it0Comb)[0]
     // ... but add protection to not crash
@@ -510,8 +509,7 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
       } break;
     }
 
-    for (std::vector<SingleCombInCond>::const_iterator it1Comb = cond1Comb.begin(); it1Comb != cond1Comb.end();
-         it1Comb++) {
+    for (auto it1Comb = cond1Comb.begin(); it1Comb != cond1Comb.end(); it1Comb++) {
       // Type1s: there is 1 object only, no need for a loop (*it1Comb)[0]
       // ... but add protection to not crash
       int obj1Index = -1;

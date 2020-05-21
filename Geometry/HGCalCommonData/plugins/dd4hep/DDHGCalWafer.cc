@@ -19,10 +19,10 @@ static long algorithm(dd4hep::Detector& /* description */,
   int cellType = args.value<int>("CellType");
   int nColumns = args.value<int>("NColumns");
   int nBottomY = args.value<int>("NBottomY");
-  std::vector<std::string> childNames = args.value<std::vector<std::string> >("ChildNames");
-  std::vector<int> nCellsRow = args.value<std::vector<int> >("NCellsRow");
-  std::vector<int> angleEdges = args.value<std::vector<int> >("AngleEdges");
-  std::vector<int> detectorType = args.value<std::vector<int> >("DetectorType");
+  auto childNames = args.value<std::vector<std::string> >("ChildNames");
+  auto nCellsRow = args.value<std::vector<int> >("NCellsRow");
+  auto angleEdges = args.value<std::vector<int> >("AngleEdges");
+  auto detectorType = args.value<std::vector<int> >("DetectorType");
   std::string parentName = args.parentName();
   dd4hep::Volume mother = ns.volume(args.parentName());
 #ifdef EDM_ML_DEBUG

@@ -72,7 +72,7 @@ namespace lhef {
       if (inputs.empty())
         throw cms::Exception("StreamOpenError") << "Empty LHE file string name \"" << std::endl;
 
-      std::stringstream *tmpis = new std::stringstream(inputs);
+      auto *tmpis = new std::stringstream(inputs);
       fileStream.reset(tmpis);
     }
 

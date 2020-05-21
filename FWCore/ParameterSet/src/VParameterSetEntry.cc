@@ -13,7 +13,7 @@ namespace edm {
 
   VParameterSetEntry::VParameterSetEntry(std::vector<ParameterSet> const& vpset, bool isTracked)
       : tracked_(isTracked), theVPSet_(new std::vector<ParameterSet>), theIDs_() {
-    for (std::vector<ParameterSet>::const_iterator i = vpset.begin(), e = vpset.end(); i != e; ++i) {
+    for (auto i = vpset.begin(), e = vpset.end(); i != e; ++i) {
       theVPSet_->push_back(*i);
     }
   }
@@ -26,7 +26,7 @@ namespace edm {
     std::string bracketedRepr(rep.begin() + 2, rep.end());
     split(std::back_inserter(temp), bracketedRepr, '{', ',', '}');
     theIDs_->reserve(temp.size());
-    for (std::vector<std::string>::const_iterator i = temp.begin(), e = temp.end(); i != e; ++i) {
+    for (auto i = temp.begin(), e = temp.end(); i != e; ++i) {
       theIDs_->push_back(ParameterSetID(*i));
     }
   }
@@ -37,7 +37,7 @@ namespace edm {
     result += '{';
     std::string start;
     std::string const between(",");
-    for (std::vector<ParameterSetID>::const_iterator i = theIDs_->begin(), e = theIDs_->end(); i != e; ++i) {
+    for (auto i = theIDs_->begin(), e = theIDs_->end(); i != e; ++i) {
       result += start;
       i->toString(result);
       start = between;
@@ -49,7 +49,7 @@ namespace edm {
     assert(theIDs_);
     digest.append(tracked_ ? "+q{" : "-q{", 3);
     bool started = false;
-    for (std::vector<ParameterSetID>::const_iterator i = theIDs_->begin(), e = theIDs_->end(); i != e; ++i) {
+    for (auto i = theIDs_->begin(), e = theIDs_->end(); i != e; ++i) {
       if (started)
         digest.append(",", 1);
       i->toDigest(digest);
@@ -108,7 +108,7 @@ namespace edm {
     fillVPSet();
     theIDs_ = value_ptr<std::vector<ParameterSetID>>(new std::vector<ParameterSetID>);
     theIDs_->resize(theVPSet_->size());
-    for (std::vector<ParameterSet>::iterator i = theVPSet_->begin(), e = theVPSet_->end(); i != e; ++i) {
+    for (auto i = theVPSet_->begin(), e = theVPSet_->end(); i != e; ++i) {
       if (!i->isRegistered()) {
         i->registerIt();
       }
@@ -123,7 +123,7 @@ namespace edm {
     os << "VPSet " << (isTracked() ? "tracked" : "untracked") << " = ({" << std::endl;
     std::string start;
     std::string const between(",\n");
-    for (std::vector<ParameterSet>::const_iterator i = vps.begin(), e = vps.end(); i != e; ++i) {
+    for (auto i = vps.begin(), e = vps.end(); i != e; ++i) {
       os << start << indentation << i->dump(indent);
       start = between;
     }

@@ -105,8 +105,7 @@ void BeamMonitorBx::beginJob() {
   //if (resetFitNLumi_ > 0) BookTables(1,varMap,"all");
 
   // create and cd into new folders
-  for (std::map<std::string, std::string>::const_iterator varName = varMap1.begin(); varName != varMap1.end();
-       ++varName) {
+  for (auto varName = varMap1.begin(); varName != varMap1.end(); ++varName) {
     string subDir_ = "FitBx";
     subDir_ += "/";
     subDir_ += "All_";
@@ -191,7 +190,7 @@ void BeamMonitorBx::BookTables(int nBx, map<string, string>& vMap, string suffix
   // to rebin histograms when number of bx increases
   dbe_->cd(monitorName_ + "FitBx");
 
-  for (std::map<std::string, std::string>::const_iterator varName = vMap.begin(); varName != vMap.end(); ++varName) {
+  for (auto varName = vMap.begin(); varName != vMap.end(); ++varName) {
     string tmpName = varName->first;
     if (!suffix_.empty()) {
       tmpName += "_";
@@ -222,7 +221,7 @@ void BeamMonitorBx::BookTrendHistos(
   ss1 << nBx;
 
   for (int i = 0; i < nType_; i++) {
-    for (std::map<std::string, std::string>::const_iterator varName = vMap.begin(); varName != vMap.end(); ++varName) {
+    for (auto varName = vMap.begin(); varName != vMap.end(); ++varName) {
       string tmpDir_ = subDir_ + "/All_" + varName->first;
       dbe_->cd(monitorName_ + tmpDir_);
       TString histTitle(varName->first);
@@ -369,7 +368,7 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, in
       countBx_ = bsmap.size();
       BookTables(countBx_, varMap, "");
       BookTables(countBx_, varMap, "all");
-      for (BeamSpotMapBx::const_iterator abspot = bsmap.begin(); abspot != bsmap.end(); ++abspot) {
+      for (auto abspot = bsmap.begin(); abspot != bsmap.end(); ++abspot) {
         int bx = abspot->first;
         BookTrendHistos(false, bx, varMap1, "FitBx", "Trending", "bx");
       }
@@ -378,8 +377,7 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, in
     std::pair<int, int> LSRange = theBeamFitter->getFitLSRange();
     char tmpTitle[50];
     sprintf(tmpTitle, "%s %i %s %i %s", " [cm] (LS: ", LSRange.first, " to ", LSRange.second, ")");
-    for (std::map<std::string, std::string>::const_iterator varName = varMap.begin(); varName != varMap.end();
-         ++varName) {
+    for (auto varName = varMap.begin(); varName != varMap.end(); ++varName) {
       hs[varName->first]->setTitle(varName->second + " " + tmpTitle);
       hs[varName->first]->Reset();
     }
@@ -400,8 +398,7 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, in
                  ") [weighted average]");
       else
         snprintf(tmpTitle1, sizeof(tmpTitle1), "%s", "Need at least two fits to calculate weighted average");
-      for (std::map<std::string, std::string>::const_iterator varName = varMap.begin(); varName != varMap.end();
-           ++varName) {
+      for (auto varName = varMap.begin(); varName != varMap.end(); ++varName) {
         TString tmpName = varName->first + "_all";
         hs[tmpName]->setTitle(varName->second + " " + tmpTitle1);
         hs[tmpName]->Reset();
@@ -409,7 +406,7 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, in
     }
 
     int nthBin = countBx_;
-    for (BeamSpotMapBx::const_iterator abspot = bsmap.begin(); abspot != bsmap.end(); ++abspot, nthBin--) {
+    for (auto abspot = bsmap.begin(); abspot != bsmap.end(); ++abspot, nthBin--) {
       reco::BeamSpot bs = abspot->second;
       int bx = abspot->first;
       int nPVs = npvsmap.find(bx)->second;
@@ -424,7 +421,7 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg, int& lastlumi, in
     // Fill the results
     nthBin = countBx_;
     if (resetFitNLumi_ > 0 && countGoodFit_ > 1) {
-      for (BeamSpotMapBx::const_iterator abspot = fbspotMap.begin(); abspot != fbspotMap.end(); ++abspot, nthBin--) {
+      for (auto abspot = fbspotMap.begin(); abspot != fbspotMap.end(); ++abspot, nthBin--) {
         reco::BeamSpot bs = abspot->second;
         int bx = abspot->first;
         FillTables(bx, nthBin, varMap, bs, "all");
@@ -456,7 +453,7 @@ void BeamMonitorBx::FillTables(int nthbx, int nthbin_, map<string, string>& vMap
   val_["sigmaY_bx"] = pair<double, double>(bs_.BeamWidthY(), bs_.BeamWidthYError());
   val_["sigmaZ_bx"] = pair<double, double>(bs_.sigmaZ(), bs_.sigmaZ0Error());
 
-  for (std::map<std::string, std::string>::const_iterator varName = vMap.begin(); varName != vMap.end(); ++varName) {
+  for (auto varName = vMap.begin(); varName != vMap.end(); ++varName) {
     TString tmpName = varName->first;
     if (!suffix_.empty())
       tmpName += TString("_" + suffix_);
@@ -480,7 +477,7 @@ void BeamMonitorBx::FillTrendHistos(
   std::ostringstream ss;
   ss << setfill('0') << setw(5) << nthBx;
   int ntbin_ = tmpTime - startTime;
-  for (map<TString, MonitorElement*>::iterator itHst = hst.begin(); itHst != hst.end(); ++itHst) {
+  for (auto itHst = hst.begin(); itHst != hst.end(); ++itHst) {
     if (!(itHst->first.Contains(ss.str())))
       continue;
     if (itHst->first.Contains("nPVs"))
@@ -504,7 +501,7 @@ void BeamMonitorBx::FillTrendHistos(
 
 //--------------------------------------------------------------------------------------------------
 void BeamMonitorBx::weight(BeamSpotMapBx& weightedMap_, const BeamSpotMapBx& newMap_) {
-  for (BeamSpotMapBx::const_iterator it = newMap_.begin(); it != newMap_.end(); ++it) {
+  for (auto it = newMap_.begin(); it != newMap_.end(); ++it) {
     if (weightedMap_.find(it->first) == weightedMap_.end() || (it->second.type() != 2)) {
       weightedMap_[it->first] = it->second;
       continue;

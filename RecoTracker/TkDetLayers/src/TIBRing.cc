@@ -34,7 +34,7 @@ TIBRing::TIBRing(vector<const GeomDet*>& theGeomDets)
   LogDebug("TkDetLayers") << "radius, thickness, lenght: " << theCylinder->radius() << " , "
                           << theCylinder->bounds().thickness() << " , " << theCylinder->bounds().length();
 
-  for (vector<const GeomDet*>::const_iterator i = theDets.begin(); i != theDets.end(); i++) {
+  for (auto i = theDets.begin(); i != theDets.end(); i++) {
     LogDebug("TkDetLayers") << "Ring's Det pos z,perp,eta,phi: " << (**i).position().z() << " , "
                             << (**i).position().perp() << " , " << (**i).position().eta() << " , "
                             << (**i).position().phi();
@@ -50,7 +50,7 @@ void TIBRing::checkRadius(vector<const GeomDet*>::const_iterator first, vector<c
   // check radius range
   float rMin = 10000.;
   float rMax = 0.;
-  for (vector<const GeomDet*>::const_iterator i = first; i != last; i++) {
+  for (auto i = first; i != last; i++) {
     float r = (**i).surface().position().perp();
     if (r < rMin)
       rMin = r;
@@ -65,7 +65,7 @@ void TIBRing::checkPeriodicity(vector<const GeomDet*>::const_iterator first,
                                vector<const GeomDet*>::const_iterator last) {
   vector<double> adj_diff(last - first - 1);
   for (int i = 0; i < static_cast<int>(adj_diff.size()); i++) {
-    vector<const GeomDet*>::const_iterator curent = first + i;
+    auto curent = first + i;
     adj_diff[i] = (**(curent + 1)).surface().position().phi() - (**curent).surface().position().phi();
   }
   double step = stat_mean(adj_diff);

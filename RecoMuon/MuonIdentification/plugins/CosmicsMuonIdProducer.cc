@@ -57,7 +57,7 @@ void CosmicsMuonIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   std::vector<reco::MuonCosmicCompatibility> compValues;
   compValues.reserve(muons->size());
 
-  for (reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
+  for (auto muon = muons->begin(); muon != muons->end(); ++muon) {
     unsigned int foundPartner(0);
     if (muon->innerTrack().isNonnull()) {
       for (unsigned int i = 0; i < inputTrackCollections_.size(); ++i) {

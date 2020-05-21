@@ -189,19 +189,19 @@ void AlCaHBHEMuonProducer::produce(edm::Event& iEvent, edm::EventSetup const& iS
     if (accept) {
       ++nGood_;
 
-      for (reco::VertexCollection::const_iterator vtr = vtx.begin(); vtr != vtx.end(); ++vtr)
+      for (auto vtr = vtx.begin(); vtr != vtx.end(); ++vtr)
         outputVColl->push_back(*vtr);
 
-      for (edm::SortedCollection<EcalRecHit>::const_iterator ehit = ebcoll.begin(); ehit != ebcoll.end(); ++ehit)
+      for (auto ehit = ebcoll.begin(); ehit != ebcoll.end(); ++ehit)
         outputEBColl->push_back(*ehit);
 
-      for (edm::SortedCollection<EcalRecHit>::const_iterator ehit = eecoll.begin(); ehit != eecoll.end(); ++ehit)
+      for (auto ehit = eecoll.begin(); ehit != eecoll.end(); ++ehit)
         outputEEColl->push_back(*ehit);
 
-      for (std::vector<HBHERecHit>::const_iterator hhit = hbhecoll.begin(); hhit != hbhecoll.end(); ++hhit)
+      for (auto hhit = hbhecoll.begin(); hhit != hbhecoll.end(); ++hhit)
         outputHBHEColl->push_back(*hhit);
 
-      for (reco::MuonCollection::const_iterator muon = muons.begin(); muon != muons.end(); ++muon)
+      for (auto muon = muons.begin(); muon != muons.end(); ++muon)
         outputMColl->push_back(*muon);
     }
   }

@@ -1195,7 +1195,7 @@ void HGCalTBAnalyzer::analyzeSimTracks(edm::Handle<edm::SimTrackContainer> const
   if (phiBeam_ < 0)
     phiBeam_ += (2 * M_PI);
   if (vertIndex != -1 && vertIndex < static_cast<int>(SimVtx->size())) {
-    edm::SimVertexContainer::const_iterator simVtxItr = SimVtx->begin();
+    auto simVtxItr = SimVtx->begin();
     for (int iv = 0; iv < vertIndex; iv++)
       simVtxItr++;
     edm::LogVerbatim("HGCSim") << "Vertex " << vertIndex << " position " << simVtxItr->position();

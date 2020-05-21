@@ -41,8 +41,7 @@ void SiStripQualityDQM::fillModMEs(const std::vector<uint32_t> &selectedDetIds, 
 
   ModMEs CondObj_ME;
 
-  for (std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin(); detIter_ != selectedDetIds.end();
-       detIter_++) {
+  for (auto detIter_ = selectedDetIds.begin(); detIter_ != selectedDetIds.end(); detIter_++) {
     fillMEsForDet(CondObj_ME, *detIter_, tTopo);
   }
 }
@@ -72,12 +71,11 @@ void SiStripQualityDQM::fillSummaryMEs(const std::vector<uint32_t> &selectedDetI
   es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology *const tTopo = tTopoHandle.product();
 
-  for (std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin(); detIter_ != selectedDetIds.end();
-       detIter_++) {
+  for (auto detIter_ = selectedDetIds.begin(); detIter_ != selectedDetIds.end(); detIter_++) {
     fillMEsForLayer(/*SummaryMEsMap_,*/ *detIter_, tTopo);
   }
 
-  for (std::map<uint32_t, ModMEs>::iterator iter = SummaryMEsMap_.begin(); iter != SummaryMEsMap_.end(); iter++) {
+  for (auto iter = SummaryMEsMap_.begin(); iter != SummaryMEsMap_.end(); iter++) {
     ModMEs selME;
     selME = iter->second;
 
@@ -121,8 +119,7 @@ void SiStripQualityDQM::fillMEsForLayer(
     hSummary_name =
         hidmanager.createHistoLayer(hSummary_description, "layer", getLayerNameAndId(selDetId_, tTopo).first, "");
 
-    std::map<uint32_t, ModMEs>::iterator selMEsMapIter_ =
-        SummaryMEsMap_.find(getLayerNameAndId(selDetId_, tTopo).second);
+    auto selMEsMapIter_ = SummaryMEsMap_.find(getLayerNameAndId(selDetId_, tTopo).second);
 
     ModMEs selME_;
     if (selMEsMapIter_ != SummaryMEsMap_.end())
@@ -241,7 +238,7 @@ void SiStripQualityDQM::fillGrandSummaryMEs(const edm::EventSetup &eSetup) {
   std::stringstream ss;
   ss.str("");
   std::vector<uint32_t> detids = reader->getAllDetIds();
-  std::vector<uint32_t>::const_iterator idet = detids.begin();
+  auto idet = detids.begin();
   for (; idet != detids.end(); ++idet) {
     ss << "detid " << (*idet) << " IsModuleUsable " << qualityHandle_->IsModuleUsable((*idet)) << "\n";
   }
@@ -306,10 +303,10 @@ void SiStripQualityDQM::fillGrandSummaryMEs(const edm::EventSetup &eSetup) {
   // Single Strip Info
   //&&&&&&&&&&&&&&&&&&
 
-  SiStripQuality::RegistryIterator rbegin = qualityHandle_->getRegistryVectorBegin();
-  SiStripQuality::RegistryIterator rend = qualityHandle_->getRegistryVectorEnd();
+  auto rbegin = qualityHandle_->getRegistryVectorBegin();
+  auto rend = qualityHandle_->getRegistryVectorEnd();
 
-  for (SiStripBadStrip::RegistryIterator rp = rbegin; rp != rend; ++rp) {
+  for (auto rp = rbegin; rp != rend; ++rp) {
     uint32_t detid = rp->detid;
 
     int subdet = 0;

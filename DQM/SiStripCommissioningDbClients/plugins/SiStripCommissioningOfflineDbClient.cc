@@ -122,7 +122,7 @@ void SiStripCommissioningOfflineDbClient::createHistos(const edm::ParameterSet& 
   }
   histos_->configure(pset, setup);
 
-  CommissioningHistosUsingDb* tmp = dynamic_cast<CommissioningHistosUsingDb*>(histos_);
+  auto* tmp = dynamic_cast<CommissioningHistosUsingDb*>(histos_);
   if (tmp) {
     tmp->doUploadConf(uploadConf_);
     tmp->doUploadAnal(uploadAnal_);
@@ -142,7 +142,7 @@ void SiStripCommissioningOfflineDbClient::createHistos(const edm::ParameterSet& 
 void SiStripCommissioningOfflineDbClient::uploadToConfigDb() {
   edm::LogVerbatim(mlDqmClient_) << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"
                                  << " Uploading parameters to database...";
-  CommissioningHistosUsingDb* tmp = dynamic_cast<CommissioningHistosUsingDb*>(histos_);
+  auto* tmp = dynamic_cast<CommissioningHistosUsingDb*>(histos_);
   if (tmp) {
     tmp->uploadToConfigDb();
     edm::LogVerbatim(mlDqmClient_) << "[SiStripCommissioningOfflineDbClient::" << __func__ << "]"

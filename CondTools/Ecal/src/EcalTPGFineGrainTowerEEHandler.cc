@@ -161,14 +161,14 @@ void popcon::EcalTPGFineGrainTowerEEHandler::getNewObjects() {
             econn->fetchConfigSet(&fe_fgr_info);
             std::map<EcalLogicID, FEConfigFgrEETowerDat> dataset_TpgFineGrainEE;
             econn->fetchDataSet(&dataset_TpgFineGrainEE, &fe_fgr_info);
-            EcalTPGFineGrainTowerEE *fgrMap = new EcalTPGFineGrainTowerEE;
+            auto *fgrMap = new EcalTPGFineGrainTowerEE;
 
             typedef std::map<EcalLogicID, FEConfigFgrEETowerDat>::const_iterator CIfefgr;
             EcalLogicID ecid_xt;
             FEConfigFgrEETowerDat rd_fgr;
             int itowers = 0;
 
-            for (CIfefgr p = dataset_TpgFineGrainEE.begin(); p != dataset_TpgFineGrainEE.end(); p++) {
+            for (auto p = dataset_TpgFineGrainEE.begin(); p != dataset_TpgFineGrainEE.end(); p++) {
               ecid_xt = p->first;
               rd_fgr = p->second;
 

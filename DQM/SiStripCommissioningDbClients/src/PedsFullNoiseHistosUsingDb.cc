@@ -107,9 +107,9 @@ void PedsFullNoiseHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange fe
           conn.fecCrate(), conn.fecSlot(), conn.fecRing(), conn.ccuAddr(), conn.ccuChan(), conn.lldChannel());
 
       // Locate appropriate analysis object --> based on FEC keys cause they are per lldChannel
-      Analyses::const_iterator iter = data(allowSelectiveUpload_).find(fec_key.key());
+      auto iter = data(allowSelectiveUpload_).find(fec_key.key());
       if (iter != data(allowSelectiveUpload_).end()) {
-        PedsFullNoiseAnalysis* anal = dynamic_cast<PedsFullNoiseAnalysis*>(iter->second);
+        auto* anal = dynamic_cast<PedsFullNoiseAnalysis*>(iter->second);
 
         if (!anal) {
           edm::LogError(mlDqmClient_) << "[PedsFullNoiseHistosUsingDb::" << __func__ << "]"
@@ -249,7 +249,7 @@ void PedsFullNoiseHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange fe
 // -----------------------------------------------------------------------------
 /** */
 void PedsFullNoiseHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& desc, Analysis analysis) {
-  PedsFullNoiseAnalysis* anal = dynamic_cast<PedsFullNoiseAnalysis*>(analysis->second);
+  auto* anal = dynamic_cast<PedsFullNoiseAnalysis*>(analysis->second);
 
   if (!anal) {
     return;
@@ -294,8 +294,8 @@ void PedsFullNoiseHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& 
     // Add comments
     typedef std::vector<std::string> Strings;
     Strings errors = anal->getErrorCodes();
-    Strings::const_iterator istr = errors.begin();
-    Strings::const_iterator jstr = errors.end();
+    auto istr = errors.begin();
+    auto jstr = errors.end();
     for (; istr != jstr; ++istr) {
       pedestalDescription->addComments(*istr);
     }

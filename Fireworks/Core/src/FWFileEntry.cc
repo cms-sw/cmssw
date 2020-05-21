@@ -44,7 +44,7 @@ FWFileEntry::FWFileEntry(const std::string& name, bool checkVersion, bool checkG
 }
 
 FWFileEntry::~FWFileEntry() {
-  for (std::list<Filter*>::iterator i = m_filterEntries.begin(); i != m_filterEntries.end(); ++i)
+  for (auto i = m_filterEntries.begin(); i != m_filterEntries.end(); ++i)
     delete (*i)->m_eventList;
 
   delete m_globalEventList;
@@ -122,7 +122,7 @@ void FWFileEntry::openFile(bool checkVersion, bool checkGlobalTag) {
           id = 1;
           simpleIDs[pc.id()] = id;
         }
-        ParameterSetMap::const_iterator itFind = psm_.find(pc.parameterSetID());
+        auto itFind = psm_.find(pc.parameterSetID());
         if (itFind == psm_.end()) {
           std::cout << "No ParameterSetID for " << pc.parameterSetID() << std::endl;
           fwLog(fwlog::kInfo) << "FWFileEntry::openFile no ParameterSetID for " << pc.parameterSetID() << std::endl;
@@ -202,7 +202,7 @@ void FWFileEntry::openFile(bool checkVersion, bool checkGlobalTag) {
   m_event = new fwlite::Event(m_file, false, [tc](TBranch const& b) { tc->BranchAccessCallIn(&b); });
 
   // Connect to collection add/remove signals
-  FWEventItemsManager* eiMng = (FWEventItemsManager*)FWGUIManager::getGUIManager()->getContext()->eventItemsManager();
+  auto* eiMng = (FWEventItemsManager*)FWGUIManager::getGUIManager()->getContext()->eventItemsManager();
   eiMng->newItem_.connect(boost::bind(&FWFileEntry::NewEventItemCallIn, this, _1));
   eiMng->removingItem_.connect(boost::bind(&FWFileEntry::RemovingEventItemCallIn, this, _1));
   // no need to connect to goingToClearItems_ ... individual removes are emitted.
@@ -279,7 +279,7 @@ int FWFileEntry::previousSelectedEvent(int tree_entry) {
 
 //______________________________________________________________________________
 bool FWFileEntry::hasActiveFilters() {
-  for (std::list<Filter*>::iterator it = m_filterEntries.begin(); it != m_filterEntries.end(); ++it) {
+  for (auto it = m_filterEntries.begin(); it != m_filterEntries.end(); ++it) {
     if ((*it)->m_selector->m_enabled)
       return true;
   }
@@ -297,7 +297,7 @@ void FWFileEntry::updateFilters(const FWEventItemsManager* eiMng, bool globalOR)
   else
     m_globalEventList = new FWTEventList;
 
-  for (std::list<Filter*>::iterator it = m_filterEntries.begin(); it != m_filterEntries.end(); ++it) {
+  for (auto it = m_filterEntries.begin(); it != m_filterEntries.end(); ++it) {
     if ((*it)->m_selector->m_enabled && (*it)->m_needsUpdate) {
       runFilter(*it, eiMng);
     }
@@ -335,7 +335,7 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng) {
   // list of branch names to be added to tree-cache
   std::vector<std::string> branch_names;
 
-  for (FWEventItemsManager::const_iterator i = eiMng->begin(), end = eiMng->end(); i != end; ++i) {
+  for (auto i = eiMng->begin(), end = eiMng->end(); i != end; ++i) {
     FWEventItem* item = *i;
     if (item == nullptr)
       continue;
@@ -520,7 +520,7 @@ bool FWFileEntry::filterEventsWithCustomParser(Filter* filterEntry) {
 
   for (m_event->toBegin(); !m_event->atEnd(); ++(*m_event)) {
     hTriggerResults.getByLabel(*m_event, "TriggerResults", "", filterEntry->m_selector->m_triggerProcess.c_str());
-    std::vector<std::pair<unsigned int, bool>>::const_iterator filter = filters.begin();
+    auto filter = filters.begin();
     bool passed = hTriggerResults->accept(filter->first) == filter->second;
     while (++filter != filters.end()) {
       if (junction_mode)

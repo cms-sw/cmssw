@@ -17,7 +17,7 @@ namespace edm {
       typedef T const* result_type;
 
       result_type operator()(first_argument_type iContainer, second_argument_type iIndex) {
-        typename C::const_iterator it = iContainer.begin();
+        auto it = iContainer.begin();
         std::advance(it, static_cast<typename C::size_type>(iIndex));
         return it.operator->();
       }

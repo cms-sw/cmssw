@@ -69,7 +69,7 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
       }
 
       std::vector<CSCRecHit2D> Hits = iSegment->specificRecHits();
-      for (std::vector<CSCRecHit2D>::iterator iHit = Hits.begin(); iHit != Hits.end(); iHit++) {
+      for (auto iHit = Hits.begin(); iHit != Hits.end(); iHit++) {
         DetId TheDetUnitId(iHit->geographicalId());
         if (TheDetUnitId.det() != DetId::Muon)
           continue;
@@ -150,7 +150,7 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
   // Keep track of number of calo pointing CSC halo tracks that do not match to Phi wedges
   int N_Unmatched_Tracks = 0;
 
-  for (std::vector<GlobalPoint>::iterator Pos = TheGlobalPositions.begin(); Pos != TheGlobalPositions.end(); Pos++) {
+  for (auto Pos = TheGlobalPositions.begin(); Pos != TheGlobalPositions.end(); Pos++) {
     // Calculate global phi coordinate for central most rechit in the track
     float global_phi = Pos->phi();
     float global_r = TMath::Sqrt(Pos->x() * Pos->x() + Pos->y() * Pos->y());
@@ -161,7 +161,7 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
     bool MATCHED = false;
 
     //Loop over Ecal Phi Wedges
-    for (std::vector<PhiWedge>::iterator iWedge = EcalWedges.begin(); iWedge != EcalWedges.end(); iWedge++) {
+    for (auto iWedge = EcalWedges.begin(); iWedge != EcalWedges.end(); iWedge++) {
       if ((TMath::Abs(global_EcaliPhi - iWedge->iPhi()) <= 5) && (global_r > Ecal_R_Min && global_r < Ecal_R_Max)) {
         bool StoreWedge = true;
         for (unsigned int i = 0; i < vEcaliPhi.size(); i++)
@@ -179,7 +179,7 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
       }
     }
     //Loop over Hcal Phi Wedges
-    for (std::vector<PhiWedge>::iterator iWedge = HcalWedges.begin(); iWedge != HcalWedges.end(); iWedge++) {
+    for (auto iWedge = HcalWedges.begin(); iWedge != HcalWedges.end(); iWedge++) {
       if ((TMath::Abs(global_HcaliPhi - iWedge->iPhi()) <= 2) && (global_r > Hcal_R_Min && global_r < Hcal_R_Max)) {
         bool StoreWedge = true;
         for (unsigned int i = 0; i < vHcaliPhi.size(); i++)
@@ -248,19 +248,16 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
 
       //avoid segments from collision muons
       if (TheMuons.isValid()) {
-        for (reco::MuonCollection::const_iterator mu = TheMuons->begin(); mu != TheMuons->end() && (Segment1IsGood);
-             mu++) {
+        for (auto mu = TheMuons->begin(); mu != TheMuons->end() && (Segment1IsGood); mu++) {
           if (!mu->isTrackerMuon() && !mu->isGlobalMuon() && mu->isStandAloneMuon())
             continue;
           if (!mu->isGlobalMuon() && mu->isTrackerMuon() && mu->pt() < 3)
             continue;
           const std::vector<MuonChamberMatch> chambers = mu->matches();
-          for (std::vector<MuonChamberMatch>::const_iterator kChamber = chambers.begin(); kChamber != chambers.end();
-               kChamber++) {
+          for (auto kChamber = chambers.begin(); kChamber != chambers.end(); kChamber++) {
             if (kChamber->detector() != MuonSubdetId::CSC)
               continue;
-            for (std::vector<reco::MuonSegmentMatch>::const_iterator kSegment = kChamber->segmentMatches.begin();
-                 kSegment != kChamber->segmentMatches.end();
+            for (auto kSegment = kChamber->segmentMatches.begin(); kSegment != kChamber->segmentMatches.end();
                  kSegment++) {
               edm::Ref<CSCSegmentCollection> cscSegRef = kSegment->cscSegmentRef;
               CSCDetId kCscDetID = cscSegRef->cscDetId();

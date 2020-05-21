@@ -161,7 +161,7 @@ const MTDGeometry::DetContainer& MTDGeometry::detsBTL() const { return theBTLDet
 const MTDGeometry::DetContainer& MTDGeometry::detsETL() const { return theETLDets; }
 
 const MTDGeomDet* MTDGeometry::idToDetUnit(DetId s) const {
-  mapIdToDetUnit::const_iterator p = theMapUnit.find(s.rawId());
+  auto p = theMapUnit.find(s.rawId());
   if (p != theMapUnit.end()) {
     return static_cast<const MTDGeomDet*>(p->second);
   }
@@ -169,7 +169,7 @@ const MTDGeomDet* MTDGeometry::idToDetUnit(DetId s) const {
 }
 
 const MTDGeomDet* MTDGeometry::idToDet(DetId s) const {
-  mapIdToDet::const_iterator p = theMap.find(s.rawId());
+  auto p = theMap.find(s.rawId());
   if (p != theMap.end()) {
     return static_cast<const MTDGeomDet*>(p->second);
   }

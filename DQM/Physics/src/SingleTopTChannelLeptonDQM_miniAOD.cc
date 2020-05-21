@@ -654,8 +654,7 @@ namespace SingleTopTChannelLepton_miniAOD {
 
     pat::MET mET;
 
-    for (std::vector<edm::EDGetTokenT<edm::View<pat::MET>>>::const_iterator met_ = mets_.begin(); met_ != mets_.end();
-         ++met_) {
+    for (auto met_ = mets_.begin(); met_ != mets_.end(); ++met_) {
       edm::Handle<edm::View<pat::MET>> met;
       if (!event.getByToken(*met_, met))
         continue;
@@ -773,8 +772,7 @@ SingleTopTChannelLeptonDQM_miniAOD::SingleTopTChannelLeptonDQM_miniAOD(const edm
                            new SingleTopTChannelLepton_miniAOD::MonitorEnsemble(
                                selectionStep(selectionOrder_.back()).c_str(), setup_, consumesCollector())));
   }
-  for (std::vector<std::string>::const_iterator selIt = selectionOrder_.begin(); selIt != selectionOrder_.end();
-       ++selIt) {
+  for (auto selIt = selectionOrder_.begin(); selIt != selectionOrder_.end(); ++selIt) {
     std::string key = selectionStep(*selIt), type = objectType(*selIt);
     if (selection_.find(key) != selection_.end()) {
       if (type == "muons") {
@@ -823,8 +821,7 @@ void SingleTopTChannelLeptonDQM_miniAOD::analyze(const edm::Event& event, const 
   unsigned int passed = 0;
   unsigned int nJetSteps = -1;
 
-  for (std::vector<std::string>::const_iterator selIt = selectionOrder_.begin(); selIt != selectionOrder_.end();
-       ++selIt) {
+  for (auto selIt = selectionOrder_.begin(); selIt != selectionOrder_.end(); ++selIt) {
     std::string key = selectionStep(*selIt), type = objectType(*selIt);
     if (selection_.find(key) != selection_.end()) {
       if (type == "empty") {

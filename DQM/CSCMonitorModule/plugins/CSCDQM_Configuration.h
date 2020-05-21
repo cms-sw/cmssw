@@ -403,7 +403,7 @@ namespace cscdqm {
     void load(const edm::ParameterSet& ps) {
       BOOST_PP_SEQ_FOR_EACH_I(CONFIG_PARAMETER_LOADPS_MACRO, _, CONFIG_PARAMETERS_SEQ)
       std::vector<std::string> moFilter = ps.getUntrackedParameter<std::vector<std::string> >("MO_FILTER");
-      for (std::vector<std::string>::iterator it = moFilter.begin(); it != moFilter.end(); it++) {
+      for (auto it = moFilter.begin(); it != moFilter.end(); it++) {
         std::string f = *it;
         if (!Utility::regexMatch("^[-+]/.*/$", f)) {
           LOG_WARN << "MO_FILTER item " << f << " does not recognized to be a valid one. Skipping...";
@@ -651,8 +651,8 @@ namespace cscdqm {
         it = chamberCounters.insert(chamberCounters.end(),
                                     ChamberCounterKeyType(crateId, dmbId, ChamberCounterMapType()));
       }
-      ChamberCounterMapType* cs = const_cast<ChamberCounterMapType*>(&it->counters);
-      ChamberCounterMapType::iterator itc = cs->find(counter);
+      auto* cs = const_cast<ChamberCounterMapType*>(&it->counters);
+      auto itc = cs->find(counter);
       if (itc == cs->end()) {
         cs->insert(std::make_pair(counter, value));
       } else {
@@ -688,7 +688,7 @@ namespace cscdqm {
       ChamberMapCounterMapType::iterator it = chamberCounters.find(boost::make_tuple(crateId, dmbId));
       if (it == chamberCounters.end())
         return 0;
-      ChamberCounterMapType::const_iterator itc = it->counters.find(counter);
+      auto itc = it->counters.find(counter);
       if (itc == it->counters.end())
         return 0;
       return itc->second;

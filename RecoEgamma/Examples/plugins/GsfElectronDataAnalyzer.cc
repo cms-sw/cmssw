@@ -1502,8 +1502,7 @@ void GsfElectronDataAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
   histNum_->Fill((*gsfElectrons).size());
 
   // selected rec electrons
-  for (reco::GsfElectronCollection::const_iterator gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end();
-       gsfIter++) {
+  for (auto gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end(); gsfIter++) {
     // select electrons
     if (gsfIter->superCluster()->energy() / cosh(gsfIter->superCluster()->eta()) < minEt_)
       continue;
@@ -1817,8 +1816,7 @@ void GsfElectronDataAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
 
     float enrj1 = gsfIter->superCluster()->energy();
     // mee
-    for (reco::GsfElectronCollection::const_iterator gsfIter2 = gsfIter + 1; gsfIter2 != gsfElectrons->end();
-         gsfIter2++) {
+    for (auto gsfIter2 = gsfIter + 1; gsfIter2 != gsfElectrons->end(); gsfIter2++) {
       math::XYZTLorentzVector p12 = (*gsfIter).p4() + (*gsfIter2).p4();
       float mee2 = p12.Dot(p12);
       float enrj2 = gsfIter2->superCluster()->energy();
@@ -1861,8 +1859,7 @@ void GsfElectronDataAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
   // association matching object-reco electrons
   int matchingObjectNum = 0;
 
-  for (reco::SuperClusterCollection::const_iterator moIter = recoClusters->begin(); moIter != recoClusters->end();
-       moIter++) {
+  for (auto moIter = recoClusters->begin(); moIter != recoClusters->end(); moIter++) {
     // number of matching objects
     matchingObjectNum++;
 
@@ -1888,8 +1885,7 @@ void GsfElectronDataAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
 
     // find matching electron
     reco::GsfElectron bestGsfElectron;
-    for (reco::GsfElectronCollection::const_iterator gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end();
-         gsfIter++) {
+    for (auto gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end(); gsfIter++) {
       // matching with a cone in eta phi
       if (matchingCondition_ == "Cone") {
         double dphi = gsfIter->phi() - moIter->phi();

@@ -176,7 +176,7 @@ QIE11Task::QIE11Task(edm::ParameterSet const& ps) : DQTask(ps) {
       continue;
     }
 
-    HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
+    auto eid = HcalElectronicsId(_ehashmap.lookup(did));
     if (!eid.rawId()) {
       continue;
     }

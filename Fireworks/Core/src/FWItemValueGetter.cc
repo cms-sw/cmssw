@@ -131,7 +131,7 @@ std::vector<std::string> FWItemValueGetter::getTitles() const {
   std::vector<std::string> titles;
   titles.reserve(m_entries.size());
 
-  for (std::vector<Entry>::const_iterator i = m_entries.begin(); i != m_entries.end(); ++i)
+  for (auto i = m_entries.begin(); i != m_entries.end(); ++i)
     titles.push_back((*i).m_title.empty() ? (*i).m_expression : (*i).m_title);
 
   return titles;
@@ -147,7 +147,7 @@ const std::string& FWItemValueGetter::getToolTip(const void* iObject) const {
   edm::ObjectWithDict o(m_type, const_cast<void*>(iObject));
 
   int off = 0;
-  for (std::vector<Entry>::const_iterator i = m_entries.begin(); i != m_entries.end(); ++i) {
+  for (auto i = m_entries.begin(); i != m_entries.end(); ++i) {
     const Entry& e = *i;
     off += snprintf(&buff[off],
                     127,

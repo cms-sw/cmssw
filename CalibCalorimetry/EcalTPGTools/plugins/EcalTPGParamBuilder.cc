@@ -609,7 +609,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     EcalLogicID ecid_xt;
     FEConfigPedDat rd_ped;
     int icells = 0;
-    for (CIfeped p = dataset_TpgPed.begin(); p != dataset_TpgPed.end(); p++) {
+    for (auto p = dataset_TpgPed.begin(); p != dataset_TpgPed.end(); p++) {
       ecid_xt = p->first;
       rd_ped = p->second;
 
@@ -679,7 +679,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     EcalLogicID ecid_xt;
     FEConfigPedDat rd_ped;
     int icells = 0;
-    for (CIfeped p = dataset_TpgPed.begin(); p != dataset_TpgPed.end(); p++) {
+    for (auto p = dataset_TpgPed.begin(); p != dataset_TpgPed.end(); p++) {
       ecid_xt = p->first;
       rd_ped = p->second;
 
@@ -902,7 +902,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       NbOfStripPerTCC[i][j] = 0;
   const std::vector<DetId>& ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
   const std::vector<DetId>& eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
-  for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
+  for (auto it = ebCells.begin(); it != ebCells.end(); ++it) {
     EBDetId id(*it);
     const EcalTrigTowerDetId towid = id.tower();
     const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id);
@@ -912,7 +912,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     if (stripInTower > NbOfStripPerTCC[tccNb - 1][towerInTCC - 1])
       NbOfStripPerTCC[tccNb - 1][towerInTCC - 1] = stripInTower;
   }
-  for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
+  for (auto it = eeCells.begin(); it != eeCells.end(); ++it) {
     EEDetId id(*it);
     const EcalTrigTowerDetId towid = (*eTTmap_).towerOf(id);
     const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id);
@@ -928,7 +928,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     (*out_file_) << "COMMENT ====== barrel crystals ====== " << std::endl;
 
   // special case of eta slices
-  for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
+  for (auto it = ebCells.begin(); it != ebCells.end(); ++it) {
     EBDetId id(*it);
     double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta();
     if (!useTransverseEnergy_)
@@ -1026,7 +1026,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   }
 
   // general case
-  for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
+  for (auto it = ebCells.begin(); it != ebCells.end(); ++it) {
     EBDetId id(*it);
     double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta();
     if (!useTransverseEnergy_)
@@ -1095,7 +1095,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     // compute and fill linearization parameters
     // case of eta slice
     if (forceEtaSlice_) {
-      map<int, linStruc>::const_iterator itLin = linEtaSlice.find(etaSlice);
+      auto itLin = linEtaSlice.find(etaSlice);
       if (itLin != linEtaSlice.end()) {
         linMap[xtalCCU] = itLin->second;
         if (writeToFiles_) {
@@ -1254,7 +1254,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     (*out_file_) << "COMMENT ====== endcap crystals ====== " << std::endl;
 
   // special case of eta slices
-  for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
+  for (auto it = eeCells.begin(); it != eeCells.end(); ++it) {
     EEDetId id(*it);
     double theta = theEndcapGeometry_->getGeometry(id)->getPosition().theta();
     if (!useTransverseEnergy_)
@@ -1371,7 +1371,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   }
 
   // general case
-  for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
+  for (auto it = eeCells.begin(); it != eeCells.end(); ++it) {
     EEDetId id(*it);
     double theta = theEndcapGeometry_->getGeometry(id)->getPosition().theta();
     if (!useTransverseEnergy_)
@@ -1440,7 +1440,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     // compute and fill linearization parameters
     // case of eta slice
     if (forceEtaSlice_) {
-      map<int, linStruc>::const_iterator itLin = linEtaSlice.find(etaSlice);
+      auto itLin = linEtaSlice.find(etaSlice);
       if (itLin != linEtaSlice.end()) {
         linMap[xtalCCU] = itLin->second;
         if (writeToFiles_) {
@@ -1784,7 +1784,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       FEConfigFgrEEStripDat zut;
       EcalLogicID thestrip = my_StripEcalLogicId[ich];
       uint32_t elStripId = stripMapEB[ich];
-      map<uint32_t, uint32_t>::const_iterator it = stripMapEBsintheta.find(elStripId);
+      auto it = stripMapEBsintheta.find(elStripId);
       if (it != stripMapEBsintheta.end())
         zut.setThreshold(it->second);
       else {
@@ -1835,7 +1835,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       EcalLogicID logiciddelay = my_TTEcalLogicId_EB_by_TCC[ich];
       int id1_tcc = my_TTEcalLogicId_EB_by_TCC[ich].getID1();  // the TCC
       int id2_tt = my_TTEcalLogicId_EB_by_TCC[ich].getID2();   // the tower
-      std::map<int, vector<int> >::const_iterator ittEB = delays_EB_.find(id1_tcc);
+      auto ittEB = delays_EB_.find(id1_tcc);
       std::vector<int> TimingDelaysEB = ittEB->second;
 
       if (ittEB != delays_EB_.end()) {
@@ -1853,7 +1853,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
         delay.setTimingPar1(1);
       }
 
-      std::map<int, vector<int> >::const_iterator ittpEB = phases_EB_.find(id1_tcc);
+      auto ittpEB = phases_EB_.find(id1_tcc);
       std::vector<int> TimingPhasesEB = ittpEB->second;
 
       if (ittpEB != phases_EB_.end()) {
@@ -1899,7 +1899,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
         stripindex = 0;
       }
 
-      std::map<int, vector<int> >::const_iterator ittEE = delays_EE_.find(id1_tcc);
+      auto ittEE = delays_EE_.find(id1_tcc);
       std::vector<int> TimingDelaysEE = ittEE->second;
 
       if (ittEE != delays_EE_.end()) {
@@ -1917,7 +1917,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
         delay.setTimingPar1(1);
       }
 
-      std::map<int, vector<int> >::const_iterator ittpEE = phases_EE_.find(id1_tcc);
+      auto ittpEE = phases_EE_.find(id1_tcc);
       std::vector<int> TimingPhasesEE = ittpEE->second;
 
       if (ittpEE != phases_EE_.end()) {
@@ -2573,10 +2573,10 @@ void EcalTPGParamBuilder::getCoeff(coeffStruc& coeff,
   coeff.calibCoeff_ = 1.;
   if (!useInterCalibration_)
     return;
-  EcalIntercalibConstantMap::const_iterator icalit = calibMap.find(rawId);
+  auto icalit = calibMap.find(rawId);
 
   //modif-alex-30/01/2012
-  std::map<int, double>::const_iterator itCorr = Transparency_Correction_.find(rawId);
+  auto itCorr = Transparency_Correction_.find(rawId);
   double icorr = 1.0;
   double alpha_factor = 1.0;
 
@@ -2602,7 +2602,7 @@ void EcalTPGParamBuilder::getCoeff(coeffStruc& coeff,
     st += "DETID=" + ss.str() + "\n";
     if (ECALdetid.subdetId() == 1) {  //ECAL BARREL
       EBDetId barrel_detid(rawId);
-      EcalLaserAlphaMap::const_iterator italpha = laserAlphaMap.find(barrel_detid);
+      auto italpha = laserAlphaMap.find(barrel_detid);
       if (italpha != laserAlphaMap.end())
         alpha_factor = (*italpha);
       else
@@ -2611,7 +2611,7 @@ void EcalTPGParamBuilder::getCoeff(coeffStruc& coeff,
     }
     if (ECALdetid.subdetId() == 2) {  //ECAL ENDCAP
       EEDetId endcap_detid(rawId);
-      EcalLaserAlphaMap::const_iterator italpha = laserAlphaMap.find(endcap_detid);
+      auto italpha = laserAlphaMap.find(endcap_detid);
       if (italpha != laserAlphaMap.end())
         alpha_factor = (*italpha);
       else
@@ -2646,7 +2646,7 @@ void EcalTPGParamBuilder::getCoeff(coeffStruc& coeff, const EcalGainRatioMap& ga
   coeff.gainRatio_[0] = 1.;
   coeff.gainRatio_[1] = 2.;
   coeff.gainRatio_[2] = 12.;
-  EcalGainRatioMap::const_iterator gainIter = gainMap.find(rawId);
+  auto gainIter = gainMap.find(rawId);
   if (gainIter != gainMap.end()) {
     const EcalMGPAGainRatio& aGain = (*gainIter);
     coeff.gainRatio_[1] = aGain.gain12Over6();
@@ -2669,7 +2669,7 @@ void EcalTPGParamBuilder::getCoeff(coeffStruc& coeff, const EcalPedestalsMap& pe
   }
 
   // get current pedestal
-  EcalPedestalsMapIterator pedIter = pedMap.find(rawId);
+  auto pedIter = pedMap.find(rawId);
   if (pedIter != pedMap.end()) {
     EcalPedestals::Item aped = (*pedIter);
     coeff.pedestals_[0] = int(aped.mean_x12 + 0.5);
@@ -2687,7 +2687,7 @@ void EcalTPGParamBuilder::getCoeff(coeffStruc& coeff,
   coeff.pedestals_[1] = 0;
   coeff.pedestals_[2] = 0;
 
-  map<EcalLogicID, MonPedestalsDat>::const_iterator it = pedMap.find(logicId);
+  auto it = pedMap.find(logicId);
   if (it != pedMap.end()) {
     MonPedestalsDat ped = it->second;
     coeff.pedestals_[0] = int(ped.getPedMeanG12() + 0.5);

@@ -139,7 +139,7 @@ void GlobalMuonMatchAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
       h_shouldMatch->Fill(rTk->eta(), rTk->pt());
     }
 
-    for (reco::MuonTrackLinksCollection::const_iterator links = muHandle->begin(); links != muHandle->end(); ++links) {
+    for (auto links = muHandle->begin(); links != muHandle->end(); ++links) {
       if (rGlb == RefToBase<Track>(links->globalTrack())) {
         if (RefToBase<Track>(links->trackerTrack()) == rTk && RefToBase<Track>(links->standAloneTrack()) == rSta) {
           //goodMatch
@@ -159,7 +159,7 @@ void GlobalMuonMatchAnalyzer::analyze(const edm::Event &iEvent, const edm::Event
 
   ////////
 
-  for (reco::MuonTrackLinksCollection::const_iterator links = muHandle->begin(); links != muHandle->end(); ++links) {
+  for (auto links = muHandle->begin(); links != muHandle->end(); ++links) {
     RefToBase<Track> glbRef = RefToBase<Track>(links->globalTrack());
     RefToBase<Track> staRef = RefToBase<Track>(links->standAloneTrack());
     RefToBase<Track> tkRef = RefToBase<Track>(links->trackerTrack());

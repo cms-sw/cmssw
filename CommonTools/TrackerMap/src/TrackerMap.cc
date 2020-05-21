@@ -81,7 +81,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet &tkmapPset,
     std::cout << "SiStripFedCabling has " << feds.size() << " active FEDS" << std::endl;
     //    int num_board=0;
     //    int num_crate=0;
-    for (std::vector<unsigned short>::const_iterator ifed = feds.begin(); ifed < feds.end(); ifed++) {
+    for (auto ifed = feds.begin(); ifed < feds.end(); ifed++) {
       auto theconn = tkFed->fedConnections(*ifed);
       int num_conn = 0;
       for (auto iconn = theconn.begin(); iconn < theconn.end(); iconn++) {
@@ -177,26 +177,19 @@ TrackerMap::TrackerMap(const edm::ParameterSet &tkmapPset,
       }
     }
 
-    for (std::vector<SiStripFecCrate>::const_iterator icrate = fecCabling_->crates().begin();
-         icrate != fecCabling_->crates().end();
-         icrate++) {
-      for (std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end();
-           ifec++) {
-        for (std::vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end();
-             iring++) {
+    for (auto icrate = fecCabling_->crates().begin(); icrate != fecCabling_->crates().end(); icrate++) {
+      for (auto ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++) {
+        for (auto iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++) {
           nccu = 0;
           nfec++;
-          for (std::vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end();
-               iccu++) {
+          for (auto iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++) {
             nccu++;
             nmod = 0;
             int key =
                 icrate->fecCrate() * 10000000 + ifec->fecSlot() * 100000 + iring->fecRing() * 1000 + iccu->ccuAddr();
             int layer = 0;
             TmCcu *ccu = ccuMap[key];
-            for (std::vector<SiStripModule>::const_iterator imod = iccu->modules().begin();
-                 imod != iccu->modules().end();
-                 imod++) {
+            for (auto imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++) {
               nmod++;
               TmModule *imod1 = imoduleMap[imod->detId()];
               layer = imod1->layer;
@@ -1106,7 +1099,7 @@ void TrackerMap::save(bool print_total, float minval, float maxval, std::string 
       delete MyL;
       if (printflag)
         delete axis;
-      for (std::vector<TPolyLine *>::iterator pos1 = vp.begin(); pos1 != vp.end(); pos1++) {
+      for (auto pos1 = vp.begin(); pos1 != vp.end(); pos1++) {
         delete (*pos1);
       }
     }
@@ -1967,7 +1960,7 @@ void TrackerMap::save_as_fectrackermap(
       delete MyC;
       if (printflag && !saveWebInterface)
         delete axis;
-      for (std::vector<TPolyLine *>::iterator pos1 = vp.begin(); pos1 != vp.end(); pos1++) {
+      for (auto pos1 = vp.begin(); pos1 != vp.end(); pos1++) {
         delete (*pos1);
       }
 
@@ -2287,7 +2280,7 @@ void TrackerMap::save_as_HVtrackermap(
       delete MyC;
       if (printflag && !saveWebInterface)
         delete axis;
-      for (std::vector<TPolyLine *>::iterator pos1 = vp.begin(); pos1 != vp.end(); pos1++) {
+      for (auto pos1 = vp.begin(); pos1 != vp.end(); pos1++) {
         delete (*pos1);
       }
 
@@ -2593,7 +2586,7 @@ void TrackerMap::save_as_psutrackermap(
       delete MyC;
       if (printflag && !saveWebInterface)
         delete axis;
-      for (std::vector<TPolyLine *>::iterator pos1 = vp.begin(); pos1 != vp.end(); pos1++) {
+      for (auto pos1 = vp.begin(); pos1 != vp.end(); pos1++) {
         delete (*pos1);
       }
 
@@ -2898,7 +2891,7 @@ void TrackerMap::save_as_fedtrackermap(
       delete MyC;
       if (printflag && !saveWebInterface)
         delete axis;
-      for (std::vector<TPolyLine *>::iterator pos1 = vp.begin(); pos1 != vp.end(); pos1++) {
+      for (auto pos1 = vp.begin(); pos1 != vp.end(); pos1++) {
         delete (*pos1);
       }
 

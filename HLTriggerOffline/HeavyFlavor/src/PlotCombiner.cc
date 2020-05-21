@@ -35,7 +35,7 @@ PlotCombiner::PlotCombiner(const edm::ParameterSet &pset)
       plots(pset.getUntrackedParameter<VParameterSet>("Plots")) {}
 
 void PlotCombiner::dqmEndJob(DQMStore::IBooker &ibooker_, DQMStore::IGetter &igetter_) {
-  for (VParameterSet::const_iterator pset = plots.begin(); pset != plots.end(); pset++) {
+  for (auto pset = plots.begin(); pset != plots.end(); pset++) {
     makePlot(*pset, ibooker_, igetter_);
   }
 }

@@ -10,7 +10,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 void SamplingSummaryFactory::extract(Iterator iter) {
-  SamplingAnalysis* anal = dynamic_cast<SamplingAnalysis*>(iter->second);
+  auto* anal = dynamic_cast<SamplingAnalysis*>(iter->second);
   if (!anal) {
     return;
   }

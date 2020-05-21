@@ -434,7 +434,7 @@ void CastorShowerLibraryMaker::update(const EndOfEvent* evt) {
   // access to the G4 hit collections
   G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
   int CAFIid = G4SDManager::GetSDMpointer()->GetCollectionID("CastorFI");
-  CaloG4HitCollection* theCAFI = (CaloG4HitCollection*)allHC->GetHC(CAFIid);
+  auto* theCAFI = (CaloG4HitCollection*)allHC->GetHC(CAFIid);
   if (verbosity)
     edm::LogInfo("CastorShowerLibraryMaker") << " update(*evt) --> accessed all HC ";
   edm::LogInfo("CastorShowerLibraryMaker") << "Found " << theCAFI->entries() << " hits in G4HitCollection";
@@ -902,7 +902,7 @@ bool CastorShowerLibraryMaker::FillShowerEvent(CaloG4HitCollection* theCAFI, Cas
     return false;
   }
 
-  CastorNumberingScheme* theCastorNumScheme = new CastorNumberingScheme();
+  auto* theCastorNumScheme = new CastorNumberingScheme();
   // Hit position
   math::XYZPoint entry;
   math::XYZPoint position;

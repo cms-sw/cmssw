@@ -18,7 +18,7 @@ using namespace std;
 MagBSector::MagBSector(vector<MagBRod*>& rods, Geom::Phi<float> phiMin) : theRods(rods), thePhiMin(phiMin) {}
 
 MagBSector::~MagBSector() {
-  for (vector<MagBRod*>::const_iterator irod = theRods.begin(); irod != theRods.end(); ++irod) {
+  for (auto irod = theRods.begin(); irod != theRods.end(); ++irod) {
     delete (*irod);
   }
 }
@@ -28,7 +28,7 @@ const MagVolume* MagBSector::findVolume(const GlobalPoint& gp, double tolerance)
   Geom::Phi<float> phi = gp.phi();
 
   // FIXME : use a binfinder
-  for (vector<MagBRod*>::const_iterator irod = theRods.begin(); irod != theRods.end(); ++irod) {
+  for (auto irod = theRods.begin(); irod != theRods.end(); ++irod) {
     LogTrace("MagGeometry") << "     Trying rod at phi " << (*irod)->minPhi() << " " << phi << endl;
     result = (*irod)->findVolume(gp, tolerance);
     if (result != nullptr)

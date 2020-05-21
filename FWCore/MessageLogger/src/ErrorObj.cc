@@ -141,7 +141,7 @@ namespace edm {
 
   ELstring ErrorObj::fullText() const {
     ELstring result;
-    for (ELlist_string::const_iterator it = myItems.begin(); it != myItems.end(); ++it)
+    for (auto it = myItems.begin(); it != myItems.end(); ++it)
       result += *it;
     return result;
 

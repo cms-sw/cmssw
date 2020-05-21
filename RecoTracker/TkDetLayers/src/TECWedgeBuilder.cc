@@ -19,7 +19,7 @@ TECWedge* TECWedgeBuilder::build(const GeometricDet* aTECWedge, const TrackerGeo
 
   //---- to evaluate meanZ
   double meanZ = 0;
-  for (vector<const GeometricDet*>::const_iterator it = theGeometricDets.begin(); it != theGeometricDets.end(); it++) {
+  for (auto it = theGeometricDets.begin(); it != theGeometricDets.end(); it++) {
     meanZ = meanZ + (*it)->positionBounds().z();
   }
 
@@ -27,7 +27,7 @@ TECWedge* TECWedgeBuilder::build(const GeometricDet* aTECWedge, const TrackerGeo
   //edm::LogInfo(TkDetLayers) << "meanZ: " << meanZ ;
   //----
 
-  for (vector<const GeometricDet*>::const_iterator it = theGeometricDets.begin(); it != theGeometricDets.end(); it++) {
+  for (auto it = theGeometricDets.begin(); it != theGeometricDets.end(); it++) {
     //double theGeometricDetRposition = (*it)->positionBounds().perp();
     const GeomDet* theGeomDet = theGeomDetGeometry->idToDet((*it)->geographicalID());
     //double theGeomDetRposition = theGeomDet->surface().position().perp();

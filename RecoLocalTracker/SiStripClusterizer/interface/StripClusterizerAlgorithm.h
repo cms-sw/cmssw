@@ -96,7 +96,7 @@ protected:
 private:
   template <class T>
   void clusterize_(const T& input, output_t& output) const {
-    for (typename T::const_iterator it = input.begin(); it != input.end(); it++) {
+    for (auto it = input.begin(); it != input.end(); it++) {
       output_t::TSFastFiller ff(output, it->detId());
       clusterizeDetUnit(*it, ff);
       if (ff.empty())

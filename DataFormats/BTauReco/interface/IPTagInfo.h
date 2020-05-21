@@ -165,7 +165,7 @@ namespace reco {
       pv = GlobalPoint(primaryVertex()->x(), primaryVertex()->y(), primaryVertex()->z());
 
     std::vector<size_t> indexes = sortedIndexes();  // use default criterium
-    for (std::vector<size_t>::const_iterator it = indexes.begin(); it != indexes.end(); ++it) {
+    for (auto it = indexes.begin(); it != indexes.end(); ++it) {
       using namespace ROOT::Math;
       const Track* track = selectedTrack(*it);
       const btag::TrackIPData* data = &m_data[*it];
@@ -278,13 +278,13 @@ namespace reco {
 
     //Descending:
     if (mode == IP3DSig || mode == IP2DSig || mode == IP3DValue || mode == IP2DValue) {
-      for (std::multimap<float, size_t>::reverse_iterator it = sortedIdx.rbegin(); it != sortedIdx.rend(); it++)
+      for (auto it = sortedIdx.rbegin(); it != sortedIdx.rend(); it++)
         if (it->first >= cut)
           result.push_back(it->second);
     } else
     //Ascending:
     {
-      for (std::multimap<float, size_t>::iterator it = sortedIdx.begin(); it != sortedIdx.end(); it++)
+      for (auto it = sortedIdx.begin(); it != sortedIdx.end(); it++)
         if (it->first <= cut)
           result.push_back(it->second);
     }

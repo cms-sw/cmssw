@@ -99,8 +99,7 @@ void MuonToSimAssociatorByHits::associateMuons(MuonToSimCollection &recToSim,
         std::pair<size_t, size_t> indices(allTMRecHits.size(), allTMRecHits.size());
         if (mur->isTrackerMuon()) {
           std::vector<const TrackingRecHit *> hits = hitExtractor.getMuonHits(*mur);
-          for (std::vector<const TrackingRecHit *>::const_iterator ith = hits.begin(), edh = hits.end(); ith != edh;
-               ++ith) {
+          for (auto ith = hits.begin(), edh = hits.end(); ith != edh; ++ith) {
             allTMRecHits.push_back(**ith);
           }
           indices.second += hits.size();
@@ -109,11 +108,8 @@ void MuonToSimAssociatorByHits::associateMuons(MuonToSimCollection &recToSim,
       }
       // convert indices into pairs of iterators to references
       typedef std::pair<size_t, size_t> index_pair;
-      trackingRecHit_iterator hitRefBegin = allTMRecHits.data().begin();
-      for (std::vector<std::pair<size_t, size_t>>::const_iterator idxs = muonHitIndices.begin(),
-                                                                  idxend = muonHitIndices.end();
-           idxs != idxend;
-           ++idxs) {
+      auto hitRefBegin = allTMRecHits.data().begin();
+      for (auto idxs = muonHitIndices.begin(), idxend = muonHitIndices.end(); idxs != idxend; ++idxs) {
         muonHitRefs.push_back(std::make_pair(hitRefBegin + idxs->first, hitRefBegin + idxs->second));
       }
 

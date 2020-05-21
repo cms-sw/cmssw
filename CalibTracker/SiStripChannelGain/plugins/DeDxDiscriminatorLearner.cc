@@ -142,7 +142,7 @@ void DeDxDiscriminatorLearner::algoAnalyze(const edm::Event& iEvent, const edm::
     }
 
     const vector<TrajectoryMeasurement>& measurements = traj.measurements();
-    for (vector<TrajectoryMeasurement>::const_iterator it = measurements.begin(); it != measurements.end(); it++) {
+    for (auto it = measurements.begin(); it != measurements.end(); it++) {
       TrajectoryStateOnSurface trajState = it->updatedState();
       if (!trajState.isValid())
         continue;
@@ -192,7 +192,7 @@ void DeDxDiscriminatorLearner::processHit(const TrackingRecHit* recHit,
       Charge_Vs_Path->Fill(trackMomentum, pathLen, charge);
     }
   } else if (clus.isStrip() && thit.isMatched()) {
-    const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(recHit);
+    const auto* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(recHit);
     if (!matchedHit)
       return;
     const GluedGeomDet* gdet = static_cast<const GluedGeomDet*>(matchedHit->det());

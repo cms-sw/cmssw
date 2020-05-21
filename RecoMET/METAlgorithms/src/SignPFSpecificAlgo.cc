@@ -27,7 +27,7 @@ void metsig::SignPFSpecificAlgo::addPFJets(const edm::View<reco::PFJet>* PFJets)
   for (edm::View<reco::PFJet>::const_iterator jet = PFJets->begin(); jet != PFJets->end(); ++jet) {
     vobj.push_back(resolutions_->evalPFJet(&(*jet)));
     std::vector<reco::PFCandidatePtr> pfs = jet->getPFConstituents();
-    for (std::vector<reco::PFCandidatePtr>::const_iterator it = pfs.begin(); it != pfs.end(); ++it) {
+    for (auto it = pfs.begin(); it != pfs.end(); ++it) {
       reco::CandidatePtr ptr(*it);
       clusteredParticlePtrs_.insert(ptr);
     }
@@ -37,7 +37,7 @@ void metsig::SignPFSpecificAlgo::addPFJets(const edm::View<reco::PFJet>* PFJets)
 
 //____________________________________________________________________________||
 void metsig::SignPFSpecificAlgo::useOriginalPtrs(const edm::ProductID& productID) {
-  std::set<reco::CandidatePtr>::const_iterator it = clusteredParticlePtrs_.begin();
+  auto it = clusteredParticlePtrs_.begin();
   reco::CandidatePtr ptr(*it);
   if (ptr.id() == productID)
     return;  //If the first element is from the right product, return
@@ -72,7 +72,7 @@ reco::METCovMatrix metsig::SignPFSpecificAlgo::mkSignifMatrix(edm::Handle<edm::V
   for (edm::View<reco::Candidate>::const_iterator iParticle = (PFCandidates.product())->begin();
        iParticle != (PFCandidates.product())->end();
        ++iParticle) {
-    const reco::PFCandidate* pfCandidate = dynamic_cast<const reco::PFCandidate*>(&(*iParticle));
+    const auto* pfCandidate = dynamic_cast<const reco::PFCandidate*>(&(*iParticle));
     if (!pfCandidate)
       continue;
     reco::CandidatePtr dau(PFCandidates, iParticle - PFCandidates->begin());

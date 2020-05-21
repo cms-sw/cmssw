@@ -932,7 +932,7 @@ void SplitVertexResolution::endJob() {
       "evtsByTrigger", "events by HLT path;;% of # events", nFiringTriggers, -0.5, nFiringTriggers - 0.5);
 
   int i = 0;
-  for (std::map<std::string, std::pair<int, int> >::iterator it = triggerMap_.begin(); it != triggerMap_.end(); ++it) {
+  for (auto it = triggerMap_.begin(); it != triggerMap_.end(); ++it) {
     i++;
 
     double trkpercent = ((it->second).second) * 100. / double(itrks);

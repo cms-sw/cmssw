@@ -370,8 +370,7 @@ void TtSemiLepKinFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
     pStatus->push_back(-1);
   } else {
     unsigned int iComb = 0;
-    for (typename std::list<KinFitResult>::const_iterator result = FitResultList.begin(); result != FitResultList.end();
-         ++result) {
+    for (auto result = FitResultList.begin(); result != FitResultList.end(); ++result) {
       if (maxNComb_ >= 1 && iComb == (unsigned int)maxNComb_)
         break;
       iComb++;

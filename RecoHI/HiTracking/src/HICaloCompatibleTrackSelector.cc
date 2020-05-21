@@ -107,7 +107,7 @@ void HICaloCompatibleTrackSelector::produce(edm::Event& evt, const edm::EventSet
     isTowerThere = evt.getByToken(srcTower_, towers);
 
   size_t current = 0;
-  for (TI ti = hSrcTrack->begin(), ed = hSrcTrack->end(); ti != ed; ++ti, ++current) {
+  for (auto ti = hSrcTrack->begin(), ed = hSrcTrack->end(); ti != ed; ++ti, ++current) {
     const reco::Track& trk = *ti;
 
     bool isSelected;
@@ -144,7 +144,7 @@ void HICaloCompatibleTrackSelector::produce(edm::Event& evt, const edm::EventSet
       tx.setResiduals(trk.residuals());
       // TrackingRecHits
       auto const firstHitIndex = selHits_->size();
-      for (trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++hit) {
+      for (auto hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++hit) {
         selHits_->push_back((*hit)->clone());
       }
       tx.setHits(rHits_, firstHitIndex, selHits_->size() - firstHitIndex);
@@ -282,7 +282,7 @@ double HICaloCompatibleTrackSelector::matchPFCandToTrack(const edm::Handle<reco:
 
   // loop over the PFCandidates until you find the one whose trackRef points to the track
 
-  for (CI ci = pfCandidates->begin(); ci != pfCandidates->end(); ++ci) {
+  for (auto ci = pfCandidates->begin(); ci != pfCandidates->end(); ++ci) {
     const reco::PFCandidate& cand = *ci;
 
     int type = cand.particleId();

@@ -38,7 +38,7 @@ bool TransientTrackKinematicParticle::operator==(const KinematicParticle& other)
 
   //first looking if this is an object of the same type
   const KinematicParticle* lp = &other;
-  const TransientTrackKinematicParticle* lPart = dynamic_cast<const TransientTrackKinematicParticle*>(lp);
+  const auto* lPart = dynamic_cast<const TransientTrackKinematicParticle*>(lp);
   if (lPart != nullptr) {
     //then comparing particle with their initial TransientTracks
     if ((initialTransientTrack()) && (lPart->initialTransientTrack())) {
@@ -83,14 +83,14 @@ const TransientTrack* TransientTrackKinematicParticle::initialTransientTrack() c
 
 ReferenceCountingPointer<KinematicParticle> TransientTrackKinematicParticle::refittedParticle(
     const KinematicState& state, float chi2, float ndf, KinematicConstraint* cons) const {
-  TransientTrackKinematicParticle* ncp = const_cast<TransientTrackKinematicParticle*>(this);
+  auto* ncp = const_cast<TransientTrackKinematicParticle*>(this);
   return ReferenceCountingPointer<KinematicParticle>(new TransientTrackKinematicParticle(
       state, chi2, ndf, cons, ReferenceCountingPointer<KinematicParticle>(ncp), propagator, initialTransientTrack()));
 }
 
 TransientTrackKinematicParticle::RefCountedLinearizedTrackState
 TransientTrackKinematicParticle::particleLinearizedTrackState(const GlobalPoint& point) const {
-  TransientTrackKinematicParticle* cr = const_cast<TransientTrackKinematicParticle*>(this);
+  auto* cr = const_cast<TransientTrackKinematicParticle*>(this);
   RefCountedKinematicParticle lp = ReferenceCountingPointer<KinematicParticle>(cr);
   return linFactory.linearizedTrackState(point, lp);
 }

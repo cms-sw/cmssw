@@ -90,7 +90,7 @@ void EcalEGL::fillNamedParams(const cms::DDFilteredView& fv, EcalEndcapGeometry*
   const std::string specName = "ecal_ee";
 
   //ncrys
-  std::vector<double> tempD = fv.get<std::vector<double> >(specName, "ncrys");
+  auto tempD = fv.get<std::vector<double> >(specName, "ncrys");
   assert(tempD.size() == 1);
   geom->setNumberOfCrystalPerModule((int)tempD[0]);
 

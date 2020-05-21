@@ -26,7 +26,7 @@ bool HcalTB02ParametersFromDD::build(const DDCompactView* cpv, HcalTB02Parameter
     dodet = fv.next();
   }
   edm::LogVerbatim("HcalTBSim") << "HcalTB02ParametersFromDD: Length Table for ReadOutName = " << name << ":";
-  std::map<std::string, double>::const_iterator it = php.lengthMap_.begin();
+  auto it = php.lengthMap_.begin();
   int i = 0;
   for (; it != php.lengthMap_.end(); it++, i++) {
     edm::LogVerbatim("HcalTBSim") << " " << i << " " << it->first << " L = " << it->second;
@@ -48,7 +48,7 @@ bool HcalTB02ParametersFromDD::build(const cms::DDCompactView* cpv, HcalTB02Para
     }
   }
   edm::LogVerbatim("HcalTBSim") << "HcalTB02ParametersFromDD: Length Table for ReadOutName = " << name << ":";
-  std::map<std::string, double>::const_iterator it = php.lengthMap_.begin();
+  auto it = php.lengthMap_.begin();
   int i = 0;
   for (; it != php.lengthMap_.end(); it++, i++) {
     edm::LogVerbatim("HcalTBSim") << " " << i << " " << it->first << " L = " << it->second;

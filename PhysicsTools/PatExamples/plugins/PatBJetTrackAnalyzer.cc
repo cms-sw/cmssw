@@ -189,7 +189,7 @@ void PatBJetTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetu
   math::XYZPoint pv = (*pvHandle)[0].position();
 
   // now go through all jets
-  for (pat::JetCollection::const_iterator jet = jetsHandle->begin(); jet != jetsHandle->end(); ++jet) {
+  for (auto jet = jetsHandle->begin(); jet != jetsHandle->end(); ++jet) {
     // only look at jets that pass the pt and eta cut
     if (jet->pt() < jetPtCut_ || std::abs(jet->eta()) > jetEtaCut_)
       continue;
@@ -228,7 +228,7 @@ void PatBJetTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetu
     // withour rerunning the PAT producer
 
     // now loop through all tracks
-    for (reco::TrackCollection::const_iterator track = tracksHandle->begin(); track != tracksHandle->end(); ++track) {
+    for (auto track = tracksHandle->begin(); track != tracksHandle->end(); ++track) {
       // check the quality criteria
       if (track->pt() < minPt_ || track->hitPattern().numberOfValidHits() < (int)minTotalHits_ ||
           track->hitPattern().numberOfValidPixelHits() < (int)minPixelHits_)
@@ -292,7 +292,7 @@ void PatBJetTrackAnalyzer::analyze(const edm::Event &event, const edm::EventSetu
 
     // plot all tracks
 
-    for (std::vector<Measurement1D>::const_iterator iter = ipValErr.begin(); iter != ipValErr.end(); ++iter) {
+    for (auto iter = ipValErr.begin(); iter != ipValErr.end(); ++iter) {
       plots_[ALL_JETS].allIP->Fill(iter->value());
       plots_[flavour].allIP->Fill(iter->value());
 

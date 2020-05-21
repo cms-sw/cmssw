@@ -16,7 +16,7 @@ AlgebraicVector MultiTrackPointingKinematicConstraint::value(const std::vector<K
   double ds = sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2));
 
   double pxSum = 0, pySum = 0, pzSum = 0;
-  for (std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++) {
+  for (auto i = states.begin(); i != states.end(); i++) {
     double a = -i->particleCharge() * i->magneticField()->inInverseGeV(i->globalPosition()).z();
 
     pxSum += i->kinematicParameters()(3) - a * (point.y() - i->kinematicParameters()(1));
@@ -43,7 +43,7 @@ AlgebraicMatrix MultiTrackPointingKinematicConstraint::parametersDerivative(cons
   AlgebraicMatrix matrix(2, num * 7, 0);  //AlgebraicMatrix starts from 1
 
   double pxSum = 0, pySum = 0, pzSum = 0;
-  for (std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++) {
+  for (auto i = states.begin(); i != states.end(); i++) {
     double a = -i->particleCharge() * i->magneticField()->inInverseGeV(i->globalPosition()).z();
 
     pxSum += i->kinematicParameters()(3) - a * (point.y() - i->kinematicParameters()(1));
@@ -55,7 +55,7 @@ AlgebraicMatrix MultiTrackPointingKinematicConstraint::parametersDerivative(cons
   double pSum = sqrt(pow(pxSum, 2) + pow(pySum, 2) + pow(pzSum, 2));
 
   int col = 0;
-  for (std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++) {
+  for (auto i = states.begin(); i != states.end(); i++) {
     double a = -i->particleCharge() * i->magneticField()->inInverseGeV(i->globalPosition()).z();
 
     matrix(1, 1 + col * 7) = a * (1 / pT + (-pT + pxSum) / pow(pySum, 2));  //dH/dx
@@ -94,7 +94,7 @@ AlgebraicMatrix MultiTrackPointingKinematicConstraint::positionDerivative(const 
   double ds = sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2));
 
   double pxSum = 0, pySum = 0, pzSum = 0, aSum = 0;
-  for (std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++) {
+  for (auto i = states.begin(); i != states.end(); i++) {
     double a = -i->particleCharge() * i->magneticField()->inInverseGeV(i->globalPosition()).z();
     aSum += a;
 

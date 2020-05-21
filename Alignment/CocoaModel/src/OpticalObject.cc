@@ -1578,7 +1578,7 @@ void OpticalObject::resetGlobalCoordinates() {
   //---------- Reset extra entries
   //---------- Set extra entry values list
   std::vector<ALIdouble>::iterator vdite;
-  std::vector<ALIdouble>::const_iterator vdcite_o = ExtraEntryValueOriginalList().begin();
+  auto vdcite_o = ExtraEntryValueOriginalList().begin();
   for (vdite = ExtraEntryValueList().begin(); vdite != ExtraEntryValueList().end(); ++vdite, ++vdcite_o) {
     (*vdite) = (*vdcite_o);
   }
@@ -1608,9 +1608,9 @@ void OpticalObject::resetOriginalOriginalCoordinates() {
 
   //---------- Reset extra entry values list
   std::vector<ALIdouble>::iterator vdite;
-  std::vector<ALIdouble>::iterator vdite_o = theExtraEntryValueOriginalVector.begin();
-  std::vector<ALIdouble>::const_iterator vdcite_oo = theExtraEntryValueOriginalOriginalVector.begin();
-  std::vector<Entry*>::const_iterator vdciteE = ExtraEntryList().begin();
+  auto vdite_o = theExtraEntryValueOriginalVector.begin();
+  auto vdcite_oo = theExtraEntryValueOriginalOriginalVector.begin();
+  auto vdciteE = ExtraEntryList().begin();
   for (vdite = ExtraEntryValueList().begin(); vdite != ExtraEntryValueList().end();
        ++vdite, ++vdite_o, ++vdcite_oo, ++vdciteE) {
     (*vdite) = (*vdcite_oo);

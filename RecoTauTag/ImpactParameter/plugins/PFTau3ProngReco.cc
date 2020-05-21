@@ -126,7 +126,7 @@ PFTau3ProngReco::~PFTau3ProngReco() {}
 
 namespace {
   inline const reco::Track* getTrack(const reco::Candidate& cand) {
-    const reco::PFCandidate* pfCandPtr = dynamic_cast<const reco::PFCandidate*>(&cand);
+    const auto* pfCandPtr = dynamic_cast<const reco::PFCandidate*>(&cand);
     if (pfCandPtr) {
       if (pfCandPtr->trackRef().isNonnull())
         return pfCandPtr->trackRef().get();
@@ -135,7 +135,7 @@ namespace {
       else
         return nullptr;
     }
-    const pat::PackedCandidate* packedCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
+    const auto* packedCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
     if (packedCand != nullptr)
       return packedCand->bestTrack();
 
@@ -243,8 +243,7 @@ void PFTau3ProngReco::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             GlobalPoint pvpoint(
                 primaryVertex->position().x(), primaryVertex->position().y(), primaryVertex->position().z());
             const std::vector<edm::Ptr<reco::Candidate>> cands = tau->signalChargedHadrCands();
-            for (std::vector<edm::Ptr<reco::Candidate>>::const_iterator iter = cands.begin(); iter != cands.end();
-                 ++iter) {
+            for (auto iter = cands.begin(); iter != cands.end(); ++iter) {
               const reco::Track* track = getTrack(**iter);
               if (track != nullptr) {
                 reco::TransientTrack transTrk = transTrackBuilder->build(*track);

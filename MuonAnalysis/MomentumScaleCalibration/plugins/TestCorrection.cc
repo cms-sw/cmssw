@@ -278,7 +278,7 @@ void TestCorrection::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   // Loop on the recMuons
-  std::vector<MuScleFitMuon>::const_iterator recMuon = muons.begin();
+  auto recMuon = muons.begin();
   int muonCount = 0;
   for (; recMuon != muons.end(); ++recMuon, ++muonCount) {
     // Fill the histogram with uncorrected pt values

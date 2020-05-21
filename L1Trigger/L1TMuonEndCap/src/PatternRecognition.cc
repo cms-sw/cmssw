@@ -45,7 +45,7 @@ void PatternRecognition::configure_details() {
       const std::vector<std::string>& tokens = split_string(s, ',', ':');  // split by comma or colon
       emtf_assert(tokens.size() == 9);                                     // want to find 9 numbers
 
-      std::vector<std::string>::const_iterator tokens_it = tokens.begin();
+      auto tokens_it = tokens.begin();
 
       // Get the 9 integers
       // straightness, hits in ME1, hits in ME2, hits in ME3, hits in ME4
@@ -98,7 +98,7 @@ void PatternRecognition::configure_details() {
       const std::vector<std::string>& tokens = split_string(s, ',', ':');  // split by comma or colon
       emtf_assert(tokens.size() == 17);                                    // want to find 17 numbers
 
-      std::vector<std::string>::const_iterator tokens_it = tokens.begin();
+      auto tokens_it = tokens.begin();
 
       // Get the 17 integers
       // straightness, hits in ME1, hits in ME2, hits in ME3, hits in ME4
@@ -273,12 +273,12 @@ bool PatternRecognition::is_zone_empty(int zone,
   int num_conv_hits = 0;
   int num_patts = 0;
 
-  std::deque<EMTFHitCollection>::const_iterator ext_conv_hits_it = extended_conv_hits.begin();
-  std::deque<EMTFHitCollection>::const_iterator ext_conv_hits_end = extended_conv_hits.end();
+  auto ext_conv_hits_it = extended_conv_hits.begin();
+  auto ext_conv_hits_end = extended_conv_hits.end();
 
   for (; ext_conv_hits_it != ext_conv_hits_end; ++ext_conv_hits_it) {
-    EMTFHitCollection::const_iterator conv_hits_it = ext_conv_hits_it->begin();
-    EMTFHitCollection::const_iterator conv_hits_end = ext_conv_hits_it->end();
+    auto conv_hits_it = ext_conv_hits_it->begin();
+    auto conv_hits_end = ext_conv_hits_it->end();
 
     for (; conv_hits_it != conv_hits_end; ++conv_hits_it) {
       emtf_assert(conv_hits_it->PC_segment() <=
@@ -296,8 +296,8 @@ bool PatternRecognition::is_zone_empty(int zone,
     }  // end loop over conv_hits
   }    // end loop over extended_conv_hits
 
-  std::map<pattern_ref_t, int>::const_iterator patt_lifetime_map_it = patt_lifetime_map.begin();
-  std::map<pattern_ref_t, int>::const_iterator patt_lifetime_map_end = patt_lifetime_map.end();
+  auto patt_lifetime_map_it = patt_lifetime_map.begin();
+  auto patt_lifetime_map_end = patt_lifetime_map.end();
 
   for (; patt_lifetime_map_it != patt_lifetime_map_end; ++patt_lifetime_map_it) {
     if (patt_lifetime_map_it->first.at(0) == zone) {
@@ -313,12 +313,12 @@ void PatternRecognition::make_zone_image(int zone,
                                          PhiMemoryImage& image) const {
   int izone = zone - 1;
 
-  std::deque<EMTFHitCollection>::const_iterator ext_conv_hits_it = extended_conv_hits.begin();
-  std::deque<EMTFHitCollection>::const_iterator ext_conv_hits_end = extended_conv_hits.end();
+  auto ext_conv_hits_it = extended_conv_hits.begin();
+  auto ext_conv_hits_end = extended_conv_hits.end();
 
   for (; ext_conv_hits_it != ext_conv_hits_end; ++ext_conv_hits_it) {
-    EMTFHitCollection::const_iterator conv_hits_it = ext_conv_hits_it->begin();
-    EMTFHitCollection::const_iterator conv_hits_end = ext_conv_hits_it->end();
+    auto conv_hits_it = ext_conv_hits_it->begin();
+    auto conv_hits_end = ext_conv_hits_it->end();
 
     for (; conv_hits_it != conv_hits_end; ++conv_hits_it) {
       if (conv_hits_it->Subsystem() == TriggerPrimitive::kRPC)
@@ -462,8 +462,8 @@ void PatternRecognition::process_single_zone(int zone,
     std::array<int, emtf::NUM_ZONE_HITS> quality_codes;
     quality_codes.fill(0);
 
-    EMTFRoadCollection::iterator roads_it = roads.begin();
-    EMTFRoadCollection::iterator roads_end = roads.end();
+    auto roads_it = roads.begin();
+    auto roads_end = roads.end();
 
     for (; roads_it != roads_end; ++roads_it) {
       quality_codes.at(roads_it->Key_zhit()) = roads_it->Quality_code();

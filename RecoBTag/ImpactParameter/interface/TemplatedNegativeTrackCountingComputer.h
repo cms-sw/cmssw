@@ -10,10 +10,9 @@ public:
       : TemplatedTrackCountingComputer<Container, Base>(parameters) {}
 
   float discriminator(const JetTagComputer::TagInfoHelper& ti) const override {
-    const typename TemplatedTrackCountingComputer<Container, Base>::TagInfo& tkip =
-        ti.get<typename TemplatedTrackCountingComputer<Container, Base>::TagInfo>();
+    const auto& tkip = ti.get<typename TemplatedTrackCountingComputer<Container, Base>::TagInfo>();
     std::multiset<float> significances = this->orderedSignificances(tkip);
-    std::multiset<float>::iterator nth = significances.begin();
+    auto nth = significances.begin();
     for (int i = 0; i < this->m_nthTrack - 1 && nth != significances.end(); i++)
       nth++;
     if (nth != significances.end())

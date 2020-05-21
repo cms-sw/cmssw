@@ -45,7 +45,7 @@ void HcalQIEDataCheck::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   std::vector<DetId>::iterator cell;
 
   if (validateflag) {
-    for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++) {
+    for (auto it = listRefChan.begin(); it != listRefChan.end(); it++) {
       DetId mydetid = *it;
       cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
       if (cell == listNewChan.end())  // not present in new list
@@ -135,7 +135,7 @@ void HcalQIEDataCheck::analyze(const edm::Event& ev, const edm::EventSetup& es) 
   //  }
 
   if (outfile != "null") {
-    for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++) {
+    for (auto it = listRefChan.begin(); it != listRefChan.end(); it++) {
       DetId mydetid = *it;
       cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
       if (cell == listNewChan.end())  // not present in new list
@@ -151,7 +151,7 @@ void HcalQIEDataCheck::analyze(const edm::Event& ev, const edm::EventSetup& es) 
         listNewChan.erase(cell);  // fix 25.02.08
       }
     }
-    for (std::vector<DetId>::iterator it = listNewChan.begin(); it != listNewChan.end(); it++)  // fix 25.02.08
+    for (auto it = listNewChan.begin(); it != listNewChan.end(); it++)  // fix 25.02.08
     {
       DetId mydetid = *it;
       const HcalQIECoder* myCoder = myNewQIEs->getCoder(mydetid);
@@ -170,7 +170,7 @@ void HcalQIEDataCheck::analyze(const edm::Event& ev, const edm::EventSetup& es) 
     std::vector<DetId> listResult = resultQIEs->getAllChannels();
     // get the e-map list of channels
     std::vector<HcalGenericDetId> listEMap = myRefEMap->allPrecisionId();
-    for (std::vector<HcalGenericDetId>::const_iterator it = listEMap.begin(); it != listEMap.end(); it++) {
+    for (auto it = listEMap.begin(); it != listEMap.end(); it++) {
       DetId mydetid = DetId(it->rawId());
       if (std::find(listResult.begin(), listResult.end(), mydetid) == listResult.end()) {
         std::cout << "Conditions not found for DetId = " << HcalGenericDetId(it->rawId()) << std::endl;

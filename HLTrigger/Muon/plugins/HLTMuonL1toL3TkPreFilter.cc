@@ -96,8 +96,7 @@ bool HLTMuonL1toL3TkPreFilter::hltFilter(Event& iEvent,
   unsigned int maxN = mucands->size();
   for (; n != maxN; n++) {
     TrackRef tk = (*mucands)[n].track();
-    edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef =
-        tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
+    auto l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
     l1extra::L1MuonParticleRef l1mu = l3seedRef->l1Particle();
     L1toL3s[l1mu].push_back(RecoChargedCandidateRef(mucands, n));
   }

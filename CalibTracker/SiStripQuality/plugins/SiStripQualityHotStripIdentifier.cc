@@ -62,8 +62,8 @@ std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifier::getNewObject(
 
     std::stringstream ss;
 
-    SiStripBadStrip::RegistryIterator rIter = qobj->getRegistryVectorBegin();
-    SiStripBadStrip::RegistryIterator rIterEnd = qobj->getRegistryVectorEnd();
+    auto rIter = qobj->getRegistryVectorBegin();
+    auto rIterEnd = qobj->getRegistryVectorEnd();
     for (; rIter != rIterEnd; ++rIter) {
       SiStripBadStrip::Range range(qobj->getDataVectorBegin() + rIter->ibegin,
                                    qobj->getDataVectorBegin() + rIter->iend);
@@ -123,8 +123,8 @@ void SiStripQualityHotStripIdentifier::resetHistos() {
 void SiStripQualityHotStripIdentifier::bookHistos() {
   edm::LogInfo("SiStripQualityHotStripIdentifier") << " [SiStripQualityHotStripIdentifier::bookHistos] " << std::endl;
   char hname[1024];
-  std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = reader->getAllData().begin();
-  std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator iEnd = reader->getAllData().end();
+  auto it = reader->getAllData().begin();
+  auto iEnd = reader->getAllData().end();
   for (; it != iEnd; ++it) {
     sprintf(hname, "h_%d", it->first);
     SiStrip::QualityHistosMap::iterator ref = ClusterPositionHistoMap.find(it->first);
@@ -167,7 +167,7 @@ void SiStripQualityHotStripIdentifier::algoAnalyze(const edm::Event& e, const ed
   if (tracksCollection_in_EventTree) {
     const reco::TrackCollection tC = *(trackCollection.product());
     int i = 0;
-    for (reco::TrackCollection::const_iterator track = tC.begin(); track != tC.end(); track++) {
+    for (auto track = tC.begin(); track != tC.end(); track++) {
       LogTrace("SiStripQualityHotStripIdentifier")
           << "Track number " << i + 1 << "\n\tmomentum: " << track->momentum() << "\n\tPT: " << track->pt()
           << "\n\tvertex: " << track->vertex() << "\n\timpact parameter: " << track->d0()
@@ -183,8 +183,8 @@ void SiStripQualityHotStripIdentifier::algoAnalyze(const edm::Event& e, const ed
         }
 
         const SiStripRecHit2D* singleHit = dynamic_cast<const SiStripRecHit2D*>(recHit);
-        const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(recHit);
-        const ProjectedSiStripRecHit2D* projectedHit = dynamic_cast<const ProjectedSiStripRecHit2D*>(recHit);
+        const auto* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(recHit);
+        const auto* projectedHit = dynamic_cast<const ProjectedSiStripRecHit2D*>(recHit);
 
         if (matchedHit) {
           vPSiStripCluster.insert((void*)&(matchedHit->monoCluster()));
@@ -202,10 +202,10 @@ void SiStripQualityHotStripIdentifier::algoAnalyze(const edm::Event& e, const ed
 
   std::stringstream ss;
   //Loop on Det Clusters
-  edm::DetSetVector<SiStripCluster>::const_iterator DSViter = dsv_SiStripCluster->begin();
+  auto DSViter = dsv_SiStripCluster->begin();
   for (; DSViter != dsv_SiStripCluster->end(); DSViter++) {
-    edm::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->data.begin();
-    edm::DetSet<SiStripCluster>::const_iterator ClusIterEnd = DSViter->data.end();
+    auto ClusIter = DSViter->data.begin();
+    auto ClusIterEnd = DSViter->data.end();
     for (; ClusIter != ClusIterEnd; ++ClusIter) {
       if (MinClusterWidth_ <= ClusIter->amplitudes().size() && ClusIter->amplitudes().size() <= MaxClusterWidth_) {
         if (std::find(vPSiStripCluster.begin(), vPSiStripCluster.end(), (void*)&*ClusIter) == vPSiStripCluster.end()) {

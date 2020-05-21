@@ -222,7 +222,7 @@ void CMSG4CheckOverlap::makeReportForOverlaps(std::ofstream& fout, const edm::Pa
                << "\n";
           return;
         }
-        std::vector<G4LogicalVolume*>::iterator rootLVItr = reg->GetRootLogicalVolumeIterator();
+        auto rootLVItr = reg->GetRootLogicalVolumeIterator();
         unsigned int numRootLV = reg->GetNumberOfRootVolumes();
         fout << "      " << numRootLV << " Root Logical Volumes in this region"
              << "\n";

@@ -284,7 +284,7 @@ vector<const TrackingRecHit*> CRackTrajectoryBuilder::SortHits(const SiStripRecH
   for (ihit = hRange.first; ihit != hRange.second; ihit++) {
     // need to find track with lowest (seed_plus)/ highest y (seed_minus)
     // split matched hits ...
-    const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(&(*ihit));
+    const auto* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(&(*ihit));
 
     yref = RHBuilder->build(&(*ihit))->globalPosition().y();
     if (ihit == hRange.first) {
@@ -488,7 +488,7 @@ void CRackTrajectoryBuilder::AddHit(Trajectory& traj,
   TrackingRecHitIterator prevDet;
 
   prevDet = Hits.begin();
-  for (TrackingRecHitIterator iHit = Hits.begin(); iHit != Hits.end(); iHit++) {
+  for (auto iHit = Hits.begin(); iHit != Hits.end(); iHit++) {
     if ((*prevDet)->geographicalId() == (*iHit)->geographicalId())
       continue;
 
@@ -500,7 +500,7 @@ void CRackTrajectoryBuilder::AddHit(Trajectory& traj,
   /// do the old version ....
 
   if (fastPropagation) {
-    for (TrackingRecHitRangeIterator iHitRange = hitRangeByDet.begin(); iHitRange != hitRangeByDet.end(); iHitRange++) {
+    for (auto iHitRange = hitRangeByDet.begin(); iHitRange != hitRangeByDet.end(); iHitRange++) {
       const TrackingRecHit* currHit = *(iHitRange->first);
       DetId currDet = currHit->geographicalId();
 
@@ -520,7 +520,7 @@ void CRackTrajectoryBuilder::AddHit(Trajectory& traj,
 
       if (debug_info)
         cout << "Size " << iHitRange->first - (*iHitRange).second << endl;
-      for (TrackingRecHitIterator iHit = (*iHitRange).first + 1; iHit != iHitRange->second; iHit++) {
+      for (auto iHit = (*iHitRange).first + 1; iHit != iHitRange->second; iHit++) {
         if (debug_info)
           cout << "loop3 "
                << " " << Hits.end() - iHit << endl;
@@ -579,7 +579,7 @@ void CRackTrajectoryBuilder::AddHit(Trajectory& traj,
       //create vector of possibly hit detectors...
       trackHitCandidates.clear();
       DetId currDet;
-      for (TrackingRecHitRangeIterator iHit = hitRangeByDet.begin(); iHit != hitRangeByDet.end(); iHit++) {
+      for (auto iHit = hitRangeByDet.begin(); iHit != hitRangeByDet.end(); iHit++) {
         const TrackingRecHit* currHit = *(iHit->first);
         currDet = currHit->geographicalId();
 
@@ -638,7 +638,7 @@ void CRackTrajectoryBuilder::AddHit(Trajectory& traj,
 
         if (debug_info)
           cout << "curr position" << bestHit->globalPosition();
-        for (TrackingRecHitIterator iHit = (*iHitRange).first->first + 1; iHit != iHitRange->first->second; iHit++) {
+        for (auto iHit = (*iHitRange).first->first + 1; iHit != iHitRange->first->second; iHit++) {
           TransientTrackingRecHit::RecHitPointer tmpHit = RHBuilder->build(*iHit);
           if (debug_info)
             cout << "curr position" << tmpHit->globalPosition();
@@ -672,7 +672,7 @@ void CRackTrajectoryBuilder::AddHit(Trajectory& traj,
 
         if (debug_info)
           cout << "Size " << iHitRange->first->second - (*iHitRange).first->first << endl;
-        for (TrackingRecHitIterator iHit = (*iHitRange).first->first + 1; iHit != iHitRange->first->second; iHit++) {
+        for (auto iHit = (*iHitRange).first->first + 1; iHit != iHitRange->first->second; iHit++) {
           if (debug_info)
             cout << "loop3 "
                  << " " << Hits.end() - iHit << endl;

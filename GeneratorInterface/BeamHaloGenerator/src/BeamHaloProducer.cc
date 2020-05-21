@@ -126,10 +126,10 @@ void BeamHaloProducer::produce(Event& e, const EventSetup& es) {
   evt = new HepMC::GenEvent();
 
   for (int theindex = 1; theindex <= wrapper.number_entries(); theindex++) {
-    HepMC::GenVertex* Vtx = new HepMC::GenVertex(
+    auto* Vtx = new HepMC::GenVertex(
         HepMC::FourVector(wrapper.x(theindex), wrapper.y(theindex), wrapper.z(theindex), wrapper.t(theindex)));
     HepMC::FourVector p(wrapper.px(theindex), wrapper.py(theindex), wrapper.pz(theindex), wrapper.e(theindex));
-    HepMC::GenParticle* Part = new HepMC::GenParticle(p, wrapper.id(theindex), wrapper.status(theindex));
+    auto* Part = new HepMC::GenParticle(p, wrapper.id(theindex), wrapper.status(theindex));
     Vtx->add_particle_out(Part);
     evt->add_vertex(Vtx);
   }

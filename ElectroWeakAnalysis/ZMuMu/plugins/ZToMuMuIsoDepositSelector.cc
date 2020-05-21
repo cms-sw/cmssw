@@ -105,7 +105,7 @@ public:
     const pat::Muon* mu = dynamic_cast<const pat::Muon*>(c);
     if (mu != nullptr)
       return isolation(mu);
-    const pat::GenericParticle* trk = dynamic_cast<const pat::GenericParticle*>(c);
+    const auto* trk = dynamic_cast<const pat::GenericParticle*>(c);
     if (trk != nullptr)
       return isolation(trk);
     throw edm::Exception(edm::errors::InvalidReference)

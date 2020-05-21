@@ -81,7 +81,7 @@ void DTReadOutMappingHandler::getNewObjects() {
   std::string rosMap(dataTag);
   robMap += "_ROB";
   rosMap += "_ROS";
-  DTReadOutMapping* ro_map = new DTReadOutMapping(robMap, rosMap);
+  auto* ro_map = new DTReadOutMapping(robMap, rosMap);
 
   int status = 0;
   std::ifstream ifile(fileName.c_str());

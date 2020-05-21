@@ -108,7 +108,7 @@ namespace ecaldqm {
 
     unsigned iME(-1);
 
-    for (EcalPnDiodeDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr) {
+    for (auto digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr) {
       EcalPnDiodeDetId id(digiItr->id());
 
       int iDCC(dccId(id) - 1);

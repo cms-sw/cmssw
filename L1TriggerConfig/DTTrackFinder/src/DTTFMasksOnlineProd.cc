@@ -155,7 +155,7 @@ std::unique_ptr<L1MuDTTFMasks> DTTFMasksOnlineProd::newObject(const std::string&
       std::string sectorWheelName = sectorNames[isc] + wheelNames[iwh];
 
       unsigned int maskBit = 30;
-      std::map<std::string, unsigned int>::const_iterator itr = crateMaskBitmap.find(wheelNames[iwh]);
+      auto itr = crateMaskBitmap.find(wheelNames[iwh]);
       if (itr != crateMaskBitmap.end())
         maskBit = itr->second;
 

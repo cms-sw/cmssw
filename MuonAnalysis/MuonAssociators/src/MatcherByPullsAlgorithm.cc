@@ -152,7 +152,7 @@ void MatcherByPullsAlgorithm::fillInvCov(const reco::Track &tk, AlgebraicSymMatr
     }
     invCov.Invert();
   } else {
-    AlgebraicSymMatrix33 momCov = tk.covariance().Sub<AlgebraicSymMatrix33>(0, 0);  // get 3x3 matrix
+    auto momCov = tk.covariance().Sub<AlgebraicSymMatrix33>(0, 0);  // get 3x3 matrix
     if (diagOnly_) {
       momCov(0, 1) = 0;
       momCov(0, 2) = 0;

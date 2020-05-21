@@ -2607,8 +2607,8 @@ void CSCTriggerPrimitivesReader::HotWires(const edm::Event& iEvent) {
     CSCDetId id = (CSCDetId)(*dWDiter).first;
     int serial = chamberSerial(id) - 1;
     //     printf("serial %i\n",serial);
-    std::vector<CSCWireDigi>::const_iterator wireIter = (*dWDiter).second.first;
-    std::vector<CSCWireDigi>::const_iterator lWire = (*dWDiter).second.second;
+    auto wireIter = (*dWDiter).second.first;
+    auto lWire = (*dWDiter).second.second;
     bool has_layer = false;
     for (; wireIter != lWire; ++wireIter) {
       has_layer = true;

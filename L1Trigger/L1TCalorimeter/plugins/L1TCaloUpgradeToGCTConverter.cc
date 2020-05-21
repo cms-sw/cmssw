@@ -112,7 +112,7 @@ void L1TCaloUpgradeToGCTConverter::produce(StreamID, Event& e, const EventSetup&
     //looping over EGamma elments with a specific BX
     int nonIsoCount = 0;
     int isoCount = 0;
-    for (EGammaBxCollection::const_iterator itEGamma = EGamma->begin(itBX); itEGamma != EGamma->end(itBX); ++itEGamma) {
+    for (auto itEGamma = EGamma->begin(itBX); itEGamma != EGamma->end(itBX); ++itEGamma) {
       bool iso = itEGamma->hwIso();
 
       L1GctEmCand EmCand(itEGamma->hwPt(), itEGamma->hwPhi(), itEGamma->hwEta(), iso, 0, 0, itBX);
@@ -145,7 +145,7 @@ void L1TCaloUpgradeToGCTConverter::produce(StreamID, Event& e, const EventSetup&
     bxCounter++;
     //looping over Tau elments with a specific BX
     int tauCount = 0;  //max 4
-    for (TauBxCollection::const_iterator itTau = RlxTau->begin(itBX); itTau != RlxTau->end(itBX); ++itTau) {
+    for (auto itTau = RlxTau->begin(itBX); itTau != RlxTau->end(itBX); ++itTau) {
       // taus are not allowed to be forward
       const bool forward = false;
 
@@ -170,7 +170,7 @@ void L1TCaloUpgradeToGCTConverter::produce(StreamID, Event& e, const EventSetup&
     bxCounter++;
     //looping over Iso Tau elments with a specific BX
     int isoTauCount = 0;  //max 4
-    for (TauBxCollection::const_iterator itTau = IsoTau->begin(itBX); itTau != IsoTau->end(itBX); ++itTau) {
+    for (auto itTau = IsoTau->begin(itBX); itTau != IsoTau->end(itBX); ++itTau) {
       // taus are not allowed to be forward
       const bool forward = false;
 
@@ -196,7 +196,7 @@ void L1TCaloUpgradeToGCTConverter::produce(StreamID, Event& e, const EventSetup&
     //looping over Jet elments with a specific BX
     int forCount = 0;  //max 4
     int cenCount = 0;  //max 4
-    for (JetBxCollection::const_iterator itJet = Jet->begin(itBX); itJet != Jet->end(itBX); ++itJet) {
+    for (auto itJet = Jet->begin(itBX); itJet != Jet->end(itBX); ++itJet) {
       // use 2nd quality bit to define forward
       const bool forward = ((itJet->hwQual() & 0x2) != 0);
       L1GctJetCand JetCand(itJet->hwPt(), itJet->hwPhi(), itJet->hwEta(), false, forward, 0, 0, itBX);
@@ -227,7 +227,7 @@ void L1TCaloUpgradeToGCTConverter::produce(StreamID, Event& e, const EventSetup&
 
     bxCounter++;
     //looping over EtSum elments with a specific BX
-    for (EtSumBxCollection::const_iterator itEtSum = EtSum->begin(itBX); itEtSum != EtSum->end(itBX); ++itEtSum) {
+    for (auto itEtSum = EtSum->begin(itBX); itEtSum != EtSum->end(itBX); ++itEtSum) {
       if (EtSum::EtSumType::kMissingEt == itEtSum->getType()) {
         L1GctEtMiss Cand(itEtSum->hwPt(), itEtSum->hwPhi(), itEtSum->hwQual() & 0x1, itBX);
         etMissResult->push_back(Cand);
@@ -259,8 +259,7 @@ void L1TCaloUpgradeToGCTConverter::produce(StreamID, Event& e, const EventSetup&
 
     bxCounter++;
     L1GctHFRingEtSums sum = L1GctHFRingEtSums::fromGctEmulator(itBX, 0, 0, 0, 0);
-    for (CaloSpareBxCollection::const_iterator itCaloSpare = HfSums->begin(itBX); itCaloSpare != HfSums->end(itBX);
-         ++itCaloSpare) {
+    for (auto itCaloSpare = HfSums->begin(itBX); itCaloSpare != HfSums->end(itBX); ++itCaloSpare) {
       // if (CaloSpare::CaloSpareType::V2 == itCaloSpare->getType())
       // {
       // 	sum.setEtSum(3, itCaloSpare->hwPt());
@@ -292,8 +291,7 @@ void L1TCaloUpgradeToGCTConverter::produce(StreamID, Event& e, const EventSetup&
 
     bxCounter++;
     L1GctHFBitCounts count = L1GctHFBitCounts::fromGctEmulator(itBX, 0, 0, 0, 0);
-    for (CaloSpareBxCollection::const_iterator itCaloSpare = HfCounts->begin(itBX); itCaloSpare != HfCounts->end(itBX);
-         ++itCaloSpare) {
+    for (auto itCaloSpare = HfCounts->begin(itBX); itCaloSpare != HfCounts->end(itBX); ++itCaloSpare) {
       for (int i = 0; i < 4; i++) {
         count.setBitCount(i, itCaloSpare->GetRing(i));
       }

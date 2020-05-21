@@ -95,7 +95,7 @@ void TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry* theG,
                                              const reco::BeamSpot& bs,
                                              AlgoProductCollection& algoResults) {
   LogDebug("TrackProducer") << "Number of input Tracks: " << theTCollection.size() << "\n";
-  const TkTransientTrackingRecHitBuilder* builder = dynamic_cast<TkTransientTrackingRecHitBuilder const*>(gbuilder);
+  const auto* builder = dynamic_cast<TkTransientTrackingRecHitBuilder const*>(gbuilder);
   assert(builder);
   int cont = 0;
   for (auto i = theTCollection.begin(); i != theTCollection.end(); i++) {
@@ -106,10 +106,10 @@ void TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry* theG,
 
       // WARNING: here we assume that the hits are correcly sorted according to seedDir
       TransientTrackingRecHit::RecHitContainer hits;
-      for (trackingRecHit_iterator i = theT->recHitsBegin(); i != theT->recHitsEnd(); i++) {
+      for (auto i = theT->recHitsBegin(); i != theT->recHitsEnd(); i++) {
         if (reMatchSplitHits_) {
           //re-match hits that belong together
-          trackingRecHit_iterator next = i;
+          auto next = i;
           next++;
           if (next != theT->recHitsEnd() && (*i)->isValid()) {
             //check whether hit and nexthit are on glued module
@@ -207,7 +207,7 @@ void TrackProducerAlgorithm<T>::runWithMomentum(
     const reco::BeamSpot& bs,
     AlgoProductCollection& algoResults) {
   LogDebug("TrackProducer") << "Number of input Tracks: " << theTCollectionWithConstraint.size() << "\n";
-  const TkTransientTrackingRecHitBuilder* builder = dynamic_cast<TkTransientTrackingRecHitBuilder const*>(gbuilder);
+  const auto* builder = dynamic_cast<TkTransientTrackingRecHitBuilder const*>(gbuilder);
 
   int cont = 0;
   for (TrackMomConstraintAssociationCollection::const_iterator i = theTCollectionWithConstraint.begin();
@@ -224,7 +224,7 @@ void TrackProducerAlgorithm<T>::runWithMomentum(
 
       // WARNING: here we assume that the hits are correcly sorted according to seedDir
       TransientTrackingRecHit::RecHitContainer hits;
-      for (trackingRecHit_iterator j = theT->recHitsBegin(); j != theT->recHitsEnd(); ++j) {
+      for (auto j = theT->recHitsBegin(); j != theT->recHitsEnd(); ++j) {
         if ((**j).geographicalId() != 0U)
           hits.push_back((**j).cloneForFit(*builder->geometry()->idToDet((**j).geographicalId())));
       }
@@ -239,7 +239,7 @@ void TrackProducerAlgorithm<T>::runWithMomentum(
       //no insert in OwnVector...
       TransientTrackingRecHit::RecHitContainer tmpHits;
       tmpHits.push_back(testhit);
-      for (TransientTrackingRecHit::RecHitContainer::const_iterator i = hits.begin(); i != hits.end(); i++) {
+      for (auto i = hits.begin(); i != hits.end(); i++) {
         tmpHits.push_back(*i);
       }
       hits.swap(tmpHits);
@@ -283,7 +283,7 @@ void TrackProducerAlgorithm<T>::runWithTrackParameters(
     const reco::BeamSpot& bs,
     AlgoProductCollection& algoResults) {
   LogDebug("TrackProducer") << "Number of input Tracks: " << theTCollectionWithConstraint.size() << "\n";
-  const TkTransientTrackingRecHitBuilder* builder = dynamic_cast<TkTransientTrackingRecHitBuilder const*>(gbuilder);
+  const auto* builder = dynamic_cast<TkTransientTrackingRecHitBuilder const*>(gbuilder);
 
   int cont = 0;
 
@@ -300,7 +300,7 @@ void TrackProducerAlgorithm<T>::runWithTrackParameters(
       // WARNING: here we assume that the hits are correcly sorted according to seedDir
       TransientTrackingRecHit::RecHitContainer hits;
       hits.push_back(constraintHit);
-      for (trackingRecHit_iterator j = theT->recHitsBegin(); j != theT->recHitsEnd(); ++j) {
+      for (auto j = theT->recHitsBegin(); j != theT->recHitsEnd(); ++j) {
         if ((**j).geographicalId() != 0U)
           hits.push_back((**j).cloneForFit(*builder->geometry()->idToDet((**j).geographicalId())));
       }
@@ -346,7 +346,7 @@ void TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry* theG,
                                               const TransientTrackingRecHitBuilder* gbuilder,
                                               const reco::BeamSpot& bs,
                                               AlgoProductCollection& algoResults) {
-  const TkTransientTrackingRecHitBuilder* builder = dynamic_cast<TkTransientTrackingRecHitBuilder const*>(gbuilder);
+  const auto* builder = dynamic_cast<TkTransientTrackingRecHitBuilder const*>(gbuilder);
 
   LogDebug("TrackProducer") << "Number of input Tracks: " << theTCollectionWithConstraint.size() << "\n";
 
@@ -385,7 +385,7 @@ void TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry* theG,
 
       // WARNING: here we assume that the hits are correcly sorted according to seedDir
       TransientTrackingRecHit::RecHitContainer hits;
-      for (trackingRecHit_iterator j = theT->recHitsBegin(); j != theT->recHitsEnd(); ++j) {
+      for (auto j = theT->recHitsBegin(); j != theT->recHitsEnd(); ++j) {
         if ((**j).geographicalId() != 0U)
           hits.push_back((**j).cloneForFit(*builder->geometry()->idToDet((**j).geographicalId())));
       }

@@ -70,7 +70,7 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(const EcalRecHit
       if (!(rhFlag == EcalRecHit::kGood || rhFlag == EcalRecHit::kOutOfTime || rhFlag == EcalRecHit::kPoorCalib))
         continue;
 
-      EcalUncalibratedRecHitCollection::const_iterator itt = uncalibRecHits_->find(it->id());
+      auto itt = uncalibRecHits_->find(it->id());
 
       if (itt == uncalibRecHits_->end()) {
         if (verbosity < pINFO) {
@@ -114,7 +114,7 @@ std::vector<reco::BasicCluster> CosmicClusterAlgo::makeClusters(const EcalRecHit
 
   if (verbosity < pINFO) {
     std::cout << "JH Total number of seeds found in event = " << seeds.size() << std::endl;
-    for (EcalRecHitCollection::const_iterator ji = seeds.begin(); ji != seeds.end(); ++ji) {
+    for (auto ji = seeds.begin(); ji != seeds.end(); ++ji) {
       //std::cout << "JH Seed Energy " << ji->energy() << " hashed " << ((EBDetId)ji->id()).hashedIndex()  << std::endl;
     }
   }
@@ -204,7 +204,7 @@ void CosmicClusterAlgo::makeCluster(const CaloSubdetectorGeometry *geometry,
   std::vector<DetId>::iterator it;
   for (it = current_v9.begin(); it != current_v9.end(); it++) {
     // Martina - check recoFlag for crystals sorrounding the good one
-    EcalRecHitCollection::const_iterator itt = recHits_->find(*it);
+    auto itt = recHits_->find(*it);
     // double-check that iterator can be dereferenced
     if (itt == recHits_->end())
       continue;
@@ -216,7 +216,7 @@ void CosmicClusterAlgo::makeCluster(const CaloSubdetectorGeometry *geometry,
 
     ///
 
-    EcalUncalibratedRecHitCollection::const_iterator ittu = uncalibRecHits_->find(*it);
+    auto ittu = uncalibRecHits_->find(*it);
     EcalUncalibratedRecHit uhit_p = *ittu;
 
     if (uhit_p.amplitude() > energySecond) {
@@ -237,10 +237,10 @@ void CosmicClusterAlgo::makeCluster(const CaloSubdetectorGeometry *geometry,
     return;
 
   for (it = current_v25.begin(); it != current_v25.end(); it++) {
-    EcalRecHitCollection::const_iterator itt = recHits_->find(*it);
+    auto itt = recHits_->find(*it);
     EcalRecHit hit_p = *itt;
 
-    EcalUncalibratedRecHitCollection::const_iterator ittu = uncalibRecHits_->find(*it);
+    auto ittu = uncalibRecHits_->find(*it);
     EcalUncalibratedRecHit uhit_p = *ittu;
 
     if (uhit_p.amplitude() > (inEB ? ecalBarrelSupThreshold : ecalEndcapSupThreshold)) {
@@ -275,7 +275,7 @@ void CosmicClusterAlgo::makeCluster(const CaloSubdetectorGeometry *geometry,
 bool CosmicClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator) {
   bool maxima = true;
   EcalRecHitCollection::const_iterator thisHit;
-  EcalRecHitCollection::const_iterator seedHit = recHits_->find(navigator.pos());
+  auto seedHit = recHits_->find(navigator.pos());
   double thisEnergy = 0.;
   double seedEnergy = seedHit->energy();
 
@@ -357,10 +357,10 @@ void CosmicClusterAlgo::prepareCluster(CaloNavigator<DetId> &navigator, const Ca
 }
 
 void CosmicClusterAlgo::addCrystal(const DetId &det, const bool in9) {
-  EcalRecHitCollection::const_iterator thisIt = recHits_->find(det);
+  auto thisIt = recHits_->find(det);
   if ((thisIt != recHits_->end()) && (thisIt->id() != DetId(0))) {
     if ((used_s.find(thisIt->id()) == used_s.end())) {
-      EcalUncalibratedRecHitCollection::const_iterator thisItu = uncalibRecHits_->find(det);
+      auto thisItu = uncalibRecHits_->find(det);
       used_s.insert(det);
       if ((thisIt->energy() >= -1.) && !(thisItu->chi2() < -1.)) {
         if (in9)

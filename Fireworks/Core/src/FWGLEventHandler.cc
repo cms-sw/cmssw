@@ -30,7 +30,7 @@ void FWGLEventHandler::PopupContextMenu(TGLPhysicalShape *pshp, Event_t *event, 
     SelectForClicked(event);
 
     if (pshp->GetLogical()) {
-      FWGeoTopNodeGLScene *js = dynamic_cast<FWGeoTopNodeGLScene *>(pshp->GetLogical()->GetScene());
+      auto *js = dynamic_cast<FWGeoTopNodeGLScene *>(pshp->GetLogical()->GetScene());
       if (js) {
         js->GeoPopupMenu(gx, gy, fGLViewer);
         return;

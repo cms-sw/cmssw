@@ -115,7 +115,7 @@ vector<DTSLRecCluster> DTClusterer::buildClusters(const DTSuperLayer* sl, vector
   float sum = 0.;
   float sum2 = 0.;
 
-  for (vector<pair<float, DTRecHit1DPair> >::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
+  for (auto hit = hits.begin(); hit != hits.end(); ++hit) {
     if (debug)
       cout << "Hit: " << (*hit).first << " lastPos: " << lastPos << endl;
     // start from first hits
@@ -159,7 +159,7 @@ vector<DTSLRecCluster> DTClusterer::buildClusters(const DTSuperLayer* sl, vector
 
 vector<pair<float, DTRecHit1DPair> > DTClusterer::initHits(const DTSuperLayer* sl, vector<DTRecHit1DPair>& pairs) {
   vector<pair<float, DTRecHit1DPair> > result;
-  for (vector<DTRecHit1DPair>::const_iterator pair = pairs.begin(); pair != pairs.end(); ++pair) {
+  for (auto pair = pairs.begin(); pair != pairs.end(); ++pair) {
     // get wire
     DTWireId wid = (*pair).wireId();
     // get Layer
@@ -180,7 +180,7 @@ unsigned int DTClusterer::differentLayers(vector<DTRecHit1DPair>& hits) {
   // Count the number of different layers
   int layers = 0;
   unsigned int result = 0;
-  for (vector<DTRecHit1DPair>::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
+  for (auto hit = hits.begin(); hit != hits.end(); ++hit) {
     int pos = (1 << ((*hit).wireId().layer() - 1));
     if (!(pos & layers)) {
       result++;

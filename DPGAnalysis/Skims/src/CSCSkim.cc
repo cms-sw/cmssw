@@ -1056,7 +1056,7 @@ bool CSCSkim::doLongSATrack(edm::Handle<reco::TrackCollection> saMuons) {
 
   int nNiceMuons = 0;
 
-  for (reco::TrackCollection::const_iterator muon = saMuons->begin(); muon != saMuons->end(); ++muon) {
+  for (auto muon = saMuons->begin(); muon != saMuons->end(); ++muon) {
     // basic information
     math::XYZVector innerMo = muon->innerMomentum();
     GlobalVector im(innerMo.x(), innerMo.y(), innerMo.z());
@@ -1071,7 +1071,7 @@ bool CSCSkim::doLongSATrack(edm::Handle<reco::TrackCollection> saMuons) {
     // loop over hits
     int nDTHits = 0;
     int nCSCHits = 0;
-    for (trackingRecHit_iterator hit = muon->recHitsBegin(); hit != muon->recHitsEnd(); ++hit) {
+    for (auto hit = muon->recHitsBegin(); hit != muon->recHitsEnd(); ++hit) {
       const DetId detId((*hit)->geographicalId());
       if (detId.det() == DetId::Muon) {
         if (detId.subdetId() == MuonSubdetId::DT) {
@@ -1116,7 +1116,7 @@ bool CSCSkim::doBFieldStudySelection(edm::Handle<reco::TrackCollection> saMuons,
   // examine the stand-alone tracks
   //-----------------------------------
   int nGoodSAMuons = 0;
-  for (reco::TrackCollection::const_iterator muon = saMuons->begin(); muon != saMuons->end(); ++muon) {
+  for (auto muon = saMuons->begin(); muon != saMuons->end(); ++muon) {
     float preco = muon->p();
 
     math::XYZPoint innerPo = muon->innerPosition();
@@ -1157,7 +1157,7 @@ bool CSCSkim::doBFieldStudySelection(edm::Handle<reco::TrackCollection> saMuons,
     int kHit = 0;
     int nDTHits = 0;
     int nCSCHits = 0;
-    for (trackingRecHit_iterator hit = muon->recHitsBegin(); hit != muon->recHitsEnd(); ++hit) {
+    for (auto hit = muon->recHitsBegin(); hit != muon->recHitsEnd(); ++hit) {
       ++kHit;
       const DetId detId((*hit)->geographicalId());
       if (detId.det() == DetId::Muon) {
@@ -1191,7 +1191,7 @@ bool CSCSkim::doBFieldStudySelection(edm::Handle<reco::TrackCollection> saMuons,
   // examine the tracker tracks
   //-----------------------------------
   int nGoodTracks = 0;
-  for (reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); ++track) {
+  for (auto track = tracks->begin(); track != tracks->end(); ++track) {
     float preco = track->p();
     int n = track->recHitsSize();
 
@@ -1242,7 +1242,7 @@ bool CSCSkim::doBFieldStudySelection(edm::Handle<reco::TrackCollection> saMuons,
   // examine the global muons
   //-----------------------------------
   int nGoodGlobalMuons = 0;
-  for (reco::MuonCollection::const_iterator global = gMuons->begin(); global != gMuons->end(); ++global) {
+  for (auto global = gMuons->begin(); global != gMuons->end(); ++global) {
     if (global->isGlobalMuon()) {
       float pDef = global->p();
       float redChiSq = global->globalTrack()->normalizedChi2();
@@ -1255,9 +1255,7 @@ bool CSCSkim::doBFieldStudySelection(edm::Handle<reco::TrackCollection> saMuons,
 
       int nDTHits = 0;
       int nCSCHits = 0;
-      for (trackingRecHit_iterator hit = (global->globalTrack())->recHitsBegin();
-           hit != (global->globalTrack())->recHitsEnd();
-           ++hit) {
+      for (auto hit = (global->globalTrack())->recHitsBegin(); hit != (global->globalTrack())->recHitsEnd(); ++hit) {
         const DetId detId((*hit)->geographicalId());
         if (detId.det() == DetId::Muon) {
           if (detId.subdetId() == MuonSubdetId::DT) {

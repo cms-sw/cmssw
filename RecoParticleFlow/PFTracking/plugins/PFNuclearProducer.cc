@@ -45,8 +45,7 @@ void PFNuclearProducer::produce(Event& iEvent, const EventSetup& iSetup) {
       reco::PFRecTrackRefVector pfRecTkcoll;
 
       // convert the secondary tracks
-      for (trackRef_iterator it = nuclColl[icoll].secondaryTracks_begin(); it != nuclColl[icoll].secondaryTracks_end();
-           it++) {
+      for (auto it = nuclColl[icoll].secondaryTracks_begin(); it != nuclColl[icoll].secondaryTracks_end(); it++) {
         reco::PFRecTrack pftrack(
             (*it)->charge(), reco::PFRecTrack::KF, it->key(), (reco::TrackRef)((*it).castTo<reco::TrackRef>()));
         Trajectory FakeTraj;

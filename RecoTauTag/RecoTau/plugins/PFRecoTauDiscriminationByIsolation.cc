@@ -104,7 +104,7 @@ public:
     applyFootprintCorrection_ = pset.getParameter<bool>("applyFootprintCorrection");
     if (applyFootprintCorrection_ || storeRawFootprintCorrection_) {
       edm::VParameterSet cfgFootprintCorrections = pset.getParameter<edm::VParameterSet>("footprintCorrections");
-      for (edm::VParameterSet::const_iterator cfgFootprintCorrection = cfgFootprintCorrections.begin();
+      for (auto cfgFootprintCorrection = cfgFootprintCorrections.begin();
            cfgFootprintCorrection != cfgFootprintCorrections.end();
            ++cfgFootprintCorrection) {
         std::string selection = cfgFootprintCorrection->getParameter<std::string>("selection");
@@ -480,9 +480,7 @@ double PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) c
 
   double footprintCorrection_value = 0.;
   if (applyFootprintCorrection_ || storeRawFootprintCorrection_) {
-    for (std::vector<std::unique_ptr<FootprintCorrection> >::const_iterator footprintCorrection =
-             footprintCorrections_.begin();
-         footprintCorrection != footprintCorrections_.end();
+    for (auto footprintCorrection = footprintCorrections_.begin(); footprintCorrection != footprintCorrections_.end();
          ++footprintCorrection) {
       if ((*footprintCorrection)->selection_(*pfTau)) {
         footprintCorrection_value = (*footprintCorrection)->offset_(*pfTau);
@@ -551,9 +549,7 @@ double PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) c
   double photonSumPt_outsideSignalCone = 0.;
   if (applyPhotonPtSumOutsideSignalConeCut_ || storeRawPhotonSumPt_outsideSignalCone_) {
     const std::vector<reco::CandidatePtr>& signalGammas = pfTau->signalGammaCands();
-    for (std::vector<reco::CandidatePtr>::const_iterator signalGamma = signalGammas.begin();
-         signalGamma != signalGammas.end();
-         ++signalGamma) {
+    for (auto signalGamma = signalGammas.begin(); signalGamma != signalGammas.end(); ++signalGamma) {
       double dR = deltaR(pfTau->eta(), pfTau->phi(), (*signalGamma)->eta(), (*signalGamma)->phi());
       if (dR > pfTau->signalConeSize())
         photonSumPt_outsideSignalCone += (*signalGamma)->pt();

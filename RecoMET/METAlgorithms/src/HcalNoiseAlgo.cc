@@ -46,7 +46,7 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx,
 
   // # of hits
   numHPDHits_ = 0;
-  for (std::vector<reco::HcalNoiseHPD>::const_iterator it1 = rbx.HPDsBegin(); it1 != rbx.HPDsEnd(); ++it1) {
+  for (auto it1 = rbx.HPDsBegin(); it1 != rbx.HPDsEnd(); ++it1) {
     int nhpdhits = it1->numRecHits(minRecHitE);
     if (numHPDHits_ < nhpdhits)
       numHPDHits_ = nhpdhits;
@@ -62,7 +62,7 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx,
   maxLowEHitTime_ = maxHighEHitTime_ = -99999.;
   lowEHitTimeSqrd_ = highEHitTimeSqrd_ = 0;
   numLowEHits_ = numHighEHits_ = 0;
-  for (std::vector<reco::HcalNoiseHPD>::const_iterator it1 = rbx.HPDsBegin(); it1 != rbx.HPDsEnd(); ++it1) {
+  for (auto it1 = rbx.HPDsBegin(); it1 != rbx.HPDsEnd(); ++it1) {
     edm::RefVector<HBHERecHitCollection> rechits = it1->recHits();
     for (edm::RefVector<HBHERecHitCollection>::const_iterator it2 = rechits.begin(); it2 != rechits.end(); ++it2) {
       float energy = (*it2)->energy();
@@ -88,7 +88,7 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx,
 
   // emf (get the one with minimum value)
   HPDEMF_ = 999.;
-  for (std::vector<reco::HcalNoiseHPD>::const_iterator it1 = rbx.HPDsBegin(); it1 != rbx.HPDsEnd(); ++it1) {
+  for (auto it1 = rbx.HPDsBegin(); it1 != rbx.HPDsEnd(); ++it1) {
     double eme = it1->caloTowerEmE();
     double hade = it1->recHitEnergy(minRecHitE);
     double emf = (eme + hade) == 0 ? 999 : eme / (eme + hade);
@@ -101,7 +101,7 @@ CommonHcalNoiseRBXData::CommonHcalNoiseRBXData(const reco::HcalNoiseRBX& rbx,
   // calotowers
   rbxtowers_.clear();
   JoinCaloTowerRefVectorsWithoutDuplicates join;
-  for (std::vector<reco::HcalNoiseHPD>::const_iterator it1 = rbx.HPDsBegin(); it1 != rbx.HPDsEnd(); ++it1) {
+  for (auto it1 = rbx.HPDsBegin(); it1 != rbx.HPDsEnd(); ++it1) {
     join(rbxtowers_, it1->caloTowers());
   }
 
@@ -374,7 +374,7 @@ void JoinCaloTowerRefVectorsWithoutDuplicates::operator()(edm::RefVector<CaloTow
 
   // clear the original refvector and put them back in
   v1.clear();
-  for (twrrefset_t::const_iterator it = twrrefset.begin(); it != twrrefset.end(); ++it) {
+  for (auto it = twrrefset.begin(); it != twrrefset.end(); ++it) {
     v1.push_back(*it);
   }
   return;

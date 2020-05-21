@@ -55,7 +55,7 @@ public:
         return allNodes[_children[ichild]]->insert(dataList, allNodes);
       }
     }
-    SeedingNode<DATA>* node = new SeedingNode<DATA>(dataList[_depth + 1], allNodes, _index);
+    auto* node = new SeedingNode<DATA>(dataList[_depth + 1], allNodes, _index);
     if (node->getDepth() + 1 >= dataList.size()) {
       return true;
     }
@@ -136,7 +136,7 @@ public:
         return _roots[iroot]->insert(dataList, _allNodes);
       }
     }
-    SeedingNode<DATA>* node = new SeedingNode<DATA>(dataList[0], _allNodes);
+    auto* node = new SeedingNode<DATA>(dataList[0], _allNodes);
     _roots.push_back(node);
     return node->insert(dataList, _allNodes);
   }

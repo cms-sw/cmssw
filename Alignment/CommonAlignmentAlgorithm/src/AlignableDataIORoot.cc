@@ -62,7 +62,7 @@ int AlignableDataIORoot::findEntry(align::ID id, align::StructureType comp) {
   }
 
   // now we have filled the map
-  treemaptype::iterator imap = treemap.find(std::make_pair(id, comp));
+  auto imap = treemap.find(std::make_pair(id, comp));
   int result = -1;
   if (imap != treemap.end())
     result = (*imap).second;

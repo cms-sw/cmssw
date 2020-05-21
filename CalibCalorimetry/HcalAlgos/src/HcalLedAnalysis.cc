@@ -577,8 +577,8 @@ void HcalLedAnalysis::processLedEvent(const HBHEDigiCollection& hbhe,
       if (calib.empty())
         throw(int) calib.size();
       // this is effectively a loop over electronic channels
-      for (HcalCalibDigiCollection::const_iterator j = calib.begin(); j != calib.end(); ++j) {
-        const HcalCalibDataFrame digi = (const HcalCalibDataFrame)(*j);
+      for (auto j = calib.begin(); j != calib.end(); ++j) {
+        const auto digi = (const HcalCalibDataFrame)(*j);
         HcalElectronicsId elecId = digi.elecId();
         HcalCalibDetId calibId = digi.id();
         ProcessCalibEvent(elecId.fiberChanId(),
@@ -595,7 +595,7 @@ void HcalLedAnalysis::processLedEvent(const HBHEDigiCollection& hbhe,
     if (hbhe.empty())
       throw(int) hbhe.size();
     // this is effectively a loop over electronic channels
-    for (HBHEDigiCollection::const_iterator j = hbhe.begin(); j != hbhe.end(); ++j) {
+    for (auto j = hbhe.begin(); j != hbhe.end(); ++j) {
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
       for (int k = 0; k < (int)state.size(); k++)
         state[k] = true;
@@ -614,7 +614,7 @@ void HcalLedAnalysis::processLedEvent(const HBHEDigiCollection& hbhe,
   try {
     if (ho.empty())
       throw(int) ho.size();
-    for (HODigiCollection::const_iterator j = ho.begin(); j != ho.end(); ++j) {
+    for (auto j = ho.begin(); j != ho.end(); ++j) {
       const HODataFrame digi = (const HODataFrame)(*j);
       _meol = hoHists.LEDTRENDS.find(digi.id());
       if (_meol == hoHists.LEDTRENDS.end()) {
@@ -630,7 +630,7 @@ void HcalLedAnalysis::processLedEvent(const HBHEDigiCollection& hbhe,
   try {
     if (hf.empty())
       throw(int) hf.size();
-    for (HFDigiCollection::const_iterator j = hf.begin(); j != hf.end(); ++j) {
+    for (auto j = hf.begin(); j != hf.end(); ++j) {
       const HFDataFrame digi = (const HFDataFrame)(*j);
       _meol = hfHists.LEDTRENDS.find(digi.id());
       if (_meol == hfHists.LEDTRENDS.end()) {

@@ -139,7 +139,7 @@ L1GctConfigProducers::JfParamsReturnType L1GctConfigProducers::produceJfParams(c
 }
 
 L1GctConfigProducers::ChanMaskReturnType L1GctConfigProducers::produceChanMask(const L1GctChannelMaskRcd&) {
-  L1GctChannelMask* mask = new L1GctChannelMask;
+  auto* mask = new L1GctChannelMask;
 
   for (unsigned ieta = 0; ieta < 22; ++ieta) {
     if (((m_metEtaMask >> ieta) & 0x1) == 1)

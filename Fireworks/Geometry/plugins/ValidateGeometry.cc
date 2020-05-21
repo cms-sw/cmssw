@@ -739,7 +739,7 @@ void ValidateGeometry::validateCaloGeometry(DetId::Detector detector, int subdet
 void ValidateGeometry::validateTrackerGeometry(const TrackerGeometry::DetContainer& dets, const char* detname) {
   clearData();
 
-  for (TrackerGeometry::DetContainer::const_iterator it = dets.begin(), itEnd = dets.end(); it != itEnd; ++it) {
+  for (auto it = dets.begin(), itEnd = dets.end(); it != itEnd; ++it) {
     GlobalPoint gp =
         (trackerGeometry_->idToDet((*it)->geographicalId()))->surface().toGlobal(LocalPoint(0.0, 0.0, 0.0));
     unsigned int rawId = (*it)->geographicalId().rawId();
@@ -770,7 +770,7 @@ void ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer
   std::vector<double> pixelLocalXs;
   std::vector<double> pixelLocalYs;
 
-  for (TrackerGeometry::DetContainer::const_iterator it = dets.begin(), itEnd = dets.end(); it != itEnd; ++it) {
+  for (auto it = dets.begin(), itEnd = dets.end(); it != itEnd; ++it) {
     unsigned int rawId = (*it)->geographicalId().rawId();
 
     const float* parameters = fwGeometry_.getParameters(rawId);
@@ -780,7 +780,7 @@ void ValidateGeometry::validatePixelTopology(const TrackerGeometry::DetContainer
       continue;
     }
 
-    if (const PixelGeomDetUnit* det =
+    if (const auto* det =
             dynamic_cast<const PixelGeomDetUnit*>(trackerGeometry_->idToDetUnit((*it)->geographicalId()))) {
       if (const PixelTopology* rpt = &det->specificTopology()) {
         int nrows = rpt->nrows();
@@ -813,7 +813,7 @@ void ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer
   std::vector<double> radialStripLocalXs;
   std::vector<double> rectangularStripLocalXs;
 
-  for (TrackerGeometry::DetContainer::const_iterator it = dets.begin(), itEnd = dets.end(); it != itEnd; ++it) {
+  for (auto it = dets.begin(), itEnd = dets.end(); it != itEnd; ++it) {
     unsigned int rawId = (*it)->geographicalId().rawId();
 
     const float* parameters = fwGeometry_.getParameters(rawId);
@@ -823,8 +823,7 @@ void ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer
       continue;
     }
 
-    if (const StripGeomDetUnit* det =
-            dynamic_cast<const StripGeomDetUnit*>(trackerGeometry_->idToDet((*it)->geographicalId()))) {
+    if (const auto* det = dynamic_cast<const StripGeomDetUnit*>(trackerGeometry_->idToDet((*it)->geographicalId()))) {
       // NOTE: why the difference in dets vs. units between these and pixels? The dynamic cast above
       // fails for many of the detids...
 
@@ -836,8 +835,7 @@ void ValidateGeometry::validateStripTopology(const TrackerGeometry::DetContainer
         assert(parameters[1] == nstrips);
         assert(parameters[2] == st->stripLength());
 
-        if (const RadialStripTopology* rst =
-                dynamic_cast<const RadialStripTopology*>(&(det->specificType().specificTopology()))) {
+        if (const auto* rst = dynamic_cast<const RadialStripTopology*>(&(det->specificType().specificTopology()))) {
           assert(parameters[0] == 1);
           assert(parameters[3] == rst->yAxisOrientation());
           assert(parameters[4] == rst->originToIntersection());
@@ -932,7 +930,7 @@ void ValidateGeometry::compareShape(const GeomDet* det, const float* shape) {
 
   const Bounds* bounds = &(det->surface().bounds());
 
-  if (const TrapezoidalPlaneBounds* tpbs = dynamic_cast<const TrapezoidalPlaneBounds*>(bounds)) {
+  if (const auto* tpbs = dynamic_cast<const TrapezoidalPlaneBounds*>(bounds)) {
     std::array<const float, 4> const& ps = tpbs->parameters();
 
     assert(ps.size() == 4);
@@ -1018,7 +1016,7 @@ void ValidateGeometry::makeHistogram(const std::string& name, std::vector<double
   it = std::max_element(data.begin(), data.end());
   double maxE = *it;
 
-  std::vector<double>::iterator itEnd = data.end();
+  auto itEnd = data.end();
 
   TH1D hist(name.c_str(), name.c_str(), 100, minE * (1 + 0.10), maxE * (1 + 0.10));
 

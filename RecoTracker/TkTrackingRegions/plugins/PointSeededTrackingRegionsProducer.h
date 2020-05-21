@@ -175,9 +175,7 @@ public:
       edm::Handle<reco::VertexCollection> vertices;
       e.getByToken(token_vertex, vertices);
       int n_vert = 0;
-      for (reco::VertexCollection::const_iterator iv = vertices->begin(), ev = vertices->end();
-           iv != ev && n_vert < m_maxNVertices;
-           ++iv) {
+      for (auto iv = vertices->begin(), ev = vertices->end(); iv != ev && n_vert < m_maxNVertices; ++iv) {
         if (iv->isFake() || !iv->isValid())
           continue;
 

@@ -78,7 +78,7 @@ void FWSecVertexProxyBuilder::build(const reco::SecondaryVertexTagInfo& iData,
 
     pointSet->SetNextPoint(v.x(), v.y(), v.z());
 
-    for (reco::Vertex::trackRef_iterator it = v.tracks_begin(), itEnd = v.tracks_end(); it != itEnd; ++it) {
+    for (auto it = v.tracks_begin(), itEnd = v.tracks_end(); it != itEnd; ++it) {
       const reco::Track& track = *it->get();
       TEveRecTrack t;
       t.fBeta = 1.;

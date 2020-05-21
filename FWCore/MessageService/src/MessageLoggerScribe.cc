@@ -290,7 +290,7 @@ namespace edm {
             configure_errorlog();
             break;
           } else {
-            ConfigurationHandshake* h_p = static_cast<ConfigurationHandshake*>(operand);
+            auto* h_p = static_cast<ConfigurationHandshake*>(operand);
             job_pset_p =
                 std::shared_ptr<PSet>(static_cast<PSet*>(h_p->p));  // propagate_const<T> has no reset() function
             std::lock_guard<std::mutex> sl(h_p->m);                 // get lock
@@ -348,7 +348,7 @@ namespace edm {
         case MessageLoggerQ::FLUSH_LOG_Q: {  // changelog 26
           if (singleThread)
             return;
-          ConfigurationHandshake* h_p = static_cast<ConfigurationHandshake*>(operand);
+          auto* h_p = static_cast<ConfigurationHandshake*>(operand);
           job_pset_p = std::shared_ptr<PSet>(static_cast<PSet*>(h_p->p));  // propagate_const<T> has no reset() function
           std::lock_guard<std::mutex> sl(h_p->m);                          // get lock
           h_p->c.notify_all();                                             // Signal to MessageLoggerQ that we are done
@@ -363,13 +363,13 @@ namespace edm {
         }
         case MessageLoggerQ::FJR_SUMMARY: {  // changelog 29
           if (singleThread) {
-            std::map<std::string, double>* smp = static_cast<std::map<std::string, double>*>(operand);
+            auto* smp = static_cast<std::map<std::string, double>*>(operand);
             triggerFJRmessageSummary(*smp);
             break;
           } else {
-            ConfigurationHandshake* h_p = static_cast<ConfigurationHandshake*>(operand);
+            auto* h_p = static_cast<ConfigurationHandshake*>(operand);
             std::lock_guard<std::mutex> sl(h_p->m);  // get lock
-            std::map<std::string, double>* smp = static_cast<std::map<std::string, double>*>(h_p->p);
+            auto* smp = static_cast<std::map<std::string, double>*>(h_p->p);
             triggerFJRmessageSummary(*smp);
             h_p->c.notify_all();  // Signal to MessageLoggerQ that we are done
             // finally, release the scoped lock by letting it go out of scope
@@ -530,7 +530,7 @@ namespace edm {
       }
 
       // establish this destination's limit/interval/timespan for each category:
-      for (vString::const_iterator id_it = categories.begin(); id_it != categories.end(); ++id_it) {
+      for (auto id_it = categories.begin(); id_it != categories.end(); ++id_it) {
         String msgID = *id_it;
         PSet default_category_pset = getAparameter<PSet>(default_pset, msgID, empty_PSet);  // change log 5
         PSet category_pset = getAparameter<PSet>(dest_pset, msgID, default_category_pset);
@@ -579,7 +579,7 @@ namespace edm {
       }  // for
 
       // establish this destination's limit for each severity:
-      for (vString::const_iterator sev_it = severities.begin(); sev_it != severities.end(); ++sev_it) {
+      for (auto sev_it = severities.begin(); sev_it != severities.end(); ++sev_it) {
         String sevID = *sev_it;
         ELseverityLevel severity(sevID);
         PSet default_sev_pset = getAparameter<PSet>(default_pset, sevID, empty_PSet);
@@ -662,7 +662,7 @@ namespace edm {
         early_dest->setThreshold(ELhighestSeverity);
 
       // establish each destination:
-      for (vString::const_iterator it = destinations.begin(); it != destinations.end(); ++it) {
+      for (auto it = destinations.begin(); it != destinations.end(); ++it) {
         String filename = *it;
         String psetname = filename;
 
@@ -781,7 +781,7 @@ namespace edm {
       }
 
       // establish each statistics destination:
-      for (vString::const_iterator it = statistics.begin(); it != statistics.end(); ++it) {
+      for (auto it = statistics.begin(); it != statistics.end(); ++it) {
         String statname = *it;
         const String& psetname = statname;
 

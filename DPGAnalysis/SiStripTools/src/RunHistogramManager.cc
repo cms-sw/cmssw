@@ -43,7 +43,7 @@ TH1F** RunHistogramManager::makeTH1F(
 }
 
 RunHistogramManager::~RunHistogramManager() {
-  for (std::vector<BaseHistoParams*>::const_iterator hp = _histograms.begin(); hp != _histograms.end(); ++hp) {
+  for (auto hp = _histograms.begin(); hp != _histograms.end(); ++hp) {
     delete *hp;
   }
   LogDebug("Destructor") << "All BaseHistoParams destroyed ";

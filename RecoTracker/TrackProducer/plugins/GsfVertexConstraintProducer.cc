@@ -73,7 +73,7 @@ void GsfVertexConstraintProducer::produce(edm::StreamID streamid,
       new GsfTrackVtxConstraintAssociationCollection(theTCollection, rPairs));
 
   int index = 0;
-  for (reco::GsfTrackCollection::const_iterator i = theTCollection->begin(); i != theTCollection->end(); i++) {
+  for (auto i = theTCollection->begin(); i != theTCollection->end(); i++) {
     VertexConstraint tmp(GlobalPoint(0, 0, 0), GlobalError(0.01, 0, 0.01, 0, 0, 0.001));
     pairs->push_back(tmp);
     output->insert(reco::GsfTrackRef(theTCollection, index), edm::Ref<std::vector<VertexConstraint> >(rPairs, index));

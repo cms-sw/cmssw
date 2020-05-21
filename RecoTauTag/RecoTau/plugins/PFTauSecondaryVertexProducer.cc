@@ -76,14 +76,14 @@ PFTauSecondaryVertexProducer::~PFTauSecondaryVertexProducer() {}
 
 namespace {
   const reco::Track* getTrack(const reco::Candidate& cand) {
-    const reco::PFCandidate* pfCand = dynamic_cast<const reco::PFCandidate*>(&cand);
+    const auto* pfCand = dynamic_cast<const reco::PFCandidate*>(&cand);
     if (pfCand != nullptr) {
       if (pfCand->trackRef().isNonnull())
         return &*pfCand->trackRef();
       else if (pfCand->gsfTrackRef().isNonnull())
         return &*pfCand->gsfTrackRef();
     }
-    const pat::PackedCandidate* pCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
+    const auto* pCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
     if (pCand != nullptr && pCand->hasTrackDetails())
       return &pCand->pseudoTrack();
     return nullptr;

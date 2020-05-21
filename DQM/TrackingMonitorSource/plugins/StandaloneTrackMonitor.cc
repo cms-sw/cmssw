@@ -531,7 +531,7 @@ void StandaloneTrackMonitor::processClusters(edm::Event const& iEvent,
          dsvit != clusterHandle->end();
          ++dsvit) {
       uint32_t detId = dsvit->id();
-      std::map<uint32_t, std::set<const SiStripCluster*> >::iterator jt = clusterMap_.find(detId);
+      auto jt = clusterMap_.find(detId);
       bool detid_found = (jt != clusterMap_.end()) ? true : false;
 
       // Loop on Clusters
@@ -580,7 +580,7 @@ void StandaloneTrackMonitor::processHit(const TrackingRecHit& recHit,
     return;
 
   if (thit.isMatched()) {
-    const SiStripMatchedRecHit2D& matchedHit = dynamic_cast<const SiStripMatchedRecHit2D&>(recHit);
+    const auto& matchedHit = dynamic_cast<const SiStripMatchedRecHit2D&>(recHit);
 
     auto& clusterM = matchedHit.monoCluster();
     siStripClusterInfo_.setCluster(clusterM, detid);
@@ -617,7 +617,7 @@ void StandaloneTrackMonitor::processHit(const TrackingRecHit& recHit,
   }
 }
 void StandaloneTrackMonitor::addClusterToMap(uint32_t detid, const SiStripCluster* cluster) {
-  std::map<uint32_t, std::set<const SiStripCluster*> >::iterator it = clusterMap_.find(detid);
+  auto it = clusterMap_.find(detid);
   if (it == clusterMap_.end()) {
     std::set<const SiStripCluster*> s;
     s.insert(cluster);

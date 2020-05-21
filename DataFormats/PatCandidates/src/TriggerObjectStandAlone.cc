@@ -88,13 +88,13 @@ bool TriggerObjectStandAlone::hasAnyName(const std::string &name, const std::vec
   std::vector<std::string> namePartsVec;
   boost::split(namePartsVec, name, boost::is_any_of(std::string(1, wildcard_)), boost::token_compress_on);
   // Iterate over vector of names to search
-  for (std::vector<std::string>::const_iterator iVec = nameVec.begin(); iVec != nameVec.end(); ++iVec) {
+  for (auto iVec = nameVec.begin(); iVec != nameVec.end(); ++iVec) {
     // Not failed yet
     bool failed(false);
     // Start searching at the first character
     size_type index(0);
     // Iterate over evaluation name parts
-    for (std::vector<std::string>::const_iterator iName = namePartsVec.begin(); iName != namePartsVec.end(); ++iName) {
+    for (auto iName = namePartsVec.begin(); iName != namePartsVec.end(); ++iName) {
       // Empty parts due to
       // - wild-card at beginning/end or
       // - multiple wild-cards (should be supressed by 'boost::token_compress_on')
@@ -205,7 +205,7 @@ bool TriggerObjectStandAlone::hasPathOrAlgorithm(const std::string &name,
   if (!hasL3Filter())
     pathL3FilterAccepted = false;
   // Check, if path name is assigned at all
-  std::vector<std::string>::const_iterator match(std::find(pathNames_.begin(), pathNames_.end(), name));
+  auto match(std::find(pathNames_.begin(), pathNames_.end(), name));
   // False, if path name not assigned
   if (match == pathNames_.end())
     return false;

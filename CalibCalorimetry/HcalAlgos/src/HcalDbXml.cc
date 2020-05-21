@@ -158,7 +158,7 @@ bool HcalDbXml::dumpObject(std::ostream& fOutput,
   std::cout << "HcalDbXml::dumpObject-> set default errors: 0.0001, 0.0001, 0.0001, 0.0001" << std::endl;
   HcalPedestalWidths widths(fObject.topo(), fObject.isADC());
   std::vector<DetId> channels = fObject.getAllChannels();
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     HcalPedestalWidth item(*channel);
     for (int iCapId = 1; iCapId <= 4; iCapId++) {
       item.setSigma(iCapId, iCapId, dummyError * dummyError);
@@ -182,7 +182,7 @@ bool HcalDbXml::dumpObject(std::ostream& fOutput,
   dumpHeader(fOutput, fRun, KIND, KIND);
 
   std::vector<DetId> channels = fObject.getAllChannels();
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     DetId chId = *channel;
     const float* values = fObject.getValues(chId)->getValues();
     const HcalPedestalWidth* errors = fError.getValues(chId);
@@ -219,7 +219,7 @@ bool HcalDbXml::dumpObject(std::ostream& fOutput,
 
   HcalGainWidths widths(fObject.topo());
   std::vector<DetId> channels = fObject.getAllChannels();
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     HcalGainWidth item(*channel, dummyErrors[0], dummyErrors[1], dummyErrors[2], dummyErrors[3]);
     widths.addValues(item);
   }
@@ -242,7 +242,7 @@ bool HcalDbXml::dumpObject(std::ostream& fOutput,
   dumpHeader(fOutput, fRun, TABLE, KIND);
 
   std::vector<DetId> channels = fObject.getAllChannels();
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     DetId chId = *channel;
     const float* values = fObject.getValues(chId)->getValues();
     const float* errors = fError.getValues(chId)->getValues();

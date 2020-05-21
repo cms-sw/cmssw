@@ -274,8 +274,7 @@ void HSCPValidator::beginJob() {}
 // ------------ method called once each job just after ending the event loop  ------------
 void HSCPValidator::endJob() {
   std::string frequencies = "";
-  for (std::map<int, int>::const_iterator itr = particleIdsFoundMap_.begin(); itr != particleIdsFoundMap_.end();
-       ++itr) {
+  for (auto itr = particleIdsFoundMap_.begin(); itr != particleIdsFoundMap_.end(); ++itr) {
     frequencies += "PDG ID: ";
     frequencies += intToString(itr->first);
     frequencies += " Frequency: ";
@@ -314,7 +313,7 @@ void HSCPValidator::makeGenPlots(const edm::Event& iEvent) {
     }
 
     // Check if the particleId is in our R-hadron list
-    std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(), particleIds_.end(), (*p)->pdg_id());
+    auto partIdItr = find(particleIds_.begin(), particleIds_.end(), (*p)->pdg_id());
     if (partIdItr == particleIds_.end()) {
       //calculate MET(neutrino+ HSCP as MET)
       if (abs((*p)->pdg_id()) != 12 && abs((*p)->pdg_id()) != 14 &&
@@ -365,7 +364,7 @@ void HSCPValidator::makeSimTrackPlots(const edm::Event& iEvent) {
 
   for (simTrack = simTracks.begin(); simTrack != simTracks.end(); ++simTrack) {
     // Check if the particleId is in our list
-    std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(), particleIds_.end(), simTrack->type());
+    auto partIdItr = find(particleIds_.begin(), particleIds_.end(), simTrack->type());
     if (partIdItr == particleIds_.end())
       continue;
 
@@ -522,9 +521,9 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent) {
   int numMatchedDigisEventEB = 0;
   const PCaloHitContainer* phitsEB = nullptr;
   phitsEB = ebSimHits.product();
-  for (SimTrackContainer::const_iterator simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
+  for (auto simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
     // Check if the particleId is in our list
-    std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(), particleIds_.end(), simTrack->type());
+    auto partIdItr = find(particleIds_.begin(), particleIds_.end(), simTrack->type());
     if (partIdItr == particleIds_.end())
       continue;
 
@@ -533,7 +532,7 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent) {
 
     //int particleId = simTrack->type();
     int trackId = simTrack->trackId();
-    PCaloHitContainer::const_iterator simHitItr = phitsEB->begin();
+    auto simHitItr = phitsEB->begin();
     while (simHitItr != phitsEB->end()) {
       if (simHitItr->geantTrackId() == trackId)
         mySimHitsEB.push_back(*simHitItr);
@@ -564,7 +563,7 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent) {
         std::cout << "Could not find simHit detId: " << simHitId << "in EBDigiCollection!" << std::endl;
         continue;
       }
-      std::vector<EBDataFrame>::const_iterator myDigiItr = myDigisEB.begin();
+      auto myDigiItr = myDigisEB.begin();
       while (myDigiItr != myDigisEB.end() && (digiItr->id() != myDigiItr->id()))
         ++myDigiItr;
       if (myDigiItr != myDigisEB.end())
@@ -599,9 +598,9 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent) {
   int numMatchedDigisEventEE = 0;
   const PCaloHitContainer* phitsEE = nullptr;
   phitsEE = eeSimHits.product();
-  for (SimTrackContainer::const_iterator simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
+  for (auto simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
     // Check if the particleId is in our list
-    std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(), particleIds_.end(), simTrack->type());
+    auto partIdItr = find(particleIds_.begin(), particleIds_.end(), simTrack->type());
     if (partIdItr == particleIds_.end())
       continue;
 
@@ -610,7 +609,7 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent) {
 
     //int particleId = simTrack->type();
     int trackId = simTrack->trackId();
-    PCaloHitContainer::const_iterator simHitItr = phitsEE->begin();
+    auto simHitItr = phitsEE->begin();
     while (simHitItr != phitsEE->end()) {
       if (simHitItr->geantTrackId() == trackId)
         mySimHitsEE.push_back(*simHitItr);
@@ -641,7 +640,7 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent) {
         std::cout << "Could not find simHit detId: " << simHitId << "in EEDigiCollection!" << std::endl;
         continue;
       }
-      std::vector<EEDataFrame>::const_iterator myDigiItr = myDigisEE.begin();
+      auto myDigiItr = myDigisEE.begin();
       while (myDigiItr != myDigisEE.end() && (digiItr->id() != myDigiItr->id()))
         ++myDigiItr;
       if (myDigiItr != myDigisEE.end())
@@ -702,7 +701,7 @@ void HSCPValidator::makeRecoPlots(const edm::Event& iEvent) {
       if ((*p)->status() != particleStatus_)
         continue;
       // Check if the particleId is in our R-hadron list
-      std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(), particleIds_.end(), (*p)->pdg_id());
+      auto partIdItr = find(particleIds_.begin(), particleIds_.end(), (*p)->pdg_id());
       if (partIdItr != particleIds_.end()) {
         //calculate DeltaR
         double distance =
@@ -741,8 +740,8 @@ void HSCPValidator::makeSimDigiPlotsRPC(const edm::Event& iEvent) {
     theSimHits.insert(theSimHits.end(), theSimHitContainers.at(i)->begin(), theSimHitContainers.at(i)->end());
   }
 
-  for (std::vector<PSimHit>::const_iterator iHit = theSimHits.begin(); iHit != theSimHits.end(); iHit++) {
-    std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(), particleIds_.end(), (*iHit).particleType());
+  for (auto iHit = theSimHits.begin(); iHit != theSimHits.end(); iHit++) {
+    auto partIdItr = find(particleIds_.begin(), particleIds_.end(), (*iHit).particleType());
     if (partIdItr == particleIds_.end())
       continue;
 

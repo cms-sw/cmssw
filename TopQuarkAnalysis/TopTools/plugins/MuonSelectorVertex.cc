@@ -38,7 +38,7 @@ void MuonSelectorVertex::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   edm::Handle<std::vector<reco::Vertex> > vertices;
   iEvent.getByToken(vertexSource_, vertices);
 
-  std::vector<pat::Muon>* selectedMuons(new std::vector<pat::Muon>);
+  auto* selectedMuons(new std::vector<pat::Muon>);
 
   if (!vertices->empty()) {
     for (unsigned iMuon = 0; iMuon < muons->size(); ++iMuon) {

@@ -93,8 +93,8 @@ unsigned int AlignmentParameterBuilder::addSelections(const edm::ParameterSet &p
   const align::Alignables &alignables = selector.selectedAlignables();
   const std::vector<std::vector<char> > &paramSels = selector.selectedParameters();
 
-  align::Alignables::const_iterator iAli = alignables.begin();
-  std::vector<std::vector<char> >::const_iterator iParamSel = paramSels.begin();
+  auto iAli = alignables.begin();
+  auto iParamSel = paramSels.begin();
   unsigned int nHigherLevel = 0;
 
   while (iAli != alignables.end() && iParamSel != paramSels.end()) {
@@ -136,7 +136,7 @@ unsigned int AlignmentParameterBuilder::add(const align::Alignables &alignables,
                                             const std::vector<bool> &sel) {
   unsigned int nHigherLevel = 0;
 
-  for (align::Alignables::const_iterator iAli = alignables.begin(); iAli != alignables.end(); ++iAli) {
+  for (auto iAli = alignables.begin(); iAli != alignables.end(); ++iAli) {
     if (this->add(*iAli, parType, sel))
       ++nHigherLevel;
   }
@@ -154,7 +154,7 @@ void AlignmentParameterBuilder::fixAlignables(int n) {
   align::Alignables theNewAlignables;
   int i = 0;
   int imax = theAlignables.size();
-  for (align::Alignables::const_iterator ia = theAlignables.begin(); ia != theAlignables.end(); ++ia) {
+  for (auto ia = theAlignables.begin(); ia != theAlignables.end(); ++ia) {
     i++;
     if (n == 1 && i > 1)
       theNewAlignables.push_back(*ia);

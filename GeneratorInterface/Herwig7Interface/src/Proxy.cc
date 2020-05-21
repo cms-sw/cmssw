@@ -55,7 +55,7 @@ std::shared_ptr<ProxyBase> ProxyBase::find(ProxyID id) {
   if (!map)
     return std::shared_ptr<ProxyBase>();
 
-  ProxyMap::const_iterator pos = map->find(id);
+  auto pos = map->find(id);
   if (pos == map->end())
     return std::shared_ptr<ProxyBase>();
 

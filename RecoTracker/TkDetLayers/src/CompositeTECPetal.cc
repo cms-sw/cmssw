@@ -88,7 +88,7 @@ CompositeTECPetal::CompositeTECPetal(vector<const TECWedge*>& innerWedges, vecto
   details::fillPars(theFrontComps, theFrontPars);
   details::fillPars(theBackComps, theBackPars);
 
-  for (vector<const GeometricSearchDet*>::const_iterator it = theComps.begin(); it != theComps.end(); it++) {
+  for (auto it = theComps.begin(); it != theComps.end(); it++) {
     theBasicComps.insert(theBasicComps.end(), (**it).basicComponents().begin(), (**it).basicComponents().end());
   }
 

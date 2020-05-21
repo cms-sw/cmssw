@@ -280,7 +280,7 @@ void L1GtBoard::print(std::ostream& myCout) const {
     myCout << "PSB Input per Cable: DEPRECATED" << std::endl;
   }
 
-  for (std::vector<L1GtPsbQuad>::const_iterator cIt = m_gtQuadInPsb.begin(); cIt != m_gtQuadInPsb.end(); ++cIt) {
+  for (auto cIt = m_gtQuadInPsb.begin(); cIt != m_gtQuadInPsb.end(); ++cIt) {
     std::string objType;
 
     if (*cIt == TechTr) {
@@ -340,12 +340,10 @@ void L1GtBoard::print(std::ostream& myCout) const {
     myCout << "Input objects pro channel:";
   }
 
-  for (std::map<int, std::vector<L1GtObject> >::const_iterator cIt = m_gtInputPsbChannels.begin();
-       cIt != m_gtInputPsbChannels.end();
-       ++cIt) {
+  for (auto cIt = m_gtInputPsbChannels.begin(); cIt != m_gtInputPsbChannels.end(); ++cIt) {
     myCout << "\n  Channel " << cIt->first << " (" << (cIt->second).size() << " objects): ";
 
-    for (std::vector<L1GtObject>::const_iterator itObj = (cIt->second).begin(); itObj != (cIt->second).end(); ++itObj) {
+    for (auto itObj = (cIt->second).begin(); itObj != (cIt->second).end(); ++itObj) {
       switch (*itObj) {
         case Mu: {
           myCout << " Mu ";

@@ -55,7 +55,7 @@ void CountProcessesAction::update(const BeginOfTrack *trk) {
   else
     processName = "Primary";
   pss parproc(particleName, processName);
-  mpssi::iterator ite = theCreatorProcessList.find(parproc);
+  auto ite = theCreatorProcessList.find(parproc);
   if (ite == theCreatorProcessList.end())
     theCreatorProcessList[parproc] = 1;
   else

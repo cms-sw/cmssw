@@ -896,8 +896,7 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         // valid hits Glb track from Sta system
         double rhGlb_TkProvenance = 0;
 
-        for (trackingRecHit_iterator recHit = recoCombinedGlbTrack->recHitsBegin();
-             recHit != recoCombinedGlbTrack->recHitsEnd();
+        for (auto recHit = recoCombinedGlbTrack->recHitsBegin(); recHit != recoCombinedGlbTrack->recHitsEnd();
              ++recHit) {
           if ((*recHit)->isValid()) {
             DetId id = (*recHit)->geographicalId();
@@ -998,8 +997,8 @@ int MuonRecoAnalyzer::getPv(int tidx, const reco::VertexCollection* vc) {
   if (vc) {
     for (unsigned int i = 0; i < vc->size(); ++i) {
       reco::Vertex::trackRef_iterator v1TrackIter;
-      reco::Vertex::trackRef_iterator v1TrackBegin = vc->at(i).tracks_begin();
-      reco::Vertex::trackRef_iterator v1TrackEnd = vc->at(i).tracks_end();
+      auto v1TrackBegin = vc->at(i).tracks_begin();
+      auto v1TrackEnd = vc->at(i).tracks_end();
       for (v1TrackIter = v1TrackBegin; v1TrackIter != v1TrackEnd; v1TrackIter++) {
         if (static_cast<unsigned int>(tidx) == v1TrackIter->key())
           return i;

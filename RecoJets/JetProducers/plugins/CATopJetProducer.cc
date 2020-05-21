@@ -97,7 +97,7 @@ void CATopJetProducer::runAlgorithm(edm::Event& iEvent, const edm::EventSetup& i
     fastjet::JHTopTagger& JHUTagger = *fjJHUTopTagger_;
     fastjet::RestFrameNSubjettinessTagger& NSUBTagger = *fjNSUBTagger_;
 
-    vector<fastjet::PseudoJet>::iterator jetIt = centralJets.begin(), centralJetsEnd = centralJets.end();
+    auto jetIt = centralJets.begin(), centralJetsEnd = centralJets.end();
     if (verbose_)
       cout << "Loop over jets" << endl;
     for (; jetIt != centralJetsEnd; ++jetIt) {

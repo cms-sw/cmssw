@@ -65,7 +65,7 @@ namespace edm {
       EncodedEventId id(bcr, evtNr);
       for (auto it = trackingrechits.begin(); it != trackingrechits.end(); ++it) {
         if (trackerHitRTTI::isFast(*it)) {
-          FastTrackerRecHit* rechit = static_cast<FastTrackerRecHit*>(&(*it));
+          auto* rechit = static_cast<FastTrackerRecHit*>(&(*it));
           rechit->setEventId(id.rawId());
         }
       }

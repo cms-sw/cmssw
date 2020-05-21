@@ -16,7 +16,7 @@ public:
   ReadMapType() : std::map<std::string, V>() {}
 
   const V& operator[](const std::string& key) const {
-    typename std::map<std::string, V>::const_iterator it = this->find(key);
+    auto it = this->find(key);
     if (it == this->end())
       dddDetails::errorReadMapType(key);
     return it->second;

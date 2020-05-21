@@ -50,8 +50,8 @@ namespace FsmwClusterizer1DNameSpace {
   std::pair<typename std::vector<Cluster1D<T> >::const_iterator, typename std::vector<Cluster1D<T> >::const_iterator>
   fsmw(const std::vector<Cluster1D<T> >& values, double fraction) {
     typedef Cluster1D<T> Cluster1D;
-    typename std::vector<Cluster1D>::const_iterator begin = values.begin();
-    typename std::vector<Cluster1D>::const_iterator end = values.end() - 1;
+    auto begin = values.begin();
+    auto end = values.end() - 1;
 
     while (true) {
 #ifdef FsmwClusterizer1DDebug
@@ -73,8 +73,8 @@ namespace FsmwClusterizer1DNameSpace {
 #endif
 
       end = begin + stepsize;
-      typename std::vector<Cluster1D>::const_iterator new_begin = begin;
-      typename std::vector<Cluster1D>::const_iterator new_end = end;
+      auto new_begin = begin;
+      auto new_end = end;
 
 #ifdef FsmwClusterizer1DDebug
 
@@ -88,7 +88,7 @@ namespace FsmwClusterizer1DNameSpace {
       // new version: sums up the weights of all points involved
       // _including_ the "end" point
       double totalweight = end->weight();
-      for (typename std::vector<Cluster1D>::const_iterator w = begin; w != end; ++w) {
+      for (auto w = begin; w != end; ++w) {
         totalweight += w->weight();
       };
 
@@ -98,14 +98,14 @@ namespace FsmwClusterizer1DNameSpace {
       cout << "Div at " << begin->position().value() << ":" << (end)->position().value() << " = " << div << endl;
 #endif
 
-      for (typename std::vector<Cluster1D>::const_iterator i = (begin + 1); i != (begin + size - stepsize + 1); ++i) {
+      for (auto i = (begin + 1); i != (begin + size - stepsize + 1); ++i) {
         // FIXME wrong
         // double tmpweight = i->weight() + (i+stepsize)->weight();
         //
         // new version: sums up the weights of all points in the interval
         // _including_ the end point (i+stepsize)
         double tmpweight = 0.;
-        for (typename std::vector<Cluster1D>::const_iterator wt = i; wt != (i + stepsize + 1); ++wt) {
+        for (auto wt = i; wt != (i + stepsize + 1); ++wt) {
           tmpweight += wt->weight();
         };
 
@@ -197,7 +197,7 @@ std::pair<std::vector<Cluster1D<T> >, std::vector<const T*> > FsmwClusterizer1D<
   std::vector<const T*> trks;
   int inliers = 0;
 
-  for (typename std::vector<Cluster1D>::iterator i = v.begin(); i != v.end(); ++i) {
+  for (auto i = v.begin(); i != v.end(); ++i) {
     /*
         std::cout << "[FsmwClusterizer1D] see if they're in: delta="
                   << 10000 * fabs ( i->position().value() - est )

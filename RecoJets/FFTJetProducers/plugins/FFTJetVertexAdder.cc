@@ -175,8 +175,8 @@ void FFTJetVertexAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
                                                  " could not find existing collection of vertices"
                                               << std::endl;
 
-    const IV vertend(vertices->end());
-    for (IV iv = vertices->begin(); iv != vertend; ++iv)
+    const auto vertend(vertices->end());
+    for (auto iv = vertices->begin(); iv != vertend; ++iv)
       pOutput->push_back(*iv);
   }
 

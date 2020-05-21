@@ -179,7 +179,7 @@ void SiStripCommissioningSource::endJob() {
 
   // ---------- Update histograms ----------
   // Cabling task
-  for (TaskMap::iterator itask = cablingTasks_.begin(); itask != cablingTasks_.end(); itask++) {
+  for (auto itask = cablingTasks_.begin(); itask != cablingTasks_.end(); itask++) {
     if (itask->second) {
       itask->second->updateHistograms();
     }
@@ -459,7 +459,7 @@ void SiStripCommissioningSource::fillCablingHistos(const SiStripEventSummary* co
       // Retrieve digis for given FED key
       uint32_t fed_key = ((*ifed & sistrip::invalid_) << 16) | (ichan & sistrip::invalid_);
 
-      std::vector<edm::DetSet<SiStripRawDigi> >::const_iterator digis = raw.find(fed_key);
+      auto digis = raw.find(fed_key);
       if (digis != raw.end()) {
         if (digis->data.empty()) {
           continue;
@@ -479,7 +479,7 @@ void SiStripCommissioningSource::fillCablingHistos(const SiStripEventSummary* co
 
     // Calculate mean and spread on all (median) signal levels
     Averages average;
-    std::map<uint16_t, float>::const_iterator ii = medians.begin();
+    auto ii = medians.begin();
     for (; ii != medians.end(); ii++) {
       average.add(ii->second);
     }
@@ -495,7 +495,7 @@ void SiStripCommissioningSource::fillCablingHistos(const SiStripEventSummary* co
 
     // Calculate mean and spread on "filtered" data
     Averages truncated;
-    std::map<uint16_t, float>::const_iterator jj = medians.begin();
+    auto jj = medians.begin();
     for (; jj != medians.end(); jj++) {
       if (jj->second < tmp.median_ + tmp.rms_) {
         truncated.add(jj->second);
@@ -515,7 +515,7 @@ void SiStripCommissioningSource::fillCablingHistos(const SiStripEventSummary* co
     std::stringstream ss2;
     std::stringstream ss3;
     std::map<uint16_t, float> channels;
-    std::map<uint16_t, float>::const_iterator ichan = medians.begin();
+    auto ichan = medians.begin();
     for (; ichan != medians.end(); ichan++) {
       if (ichan->second > 200.) {
         LogTrace(mlTest_) << "TEST FOUND SIGNAL HIGH: " << *ifed << " " << ichan->first << " " << ichan->second;
@@ -584,7 +584,7 @@ void SiStripCommissioningSource::fillHistos(const SiStripEventSummary* const sum
       // beware that changes here must match changes in raw2digi and in SiStripFineDelayHit
       uint32_t fed_key = ((iconn->fedId() & sistrip::invalid_) << 16) | (iconn->fedCh() & sistrip::invalid_);
       // Retrieve digis for given FED key and check if found
-      std::vector<edm::DetSet<SiStripRawDigi> >::const_iterator digis = raw.find(fed_key);
+      auto digis = raw.find(fed_key);
 
       // only for spy data-taking --> tick measurement
       std::vector<edm::DetSet<SiStripRawDigi> >::const_iterator digisAlt;
@@ -771,17 +771,11 @@ void SiStripCommissioningSource::createTask(const SiStripEventSummary* const sum
 void SiStripCommissioningSource::createCablingTasks() {
   // Iterate through FEC cabling and create commissioning task objects
   uint16_t booked = 0;
-  for (std::vector<SiStripFecCrate>::const_iterator icrate = fecCabling_->crates().begin();
-       icrate != fecCabling_->crates().end();
-       icrate++) {
-    for (std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++) {
-      for (std::vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end();
-           iring++) {
-        for (std::vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end();
-             iccu++) {
-          for (std::vector<SiStripModule>::const_iterator imodule = iccu->modules().begin();
-               imodule != iccu->modules().end();
-               imodule++) {
+  for (auto icrate = fecCabling_->crates().begin(); icrate != fecCabling_->crates().end(); icrate++) {
+    for (auto ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++) {
+      for (auto iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++) {
+        for (auto iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++) {
+          for (auto imodule = iccu->modules().begin(); imodule != iccu->modules().end(); imodule++) {
             // Build FEC key
             SiStripFecKey path(
                 icrate->fecCrate(), ifec->fecSlot(), iring->fecRing(), iccu->ccuAddr(), imodule->ccuChan());
@@ -1045,7 +1039,7 @@ void SiStripCommissioningSource::clearCablingTasks() {
   if (cablingTasks_.empty()) {
     return;
   }
-  for (TaskMap::iterator itask = cablingTasks_.begin(); itask != cablingTasks_.end(); itask++) {
+  for (auto itask = cablingTasks_.begin(); itask != cablingTasks_.end(); itask++) {
     if (itask->second) {
       delete itask->second;
     }
@@ -1059,9 +1053,9 @@ void SiStripCommissioningSource::clearTasks() {
   if (tasks_.empty()) {
     return;
   }
-  VecOfVecOfTasks::iterator ifed = tasks_.begin();
+  auto ifed = tasks_.begin();
   for (; ifed != tasks_.end(); ifed++) {
-    VecOfTasks::iterator ichan = ifed->begin();
+    auto ichan = ifed->begin();
     for (; ichan != ifed->end(); ichan++) {
       if (*ichan) {
         delete *ichan;

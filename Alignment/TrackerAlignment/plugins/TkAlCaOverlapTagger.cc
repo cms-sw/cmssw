@@ -91,8 +91,7 @@ void TkAlCaOverlapTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     const TrajectoryMeasurement* previousTM(nullptr);
     DetId previousId(0);
 
-    for (std::vector<TrajectoryMeasurement>::const_iterator itTrajMeas = tmColl.begin(); itTrajMeas != tmColl.end();
-         ++itTrajMeas) {
+    for (auto itTrajMeas = tmColl.begin(); itTrajMeas != tmColl.end(); ++itTrajMeas) {
       hitcnt++;
 
       if (previousTM != nullptr) {
@@ -117,8 +116,7 @@ void TkAlCaOverlapTagger::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       int subDet = detid.subdetId();
 
       if ((previousTM != nullptr) && (layer != -1)) {
-        for (std::vector<TrajectoryMeasurement>::const_iterator itmCompare = itTrajMeas - 1;
-             itmCompare >= tmColl.begin() && itmCompare > itTrajMeas - 4;
+        for (auto itmCompare = itTrajMeas - 1; itmCompare >= tmColl.begin() && itmCompare > itTrajMeas - 4;
              --itmCompare) {
           DetId compareId = itmCompare->recHit()->geographicalId();
           if (subDet != compareId.subdetId() || layer != layerFromId(compareId, tTopo))

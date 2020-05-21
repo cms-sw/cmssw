@@ -45,7 +45,7 @@ void TBHodoActiveVolumeRawInfoProducer::produce(edm::Event &event, const edm::Ev
   for (auto &&aHit : *caloHits) {
     double thisHitEne = aHit.energy();
 
-    std::map<unsigned int, double>::iterator itmap = energyMap.find(aHit.id());
+    auto itmap = energyMap.find(aHit.id());
     if (itmap == energyMap.end())
       energyMap.insert(pair<unsigned int, double>(aHit.id(), thisHitEne));
     else {
@@ -64,7 +64,7 @@ void TBHodoActiveVolumeRawInfoProducer::produce(edm::Event &event, const edm::Ev
       firedChannels[iPlane][iFiber] = 0.;
     }
   }
-  for (std::map<unsigned int, double>::const_iterator itmap = energyMap.begin(); itmap != energyMap.end(); ++itmap) {
+  for (auto itmap = energyMap.begin(); itmap != energyMap.end(); ++itmap) {
     if ((*itmap).second > myThreshold) {
       HodoscopeDetId myHodoDetId = HodoscopeDetId((*itmap).first);
       firedChannels[myHodoDetId.planeId()][myHodoDetId.fibrId()] = true;

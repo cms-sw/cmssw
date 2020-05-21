@@ -32,8 +32,7 @@ ExoticaDQM::ExoticaDQM(const edm::ParameterSet& ps) {
   PFJetToken_ = consumes<reco::PFJetCollection>(ps.getParameter<InputTag>("pfJetCollection"));
   //
   DiJetPFJetCollection_ = ps.getParameter<std::vector<edm::InputTag> >("DiJetPFJetCollection");
-  for (std::vector<edm::InputTag>::const_iterator jetlabel = DiJetPFJetCollection_.begin(),
-                                                  jetlabelEnd = DiJetPFJetCollection_.end();
+  for (auto jetlabel = DiJetPFJetCollection_.begin(), jetlabelEnd = DiJetPFJetCollection_.end();
        jetlabel != jetlabelEnd;
        ++jetlabel) {
     DiJetPFJetToken_.push_back(consumes<reco::PFJetCollection>(*jetlabel));
@@ -438,7 +437,7 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   dijet_countPFJet_ = 0;
   monojet_countPFJet_ = 0;
 
-  PFJetCollection::const_iterator pfjet_ = pfjets.begin();
+  auto pfjet_ = pfjets.begin();
   for (; pfjet_ != pfjets.end(); ++pfjet_) {
     double scale = 1.;
     if (ValidJetCorrector)
@@ -488,11 +487,11 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
 
   VertexCollection vertexCollection = *(VertexCollection_.product());
-  reco::VertexCollection::const_iterator primaryVertex_ = vertexCollection.begin();
+  auto primaryVertex_ = vertexCollection.begin();
 
   dimuon_countMuon_ = 0;
   monomuon_countMuon_ = 0;
-  reco::MuonCollection::const_iterator muon_ = MuonCollection_->begin();
+  auto muon_ = MuonCollection_->begin();
   for (; muon_ != MuonCollection_->end(); muon_++) {
     // Muon High Pt ID
     bool HighPt = false;
@@ -529,7 +528,7 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   dielectron_countElectron_ = 0;
   monoelectron_countElectron_ = 0;
-  reco::GsfElectronCollection::const_iterator electron_ = ElectronCollection_->begin();
+  auto electron_ = ElectronCollection_->begin();
   for (; electron_ != ElectronCollection_->end(); electron_++) {
     //HEEP Selection 4.1 (some cuts)
     if (electron_->e5x5() <= 0)
@@ -583,7 +582,7 @@ void ExoticaDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
 
   diphoton_countPhoton_ = 0.;
-  reco::PhotonCollection::const_iterator photon_ = PhotonCollection_->begin();
+  auto photon_ = PhotonCollection_->begin();
   for (; photon_ != PhotonCollection_->end(); ++photon_) {
     if (photon_->pt() > PhotonPt[0]) {
       PhotonEnergy[1] = PhotonEnergy[0];
@@ -655,7 +654,7 @@ void ExoticaDQM::analyzeDisplacedLeptons(const Event& iEvent, const edm::EventSe
     if (idPdg == stop1 || idPdg == stop2) {
       unsigned int nDau = gen.numberOfDaughters();
       for (unsigned int i = 0; i < nDau; i++) {
-        const reco::GenParticle* dau = (const reco::GenParticle*)gen.daughter(i);
+        const auto* dau = (const reco::GenParticle*)gen.daughter(i);
         // Only measure efficiency using leptons passing pt & eta cuts. (The pt cut is almost irrelevant, since leptons from stop decay are hard).
         if (fabs(dau->eta()) < dispFermion_eta_cut_ && dau->pt() > dispFermion_pt_cut_) {
           unsigned int pdgIdDau = abs(dau->pdgId());
@@ -834,7 +833,7 @@ void ExoticaDQM::analyzeDiJets(const Event& iEvent) {
       PFJetNEMF[i] = 0.;
       PFJetCEMF[i] = 0.;
     }
-    PFJetCollection::const_iterator DiJetpfjet_ = DiJetpfjets.begin();
+    auto DiJetpfjet_ = DiJetpfjets.begin();
     for (; DiJetpfjet_ != DiJetpfjets.end(); ++DiJetpfjet_) {
       double scale = 1.;
       if (scale * DiJetpfjet_->pt() > PFJetPt[0]) {

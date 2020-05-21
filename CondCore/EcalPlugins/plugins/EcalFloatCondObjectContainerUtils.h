@@ -26,7 +26,7 @@ template <class floatCondObj>
 void fillEBMap_SingleIOV(std::shared_ptr<floatCondObj> payload, TH2F*& barrel) {
   for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
     uint32_t rawid = EBDetId::unhashIndex(cellid);
-    EcalCondObjectContainer<float>::const_iterator value_ptr = payload->find(rawid);
+    auto value_ptr = payload->find(rawid);
     if (value_ptr == payload->end())
       continue;  // cell absent from payload
 
@@ -52,7 +52,7 @@ void fillEEMap_SingleIOV(std::shared_ptr<floatCondObj> payload, TH2F*& endc_m, T
         if (EEDetId::validDetId(ix, iy, iz)) {
           EEDetId myEEId = EEDetId(ix, iy, iz, EEDetId::XYMODE);
           uint32_t rawid = myEEId.rawId();
-          EcalCondObjectContainer<float>::const_iterator value_ptr = payload->find(rawid);
+          auto value_ptr = payload->find(rawid);
           if (value_ptr == payload->end())
             continue;  // cell absent from payload
 
@@ -70,7 +70,7 @@ void fillEBMap_DiffIOV(
     std::shared_ptr<floatCondObj> payload, TH2F*& barrel, int irun, float pEB[], float& pEBmin, float& pEBmax) {
   for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
     uint32_t rawid = EBDetId::unhashIndex(cellid);
-    EcalCondObjectContainer<float>::const_iterator value_ptr = payload->find(rawid);
+    auto value_ptr = payload->find(rawid);
     if (value_ptr == payload->end())
       continue;  // cell absent from payload
 
@@ -115,7 +115,7 @@ void fillEEMap_DiffIOV(std::shared_ptr<floatCondObj> payload,
           EEDetId myEEId = EEDetId(ix, iy, iz, EEDetId::XYMODE);
           uint32_t cellid = myEEId.hashedIndex();
           uint32_t rawid = myEEId.rawId();
-          EcalCondObjectContainer<float>::const_iterator value_ptr = payload->find(rawid);
+          auto value_ptr = payload->find(rawid);
 
           if (value_ptr == payload->end())
             continue;  // cell absent from payload

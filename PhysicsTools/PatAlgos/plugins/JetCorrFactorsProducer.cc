@@ -106,7 +106,7 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& cfg)
 std::vector<std::string> JetCorrFactorsProducer::expand(const std::vector<std::string>& levels,
                                                         const JetCorrFactors::Flavor& flavor) {
   std::vector<std::string> expand;
-  for (std::vector<std::string>::const_iterator level = levels.begin(); level != levels.end(); ++level) {
+  for (auto level = levels.begin(); level != levels.end(); ++level) {
     if ((*level) == "L5Flavor" || (*level) == "L7Parton") {
       if (flavor == JetCorrFactors::GLUON) {
         if (*level == "L7Parton" && type_ == "T") {
@@ -133,7 +133,7 @@ std::vector<std::string> JetCorrFactorsProducer::expand(const std::vector<std::s
 std::vector<JetCorrectorParameters> JetCorrFactorsProducer::params(const JetCorrectorParametersCollection& parameters,
                                                                    const std::vector<std::string>& levels) const {
   std::vector<JetCorrectorParameters> params;
-  for (std::vector<std::string>::const_iterator level = levels.begin(); level != levels.end(); ++level) {
+  for (auto level = levels.begin(); level != levels.end(); ++level) {
     const JetCorrectorParameters& ip = parameters[*level];  //ip.printScreen();
     params.push_back(ip);
   }
@@ -200,7 +200,7 @@ void JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& s
     edm::ESHandle<JetCorrectorParametersCollection> parameters;
     setup.get<JetCorrectionsRecord>().get(payload(), parameters);
     // initialize jet correctors
-    for (FlavorCorrLevelMap::const_iterator flavor = levels_.begin(); flavor != levels_.end(); ++flavor) {
+    for (auto flavor = levels_.begin(); flavor != levels_.end(); ++flavor) {
       correctors_[flavor->first].reset(new FactorizedJetCorrector(params(*parameters, flavor->second)));
     }
     // initialize extra jet corrector for jpt if needed
@@ -227,7 +227,7 @@ void JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& s
     // levels listed for that element. If this is not the only element all jec levels, which
     // are flavor independent will give the same correction factors until the first flavor
     // dependent correction level is reached. So the first element is still a good choice.
-    FlavorCorrLevelMap::const_iterator corrLevel = levels_.begin();
+    auto corrLevel = levels_.begin();
     if (corrLevel == levels_.end()) {
       throw cms::Exception("No JECFactors")
           << "You request to create a jetCorrFactors object with no JEC Levels indicated. \n"
@@ -238,7 +238,7 @@ void JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& s
       std::vector<float> factors;
       if (corrLevel->second[idx].find("L5Flavor") != std::string::npos ||
           corrLevel->second[idx].find("L7Parton") != std::string::npos) {
-        for (FlavorCorrLevelMap::const_iterator flavor = corrLevel; flavor != levels_.end(); ++flavor) {
+        for (auto flavor = corrLevel; flavor != levels_.end(); ++flavor) {
           if (!primaryVertices_.label().empty()) {
             // if primaryVerticesToken_ has a value the number of primary vertices needs to be
             // specified

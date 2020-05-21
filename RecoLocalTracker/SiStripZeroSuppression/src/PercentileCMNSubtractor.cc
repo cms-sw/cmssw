@@ -32,7 +32,7 @@ inline void PercentileCMNSubtractor::subtract_(uint32_t detId, uint16_t firstAPV
 
 template <typename T>
 inline float PercentileCMNSubtractor::percentile(std::vector<T>& sample, double pct) {
-  typename std::vector<T>::iterator mid = sample.begin() + int(sample.size() * pct / 100.0);
+  auto mid = sample.begin() + int(sample.size() * pct / 100.0);
   std::nth_element(sample.begin(), mid, sample.end());
   return *mid;
 }

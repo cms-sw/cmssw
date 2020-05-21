@@ -79,7 +79,7 @@ void FileRandomKEThetaGunProducer::produce(edm::Event& e, const edm::EventSetup&
 
   // 1st, primary vertex
   //
-  HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
+  auto* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
 
   // loop over particles
   //
@@ -114,7 +114,7 @@ void FileRandomKEThetaGunProducer::produce(edm::Event& e, const edm::EventSetup&
     double pz = mom * cos(theta);
 
     HepMC::FourVector p(px, py, pz, energy);
-    HepMC::GenParticle* Part = new HepMC::GenParticle(p, PartID, 1);
+    auto* Part = new HepMC::GenParticle(p, PartID, 1);
     Part->suggest_barcode(barcode);
     barcode++;
     Vtx->add_particle_out(Part);

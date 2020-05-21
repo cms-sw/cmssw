@@ -183,7 +183,7 @@ void CosmicTrackSelector::produce(edm::Event &evt, const edm::EventSetup &es) {
 
   // Loop over tracks
   size_t current = 0;
-  for (TrackCollection::const_iterator it = hSrcTrack->begin(), ed = hSrcTrack->end(); it != ed; ++it, ++current) {
+  for (auto it = hSrcTrack->begin(), ed = hSrcTrack->end(); it != ed; ++it, ++current) {
     const Track &trk = *it;
     // Check if this track passes cuts
     bool ok = select(vertexBeamSpot, trk);
@@ -215,7 +215,7 @@ void CosmicTrackSelector::produce(edm::Event &evt, const edm::EventSetup &es) {
       tx.setResiduals(trk.residuals());
       // TrackingRecHits
       auto const firstHitIndex = selHits_->size();
-      for (trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++hit) {
+      for (auto hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++hit) {
         selHits_->push_back((*hit)->clone());
       }
       tx.setHits(rHits_, firstHitIndex, selHits_->size() - firstHitIndex);
@@ -273,7 +273,7 @@ bool CosmicTrackSelector::select(const reco::BeamSpot &vertexBeamSpot, const rec
   // Get the number of valid hits and PixelHits
   uint32_t nHit = 0;
   uint32_t nPixelHit = 0;
-  for (trackingRecHit_iterator recHit = tk.recHitsBegin(); recHit != tk.recHitsEnd(); ++recHit) {
+  for (auto recHit = tk.recHitsBegin(); recHit != tk.recHitsEnd(); ++recHit) {
     if (!((*recHit)->isValid()))
       continue;
     ++nHit;

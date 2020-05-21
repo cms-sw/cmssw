@@ -59,7 +59,7 @@ void FieldBuilder::configureForVolume(const std::string &volName,
   FieldStepper *dStepper = new FieldStepper(theFieldEquation, theDelta, stepper);
   G4ChordFinder *cf = new G4ChordFinder(theField, minStep, dStepper);
 
-  MonopoleEquation *monopoleEquation = new MonopoleEquation(theField);
+  auto *monopoleEquation = new MonopoleEquation(theField);
   G4MagIntegratorStepper *mStepper = new G4ClassicalRK4(monopoleEquation, 8);
   G4ChordFinder *cfmon = new G4ChordFinder(theField, minStep, mStepper);
 

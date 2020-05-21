@@ -153,7 +153,7 @@ void JetFlavourIdentifier::produce(StreamID, Event& iEvent, const EventSetup& iE
   std::unique_ptr<reco::JetFlavourMatchingCollection> jetFlavMatching(jfmc);
 
   // Loop over the matched partons and see which match.
-  for (JetMatchedPartonsCollection::const_iterator j = theTagByRef->begin(); j != theTagByRef->end(); j++) {
+  for (auto j = theTagByRef->begin(); j != theTagByRef->end(); j++) {
     // Consider this match.
     const MatchedPartons aMatch = (*j).second;
 

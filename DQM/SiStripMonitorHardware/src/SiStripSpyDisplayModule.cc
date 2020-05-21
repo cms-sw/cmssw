@@ -270,7 +270,7 @@ void SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::Event
       edm::Handle<edm::DetSetVector<SiStripDigi> > czs_digis;
       //            iEvent.getByLabel( inputCompZeroSuppressedDigiLabel_, czs_digis );
       iEvent.getByToken(inputCompZeroSuppressedDigiToken_, czs_digis);
-      std::vector<edm::DetSet<SiStripDigi> >::const_iterator digis_it = czs_digis->begin();
+      auto digis_it = czs_digis->begin();
       for (; digis_it != czs_digis->end(); ++digis_it) {
         detIDs_.push_back(digis_it->detId());
       }
@@ -278,7 +278,7 @@ void SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::Event
       edm::Handle<edm::DetSetVector<SiStripRawDigi> > cvr_digis;
       //            iEvent.getByLabel( inputCompVirginRawDigiLabel_, cvr_digis );
       iEvent.getByToken(inputCompVirginRawDigiToken_, cvr_digis);
-      std::vector<edm::DetSet<SiStripRawDigi> >::const_iterator digis_it = cvr_digis->begin();
+      auto digis_it = cvr_digis->begin();
       for (; digis_it != cvr_digis->end(); ++digis_it) {
         detIDs_.push_back(digis_it->detId());
       }
@@ -286,7 +286,7 @@ void SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::Event
   }
 
   // Loop over detIDs as obtained from the SpyChannelMonitor config file.
-  for (std::vector<uint32_t>::iterator d = detIDs_.begin(); d != detIDs_.end(); ++d) {
+  for (auto d = detIDs_.begin(); d != detIDs_.end(); ++d) {
     // TODO: Need some error checking here, probably...
     const std::vector<const FedChannelConnection*>& conns = lCabling->getConnections(*d);
     //cout << "________________________________________________" << endl;
@@ -493,7 +493,7 @@ Bool_t SiStripSpyDisplayModule::MakeRawDigiHist_(const edm::Handle<edm::DetSetVe
 
   // TODO: May need to make this error checking independent when refactoring...
   //std::cout << "| * digis for " << type << " and detID " << specifier;
-  std::vector<edm::DetSet<SiStripRawDigi> >::const_iterator digis_it = digi_handle->find(specifier);
+  auto digis_it = digi_handle->find(specifier);
   if (digis_it == digi_handle->end()) {
     //std::cout << " not found :( ";
     return false;
@@ -501,7 +501,7 @@ Bool_t SiStripSpyDisplayModule::MakeRawDigiHist_(const edm::Handle<edm::DetSetVe
   //std::cout << std::endl;
 
   // Loop over the digis for the detID and APV pair.
-  edm::DetSet<SiStripRawDigi>::const_iterator idigi = digis_it->data.begin();
+  auto idigi = digis_it->data.begin();
   uint32_t count = 0;
   for (; idigi != digis_it->data.end(); ++idigi) {
     count++;
@@ -528,7 +528,7 @@ Bool_t SiStripSpyDisplayModule::MakeProcessedRawDigiHist_(
 
   // TODO: May need to make this error checking independent when refactoring...
   //std::cout << "| * digis for " << type << " and detID " << specifier;
-  std::vector<edm::DetSet<SiStripProcessedRawDigi> >::const_iterator digis_it = digi_handle->find(specifier);
+  auto digis_it = digi_handle->find(specifier);
   if (digis_it == digi_handle->end()) {
     //std::cout << " not found :( ";
     return false;
@@ -536,7 +536,7 @@ Bool_t SiStripSpyDisplayModule::MakeProcessedRawDigiHist_(
   //std::cout << std::endl;
 
   // Loop over the digis for the detID and APV pair.
-  edm::DetSet<SiStripProcessedRawDigi>::const_iterator idigi = digis_it->data.begin();
+  auto idigi = digis_it->data.begin();
   uint32_t count = 0;
   for (; idigi != digis_it->data.end(); ++idigi) {
     count++;
@@ -564,7 +564,7 @@ Bool_t SiStripSpyDisplayModule::MakeDigiHist_(const edm::Handle<edm::DetSetVecto
   }
 
   // TODO: May need to make this error checking independent when refactoring...
-  std::vector<edm::DetSet<SiStripDigi> >::const_iterator digis_it = digi_handle->find(detID);
+  auto digis_it = digi_handle->find(detID);
   if (digis_it == digi_handle->end()) {
     return false;
   } else {
@@ -572,7 +572,7 @@ Bool_t SiStripSpyDisplayModule::MakeDigiHist_(const edm::Handle<edm::DetSetVecto
   }
 
   // Loop over the digis for the detID and APV pair.
-  edm::DetSet<SiStripDigi>::const_iterator idigi = digis_it->data.begin();
+  auto idigi = digis_it->data.begin();
   bool founddigi = false;
   for (; idigi != digis_it->data.end(); ++idigi) {
     // Check strip number is within the channel limits

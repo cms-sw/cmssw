@@ -113,15 +113,14 @@ namespace pixeltemp {
     int ncount = 0;
     std::vector<Cluster1D<T> > partOfPTracks;
     partOfPTracks.push_back(input.front());
-    for (typename std::vector<Cluster1D<T> >::const_iterator ic = (input.begin()) + 1; ic != input.end(); ic++) {
+    for (auto ic = (input.begin()) + 1; ic != input.end(); ic++) {
       ncount++;
       if (fabs((*ic).position().value() - (*(ic - 1)).position().value()) < (double)theZSeparation) {
         partOfPTracks.push_back((*ic));
       } else {
         if (partOfPTracks.size() >= (unsigned int)theNTkMin) {
           std::vector<Cluster1D<T> > clusters = makeCluster1Ds(partOfPTracks, discardedTracks);
-          for (typename std::vector<Cluster1D<T> >::const_iterator iclus = clusters.begin(); iclus != clusters.end();
-               iclus++) {
+          for (auto iclus = clusters.begin(); iclus != clusters.end(); iclus++) {
             finalCluster1Ds.push_back(*iclus);
           }
           insertTracks(discardedTracks, totDiscardedTracks);
@@ -134,8 +133,7 @@ namespace pixeltemp {
     }
     if (partOfPTracks.size() >= (unsigned int)theNTkMin) {
       std::vector<Cluster1D<T> > clusters = makeCluster1Ds(partOfPTracks, discardedTracks);
-      for (typename std::vector<Cluster1D<T> >::const_iterator iclus = clusters.begin(); iclus != clusters.end();
-           iclus++) {
+      for (auto iclus = clusters.begin(); iclus != clusters.end(); iclus++) {
         finalCluster1Ds.push_back(*iclus);
       }
       insertTracks(discardedTracks, totDiscardedTracks);
@@ -193,7 +191,7 @@ namespace pixeltemp {
                                               std::vector<Cluster1D<T> >& cludest) const {
     if (clusou.empty())
       return;
-    for (typename std::vector<Cluster1D<T> >::const_iterator iclu = clusou.begin(); iclu != clusou.end(); iclu++) {
+    for (auto iclu = clusou.begin(); iclu != clusou.end(); iclu++) {
       cludest.push_back(*iclu);
     }
     /*
@@ -212,9 +210,9 @@ namespace pixeltemp {
   template <class T>
   std::vector<const T*> DivisiveClusterizer1D<T>::takeTracks(const std::vector<Cluster1D<T> >& clu) const {
     std::vector<const T*> tracks;
-    for (typename std::vector<Cluster1D<T> >::const_iterator iclu = clu.begin(); iclu != clu.end(); iclu++) {
+    for (auto iclu = clu.begin(); iclu != clu.end(); iclu++) {
       std::vector<const T*> clutks = iclu->tracks();
-      for (typename std::vector<const T*>::const_iterator i = clutks.begin(); i != clutks.end(); ++i) {
+      for (auto i = clutks.begin(); i != clutks.end(); ++i) {
         tracks.push_back(*i);
       }
     }
@@ -224,7 +222,7 @@ namespace pixeltemp {
   template <class T>
   Cluster1D<T> DivisiveClusterizer1D<T>::mergeCluster1Ds(std::vector<Cluster1D<T> >& clusters) const {
     Cluster1D<T> result = clusters.front();
-    for (typename std::vector<Cluster1D<T> >::iterator iclu = (clusters.begin()) + 1; iclu != clusters.end(); iclu++) {
+    for (auto iclu = (clusters.begin()) + 1; iclu != clusters.end(); iclu++) {
       Cluster1D<T> old = result;
       result = (*theMerger)(old, *iclu);
     }

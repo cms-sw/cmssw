@@ -110,7 +110,7 @@ void SiPixelInformationExtractor::getItemList(const multimap<string, string> &re
                                               string item_name,
                                               vector<string> &items) {
   items.clear();
-  for (multimap<string, string>::const_iterator it = req_map.begin(); it != req_map.end(); it++) {
+  for (auto it = req_map.begin(); it != req_map.end(); it++) {
     if (it->first == item_name) {
       items.push_back(it->second);
     }
@@ -123,7 +123,7 @@ void SiPixelInformationExtractor::getItemList(const multimap<string, string> &re
  *  This method
  */
 bool SiPixelInformationExtractor::hasItem(multimap<string, string> &req_map, string item_name) {
-  multimap<string, string>::iterator pos = req_map.find(item_name);
+  auto pos = req_map.find(item_name);
   if (pos != req_map.end())
     return true;
   return false;
@@ -136,7 +136,7 @@ bool SiPixelInformationExtractor::hasItem(multimap<string, string> &req_map, str
  */
 std::string SiPixelInformationExtractor::getItemValue(const std::multimap<std::string, std::string> &req_map,
                                                       std::string item_name) {
-  std::multimap<std::string, std::string>::const_iterator pos = req_map.find(item_name);
+  auto pos = req_map.find(item_name);
   std::string value = " ";
   if (pos != req_map.end()) {
     value = pos->second;
@@ -145,7 +145,7 @@ std::string SiPixelInformationExtractor::getItemValue(const std::multimap<std::s
 }
 std::string SiPixelInformationExtractor::getItemValue(std::multimap<std::string, std::string> &req_map,
                                                       std::string item_name) {
-  std::multimap<std::string, std::string>::iterator pos = req_map.find(item_name);
+  auto pos = req_map.find(item_name);
   std::string value = " ";
   if (pos != req_map.end()) {
     value = pos->second;
@@ -174,7 +174,7 @@ void SiPixelInformationExtractor::selectColor(string &col, int status) {
 void SiPixelInformationExtractor::selectColor(string &col, vector<QReport *> &reports) {
   int istat = 999;
   int status = 0;
-  for (vector<QReport *>::const_iterator it = reports.begin(); it != reports.end(); it++) {
+  for (auto it = reports.begin(); it != reports.end(); it++) {
     status = (*it)->getStatus();
     if (status > istat)
       istat = status;
@@ -202,7 +202,7 @@ void SiPixelInformationExtractor::selectImage(string &name, int status) {
 void SiPixelInformationExtractor::selectImage(string &name, vector<QReport *> &reports) {
   int istat = 999;
   int status = 0;
-  for (vector<QReport *>::const_iterator it = reports.begin(); it != reports.end(); it++) {
+  for (auto it = reports.begin(); it != reports.end(); it++) {
     status = (*it)->getStatus();
     if (status > istat)
       istat = status;
@@ -369,7 +369,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore::IBooker &iBooker,
 
   if (dname.find("Module_") != string::npos) {
     vector<string> meVec = iGetter.getMEs();
-    for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+    for (auto it = meVec.begin(); it != meVec.end(); it++) {
       string full_path = currDir + "/" + (*it);
       if (full_path.find("hitmap_siPixelDigis") != string::npos) {
         MonitorElement *me = iGetter.get(full_path);
@@ -409,7 +409,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore::IBooker &iBooker,
     }
   }
   vector<string> subDirVec = iGetter.getSubdirs();
-  for (vector<string>::const_iterator ic = subDirVec.begin(); ic != subDirVec.end(); ic++) {
+  for (auto ic = subDirVec.begin(); ic != subDirVec.end(); ic++) {
     if ((*ic).find("AdditionalPixelErrors") != string::npos)
       continue;
     iGetter.cd(*ic);
@@ -439,10 +439,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore::IBooker &iBooker,
     int n_verynoisyrocs_endcap = 0;
 
     for (int fid = 0; fid < 40; fid++) {
-      for (std::map<uint32_t, std::vector<std::pair<std::pair<int, int>, float>>>::const_iterator it =
-               noisyDetIds_.begin();
-           it != noisyDetIds_.end();
-           it++) {
+      for (auto it = noisyDetIds_.begin(); it != noisyDetIds_.end(); it++) {
         uint32_t detid = (*it).first;
         std::vector<std::pair<std::pair<int, int>, float>> noisyPixels = (*it).second;
         // now convert into online conventions:
@@ -476,9 +473,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore::IBooker &iBooker,
           myfedmap[detid] = realfedID;
           mynamemap[detid] = outputname;
 
-          for (std::vector<std::pair<std::pair<int, int>, float>>::const_iterator pxl = noisyPixels.begin();
-               pxl != noisyPixels.end();
-               pxl++) {
+          for (auto pxl = noisyPixels.begin(); pxl != noisyPixels.end(); pxl++) {
             std::pair<int, int> offlineaddress = (*pxl).first;
             float Noise_frac = (*pxl).second;
             int offlineColumn = offlineaddress.first;
@@ -530,7 +525,7 @@ void SiPixelInformationExtractor::findNoisyPixels(DQMStore::IBooker &iBooker,
                     << onlineRow << "  \t , fed,dcol,pixid,link: " << realfedID << "," << loc.dcol << "," << loc.pxid
                     << "," << cabling.link << ", Noise fraction: " << Noise_frac << std::endl;
           }
-          for (std::map<int, int>::const_iterator nrc = myrocmap.begin(); nrc != myrocmap.end(); nrc++) {
+          for (auto nrc = myrocmap.begin(); nrc != myrocmap.end(); nrc++) {
             if ((*nrc).second > 0) {
               n_noisyrocs_all++;
               if (detSubId == 2) {

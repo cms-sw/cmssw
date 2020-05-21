@@ -86,8 +86,7 @@ void SMPDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<TLorentzVector> selected_lep;
   selected_lep.clear();
 
-  for (std::vector<edm::EDGetTokenT<edm::View<reco::MET>>>::const_iterator met_ = mets_.begin(); met_ != mets_.end();
-       ++met_) {
+  for (auto met_ = mets_.begin(); met_ != mets_.end(); ++met_) {
     edm::Handle<edm::View<reco::MET>> met;
     if (!iEvent.getByToken(*met_, met))
       continue;

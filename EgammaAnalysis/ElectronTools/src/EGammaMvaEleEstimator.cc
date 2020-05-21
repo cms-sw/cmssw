@@ -1388,7 +1388,7 @@ Double_t EGammaMvaEleEstimator::isoMvaValue(const reco::GsfElectron& ele,
     electronTrackZ = ele.closestCtfTrackRef()->dz(vertex.position());
   }
 
-  for (reco::PFCandidateCollection::const_iterator iP = PFCandidates.begin(); iP != PFCandidates.end(); ++iP) {
+  for (auto iP = PFCandidates.begin(); iP != PFCandidates.end(); ++iP) {
     //exclude the electron itself
     if (iP->gsfTrackRef().isNonnull() && ele.gsfTrack().isNonnull() &&
         refToPtr(iP->gsfTrackRef()) == refToPtr(ele.gsfTrack()))
@@ -1408,9 +1408,7 @@ Double_t EGammaMvaEleEstimator::isoMvaValue(const reco::GsfElectron& ele,
       //************************************************************
       // Lepton Footprint Removal
       //************************************************************
-      for (reco::GsfElectronCollection::const_iterator iE = IdentifiedElectrons.begin();
-           iE != IdentifiedElectrons.end();
-           ++iE) {
+      for (auto iE = IdentifiedElectrons.begin(); iE != IdentifiedElectrons.end(); ++iE) {
         //if pf candidate matches an electron passing ID cuts, then veto it
         if (iP->gsfTrackRef().isNonnull() && iE->gsfTrack().isNonnull() &&
             refToPtr(iP->gsfTrackRef()) == refToPtr(iE->gsfTrack()))
@@ -1426,7 +1424,7 @@ Double_t EGammaMvaEleEstimator::isoMvaValue(const reco::GsfElectron& ele,
         if (iP->particleId() == reco::PFCandidate::gamma && fabs(iE->superCluster()->eta()) >= 1.479 && tmpDR < 0.08)
           IsLeptonFootprint = kTRUE;
       }
-      for (reco::MuonCollection::const_iterator iM = IdentifiedMuons.begin(); iM != IdentifiedMuons.end(); ++iM) {
+      for (auto iM = IdentifiedMuons.begin(); iM != IdentifiedMuons.end(); ++iM) {
         //if pf candidate matches an muon passing ID cuts, then veto it
         if (iP->trackRef().isNonnull() && iM->innerTrack().isNonnull() &&
             refToPtr(iP->trackRef()) == refToPtr(iM->innerTrack()))
@@ -1727,7 +1725,7 @@ Double_t EGammaMvaEleEstimator::IDIsoCombinedMvaValue(const reco::GsfElectron& e
   Double_t tmpNeutralHadronIso_DR0p3To0p4 = 0;
   Double_t tmpNeutralHadronIso_DR0p4To0p5 = 0;
 
-  for (reco::PFCandidateCollection::const_iterator iP = PFCandidates.begin(); iP != PFCandidates.end(); ++iP) {
+  for (auto iP = PFCandidates.begin(); iP != PFCandidates.end(); ++iP) {
     double dr = sqrt(pow(iP->eta() - ele.eta(), 2) + pow(acos(cos(iP->phi() - ele.phi())), 2));
 
     Bool_t passVeto = kTRUE;

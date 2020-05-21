@@ -244,7 +244,7 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat) : PixelConfigBase(
       indexsize++;
       continue;
     }
-    for (vector<string>::iterator it = tableMat[r].begin(); it != tableMat[r].end(); ++it) {
+    for (auto it = tableMat[r].begin(); it != tableMat[r].end(); ++it) {
       //      cout << __LINE__ << "]\t" << mthn << *it <<"["<<&*it<<"]\t"  ;
       //      cout << __LINE__ << "]\t" << mthn << *it <<"\t"  ;
     }

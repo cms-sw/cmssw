@@ -196,7 +196,7 @@ void DeDxHitInfoProducer::processHit(const TrackingRecHit* recHit,
   } else if (clus.isStrip() && thit.isMatched()) {
     if (!useStrip)
       return;
-    const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(recHit);
+    const auto* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(recHit);
     if (!matchedHit)
       return;
 

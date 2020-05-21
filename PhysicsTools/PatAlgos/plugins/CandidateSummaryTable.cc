@@ -95,7 +95,7 @@ namespace pat {
 
 pat::CandidateSummaryTable::CandidateSummaryTable(const edm::ParameterSet& iConfig, const pathelpers::RecordCache*) {
   const std::vector<edm::InputTag>& inputs = iConfig.getParameter<std::vector<edm::InputTag> >("candidates");
-  for (std::vector<edm::InputTag>::const_iterator it = inputs.begin(); it != inputs.end(); ++it) {
+  for (auto it = inputs.begin(); it != inputs.end(); ++it) {
     srcTokens.emplace_back(*it, consumes<edm::View<reco::Candidate> >(*it));
   }
 }

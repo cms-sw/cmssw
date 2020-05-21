@@ -14,7 +14,7 @@ public:
   StringToEnumParser(void);
 
   T parseString(const std::string &value) {
-    typename std::map<std::string, T>::const_iterator iValue = enumMap.find(value);
+    auto iValue = enumMap.find(value);
     if (iValue == enumMap.end())
       throw cms::Exception("Configuration") << "the value " << value << " is not defined.";
 

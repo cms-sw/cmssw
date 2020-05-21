@@ -145,7 +145,7 @@ namespace reco {
         //    123 -> 124
         size_t distanceFromEnd = 0;
         size_t nElements = indices_.size();
-        indices_collection::reverse_iterator pos = newCombo.rbegin();
+        auto pos = newCombo.rbegin();
         for (; pos != newCombo.rend(); ++pos, ++distanceFromEnd) {
           // Check if we can update this element to the next value (without overflow)
           // If so, increment it it, then quit
@@ -163,7 +163,7 @@ namespace reco {
         //std::cout << std::endl;
 
         // forward_pos points to the element *after* pos
-        indices_collection::iterator forward_pos = pos.base();
+        auto forward_pos = pos.base();
         // Only do the updates if we have not reached all the way to the beginning!
         // this indicates we are at the end of the iteration.  We return a combo
         // with all values at nElements to flag that we are at the end

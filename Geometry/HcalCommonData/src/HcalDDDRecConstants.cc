@@ -28,10 +28,8 @@ HcalDDDRecConstants::~HcalDDDRecConstants() {
 
 std::vector<int> HcalDDDRecConstants::getDepth(const unsigned int& eta, const bool& extra) const {
   if (!extra) {
-    std::vector<HcalParameters::LayerItem>::const_iterator last = hpar->layerGroupEtaRec.begin();
-    for (std::vector<HcalParameters::LayerItem>::const_iterator it = hpar->layerGroupEtaRec.begin();
-         it != hpar->layerGroupEtaRec.end();
-         ++it) {
+    auto last = hpar->layerGroupEtaRec.begin();
+    for (auto it = hpar->layerGroupEtaRec.begin(); it != hpar->layerGroupEtaRec.end(); ++it) {
       if (it->layer == eta + 1)
         return it->layerGroup;
       if (it->layer > eta + 1)
@@ -645,7 +643,7 @@ unsigned int HcalDDDRecConstants::nCells() const {
 }
 
 HcalDetId HcalDDDRecConstants::mergedDepthDetId(const HcalDetId& id) const {
-  std::map<HcalDetId, HcalDetId>::const_iterator itr = detIdSp_.find(id);
+  auto itr = detIdSp_.find(id);
   if (itr == detIdSp_.end())
     return id;
   else
@@ -654,7 +652,7 @@ HcalDetId HcalDDDRecConstants::mergedDepthDetId(const HcalDetId& id) const {
 
 HcalDetId HcalDDDRecConstants::idFront(const HcalDetId& id) const {
   HcalDetId hid(id);
-  std::map<HcalDetId, std::vector<HcalDetId>>::const_iterator itr = detIdSpR_.find(id);
+  auto itr = detIdSpR_.find(id);
   if (itr != detIdSpR_.end())
     hid = HcalDetId(id.subdet(), id.ieta(), id.iphi(), (itr->second)[0].depth());
   return hid;
@@ -662,7 +660,7 @@ HcalDetId HcalDDDRecConstants::idFront(const HcalDetId& id) const {
 
 HcalDetId HcalDDDRecConstants::idBack(const HcalDetId& id) const {
   HcalDetId hid(id);
-  std::map<HcalDetId, std::vector<HcalDetId>>::const_iterator itr = detIdSpR_.find(id);
+  auto itr = detIdSpR_.find(id);
   if (itr != detIdSpR_.end())
     hid = HcalDetId(id.subdet(), id.ieta(), id.iphi(), (itr->second).back().depth());
   return hid;
@@ -670,7 +668,7 @@ HcalDetId HcalDDDRecConstants::idBack(const HcalDetId& id) const {
 
 void HcalDDDRecConstants::unmergeDepthDetId(const HcalDetId& id, std::vector<HcalDetId>& ids) const {
   ids.clear();
-  std::map<HcalDetId, std::vector<HcalDetId>>::const_iterator itr = detIdSpR_.find(id);
+  auto itr = detIdSpR_.find(id);
   if (itr == detIdSpR_.end()) {
     ids.emplace_back(id);
   } else {
@@ -683,7 +681,7 @@ void HcalDDDRecConstants::unmergeDepthDetId(const HcalDetId& id, std::vector<Hca
 
 void HcalDDDRecConstants::specialRBXHBHE(const std::vector<HcalDetId>& idsOld, std::vector<HcalDetId>& idsNew) const {
   for (auto k : idsOld) {
-    std::map<HcalDetId, HcalDetId>::const_iterator itr = detIdSp_.find(k);
+    auto itr = detIdSp_.find(k);
     if (itr == detIdSp_.end())
       idsNew.emplace_back(k);
     else
@@ -724,7 +722,7 @@ void HcalDDDRecConstants::getOneEtaBin(HcalSubdetector subdet,
   int dstart = -1;
   int lmin(0), lmax(0);
 
-  std::map<int, int>::iterator itr = layers.begin();
+  auto itr = layers.begin();
   if (!layers.empty()) {
     int dep = itr->second;
     if (subdet == HcalEndcap && ieta == iEtaMin[type])
@@ -1005,7 +1003,7 @@ void HcalDDDRecConstants::initialize(void) {
           int layBack = hcons.ldMap()->getLayerBack(subdet, eta, phi, zside, ndepth);
           for (int lay = layFront; lay <= layBack; ++lay) {
             unsigned int l(0);
-            for (std::map<int, std::pair<int, int>>::iterator itr = oldDep.begin(); itr != oldDep.end(); ++itr, ++l) {
+            for (auto itr = oldDep.begin(); itr != oldDep.end(); ++itr, ++l) {
               if (lay >= (itr->second).first && lay <= (itr->second).second) {
                 ++count[l];
                 break;
@@ -1014,7 +1012,7 @@ void HcalDDDRecConstants::initialize(void) {
           }
           int odepth(0), maxlay(0);
           unsigned int l(0);
-          for (std::map<int, std::pair<int, int>>::iterator itr = oldDep.begin(); itr != oldDep.end(); ++itr, ++l) {
+          for (auto itr = oldDep.begin(); itr != oldDep.end(); ++itr, ++l) {
             if (count[l] > maxlay) {
               odepth = itr->first;
               maxlay = count[l];
@@ -1033,7 +1031,7 @@ void HcalDDDRecConstants::initialize(void) {
             HcalDetId oldId(subdet, zside * eta, phi, odepth);
             detIdSp_[newId] = oldId;
             std::vector<HcalDetId> ids;
-            std::map<HcalDetId, std::vector<HcalDetId>>::iterator itr = detIdSpR_.find(oldId);
+            auto itr = detIdSpR_.find(oldId);
             if (itr != detIdSpR_.end())
               ids = itr->second;
             ids.emplace_back(newId);

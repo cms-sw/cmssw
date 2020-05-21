@@ -130,9 +130,9 @@ HepMC::GenParticle* AMPTHadronizer::build_ampt(int index, int barcode) {
   float e = sqrt(px * px + py * py + pz * pz + m * m);
   int status = 1;
 
-  HepMC::GenParticle* p = new HepMC::GenParticle(HepMC::FourVector(px, py, pz, e),
-                                                 INVFLV(hbt.lblast[index]),  // id
-                                                 status                      // status
+  auto* p = new HepMC::GenParticle(HepMC::FourVector(px, py, pz, e),
+                                   INVFLV(hbt.lblast[index]),  // id
+                                   status                      // status
   );
 
   p->suggest_barcode(barcode);
@@ -142,7 +142,7 @@ HepMC::GenParticle* AMPTHadronizer::build_ampt(int index, int barcode) {
 //___________________________________________________________________
 HepMC::GenVertex* AMPTHadronizer::build_ampt_vertex(int i, int id) {
   // build verteces for the ampt stored events
-  HepMC::GenVertex* vertex = new HepMC::GenVertex(HepMC::FourVector(0, 0, 0, 0), id);
+  auto* vertex = new HepMC::GenVertex(HepMC::FourVector(0, 0, 0, 0), id);
   return vertex;
 }
 //_____________________________________________________________________

@@ -46,9 +46,7 @@ HLTBeamModeFilter::HLTBeamModeFilter(const edm::ParameterSet& parSet)
     LogTrace("HLTBeamModeFilter") << "Input tag for L1 GT EVM record: " << m_l1GtEvmReadoutRecordTag
                                   << "\nAllowed beam modes:" << std::endl;
 
-    for (std::vector<unsigned int>::const_iterator itMode = m_allowedBeamMode.begin();
-         itMode != m_allowedBeamMode.end();
-         ++itMode) {
+    for (auto itMode = m_allowedBeamMode.begin(); itMode != m_allowedBeamMode.end(); ++itMode) {
       LogTrace("HLTBeamModeFilter") << "  " << (*itMode) << std::endl;
     }
 

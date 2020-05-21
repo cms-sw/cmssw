@@ -91,7 +91,7 @@ namespace edm {
     typedef typename UserType::ModuleType ModuleType;
     typedef edm::WorkerT<ModuleType> WorkerType;
 
-    maker::ModuleHolderT<ModuleType> const* h = dynamic_cast<maker::ModuleHolderT<ModuleType> const*>(mod);
+    auto const* h = dynamic_cast<maker::ModuleHolderT<ModuleType> const*>(mod);
     return std::make_unique<WorkerType>(h->module(), md, actions);
   }
 

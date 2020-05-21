@@ -70,7 +70,7 @@ MVAJetPuIdProducer::MVAJetPuIdProducer(const edm::ParameterSet &iConfig) {
   if (produceJetIds_) {
     produces<edm::ValueMap<StoredPileupJetIdentifier>>("");
   }
-  for (std::vector<edm::ParameterSet>::iterator it = algos.begin(); it != algos.end(); ++it) {
+  for (auto it = algos.begin(); it != algos.end(); ++it) {
     std::string label = it->getParameter<std::string>("label");
     algos_.push_back(std::make_pair(label, new MVAJetPuId(*it)));
     if (runMvas_) {
@@ -121,7 +121,7 @@ void MVAJetPuIdProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
   }
 
   for (unsigned int i = 0; i < jets.size(); ++i) {
-    vector<pair<string, MVAJetPuId *>>::iterator algoi = algos_.begin();
+    auto algoi = algos_.begin();
     MVAJetPuId *ialgo = algoi->second;
 
     const Jet &jet = jets[i];
@@ -176,7 +176,7 @@ void MVAJetPuIdProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSet
   }
 
   if (runMvas_) {
-    for (vector<pair<string, MVAJetPuId *>>::iterator ialgo = algos_.begin(); ialgo != algos_.end(); ++ialgo) {
+    for (auto ialgo = algos_.begin(); ialgo != algos_.end(); ++ialgo) {
       vector<float> &mva = mvas[ialgo->first];
       auto mvaout = std::make_unique<ValueMap<float>>();
       ValueMap<float>::Filler mvafiller(*mvaout);

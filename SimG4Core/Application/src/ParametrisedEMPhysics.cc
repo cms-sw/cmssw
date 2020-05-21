@@ -323,7 +323,7 @@ void ParametrisedEMPhysics::ConstructProcess() {
 
 void ParametrisedEMPhysics::ModifyTransportation(const G4ParticleDefinition* part, int ntry, double th1, double th2) {
   G4ProcessManager* man = part->GetProcessManager();
-  G4Transportation* trans = (G4Transportation*)((*(man->GetProcessList()))[0]);
+  auto* trans = (G4Transportation*)((*(man->GetProcessList()))[0]);
   if (trans) {
     trans->SetThresholdWarningEnergy(th1);
     trans->SetThresholdImportantEnergy(th2);

@@ -133,8 +133,7 @@ EmDQMReco::EmDQMReco(const edm::ParameterSet &pset) {
   std::vector<edm::ParameterSet> filters = pset.getParameter<std::vector<edm::ParameterSet>>("filters");
 
   int i = 0;
-  for (std::vector<edm::ParameterSet>::iterator filterconf = filters.begin(); filterconf != filters.end();
-       filterconf++) {
+  for (auto filterconf = filters.begin(); filterconf != filters.end(); filterconf++) {
     theHLTCollectionLabels.push_back(filterconf->getParameter<edm::InputTag>("HLTCollectionLabels"));
     theHLTOutputTypes.push_back(filterconf->getParameter<int>("theHLTOutputTypes"));
     // Grab the human-readable name, if it is not specified, use the Collection
@@ -687,9 +686,7 @@ void EmDQMReco::analyze(const edm::Event &event, const edm::EventSetup &setup) {
         sortedReco.push_back(tmpcand);
       }
     } else if (pdgGen == 22) {
-      for (std::vector<reco::SuperCluster>::const_iterator recopart2 = recoObjectsEB->begin();
-           recopart2 != recoObjectsEB->end();
-           recopart2++) {
+      for (auto recopart2 = recoObjectsEB->begin(); recopart2 != recoObjectsEB->end(); recopart2++) {
         float en = recopart2->energy();
         float er = sqrt(pow(recopart2->x(), 2) + pow(recopart2->y(), 2) + pow(recopart2->z(), 2));
         float px = recopart2->energy() * recopart2->x() / er;
@@ -699,9 +696,7 @@ void EmDQMReco::analyze(const edm::Event &event, const edm::EventSetup &setup) {
         reco::Particle tmpcand(0, thisLV, math::XYZPoint(0., 0., 0.), 22, 1);
         sortedReco.push_back(tmpcand);
       }
-      for (std::vector<reco::SuperCluster>::const_iterator recopart2 = recoObjectsEE->begin();
-           recopart2 != recoObjectsEE->end();
-           recopart2++) {
+      for (auto recopart2 = recoObjectsEE->begin(); recopart2 != recoObjectsEE->end(); recopart2++) {
         float en = recopart2->energy();
         float er = sqrt(pow(recopart2->x(), 2) + pow(recopart2->y(), 2) + pow(recopart2->z(), 2));
         float px = recopart2->energy() * recopart2->x() / er;

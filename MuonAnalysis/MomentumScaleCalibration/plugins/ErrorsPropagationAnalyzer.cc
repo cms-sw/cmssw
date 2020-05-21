@@ -72,9 +72,9 @@ void ErrorsPropagationAnalyzer::fillValueError() {
   valuePlusError_.resize(parameters_.size());
   valueMinusError_.resize(parameters_.size());
 
-  std::vector<double>::const_iterator parIt = parameters_.begin();
-  std::vector<double>::const_iterator errIt = errors_.begin();
-  std::vector<int>::const_iterator errFactorIt = errorFactors_.begin();
+  auto parIt = parameters_.begin();
+  auto errIt = errors_.begin();
+  auto errFactorIt = errorFactors_.begin();
   int i = 0;
   for (; parIt != parameters_.end(); ++parIt, ++errIt, ++errFactorIt, ++i) {
     valuePlusError_[i] = *parIt + (*errIt) * (*errFactorIt);
@@ -171,7 +171,7 @@ void ErrorsPropagationAnalyzer::drawHistograms(const TProfile* histo,
   double* posErrors = new double[numBins];
   double* negErrors = new double[numBins];
 
-  TGraphAsymmErrors* graphAsymmErrors = new TGraphAsymmErrors(sigmaPtVsEtaTH1D);
+  auto* graphAsymmErrors = new TGraphAsymmErrors(sigmaPtVsEtaTH1D);
   TGraph* graph = new TGraph(sigmaPtVsEtaTH1D);
 
   for (int i = 1; i <= numBins; ++i) {
@@ -256,7 +256,7 @@ double ErrorsPropagationAnalyzer::massResolution(const lorentzVector& mu1,
                                                  const double& sigmaPt1,
                                                  const double& sigmaPt2) {
   double* p = new double[(int)(parval.size())];
-  std::vector<double>::const_iterator it = parval.begin();
+  auto it = parval.begin();
   int id = 0;
   for (; it != parval.end(); ++it, ++id) {
     p[id] = *it;
@@ -349,7 +349,7 @@ void ErrorsPropagationAnalyzer::fillHistograms() {
 
   // Loop on all the pairs
   unsigned int i = 0;
-  MuonPairVector::iterator it = savedPair.begin();
+  auto it = savedPair.begin();
   std::cout << "Starting loop on " << savedPair.size() << " muons" << std::endl;
   for (; it != savedPair.end(); ++it, ++i) {
     double pt1 = it->first.pt();

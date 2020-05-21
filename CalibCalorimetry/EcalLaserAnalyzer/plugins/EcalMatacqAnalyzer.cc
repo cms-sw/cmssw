@@ -181,8 +181,7 @@ void EcalMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
   if (_debug == 1)
     std::cout << "-- debug test -- Before header -- " << std::endl;
 
-  for (EcalRawDataCollection::const_iterator headerItr = DCCHeader->begin(); headerItr != DCCHeader->end();
-       ++headerItr) {
+  for (auto headerItr = DCCHeader->begin(); headerItr != DCCHeader->end(); ++headerItr) {
     EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings();
     color = (int)settings.wavelength;
     if (color < 0)
@@ -232,7 +231,7 @@ void EcalMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
         runType != EcalDCCHeaderBlock::LASER_POWER_SCAN && runType != EcalDCCHeaderBlock::LASER_DELAY_SCAN)
       return;
 
-    std::vector<int>::iterator iter = find(colors.begin(), colors.end(), color);
+    auto iter = find(colors.begin(), colors.end(), color);
     if (iter == colors.end()) {
       colors.push_back(color);
       std::cout << " new color found " << color << " " << colors.size() << std::endl;
@@ -252,8 +251,7 @@ void EcalMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
   int iCh = 0;
   double max = 0;
 
-  for (EcalMatacqDigiCollection::const_iterator it = matacqDigi->begin(); it != matacqDigi->end();
-       ++it) {  // Loop on matacq channel
+  for (auto it = matacqDigi->begin(); it != matacqDigi->end(); ++it) {  // Loop on matacq channel
 
     //
     const EcalMatacqDigi& digis = *it;

@@ -471,7 +471,7 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
 
     if (splitMuons_) {
       // check if split global muons are good
-      for (std::vector<reco::Muon>::const_iterator gmI = globalMuons->begin(); gmI != globalMuons->end(); gmI++) {
+      for (auto gmI = globalMuons->begin(); gmI != globalMuons->end(); gmI++) {
         if (gmI->isTrackerMuon() && gmI->isStandAloneMuon() && gmI->isGlobalMuon()) {
           reco::TrackRef trackerTrackRef1(tracks, 0);
           reco::TrackRef trackerTrackRef2(tracks, 1);

@@ -6,8 +6,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 CmsTrackerDebugNavigator::CmsTrackerDebugNavigator(const std::vector<GeometricDetExtra>& gdes) {
-  std::vector<GeometricDetExtra>::const_iterator gdeiEnd(gdes.end());
-  std::vector<GeometricDetExtra>::const_iterator gdei(gdes.begin());
+  auto gdeiEnd(gdes.end());
+  auto gdei(gdes.begin());
   for (; gdei != gdeiEnd; ++gdei) {
     const GeometricDetExtra* gdeaddr = &(*gdei);
     _helperMap[gdei->geographicalId().rawId()] = gdeaddr;

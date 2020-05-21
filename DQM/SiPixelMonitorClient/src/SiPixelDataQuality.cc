@@ -318,7 +318,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(
     if (currDir.find("Endcap") != string::npos)
       endcapMods_++;
     vector<string> meVec = iGetter.getMEs();
-    for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+    for (auto it = meVec.begin(); it != meVec.end(); it++) {
       string full_path = currDir + "/" + (*it);
       if (full_path.find("ndigis_") != string::npos) {
         MonitorElement *me = iGetter.get(full_path);
@@ -354,7 +354,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(
     }
   }
   vector<string> subDirVec = iGetter.getSubdirs();
-  for (vector<string>::const_iterator ic = subDirVec.begin(); ic != subDirVec.end(); ic++) {
+  for (auto ic = subDirVec.begin(); ic != subDirVec.end(); ic++) {
     iGetter.cd(*ic);
     iBooker.cd(*ic);
     init = false;
@@ -901,8 +901,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore::IBooker &iBooker,
       vector<string> meVec = iGetter.getMEs();
       int detId = -1;
       int fedId = -1;
-      for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end();
-           it++) {  // loop over all modules and fill ndigis into allmodsMap
+      for (auto it = meVec.begin(); it != meVec.end(); it++) {  // loop over all modules and fill ndigis into allmodsMap
         // checking for any digis or FED errors to decide if this module is in
         // DAQ:
         string full_path = currDir + "/" + (*it);
@@ -933,7 +932,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore::IBooker &iBooker,
       }  // end loop over MEs
     }    // end of module dir's
     vector<string> subDirVec = iGetter.getSubdirs();
-    for (vector<string>::const_iterator ic = subDirVec.begin(); ic != subDirVec.end(); ic++) {
+    for (auto ic = subDirVec.begin(); ic != subDirVec.end(); ic++) {
       iBooker.cd(*ic);
       iGetter.cd(*ic);
       init = false;

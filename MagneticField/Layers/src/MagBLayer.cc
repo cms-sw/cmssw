@@ -37,7 +37,7 @@ MagBLayer::~MagBLayer() {
 
   delete theSingleVolume;
 
-  for (vector<MagBSector*>::const_iterator isec = theSectors.begin(); isec != theSectors.end(); ++isec) {
+  for (auto isec = theSectors.begin(); isec != theSectors.end(); ++isec) {
     delete (*isec);
   }
 }

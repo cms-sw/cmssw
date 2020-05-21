@@ -190,7 +190,7 @@ AlignmentTwoBodyDecayTrackSelector::Tracks AlignmentTwoBodyDecayTrackSelector::c
   typedef pair<double, const reco::Track*> candCollectionItem;
   vector<candCollectionItem> candCollection;
 
-  for (reco::CaloMETCollection::const_iterator itMET = missingET->begin(); itMET != missingET->end(); ++itMET) {
+  for (auto itMET = missingET->begin(); itMET != missingET->end(); ++itMET) {
     met4.SetXYZT((*itMET).px(), (*itMET).py(), (*itMET).pz(), (*itMET).p());
 
     for (unsigned int iCand = 0; iCand < cands.size(); iCand++) {
@@ -268,7 +268,7 @@ bool AlignmentTwoBodyDecayTrackSelector::checkMETAcoplanarity(const reco::Track*
 void AlignmentTwoBodyDecayTrackSelector::printTracks(const Tracks& col) const {
   int count = 0;
   LogDebug("Alignment") << ">......................................";
-  for (Tracks::const_iterator it = col.begin(); it < col.end(); ++it, ++count) {
+  for (auto it = col.begin(); it < col.end(); ++it, ++count) {
     LogDebug("Alignment") << ">  Track No. " << count << ": p = (" << (*it)->px() << "," << (*it)->py() << ","
                           << (*it)->pz() << ")\n"
                           << ">                        pT = " << (*it)->pt() << " eta = " << (*it)->eta()

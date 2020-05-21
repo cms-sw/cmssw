@@ -117,9 +117,9 @@ void DoCastorAnalysis::update(const EndOfEvent* evt) {
   G4HCofThisEvent* allHC = (*evt)()->GetHCofThisEvent();
 
   int CAFIid = G4SDManager::GetSDMpointer()->GetCollectionID("CastorFI");
-  CaloG4HitCollection* theCAFI = (CaloG4HitCollection*)allHC->GetHC(CAFIid);
+  auto* theCAFI = (CaloG4HitCollection*)allHC->GetHC(CAFIid);
 
-  CastorNumberingScheme* theCastorNumScheme = new CastorNumberingScheme();
+  auto* theCastorNumScheme = new CastorNumberingScheme();
 
   unsigned int volumeID = 0;
   // std::map<int,float,std::less<int> > themap;

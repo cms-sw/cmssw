@@ -53,8 +53,8 @@ void ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>
   vector<PFBrem> primPFBrem = gsfpfrectk.PFRecBrem();
 
   const PFRecTrackCollection& PfRTkColl = *(thePfRecTrackCol.product());
-  reco::PFRecTrackCollection::const_iterator pft = PfRTkColl.begin();
-  reco::PFRecTrackCollection::const_iterator pftend = PfRTkColl.end();
+  auto pft = PfRTkColl.begin();
+  auto pftend = PfRTkColl.end();
   //PFEnergyCalibration pfcalib_;
 
   vector<PFRecTrackRef> AllPFRecTracks;
@@ -266,7 +266,7 @@ void ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>
       PFRecTrack pfrectrack = *AllPFRecTracks[iPF];
       pfrectrack.calculatePositionREP();
       // Find and ECAL associated cluster
-      for (PFClusterCollection::const_iterator clus = theEClus.begin(); clus != theEClus.end(); clus++) {
+      for (auto clus = theEClus.begin(); clus != theEClus.end(); clus++) {
         // Removed unusd variable, left this in case it has side effects
         clus->position();
         double dist = -1.;

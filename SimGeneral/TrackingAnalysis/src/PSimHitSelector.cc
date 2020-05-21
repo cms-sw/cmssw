@@ -22,7 +22,7 @@ void PSimHitSelector::select(PSimHitCollection &selection,
                              edm::Event const &event,
                              edm::EventSetup const &setup) const {
   // Look for all psimhit collections
-  PSimHitCollectionMap::const_iterator pSimHitCollections = pSimHitCollectionMap_.begin();
+  auto pSimHitCollections = pSimHitCollectionMap_.begin();
 
   std::vector<const CrossingFrame<PSimHit> *> cfPSimHitProductPointers;
 

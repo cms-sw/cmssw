@@ -84,18 +84,18 @@ void DTNoiseComputation::beginRun(const edm::Run &, const EventSetup &setup) {
     TH1F *hsomeHowNoisyC;
 
     // Loop over all the chambers
-    vector<const DTChamber *>::const_iterator ch_it = dtGeom->chambers().begin();
-    vector<const DTChamber *>::const_iterator ch_end = dtGeom->chambers().end();
+    auto ch_it = dtGeom->chambers().begin();
+    auto ch_end = dtGeom->chambers().end();
     // Loop over the SLs
     for (; ch_it != ch_end; ++ch_it) {
       DTChamberId ch = (*ch_it)->id();
-      vector<const DTSuperLayer *>::const_iterator sl_it = (*ch_it)->superLayers().begin();
-      vector<const DTSuperLayer *>::const_iterator sl_end = (*ch_it)->superLayers().end();
+      auto sl_it = (*ch_it)->superLayers().begin();
+      auto sl_end = (*ch_it)->superLayers().end();
       // Loop over the SLs
       for (; sl_it != sl_end; ++sl_it) {
         //      DTSuperLayerId sl = (*sl_it)->id();
-        vector<const DTLayer *>::const_iterator l_it = (*sl_it)->layers().begin();
-        vector<const DTLayer *>::const_iterator l_end = (*sl_it)->layers().end();
+        auto l_it = (*sl_it)->layers().begin();
+        auto l_end = (*sl_it)->layers().end();
         // Loop over the Ls
         for (; l_it != l_end; ++l_it) {
           DTLayerId dtLId = (*l_it)->id();
@@ -219,8 +219,7 @@ void DTNoiseComputation::endJob() {
   TProfile *theNoiseHisto = new TProfile("theNoiseHisto", "Time Constant versus Average Noise", 100000, 0, 100000);
 
   //compute the time constant
-  for (map<DTLayerId, vector<TH2F *> >::const_iterator lHisto = theEvtMap.begin(); lHisto != theEvtMap.end();
-       ++lHisto) {
+  for (auto lHisto = theEvtMap.begin(); lHisto != theEvtMap.end(); ++lHisto) {
     for (int bin = 1; bin < (*lHisto).second[0]->GetYaxis()->GetNbins(); bin++) {
       int distanceEvt = 1;
       DTWireId wire((*lHisto).first, bin);
@@ -261,8 +260,7 @@ void DTNoiseComputation::endJob() {
 
   if (!fastAnalysis) {
     //fill the histo with the time constant as a function of the average noise
-    for (map<DTWireId, double>::const_iterator AvNoise = theAverageNoise.begin(); AvNoise != theAverageNoise.end();
-         ++AvNoise) {
+    for (auto AvNoise = theAverageNoise.begin(); AvNoise != theAverageNoise.end(); ++AvNoise) {
       DTWireId wire = (*AvNoise).first;
       theNoiseHisto->Fill((*AvNoise).second, theTimeConstant[wire]);
       cout << "Layer: " << getLayerName(wire.layerId()) << "  wire: " << wire.wire() << endl;
@@ -276,9 +274,7 @@ void DTNoiseComputation::endJob() {
   // histos with the integrated noise per layer
   int numBin;
   double integratedNoise, bin, halfBin, maxBin;
-  for (map<DTSuperLayerId, TH1F *>::const_iterator AvNoiseHisto = AvNoisePerSuperLayer.begin();
-       AvNoiseHisto != AvNoisePerSuperLayer.end();
-       ++AvNoiseHisto) {
+  for (auto AvNoiseHisto = AvNoisePerSuperLayer.begin(); AvNoiseHisto != AvNoisePerSuperLayer.end(); ++AvNoiseHisto) {
     integratedNoise = 0;
     numBin = (*AvNoiseHisto).second->GetXaxis()->GetNbins();
     maxBin = (*AvNoiseHisto).second->GetXaxis()->GetXmax();
@@ -295,9 +291,7 @@ void DTNoiseComputation::endJob() {
     AvNoiseIntegratedPerSuperLayer[(*AvNoiseHisto).first]->Write();
   }
   // histos with the integrated noise per chamber
-  for (map<DTChamberId, TH1F *>::const_iterator AvNoiseHisto = AvNoisePerChamber.begin();
-       AvNoiseHisto != AvNoisePerChamber.end();
-       ++AvNoiseHisto) {
+  for (auto AvNoiseHisto = AvNoisePerChamber.begin(); AvNoiseHisto != AvNoisePerChamber.end(); ++AvNoiseHisto) {
     integratedNoise = 0;
     numBin = (*AvNoiseHisto).second->GetXaxis()->GetNbins();
     maxBin = (*AvNoiseHisto).second->GetXaxis()->GetXmax();
@@ -316,17 +310,17 @@ void DTNoiseComputation::endJob() {
 
   //overimpose the average noise histo
   bool histo = false;
-  vector<const DTChamber *>::const_iterator chamber_it = dtGeom->chambers().begin();
-  vector<const DTChamber *>::const_iterator chamber_end = dtGeom->chambers().end();
+  auto chamber_it = dtGeom->chambers().begin();
+  auto chamber_end = dtGeom->chambers().end();
   // Loop over the chambers
   for (; chamber_it != chamber_end; ++chamber_it) {
-    vector<const DTSuperLayer *>::const_iterator sl_it = (*chamber_it)->superLayers().begin();
-    vector<const DTSuperLayer *>::const_iterator sl_end = (*chamber_it)->superLayers().end();
+    auto sl_it = (*chamber_it)->superLayers().begin();
+    auto sl_end = (*chamber_it)->superLayers().end();
     // Loop over the SLs
     for (; sl_it != sl_end; ++sl_it) {
       DTSuperLayerId sl = (*sl_it)->id();
-      vector<const DTLayer *>::const_iterator l_it = (*sl_it)->layers().begin();
-      vector<const DTLayer *>::const_iterator l_end = (*sl_it)->layers().end();
+      auto l_it = (*sl_it)->layers().begin();
+      auto l_end = (*sl_it)->layers().end();
 
       string canvasName = "c" + getSuperLayerName(sl);
       TCanvas c1(canvasName.c_str(), canvasName.c_str(), 600, 780);
@@ -361,13 +355,11 @@ void DTNoiseComputation::endJob() {
   }
 
   //write on file the noisy plots
-  for (map<pair<int, int>, TH1F *>::const_iterator nCell = noisyC.begin(); nCell != noisyC.end(); ++nCell) {
+  for (auto nCell = noisyC.begin(); nCell != noisyC.end(); ++nCell) {
     theNewFile->cd();
     (*nCell).second->Write();
   }
-  for (map<pair<int, int>, TH1F *>::const_iterator somehownCell = someHowNoisyC.begin();
-       somehownCell != someHowNoisyC.end();
-       ++somehownCell) {
+  for (auto somehownCell = someHowNoisyC.begin(); somehownCell != someHowNoisyC.end(); ++somehownCell) {
     theNewFile->cd();
     (*somehownCell).second->Write();
   }

@@ -36,13 +36,13 @@ DoubleVertexFilter::DoubleVertexFilter(const edm::ParameterSet &params)
 
 static double computeSharedTracks(const reco::Vertex &pv, const reco::Vertex &sv) {
   std::set<reco::TrackRef> pvTracks;
-  for (std::vector<reco::TrackBaseRef>::const_iterator iter = pv.tracks_begin(); iter != pv.tracks_end(); iter++) {
+  for (auto iter = pv.tracks_begin(); iter != pv.tracks_end(); iter++) {
     if (pv.trackWeight(*iter) >= 0.5)
       pvTracks.insert(iter->castTo<reco::TrackRef>());
   }
 
   unsigned int count = 0, total = 0;
-  for (std::vector<reco::TrackBaseRef>::const_iterator iter = sv.tracks_begin(); iter != sv.tracks_end(); iter++) {
+  for (auto iter = sv.tracks_begin(); iter != sv.tracks_end(); iter++) {
     if (sv.trackWeight(*iter) >= 0.5) {
       total++;
       count += pvTracks.count(iter->castTo<reco::TrackRef>());
@@ -61,11 +61,10 @@ void DoubleVertexFilter::produce(edm::StreamID, edm::Event &event, const edm::Ev
   edm::Handle<VertexCollection> secondaryVertices;
   event.getByToken(token_secondaryVertex, secondaryVertices);
 
-  std::vector<reco::Vertex>::const_iterator pv = primaryVertices->begin();
+  auto pv = primaryVertices->begin();
 
   auto recoVertices = std::make_unique<VertexCollection>();
-  for (std::vector<reco::Vertex>::const_iterator sv = secondaryVertices->begin(); sv != secondaryVertices->end();
-       ++sv) {
+  for (auto sv = secondaryVertices->begin(); sv != secondaryVertices->end(); ++sv) {
     if (computeSharedTracks(*pv, *sv) > maxFraction)
       continue;
 

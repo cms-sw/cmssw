@@ -13,7 +13,7 @@ void PixelPSimHitSelector::select(PSimHitCollection &selection,
                                   edm::Event const &event,
                                   edm::EventSetup const &setup) const {
   // Look for psimhit collection associated o the tracker
-  PSimHitCollectionMap::const_iterator pSimHitCollections = pSimHitCollectionMap_.find("pixel");
+  auto pSimHitCollections = pSimHitCollectionMap_.find("pixel");
 
   // Check that there are psimhit collections defined for the tracker
   if (pSimHitCollections == pSimHitCollectionMap_.end())

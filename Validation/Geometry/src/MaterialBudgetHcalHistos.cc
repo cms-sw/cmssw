@@ -441,8 +441,8 @@ std::vector<double> MaterialBudgetHcalHistos::getDDDArray(const std::string& str
 }
 
 bool MaterialBudgetHcalHistos::isSensitive(std::string name) {
-  std::vector<std::string>::const_iterator it = sensitives.begin();
-  std::vector<std::string>::const_iterator itEnd = sensitives.end();
+  auto it = sensitives.begin();
+  auto itEnd = sensitives.end();
   for (; it != itEnd; ++it)
     if (name == *it)
       return true;
@@ -463,8 +463,8 @@ bool MaterialBudgetHcalHistos::isItHF(const G4VTouchable* touch) {
 }
 
 bool MaterialBudgetHcalHistos::isItEC(std::string name) {
-  std::vector<std::string>::const_iterator it = sensitiveEC.begin();
-  std::vector<std::string>::const_iterator itEnd = sensitiveEC.end();
+  auto it = sensitiveEC.begin();
+  auto itEnd = sensitiveEC.end();
   for (; it != itEnd; ++it)
     if (name == *it)
       return true;

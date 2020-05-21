@@ -69,13 +69,13 @@ void ShallowSimhitClustersProducer::produce(edm::Event& iEvent, const edm::Event
     iEvent.getByToken(simhit_token, simhits);
     for (auto const& hit : *simhits) {
       const uint32_t id = hit.detUnitId();
-      const StripGeomDetUnit* theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTrackerGeometry->idToDet(id));
+      const auto* theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTrackerGeometry->idToDet(id));
       const LocalVector drift = shallow::drift(theStripDet, *magfield, *SiStripLorentzAngle);
 
       const float driftedstrip_ = theStripDet->specificTopology().strip(hit.localPosition() + 0.5 * drift);
       const float hitstrip_ = theStripDet->specificTopology().strip(hit.localPosition());
 
-      shallow::CLUSTERMAP::const_iterator cluster = match_cluster(id, driftedstrip_, clustermap, *clusters);
+      auto cluster = match_cluster(id, driftedstrip_, clustermap, *clusters);
       if (cluster != clustermap.end()) {
         unsigned i = cluster->second;
         hits->at(i) += 1;
@@ -115,7 +115,7 @@ shallow::CLUSTERMAP::const_iterator ShallowSimhitClustersProducer::match_cluster
     const float& strip_,
     const shallow::CLUSTERMAP& clustermap,
     const edmNew::DetSetVector<SiStripCluster>& clusters) const {
-  shallow::CLUSTERMAP::const_iterator cluster = clustermap.end();
+  auto cluster = clustermap.end();
   edmNew::DetSetVector<SiStripCluster>::const_iterator clustersDetSet = clusters.find(id);
   if (clustersDetSet != clusters.end()) {
     edmNew::DetSet<SiStripCluster>::const_iterator left, right = clustersDetSet->begin();

@@ -199,7 +199,7 @@ void HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup&
   auto leptons = std::make_unique<reco::GenParticleRefVector>();
 
   // loop over particles and select b and c hadrons and leptons
-  for (reco::GenParticleCollection::const_iterator it = particles->begin(); it != particles->end(); ++it) {
+  for (auto it = particles->begin(); it != particles->end(); ++it) {
     // if b hadron
     if (CandMCTagUtils::hasBottom(*it)) {
       // check if any of the daughters is also a b hadron
@@ -247,7 +247,7 @@ void HadronAndPartonSelector::produce(edm::Event& iEvent, const edm::EventSetup&
   }
 
   // select physics partons
-  for (reco::GenParticleCollection::const_iterator it = particles->begin(); it != particles->end(); ++it) {
+  for (auto it = particles->begin(); it != particles->end(); ++it) {
     if (!fullChainPhysPartons_) {
       if (!(it->status() == 3 || ((partonMode_ == "Pythia8") && (it->status() == 23))))
         continue;

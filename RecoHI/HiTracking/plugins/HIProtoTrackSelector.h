@@ -98,7 +98,7 @@ public:
     int nRejected = 0;
     double d0 = 0.0;
     double d0sigma = 0.0;
-    for (reco::TrackCollection::const_iterator trk = c.begin(); trk != c.end(); ++trk) {
+    for (auto trk = c.begin(); trk != c.end(); ++trk) {
       d0 = -1. * trk->dxy(bsPoint);
       d0sigma = sqrt(trk->d0Error() * trk->d0Error() + bsWidth * bsWidth);
       if (trk->pt() > ptMin_                          // keep only tracks above ptMin

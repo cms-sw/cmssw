@@ -51,7 +51,7 @@ PATVertexAssociationProducer::PATVertexAssociationProducer(const edm::ParameterS
                      iConfig.getParameter<VInputTag>("candidates")
                      : VInputTag(1, iConfig.getParameter<edm::InputTag>("candidates"))),
       vertexing_(iConfig, consumesCollector()) {
-  for (VInputTag::const_iterator it = particles_.begin(), end = particles_.end(); it != end; ++it) {
+  for (auto it = particles_.begin(), end = particles_.end(); it != end; ++it) {
     particlesTokens_.push_back(consumes<edm::View<reco::Candidate> >(*it));
   }
   produces<VertexAssociationMap>();
@@ -71,10 +71,7 @@ void PATVertexAssociationProducer::produce(edm::Event& iEvent, const edm::EventS
   vector<pat::VertexAssociation> assos;
 
   // loop on input tags
-  for (std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > >::const_iterator it = particlesTokens_.begin(),
-                                                                                   end = particlesTokens_.end();
-       it != end;
-       ++it) {
+  for (auto it = particlesTokens_.begin(), end = particlesTokens_.end(); it != end; ++it) {
     // read candidates
     Handle<View<reco::Candidate> > cands;
     iEvent.getByToken(*it, cands);

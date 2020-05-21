@@ -21,7 +21,7 @@ void TBPLayer::construct() {
   theComps.assign(theInnerComps.begin(), theInnerComps.end());
   theComps.insert(theComps.end(), theOuterComps.begin(), theOuterComps.end());
 
-  for (vector<const GeometricSearchDet*>::const_iterator it = theComps.begin(); it != theComps.end(); it++) {
+  for (auto it = theComps.begin(); it != theComps.end(); it++) {
     theBasicComps.insert(theBasicComps.end(), (**it).basicComponents().begin(), (**it).basicComponents().end());
   }
 
@@ -47,13 +47,13 @@ void TBPLayer::construct() {
   LogDebug("TkDetLayers") << "Cyl radius, thickness, lenght: " << specificSurface().radius() << " , "
                           << specificSurface().bounds().thickness() << " , " << specificSurface().bounds().length();
 
-  for (vector<const GeometricSearchDet*>::const_iterator i = theInnerComps.begin(); i != theInnerComps.end(); i++) {
+  for (auto i = theInnerComps.begin(); i != theInnerComps.end(); i++) {
     LogDebug("TkDetLayers") << "inner Rod pos z,perp,eta,phi: " << (**i).position().z() << " , "
                             << (**i).position().perp() << " , " << (**i).position().eta() << " , "
                             << (**i).position().phi();
   }
 
-  for (vector<const GeometricSearchDet*>::const_iterator i = theOuterComps.begin(); i != theOuterComps.end(); i++) {
+  for (auto i = theOuterComps.begin(); i != theOuterComps.end(); i++) {
     LogDebug("TkDetLayers") << "outer Rod pos z,perp,eta,phi: " << (**i).position().z() << " , "
                             << (**i).position().perp() << " , " << (**i).position().eta() << " , "
                             << (**i).position().phi();
@@ -65,7 +65,7 @@ TBPLayer::~TBPLayer() {}
 
 BoundCylinder* TBPLayer::cylinder(const vector<const GeometricSearchDet*>& rods) const {
   vector<const GeomDet*> tmp;
-  for (vector<const GeometricSearchDet*>::const_iterator it = rods.begin(); it != rods.end(); it++) {
+  for (auto it = rods.begin(); it != rods.end(); it++) {
     tmp.insert(tmp.end(), (*it)->basicComponents().begin(), (*it)->basicComponents().end());
   }
   return CylinderBuilderFromDet()(tmp.begin(), tmp.end());

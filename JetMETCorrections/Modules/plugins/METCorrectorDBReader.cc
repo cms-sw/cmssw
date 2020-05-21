@@ -69,8 +69,7 @@ void METCorrectorDBReader::analyze(const edm::Event& iEvent, const edm::EventSet
   // save level to keys for each METParameter in METParameter collection
   MEtXYcorParaColl->validKeys(keys);
   //MEtXYcorParaColl->validSections( sections );
-  for (std::vector<MEtXYcorrectParametersCollection::key_type>::const_iterator ikey = keys.begin(); ikey != keys.end();
-       ++ikey) {
+  for (auto ikey = keys.begin(); ikey != keys.end(); ++ikey) {
     std::string sectionName = MEtXYcorParaColl->findLabel(*ikey);
     edm::LogInfo("METCorrectorDBReader") << "Processing key = " << *ikey << "object label: " << sectionName;
     MEtXYcorrectParameters const& MEtXYcorParams = (*MEtXYcorParaColl)[*ikey];

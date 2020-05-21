@@ -10,7 +10,7 @@ MagCylinder::MagCylinder(const PositionType& pos,
   using SurfaceOrientation::GlobalFace;
 
   unsigned int def = 0;
-  for (std::vector<VolumeSide>::const_iterator i = faces.begin(); i != faces.end(); ++i) {
+  for (auto i = faces.begin(); i != faces.end(); ++i) {
     if (i->globalFace() == SurfaceOrientation::zminus) {
       theZmin = MagVolume::toLocal(i->surface().position()).z();
       ++def;

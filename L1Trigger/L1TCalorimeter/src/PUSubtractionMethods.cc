@@ -24,7 +24,7 @@ namespace l1t {
       puLevelHI[i] = 0;
     }
 
-    for (std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
+    for (auto region = regions.begin(); region != regions.end(); region++) {
       puLevelHI[region->hwEta()] += region->hwPt();
     }
 
@@ -33,7 +33,7 @@ namespace l1t {
       puLevelHI[i] = (puLevelHI[i] + 9) * 455 / (1 << 13);  // approx equals X/18 +0.5
     }
 
-    for (std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
+    for (auto region = regions.begin(); region != regions.end(); region++) {
       int subPt = std::max(0, region->hwPt() - puLevelHI[region->hwEta()]);
       int subEta = region->hwEta();
       int subPhi = region->hwPhi();
@@ -47,7 +47,7 @@ namespace l1t {
   }
 
   void simpleHWSubtraction(const std::vector<l1t::CaloRegion> &regions, std::vector<l1t::CaloRegion> *subRegions) {
-    for (std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
+    for (auto region = regions.begin(); region != regions.end(); region++) {
       int subEta = region->hwEta();
       int subPhi = region->hwPhi();
       int subPt = region->hwPt();
@@ -72,9 +72,7 @@ namespace l1t {
     std::string regionPUSType = params->regionPUSType();
 
     if (regionPUSType == "None") {
-      for (std::vector<CaloRegion>::const_iterator notCorrectedRegion = regions.begin();
-           notCorrectedRegion != regions.end();
-           notCorrectedRegion++) {
+      for (auto notCorrectedRegion = regions.begin(); notCorrectedRegion != regions.end(); notCorrectedRegion++) {
         CaloRegion newSubRegion = *notCorrectedRegion;
         subRegions->push_back(newSubRegion);
       }
@@ -88,9 +86,7 @@ namespace l1t {
       int puMult = 0;
 
       // ------------ This calulates PUM0 ------------------
-      for (std::vector<CaloRegion>::const_iterator notCorrectedRegion = regions.begin();
-           notCorrectedRegion != regions.end();
-           notCorrectedRegion++) {
+      for (auto notCorrectedRegion = regions.begin(); notCorrectedRegion != regions.end(); notCorrectedRegion++) {
         int regionET = notCorrectedRegion->hwPt();
         if (regionET > 0) {
           puMult++;
@@ -100,9 +96,7 @@ namespace l1t {
       if (pumbin == 18)
         pumbin = 17;  // if puMult = 396 exactly there is an overflow
 
-      for (std::vector<CaloRegion>::const_iterator notCorrectedRegion = regions.begin();
-           notCorrectedRegion != regions.end();
-           notCorrectedRegion++) {
+      for (auto notCorrectedRegion = regions.begin(); notCorrectedRegion != regions.end(); notCorrectedRegion++) {
         int regionET = notCorrectedRegion->hwPt();
         int regionEta = notCorrectedRegion->hwEta();
         int regionPhi = notCorrectedRegion->hwPhi();

@@ -66,12 +66,10 @@ int main(int argc, char** argv) {
 
     const CatToInfos& catToInfos = edmplugin::PluginManager::get()->categoryToInfos();
     // map every module to its library.  Code copied from EdmPluginDump
-    for (CatToInfos::const_iterator it = catToInfos.begin(), itEnd = catToInfos.end(); it != itEnd; ++it) {
+    for (auto it = catToInfos.begin(), itEnd = catToInfos.end(); it != itEnd; ++it) {
       std::cout << "Category " << it->first << ":" << std::endl;
       std::string prevPluginName;
-      for (edmplugin::PluginManager::Infos::const_iterator itInfo = it->second.begin(), itInfoEnd = it->second.end();
-           itInfo != itInfoEnd;
-           ++itInfo) {
+      for (auto itInfo = it->second.begin(), itInfoEnd = it->second.end(); itInfo != itInfoEnd; ++itInfo) {
         std::string pluginName = itInfo->name_;
         if (pluginName != prevPluginName) {
           std::cout << "  " << pluginName << std::endl;

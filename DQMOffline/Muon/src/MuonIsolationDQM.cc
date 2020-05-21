@@ -620,7 +620,7 @@ void MuonIsolationDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
   if (vertexHandle.isValid()) {
     reco::VertexCollection vertex = *(vertexHandle.product());
-    for (reco::VertexCollection::const_iterator v = vertex.begin(); v != vertex.end(); ++v) {
+    for (auto v = vertex.begin(); v != vertex.end(); ++v) {
       if (v->isFake())
         continue;
       if (v->ndof() < 4)

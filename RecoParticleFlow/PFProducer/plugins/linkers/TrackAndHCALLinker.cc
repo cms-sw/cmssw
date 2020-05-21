@@ -91,7 +91,7 @@ double TrackAndHCALLinker::testLink(const reco::PFBlockElement* elem1, const rec
     const double trackphi = tkAtHCALEnt.positionREP().Phi();
 
     // Check if the link Track/Hcal exist
-    reco::PFMultilinksType::const_iterator mlit = multilinks.begin();
+    auto mlit = multilinks.begin();
     for (; mlit != multilinks.end(); ++mlit)
       if ((mlit->first == trackphi) && (mlit->second == tracketa))
         break;

@@ -170,7 +170,7 @@ bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
       edm::LogInfo("HBHEMuon") << "AlCaHBHEMuonFilter::Muon Handle " << _Muon.isValid() << std::endl;
 #endif
       if (_Muon.isValid()) {
-        for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
+        for (auto RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
 #ifdef DebugLog
           edm::LogInfo("HBHEMuon") << "AlCaHBHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull()
                                    << " innerTrack " << RecMuon->innerTrack().isNonnull() << " outerTrack "

@@ -125,7 +125,7 @@ bool OverlapProblemTSOSPositionFilter::filter(edm::Event& iEvent, const edm::Eve
     //    const reco::TrackRef & trk = pair->val;
     const std::vector<TrajectoryMeasurement>& tmcoll = traj->measurements();
 
-    for (std::vector<TrajectoryMeasurement>::const_iterator meas = tmcoll.begin(); meas != tmcoll.end(); ++meas) {
+    for (auto meas = tmcoll.begin(); meas != tmcoll.end(); ++meas) {
       if (!meas->updatedState().isValid())
         continue;
 

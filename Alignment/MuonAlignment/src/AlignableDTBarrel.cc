@@ -46,7 +46,7 @@ AlignableSurface AlignableDTBarrel::computeSurface() {
 AlignableDTBarrel::PositionType AlignableDTBarrel::computePosition() {
   float zz = 0.;
 
-  for (std::vector<AlignableDTWheel*>::iterator ilayer = theDTWheels.begin(); ilayer != theDTWheels.end(); ilayer++)
+  for (auto ilayer = theDTWheels.begin(); ilayer != theDTWheels.end(); ilayer++)
     zz += (*ilayer)->globalPosition().z();
 
   zz /= static_cast<float>(theDTWheels.size());
@@ -69,8 +69,7 @@ std::ostream& operator<<(std::ostream& os, const AlignableDTBarrel& b) {
 /// Recursive printout of whole Half Barrel structure
 void AlignableDTBarrel::dump(void) const {
   edm::LogInfo("AlignableDump") << (*this);
-  for (std::vector<AlignableDTWheel*>::const_iterator iWheel = theDTWheels.begin(); iWheel != theDTWheels.end();
-       iWheel++)
+  for (auto iWheel = theDTWheels.begin(); iWheel != theDTWheels.end(); iWheel++)
     (*iWheel)->dump();
 }
 
@@ -92,7 +91,7 @@ Alignments* AlignableDTBarrel::alignments(void) const {
 
 //__________________________________________________________________________________________________
 AlignmentErrorsExtended* AlignableDTBarrel::alignmentErrors(void) const {
-  AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();
+  auto* m_alignmentErrors = new AlignmentErrorsExtended();
 
   // Add components recursively
   for (const auto& i : this->components()) {

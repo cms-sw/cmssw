@@ -86,7 +86,7 @@ namespace fit {
       return val;
     }
     const parameter_t& parameter(const std::string& name) const {
-      typename std::map<std::string, size_t>::const_iterator p = parIndices_.find(name);
+      auto p = parIndices_.find(name);
       if (p == parIndices_.end())
         throw edm::Exception(edm::errors::Configuration) << "RootMinuit: can't find parameter " << name << "\n";
       return pars_[p->second].second;
@@ -227,7 +227,7 @@ namespace fit {
   template <typename Function>
   void RootMinuitCommands<Function>::run(RootMinuit<Function>& minuit) const {
     using namespace std;
-    typename vector<command>::const_iterator c = commands_.begin(), end = commands_.end();
+    auto c = commands_.begin(), end = commands_.end();
     for (; c != end; ++c) {
       if (verbose_) {
         cout << ">>> minuit command: ";

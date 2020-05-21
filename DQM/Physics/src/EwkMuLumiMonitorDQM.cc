@@ -152,7 +152,7 @@ double EwkMuLumiMonitorDQM::tkIso(const reco::Track& tk,
   }
   if (isCombinedIso_) {
     // loop on clusters....
-    for (CaloTowerCollection::const_iterator it = calotower->begin(); it != calotower->end(); ++it) {
+    for (auto it = calotower->begin(); it != calotower->end(); ++it) {
       double dR = deltaR(it->eta(), it->phi(), tk.outerEta(), tk.outerPhi());
       // veto value is 0.1 for towers....
       if ((dR < 0.1) || (dR > 0.3))
@@ -332,7 +332,7 @@ void EwkMuLumiMonitorDQM::analyze(const Event& ev, const EventSetup&) {
     }
     if (!toc.empty()) {
       const trigger::Keys& k = handleTriggerEvent->filterKeys(ia);
-      for (trigger::Keys::const_iterator ki = k.begin(); ki != k.end(); ++ki) {
+      for (auto ki = k.begin(); ki != k.end(); ++ki) {
         // looking at all the single muon l3 trigger present, for example
         // hltSingleMu15L3Filtered15.....
         if (name == L3FilterName_) {

@@ -30,7 +30,7 @@ const RPCGeometry::DetIdContainer& RPCGeometry::detIds() const { return theDetId
 const GeomDet* RPCGeometry::idToDetUnit(DetId id) const { return dynamic_cast<const GeomDet*>(idToDet(id)); }
 
 const GeomDet* RPCGeometry::idToDet(DetId id) const {
-  mapIdToDet::const_iterator i = theMap.find(id);
+  auto i = theMap.find(id);
   if (i != theMap.end())
     return i->second;
 

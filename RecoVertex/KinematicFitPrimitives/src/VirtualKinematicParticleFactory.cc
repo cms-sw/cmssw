@@ -18,7 +18,7 @@ RefCountedKinematicParticle VirtualKinematicParticleFactory::particle(
     KinematicConstraint* lastConstraint) const {
   if (previousParticle.get() != nullptr) {
     KinematicParticle* prp = &(*previousParticle);
-    VirtualKinematicParticle* pr = dynamic_cast<VirtualKinematicParticle*>(prp);
+    auto* pr = dynamic_cast<VirtualKinematicParticle*>(prp);
     if (pr == nullptr) {
       throw VertexException(
           "KinematicParticleFactoryFromTransientTrack::Previous particle passed is not TransientTrack based!");

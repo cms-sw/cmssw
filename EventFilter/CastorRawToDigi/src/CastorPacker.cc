@@ -13,7 +13,7 @@ namespace {
     if (pt == nullptr)
       return 0;
     int size = 0;
-    typename Coll::const_iterator i = pt->find(DetIdClass(did));
+    auto i = pt->find(DetIdClass(did));
     if (i != pt->end()) {
       presamples = i->presamples();
       size = i->size();

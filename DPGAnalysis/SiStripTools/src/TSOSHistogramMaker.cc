@@ -45,7 +45,7 @@ TSOSHistogramMaker::TSOSHistogramMaker(const edm::ParameterSet& iConfig)
 
   std::cout << "selections found: " << wantedsubds.size() << std::endl;
 
-  for (std::vector<edm::ParameterSet>::iterator ps = wantedsubds.begin(); ps != wantedsubds.end(); ++ps) {
+  for (auto ps = wantedsubds.begin(); ps != wantedsubds.end(); ++ps) {
     m_selnames.push_back(ps->getParameter<std::string>("detLabel"));
     if (ps->existsAs<std::string>("title")) {
       m_seltitles.push_back(ps->getParameter<std::string>("title"));

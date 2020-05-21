@@ -302,7 +302,7 @@ void L1MuDTPtaLut::print() const {
       cout << '-';
     cout << "-------------------------" << endl;
 
-    LUT::const_iterator iter = pta_lut[pam].begin();
+    auto iter = pta_lut[pam].begin();
     while (iter != pta_lut[pam].end()) {
       int address = (*iter).first;
       int value = (*iter).second;
@@ -332,7 +332,7 @@ void L1MuDTPtaLut::print() const {
 // get pt value for a given address
 //
 int L1MuDTPtaLut::getPt(int pta_ind, int address) const {
-  LUT::const_iterator iter = pta_lut[pta_ind].find(address);
+  auto iter = pta_lut[pta_ind].find(address);
   if (iter != pta_lut[pta_ind].end()) {
     return (*iter).second;
   } else {

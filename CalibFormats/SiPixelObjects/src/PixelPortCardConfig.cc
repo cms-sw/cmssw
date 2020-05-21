@@ -301,10 +301,10 @@ PixelPortCardConfig::PixelPortCardConfig(vector<vector<string> > &tableMat) : Pi
           ((settingName.find("DOH_SEU_GAIN") != std::string::npos) && type_ == "bpix"))
       //Note that DOH_SEU_GAIN will be *ignored* for fpix
       {
-        map<string, string>::iterator iter = nameDBtoFileConversion_.find(settingName);
+        auto iter = nameDBtoFileConversion_.find(settingName);
         if (iter == nameDBtoFileConversion_.end())
           continue;
-        map<string, unsigned int>::iterator foundName_itr = nameToAddress_.find(nameDBtoFileConversion_[settingName]);
+        auto foundName_itr = nameToAddress_.find(nameDBtoFileConversion_[settingName]);
 
         if (foundName_itr != nameToAddress_.end()) {
           if (portcardname_.find("PRT2") != std::string::npos &&
@@ -443,7 +443,7 @@ PixelPortCardConfig::PixelPortCardConfig(std::string filename) : PixelConfigBase
       device_.push_back(make_pair(getdeviceAddressForSetting(k_PLL_CTR4or5), i2c_values));
     } else  // no special handling for this name
     {
-      std::map<std::string, unsigned int>::iterator foundName_itr = nameToAddress_.find(settingName);
+      auto foundName_itr = nameToAddress_.find(settingName);
 
       if (foundName_itr != nameToAddress_.end()) {
         i2c_address = foundName_itr->second;
@@ -468,8 +468,7 @@ void PixelPortCardConfig::sortDeviceList() {
 
   //  cout<<" -=-=-=-= done with sorting -=-=-="<<endl;
   device_.clear();
-  for (set<pair<unsigned int, pair<unsigned int, unsigned int> > >::iterator i = sorted.begin(); i != sorted.end();
-       ++i) {
+  for (auto i = sorted.begin(); i != sorted.end(); ++i) {
     device_.push_back(i->second);
   }
 
@@ -1069,8 +1068,7 @@ void PixelPortCardConfig::writeASCII(std::string dir) const {
 
     // Check to see if there's a name corresponding to this address.
     std::string settingName = "";
-    for (std::map<std::string, unsigned int>::const_iterator nameToAddress_itr = nameToAddress_.begin();
-         nameToAddress_itr != nameToAddress_.end();
+    for (auto nameToAddress_itr = nameToAddress_.begin(); nameToAddress_itr != nameToAddress_.end();
          ++nameToAddress_itr) {
       //       cout << "[PixelPortCardConfig::WriteASCII()]\tnameToAddress.first:  " << nameToAddress_itr->first  << endl ;
       //       cout << "[PixelPortCardConfig::WriteASCII()]\tnameToAddress.second: " << nameToAddress_itr->second << endl ;
@@ -1159,7 +1157,7 @@ void PixelPortCardConfig::setdeviceValues(std::string settingName, unsigned int 
 
 unsigned int PixelPortCardConfig::getdeviceAddressForSetting(std::string settingName) const {
   //std::cout << "[PixelPortCardConfig::getdeviceAddressForSetting()]\t    settingName: " << settingName<< std::endl ;
-  std::map<std::string, unsigned int>::const_iterator foundName_itr = nameToAddress_.find(settingName);
+  auto foundName_itr = nameToAddress_.find(settingName);
   assert(foundName_itr != nameToAddress_.end());
   return foundName_itr->second;
 }
@@ -1180,9 +1178,7 @@ unsigned int PixelPortCardConfig::getdeviceValuesForAddress(unsigned int address
 }
 
 bool PixelPortCardConfig::containsDeviceAddress(unsigned int deviceAddress) const {
-  for (std::vector<std::pair<unsigned int, unsigned int> >::const_iterator device_itr = device_.begin();
-       device_itr != device_.end();
-       ++device_itr) {
+  for (auto device_itr = device_.begin(); device_itr != device_.end(); ++device_itr) {
     if (device_itr->first == deviceAddress)
       return true;
   }
@@ -1566,16 +1562,14 @@ void PixelPortCardConfig::writeXML(std::ofstream *outstream,
 
     // Check to see if there's a name corresponding to this address.
     std::string settingName = "";
-    for (std::map<std::string, unsigned int>::const_iterator nameToAddress_itr = nameToAddress_.begin();
-         nameToAddress_itr != nameToAddress_.end();
+    for (auto nameToAddress_itr = nameToAddress_.begin(); nameToAddress_itr != nameToAddress_.end();
          ++nameToAddress_itr) {
       if (nameToAddress_itr->second == deviceAddress) {
         settingName = nameToAddress_itr->first;
         break;
       }
     }
-    for (std::map<std::string, std::string>::const_iterator nameDBtoFileConversion_itr =
-             nameDBtoFileConversion_.begin();
+    for (auto nameDBtoFileConversion_itr = nameDBtoFileConversion_.begin();
          nameDBtoFileConversion_itr != nameDBtoFileConversion_.end();
          ++nameDBtoFileConversion_itr) {
       if (nameDBtoFileConversion_itr->second.find(settingName) != std::string::npos) {

@@ -179,9 +179,9 @@ namespace cond {
         DTWireId chC(lay, 13);
 
         std::map<int, int>::const_iterator layerIter;
-        std::map<int, int>::const_iterator layerIend = layerMap.end();
+        auto layerIend = layerMap.end();
         std::map<int, timedMeasurement>::const_iterator snapIter;
-        std::map<int, timedMeasurement>::const_iterator snapIend = snapshotValues.end();
+        auto snapIend = snapshotValues.end();
         int chan;
         if ((layerIter = layerMap.find(chA.rawId())) != layerIend) {
           chan = (layerIter->second * 10) + l_p;

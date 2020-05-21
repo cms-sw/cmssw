@@ -22,8 +22,8 @@ void SiStripSummaryBuilder::analyze(const edm::Event& evt, const edm::EventSetup
   std::vector<std::string> userDBContent;
   typedef std::vector<edm::ParameterSet> VParameters;
   VParameters histoList = iConfig_.getParameter<VParameters>("histoList");
-  VParameters::iterator ithistoList = histoList.begin();
-  VParameters::iterator ithistoListEnd = histoList.end();
+  auto ithistoList = histoList.begin();
+  auto ithistoListEnd = histoList.end();
 
   for (; ithistoList != ithistoListEnd; ++ithistoList) {
     std::string keyName = ithistoList->getUntrackedParameter<std::string>("keyName");

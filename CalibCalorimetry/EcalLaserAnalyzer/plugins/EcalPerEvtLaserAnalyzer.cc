@@ -222,8 +222,7 @@ void EcalPerEvtLaserAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
   // Decode Basic DCCHeader Information
   // ====================================
 
-  for (EcalRawDataCollection::const_iterator headerItr = DCCHeader->begin(); headerItr != DCCHeader->end();
-       ++headerItr) {
+  for (auto headerItr = DCCHeader->begin(); headerItr != DCCHeader->end(); ++headerItr) {
     // Get run type and run number
 
     int fed = headerItr->fedId();
@@ -282,7 +281,7 @@ void EcalPerEvtLaserAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
     EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings();
     int color = settings.wavelength;
 
-    vector<int>::iterator iter = find(colors.begin(), colors.end(), color);
+    auto iter = find(colors.begin(), colors.end(), color);
     if (iter == colors.end()) {
       colors.push_back(color);
       cout << " new color found " << color << " " << colors.size() << endl;
@@ -313,8 +312,7 @@ void EcalPerEvtLaserAnalyzer::analyze(const edm::Event& e, const edm::EventSetup
 
   std::vector<double> allPNAmpl;
 
-  for (EcalPnDiodeDigiCollection::const_iterator pnItr = PNDigi->begin(); pnItr != PNDigi->end();
-       ++pnItr) {  // Loop on PNs
+  for (auto pnItr = PNDigi->begin(); pnItr != PNDigi->end(); ++pnItr) {  // Loop on PNs
 
     for (int samId = 0; samId < (*pnItr).size(); samId++) {  // Loop on PN samples
       pn[samId] = (*pnItr).sample(samId).adc();
@@ -660,7 +658,7 @@ void EcalPerEvtLaserAnalyzer::endJob() {
     alphaTree[i]->SetBranchAddress("flag", &flagRun);
   }
 
-  PulseFitWithFunction* pslsfit = new PulseFitWithFunction();
+  auto* pslsfit = new PulseFitWithFunction();
 
   double chi2;
 

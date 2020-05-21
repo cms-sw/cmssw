@@ -142,7 +142,7 @@ void VariableMapCont::addOption(string key, OptionType type, const string &descr
 
 int &VariableMapCont::integerValue(std::string key) {
   lowercaseString(key);
-  SIMapIter iter = m_integerMap.find(key);
+  auto iter = m_integerMap.find(key);
   if (m_integerMap.end() == iter) {
     cerr << "VariableMapCont::integerValue() Error: key '" << key << "' not found.  Aborting." << endl;
     assert(0);
@@ -152,7 +152,7 @@ int &VariableMapCont::integerValue(std::string key) {
 
 double &VariableMapCont::doubleValue(std::string key) {
   lowercaseString(key);
-  SDMapIter iter = m_doubleMap.find(key);
+  auto iter = m_doubleMap.find(key);
   if (m_doubleMap.end() == iter) {
     cerr << "VariableMapCont::doubleValue() Error: key '" << key << "' not found.  Aborting." << endl;
     assert(0);
@@ -162,7 +162,7 @@ double &VariableMapCont::doubleValue(std::string key) {
 
 string &VariableMapCont::stringValue(std::string key) {
   lowercaseString(key);
-  SSMapIter iter = m_stringMap.find(key);
+  auto iter = m_stringMap.find(key);
   if (m_stringMap.end() == iter) {
     cerr << "VariableMapCont::stringValue() Error: key '" << key << "' not found.  Aborting." << endl;
     assert(0);
@@ -172,7 +172,7 @@ string &VariableMapCont::stringValue(std::string key) {
 
 bool &VariableMapCont::boolValue(std::string key) {
   lowercaseString(key);
-  SBMapIter iter = m_boolMap.find(key);
+  auto iter = m_boolMap.find(key);
   if (m_boolMap.end() == iter) {
     cerr << "VariableMapCont::boolValue() Error: key '" << key << "' not found.  Aborting." << endl;
     assert(0);
@@ -182,7 +182,7 @@ bool &VariableMapCont::boolValue(std::string key) {
 
 VariableMapCont::IVec &VariableMapCont::integerVector(std::string key) {
   lowercaseString(key);
-  SIVecMapIter iter = m_integerVecMap.find(key);
+  auto iter = m_integerVecMap.find(key);
   if (m_integerVecMap.end() == iter) {
     cerr << "VariableMapCont::integerVector() Error: key '" << key << "' not found.  Aborting." << endl;
     assert(0);
@@ -192,7 +192,7 @@ VariableMapCont::IVec &VariableMapCont::integerVector(std::string key) {
 
 VariableMapCont::DVec &VariableMapCont::doubleVector(std::string key) {
   lowercaseString(key);
-  SDVecMapIter iter = m_doubleVecMap.find(key);
+  auto iter = m_doubleVecMap.find(key);
   if (m_doubleVecMap.end() == iter) {
     cerr << "VariableMapCont::doubleVector() Error: key '" << key << "' not found.  Aborting." << endl;
     assert(0);
@@ -202,7 +202,7 @@ VariableMapCont::DVec &VariableMapCont::doubleVector(std::string key) {
 
 VariableMapCont::SVec &VariableMapCont::stringVector(std::string key) {
   lowercaseString(key);
-  SSVecMapIter iter = m_stringVecMap.find(key);
+  auto iter = m_stringVecMap.find(key);
   if (m_stringVecMap.end() == iter) {
     cerr << "VariableMapCont::stringVector() Error: key '" << key << "' not found.  Aborting." << endl;
     assert(0);
@@ -211,7 +211,7 @@ VariableMapCont::SVec &VariableMapCont::stringVector(std::string key) {
 }
 
 bool VariableMapCont::_valueHasBeenModified(const string &key) {
-  SBMapConstIter iter = m_variableModifiedMap.find(key);
+  auto iter = m_variableModifiedMap.find(key);
   if (m_variableModifiedMap.end() == iter) {
     // Not found.  Not a valid option
     cerr << "VariableMapCont::valueHasBeenModfied () Error: '" << key << "' is not a valid key." << endl;

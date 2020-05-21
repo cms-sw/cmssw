@@ -285,8 +285,7 @@ MeasurementContainer MuonDetLayerMeasurements::measurements(const DetLayer* laye
   std::vector<DetWithState> dss = layer->compatibleDets(startingState, prop, est);
   LogDebug("RecoMuon") << "compatibleDets: " << dss.size() << std::endl;
 
-  for (std::vector<DetWithState>::const_iterator detWithStateItr = dss.begin(); detWithStateItr != dss.end();
-       ++detWithStateItr) {
+  for (auto detWithStateItr = dss.begin(); detWithStateItr != dss.end(); ++detWithStateItr) {
     MeasurementContainer detMeasurements =
         measurements(layer, detWithStateItr->first, detWithStateItr->second, est, iEvent);
     result.insert(result.end(), detMeasurements.begin(), detMeasurements.end());
@@ -319,7 +318,7 @@ MeasurementContainer MuonDetLayerMeasurements::measurements(const DetLayer* laye
   MuonRecHitContainer muonRecHits = recHits(det, iEvent);
 
   // Create the Trajectory Measurement
-  for (MuonRecHitContainer::const_iterator rechit = muonRecHits.begin(); rechit != muonRecHits.end(); ++rechit) {
+  for (auto rechit = muonRecHits.begin(); rechit != muonRecHits.end(); ++rechit) {
     MeasurementEstimator::HitReturnType estimate = est.estimate(stateOnDet, **rechit);
     LogDebug("RecoMuon") << "Dimension: " << (*rechit)->dimension() << " Chi2: " << estimate.second << std::endl;
     if (estimate.first) {
@@ -341,7 +340,7 @@ MeasurementContainer MuonDetLayerMeasurements::fastMeasurements(const DetLayer* 
                                                                 const edm::Event& iEvent) {
   MeasurementContainer result;
   MuonRecHitContainer rhs = recHits(layer, iEvent);
-  for (MuonRecHitContainer::const_iterator irh = rhs.begin(); irh != rhs.end(); irh++) {
+  for (auto irh = rhs.begin(); irh != rhs.end(); irh++) {
     MeasurementEstimator::HitReturnType estimate = est.estimate(theStateOnDet, (**irh));
     if (estimate.first) {
       result.push_back(TrajectoryMeasurement(theStateOnDet, (*irh), estimate.second, layer));
@@ -389,9 +388,9 @@ std::vector<TrajectoryMeasurementGroup> MuonDetLayerMeasurements::groupedMeasure
   // RecoMuon/DetLayers/MuRingForwardDoubleLayer
   // and removed the reverse operation in StandAloneMuonFilter::findBestMeasurements
 
-  for (std::vector<DetGroup>::const_iterator grp = groups.begin(); grp != groups.end(); ++grp) {
+  for (auto grp = groups.begin(); grp != groups.end(); ++grp) {
     std::vector<TrajectoryMeasurement> groupMeasurements;
-    for (DetGroup::const_iterator detAndStateItr = grp->begin(); detAndStateItr != grp->end(); ++detAndStateItr) {
+    for (auto detAndStateItr = grp->begin(); detAndStateItr != grp->end(); ++detAndStateItr) {
       std::vector<TrajectoryMeasurement> detMeasurements =
           measurements(layer, detAndStateItr->det(), detAndStateItr->trajectoryState(), est, iEvent);
       groupMeasurements.insert(groupMeasurements.end(), detMeasurements.begin(), detMeasurements.end());
@@ -419,7 +418,7 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const DetLayer* layer, con
 
   std::vector<const GeomDet*> gds = layer->basicComponents();
 
-  for (std::vector<const GeomDet*>::const_iterator igd = gds.begin(); igd != gds.end(); igd++) {
+  for (auto igd = gds.begin(); igd != gds.end(); igd++) {
     MuonRecHitContainer detHits = recHits(*igd, iEvent);
     rhs.insert(rhs.end(), detHits.begin(), detHits.end());
   }

@@ -161,9 +161,9 @@ void HLTScoutingEgammaProducer::produce(edm::StreamID sid, edm::Event& iEvent, e
     int charge = -999;
     for (auto& track : *EgammaGsfTrackCollection) {
       RefToBase<TrajectorySeed> seed = track.extra()->seedRef();
-      reco::ElectronSeedRef elseed = seed.castTo<reco::ElectronSeedRef>();
+      auto elseed = seed.castTo<reco::ElectronSeedRef>();
       RefToBase<reco::CaloCluster> caloCluster = elseed->caloCluster();
-      reco::SuperClusterRef scRefFromTrk = caloCluster.castTo<reco::SuperClusterRef>();
+      auto scRefFromTrk = caloCluster.castTo<reco::SuperClusterRef>();
       if (scRefFromTrk == scRef) {
         d0 = track.d0();
         dz = track.dz();

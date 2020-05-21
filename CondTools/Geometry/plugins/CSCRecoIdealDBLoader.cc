@@ -26,8 +26,8 @@ public:
 void CSCRecoIdealDBLoader::beginRun(const edm::Run&, edm::EventSetup const& es) {
   edm::LogInfo("CSCRecoIdealDBLoader") << "CSCRecoIdealDBLoader::beginRun";
 
-  RecoIdealGeometry* rig = new RecoIdealGeometry;
-  CSCRecoDigiParameters* rdp = new CSCRecoDigiParameters;
+  auto* rig = new RecoIdealGeometry;
+  auto* rdp = new CSCRecoDigiParameters;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
     edm::LogError("CSCRecoIdealDBLoader") << "PoolDBOutputService unavailable";

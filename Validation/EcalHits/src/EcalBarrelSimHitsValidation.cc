@@ -137,7 +137,7 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event &e, const edm::EventS
   MapType ebmap;
   uint32_t nEBHits = 0;
 
-  for (std::vector<PCaloHit>::iterator isim = theEBCaloHits.begin(); isim != theEBCaloHits.end(); ++isim) {
+  for (auto isim = theEBCaloHits.begin(); isim != theEBCaloHits.end(); ++isim) {
     if (isim->time() > 500.) {
       continue;
     }
@@ -171,11 +171,11 @@ void EcalBarrelSimHitsValidation::analyze(const edm::Event &e, const edm::EventS
 
   menEBCrystals_->Fill(ebmap.size());
   if (meEBcrystalEnergy_) {
-    for (std::map<uint32_t, float, std::less<uint32_t>>::iterator it = ebmap.begin(); it != ebmap.end(); ++it)
+    for (auto it = ebmap.begin(); it != ebmap.end(); ++it)
       meEBcrystalEnergy_->Fill((*it).second);
   }
   if (meEBcrystalEnergy2_) {
-    for (std::map<uint32_t, float, std::less<uint32_t>>::iterator it = ebmap.begin(); it != ebmap.end(); ++it)
+    for (auto it = ebmap.begin(); it != ebmap.end(); ++it)
       meEBcrystalEnergy2_->Fill((*it).second);
   }
 

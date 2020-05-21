@@ -46,7 +46,7 @@ void HcalPedestalsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es
     std::vector<DetId> listRefChan = myRefPeds->getAllChannels();
     std::vector<DetId>::iterator cell;
     bool failflag = false;
-    for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++) {
+    for (auto it = listRefChan.begin(); it != listRefChan.end(); it++) {
       DetId mydetid = *it;
       cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
       if (cell == listNewChan.end())  // not present in new list, take old pedestals
@@ -78,7 +78,7 @@ void HcalPedestalsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es
     std::vector<DetId> listRefChan = myRefPeds->getAllChannels();
     std::vector<DetId>::iterator cell;
     bool failflag = false;
-    for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++) {
+    for (auto it = listRefChan.begin(); it != listRefChan.end(); it++) {
       DetId mydetid = *it;
       cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
       if (cell == listNewChan.end()) {
@@ -108,7 +108,7 @@ void HcalPedestalsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es
     HcalPedestals* resultPeds = new HcalPedestals(myRefPeds->topo(), myRefPeds->isADC());
     std::vector<DetId> listRefChan = myRefPeds->getAllChannels();
     std::vector<DetId>::iterator cell;
-    for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++) {
+    for (auto it = listRefChan.begin(); it != listRefChan.end(); it++) {
       DetId mydetid = *it;
       cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
       if (cell == listNewChan.end())  // not present in new list, take old pedestals
@@ -127,7 +127,7 @@ void HcalPedestalsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es
       }
     }
 
-    for (std::vector<DetId>::iterator it = listNewChan.begin(); it != listNewChan.end(); it++)  // fix 25.02.08
+    for (auto it = listNewChan.begin(); it != listNewChan.end(); it++)  // fix 25.02.08
     {
       DetId mydetid = *it;
       const HcalPedestal* item = myNewPeds->getValues(mydetid);
@@ -142,7 +142,7 @@ void HcalPedestalsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es
     std::vector<HcalGenericDetId> listEMap = myRefEMap->allPrecisionId();
     // look up if emap channels are all present in pedestals, if not then cerr
     if (checkemapflag) {
-      for (std::vector<HcalGenericDetId>::const_iterator it = listEMap.begin(); it != listEMap.end(); it++) {
+      for (auto it = listEMap.begin(); it != listEMap.end(); it++) {
         DetId mydetid = DetId(it->rawId());
         HcalGenericDetId mygenid(it->rawId());
         //	std::cout << "id = " << mygenid << ", hashed id = " << mygenid.hashedId() << std::endl;

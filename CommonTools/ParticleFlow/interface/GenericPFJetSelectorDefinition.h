@@ -19,7 +19,7 @@ namespace pf2pat {
       selected_.clear();
 
       unsigned key = 0;
-      for (collection::const_iterator pfc = hc->begin(); pfc != hc->end(); ++pfc, ++key) {
+      for (auto pfc = hc->begin(); pfc != hc->end(); ++pfc, ++key) {
         if (selector_(*pfc)) {
           selected_.push_back(reco::PFJet(*pfc));
           reco::CandidatePtr ptrToMother(hc, key);

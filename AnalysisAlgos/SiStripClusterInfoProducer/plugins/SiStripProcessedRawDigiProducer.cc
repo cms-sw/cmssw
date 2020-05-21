@@ -54,8 +54,7 @@ template <class T>
 inline std::string SiStripProcessedRawDigiProducer::findInput(edm::Handle<T>& handle,
                                                               const std::vector<edm::EDGetTokenT<T> >& tokens,
                                                               const edm::Event& e) {
-  for (typename std::vector<edm::EDGetTokenT<T> >::const_iterator token = tokens.begin(); token != tokens.end();
-       ++token) {
+  for (auto token = tokens.begin(); token != tokens.end(); ++token) {
     unsigned index(token - tokens.begin());
     e.getByToken(*token, handle);
     if (handle.isValid() && !handle->empty()) {
@@ -69,9 +68,9 @@ inline std::string SiStripProcessedRawDigiProducer::findInput(edm::Handle<T>& ha
 void SiStripProcessedRawDigiProducer::zs_process(const edm::DetSetVector<SiStripDigi>& input,
                                                  edm::DetSetVector<SiStripProcessedRawDigi>& output) {
   std::vector<float> digis;
-  for (edm::DetSetVector<SiStripDigi>::const_iterator detset = input.begin(); detset != input.end(); ++detset) {
+  for (auto detset = input.begin(); detset != input.end(); ++detset) {
     digis.clear();
-    for (edm::DetSet<SiStripDigi>::const_iterator digi = detset->begin(); digi != detset->end(); ++digi) {
+    for (auto digi = detset->begin(); digi != detset->end(); ++digi) {
       digis.resize(digi->strip(), 0);
       digis.push_back(digi->adc());
     }
@@ -81,7 +80,7 @@ void SiStripProcessedRawDigiProducer::zs_process(const edm::DetSetVector<SiStrip
 
 void SiStripProcessedRawDigiProducer::pr_process(const edm::DetSetVector<SiStripRawDigi>& input,
                                                  edm::DetSetVector<SiStripProcessedRawDigi>& output) {
-  for (edm::DetSetVector<SiStripRawDigi>::const_iterator detset = input.begin(); detset != input.end(); ++detset) {
+  for (auto detset = input.begin(); detset != input.end(); ++detset) {
     std::vector<float> digis;
     transform(detset->begin(), detset->end(), back_inserter(digis), boost::bind(&SiStripRawDigi::adc, _1));
     subtractorCMN->subtract(detset->id, 0, digis);
@@ -91,7 +90,7 @@ void SiStripProcessedRawDigiProducer::pr_process(const edm::DetSetVector<SiStrip
 
 void SiStripProcessedRawDigiProducer::vr_process(const edm::DetSetVector<SiStripRawDigi>& input,
                                                  edm::DetSetVector<SiStripProcessedRawDigi>& output) {
-  for (edm::DetSetVector<SiStripRawDigi>::const_iterator detset = input.begin(); detset != input.end(); ++detset) {
+  for (auto detset = input.begin(); detset != input.end(); ++detset) {
     std::vector<int16_t> int_digis(detset->size());
     subtractorPed->subtract(*detset, int_digis);
     std::vector<float> digis(int_digis.begin(), int_digis.end());
@@ -105,7 +104,7 @@ void SiStripProcessedRawDigiProducer::common_process(const uint32_t detId,
                                                      edm::DetSetVector<SiStripProcessedRawDigi>& output) {
   //Apply Gains
   SiStripApvGain::Range detGainRange = gainHandle->getRange(detId);
-  for (std::vector<float>::iterator it = digis.begin(); it < digis.end(); ++it)
+  for (auto it = digis.begin(); it < digis.end(); ++it)
     (*it) /= (gainHandle->getStripGain(it - digis.begin(), detGainRange));
 
   //Insert as DetSet

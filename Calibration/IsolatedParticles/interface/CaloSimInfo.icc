@@ -65,8 +65,7 @@ namespace spr {
                 << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize() << std::endl;
 
     //matching SimTrack
-    edm::SimTrackContainer::const_iterator trkInfo =
-        spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
+    auto trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
 
     //vector of Ecal cells in NxN
     std::vector<DetId> vdets = spr::matrixECALIds(det, ieta, iphi, geo, caloTopology, debug);
@@ -98,8 +97,7 @@ namespace spr {
                 << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize() << std::endl;
 
     //matching SimTrack
-    edm::SimTrackContainer::const_iterator trkInfo =
-        spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
+    auto trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
 
     //vector of Ecal cells in NxN
     std::vector<DetId> vdets = spr::matrixECALIds(det, ietaE, ietaW, iphiN, iphiS, geo, caloTopology, debug);
@@ -151,8 +149,7 @@ namespace spr {
                 << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize() << std::endl;
 
     // get the matching SimTrack pointer
-    edm::SimTrackContainer::const_iterator trkInfo =
-        spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
+    auto trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
 
     // get the hits in Hcal in NxN around det
     std::vector<typename T::const_iterator> hit;
@@ -184,8 +181,7 @@ namespace spr {
                 << pTrack->p() << " eta " << pTrack->eta() << " trkRecHits " << pTrack->recHitsSize() << std::endl;
 
     // get the matching SimTrack pointer
-    edm::SimTrackContainer::const_iterator trkInfo =
-        spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
+    auto trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
 
     // get the hits in Hcal in NxN around det
     std::vector<typename T::const_iterator> hit;
@@ -216,8 +212,7 @@ namespace spr {
     }
 
     // Get SimTrack matched to RecoTrack
-    edm::SimTrackContainer::const_iterator trkInfo =
-        spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
+    auto trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug);
 
     // Get list of simhits in matrix ("hits" is list of pcalo simhits)
     std::vector<typename T::const_iterator> hit;
@@ -243,8 +238,7 @@ namespace spr {
     bool debug_dummy = false;
 
     // Get SimTrack matched to RecoTrack
-    edm::SimTrackContainer::const_iterator trkInfo =
-        spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug_dummy);
+    auto trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug_dummy);
 
     //    spr::hitHCALmatrix(topology,det,hits,ieta,iphi,debug);
 
@@ -273,8 +267,7 @@ namespace spr {
     bool debug_dummy = false;
 
     // Get SimTrack matched to RecoTrack
-    edm::SimTrackContainer::const_iterator trkInfo =
-        spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug_dummy);
+    auto trkInfo = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, associate, debug_dummy);
 
     //    spr::hitHCALmatrix(topology,det,hits,ieta,iphi,debug);
 
@@ -395,8 +388,7 @@ namespace spr {
                 if (match) {
                   info.eMatched += hit[ihit]->energy();
                 } else {
-                  edm::SimTrackContainer::const_iterator parentItr =
-                      spr::parentSimTrack(simTrkItr, SimTk, SimVtx, debug);
+                  auto parentItr = spr::parentSimTrack(simTrkItr, SimTk, SimVtx, debug);
                   if (debug) {
                     if (parentItr != SimTk->end())
                       std::cout << "original parent of " << simTrkItr->trackId() << " " << parentItr->trackId() << ", "
@@ -634,7 +626,7 @@ namespace spr {
                 uniqueIds_total.insert(uniqueId);
                 nMatched++;
               } else {
-                edm::SimTrackContainer::const_iterator parentItr = spr::parentSimTrack(simTrkItr, SimTk, SimVtx, debug);
+                auto parentItr = spr::parentSimTrack(simTrkItr, SimTk, SimVtx, debug);
                 if (debug) {
                   if (parentItr != SimTk->end()) {
                     std::cout << "original parent of " << simTrkItr->trackId() << " " << parentItr->trackId() << ", "

@@ -102,8 +102,8 @@ bool TwoBodyDecayEstimator::constructMatrices(const std::vector<RefCountedLinear
                                               AlgebraicVector &vecM,
                                               AlgebraicSymMatrix &matG,
                                               AlgebraicMatrix &matA) const {
-  PerigeeLinearizedTrackState *linTrack1 = dynamic_cast<PerigeeLinearizedTrackState *>(linTracks[0].get());
-  PerigeeLinearizedTrackState *linTrack2 = dynamic_cast<PerigeeLinearizedTrackState *>(linTracks[1].get());
+  auto *linTrack1 = dynamic_cast<PerigeeLinearizedTrackState *>(linTracks[0].get());
+  auto *linTrack2 = dynamic_cast<PerigeeLinearizedTrackState *>(linTracks[1].get());
 
   if (!linTrack1 || !linTrack2)
     return false;

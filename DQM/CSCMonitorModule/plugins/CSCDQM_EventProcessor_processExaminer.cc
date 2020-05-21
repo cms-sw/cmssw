@@ -32,7 +32,7 @@ namespace cscdqm {
 
     if (getEMUHisto(h::EMU_ALL_DDUS_FORMAT_ERRORS, mo)) {
       const std::set<DDUIdType> DDUs = digi.getListOfDDUs();
-      for (std::set<DDUIdType>::const_iterator ddu_itr = DDUs.begin(); ddu_itr != DDUs.end(); ++ddu_itr) {
+      for (auto ddu_itr = DDUs.begin(); ddu_itr != DDUs.end(); ++ddu_itr) {
         ExaminerStatusType errs = digi.getDDUErrors(*ddu_itr);
         int dduID = (*ddu_itr) & 0xFF;
         if (((*ddu_itr) >= FEDNumbering::MINCSCDDUFEDID) &&

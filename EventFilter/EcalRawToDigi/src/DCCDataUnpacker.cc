@@ -63,7 +63,7 @@ uint16_t DCCDataUnpacker::getChannelStatus(const DetId& id) const {
     return NO_DATA;
   }
 
-  EcalChannelStatus::const_iterator pCh = chdb_->find(id);
+  auto pCh = chdb_->find(id);
 
   if (pCh != chdb_->end()) {
     return pCh->getStatusCode();

@@ -165,12 +165,12 @@ void popcon::EcalTPGPedestalsHandler::getNewObjects() {
             econn->fetchDataSet(&dataset_TpgPed, &fe_ped_info);
 
             // NB new
-            EcalTPGPedestals* peds = new EcalTPGPedestals;
+            auto* peds = new EcalTPGPedestals;
             typedef std::map<EcalLogicID, FEConfigPedDat>::const_iterator CIfeped;
             EcalLogicID ecid_xt;
             FEConfigPedDat rd_ped;
             int icells = 0;
-            for (CIfeped p = dataset_TpgPed.begin(); p != dataset_TpgPed.end(); p++) {
+            for (auto p = dataset_TpgPed.begin(); p != dataset_TpgPed.end(); p++) {
               ecid_xt = p->first;
               rd_ped = p->second;
 

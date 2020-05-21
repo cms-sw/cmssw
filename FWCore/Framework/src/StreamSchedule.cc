@@ -225,8 +225,7 @@ namespace edm {
       if (!shouldBeUsedLabels.empty()) {
         std::ostringstream unusedStream;
         unusedStream << "'" << shouldBeUsedLabels.front() << "'";
-        for (std::vector<std::string>::iterator itLabel = shouldBeUsedLabels.begin() + 1,
-                                                itLabelEnd = shouldBeUsedLabels.end();
+        for (auto itLabel = shouldBeUsedLabels.begin() + 1, itLabelEnd = shouldBeUsedLabels.end();
              itLabel != itLabelEnd;
              ++itLabel) {
           unusedStream << ",'" << *itLabel << "'";
@@ -756,7 +755,7 @@ namespace edm {
   }
 
   void StreamSchedule::modulesInPath(std::string const& iPathLabel, std::vector<std::string>& oLabelsToFill) const {
-    TrigPaths::const_iterator itFound = std::find_if(
+    auto itFound = std::find_if(
         trig_paths_.begin(),
         trig_paths_.end(),
         std::bind(std::equal_to<std::string>(), iPathLabel, std::bind(&Path::name, std::placeholders::_1)));

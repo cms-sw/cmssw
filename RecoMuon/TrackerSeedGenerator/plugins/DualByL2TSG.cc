@@ -39,8 +39,7 @@ unsigned int DualByL2TSG::selectTSG(const TrackCand& muonTrackCand, const Tracki
   // Loop through all tracks, if the track was seeded from this L2, then skip
   for (unsigned int i = 0; i != maxI; ++i) {
     reco::TrackRef tk(l3muonH, i);
-    edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef =
-        tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
+    auto l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
     reco::TrackRef staTrack = l3seedRef->l2Track();
 
     if (staTrack == (muonTrackCand.second))

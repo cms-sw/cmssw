@@ -111,15 +111,14 @@ namespace edm {
     iSetup.fillAvailableRecordKeys(records);
     std::unique_ptr<LogSystem> msg;
 
-    for (Records::iterator itrecords = records.begin(), itrecordsend = records.end(); itrecords != itrecordsend;
-         ++itrecords) {
+    for (auto itrecords = records.begin(), itrecordsend = records.end(); itrecords != itrecordsend; ++itrecords) {
       auto rec = iSetup.find(*itrecords);
 
       if (rec && cacheIdentifiers_[*itrecords] != rec->cacheIdentifier()) {
         cacheIdentifiers_[*itrecords] = rec->cacheIdentifier();
         rec->fillRegisteredDataKeys(data);
         if (compact_) {
-          for (Data::iterator itdata = data.begin(), itdataend = data.end(); itdata != itdataend; ++itdata) {
+          for (auto itdata = data.begin(), itdataend = data.end(); itdata != itdataend; ++itdata) {
             if (not msg)
               msg.reset(new LogSystem("ESContent"));
             else
@@ -146,7 +145,7 @@ namespace edm {
                << " time: " << rec->validityInterval().first().time().value();
           *msg << "\n end:   " << rec->validityInterval().last().eventID()
                << " time: " << rec->validityInterval().last().time().value();
-          for (Data::iterator itdata = data.begin(), itdataend = data.end(); itdata != itdataend; ++itdata) {
+          for (auto itdata = data.begin(), itdataend = data.end(); itdata != itdataend; ++itdata) {
             *msg << "\n  " << itdata->type().name() << " '" << itdata->name().value() << "'";
             if (printProviders_) {
               edm::eventsetup::ComponentDescription const* cd = rec->providerDescription(*itdata);

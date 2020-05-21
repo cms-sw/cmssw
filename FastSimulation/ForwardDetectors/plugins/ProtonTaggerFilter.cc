@@ -245,9 +245,7 @@ bool ProtonTaggerFilter::filter(edm::Event& iEvent, const edm::EventSetup& es) {
 
   // ... loop over (pre-selected) forward particles
 
-  for (std::list<HepMC::GenParticle*>::const_iterator part = veryForwardParicles.begin();
-       part != veryForwardParicles.end();
-       part++) {
+  for (auto part = veryForwardParicles.begin(); part != veryForwardParicles.end(); part++) {
     HepMC::GenParticle* p = *part;
 
     float pz = p->momentum().pz();

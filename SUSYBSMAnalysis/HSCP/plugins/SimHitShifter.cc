@@ -173,7 +173,7 @@ void SimHitShifter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     theSimHits.insert(theSimHits.end(), theSimHitContainers.at(i)->begin(), theSimHitContainers.at(i)->end());
   }
 
-  for (std::vector<PSimHit>::const_iterator iHit = theSimHits.begin(); iHit != theSimHits.end(); iHit++) {
+  for (auto iHit = theSimHits.begin(); iHit != theSimHits.end(); iHit++) {
     DetId theDetUnitId((*iHit).detUnitId());
     DetId simdetid = DetId((*iHit).detUnitId());
 

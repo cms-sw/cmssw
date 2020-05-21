@@ -18,7 +18,7 @@ void HcalLaserUnpacker::unpack(const FEDRawData& raw, HcalLaserDigi& digi) const
     throw cms::Exception("Missing Data") << "No data in the block";
   }
 
-  const CombinedTDCQDCDataFormat* qdctdc = (const CombinedTDCQDCDataFormat*)raw.data();
+  const auto* qdctdc = (const CombinedTDCQDCDataFormat*)raw.data();
 
   // first, we do the QADC
   std::vector<uint16_t> qadcvals;

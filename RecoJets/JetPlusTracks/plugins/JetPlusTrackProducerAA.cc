@@ -327,9 +327,9 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
   //===> Area without Jets
   std::map<reco::JPTJetCollection::iterator, double> AreaNonJet;
 
-  for (reco::JPTJetCollection::iterator ij1 = tmpColl.begin(); ij1 != tmpColl.end(); ij1++) {
+  for (auto ij1 = tmpColl.begin(); ij1 != tmpColl.end(); ij1++) {
     int nj1 = 1;
-    for (reco::JPTJetCollection::iterator ij2 = tmpColl.begin(); ij2 != tmpColl.end(); ij2++) {
+    for (auto ij2 = tmpColl.begin(); ij2 != tmpColl.end(); ij2++) {
       if (ij2 == ij1)
         continue;
       if (fabs((*ij1).eta() - (*ij2).eta()) > 0.5)
@@ -349,7 +349,7 @@ void JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& 
   //
   //  std::cout<<" The size of JPT jet collection "<<tmpColl.size()<<std::endl;
 
-  for (reco::JPTJetCollection::iterator ij = tmpColl.begin(); ij != tmpColl.end(); ij++) {
+  for (auto ij = tmpColl.begin(); ij != tmpColl.end(); ij++) {
     // Correct JPTjet for background tracks
 
     const reco::TrackRefVector pioninin = (*ij).getPionsInVertexInCalo();
@@ -434,9 +434,7 @@ reco::TrackRefVector JetPlusTrackProducerAA::calculateBGtracksJet(
 
   //=====> Propagate BG tracks to calo
   int nValid = 0;
-  for (std::vector<reco::TrackExtrapolation>::const_iterator xtrpBegin = extrapolations_h->begin(),
-                                                             xtrpEnd = extrapolations_h->end(),
-                                                             ixtrp = xtrpBegin;
+  for (auto xtrpBegin = extrapolations_h->begin(), xtrpEnd = extrapolations_h->end(), ixtrp = xtrpBegin;
        ixtrp != xtrpEnd;
        ++ixtrp) {
     //    std::cout<<"JetPlusTrackProducerAA::calculateBGtracksJet: initial track pt= "<<ixtrp->track()->pt()

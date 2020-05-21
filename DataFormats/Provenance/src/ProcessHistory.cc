@@ -54,8 +54,7 @@ namespace edm {
     if (a.size() >= b.size())
       return false;
     typedef ProcessHistory::collection_type::const_iterator const_iterator;
-    for (const_iterator itA = a.data().begin(), itB = b.data().begin(), itAEnd = a.data().end(); itA != itAEnd;
-         ++itA, ++itB) {
+    for (auto itA = a.data().begin(), itB = b.data().begin(), itAEnd = a.data().end(); itA != itAEnd; ++itA, ++itB) {
       if (*itA != *itB)
         return false;
     }

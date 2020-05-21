@@ -282,7 +282,7 @@ CSCStripHitData CSCHitFromStripOnly::makeStripData(int centerStrip, int offset) 
     for (int i = 1; i <= clusterSize / 2; ++i) {
       // Find the direction of the offset
       int testStrip = thisStrip + sign * i;
-      std::vector<int>::iterator otherMax = find(theMaxima.begin(), theMaxima.end(), testStrip - 1);
+      auto otherMax = find(theMaxima.begin(), theMaxima.end(), testStrip - 1);
 
       // No other maxima found, so just store
       if (otherMax == theMaxima.end()) {

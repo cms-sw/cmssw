@@ -342,8 +342,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   bool CSCTrackMinus = false;
   int imucount = 0;
   if (TheCosmics.isValid()) {
-    for (reco::MuonCollection::const_iterator iMuon = TheCosmics->begin(); iMuon != TheCosmics->end();
-         iMuon++, imucount++) {
+    for (auto iMuon = TheCosmics->begin(); iMuon != TheCosmics->end(); iMuon++, imucount++) {
       reco::TrackRef Track = iMuon->outerTrack();
       if (!Track)
         continue;
@@ -416,9 +415,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       float OuterSegmentTime[2] = {0, 0};
       float innermost_seg_z[2] = {1500, 1500};
       float outermost_seg_z[2] = {0, 0};
-      for (std::vector<const CSCSegment*>::const_iterator segment = MatchedSegments.begin();
-           segment != MatchedSegments.end();
-           ++segment) {
+      for (auto segment = MatchedSegments.begin(); segment != MatchedSegments.end(); ++segment) {
         CSCDetId TheCSCDetId((*segment)->cscDetId());
         const CSCChamber* TheCSCChamber = TheCSCGeometry->chamber(TheCSCDetId);
         LocalPoint TheLocalPosition = (*segment)->localPosition();
@@ -515,8 +512,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByToken(IT_EBRecHit, TheEBRecHits);
   int EBHits = 0;
   if (TheEBRecHits.isValid()) {
-    for (EBRecHitCollection::const_iterator iEBRecHit = TheEBRecHits->begin(); iEBRecHit != TheEBRecHits->end();
-         iEBRecHit++) {
+    for (auto iEBRecHit = TheEBRecHits->begin(); iEBRecHit != TheEBRecHits->end(); iEBRecHit++) {
       if (iEBRecHit->energy() < 0.5)
         continue;
       DetId id = DetId(iEBRecHit->id());
@@ -532,9 +528,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   edm::Handle<HBHERecHitCollection> TheHBHERecHits;
   iEvent.getByToken(IT_HBHERecHit, TheHBHERecHits);
   if (TheHBHERecHits.isValid()) {
-    for (HBHERecHitCollection::const_iterator iHBHERecHit = TheHBHERecHits->begin();
-         iHBHERecHit != TheHBHERecHits->end();
-         iHBHERecHit++) {
+    for (auto iHBHERecHit = TheHBHERecHits->begin(); iHBHERecHit != TheHBHERecHits->end(); iHBHERecHit++) {
       if (iHBHERecHit->energy() < 1.)
         continue;
       HcalDetId id = HcalDetId(iHBHERecHit->id());
@@ -558,9 +552,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     else if (CSCData.NumberOfOutOfTimeTriggers(HaloData::minus) && !CSCData.NumberOfOutOfTimeTriggers(HaloData::plus))
       TheHaloOrigin = -1;
 
-    for (std::vector<GlobalPoint>::const_iterator i = CSCData.GetCSCTrackImpactPositions().begin();
-         i != CSCData.GetCSCTrackImpactPositions().end();
-         i++) {
+    for (auto i = CSCData.GetCSCTrackImpactPositions().begin(); i != CSCData.GetCSCTrackImpactPositions().end(); i++) {
       float r = TMath::Sqrt(i->x() * i->x() + i->y() * i->y());
       if (!StandardDQM) {
         hCSCHaloData_InnerMostTrackHitXY->Fill(i->x(), i->y());
@@ -604,7 +596,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   if (TheEcalHaloData.isValid()) {
     const EcalHaloData EcalData = (*TheEcalHaloData.product());
     std::vector<PhiWedge> EcalWedges = EcalData.GetPhiWedges();
-    for (std::vector<PhiWedge>::const_iterator iWedge = EcalWedges.begin(); iWedge != EcalWedges.end(); iWedge++) {
+    for (auto iWedge = EcalWedges.begin(); iWedge != EcalWedges.end(); iWedge++) {
       if (!StandardDQM) {
         hEcalHaloData_PhiWedgeEnergy->Fill(iWedge->Energy());
         hEcalHaloData_PhiWedgeMinTime->Fill(iWedge->MinTime());
@@ -643,7 +635,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     const HcalHaloData HcalData = (*TheHcalHaloData.product());
     std::vector<PhiWedge> HcalWedges = HcalData.GetPhiWedges();
     hHcalHaloData_PhiWedgeMultiplicity->Fill(HcalWedges.size());
-    for (std::vector<PhiWedge>::const_iterator iWedge = HcalWedges.begin(); iWedge != HcalWedges.end(); iWedge++) {
+    for (auto iWedge = HcalWedges.begin(); iWedge != HcalWedges.end(); iWedge++) {
       if (!StandardDQM) {
         hHcalHaloData_PhiWedgeEnergy->Fill(iWedge->Energy());
         hHcalHaloData_PhiWedgeMinTime->Fill(iWedge->MinTime());
@@ -683,7 +675,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       std::vector<PhiWedge> HcalWedges = GlobalData.GetMatchedHcalPhiWedges();
       hGlobalHaloData_MatchedHcalPhiWedgeMultiplicity->Fill(HcalWedges.size());
       // Loop over Matched Hcal Phi Wedges
-      for (std::vector<PhiWedge>::const_iterator iWedge = HcalWedges.begin(); iWedge != HcalWedges.end(); iWedge++) {
+      for (auto iWedge = HcalWedges.begin(); iWedge != HcalWedges.end(); iWedge++) {
         hGlobalHaloData_MatchedHcalPhiWedgeEnergy->Fill(iWedge->Energy());
         hGlobalHaloData_MatchedHcalPhiWedgeConstituents->Fill(iWedge->NumberOfConstituents());
         hGlobalHaloData_MatchedHcalPhiWedgeiPhi->Fill(iWedge->iPhi());
@@ -691,9 +683,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         hGlobalHaloData_MatchedHcalPhiWedgeMaxTime->Fill(iWedge->MaxTime());
         hGlobalHaloData_MatchedHcalPhiWedgeZDirectionConfidence->Fill(iWedge->ZDirectionConfidence());
         if (TheHBHERecHits.isValid()) {
-          for (HBHERecHitCollection::const_iterator iHBHERecHit = TheHBHERecHits->begin();
-               iHBHERecHit != TheHBHERecHits->end();
-               iHBHERecHit++) {
+          for (auto iHBHERecHit = TheHBHERecHits->begin(); iHBHERecHit != TheHBHERecHits->end(); iHBHERecHit++) {
             HcalDetId id = HcalDetId(iHBHERecHit->id());
             int iphi = id.iphi();
             if (iphi != iWedge->iPhi())
@@ -711,7 +701,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       // Get Matched Hcal Phi Wedges
       std::vector<PhiWedge> EcalWedges = GlobalData.GetMatchedEcalPhiWedges();
       hGlobalHaloData_MatchedEcalPhiWedgeMultiplicity->Fill(EcalWedges.size());
-      for (std::vector<PhiWedge>::const_iterator iWedge = EcalWedges.begin(); iWedge != EcalWedges.end(); iWedge++) {
+      for (auto iWedge = EcalWedges.begin(); iWedge != EcalWedges.end(); iWedge++) {
         hGlobalHaloData_MatchedEcalPhiWedgeEnergy->Fill(iWedge->Energy());
         hGlobalHaloData_MatchedEcalPhiWedgeConstituents->Fill(iWedge->NumberOfConstituents());
         hGlobalHaloData_MatchedEcalPhiWedgeiPhi->Fill(iWedge->iPhi());
@@ -719,8 +709,7 @@ void BeamHaloAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         hGlobalHaloData_MatchedEcalPhiWedgeMaxTime->Fill(iWedge->MaxTime());
         hGlobalHaloData_MatchedEcalPhiWedgeZDirectionConfidence->Fill(iWedge->ZDirectionConfidence());
         if (TheEBRecHits.isValid()) {
-          for (EBRecHitCollection::const_iterator iEBRecHit = TheEBRecHits->begin(); iEBRecHit != TheEBRecHits->end();
-               iEBRecHit++) {
+          for (auto iEBRecHit = TheEBRecHits->begin(); iEBRecHit != TheEBRecHits->end(); iEBRecHit++) {
             if (iEBRecHit->energy() < 0.5)
               continue;
             DetId id = DetId(iEBRecHit->id());

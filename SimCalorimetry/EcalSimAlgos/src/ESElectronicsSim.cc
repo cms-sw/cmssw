@@ -44,8 +44,8 @@ std::vector<ESSample> ESElectronicsSim::encode(const CaloSamples& timeframe, CLH
   std::vector<ESSample> results;
   results.reserve(timeframe.size());
 
-  ESPedestals::const_iterator it_ped = peds_->find(timeframe.id());
-  ESIntercalibConstantMap::const_iterator it_mip = mips_->getMap().find(timeframe.id());
+  auto it_ped = peds_->find(timeframe.id());
+  auto it_mip = mips_->getMap().find(timeframe.id());
   int baseline_ = (int)it_ped->getMean();
   double sigma_ = (double)it_ped->getRms();
   double MIPADC_ = (double)(*it_mip);

@@ -86,7 +86,7 @@ void CSGAction::setName(const std::string& name) {
   // Does not update menu yet
   m_name = name;
 
-  for (std::vector<TGButton*>::iterator it = m_buttons.begin(), itEnd = m_buttons.end(); it != itEnd; ++it) {
+  for (auto it = m_buttons.begin(), itEnd = m_buttons.end(); it != itEnd; ++it) {
     TGTextButton* tb = dynamic_cast<TGTextButton*>(*it);
     if (tb) {
       (tb)->SetText(name.c_str());
@@ -103,7 +103,7 @@ void CSGAction::setMenuLabel(const std::string& label) {
 
 void CSGAction::setToolTip(const std::string& tip) {
   m_toolTip = tip;
-  for (std::vector<TGButton*>::iterator it = m_buttons.begin(), itEnd = m_buttons.end(); it != itEnd; ++it) {
+  for (auto it = m_buttons.begin(), itEnd = m_buttons.end(); it != itEnd; ++it) {
     (*it)->SetToolTipText(tip.c_str(), m_supervisor->getToolTipDelay());
   }
   if (m_tools != nullptr)
@@ -160,7 +160,7 @@ FWCustomIconsButton* CSGAction::createCustomIconsButton(TGCompositeFrame* p,
                                                         Int_t id,
                                                         GContext_t norm,
                                                         UInt_t option) {
-  FWCustomIconsButton* picButton = new FWCustomIconsButton(p, upPic, downPic, disabledPic, nullptr, id, norm, option);
+  auto* picButton = new FWCustomIconsButton(p, upPic, downPic, disabledPic, nullptr, id, norm, option);
   if (!m_toolTip.empty())
     picButton->SetToolTipText(m_toolTip.c_str(), m_supervisor->getToolTipDelay());
   p->AddFrame(picButton, l);
@@ -292,7 +292,7 @@ void CSGAction::enableImp() {
   if (isEnabled()) {
     if (m_menu != nullptr)
       m_menu->EnableEntry(m_entry);
-    for (std::vector<TGButton*>::iterator it = m_buttons.begin(), itEnd = m_buttons.end(); it != itEnd; ++it) {
+    for (auto it = m_buttons.begin(), itEnd = m_buttons.end(); it != itEnd; ++it) {
       (*it)->SetEnabled(kTRUE);
     }
 
@@ -311,7 +311,7 @@ void CSGAction::disableImp() {
   if (!isEnabled()) {
     if (m_menu != nullptr)
       m_menu->DisableEntry(m_entry);
-    for (std::vector<TGButton*>::iterator it = m_buttons.begin(), itEnd = m_buttons.end(); it != itEnd; ++it) {
+    for (auto it = m_buttons.begin(), itEnd = m_buttons.end(); it != itEnd; ++it) {
       (*it)->SetEnabled(kFALSE);
     }
     if (m_toolBar != nullptr)

@@ -91,8 +91,8 @@ void MuonPFAnalyzer::analyze(const Event &event, const EventSetup &context) {
 
   recoToGenMatch(muons, genMuons);
 
-  RecoGenCollection::const_iterator recoGenIt = theRecoGen.begin();
-  RecoGenCollection::const_iterator recoGenEnd = theRecoGen.end();
+  auto recoGenIt = theRecoGen.begin();
+  auto recoGenEnd = theRecoGen.end();
 
   for (; recoGenIt != recoGenEnd; ++recoGenIt) {
     const Muon *muon = recoGenIt->first;
@@ -100,8 +100,8 @@ void MuonPFAnalyzer::analyze(const Event &event, const EventSetup &context) {
 
     const GenParticle *genMuon = recoGenIt->second;
 
-    vector<string>::const_iterator kindIt = theMuonKinds.begin();
-    vector<string>::const_iterator kindEnd = theMuonKinds.end();
+    auto kindIt = theMuonKinds.begin();
+    auto kindEnd = theMuonKinds.end();
 
     for (; kindIt != kindEnd; ++kindIt) {
       const string &kind = (*kindIt);
@@ -273,13 +273,13 @@ void MuonPFAnalyzer::bookHistos(DQMStore::IBooker &ibooker, const string &group)
 }
 
 MuonPFAnalyzer::MonitorElement *MuonPFAnalyzer::getPlot(const string &group, const string &type) {
-  map<string, map<string, MonitorElement *> >::iterator groupIt = thePlots.find(group);
+  auto groupIt = thePlots.find(group);
   if (groupIt == thePlots.end()) {
     LogTrace("MuonPFAnalyzer") << "[MuonPFAnalyzer] GROUP : " << group << " is not a valid plot group. Returning 0.\n";
     return nullptr;
   }
 
-  map<string, MonitorElement *>::iterator typeIt = groupIt->second.find(type);
+  auto typeIt = groupIt->second.find(type);
   if (typeIt == groupIt->second.end()) {
     LogTrace("MuonPFAnalyzer") << "[MuonPFAnalyzer] TYPE : " << type << " is not a valid type for GROUP : " << group
                                << ". Returning 0.\n";
@@ -379,16 +379,16 @@ void MuonPFAnalyzer::recoToGenMatch(Handle<MuonCollection> &muons, Handle<GenPar
   theRecoGen.clear();
 
   if (muons.isValid()) {
-    MuonCollection::const_iterator muonIt = muons->begin();
-    MuonCollection::const_iterator muonEnd = muons->end();
+    auto muonIt = muons->begin();
+    auto muonEnd = muons->end();
 
     for (; muonIt != muonEnd; ++muonIt) {
       float bestDR = 999.;
       const GenParticle *bestGen = nullptr;
 
       if (theRunOnMC && gens.isValid()) {
-        GenParticleCollection::const_iterator genIt = gens->begin();
-        GenParticleCollection::const_iterator genEnd = gens->end();
+        auto genIt = gens->begin();
+        auto genEnd = gens->end();
 
         for (; genIt != genEnd; ++genIt) {
           if (abs(genIt->pdgId()) == 13) {
@@ -420,8 +420,8 @@ const reco::Vertex MuonPFAnalyzer::getPrimaryVertex(Handle<VertexCollection> &ve
   bool hasPrimaryVertex = false;
 
   if (vertex.isValid()) {
-    vector<Vertex>::const_iterator vertexIt = vertex->begin();
-    vector<Vertex>::const_iterator vertexEnd = vertex->end();
+    auto vertexIt = vertex->begin();
+    auto vertexEnd = vertex->end();
 
     for (; vertexIt != vertexEnd; ++vertexIt) {
       if (vertexIt->isValid() && !vertexIt->isFake()) {

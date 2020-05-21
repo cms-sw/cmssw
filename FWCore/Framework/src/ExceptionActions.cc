@@ -83,7 +83,7 @@ namespace edm {
   }
 
   exception_actions::ActionCodes ExceptionToActionTable::find(std::string const& category) const {
-    ActionMap::const_iterator i(map_.find(category));
+    auto i(map_.find(category));
     return i != map_.end() ? i->second : exception_actions::Rethrow;
   }
 

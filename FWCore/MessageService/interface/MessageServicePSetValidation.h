@@ -132,15 +132,15 @@ namespace edm {
       template <typename T>
       void noneExcept(ParameterSet const& pset, std::string const& psetName, std::string const& type) {
         vString x = pset.template getParameterNamesForType<T>(false);
-        vString::const_iterator end = x.end();
-        for (vString::const_iterator i = x.begin(); i != end; ++i) {
+        auto end = x.end();
+        for (auto i = x.begin(); i != end; ++i) {
           flaws << psetName << " PSet: \n"
                 << (*i) << " is used as a " << type << "\n"
                 << "Usage of " << type << " is not recognized here\n";
         }
         x = pset.template getParameterNamesForType<T>(true);
         end = x.end();
-        for (vString::const_iterator i = x.begin(); i != end; ++i) {
+        for (auto i = x.begin(); i != end; ++i) {
           if ((*i) == "@service_type")
             continue;
           flaws << psetName << " PSet: \n"
@@ -156,8 +156,8 @@ namespace edm {
                       std::string const& type,
                       std::string const& ok) {
         vString x = pset.template getParameterNamesForType<T>(false);
-        vString::const_iterator end = x.end();
-        for (vString::const_iterator i = x.begin(); i != end; ++i) {
+        auto end = x.end();
+        for (auto i = x.begin(); i != end; ++i) {
           std::string val = (*i);
           if (val != ok) {
             flaws << psetName << " PSet: \n"
@@ -167,7 +167,7 @@ namespace edm {
         }
         x = pset.template getParameterNamesForType<T>(true);
         end = x.end();
-        for (vString::const_iterator i = x.begin(); i != end; ++i) {
+        for (auto i = x.begin(); i != end; ++i) {
           if ((*i) == "@service_type")
             continue;
           flaws << psetName << " PSet: \n"
@@ -180,8 +180,8 @@ namespace edm {
       void noneExcept(
           ParameterSet const& pset, std::string const& psetName, std::string const& type, T const& ok1, T const& ok2) {
         vString x = pset.template getParameterNamesForType<T>(false);
-        vString::const_iterator end = x.end();
-        for (vString::const_iterator i = x.begin(); i != end; ++i) {
+        auto end = x.end();
+        for (auto i = x.begin(); i != end; ++i) {
           std::string val = (*i);
           if ((val != ok1) && (val != ok2)) {
             flaws << psetName << " PSet: \n"
@@ -191,7 +191,7 @@ namespace edm {
         }
         x = pset.template getParameterNamesForType<T>(true);
         end = x.end();
-        for (vString::const_iterator i = x.begin(); i != end; ++i) {
+        for (auto i = x.begin(); i != end; ++i) {
           if ((*i) == "@service_type")
             continue;
           flaws << psetName << " PSet: \n"
@@ -206,11 +206,11 @@ namespace edm {
                       std::string const& type,
                       vString const& vok) {
         vString x = pset.template getParameterNamesForType<T>(false);
-        vString::const_iterator end = x.end();
-        vString::const_iterator vend = vok.end();
-        for (vString::const_iterator i = x.begin(); i != end; ++i) {
+        auto end = x.end();
+        auto vend = vok.end();
+        for (auto i = x.begin(); i != end; ++i) {
           bool found = false;
-          for (vString::const_iterator vit = vok.begin(); vit != vend; ++vit) {
+          for (auto vit = vok.begin(); vit != vend; ++vit) {
             if (*i == *vit)
               found = true;
           }
@@ -222,7 +222,7 @@ namespace edm {
         }
         x = pset.template getParameterNamesForType<T>(true);
         end = x.end();
-        for (vString::const_iterator i = x.begin(); i != end; ++i) {
+        for (auto i = x.begin(); i != end; ++i) {
           if ((*i) == "@service_type")
             continue;
           flaws << psetName << " PSet: \n"
@@ -237,15 +237,15 @@ namespace edm {
                    std::string const& categoryName,
                    std::string const& type) {
         vString x = pset.template getParameterNamesForType<T>(false);
-        vString::const_iterator end = x.end();
-        for (vString::const_iterator i = x.begin(); i != end; ++i) {
+        auto end = x.end();
+        for (auto i = x.begin(); i != end; ++i) {
           flaws << categoryName << " category PSet nested in " << psetName << " PSet: \n"
                 << (*i) << " is used as a " << type << "\n"
                 << "Usage of " << type << " is not recognized here\n";
         }
         x = pset.template getParameterNamesForType<T>(true);
         end = x.end();
-        for (vString::const_iterator i = x.begin(); i != end; ++i) {
+        for (auto i = x.begin(); i != end; ++i) {
           flaws << categoryName << " category PSet nested in " << psetName << " PSet: \n"
                 << (*i) << " is used as a tracked " << type << "\n"
                 << "Tracked parameters not allowed here, "

@@ -61,8 +61,7 @@ void DTResolutionAnalysisTask::bookHistograms(DQMStore::IBooker& ibooker,
                                               edm::EventSetup const& /* iSetup */) {
   // Book the histograms
   vector<const DTChamber*> chambers = dtGeom->chambers();
-  for (vector<const DTChamber*>::const_iterator chamber = chambers.begin(); chamber != chambers.end();
-       ++chamber) {  // Loop over all chambers
+  for (auto chamber = chambers.begin(); chamber != chambers.end(); ++chamber) {  // Loop over all chambers
     DTChamberId dtChId = (*chamber)->id();
     for (int sl = 1; sl <= 3; ++sl) {  // Loop over SLs
       if (dtChId.station() == 4 && sl == 2)
@@ -153,8 +152,7 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
       }
 
       // Loop over 1D RecHit inside 4D segment
-      for (vector<DTRecHit1D>::const_iterator recHit1D = recHits1D_S3.begin(); recHit1D != recHits1D_S3.end();
-           recHit1D++) {
+      for (auto recHit1D = recHits1D_S3.begin(); recHit1D != recHits1D_S3.end(); recHit1D++) {
         const DTWireId wireId = (*recHit1D).wireId();
 
         // Get the layer and the wire position

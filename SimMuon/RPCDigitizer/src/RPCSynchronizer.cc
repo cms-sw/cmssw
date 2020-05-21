@@ -72,13 +72,12 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* 
 
   const RPCRoll* SimRoll = nullptr;
 
-  for (TrackingGeometry::DetContainer::const_iterator it = geometry->dets().begin(); it != geometry->dets().end();
-       it++) {
+  for (auto it = geometry->dets().begin(); it != geometry->dets().end(); it++) {
     if (dynamic_cast<const RPCChamber*>(*it) != nullptr) {
       auto ch = dynamic_cast<const RPCChamber*>(*it);
 
       std::vector<const RPCRoll*> rollsRaf = (ch->rolls());
-      for (std::vector<const RPCRoll*>::iterator r = rollsRaf.begin(); r != rollsRaf.end(); ++r) {
+      for (auto r = rollsRaf.begin(); r != rollsRaf.end(); ++r) {
         if ((*r)->id() == SimDetId) {
           SimRoll = &(*(*r));
           break;
@@ -92,11 +91,11 @@ int RPCSynchronizer::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* 
     float half_stripL = 0.;
 
     if (SimRoll->id().region() == 0) {
-      const RectangularStripTopology* top_ = dynamic_cast<const RectangularStripTopology*>(&(SimRoll->topology()));
+      const auto* top_ = dynamic_cast<const RectangularStripTopology*>(&(SimRoll->topology()));
       half_stripL = top_->stripLength() / 2;
       distanceFromEdge = half_stripL + simHitPos.y();
     } else {
-      const TrapezoidalStripTopology* top_ = dynamic_cast<const TrapezoidalStripTopology*>(&(SimRoll->topology()));
+      const auto* top_ = dynamic_cast<const TrapezoidalStripTopology*>(&(SimRoll->topology()));
       half_stripL = top_->stripLength() / 2;
       distanceFromEdge = half_stripL - simHitPos.y();
     }
@@ -155,13 +154,12 @@ int RPCSynchronizer::getSimHitBxAndTimingForIRPC(const PSimHit* simhit, CLHEP::H
 
   const RPCRoll* SimRoll = nullptr;
 
-  for (TrackingGeometry::DetContainer::const_iterator it = geometry->dets().begin(); it != geometry->dets().end();
-       it++) {
+  for (auto it = geometry->dets().begin(); it != geometry->dets().end(); it++) {
     if (dynamic_cast<const RPCChamber*>(*it) != nullptr) {
       auto ch = dynamic_cast<const RPCChamber*>(*it);
 
       std::vector<const RPCRoll*> rollsRaf = (ch->rolls());
-      for (std::vector<const RPCRoll*>::iterator r = rollsRaf.begin(); r != rollsRaf.end(); ++r) {
+      for (auto r = rollsRaf.begin(); r != rollsRaf.end(); ++r) {
         if ((*r)->id() == SimDetId) {
           SimRoll = &(*(*r));
           break;
@@ -175,11 +173,11 @@ int RPCSynchronizer::getSimHitBxAndTimingForIRPC(const PSimHit* simhit, CLHEP::H
     float half_stripL = 0.;
 
     if (SimRoll->id().region() == 0) {
-      const RectangularStripTopology* top_ = dynamic_cast<const RectangularStripTopology*>(&(SimRoll->topology()));
+      const auto* top_ = dynamic_cast<const RectangularStripTopology*>(&(SimRoll->topology()));
       half_stripL = top_->stripLength() / 2;
       distanceFromEdge = half_stripL + simHitPos.y();
     } else {
-      const TrapezoidalStripTopology* top_ = dynamic_cast<const TrapezoidalStripTopology*>(&(SimRoll->topology()));
+      const auto* top_ = dynamic_cast<const TrapezoidalStripTopology*>(&(SimRoll->topology()));
       half_stripL = top_->stripLength() / 2;
       distanceFromEdge = half_stripL - simHitPos.y();
     }

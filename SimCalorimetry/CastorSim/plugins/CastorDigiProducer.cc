@@ -139,7 +139,7 @@ void CastorDigiProducer::finalizeEvent(edm::Event &e, const edm::EventSetup &eve
 }
 
 void CastorDigiProducer::sortHits(const edm::PCaloHitContainer &hits) {
-  for (edm::PCaloHitContainer::const_iterator hitItr = hits.begin(); hitItr != hits.end(); ++hitItr) {
+  for (auto hitItr = hits.begin(); hitItr != hits.end(); ++hitItr) {
     DetId detId = hitItr->id();
     if (detId.det() == DetId::Calo && detId.subdetId() == HcalCastorDetId::SubdetectorId) {
       theCastorHits.push_back(*hitItr);

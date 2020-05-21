@@ -5466,7 +5466,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         cout << " ******************************  ===========================   No HFDigiCollection found " << endl;
       } else {
         ////////////////////////////////////////////////////////////////////   qie8   QIE8 :
-        for (HFDigiCollection::const_iterator digi = hf->begin(); digi != hf->end(); digi++) {
+        for (auto digi = hf->begin(); digi != hf->end(); digi++) {
           eta = digi->id().ieta();
           phi = digi->id().iphi();
           depth = digi->id().depth();
@@ -5592,7 +5592,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         double nnnnnnTSHB = 0.;
         double nnnnnnTSHE = 0.;
 
-        for (HBHEDigiCollection::const_iterator digi = hbhe->begin(); digi != hbhe->end(); digi++) {
+        for (auto digi = hbhe->begin(); digi != hbhe->end(); digi++) {
           eta = digi->id().ieta();
           phi = digi->id().iphi();
           depth = digi->id().depth();
@@ -5822,7 +5822,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     } else {
       int qwert6 = 0;
       double totalAmplitudeHO = 0.;
-      for (HODigiCollection::const_iterator digi = ho->begin(); digi != ho->end(); digi++) {
+      for (auto digi = ho->begin(); digi != ho->end(); digi++) {
         eta = digi->id().ieta();
         phi = digi->id().iphi();
         depth = digi->id().depth();
@@ -5893,8 +5893,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         //  if(!hbheNoise.isValid()) {
         std::cout << " No RecHits HBHENoise collection is found " << endl;
       } else {
-        for (HBHERecHitCollection::const_iterator hbheItr = hbheNoise->begin(); hbheItr != hbheNoise->end();
-             hbheItr++) {
+        for (auto hbheItr = hbheNoise->begin(); hbheItr != hbheNoise->end(); hbheItr++) {
           // Recalibration of energy
           float icalconst = 1.;
           //      DetId mydetid = hbheItr->id().rawId();
@@ -5952,7 +5951,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         //  if(!hfNoise.isValid()) {
         std::cout << " No RecHits HFNoise collection is found " << endl;
       } else {
-        for (HFRecHitCollection::const_iterator hfItr = hfNoise->begin(); hfItr != hfNoise->end(); hfItr++) {
+        for (auto hfItr = hfNoise->begin(); hfItr != hfNoise->end(); hfItr++) {
           // Recalibration of energy
           float icalconst = 1.;
           //      DetId mydetid = hfItr->id().rawId();
@@ -6006,8 +6005,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         //  if(!hbheSignal.isValid()) {
         std::cout << " No RecHits HBHESignal collection is found " << endl;
       } else {
-        for (HBHERecHitCollection::const_iterator hbheItr = hbheSignal->begin(); hbheItr != hbheSignal->end();
-             hbheItr++) {
+        for (auto hbheItr = hbheSignal->begin(); hbheItr != hbheSignal->end(); hbheItr++) {
           // Recalibration of energy
           float icalconst = 1.;
           //      DetId mydetid = hbheItr->id().rawId();
@@ -6064,7 +6062,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         //  if(!hfSignal.isValid()) {
         std::cout << " No RecHits HFSignal collection is found " << endl;
       } else {
-        for (HFRecHitCollection::const_iterator hfItr = hfSignal->begin(); hfItr != hfSignal->end(); hfItr++) {
+        for (auto hfItr = hfSignal->begin(); hfItr != hfSignal->end(); hfItr++) {
           // Recalibration of energy
           float icalconst = 1.;
           //      DetId mydetid = hfItr->id().rawId();
@@ -6947,7 +6945,7 @@ void CMTRawAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     }
     if (!gotCALIBDigis) {
     } else {
-      for (HcalCalibDigiCollection::const_iterator digi = calib->begin(); digi != calib->end(); digi++) {
+      for (auto digi = calib->begin(); digi != calib->end(); digi++) {
         int cal_det = digi->id().hcalSubdet();  // 1-HB,2-HE,3-HO,4-HF
         int cal_phi = digi->id().iphi();
         int cal_eta = digi->id().ieta();

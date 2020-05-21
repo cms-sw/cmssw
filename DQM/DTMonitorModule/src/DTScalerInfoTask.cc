@@ -46,8 +46,8 @@ void DTScalerInfoTask::endLuminosityBlock(const LuminosityBlock& lumiSeg, const 
 
   int block = lumiSeg.luminosityBlock();
 
-  map<string, DTTimeEvolutionHisto*>::const_iterator histoIt = trendHistos.begin();
-  map<string, DTTimeEvolutionHisto*>::const_iterator histoEnd = trendHistos.end();
+  auto histoIt = trendHistos.begin();
+  auto histoEnd = trendHistos.end();
   for (; histoIt != histoEnd; ++histoIt) {
     histoIt->second->updateTimeSlot(block, nEventsInLS);
   }
@@ -62,7 +62,7 @@ void DTScalerInfoTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
   edm::Handle<LumiScalersCollection> lumiScalers;
   if (e.getByToken(scalerToken_, lumiScalers)) {
     if (lumiScalers->begin() != lumiScalers->end()) {
-      LumiScalersCollection::const_iterator lumiIt = lumiScalers->begin();
+      auto lumiIt = lumiScalers->begin();
       trendHistos["AvgLumivsLumiSec"]->accumulateValueTimeSlot(lumiIt->instantLumi());
     } else {
       LogVerbatim("DTDQM|DTMonitorModule|DTScalerInfoTask")

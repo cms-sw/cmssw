@@ -58,7 +58,7 @@ void FWSiStripClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
     return;
   int cntEl = 0;
 
-  for (TEveElement::List_i ei = product->BeginChildren(); ei != product->EndChildren(); ++ei) {
+  for (auto ei = product->BeginChildren(); ei != product->EndChildren(); ++ei) {
     TEveElement* holder = *ei;
     if (holder->HasChildren()) {
       holder->SetRnrSelfChildren(false, false);
@@ -71,7 +71,7 @@ void FWSiStripClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
   for (int i = 0; i <= sdiff; ++i)
     m_shapeList->AddElement(new TEveGeoShape("Det"));
 
-  TEveElement::List_i shapeIt = m_shapeList->BeginChildren();
+  auto shapeIt = m_shapeList->BeginChildren();
   for (edmNew::DetSetVector<SiStripCluster>::const_iterator set = clusters->begin(), setEnd = clusters->end();
        set != setEnd;
        ++set) {
@@ -107,7 +107,7 @@ void FWSiStripClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
       TEveLine* line = nullptr;
 
       if (cntEl < product->NumChildren()) {
-        TEveElement::List_i pit = product->BeginChildren();
+        auto pit = product->BeginChildren();
         std::advance(pit, cntEl);
         itemHolder = (TEveCompound*)*pit;
         itemHolder->SetRnrSelfChildren(true, true);

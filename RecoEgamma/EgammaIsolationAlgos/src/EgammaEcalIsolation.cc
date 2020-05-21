@@ -32,7 +32,7 @@ EgammaEcalIsolation::~EgammaEcalIsolation() {}
 
 double EgammaEcalIsolation::getEcalEtSum(const reco::Candidate* candidate) {
   double ecalIsol = 0.;
-  reco::SuperClusterRef sc = candidate->get<reco::SuperClusterRef>();
+  auto sc = candidate->get<reco::SuperClusterRef>();
   math::XYZVector position(sc.get()->position().x(), sc.get()->position().y(), sc.get()->position().z());
 
   // match the photon hybrid supercluster with those with Algo==0 (island)
@@ -41,9 +41,7 @@ double EgammaEcalIsolation::getEcalEtSum(const reco::Candidate* candidate) {
   const reco::SuperCluster* matchedsupercluster = nullptr;
   bool MATCHEDSC = false;
 
-  for (reco::SuperClusterCollection::const_iterator scItr = superClusterCollection_->begin();
-       scItr != superClusterCollection_->end();
-       ++scItr) {
+  for (auto scItr = superClusterCollection_->begin(); scItr != superClusterCollection_->end(); ++scItr) {
     const reco::SuperCluster* supercluster = &(*scItr);
 
     math::XYZVector currentPosition(
@@ -63,9 +61,7 @@ double EgammaEcalIsolation::getEcalEtSum(const reco::Candidate* candidate) {
   const reco::BasicCluster* cluster = nullptr;
 
   //loop over basic clusters
-  for (reco::BasicClusterCollection::const_iterator cItr = basicClusterCollection_->begin();
-       cItr != basicClusterCollection_->end();
-       ++cItr) {
+  for (auto cItr = basicClusterCollection_->begin(); cItr != basicClusterCollection_->end(); ++cItr) {
     cluster = &(*cItr);
     //    double ebc_bcchi2 = cluster->chi2();
     int ebc_bcalgo = cluster->algo();

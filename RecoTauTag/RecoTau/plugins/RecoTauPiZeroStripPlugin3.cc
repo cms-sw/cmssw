@@ -197,7 +197,7 @@ namespace reco {
 
     namespace {
       void markCandsInStrip(std::vector<bool>& candFlags, const std::set<size_t>& candIds) {
-        for (std::set<size_t>::const_iterator candId = candIds.begin(); candId != candIds.end(); ++candId) {
+        for (auto candId = candIds.begin(); candId != candIds.end(); ++candId) {
           candFlags[*candId] = true;
         }
       }
@@ -238,7 +238,7 @@ namespace reco {
       CandPtrs seedCands;
       CandPtrs addCands;
       int idx = 0;
-      for (CandPtrs::iterator cand = candsVector.begin(); cand != candsVector.end(); ++cand) {
+      for (auto cand = candsVector.begin(); cand != candsVector.end(); ++cand) {
         if (verbosity_ >= 1) {
           edm::LogPrint("RecoTauPiZeroStripPlugin3")
               << "PFGamma #" << idx << " (" << cand->id() << ":" << cand->key() << "): Et = " << (*cand)->et()

@@ -163,13 +163,13 @@ void popcon::EcalTPGLinConstHandler::getNewObjects() {
             std::map<EcalLogicID, FEConfigLinDat> dataset_TpgLin;
             econn->fetchDataSet(&dataset_TpgLin, &fe_lin_info);
 
-            EcalTPGLinearizationConst *linC = new EcalTPGLinearizationConst;
+            auto *linC = new EcalTPGLinearizationConst;
             typedef std::map<EcalLogicID, FEConfigLinDat>::const_iterator CIfelin;
             EcalLogicID ecid_xt;
             FEConfigLinDat rd_lin;
             int icells = 0;
 
-            for (CIfelin p = dataset_TpgLin.begin(); p != dataset_TpgLin.end(); p++) {
+            for (auto p = dataset_TpgLin.begin(); p != dataset_TpgLin.end(); p++) {
               ecid_xt = p->first;
               rd_lin = p->second;
               std::string ecid_name = ecid_xt.getName();

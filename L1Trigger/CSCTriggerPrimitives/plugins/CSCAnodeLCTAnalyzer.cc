@@ -182,8 +182,7 @@ void CSCAnodeLCTAnalyzer::digiSimHitAssociator(CSCAnodeLayerInfo& info, const ed
     bool me11 = (layerId.station() == 1) && (layerId.ring() == 1);
 
     // Get simHits in this layer.
-    for (edm::PSimHitContainer::const_iterator simHitIt = allSimHits->begin(); simHitIt != allSimHits->end();
-         simHitIt++) {
+    for (auto simHitIt = allSimHits->begin(); simHitIt != allSimHits->end(); simHitIt++) {
       // Find detId where simHit is located.
       CSCDetId hitId = (CSCDetId)(*simHitIt).detUnitId();
       if (hitId == layerId)
@@ -202,7 +201,7 @@ void CSCAnodeLCTAnalyzer::digiSimHitAssociator(CSCAnodeLayerInfo& info, const ed
       }
 
       // Get the wire number for every digi and convert to eta.
-      for (vector<CSCWireDigi>::const_iterator prd = thisLayerDigis.begin(); prd != thisLayerDigis.end(); prd++) {
+      for (auto prd = thisLayerDigis.begin(); prd != thisLayerDigis.end(); prd++) {
         double deltaEtaMin = 999.;
         double bestHitEta = 999.;
         PSimHit* bestHit = nullptr;
@@ -211,7 +210,7 @@ void CSCAnodeLCTAnalyzer::digiSimHitAssociator(CSCAnodeLayerInfo& info, const ed
         double digiEta = getWGEta(layerId, wiregroup - 1);
 
         const CSCLayer* csclayer = geom_->layer(layerId);
-        for (vector<PSimHit>::iterator psh = simHits.begin(); psh != simHits.end(); psh++) {
+        for (auto psh = simHits.begin(); psh != simHits.end(); psh++) {
           // Get the local eta for the simHit.
           LocalPoint hitLP = psh->localPosition();
           GlobalPoint hitGP = csclayer->toGlobal(hitLP);

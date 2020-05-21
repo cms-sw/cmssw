@@ -90,8 +90,8 @@ void DTLocalTriggerTask::bookHistograms(DQMStore::IBooker& ibooker,
       trigSources.push_back("_NoDT");
       trigSources.push_back("_DTalso");
     }
-    vector<string>::const_iterator trigSrcIt = trigSources.begin();
-    vector<string>::const_iterator trigSrcEnd = trigSources.end();
+    auto trigSrcIt = trigSources.begin();
+    auto trigSrcEnd = trigSources.end();
 
     if (parameters.getUntrackedParameter<bool>("process_tm", true)) {
       bookBarrelHistos(ibooker, "TM_ErrorsChamberID");
@@ -180,11 +180,8 @@ void DTLocalTriggerTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg, co
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerTask") << "[DTLocalTriggerTask]: Begin of LS transition" << endl;
 
   if (lumiSeg.id().luminosityBlock() % parameters.getUntrackedParameter<int>("ResetCycle", 3) == 0) {
-    for (map<uint32_t, map<string, MonitorElement*> >::const_iterator histo = digiHistos.begin();
-         histo != digiHistos.end();
-         histo++) {
-      for (map<string, MonitorElement*>::const_iterator ht = (*histo).second.begin(); ht != (*histo).second.end();
-           ht++) {
+    for (auto histo = digiHistos.begin(); histo != digiHistos.end(); histo++) {
+      for (auto ht = (*histo).second.begin(); ht != (*histo).second.end(); ht++) {
         (*ht).second->Reset();
       }
     }
@@ -426,8 +423,8 @@ void DTLocalTriggerTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phT
     }
   }
 
-  vector<L1MuDTChambPhDigi>::const_iterator iph = phTrigs->begin();
-  vector<L1MuDTChambPhDigi>::const_iterator iphe = phTrigs->end();
+  auto iph = phTrigs->begin();
+  auto iphe = phTrigs->end();
   for (; iph != iphe; ++iph) {
     int phwheel = iph->whNum();
     int phsec = iph->scNum() + 1;  // SM The track finder goes from 0 to 11. I need them from 1 to 12 !!!!!
@@ -475,8 +472,8 @@ void DTLocalTriggerTask::runTMAnalysis(std::vector<L1MuDTChambPhDigi> const* phT
 
   if (doTMTheta) {
     int thcode[7];
-    vector<L1MuDTChambThDigi>::const_iterator ith = thTrigs->begin();
-    vector<L1MuDTChambThDigi>::const_iterator ithe = thTrigs->end();
+    auto ith = thTrigs->begin();
+    auto ithe = thTrigs->end();
     for (; ith != ithe; ++ith) {
       int thwheel = ith->whNum();
       int thsec = ith->scNum() + 1;  // SM The track finder goes from 0 to 11. I need them from 1 to 12 !!!!!
@@ -697,7 +694,7 @@ void DTLocalTriggerTask::triggerSource(const edm::Event& e) {
     Handle<LTCDigiCollection> ltcdigis;
     e.getByToken(ltcDigiCollectionToken_, ltcdigis);
 
-    for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++) {
+    for (auto ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++) {
       size_t otherTriggerSum = 0;
       for (size_t i = 1; i < 6; i++) {
         otherTriggerSum += size_t((*ltc_it).HasTriggered(i));

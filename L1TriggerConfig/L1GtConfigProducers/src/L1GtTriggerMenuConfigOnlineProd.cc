@@ -183,7 +183,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuGeneralFromDB(const std::string& 
 
   if (m_isDebugEnabled) {
     LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n List of columns in L1T_MENU_GENERAL_VIEW:\n" << std::endl;
-    for (std::vector<std::string>::const_iterator iter = columns.begin(); iter != columns.end(); iter++) {
+    for (auto iter = columns.begin(); iter != columns.end(); iter++) {
       LogTrace("L1GtTriggerMenuConfigOnlineProd") << (*iter) << std::endl;
     }
     LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n\n" << std::endl;
@@ -204,7 +204,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuGeneralFromDB(const std::string& 
 
   // retrieve menu interface name, scales key, algorithm implementation tag
 
-  for (std::vector<std::string>::const_iterator constIt = columns.begin(); constIt != columns.end(); ++constIt) {
+  for (auto constIt = columns.begin(); constIt != columns.end(); ++constIt) {
     if ((*constIt) == "MENU_IMPLEMENTATION") {
       results.fillVariable(*constIt, m_tableMenuGeneral.menuImplementation);
 
@@ -245,8 +245,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuAlgoFromDB(const std::string& gtS
 
   if (m_isDebugEnabled) {
     LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n List of columns in L1T_MENU_ALGO_VIEW:\n" << std::endl;
-    for (std::vector<std::string>::const_iterator iter = columnsMenuAlgo.begin(); iter != columnsMenuAlgo.end();
-         iter++) {
+    for (auto iter = columnsMenuAlgo.begin(); iter != columnsMenuAlgo.end(); iter++) {
       LogTrace("L1GtTriggerMenuConfigOnlineProd") << (*iter) << std::endl;
     }
     LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n\n" << std::endl;
@@ -270,8 +269,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuAlgoFromDB(const std::string& gtS
   int resultsMenuAlgoRows = resultsMenuAlgo.numberRows();
 
   for (int iRow = 0; iRow < resultsMenuAlgoRows; ++iRow) {
-    for (std::vector<std::string>::const_iterator constIt = columnsMenuAlgo.begin(); constIt != columnsMenuAlgo.end();
-         ++constIt) {
+    for (auto constIt = columnsMenuAlgo.begin(); constIt != columnsMenuAlgo.end(); ++constIt) {
       if ((*constIt) == "ALGO_INDEX") {
         resultsMenuAlgo.fillVariableFromRow(*constIt, iRow, menuAlgo.bitNumberSh);
 
@@ -317,8 +315,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuAlgoCondFromDB(const std::string&
 
   if (m_isDebugEnabled) {
     LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n List of columns in L1T_MENU_ALGO_COND_VIEW:\n" << std::endl;
-    for (std::vector<std::string>::const_iterator iter = columnsMenuAlgoCond.begin(); iter != columnsMenuAlgoCond.end();
-         iter++) {
+    for (auto iter = columnsMenuAlgoCond.begin(); iter != columnsMenuAlgoCond.end(); iter++) {
       LogTrace("L1GtTriggerMenuConfigOnlineProd") << (*iter) << std::endl;
     }
     LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n\n" << std::endl;
@@ -344,9 +341,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuAlgoCondFromDB(const std::string&
   int resultsMenuAlgoCondRows = resultsMenuAlgoCond.numberRows();
 
   for (int iRow = 0; iRow < resultsMenuAlgoCondRows; ++iRow) {
-    for (std::vector<std::string>::const_iterator constIt = columnsMenuAlgoCond.begin();
-         constIt != columnsMenuAlgoCond.end();
-         ++constIt) {
+    for (auto constIt = columnsMenuAlgoCond.begin(); constIt != columnsMenuAlgoCond.end(); ++constIt) {
       if ((*constIt) == "ALGO_INDEX") {
         resultsMenuAlgoCond.fillVariableFromRow(*constIt, iRow, menuAlgoCond.bitNumberSh);
 
@@ -385,8 +380,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuCondFromDB(const std::string& gtS
 
   if (m_isDebugEnabled) {
     LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n List of columns in L1T_MENU_COND_VIEW:\n" << std::endl;
-    for (std::vector<std::string>::const_iterator iter = columnsMenuCond.begin(); iter != columnsMenuCond.end();
-         iter++) {
+    for (auto iter = columnsMenuCond.begin(); iter != columnsMenuCond.end(); iter++) {
       LogTrace("L1GtTriggerMenuConfigOnlineProd") << (*iter) << std::endl;
     }
     LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n\n" << std::endl;
@@ -411,8 +405,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuCondFromDB(const std::string& gtS
   int resultsMenuCondRows = resultsMenuCond.numberRows();
 
   for (int iRow = 0; iRow < resultsMenuCondRows; ++iRow) {
-    for (std::vector<std::string>::const_iterator constIt = columnsMenuCond.begin(); constIt != columnsMenuCond.end();
-         ++constIt) {
+    for (auto constIt = columnsMenuCond.begin(); constIt != columnsMenuCond.end(); ++constIt) {
       if ((*constIt) == "COND") {
         resultsMenuCond.fillVariableFromRow(*constIt, iRow, menuCond.cond);
 
@@ -500,7 +493,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuObjectParametersFromDB(const std:
 
   if (m_isDebugEnabled) {
     LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n List of columns in L1T_MENU_OP_VIEW:\n" << std::endl;
-    for (std::vector<std::string>::const_iterator iter = columnsMenuOp.begin(); iter != columnsMenuOp.end(); iter++) {
+    for (auto iter = columnsMenuOp.begin(); iter != columnsMenuOp.end(); iter++) {
       LogTrace("L1GtTriggerMenuConfigOnlineProd") << (*iter) << std::endl;
     }
     LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n\n" << std::endl;
@@ -524,8 +517,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuObjectParametersFromDB(const std:
   int resultsMenuOpRows = resultsMenuOp.numberRows();
 
   for (int iRow = 0; iRow < resultsMenuOpRows; ++iRow) {
-    for (std::vector<std::string>::const_iterator constIt = columnsMenuOp.begin(); constIt != columnsMenuOp.end();
-         ++constIt) {
+    for (auto constIt = columnsMenuOp.begin(); constIt != columnsMenuOp.end(); ++constIt) {
       if ((*constIt) == "ID") {
         resultsMenuOp.fillVariableFromRow(*constIt, iRow, menuObjectParameters.opId);
 
@@ -605,8 +597,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuTechTrigFromDB(const std::string&
 
   if (m_isDebugEnabled) {
     LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n List of columns in L1T_MENU_TECHTRIG_VIEW:\n" << std::endl;
-    for (std::vector<std::string>::const_iterator iter = columnsMenuTechTrig.begin(); iter != columnsMenuTechTrig.end();
-         iter++) {
+    for (auto iter = columnsMenuTechTrig.begin(); iter != columnsMenuTechTrig.end(); iter++) {
       LogTrace("L1GtTriggerMenuConfigOnlineProd") << (*iter) << std::endl;
     }
     LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n\n" << std::endl;
@@ -631,9 +622,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuTechTrigFromDB(const std::string&
   int resultsMenuTechTrigRows = resultsMenuTechTrig.numberRows();
 
   for (int iRow = 0; iRow < resultsMenuTechTrigRows; ++iRow) {
-    for (std::vector<std::string>::const_iterator constIt = columnsMenuTechTrig.begin();
-         constIt != columnsMenuTechTrig.end();
-         ++constIt) {
+    for (auto constIt = columnsMenuTechTrig.begin(); constIt != columnsMenuTechTrig.end(); ++constIt) {
       if ((*constIt) == "TECHTRIG_INDEX") {
         resultsMenuTechTrig.fillVariableFromRow(*constIt, iRow, menuTechTrig.bitNumberSh);
 
@@ -664,9 +653,7 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuTechTrigFromDB(const std::string&
 const std::map<int, std::string> L1GtTriggerMenuConfigOnlineProd::condIndexNameMap(const short bitNr) const {
   std::map<int, std::string> mapIndexName;
 
-  for (std::vector<TableMenuAlgoCond>::const_iterator constIt = m_tableMenuAlgoCond.begin();
-       constIt != m_tableMenuAlgoCond.end();
-       ++constIt) {
+  for (auto constIt = m_tableMenuAlgoCond.begin(); constIt != m_tableMenuAlgoCond.end(); ++constIt) {
     if (bitNr == (*constIt).bitNumberSh) {
       mapIndexName[static_cast<int>((*constIt).condIndexF)] = (*constIt).condFK;
     }
@@ -675,8 +662,7 @@ const std::map<int, std::string> L1GtTriggerMenuConfigOnlineProd::condIndexNameM
   if (m_isDebugEnabled) {
     LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n Bit number : " << bitNr << std::endl;
 
-    for (std::map<int, std::string>::const_iterator constIt = mapIndexName.begin(); constIt != mapIndexName.end();
-         ++constIt) {
+    for (auto constIt = mapIndexName.begin(); constIt != mapIndexName.end(); ++constIt) {
       LogTrace("L1GtTriggerMenuConfigOnlineProd")
           << "  Condition index -> name: " << ((*constIt).first) << " " << ((*constIt).second) << std::endl;
     }
@@ -724,8 +710,7 @@ void L1GtTriggerMenuConfigOnlineProd::buildAlgorithmMap() {
   std::string logicalExpression;
 
   // loop over m_tableMenuAlgo
-  for (std::vector<TableMenuAlgo>::const_iterator constIt = m_tableMenuAlgo.begin(); constIt != m_tableMenuAlgo.end();
-       constIt++) {
+  for (auto constIt = m_tableMenuAlgo.begin(); constIt != m_tableMenuAlgo.end(); constIt++) {
     bitNumber = static_cast<int>((*constIt).bitNumberSh);
 
     const std::map<int, std::string>& condIndexName = condIndexNameMap((*constIt).bitNumberSh);
@@ -752,9 +737,7 @@ void L1GtTriggerMenuConfigOnlineProd::buildTechnicalTriggerMap() {
   std::string logicalExpression;
 
   // loop over m_tableMenuTechTrig
-  for (std::vector<TableMenuTechTrig>::const_iterator constIt = m_tableMenuTechTrig.begin();
-       constIt != m_tableMenuTechTrig.end();
-       constIt++) {
+  for (auto constIt = m_tableMenuTechTrig.begin(); constIt != m_tableMenuTechTrig.end(); constIt++) {
     bitNumber = static_cast<int>((*constIt).bitNumberSh);
 
     // create a new technical trigger and insert it into technical trigger map
@@ -929,9 +912,7 @@ std::list<int> L1GtTriggerMenuConfigOnlineProd::listChipNumber(const std::string
   std::list<int> chipList;
 
   // loop over m_tableMenuAlgoCond
-  for (std::vector<TableMenuAlgoCond>::const_iterator constIt = m_tableMenuAlgoCond.begin();
-       constIt != m_tableMenuAlgoCond.end();
-       constIt++) {
+  for (auto constIt = m_tableMenuAlgoCond.begin(); constIt != m_tableMenuAlgoCond.end(); constIt++) {
     if (condFK == (*constIt).condFK) {
       int chipNr = chipNumber((*constIt).bitNumberSh);
       chipList.push_back(chipNr);
@@ -944,9 +925,7 @@ std::list<int> L1GtTriggerMenuConfigOnlineProd::listChipNumber(const std::string
 void L1GtTriggerMenuConfigOnlineProd::fillMuonObjectParameter(const std::string& opFK,
                                                               L1GtMuonTemplate::ObjectParameter& objPar) {
   // loop over m_tableMenuCond
-  for (std::vector<TableMenuObjectParameters>::const_iterator constIt = m_tableMenuObjectParameters.begin();
-       constIt != m_tableMenuObjectParameters.end();
-       constIt++) {
+  for (auto constIt = m_tableMenuObjectParameters.begin(); constIt != m_tableMenuObjectParameters.end(); constIt++) {
     if (opFK == (*constIt).opId) {
       objPar.ptHighThreshold = static_cast<unsigned int>((*constIt).ptHighThreshold);
       objPar.ptLowThreshold = static_cast<unsigned int>((*constIt).ptLowThreshold);
@@ -1021,7 +1000,7 @@ void L1GtTriggerMenuConfigOnlineProd::addMuonCondition(const TableMenuCond& cond
   chipList.unique();
 
   // add the same condition once to every chip where required
-  for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+  for (auto itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
     muonCond.setCondChipNr(*itChip);
 
     // no check for uniqueness - done by DB
@@ -1039,9 +1018,7 @@ void L1GtTriggerMenuConfigOnlineProd::addMuonCondition(const TableMenuCond& cond
 void L1GtTriggerMenuConfigOnlineProd::fillCaloObjectParameter(const std::string& opFK,
                                                               L1GtCaloTemplate::ObjectParameter& objPar) {
   // loop over m_tableMenuCond
-  for (std::vector<TableMenuObjectParameters>::const_iterator constIt = m_tableMenuObjectParameters.begin();
-       constIt != m_tableMenuObjectParameters.end();
-       constIt++) {
+  for (auto constIt = m_tableMenuObjectParameters.begin(); constIt != m_tableMenuObjectParameters.end(); constIt++) {
     if (opFK == (*constIt).opId) {
       objPar.etThreshold = static_cast<unsigned int>((*constIt).etThreshold);
       objPar.etaRange = lexical_cast_from_hex<unsigned int>((*constIt).etaRange);
@@ -1104,7 +1081,7 @@ void L1GtTriggerMenuConfigOnlineProd::addCaloCondition(const TableMenuCond& cond
   chipList.unique();
 
   // add the same condition once to every chip where required
-  for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+  for (auto itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
     caloCond.setCondChipNr(*itChip);
 
     // no check for uniqueness - done by DB
@@ -1123,9 +1100,7 @@ void L1GtTriggerMenuConfigOnlineProd::fillEnergySumObjectParameter(const std::st
                                                                    L1GtEnergySumTemplate::ObjectParameter& objPar,
                                                                    const L1GtObject& obj) {
   // loop over m_tableMenuCond
-  for (std::vector<TableMenuObjectParameters>::const_iterator constIt = m_tableMenuObjectParameters.begin();
-       constIt != m_tableMenuObjectParameters.end();
-       constIt++) {
+  for (auto constIt = m_tableMenuObjectParameters.begin(); constIt != m_tableMenuObjectParameters.end(); constIt++) {
     if (opFK == (*constIt).opId) {
       objPar.etThreshold = static_cast<unsigned int>((*constIt).etThreshold);
       objPar.energyOverflow = static_cast<bool>((*constIt).energyOverflow);  // not used
@@ -1175,7 +1150,7 @@ void L1GtTriggerMenuConfigOnlineProd::addEnergySumCondition(const TableMenuCond&
   chipList.unique();
 
   // add the same condition once to every chip where required
-  for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+  for (auto itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
     esumCond.setCondChipNr(*itChip);
 
     // no check for uniqueness - done by DB
@@ -1220,7 +1195,7 @@ void L1GtTriggerMenuConfigOnlineProd::addJetCountsCondition(const TableMenuCond&
   chipList.unique();
 
   // add the same condition once to every chip where required
-  for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+  for (auto itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
     jcCond.setCondChipNr(*itChip);
 
     // no check for uniqueness - done by DB
@@ -1264,7 +1239,7 @@ void L1GtTriggerMenuConfigOnlineProd::addHfBitCountsCondition(const TableMenuCon
   chipList.unique();
 
   // add the same condition once to every chip where required
-  for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+  for (auto itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
     countsCond.setCondChipNr(*itChip);
 
     // no check for uniqueness - done by DB
@@ -1308,7 +1283,7 @@ void L1GtTriggerMenuConfigOnlineProd::addHfRingEtSumsCondition(const TableMenuCo
   chipList.unique();
 
   // add the same condition once to every chip where required
-  for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+  for (auto itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
     esumCond.setCondChipNr(*itChip);
 
     // no check for uniqueness - done by DB
@@ -1348,7 +1323,7 @@ void L1GtTriggerMenuConfigOnlineProd::addCastorCondition(const TableMenuCond& co
   chipList.unique();
 
   // add the same condition once to every chip where required
-  for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+  for (auto itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
     castorCond.setCondChipNr(*itChip);
 
     // no check for uniqueness - done by DB
@@ -1388,7 +1363,7 @@ void L1GtTriggerMenuConfigOnlineProd::addBptxCondition(const TableMenuCond& cond
   chipList.unique();
 
   // add the same condition once to every chip where required
-  for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+  for (auto itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
     bptxCond.setCondChipNr(*itChip);
 
     // no check for uniqueness - done by DB
@@ -1428,7 +1403,7 @@ void L1GtTriggerMenuConfigOnlineProd::addExternalCondition(const TableMenuCond& 
   chipList.unique();
 
   // add the same condition once to every chip where required
-  for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+  for (auto itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
     externalCond.setCondChipNr(*itChip);
 
     // no check for uniqueness - done by DB
@@ -1505,7 +1480,7 @@ void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCon
         subcond.setConditionParameter(objParameter, corrPar);
 
         // add the same sub-condition once to every chip where required
-        for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+        for (auto itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
           subcond.setCondChipNr(*itChip);
 
           // no check for uniqueness - done by DB
@@ -1551,7 +1526,7 @@ void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCon
         subcond.setConditionParameter(objParameter, corrPar);
 
         // add the same sub-condition once to every chip where required
-        for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+        for (auto itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
           subcond.setCondChipNr(*itChip);
 
           // no check for uniqueness - done by DB
@@ -1607,7 +1582,7 @@ void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCon
         subcond.setConditionParameter(objParameter);
 
         // add the same sub-condition once to every chip where required
-        for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+        for (auto itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
           subcond.setCondChipNr(*itChip);
 
           // no check for uniqueness - done by DB
@@ -1676,7 +1651,7 @@ void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCon
   correlationCond.setCorrelationParameter(corrParameter);
 
   // add the same condition once to every chip where required
-  for (std::list<int>::const_iterator itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
+  for (auto itChip = chipList.begin(); itChip != chipList.end(); ++itChip) {
     correlationCond.setCondChipNr(*itChip);
 
     // no check for uniqueness - done by DB
@@ -1694,8 +1669,7 @@ void L1GtTriggerMenuConfigOnlineProd::addCorrelationCondition(const TableMenuCon
 // add the conditions from a menu to the corresponding list
 void L1GtTriggerMenuConfigOnlineProd::addConditions() {
   // loop over m_tableMenuCond
-  for (std::vector<TableMenuCond>::const_iterator constIt = m_tableMenuCond.begin(); constIt != m_tableMenuCond.end();
-       constIt++) {
+  for (auto constIt = m_tableMenuCond.begin(); constIt != m_tableMenuCond.end(); constIt++) {
     L1GtConditionCategory conCategory = strToEnumCondCategory((*constIt).condCategory);
 
     switch (conCategory) {

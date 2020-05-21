@@ -22,8 +22,7 @@ void EcalDCCHeaderDisplay::analyze(const edm::Event& e, const edm::EventSetup& c
   std::cout << "          [EcalDCCHeaderDisplay]  the Header(s)\n" << std::endl;
   //short dumpConter =0;
 
-  for (EcalRawDataCollection::const_iterator headerItr = DCCHeaders->begin(); headerItr != DCCHeaders->end();
-       ++headerItr) {
+  for (auto headerItr = DCCHeaders->begin(); headerItr != DCCHeaders->end(); ++headerItr) {
     //      int nevt =headerItr->getLV1();
     bool skip = false;
 

@@ -192,7 +192,7 @@ namespace edm {
 
     // Throw if this has already been inserted
     Item item(PRODUCT_TYPE, typeID, moduleLabel, instance, process, 0);
-    std::set<Item>::iterator iter = items_->find(item);
+    auto iter = items_->find(item);
     if (iter != items_->end()) {
       throw Exception(errors::LogicError)
           << "ProductResolverIndexHelper::insert - Attempt to insert duplicate entry.\n";

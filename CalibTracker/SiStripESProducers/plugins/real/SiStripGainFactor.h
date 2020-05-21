@@ -38,7 +38,7 @@ public:
         SiStripApvGain::Range detRange = gain.getRange(detid);
 
         int iComp = 0;
-        for (std::vector<float>::const_iterator apvit = detRange.first; apvit != detRange.second; apvit++) {
+        for (auto apvit = detRange.first; apvit != detRange.second; apvit++) {
           SumOfGains += (*apvit);
           NGains++;
           if (printdebug_)

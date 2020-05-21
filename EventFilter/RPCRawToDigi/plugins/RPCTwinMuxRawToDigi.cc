@@ -429,7 +429,7 @@ void RPCTwinMuxRawToDigi::processRPCRecord(int fed,
       counters.add(RPCAMCLinkEvents::input_eod_, tm_link);
     }
 
-    RPCAMCLinkMap::map_type::const_iterator tm_link_it = es_tm_link_map_->getMap().find(tm_link);
+    auto tm_link_it = es_tm_link_map_->getMap().find(tm_link);
     if (tm_link_it == es_tm_link_map_->getMap().end()) {
       if (fill_counters_ && bx_offset == 0) {
         counters.add(RPCAMCLinkEvents::amc_link_invalid_, RPCAMCLink(fed, amc_number));
@@ -465,7 +465,7 @@ void RPCTwinMuxRawToDigi::processRPCRecord(int fed,
     lb_link.setLinkBoard(link_record.getLinkBoard());
     lb_link.setConnector(link_record.getConnector());
 
-    RPCLBLinkMap::map_type::const_iterator lb_link_it = es_lb_link_map_->getMap().find(lb_link);
+    auto lb_link_it = es_lb_link_map_->getMap().find(lb_link);
     if (lb_link_it == es_lb_link_map_->getMap().end()) {
       if (fill_counters_ && bx_offset == 0) {
         counters.add(RPCAMCLinkEvents::input_connector_not_used_, tm_link);

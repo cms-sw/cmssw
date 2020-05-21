@@ -1703,7 +1703,7 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
   for (int i = 0; i < nTDCbins_; i++) {
     assert(amplwgtv[i].size() == 10);
     int j = 0;
-    for (std::vector<double>::const_iterator it = amplwgtv[i].begin(); it != amplwgtv[i].end(); ++it) {
+    for (auto it = amplwgtv[i].begin(); it != amplwgtv[i].end(); ++it) {
       (amplWeights_[i])[j] = *it;
       j++;
     }
@@ -1748,7 +1748,7 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
   for (int i = 0; i < nTDCbins_; i++) {
     assert(amplwgtvAftGain[i].size() == 10);
     int j = 0;
-    for (std::vector<double>::const_iterator it = amplwgtvAftGain[i].begin(); it != amplwgtvAftGain[i].end(); ++it) {
+    for (auto it = amplwgtvAftGain[i].begin(); it != amplwgtvAftGain[i].end(); ++it) {
       (amplWeightsAft_[i])[j] = *it;
       j++;
     }
@@ -1795,7 +1795,7 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
   for (int i = 0; i < nTDCbins_; i++) {
     assert(pedwgtv[i].size() == 10);
     int j = 0;
-    for (std::vector<double>::const_iterator it = pedwgtv[i].begin(); it != pedwgtv[i].end(); ++it) {
+    for (auto it = pedwgtv[i].begin(); it != pedwgtv[i].end(); ++it) {
       (pedWeights_[i])[j] = *it;
       j++;
     }
@@ -1840,7 +1840,7 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
   for (int i = 0; i < nTDCbins_; i++) {
     assert(pedwgtvaft[i].size() == 10);
     int j = 0;
-    for (std::vector<double>::const_iterator it = pedwgtvaft[i].begin(); it != pedwgtvaft[i].end(); ++it) {
+    for (auto it = pedwgtvaft[i].begin(); it != pedwgtvaft[i].end(); ++it) {
       (pedWeightsAft_[i])[j] = *it;
       j++;
     }
@@ -1887,7 +1887,7 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
   for (int i = 0; i < nTDCbins_; i++) {
     assert(jittwgtv[i].size() == 10);
     int j = 0;
-    for (std::vector<double>::const_iterator it = jittwgtv[i].begin(); it != jittwgtv[i].end(); ++it) {
+    for (auto it = jittwgtv[i].begin(); it != jittwgtv[i].end(); ++it) {
       (jittWeights_[i])[j] = *it;
       j++;
     }
@@ -1932,7 +1932,7 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
   for (int i = 0; i < nTDCbins_; i++) {
     assert(jittwgtvaft[i].size() == 10);
     int j = 0;
-    for (std::vector<double>::const_iterator it = jittwgtvaft[i].begin(); it != jittwgtvaft[i].end(); ++it) {
+    for (auto it = jittwgtvaft[i].begin(); it != jittwgtvaft[i].end(); ++it) {
       (jittWeightsAft_[i])[j] = *it;
       j++;
     }
@@ -2602,13 +2602,13 @@ std::unique_ptr<EcalIntercalibConstants> EcalTrivialConditionRetriever::getInter
     edm::LogInfo("generating Intercalib from xml file");
 
     EcalCondHeader h;
-    EcalIntercalibConstants* rcd = new EcalIntercalibConstants;
+    auto* rcd = new EcalIntercalibConstants;
     EcalIntercalibConstantsXMLTranslator::readXML(intercalibConstantsFile_, h, *rcd);
 
     if (totLumi_ != 0 || instLumi_ != 0) {
       edm::LogInfo("implementing ageing for intercalib");
 
-      EcalIntercalibConstantsMC* rcdMC = new EcalIntercalibConstantsMC;
+      auto* rcdMC = new EcalIntercalibConstantsMC;
 
       if (intercalibConstantsMCFile_.find(".xml") != std::string::npos) {
         edm::LogInfo("generating IntercalibMC from xml file");
@@ -2642,12 +2642,12 @@ std::unique_ptr<EcalIntercalibConstants> EcalTrivialConditionRetriever::getInter
           // make an EBDetId since we need EBDetId::rawId() to be used as the key for the pedestals
           if (EBDetId::validDetId(ieta, iphi)) {
             EBDetId ebid(ieta, iphi);
-            EcalIntercalibConstants::const_iterator idref = mymap.find(ebid);
+            auto idref = mymap.find(ebid);
             EcalIntercalibConstant icalconstant = 1;
             if (idref != mymap.end())
               icalconstant = (*idref);
 
-            EcalIntercalibConstantsMC::const_iterator idrefMC = mymapMC.find(ebid);
+            auto idrefMC = mymapMC.find(ebid);
             EcalIntercalibConstantMC icalconstantMC = 1;
             if (idrefMC != mymapMC.end())
               icalconstantMC = (*idrefMC);
@@ -2683,12 +2683,12 @@ std::unique_ptr<EcalIntercalibConstants> EcalTrivialConditionRetriever::getInter
             if (iX == 50)
               edm::LogInfo("EE at eta=") << eta << " constant term is " << constantTerm;
 
-            EcalIntercalibConstants::const_iterator idref = mymap.find(eedetidpos);
+            auto idref = mymap.find(eedetidpos);
             EcalIntercalibConstant icalconstant = 1;
             if (idref != mymap.end())
               icalconstant = (*idref);
 
-            EcalIntercalibConstantsMC::const_iterator idrefMC = mymapMC.find(eedetidpos);
+            auto idrefMC = mymapMC.find(eedetidpos);
             EcalIntercalibConstantMC icalconstantMC = 1;
             if (idrefMC != mymapMC.end())
               icalconstantMC = (*idrefMC);
@@ -2711,7 +2711,7 @@ std::unique_ptr<EcalIntercalibConstants> EcalTrivialConditionRetriever::getInter
             double constantTerm = ageing.calcresolutitonConstantTerm(eta);
             EcalIntercalibConstant icalconstant = 1;
 
-            EcalIntercalibConstantsMC::const_iterator idrefMC = mymapMC.find(eedetidneg);
+            auto idrefMC = mymapMC.find(eedetidneg);
             EcalIntercalibConstantMC icalconstantMC = 1;
             if (idrefMC != mymapMC.end())
               icalconstantMC = (*idrefMC);
@@ -2932,7 +2932,7 @@ std::unique_ptr<EcalIntercalibConstantsMC> EcalTrivialConditionRetriever::getInt
     edm::LogInfo("generating Intercalib MC from xml file");
 
     EcalCondHeader h;
-    EcalIntercalibConstantsMC* rcd = new EcalIntercalibConstantsMC;
+    auto* rcd = new EcalIntercalibConstantsMC;
     EcalIntercalibConstantsMCXMLTranslator::readXML(intercalibConstantsMCFile_, h, *rcd);
 
     ical = std::unique_ptr<EcalIntercalibConstants>(rcd);

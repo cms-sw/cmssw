@@ -317,10 +317,10 @@ bool L1TStage2CaloLayer2Comp::compareJets(const edm::Handle<l1t::JetBxCollection
                                           const edm::Handle<l1t::JetBxCollection> &emulCol) {
   bool eventGood = true;
 
-  std::vector<l1t::Jet> *jets = new std::vector<l1t::Jet>;
+  auto *jets = new std::vector<l1t::Jet>;
   std::vector<l1t::Jet>::iterator dataIt;
-  l1t::JetBxCollection::const_iterator dataBxIt = dataCol->begin(currBx);
-  l1t::JetBxCollection::const_iterator emulBxIt = emulCol->begin(currBx);
+  auto dataBxIt = dataCol->begin(currBx);
+  auto emulBxIt = emulCol->begin(currBx);
 
   if (dataCol->size(currBx) > 0) {
     // sort data jets
@@ -423,10 +423,10 @@ bool L1TStage2CaloLayer2Comp::compareEGs(const edm::Handle<l1t::EGammaBxCollecti
                                          const edm::Handle<l1t::EGammaBxCollection> &emulCol) {
   bool eventGood = true;
 
-  std::vector<l1t::EGamma> *egs = new std::vector<l1t::EGamma>;
+  auto *egs = new std::vector<l1t::EGamma>;
   std::vector<l1t::EGamma>::iterator dataIt;
-  l1t::EGammaBxCollection::const_iterator dataBxIt = dataCol->begin(currBx);
-  l1t::EGammaBxCollection::const_iterator emulBxIt = emulCol->begin(currBx);
+  auto dataBxIt = dataCol->begin(currBx);
+  auto emulBxIt = emulCol->begin(currBx);
 
   if (dataCol->size(currBx) > 0) {
     // sort data egs
@@ -529,10 +529,10 @@ bool L1TStage2CaloLayer2Comp::compareTaus(const edm::Handle<l1t::TauBxCollection
                                           const edm::Handle<l1t::TauBxCollection> &emulCol) {
   bool eventGood = true;
 
-  std::vector<l1t::Tau> *taus = new std::vector<l1t::Tau>;
+  auto *taus = new std::vector<l1t::Tau>;
   std::vector<l1t::Tau>::iterator dataIt;
-  l1t::TauBxCollection::const_iterator dataBxIt = dataCol->begin(currBx);
-  l1t::TauBxCollection::const_iterator emulBxIt = emulCol->begin(currBx);
+  auto dataBxIt = dataCol->begin(currBx);
+  auto emulBxIt = emulCol->begin(currBx);
 
   if (dataCol->size(currBx) > 0) {
     // sort data taus

@@ -24,7 +24,7 @@ void ETLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
   std::vector<double> emptyV;
   std::vector<double> eta(1);
 
-  for (MTDSimHitDataAccumulator::const_iterator it = input.begin(); it != input.end(); it++) {
+  for (auto it = input.begin(); it != input.end(); it++) {
     chargeColl.fill(0.f);
     toa.fill(0.f);
     for (size_t i = 0; i < it->second.hit_info[0].size(); i++) {

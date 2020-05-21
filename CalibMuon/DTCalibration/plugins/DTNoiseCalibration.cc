@@ -66,7 +66,7 @@ DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& pset)
 
   if (pset.exists("cellsWithHisto")) {
     vector<string> cellsWithHisto = pset.getParameter<vector<string> >("cellsWithHisto");
-    for (vector<string>::const_iterator cell = cellsWithHisto.begin(); cell != cellsWithHisto.end(); ++cell) {
+    for (auto cell = cellsWithHisto.begin(); cell != cellsWithHisto.end(); ++cell) {
       //FIXME: Use regex to check whether format is right
       if ((!cell->empty()) && (*cell) != "None") {
         stringstream linestr;
@@ -153,9 +153,7 @@ void DTNoiseCalibration::analyze(const edm::Event& event, const edm::EventSetup&
       triggerWidth_s = double(triggerWidth_ / 1e9);
     LogTrace("Calibration") << ((*dtLayerId_It).first).superlayerId() << " Trigger width (s): " << triggerWidth_s;
 
-    for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
-         digiIt != ((*dtLayerId_It).second).second;
-         ++digiIt) {
+    for (auto digiIt = ((*dtLayerId_It).second).first; digiIt != ((*dtLayerId_It).second).second; ++digiIt) {
       //Check the TDC trigger width
       int tdcTime = (*digiIt).countsTDC();
       if (!useTimeWindow_) {
@@ -334,32 +332,24 @@ void DTNoiseCalibration::endJob() {
 
   double normalization = 1. / double(nevents_);
 
-  for (map<DTWireId, TH1F*>::const_iterator wHisto = theHistoOccupancyVsLumiMap_.begin();
-       wHisto != theHistoOccupancyVsLumiMap_.end();
-       ++wHisto) {
+  for (auto wHisto = theHistoOccupancyVsLumiMap_.begin(); wHisto != theHistoOccupancyVsLumiMap_.end(); ++wHisto) {
     (*wHisto).second->Scale(normalization);
     (*wHisto).second->Write();
   }
 
-  for (map<DTChamberId, TH1F*>::const_iterator chHisto = chamberOccupancyVsLumiMap_.begin();
-       chHisto != chamberOccupancyVsLumiMap_.end();
-       ++chHisto) {
+  for (auto chHisto = chamberOccupancyVsLumiMap_.begin(); chHisto != chamberOccupancyVsLumiMap_.end(); ++chHisto) {
     (*chHisto).second->Scale(normalization);
     (*chHisto).second->Write();
   }
 
-  for (map<DTChamberId, TH1F*>::const_iterator chHisto = chamberOccupancyVsTimeMap_.begin();
-       chHisto != chamberOccupancyVsTimeMap_.end();
-       ++chHisto) {
+  for (auto chHisto = chamberOccupancyVsTimeMap_.begin(); chHisto != chamberOccupancyVsTimeMap_.end(); ++chHisto) {
     (*chHisto).second->Scale(normalization);
     (*chHisto).second->Write();
   }
 
   // Save on file the occupancy histos and write the list of noisy cells
   DTStatusFlag* statusMap = new DTStatusFlag();
-  for (map<DTLayerId, TH1F*>::const_iterator lHisto = theHistoOccupancyMap_.begin();
-       lHisto != theHistoOccupancyMap_.end();
-       ++lHisto) {
+  for (auto lHisto = theHistoOccupancyMap_.begin(); lHisto != theHistoOccupancyMap_.end(); ++lHisto) {
     /*double triggerWidth_s = 0.;
      if( useTimeWindow_ ){
         double triggerWidth_ns = 0.;

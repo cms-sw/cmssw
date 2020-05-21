@@ -584,7 +584,9 @@ Bool_t readRR( const TString & pathFile )
     return kFALSE;
   }
 
-  if ( sOptions[ "-v" ] ) for ( map< TString, TString >::const_iterator flag = sFlagsRR.begin(); flag != sFlagsRR.end(); ++flag ) cout << "    " << flag->first << ": " << flag->second << endl;
+  if ( sOptions[ "-v" ] )
+    for (auto flag = sFlagsRR.begin(); flag != sFlagsRR.end(); ++flag)
+      cout << "    " << flag->first << ": " << flag->second << endl;
   for ( UInt_t iNameNode = 0; iNameNode < nameCmpNode.size(); ++iNameNode ) {
     TString nameNode( "RR_" + nameCmpNode.at( iNameNode ) );
     if ( sFlagsRR.find( nameNode ) == sFlagsRR.end() ) {
@@ -673,11 +675,11 @@ Bool_t readRRLumis( const TString & pathFile )
             }
             Bool_t siStripOn( kTRUE );
             Bool_t pixelOn( kTRUE );
-            for ( map< TString, Bool_t >::const_iterator iMap = bLumiSiStripOn_.begin(); iMap != bLumiSiStripOn_.end(); ++iMap ) {
+            for (auto iMap = bLumiSiStripOn_.begin(); iMap != bLumiSiStripOn_.end(); ++iMap) {
               if ( ! iMap->second ) siStripOn = kFALSE;
               break;
             }
-            for ( map< TString, Bool_t >::const_iterator iMap = bLumiPixelOn_.begin(); iMap != bLumiPixelOn_.end(); ++iMap ) {
+            for (auto iMap = bLumiPixelOn_.begin(); iMap != bLumiPixelOn_.end(); ++iMap) {
               if ( ! iMap->second ) pixelOn = kFALSE;
               break;
             }
@@ -881,7 +883,8 @@ Bool_t readDQM( const TString & pathFile )
 
   if ( sOptions[ "-v" ] ) {
     cout << "    " << sVersion_ << endl;
-    for ( map< TString, Double_t >::const_iterator cert = fCertificates_.begin(); cert != fCertificates_.end(); ++cert ) cout << "    " << cert->first << ": " << cert->second << endl;
+    for (auto cert = fCertificates_.begin(); cert != fCertificates_.end(); ++cert)
+      cout << "    " << cert->first << ": " << cert->second << endl;
   }
 
   return kTRUE;
@@ -1040,7 +1043,7 @@ void certifyRun()
     sTracking_[ sRunNumber_ ]    = sRRTracking_[ sRunNumber_ ];
   }
 
-  for ( map< TString, Int_t >::const_iterator iSys = iFlags.begin(); iSys != iFlags.end(); ++iSys ) {
+  for (auto iSys = iFlags.begin(); iSys != iFlags.end(); ++iSys) {
     cout << "    " << iSys->first << ": ";
     if ( iSys->second != iFlagsRR_[ iSys->first ] ) {
       if ( iSys->first == sSubSys_[ SiStrip ] )  ++nRunsChangedSiStrip_;

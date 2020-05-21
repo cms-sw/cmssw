@@ -62,7 +62,7 @@ inline CSCDBGasGainCorrection *CSCGasGainCorrectionDBConditions::prefillDBGasGai
 
   const int MAX_SIZE = 55944;
 
-  CSCDBGasGainCorrection *cndbGasGainCorr = new CSCDBGasGainCorrection();
+  auto *cndbGasGainCorr = new CSCDBGasGainCorrection();
 
   CSCDBGasGainCorrection::GasGainContainer &itemvector = cndbGasGainCorr->gasGainCorr;
   itemvector.resize(MAX_SIZE);

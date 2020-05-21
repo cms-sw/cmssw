@@ -366,7 +366,7 @@ bool ThirdHitPrediction::isCompatibleWithMultipleScattering(GlobalPoint g3,
 
     // Transform to tt
     vector<TransientTrackingRecHit::RecHitPointer> th;
-    for (vector<const TrackingRecHit*>::const_iterator ih = h.begin(); ih != h.end(); ih++)
+    for (auto ih = h.begin(); ih != h.end(); ih++)
       th.push_back(theTTRecHitBuilder->build(*ih));
 
     float sigma1_le2 = max(th[0]->parametersError()[0][0], th[0]->parametersError()[1][1]);

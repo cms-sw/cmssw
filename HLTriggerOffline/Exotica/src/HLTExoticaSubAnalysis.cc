@@ -104,7 +104,7 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet &pset,
   this->registerConsumes(consCollector);
 
   // Generic objects: Initialization of basic phase space cuts.
-  for (std::map<unsigned int, edm::InputTag>::const_iterator it = _recLabels.begin(); it != _recLabels.end(); ++it) {
+  for (auto it = _recLabels.begin(); it != _recLabels.end(); ++it) {
     const std::string objStr = EVTColContainer::getTypeString(it->first);
     _genCut[it->first] = pset.getParameter<std::string>(objStr + "_genCut");
     _recCut[it->first] = pset.getParameter<std::string>(objStr + "_recCut");
@@ -124,7 +124,7 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet &pset,
 
   //--- Updating parameters if has to be modified for this particular specific
   // analysis
-  for (std::map<unsigned int, edm::InputTag>::const_iterator it = _recLabels.begin(); it != _recLabels.end(); ++it) {
+  for (auto it = _recLabels.begin(); it != _recLabels.end(); ++it) {
     const std::string objStr = EVTColContainer::getTypeString(it->first);
 
     auto const genCutParam = objStr + "_genCut";
@@ -146,9 +146,7 @@ HLTExoticaSubAnalysis::HLTExoticaSubAnalysis(const edm::ParameterSet &pset,
 }  /// End Constructor
 
 HLTExoticaSubAnalysis::~HLTExoticaSubAnalysis() {
-  for (std::map<unsigned int, StringCutObjectSelector<reco::GenParticle> *>::iterator it = _genSelectorMap.begin();
-       it != _genSelectorMap.end();
-       ++it) {
+  for (auto it = _genSelectorMap.begin(); it != _genSelectorMap.end(); ++it) {
     delete it->second;
     it->second = nullptr;
   }
@@ -202,7 +200,7 @@ void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
   iBooker.setCurrentFolder(baseDir);
 
   // Book the gen/reco analysis-dependent histograms (denominators)
-  for (std::map<unsigned int, edm::InputTag>::const_iterator it = _recLabels.begin(); it != _recLabels.end(); ++it) {
+  for (auto it = _recLabels.begin(); it != _recLabels.end(); ++it) {
     const std::string objStr = EVTColContainer::getTypeString(it->first);
     std::vector<std::string> sources(2);
     sources[0] = "gen";
@@ -257,7 +255,7 @@ void HLTExoticaSubAnalysis::subAnalysisBookHistos(DQMStore::IBooker &iBooker,
   // Call the plotterBookHistos() (which books all the path dependent
   // histograms)
   LogDebug("ExoticaValidation") << "                        number of plotters = " << _plotters.size();
-  for (std::vector<HLTExoticaPlotter>::iterator it = _plotters.begin(); it != _plotters.end(); ++it) {
+  for (auto it = _plotters.begin(); it != _plotters.end(); ++it) {
     it->plotterBookHistos(iBooker, iRun, iSetup);
   }
 }
@@ -303,13 +301,13 @@ void HLTExoticaSubAnalysis::beginRun(const edm::Run &iRun, const edm::EventSetup
   // At this point, _hltpaths contains the names of the paths to check
   // that were found. Let's log it at trace level.
   LogTrace("ExoticaValidation") << "SubAnalysis: " << _analysisname << "\nHLT Trigger Paths found >>>";
-  for (std::set<std::string>::const_iterator iter = _hltPaths.begin(); iter != _hltPaths.end(); ++iter) {
+  for (auto iter = _hltPaths.begin(); iter != _hltPaths.end(); ++iter) {
     LogTrace("ExoticaValidation") << (*iter) << "\n";
   }
 
   // Initialize the plotters (analysers for each trigger path)
   _plotters.clear();
-  for (std::set<std::string>::iterator iPath = _hltPaths.begin(); iPath != _hltPaths.end(); ++iPath) {
+  for (auto iPath = _hltPaths.begin(); iPath != _hltPaths.end(); ++iPath) {
     // Avoiding the dependence of the version number for the trigger paths
     std::string path = *iPath;
     std::string shortpath = path;
@@ -324,7 +322,7 @@ void HLTExoticaSubAnalysis::beginRun(const edm::Run &iRun, const edm::EventSetup
     // const std::vector<unsigned int> objsNeedHLT =
     // this->getObjectsType(shortpath);
     std::vector<unsigned int> objsNeedHLT;
-    for (std::map<unsigned int, edm::InputTag>::iterator it = _recLabels.begin(); it != _recLabels.end(); ++it) {
+    for (auto it = _recLabels.begin(); it != _recLabels.end(); ++it) {
       objsNeedHLT.push_back(it->first);
     }
 
@@ -403,7 +401,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event &iEvent, const edm::EventSe
   // Our definition of "good" is "passes the selector" defined in the config.py
   // Save all the MatchStructs in the "matchesGen" vector.
 
-  for (std::map<unsigned int, edm::InputTag>::iterator it = _recLabels.begin(); it != _recLabels.end(); ++it) {
+  for (auto it = _recLabels.begin(); it != _recLabels.end(); ++it) {
     // Here we are filling the vector of
     // StringCutObjectSelector<reco::GenParticle> with objects constructed from
     // the strings saved in _genCut. Initialize selectors when first event
@@ -454,7 +452,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event &iEvent, const edm::EventSe
   // Extraction of the objects candidates
   if (verbose > 0)
     LogDebug("ExoticaValidation") << "-- enter loop over recLabels";
-  for (std::map<unsigned int, edm::InputTag>::iterator it = _recLabels.begin(); it != _recLabels.end(); ++it) {
+  for (auto it = _recLabels.begin(); it != _recLabels.end(); ++it) {
     // std::cout << "Filling RECO \"matchesReco\" vector for particle kind
     // it->first = "
     //	  << it->first << ", which means " << it->second.label() << std::endl;
@@ -477,7 +475,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event &iEvent, const edm::EventSe
   const edm::TriggerNames &trigNames = iEvent.triggerNames(*(cols->triggerResults));
 
   // counting HLT passed events for debugging
-  for (std::vector<HLTExoticaPlotter>::iterator an = _plotters.begin(); an != _plotters.end(); ++an) {
+  for (auto an = _plotters.begin(); an != _plotters.end(); ++an) {
     const std::string hltPath = _shortpath2long[an->gethltpath()];
     const bool ispassTrigger = cols->triggerResults->accept(trigNames.triggerIndex(hltPath));
     if (ispassTrigger)
@@ -512,7 +510,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event &iEvent, const edm::EventSe
 
     // Initializing the count of the used objects.
     std::map<unsigned int, int> countobjects;
-    for (std::map<unsigned int, edm::InputTag>::iterator co = _recLabels.begin(); co != _recLabels.end(); ++co) {
+    for (auto co = _recLabels.begin(); co != _recLabels.end(); ++co) {
       // countobjects->insert(std::pair<unsigned int, int>(co->first, 0));
       countobjects.insert(std::pair<unsigned int, int>(co->first, 0));
     }
@@ -594,7 +592,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event &iEvent, const edm::EventSe
     // Calling to the plotters analysis (where the evaluation of the different
     // trigger paths are done)
     // const std::string source = "gen";
-    for (std::vector<HLTExoticaPlotter>::iterator an = _plotters.begin(); an != _plotters.end(); ++an) {
+    for (auto an = _plotters.begin(); an != _plotters.end(); ++an) {
       const std::string hltPath = _shortpath2long[an->gethltpath()];
       const bool ispassTrigger = cols->triggerResults->accept(trigNames.triggerIndex(hltPath));
       LogDebug("ExoticaValidation") << "                        preparing to call the plotters analysis";
@@ -625,7 +623,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event &iEvent, const edm::EventSe
     // std::map<unsigned int, int> * countobjects = new std::map<unsigned int,
     // int>;
     std::map<unsigned int, int> countobjects;
-    for (std::map<unsigned int, edm::InputTag>::iterator co = _recLabels.begin(); co != _recLabels.end(); ++co) {
+    for (auto co = _recLabels.begin(); co != _recLabels.end(); ++co) {
       countobjects.insert(std::pair<unsigned int, int>(co->first, 0));
     }
 
@@ -717,7 +715,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event &iEvent, const edm::EventSe
     // Calling to the plotters analysis (where the evaluation of the different
     // trigger paths are done)
     // const std::string source = "reco";
-    for (std::vector<HLTExoticaPlotter>::iterator an = _plotters.begin(); an != _plotters.end(); ++an) {
+    for (auto an = _plotters.begin(); an != _plotters.end(); ++an) {
       const std::string hltPath = _shortpath2long[an->gethltpath()];
       const bool ispassTrigger = cols->triggerResults->accept(trigNames.triggerIndex(hltPath));
       LogDebug("ExoticaValidation") << "                        preparing to call the plotters analysis";
@@ -859,7 +857,7 @@ void HLTExoticaSubAnalysis::registerConsumes(edm::ConsumesCollector &iC) {
   // Remember: _recLabels is a map<uint, edm::InputTag>
   // Remember: _tokens    is a map<uint, edm::EDGetToken>
   LogDebug("ExoticaValidation") << "We have got " << _recLabels.size() << "recLabels";
-  for (std::map<unsigned int, edm::InputTag>::iterator it = _recLabels.begin(); it != _recLabels.end(); ++it) {
+  for (auto it = _recLabels.begin(); it != _recLabels.end(); ++it) {
     if (it->first == EVTColContainer::MUON) {
       edm::EDGetTokenT<reco::MuonCollection> particularToken = iC.consumes<reco::MuonCollection>(it->second);
       edm::EDGetToken token(particularToken);
@@ -960,7 +958,7 @@ void HLTExoticaSubAnalysis::getHandlesToObjects(const edm::Event &iEvent, EVTCol
 
   // Loop over the tokens and extract all other objects
   LogDebug("ExoticaValidation") << "We have got " << _tokens.size() << "tokens";
-  for (std::map<unsigned int, edm::EDGetToken>::iterator it = _tokens.begin(); it != _tokens.end(); ++it) {
+  for (auto it = _tokens.begin(); it != _tokens.end(); ++it) {
     if (it->first == EVTColContainer::MUON) {
       edm::Handle<reco::MuonCollection> theHandle;
       iEvent.getByToken(it->second, theHandle);
@@ -1333,7 +1331,7 @@ void HLTExoticaSubAnalysis::endRun() {
   log << "-------------------:-------------------------------------------------"
          "------"
       << std::endl;
-  for (std::map<std::string, int>::iterator it = _triggerCounter.begin(); it != _triggerCounter.end(); ++it) {
+  for (auto it = _triggerCounter.begin(); it != _triggerCounter.end(); ++it) {
     log << std::setw(18) << it->second << " : " << it->first << std::endl;
   }
   log << "====================================================================="

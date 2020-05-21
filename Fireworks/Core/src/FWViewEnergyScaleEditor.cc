@@ -48,7 +48,7 @@ FWViewEnergyScaleEditor::~FWViewEnergyScaleEditor() {}
 void FWViewEnergyScaleEditor::setEnabled(bool x) {
   m_enabled = x;
   typedef std::vector<std::shared_ptr<FWParameterSetterBase> > sList;
-  for (sList::iterator i = m_setters.begin(); i != m_setters.end(); ++i) {
+  for (auto i = m_setters.begin(); i != m_setters.end(); ++i) {
     (*i)->setEnabled(m_enabled);
   }
 }

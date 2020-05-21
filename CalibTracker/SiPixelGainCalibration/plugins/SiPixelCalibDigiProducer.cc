@@ -151,7 +151,7 @@ void SiPixelCalibDigiProducer::fillPixel(uint32_t detid, short row, short col, s
   temppixelworker.first = detid;
   temppixelworker.second.first = row;
   temppixelworker.second.second = col;
-  std::map<pixelstruct, SiPixelCalibDigi>::const_iterator ipix = intermediate_data_.find(temppixelworker);
+  auto ipix = intermediate_data_.find(temppixelworker);
 
   if (ipix == intermediate_data_.end()) {
     SiPixelCalibDigi tempdigi(calib_->nVCal());
@@ -269,9 +269,7 @@ void SiPixelCalibDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
   // copy things over into pOut if necessary (this is only once per pattern)
   if (store()) {
     //    edm::LogInfo("SiPixelCalibDigiProducer") << "in loop" << std::endl;
-    for (std::map<pixelstruct, SiPixelCalibDigi>::const_iterator idet = intermediate_data_.begin();
-         idet != intermediate_data_.end();
-         ++idet) {
+    for (auto idet = intermediate_data_.begin(); idet != intermediate_data_.end(); ++idet) {
       uint32_t detid = idet->first.first;
       if (!control_pattern_size_) {
         if (!checkPixel(idet->first.first, idet->first.second.first, idet->first.second.second))
@@ -283,9 +281,7 @@ void SiPixelCalibDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup
       detSet.data.push_back(tempdigi);
     }
     if (includeErrors_) {
-      for (std::map<pixelstruct, SiPixelCalibDigiError>::const_iterator ierr = error_data_.begin();
-           ierr != error_data_.end();
-           ++ierr) {
+      for (auto ierr = error_data_.begin(); ierr != error_data_.end(); ++ierr) {
         uint32_t detid = ierr->first.first;
         SiPixelCalibDigiError temperror = ierr->second;
         edm::DetSet<SiPixelCalibDigiError>& errSet = pErr->find_or_insert(detid);
@@ -356,7 +352,7 @@ bool SiPixelCalibDigiProducer::checkPixel(uint32_t detid, short row, short col) 
     temppixelworker.first = detid;
     temppixelworker.second.first = row;
     temppixelworker.second.second = col;
-    std::map<pixelstruct, SiPixelCalibDigiError>::const_iterator ierr = error_data_.find(temppixelworker);
+    auto ierr = error_data_.find(temppixelworker);
     if (ierr == error_data_.end()) {
       SiPixelCalibDigiError temperr(row, col, 1);
       error_data_[temppixelworker] = temperr;

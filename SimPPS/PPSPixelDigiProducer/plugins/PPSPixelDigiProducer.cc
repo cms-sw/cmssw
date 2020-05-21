@@ -224,7 +224,7 @@ void CTPPSPixelDigiProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   theDigiVector.reserve(400);
   theDigiVector.clear();
 
-  for (simhit_map_iterator it = SimHitMap.begin(); it != SimHitMap.end(); ++it) {
+  for (auto it = SimHitMap.begin(); it != SimHitMap.end(); ++it) {
     edm::DetSet<CTPPSPixelDigi> digi_collector(it->first);
 
     if (theAlgoMap.find(it->first) == theAlgoMap.end()) {

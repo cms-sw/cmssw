@@ -48,8 +48,8 @@ void CSCComparatorDigiValidation::analyze(const edm::Event &e, const edm::EventS
   unsigned nDigisPerEvent = 0;
 
   for (CSCComparatorDigiCollection::DigiRangeIterator j = comparators->begin(); j != comparators->end(); j++) {
-    std::vector<CSCComparatorDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCComparatorDigi>::const_iterator last = (*j).second.second;
+    auto digiItr = (*j).second.first;
+    auto last = (*j).second.second;
 
     CSCDetId detId((*j).first);
     const CSCLayer *layer = findLayer(detId.rawId());
@@ -64,8 +64,7 @@ void CSCComparatorDigiValidation::analyze(const edm::Event &e, const edm::EventS
       theTimeBinPlots[chamberType - 1]->Fill(digiItr->getTimeBin());
 
       int strip = digiItr->getStrip();
-      for (std::vector<CSCStripDigi>::const_iterator stripItr = stripRange.first; stripItr != stripRange.second;
-           ++stripItr) {
+      for (auto stripItr = stripRange.first; stripItr != stripRange.second; ++stripItr) {
         if (stripItr->getStrip() == strip) {
           std::vector<int> adc = stripItr->getADCCounts();
           float pedc = 0.5 * (adc[0] + adc[1]);

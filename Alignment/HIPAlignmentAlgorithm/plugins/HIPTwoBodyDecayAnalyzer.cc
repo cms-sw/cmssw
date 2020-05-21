@@ -322,7 +322,7 @@ void HIPTwoBodyDecayAnalyzer::analyzeTrackCollection(std::string strTrackType,
     trackMom[jtrk].SetXYZT(0, 0, 0, 0);
     trackVtx[jtrk].SetXYZ(0, 0, 0);
   }
-  for (reco::TrackCollection::const_iterator track = hTrackColl->begin(); track != hTrackColl->end(); ++track) {
+  for (auto track = hTrackColl->begin(); track != hTrackColl->end(); ++track) {
     int charge = track->charge();
     totalcharge += charge;
     if (j == 0) {
@@ -356,7 +356,7 @@ void HIPTwoBodyDecayAnalyzer::analyzeTrackCollection(std::string strTrackType,
 
       // Recalculate track momenta with this vertex as reference
       j = 0;
-      for (reco::TrackCollection::const_iterator track = hTrackColl->begin(); track != hTrackColl->end(); ++track) {
+      for (auto track = hTrackColl->begin(); track != hTrackColl->end(); ++track) {
         TransientTrack t_track = theTTBuilder->build(&(*track));
         AnalyticalImpactPointExtrapolator extrapolator(t_track.field());
         TrajectoryStateOnSurface closestIn3DSpaceState =
@@ -411,7 +411,7 @@ reco::Vertex HIPTwoBodyDecayAnalyzer::fitDimuonVertex(edm::ESHandle<TransientTra
   using namespace reco;
 
   std::vector<TransientTrack> t_tks;
-  for (TrackCollection::const_iterator track = hTrackColl->begin(); track != hTrackColl->end(); ++track) {
+  for (auto track = hTrackColl->begin(); track != hTrackColl->end(); ++track) {
     TransientTrack tt = theTTBuilder->build(&(*track));
     t_tks.push_back(tt);
   }

@@ -172,10 +172,10 @@ void CMSEmStandardPhysics95msc93::ConstructProcess() {
 
     } else if (particleName == "e-") {
       G4eIonisation* eioni = new G4eIonisation();
-      G4eMultipleScattering* msc = new G4eMultipleScattering;
+      auto* msc = new G4eMultipleScattering;
       msc->SetEmModel(new UrbanMscModel93());
 
-      G4eBremsstrahlung* ebrem = new G4eBremsstrahlung();
+      auto* ebrem = new G4eBremsstrahlung();
 
       ph->RegisterProcess(msc, particle);
       ph->RegisterProcess(eioni, particle);
@@ -184,10 +184,10 @@ void CMSEmStandardPhysics95msc93::ConstructProcess() {
     } else if (particleName == "e+") {
       G4eIonisation* eioni = new G4eIonisation();
 
-      G4eMultipleScattering* msc = new G4eMultipleScattering;
+      auto* msc = new G4eMultipleScattering;
       msc->SetEmModel(new UrbanMscModel93());
 
-      G4eBremsstrahlung* ebrem = new G4eBremsstrahlung();
+      auto* ebrem = new G4eBremsstrahlung();
 
       ph->RegisterProcess(msc, particle);
       ph->RegisterProcess(eioni, particle);

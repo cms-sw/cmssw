@@ -217,7 +217,7 @@ void HGCalSimHitValidation::analyzeHits(std::vector<PCaloHit>& hits) {
     } else if (hgcons_->geomMode() == HGCalGeometryMode::Square) {
       HGCalTestNumbering::unpackSquareIndex(id_, zside, layer, sector, subsector, cell);
     } else if (hgcons_->geomMode() == HGCalGeometryMode::Trapezoid) {
-      HGCScintillatorDetId detId = HGCScintillatorDetId(id_);
+      auto detId = HGCScintillatorDetId(id_);
       subdet = ForwardEmpty;
       sector = detId.ietaAbs();
       cell = detId.iphi();

@@ -109,7 +109,7 @@ TrackCountingTagPlotter::TrackCountingTagPlotter(const std::string& tagName,
 TrackCountingTagPlotter::~TrackCountingTagPlotter() {}
 
 void TrackCountingTagPlotter::analyzeTag(const reco::BaseTagInfo* baseTagInfo, double jec, int jetFlavour, float w) {
-  const reco::TrackCountingTagInfo* tagInfo = dynamic_cast<const reco::TrackCountingTagInfo*>(baseTagInfo);
+  const auto* tagInfo = dynamic_cast<const reco::TrackCountingTagInfo*>(baseTagInfo);
 
   if (!tagInfo) {
     throw cms::Exception("Configuration")

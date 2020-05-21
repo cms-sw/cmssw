@@ -280,7 +280,7 @@ namespace hitfit {
       cerr << "can't find default for " << name << "\n";
       abort();
     } else {
-      std::map<string, string>::const_iterator it = _map.find(name);
+      auto it = _map.find(name);
       val = it->second;
     }
 
@@ -439,8 +439,7 @@ namespace hitfit {
   //   The stream S.
   //
   {
-    for (std::map<std::string, std::string>::const_iterator it = def._rep->_map.begin(); it != def._rep->_map.end();
-         it++) {
+    for (auto it = def._rep->_map.begin(); it != def._rep->_map.end(); it++) {
       s << "[" << it->first << "] = [" << it->second << "]\n";
     }
 

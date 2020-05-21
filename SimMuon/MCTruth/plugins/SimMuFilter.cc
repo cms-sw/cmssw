@@ -66,27 +66,21 @@ bool SimMuFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSetup) {
     int nSimHitCSC = 0;
     int nSimHitDT = 0;
 
-    for (PSimHitContainer::const_iterator simHitIt = simHitsMuonRPCHandle->begin();
-         simHitIt != simHitsMuonRPCHandle->end();
-         simHitIt++) {
+    for (auto simHitIt = simHitsMuonRPCHandle->begin(); simHitIt != simHitsMuonRPCHandle->end(); simHitIt++) {
       if (simHitIt->trackId() != simTrk.trackId())
         continue;
 
       nSimHitRPC++;
     }
 
-    for (PSimHitContainer::const_iterator simHitIt = simHitsMuonCSCHandle->begin();
-         simHitIt != simHitsMuonCSCHandle->end();
-         simHitIt++) {
+    for (auto simHitIt = simHitsMuonCSCHandle->begin(); simHitIt != simHitsMuonCSCHandle->end(); simHitIt++) {
       if (simHitIt->trackId() != simTrk.trackId())
         continue;
 
       nSimHitCSC++;
     }
 
-    for (PSimHitContainer::const_iterator simHitIt = simHitsMuonDTHandle->begin();
-         simHitIt != simHitsMuonDTHandle->end();
-         simHitIt++) {
+    for (auto simHitIt = simHitsMuonDTHandle->begin(); simHitIt != simHitsMuonDTHandle->end(); simHitIt++) {
       if (simHitIt->trackId() != simTrk.trackId())
         continue;
 

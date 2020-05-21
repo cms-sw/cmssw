@@ -30,7 +30,7 @@ RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex<6>& vtx,
   //new particle momentum calculation and refitted kinematic states
   std::vector<KinematicRefittedTrackState*> rStates;
   std::vector<RefCountedVertexTrack> refTracks = vtx.tracks();
-  for (std::vector<RefCountedVertexTrack>::const_iterator i = refTracks.begin(); i != refTracks.end(); ++i) {
+  for (auto i = refTracks.begin(); i != refTracks.end(); ++i) {
     KinematicRefittedTrackState* rs = dynamic_cast<KinematicRefittedTrackState*>(&(*((*i)->refittedState())));
     AlgebraicVector4 f_mom = rs->kinematicMomentumVector();
     par(3) += f_mom(0);
@@ -214,7 +214,7 @@ AlgebraicMatrix FinalTreeBuilder::momentumPart(const CachingVertex<6>& vtx, cons
       // track momentum - track momentum
     }
     int j_int = 0;
-    for (std::vector<RefCountedVertexTrack>::const_iterator rt_j = refTracks.begin(); rt_j != refTracks.end(); rt_j++) {
+    for (auto rt_j = refTracks.begin(); rt_j != refTracks.end(); rt_j++) {
       if (i_int < j_int) {
         AlgebraicMatrix i_k_cov_m = asHepMatrix<4, 4>(vtx.tkToTkCovariance((*rt_i), (*rt_j)));
         //     cout<<"i_k_cov_m"<<i_k_cov_m <<endl;

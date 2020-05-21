@@ -36,7 +36,7 @@ namespace edm {
       event.getByToken(src_, h_c);
       std::vector<int> bitOut;
       // loop through and add passing value_types to the output vector
-      for (typename C::const_iterator ibegin = h_c->begin(), iend = h_c->end(), i = ibegin; i != iend; ++i) {
+      for (auto ibegin = h_c->begin(), iend = h_c->end(), i = ibegin; i != iend; ++i) {
         bitOut.push_back((*filter_)(*i));
       }
       std::unique_ptr<edm::ValueMap<int>> o(new edm::ValueMap<int>());

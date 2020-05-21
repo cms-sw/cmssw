@@ -85,7 +85,7 @@ void MuonSeedTrack::produce(edm::Event& event, const edm::EventSetup& eventSetup
   Handle<TrajectorySeedCollection> seeds;
   event.getByToken(theSeedsToken, seeds);
 
-  for (TrajectorySeedCollection::const_iterator iSeed = seeds->begin(); iSeed != seeds->end(); iSeed++) {
+  for (auto iSeed = seeds->begin(); iSeed != seeds->end(); iSeed++) {
     pair<bool, reco::Track> resultOfTrackExtrapAtPCA = buildTrackAtPCA(*iSeed);
     if (!resultOfTrackExtrapAtPCA.first)
       continue;

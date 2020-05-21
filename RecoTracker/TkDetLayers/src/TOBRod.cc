@@ -39,13 +39,13 @@ TOBRod::TOBRod(vector<const GeomDet*>& innerDets, vector<const GeomDet*>& outerD
   theOuterBinFinder = BinFinderType(theOuterDets.begin(), theOuterDets.end());
 
   LogDebug("TkDetLayers") << "==== DEBUG TOBRod =====";
-  for (vector<const GeomDet*>::const_iterator i = theInnerDets.begin(); i != theInnerDets.end(); i++) {
+  for (auto i = theInnerDets.begin(); i != theInnerDets.end(); i++) {
     LogDebug("TkDetLayers") << "inner TOBRod's Det pos z,perp,eta,phi: " << (**i).position().z() << " , "
                             << (**i).position().perp() << " , " << (**i).position().eta() << " , "
                             << (**i).position().phi();
   }
 
-  for (vector<const GeomDet*>::const_iterator i = theOuterDets.begin(); i != theOuterDets.end(); i++) {
+  for (auto i = theOuterDets.begin(); i != theOuterDets.end(); i++) {
     LogDebug("TkDetLayers") << "outer TOBRod's Det pos z,perp,eta,phi: " << (**i).position().z() << " , "
                             << (**i).position().perp() << " , " << (**i).position().eta() << " , "
                             << (**i).position().phi();

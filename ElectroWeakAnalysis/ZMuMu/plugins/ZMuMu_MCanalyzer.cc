@@ -172,7 +172,7 @@ double candidateIsolation(const reco::Candidate* c,
                      alpha,
                      beta,
                      relativeIsolation);
-  const pat::GenericParticle* trk = dynamic_cast<const pat::GenericParticle*>(&*c->masterClone());
+  const auto* trk = dynamic_cast<const pat::GenericParticle*>(&*c->masterClone());
   if (trk != nullptr)
     return isolation(trk,
                      ptThreshold,

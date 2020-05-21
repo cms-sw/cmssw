@@ -77,7 +77,7 @@ void FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList
 
       int signalThreshold = (adcCounts[0] + adcCounts[1]) / 2 + thresholdOffset;
 
-      TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet();
+      auto* stripDigiSet = new TEveStraightLineSet();
       setupAddElement(stripDigiSet, product);
 
       if (std::find_if(adcCounts.begin(), adcCounts.end(), [&](auto c) { return c > signalThreshold; }) !=

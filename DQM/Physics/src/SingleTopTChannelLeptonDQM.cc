@@ -637,8 +637,7 @@ namespace SingleTopTChannelLepton {
 
     // fill monitoring histograms for met
     reco::MET mET;
-    for (std::vector<edm::EDGetTokenT<edm::View<reco::MET>>>::const_iterator met_ = mets_.begin(); met_ != mets_.end();
-         ++met_) {
+    for (auto met_ = mets_.begin(); met_ != mets_.end(); ++met_) {
       edm::Handle<edm::View<reco::MET>> met;
       if (!event.getByToken(*met_, met))
         continue;
@@ -745,8 +744,7 @@ SingleTopTChannelLeptonDQM::SingleTopTChannelLeptonDQM(const edm::ParameterSet& 
                                                          cfg.getParameter<std::vector<edm::ParameterSet>>("selection"),
                                                          consumesCollector())));
   }
-  for (std::vector<std::string>::const_iterator selIt = selectionOrder_.begin(); selIt != selectionOrder_.end();
-       ++selIt) {
+  for (auto selIt = selectionOrder_.begin(); selIt != selectionOrder_.end(); ++selIt) {
     std::string key = selectionStep(*selIt), type = objectType(*selIt);
     if (selection_.find(key) != selection_.end()) {
       using std::unique_ptr;
@@ -809,8 +807,7 @@ void SingleTopTChannelLeptonDQM::analyze(const edm::Event& event, const edm::Eve
   unsigned int nJetSteps = -1;
   unsigned int nPFJetSteps = -1;
   unsigned int nCaloJetSteps = -1;
-  for (std::vector<std::string>::const_iterator selIt = selectionOrder_.begin(); selIt != selectionOrder_.end();
-       ++selIt) {
+  for (auto selIt = selectionOrder_.begin(); selIt != selectionOrder_.end(); ++selIt) {
     std::string key = selectionStep(*selIt), type = objectType(*selIt);
     if (selection_.find(key) != selection_.end()) {
       if (type == "empty") {

@@ -20,8 +20,7 @@ public:
   explicit CorrMETDataExtractor(const edm::ParameterSet& cfg) {
     std::vector<edm::InputTag> corrInputTags = cfg.getParameter<std::vector<edm::InputTag> >("corrections");
     std::vector<edm::EDGetTokenT<CorrMETData> > corrTokens;
-    for (std::vector<edm::InputTag>::const_iterator inputTag = corrInputTags.begin(); inputTag != corrInputTags.end();
-         ++inputTag) {
+    for (auto inputTag = corrInputTags.begin(); inputTag != corrInputTags.end(); ++inputTag) {
       corrTokens_.push_back(consumes<CorrMETData>(*inputTag));
     }
 
@@ -38,9 +37,7 @@ private:
   void produce(edm::Event& evt, const edm::EventSetup& es) override {
     CorrMETData sumCor;
     edm::Handle<CorrMETData> corr;
-    for (std::vector<edm::EDGetTokenT<CorrMETData> >::const_iterator corrToken = corrTokens_.begin();
-         corrToken != corrTokens_.end();
-         ++corrToken) {
+    for (auto corrToken = corrTokens_.begin(); corrToken != corrTokens_.end(); ++corrToken) {
       evt.getByToken(*corrToken, corr);
       sumCor += (*corr);
     }

@@ -154,8 +154,7 @@ size_t cond::auth::DecodingKey::init(const std::string& keyFileName, const std::
               sdata.push_back(std::string(""));
               getline(serviceStr, sdata.back(), ItemSeparator);
             }
-            std::map<std::string, ServiceCredentials>::iterator iS =
-                m_services.insert(std::make_pair(sdata[0], ServiceCredentials())).first;
+            auto iS = m_services.insert(std::make_pair(sdata[0], ServiceCredentials())).first;
             iS->second.connectionString = sdata[1];
             iS->second.userName = sdata[2];
             iS->second.password = sdata[3];
@@ -240,8 +239,7 @@ void cond::auth::DecodingKey::list(std::ostream& out) {
   out << NAMEPREFIX << m_principalName << std::endl;
   out << KEYPREFIX << m_principalKey << std::endl;
   out << OWNERPREFIX << m_owner << std::endl;
-  for (std::map<std::string, ServiceCredentials>::const_iterator iS = m_services.begin(); iS != m_services.end();
-       iS++) {
+  for (auto iS = m_services.begin(); iS != m_services.end(); iS++) {
     out << SERVICEPREFIX << iS->first << ";";
     out << CONNECTIONPREFIX << iS->second.connectionString << ";";
     out << USERPREFIX << iS->second.userName << ";";
@@ -263,8 +261,7 @@ void cond::auth::DecodingKey::flush() {
     if (!m_owner.empty()) {
       content << OWNERPREFIX << m_owner << LineSeparator;
     }
-    for (std::map<std::string, ServiceCredentials>::const_iterator iD = m_services.begin(); iD != m_services.end();
-         ++iD) {
+    for (auto iD = m_services.begin(); iD != m_services.end(); ++iD) {
       content << SERVICEPREFIX << iD->first << ItemSeparator;
       content << iD->second.connectionString << ItemSeparator;
       content << iD->second.userName << ItemSeparator;
@@ -292,7 +289,7 @@ void cond::auth::DecodingKey::addService(const std::string& serviceName,
                                          const std::string& connectionString,
                                          const std::string& userName,
                                          const std::string& password) {
-  std::map<std::string, ServiceCredentials>::iterator iK = m_services.find(serviceName);
+  auto iK = m_services.find(serviceName);
   if (iK == m_services.end()) {
     iK = m_services.insert(std::make_pair(serviceName, ServiceCredentials())).first;
   }

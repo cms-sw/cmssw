@@ -113,7 +113,7 @@ namespace sistrip {
     bool first_fed = true;
 
     // Retrieve FED ids from cabling map and iterate through
-    std::vector<uint16_t>::const_iterator ifed = cabling.fedIds().begin();
+    auto ifed = cabling.fedIds().begin();
     for (; ifed != cabling.fedIds().end(); ifed++) {
       // ignore trigger FED
       if (*ifed == triggerFedId_) {
@@ -227,7 +227,7 @@ namespace sistrip {
       }
 
       // Iterate through FED channels, extract payload and create Digis
-      std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
+      auto iconn = conns.begin();
       for (; iconn != conns.end(); iconn++) {
         /// FED channel
         uint16_t chan = iconn->fedCh();
@@ -410,7 +410,7 @@ namespace sistrip {
       sorted_and_merged.reserve(std::min(zs_work_registry_.size(), size_t(17000)));
 
       bool errorInData = false;
-      std::vector<Registry>::iterator it = zs_work_registry_.begin(), it2 = it + 1, end = zs_work_registry_.end();
+      auto it = zs_work_registry_.begin(), it2 = it + 1, end = zs_work_registry_.end();
       while (it < end) {
         sorted_and_merged.push_back(edm::DetSet<SiStripDigi>(it->detid));
         std::vector<SiStripDigi>& digis = sorted_and_merged.back().data;
@@ -435,8 +435,8 @@ namespace sistrip {
             << "Container must be already sorted!\nat " << __FILE__ << ", line " << __LINE__ << "\n";
       }
 
-      std::vector<edm::DetSet<SiStripDigi> >::iterator iii = sorted_and_merged.begin();
-      std::vector<edm::DetSet<SiStripDigi> >::iterator jjj = sorted_and_merged.end();
+      auto iii = sorted_and_merged.begin();
+      auto jjj = sorted_and_merged.end();
       for (; iii != jjj; ++iii) {
         if (!__gnu_cxx::is_sorted(iii->begin(), iii->end())) {
           // this might be an error in the data, if the raws from one FED are not sorted
@@ -809,7 +809,7 @@ namespace sistrip {
       }
 
       // Write event-specific data to event
-      const TFHeaderDescription* header = (const TFHeaderDescription*)data_u32;
+      const auto* header = (const TFHeaderDescription*)data_u32;
       summary.event(static_cast<uint32_t>(header->getFedEventNumber()));
       summary.bx(static_cast<uint32_t>(header->getBunchCrossing()));
 

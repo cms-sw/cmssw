@@ -119,7 +119,7 @@ void TtSemiEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& 
   //
   // Build Event solutions according to the ambiguity in the jet combination
   //
-  std::vector<TtSemiEvtSolution>* evtsols = new std::vector<TtSemiEvtSolution>();
+  auto* evtsols = new std::vector<TtSemiEvtSolution>();
   if (leptonFound && metFound && jetsFound) {
     // protect against reading beyond array boundaries
     unsigned int nrCombJets = nrCombJets_;  // do not overwrite nrCombJets_

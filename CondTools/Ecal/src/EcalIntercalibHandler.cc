@@ -27,7 +27,7 @@ void popcon::EcalIntercalibHandler::getNewObjects() {
   edm::LogInfo("going to open file ") << file_;
 
   //      EcalCondHeader   header;
-  EcalIntercalibConstants* payload = new EcalIntercalibConstants;
+  auto* payload = new EcalIntercalibConstants;
   if (m_file_type == "xml")
     readXML(file_, *payload);
   else

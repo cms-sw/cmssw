@@ -48,8 +48,7 @@ MultShiftMETcorrInputProducer::MultShiftMETcorrInputProducer(const edm::Paramete
 
   produces<CorrMETData>();
 
-  for (std::vector<edm::ParameterSet>::const_iterator v = cfgCorrParameters_.begin(); v != cfgCorrParameters_.end();
-       v++) {
+  for (auto v = cfgCorrParameters_.begin(); v != cfgCorrParameters_.end(); v++) {
     TString corrPxFormula = v->getParameter<std::string>("fx");
     TString corrPyFormula = v->getParameter<std::string>("fy");
     std::vector<double> corrPxParams = v->getParameter<std::vector<double>>("px");
@@ -123,8 +122,7 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
   double corx = 0.;
   double cory = 0.;
 
-  for (std::vector<edm::ParameterSet>::const_iterator v = cfgCorrParameters_.begin(); v != cfgCorrParameters_.end();
-       v++) {
+  for (auto v = cfgCorrParameters_.begin(); v != cfgCorrParameters_.end(); v++) {
     unsigned j = v - cfgCorrParameters_.begin();
 
     double val(0.);

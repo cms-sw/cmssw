@@ -75,7 +75,7 @@ void HcalTestSimHitID::analyze(const edm::Event& e, const edm::EventSetup& iS) {
             << std::endl;
   edm::ESHandle<HcalDDDRecConstants> pHRNDC;
   iS.get<HcalRecNumberingRecord>().get(pHRNDC);
-  const HcalDDDRecConstants* hcr = static_cast<const HcalDDDRecConstants*>(&(*pHRNDC));
+  const auto* hcr = static_cast<const HcalDDDRecConstants*>(&(*pHRNDC));
   edm::ESHandle<HcalTopology> htopo;
   iS.get<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* theHBHETopology = htopo.product();

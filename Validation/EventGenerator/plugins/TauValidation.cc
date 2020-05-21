@@ -373,7 +373,7 @@ void TauValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &iSe
   double weight = 1.0;  //=   wmanager_.weight(iEvent);
   //////////////////////////////////////////////
   // find taus
-  for (reco::GenParticleCollection::const_iterator iter = genParticles->begin(); iter != genParticles->end(); ++iter) {
+  for (auto iter = genParticles->begin(); iter != genParticles->end(); ++iter) {
     if (abs(iter->pdgId()) == PdtPdgMini::Z0 || abs(iter->pdgId()) == PdtPdgMini::Higgs0) {
       spinEffectsZH(&(*iter), weight);
     }
@@ -464,7 +464,7 @@ void TauValidation::analyze(const edm::Event &iEvent, const edm::EventSetup &iSe
 
 const reco::GenParticle *TauValidation::GetMother(const reco::GenParticle *tau) {
   for (unsigned int i = 0; i < tau->numberOfMothers(); i++) {
-    const reco::GenParticle *mother = static_cast<const reco::GenParticle *>(tau->mother(i));
+    const auto *mother = static_cast<const reco::GenParticle *>(tau->mother(i));
     if (mother->pdgId() == tau->pdgId())
       return GetMother(mother);
     return mother;
@@ -475,7 +475,7 @@ const reco::GenParticle *TauValidation::GetMother(const reco::GenParticle *tau) 
 const std::vector<const reco::GenParticle *> TauValidation::GetMothers(const reco::GenParticle *boson) {
   std::vector<const reco::GenParticle *> mothers;
   for (unsigned int i = 0; i < boson->numberOfMothers(); i++) {
-    const reco::GenParticle *mother = static_cast<const reco::GenParticle *>(boson->mother(i));
+    const auto *mother = static_cast<const reco::GenParticle *>(boson->mother(i));
     if (mother->pdgId() == boson->pdgId())
       return GetMothers(mother);
     mothers.push_back(mother);
@@ -496,7 +496,7 @@ bool TauValidation::isLastTauinChain(const reco::GenParticle *tau) {
 void TauValidation::findTauList(const reco::GenParticle *tau, std::vector<const reco::GenParticle *> &TauList) {
   TauList.insert(TauList.begin(), tau);
   for (unsigned int i = 0; i < tau->numberOfMothers(); i++) {
-    const reco::GenParticle *mother = static_cast<const reco::GenParticle *>(tau->mother(i));
+    const auto *mother = static_cast<const reco::GenParticle *>(tau->mother(i));
     if (mother->pdgId() == tau->pdgId()) {
       findTauList(mother, TauList);
     }
@@ -517,7 +517,7 @@ void TauValidation::findFSRandBrem(const reco::GenParticle *p,
   }
   int photo_ID = 22;
   for (unsigned int i = 0; i < p->numberOfDaughters(); i++) {
-    const reco::GenParticle *dau = static_cast<const reco::GenParticle *>(p->daughter(i));
+    const auto *dau = static_cast<const reco::GenParticle *>(p->daughter(i));
     if (abs((dau)->pdgId()) == abs(photo_ID) && !doBrem) {
       ListofFSR.push_back(dau);
     }
@@ -538,7 +538,7 @@ void TauValidation::FindPhotosFSR(const reco::GenParticle *p,
   int mother_pid = m->pdgId();
   if (m->pdgId() != p->pdgId()) {
     for (unsigned int i = 0; i < m->numberOfDaughters(); i++) {
-      const reco::GenParticle *dau = static_cast<const reco::GenParticle *>(m->daughter(i));
+      const auto *dau = static_cast<const reco::GenParticle *>(m->daughter(i));
       if (abs(dau->pdgId()) == 22) {
         ListofFSR.push_back(dau);
       }
@@ -644,7 +644,7 @@ void TauValidation::countParticles(const reco::GenParticle *p,
                                    int &KCount,
                                    int &KstarCount) {
   for (unsigned int i = 0; i < p->numberOfDaughters(); i++) {
-    const reco::GenParticle *dau = static_cast<const reco::GenParticle *>(p->daughter(i));
+    const auto *dau = static_cast<const reco::GenParticle *>(p->daughter(i));
     int pid = dau->pdgId();
     allCount++;
     if (abs(pid) == 11)
@@ -740,7 +740,7 @@ void TauValidation::spinEffectsWHpm(
 void TauValidation::spinEffectsZH(const reco::GenParticle *boson, double weight) {
   int ntau(0);
   for (unsigned int i = 0; i < boson->numberOfDaughters(); i++) {
-    const reco::GenParticle *dau = static_cast<const reco::GenParticle *>(boson->daughter(i));
+    const auto *dau = static_cast<const reco::GenParticle *>(boson->daughter(i));
     if (ntau == 1 && dau->pdgId() == 15)
       return;
     if (boson->pdgId() != 15 && abs(dau->pdgId()) == 15)
@@ -759,7 +759,7 @@ void TauValidation::spinEffectsZH(const reco::GenParticle *boson, double weight)
     double x1(0), x2(0);
     TLorentzVector Zboson(boson->px(), boson->py(), boson->pz(), boson->energy());
     for (unsigned int i = 0; i < boson->numberOfDaughters(); i++) {
-      const reco::GenParticle *dau = static_cast<const reco::GenParticle *>(boson->daughter(i));
+      const auto *dau = static_cast<const reco::GenParticle *>(boson->daughter(i));
       int pid = dau->pdgId();
       if (abs(findMother(dau)) != 15 && abs(pid) == 15) {
         TauDecay_GenParticle TD;
@@ -1022,7 +1022,7 @@ double TauValidation::leadingPionMomentum(const reco::GenParticle *tau, double w
 TLorentzVector TauValidation::leadingPionP4(const reco::GenParticle *tau) {
   TLorentzVector p4(0, 0, 0, 0);
   for (unsigned int i = 0; i < tau->numberOfDaughters(); i++) {
-    const reco::GenParticle *dau = static_cast<const reco::GenParticle *>(tau->daughter(i));
+    const auto *dau = static_cast<const reco::GenParticle *>(tau->daughter(i));
     int pid = dau->pdgId();
     if (abs(pid) == 15)
       return leadingPionP4(dau);
@@ -1042,7 +1042,7 @@ TLorentzVector TauValidation::motherP4(const reco::GenParticle *tau) {
 double TauValidation::visibleTauEnergy(const reco::GenParticle *tau) {
   TLorentzVector p4(tau->px(), tau->py(), tau->pz(), tau->energy());
   for (unsigned int i = 0; i < tau->numberOfDaughters(); i++) {
-    const reco::GenParticle *dau = static_cast<const reco::GenParticle *>(tau->daughter(i));
+    const auto *dau = static_cast<const reco::GenParticle *>(tau->daughter(i));
     int pid = dau->pdgId();
     if (abs(pid) == 15)
       return visibleTauEnergy(dau);

@@ -68,7 +68,7 @@ void CastorDbService::buildCalibrations() {
   CastorCalibrations tool;
 
   //  std::cout << " length of id-vector: " << ids.size() << std::endl;
-  for (std::vector<DetId>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
+  for (auto id = ids.begin(); id != ids.end(); ++id) {
     // make
     bool ok = makeCastorCalibration(*id, &tool, pedsInADC);
     // store
@@ -92,7 +92,7 @@ void CastorDbService::buildCalibWidths() {
   CastorCalibrationWidths tool;
 
   //  std::cout << " length of id-vector: " << ids.size() << std::endl;
-  for (std::vector<DetId>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
+  for (auto id = ids.begin(); id != ids.end(); ++id) {
     // make
     bool ok = makeCastorCalibrationWidth(*id, &tool, pedsInADC);
     // store

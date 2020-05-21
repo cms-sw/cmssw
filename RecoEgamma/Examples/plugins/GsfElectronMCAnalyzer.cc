@@ -2432,8 +2432,7 @@ void GsfElectronMCAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSe
   histNum_->Fill((*gsfElectrons).size());
 
   // all rec electrons
-  for (reco::GsfElectronCollection::const_iterator gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end();
-       gsfIter++) {
+  for (auto gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end(); gsfIter++) {
     // preselect electrons
     if (gsfIter->pt() > maxPt_ || std::abs(gsfIter->eta()) > maxAbsEta_)
       continue;
@@ -2453,8 +2452,7 @@ void GsfElectronMCAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSe
     h_ele_Et_all->Fill(gsfIter->superCluster()->energy() / cosh(gsfIter->superCluster()->eta()));
     float enrj1 = gsfIter->superCluster()->energy();
     // mee
-    for (reco::GsfElectronCollection::const_iterator gsfIter2 = gsfIter + 1; gsfIter2 != gsfElectrons->end();
-         gsfIter2++) {
+    for (auto gsfIter2 = gsfIter + 1; gsfIter2 != gsfElectrons->end(); gsfIter2++) {
       math::XYZTLorentzVector p12 = (*gsfIter).p4() + (*gsfIter2).p4();
       float mee2 = p12.Dot(p12);
       float enrj2 = gsfIter2->superCluster()->energy();
@@ -2498,8 +2496,7 @@ void GsfElectronMCAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSe
   bool matchingID, matchingMotherID;
 
   // charge mis-ID
-  for (reco::GenParticleCollection::const_iterator mcIter = genParticles->begin(); mcIter != genParticles->end();
-       mcIter++) {
+  for (auto mcIter = genParticles->begin(); mcIter != genParticles->end(); mcIter++) {
     // select requested matching gen particle
     matchingID = false;
     for (unsigned int i = 0; i < matchingIDs_.size(); i++)
@@ -2530,9 +2527,7 @@ void GsfElectronMCAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSe
 
         // find best matched electron
         reco::GsfElectron bestGsfElectron;
-        for (reco::GsfElectronCollection::const_iterator gsfIter = gsfElectrons->begin();
-             gsfIter != gsfElectrons->end();
-             gsfIter++) {
+        for (auto gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end(); gsfIter++) {
           double dphi = gsfIter->phi() - mcIter->phi();
           if (std::abs(dphi) > CLHEP::pi)
             dphi = dphi < 0 ? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
@@ -2567,8 +2562,7 @@ void GsfElectronMCAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSe
   }
 
   // association mc-reco
-  for (reco::GenParticleCollection::const_iterator mcIter = genParticles->begin(); mcIter != genParticles->end();
-       mcIter++) {
+  for (auto mcIter = genParticles->begin(); mcIter != genParticles->end(); mcIter++) {
     // number of mc particles
     mcNum++;
 
@@ -2616,9 +2610,7 @@ void GsfElectronMCAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSe
 
         // find best matched electron
         reco::GsfElectron bestGsfElectron;
-        for (reco::GsfElectronCollection::const_iterator gsfIter = gsfElectrons->begin();
-             gsfIter != gsfElectrons->end();
-             gsfIter++) {
+        for (auto gsfIter = gsfElectrons->begin(); gsfIter != gsfElectrons->end(); gsfIter++) {
           double dphi = gsfIter->phi() - mcIter->phi();
           if (std::abs(dphi) > CLHEP::pi)
             dphi = dphi < 0 ? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;

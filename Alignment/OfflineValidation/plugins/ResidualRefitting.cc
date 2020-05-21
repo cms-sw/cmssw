@@ -173,8 +173,7 @@ void ResidualRefitting::analyze(const edm::Event& event, const edm::EventSetup& 
   if (debug_)
     printf("Data Dump:: Rebuilt GMR Muon Track With TeV refitter default\n");
   int iGmrRemake = 0;
-  for (reco::TrackCollection::const_iterator muon = muonTracks->begin(); muon != muonTracks->end();
-       muon++, iGmrRemake++) {
+  for (auto muon = muonTracks->begin(); muon != muonTracks->end(); muon++, iGmrRemake++) {
     if (iGmrRemake >= ResidualRefitting::N_MAX_STORED)
       break;  // error checking
               // from TrackInfoProducer/test/TrackInfoAnalyzerExample.cc
@@ -227,7 +226,7 @@ void ResidualRefitting::analyze(const edm::Event& event, const edm::EventSetup& 
 */
 
   int iGmrCyl = 0;
-  for (reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); muon++, iGmrCyl++) {
+  for (auto muon = muons->begin(); muon != muons->end(); muon++, iGmrCyl++) {
     dumpTrackRef(muon->combinedMuon(), "cmb");
     dumpTrackRef(muon->standAloneMuon(), "sam");
     dumpTrackRef(muon->track(), "trk");
@@ -277,7 +276,7 @@ void ResidualRefitting::CollectTrackHits(edm::Handle<reco::TrackCollection> trac
   int iTrackHit = 0;
   int numTracks = 0;
 
-  for (reco::TrackCollection::const_iterator muon = trackColl->begin(); muon != trackColl->end(); muon++) {
+  for (auto muon = trackColl->begin(); muon != trackColl->end(); muon++) {
     int iTrack = muon - trackColl->begin();
     reco::TrackRef trackref = reco::TrackRef(trackColl, iTrack);
     FreeTrajectoryState recoStart = ResidualRefitting::freeTrajStateMuon(trackref);
@@ -428,7 +427,7 @@ void ResidualRefitting::NewTrackMeasurements(edm::Handle<reco::TrackCollection> 
   int numTracks = 0;
   int recCounter = 0;
 
-  for (reco::TrackCollection::const_iterator muon = trackColl->begin(); muon != trackColl->end(); muon++) {
+  for (auto muon = trackColl->begin(); muon != trackColl->end(); muon++) {
     int iTrack = muon - trackColl->begin();
 
     reco::TrackRef trackref = reco::TrackRef(trackColl, iTrack);
@@ -473,7 +472,7 @@ int ResidualRefitting::MatchTrackWithRecHits(reco::TrackCollection::const_iterat
 
   for (auto const& rec : trackIt->recHits()) {
     bool foundMatch = false;
-    for (reco::TrackCollection::const_iterator refIt = ref->begin(); refIt != ref->end(); refIt++) {
+    for (auto refIt = ref->begin(); refIt != ref->end(); refIt++) {
       int iTrackMatch = refIt - ref->begin();
       if (foundMatch && TrackMatch != iTrackMatch)
         break;

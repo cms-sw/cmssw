@@ -7,7 +7,7 @@ CSCGains::~CSCGains() {}
 
 const CSCGains::Item& CSCGains::item(const CSCDetId& cscId, int strip) const {
   CSCIndexer indexer;
-  GainsMap::const_iterator mapItr = gains.find(indexer.dbIndex(cscId, strip));
+  auto mapItr = gains.find(indexer.dbIndex(cscId, strip));
   if (mapItr == gains.end()) {
     throw cms::Exception("CSCGains") << "Cannot find CSC conditions for chamber " << cscId;
   }

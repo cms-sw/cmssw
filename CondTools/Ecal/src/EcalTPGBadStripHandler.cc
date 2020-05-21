@@ -174,7 +174,7 @@ void popcon::EcalTPGBadStripHandler::getNewObjects() {
 
             econn->fetchConfigDataSet(&dataset_TpgBadStrip, &fe_badStrip_info);
 
-            EcalTPGStripStatus* stripStatus = new EcalTPGStripStatus;
+            auto* stripStatus = new EcalTPGStripStatus;
             typedef std::vector<FEConfigBadStripDat>::const_iterator CIfeped;
 
             FEConfigBadStripDat rd_badStrip;
@@ -183,7 +183,7 @@ void popcon::EcalTPGBadStripHandler::getNewObjects() {
             // put at 1 the strip that are bad
             int icells = 0;
             int icellsFound = 0;
-            for (CIfeped p = dataset_TpgBadStrip.begin(); p != dataset_TpgBadStrip.end(); p++) {
+            for (auto p = dataset_TpgBadStrip.begin(); p != dataset_TpgBadStrip.end(); p++) {
               rd_badStrip = *p;
 
               //int fed_num=rd_badStrip.getFedId();

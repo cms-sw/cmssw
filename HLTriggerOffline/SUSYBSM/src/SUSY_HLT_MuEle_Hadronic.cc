@@ -175,9 +175,8 @@ void SUSY_HLT_MuEle_Hadronic::analyze(edm::Event const &e, edm::EventSetup const
   }
 
   if (!ptMuon.empty() && !ptElectron.empty()) {
-    math::PtEtaPhiMLorentzVectorD *mu1 = new math::PtEtaPhiMLorentzVectorD(ptMuon[0], etaMuon[0], phiMuon[0], 0.106);
-    math::PtEtaPhiMLorentzVectorD *ele2 =
-        new math::PtEtaPhiMLorentzVectorD(ptElectron[0], etaElectron[0], phiElectron[0], 0.0005);
+    auto *mu1 = new math::PtEtaPhiMLorentzVectorD(ptMuon[0], etaMuon[0], phiMuon[0], 0.106);
+    auto *ele2 = new math::PtEtaPhiMLorentzVectorD(ptElectron[0], etaElectron[0], phiElectron[0], 0.0005);
     (*mu1) += (*ele2);
     h_triggerMuEleMass->Fill(mu1->M());
     delete mu1;
@@ -208,9 +207,7 @@ void SUSY_HLT_MuEle_Hadronic::analyze(edm::Event const &e, edm::EventSetup const
     int indexOfMatchedMuEle[2] = {-1};
     int matchedCounter = 0;
     int offlineCounter = 0;
-    for (reco::MuonCollection::const_iterator muon = MuonCollection->begin();
-         (muon != MuonCollection->end() && matchedCounter < 1);
-         ++muon) {
+    for (auto muon = MuonCollection->begin(); (muon != MuonCollection->end() && matchedCounter < 1); ++muon) {
       for (size_t off_i = 0; off_i < ptMuon.size(); ++off_i) {
         if (sqrt((muon->phi() - phiMuon[off_i]) * (muon->phi() - phiMuon[off_i]) +
                  (muon->eta() - etaMuon[off_i]) * (muon->eta() - etaMuon[off_i])) < 0.5) {
@@ -222,8 +219,7 @@ void SUSY_HLT_MuEle_Hadronic::analyze(edm::Event const &e, edm::EventSetup const
       offlineCounter++;
     }
 
-    for (reco::GsfElectronCollection::const_iterator electron = ElectronCollection->begin();
-         (electron != ElectronCollection->end() && matchedCounter < 2);
+    for (auto electron = ElectronCollection->begin(); (electron != ElectronCollection->end() && matchedCounter < 2);
          ++electron) {
       for (size_t off_i = 0; off_i < ptElectron.size(); ++off_i) {
         if (sqrt((electron->phi() - phiElectron[off_i]) * (electron->phi() - phiElectron[off_i]) +
@@ -238,17 +234,14 @@ void SUSY_HLT_MuEle_Hadronic::analyze(edm::Event const &e, edm::EventSetup const
 
     float caloHT = 0.0;
     float pfHT = 0.0;
-    for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end();
-         ++i_pfjet) {
+    for (auto i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end(); ++i_pfjet) {
       if (i_pfjet->pt() < ptThrJet_)
         continue;
       if (fabs(i_pfjet->eta()) > etaThrJet_)
         continue;
       pfHT += i_pfjet->pt();
     }
-    for (reco::CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin();
-         i_calojet != caloJetCollection->end();
-         ++i_calojet) {
+    for (auto i_calojet = caloJetCollection->begin(); i_calojet != caloJetCollection->end(); ++i_calojet) {
       if (i_calojet->pt() < ptThrJet_)
         continue;
       if (fabs(i_calojet->eta()) > etaThrJet_)

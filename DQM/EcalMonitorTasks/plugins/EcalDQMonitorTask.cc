@@ -38,7 +38,7 @@ EcalDQMonitorTask::EcalDQMonitorTask(edm::ParameterSet const& _ps)
 
   executeOnWorkers_(
       [&dependencies, &hasTaskToRun, &collector](ecaldqm::DQWorker* worker) {
-        ecaldqm::DQWorkerTask* task(dynamic_cast<ecaldqm::DQWorkerTask*>(worker));
+        auto* task(dynamic_cast<ecaldqm::DQWorkerTask*>(worker));
         if (!task)
           throw cms::Exception("InvalidConfiguration") << "Non-task DQWorker " << worker->getName() << " passed";
 
@@ -154,7 +154,7 @@ void EcalDQMonitorTask::analyze(edm::Event const& _evt, edm::EventSetup const& _
 
     short runType[ecaldqm::nDCC];
     std::fill_n(runType, ecaldqm::nDCC, -1);
-    for (EcalRawDataCollection::const_iterator dcchItr = dcchsHndl->begin(); dcchItr != dcchsHndl->end(); ++dcchItr) {
+    for (auto dcchItr = dcchsHndl->begin(); dcchItr != dcchsHndl->end(); ++dcchItr) {
       if (verbosity_ > 2)
         ss << dcchItr->getRunType() << " ";
       runType[dcchItr->id() - 1] = dcchItr->getRunType();

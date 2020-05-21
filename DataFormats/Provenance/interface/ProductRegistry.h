@@ -97,9 +97,7 @@ namespace edm {
     void callForEachBranch(T const& iFunc) {
       //NOTE: If implementation changes from a map, need to check that iterators are still valid
       // after an insert with the new container, else need to copy the container and iterate over the copy
-      for (ProductRegistry::ProductList::const_iterator itEntry = productList_.begin(), itEntryEnd = productList_.end();
-           itEntry != itEntryEnd;
-           ++itEntry) {
+      for (auto itEntry = productList_.begin(), itEntryEnd = productList_.end(); itEntry != itEntryEnd; ++itEntry) {
         iFunc(itEntry->second);
       }
     }

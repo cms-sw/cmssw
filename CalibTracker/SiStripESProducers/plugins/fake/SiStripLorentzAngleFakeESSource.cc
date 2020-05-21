@@ -83,9 +83,9 @@ namespace {  // helper methods
                   const std::vector<double>& estimatedValuesMax,
                   std::vector<bool>& uniform) {
     if (!estimatedValuesMax.empty()) {
-      std::vector<double>::const_iterator min = estimatedValuesMin.begin();
-      std::vector<double>::const_iterator max = estimatedValuesMax.begin();
-      std::vector<bool>::iterator uniformIt = uniform.begin();
+      auto min = estimatedValuesMin.begin();
+      auto max = estimatedValuesMax.begin();
+      auto uniformIt = uniform.begin();
       for (; min != estimatedValuesMin.end(); ++min, ++max, ++uniformIt) {
         if (*min != *max)
           *uniformIt = true;

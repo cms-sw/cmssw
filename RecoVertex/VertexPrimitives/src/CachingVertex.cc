@@ -354,8 +354,7 @@ float CachingVertex<N>::degreesOfFreedom() const {
 template <unsigned int N>
 void CachingVertex<N>::computeNDF() const {
   theNDF = 0;
-  for (typename std::vector<RefCountedVertexTrack>::const_iterator itk = theTracks.begin(); itk != theTracks.end();
-       ++itk) {
+  for (auto itk = theTracks.begin(); itk != theTracks.end(); ++itk) {
     theNDF += (**itk).weight();  // adds up weights
   }
   theNDF *= 2.;                                // times 2df for each track
@@ -382,10 +381,10 @@ typename CachingVertex<N>::AlgebraicMatrixMM CachingVertex<N>::tkToTkCovariance(
       tr2 = t1;
       transp = true;
     }
-    typename TrackToTrackMap::const_iterator it = theCovMap.find(tr1);
+    auto it = theCovMap.find(tr1);
     if (it != theCovMap.end()) {
       const TrackMap& tm = it->second;
-      typename TrackMap::const_iterator nit = tm.find(tr2);
+      auto nit = tm.find(tr2);
       if (nit != tm.end()) {
         if (transp)
           return (ROOT::Math::Transpose(nit->second));
@@ -416,7 +415,7 @@ CachingVertex<N>::operator TransientVertex() const {
   TTtoTTmap ttCovMap;
   // float theMinWeight = 0.5;
 
-  for (typename std::vector<RefCountedVertexTrack>::const_iterator i = theTracks.begin(); i != theTracks.end(); ++i) {
+  for (auto i = theTracks.begin(); i != theTracks.end(); ++i) {
     // discard tracks with too low weight
     // if ((**i).weight() < theMinWeight) continue;
 
@@ -427,7 +426,7 @@ CachingVertex<N>::operator TransientVertex() const {
 
     //Fill in the tk-to-tk covariance map
     if (theCovMapAvailable) {
-      for (typename std::vector<RefCountedVertexTrack>::const_iterator j = (i + 1); j != theTracks.end(); ++j) {
+      for (auto j = (i + 1); j != theTracks.end(); ++j) {
         reco::TransientTrack t2((**j).linearizedTrack()->track());
         ttCovMap[t1][t2] = tkToTkCovariance(*i, *j);
       }

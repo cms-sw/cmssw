@@ -56,7 +56,7 @@ bool NJetsMC::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) 
   int count = 0;
   bool result = false;
 
-  for (reco::GenJetCollection::const_iterator iJet = genJets->begin(); iJet != genJets->end(); ++iJet) {
+  for (auto iJet = genJets->begin(); iJet != genJets->end(); ++iJet) {
     reco::GenJet myJet = reco::GenJet(*iJet);
 
     if (myJet.pt() > minpt_)

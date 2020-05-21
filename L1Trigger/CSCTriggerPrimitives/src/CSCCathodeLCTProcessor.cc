@@ -426,8 +426,7 @@ void CSCCathodeLCTProcessor::readComparatorDigis(
     std::vector<int> halfstrip[CSCConstants::NUM_LAYERS][CSCConstants::NUM_HALF_STRIPS_7CFEBS]) {
   for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
     int i_digi = 0;  // digi counter, for dumps.
-    for (std::vector<CSCComparatorDigi>::iterator pld = digiV[i_layer].begin(); pld != digiV[i_layer].end();
-         pld++, i_digi++) {
+    for (auto pld = digiV[i_layer].begin(); pld != digiV[i_layer].end(); pld++, i_digi++) {
       // Dump raw digi info.
       if (infoV > 1) {
         std::ostringstream strstrm;
@@ -941,7 +940,7 @@ bool CSCCathodeLCTProcessor::patternFinding(
         // calculate median
         const int sz = mset_for_median.size();
         if (sz > 0) {
-          std::multiset<int>::iterator im = mset_for_median.begin();
+          auto im = mset_for_median.begin();
           if (sz > 1)
             std::advance(im, sz / 2 - 1);
           if (sz == 1)

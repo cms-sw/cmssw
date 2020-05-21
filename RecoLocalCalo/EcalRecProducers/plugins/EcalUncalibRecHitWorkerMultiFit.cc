@@ -309,7 +309,7 @@ void EcalUncalibRecHitWorkerMultiFit::run(const edm::Event& evt,
         fullpulsecov(i + 7, j + 7) = aPulseCov->covval[i][j];
 
     // compute the right bin of the pulse shape using time calibration constants
-    EcalTimeCalibConstantMap::const_iterator it = itime->find(detid);
+    auto it = itime->find(detid);
     EcalTimeCalibConstant itimeconst = 0;
     if (it != itime->end()) {
       itimeconst = (*it);

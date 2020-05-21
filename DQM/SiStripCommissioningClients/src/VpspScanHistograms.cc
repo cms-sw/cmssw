@@ -59,7 +59,7 @@ void VpspScanHistograms::histoAnalysis(bool debug) {
 
     // Retrieve pointers to profile histos for this FED channel
     std::vector<TH1*> profs;
-    Histos::const_iterator ihis = iter->second.begin();
+    auto ihis = iter->second.begin();
     for (; ihis != iter->second.end(); ihis++) {
       TProfile* prof = ExtractTObject<TProfile>().extract((*ihis)->me_);
       if (prof) {
@@ -68,7 +68,7 @@ void VpspScanHistograms::histoAnalysis(bool debug) {
     }
 
     // Perform histo analysis
-    VpspScanAnalysis* anal = new VpspScanAnalysis(iter->first);
+    auto* anal = new VpspScanAnalysis(iter->first);
     VpspScanAlgorithm algo(this->pset(), anal);
     algo.analysis(profs);
     data()[iter->first] = anal;
@@ -106,8 +106,8 @@ void VpspScanHistograms::histoAnalysis(bool debug) {
 // -----------------------------------------------------------------------------
 /** */
 void VpspScanHistograms::printAnalyses() {
-  Analyses::iterator ianal = data().begin();
-  Analyses::iterator janal = data().end();
+  auto ianal = data().begin();
+  auto janal = data().end();
   for (; ianal != janal; ++ianal) {
     if (ianal->second) {
       std::stringstream ss;

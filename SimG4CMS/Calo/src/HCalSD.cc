@@ -503,7 +503,7 @@ double HCalSD::getEnergyDeposit(const G4Step* aStep) {
   }
 
   if (suppressHeavy) {
-    TrackInformation* trkInfo = (TrackInformation*)(theTrack->GetUserInformation());
+    auto* trkInfo = (TrackInformation*)(theTrack->GetUserInformation());
     if (trkInfo) {
       int pdg = theTrack->GetDefinition()->GetPDGEncoding();
       if (!(trkInfo->isPrimary())) {  // Only secondary particles
@@ -957,7 +957,7 @@ double HCalSD::layerWeight(int det, const G4ThreeVector& pos, int depth, int lay
         numberingFromDDD->unitID(det, math::XYZVectorD(pos.x(), pos.y(), pos.z()), depth, lay);
     modifyDepth(tmp);
     uint32_t id = HcalTestNumbering::packHcalIndex(tmp.subdet, tmp.zside, 1, tmp.etaR, tmp.phis, tmp.lay);
-    std::map<uint32_t, double>::const_iterator ite = layerWeights.find(id);
+    auto ite = layerWeights.find(id);
     if (ite != layerWeights.end())
       wt = ite->second;
 #ifdef EDM_ML_DEBUG

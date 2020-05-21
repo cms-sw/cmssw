@@ -100,12 +100,11 @@ namespace {
 }  // namespace
 
 void MuonResiduals6DOFrphiFitter_FCN(int &npar, double *gin, double &fval, double *par, int iflag) {
-  MuonResidualsFitterFitInfo *fitinfo = (MuonResidualsFitterFitInfo *)(minuit->GetObjectFit());
+  auto *fitinfo = (MuonResidualsFitterFitInfo *)(minuit->GetObjectFit());
   MuonResidualsFitter *fitter = fitinfo->fitter();
 
   fval = 0.;
-  for (std::vector<double *>::const_iterator resiter = fitter->residuals_begin(); resiter != fitter->residuals_end();
-       ++resiter) {
+  for (auto resiter = fitter->residuals_begin(); resiter != fitter->residuals_end(); ++resiter) {
     const double residual = (*resiter)[MuonResiduals6DOFrphiFitter::kResid];
     const double resslope = (*resiter)[MuonResiduals6DOFrphiFitter::kResSlope];
     const double positionX = (*resiter)[MuonResiduals6DOFrphiFitter::kPositionX];
@@ -197,7 +196,7 @@ double MuonResiduals6DOFrphiFitter::sumofweights() {
   sum_of_weights = 0.;
   number_of_hits = 0.;
   weight_alignment = m_weightAlignment;
-  for (std::vector<double *>::const_iterator resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
+  for (auto resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
     if (m_weightAlignment) {
       double redchi2 = (*resiter)[kRedChi2];
       if (TMath::Prob(redchi2 * 6, 6) < 0.99) {  // no spikes allowed
@@ -307,7 +306,7 @@ double MuonResiduals6DOFrphiFitter::plot(std::string name, TFileDirectory *dir, 
   double mean_trackx = 0., mean_tracky = 0., mean_trackdxdz = 0., mean_trackdydz = 0.;
   double sum_w = 0.;
 
-  for (std::vector<double *>::const_iterator rit = residuals_begin(); rit != residuals_end(); ++rit) {
+  for (auto rit = residuals_begin(); rit != residuals_end(); ++rit) {
     const double redchi2 = (*rit)[kRedChi2];
     double weight = 1. / redchi2;
     if (!m_weightAlignment)
@@ -552,14 +551,14 @@ double MuonResiduals6DOFrphiFitter::plot(std::string name, TFileDirectory *dir, 
   if (residualsModel() == kPureGaussian2D)
     fitparameters[10] = 0.;
 
-  for (std::vector<TF1 *>::const_iterator itr = fitlines.begin(); itr != fitlines.end(); itr++) {
+  for (auto itr = fitlines.begin(); itr != fitlines.end(); itr++) {
     (*itr)->SetParameters(fitparameters);
     (*itr)->SetLineColor(2);
     (*itr)->SetLineWidth(2);
     (*itr)->Write();
   }
 
-  for (std::vector<double *>::const_iterator resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
+  for (auto resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
     const double resid = (*resiter)[kResid];
     const double resslope = (*resiter)[kResSlope];
     const double positionX = (*resiter)[kPositionX];

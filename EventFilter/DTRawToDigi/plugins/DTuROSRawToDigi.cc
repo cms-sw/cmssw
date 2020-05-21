@@ -158,8 +158,8 @@ void DTuROSRawToDigi::process(int DTuROSFED,
 
   //--> DTuROS data
 
-  std::map<int, int>::iterator sziterator = slot_size.begin();
-  std::map<int, int>::iterator szitend = slot_size.end();
+  auto sziterator = slot_size.begin();
+  auto szitend = slot_size.end();
   for (; sziterator != szitend; ++sziterator) {
     for (int k = 0; k < sziterator->second; ++k) {
       readline(lines, dataWord);
@@ -213,8 +213,8 @@ void DTuROSRawToDigi::process(int DTuROSFED,
 
   //--> analyze event
 
-  std::vector<long>::iterator DTuROSiterator = DTuROSWordContainer.begin();
-  std::vector<long>::iterator DTuROSitend = DTuROSWordContainer.end();
+  auto DTuROSiterator = DTuROSWordContainer.begin();
+  auto DTuROSitend = DTuROSWordContainer.end();
 
   const int posSlot = 56;  // positions 56 -> 59
 

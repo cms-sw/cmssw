@@ -163,7 +163,7 @@ double CaloHitResponse::analogSignalAmplitude(const DetId &detId,
 
 CaloSamples *CaloHitResponse::findSignal(const DetId &detId) {
   CaloSamples *result = nullptr;
-  AnalogSignalMap::iterator signalItr = theAnalogSignalMap.find(detId);
+  auto signalItr = theAnalogSignalMap.find(detId);
   if (signalItr == theAnalogSignalMap.end()) {
     result = nullptr;
   } else {

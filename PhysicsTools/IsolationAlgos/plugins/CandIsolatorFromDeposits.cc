@@ -69,7 +69,7 @@ CandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &
   typedef std::vector<std::string> vstring;
   vstring vetos = iConfig.getParameter<vstring>("vetos");
   reco::isodeposit::EventDependentAbsVeto *evdep;
-  for (vstring::const_iterator it = vetos.begin(), ed = vetos.end(); it != ed; ++it) {
+  for (auto it = vetos.begin(), ed = vetos.end(); it != ed; ++it) {
     vetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep, iC));
     if (evdep)
       evdepVetos_.push_back(evdep);
@@ -86,7 +86,7 @@ CandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &
   //std::cout << "CandIsolatorFromDeposits::SingleDeposit::SingleDeposit: Total of " << vetos_.size() << " vetos" << std::endl;
 }
 void CandIsolatorFromDeposits::SingleDeposit::cleanup() {
-  for (AbsVetos::iterator it = vetos_.begin(), ed = vetos_.end(); it != ed; ++it) {
+  for (auto it = vetos_.begin(), ed = vetos_.end(); it != ed; ++it) {
     delete *it;
   }
   vetos_.clear();
@@ -95,7 +95,7 @@ void CandIsolatorFromDeposits::SingleDeposit::cleanup() {
 }
 void CandIsolatorFromDeposits::SingleDeposit::open(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   iEvent.getByToken(srcToken_, hDeps_);
-  for (EventDependentAbsVetos::iterator it = evdepVetos_.begin(), ed = evdepVetos_.end(); it != ed; ++it) {
+  for (auto it = evdepVetos_.begin(), ed = evdepVetos_.end(); it != ed; ++it) {
     (*it)->setEvent(iEvent, iSetup);
   }
 }
@@ -104,7 +104,7 @@ double CandIsolatorFromDeposits::SingleDeposit::compute(const reco::CandidateBas
   const IsoDeposit &dep = (*hDeps_)[cand];
   double eta = dep.eta(), phi = dep.phi();  // better to center on the deposit direction
                                             // that could be, e.g., the impact point at calo
-  for (AbsVetos::iterator it = vetos_.begin(), ed = vetos_.end(); it != ed; ++it) {
+  for (auto it = vetos_.begin(), ed = vetos_.end(); it != ed; ++it) {
     (*it)->centerOn(eta, phi);
   }
   double weight = (usesFunction_ ? weightExpr_(*cand) : weight_);
@@ -138,7 +138,7 @@ double CandIsolatorFromDeposits::SingleDeposit::compute(const reco::CandidateBas
 CandIsolatorFromDeposits::CandIsolatorFromDeposits(const ParameterSet &par) {
   typedef std::vector<edm::ParameterSet> VPSet;
   VPSet depPSets = par.getParameter<VPSet>("deposits");
-  for (VPSet::const_iterator it = depPSets.begin(), ed = depPSets.end(); it != ed; ++it) {
+  for (auto it = depPSets.begin(), ed = depPSets.end(); it != ed; ++it) {
     sources_.push_back(SingleDeposit(*it, consumesCollector()));
   }
   if (sources_.empty())
@@ -178,8 +178,8 @@ void CandIsolatorFromDeposits::produce(Event &event, const EventSetup &eventSetu
     event.get(depI.id(), candH);
     const edm::View<reco::Candidate> &candV = *candH;
 
-    iterator_ii depII = depI.begin();
-    iterator_ii depIIEnd = depI.end();
+    auto depII = depI.begin();
+    auto depIIEnd = depI.end();
     size_t iRet = 0;
     for (; depII != depIIEnd; ++depII, ++iRet) {
       double sum = 0;

@@ -56,7 +56,7 @@ std::unique_ptr<const L1TUtmTriggerMenu> L1TUtmTriggerMenuOnlineProd::newObject(
 
   std::istringstream iss(l1Menu);
 
-  const L1TUtmTriggerMenu* cmenu = reinterpret_cast<const L1TUtmTriggerMenu*>(tmeventsetup::getTriggerMenu(iss));
+  const auto* cmenu = reinterpret_cast<const L1TUtmTriggerMenu*>(tmeventsetup::getTriggerMenu(iss));
   return std::unique_ptr<const L1TUtmTriggerMenu>(cmenu);
 }
 

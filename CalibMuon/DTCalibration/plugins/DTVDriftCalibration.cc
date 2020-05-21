@@ -173,7 +173,7 @@ void DTVDriftCalibration::analyze(const Event& event, const EventSetup& eventSet
         phiSeg2DPosInCham = phiSeg->localPosition();
         phiSeg2DDirInCham = phiSeg->localDirection();
         vector<DTRecHit1D> phiHits = phiSeg->specificRecHits();
-        for (vector<DTRecHit1D>::const_iterator hit = phiHits.begin(); hit != phiHits.end(); ++hit) {
+        for (auto hit = phiHits.begin(); hit != phiHits.end(); ++hit) {
           DTWireId wireId = (*hit).wireId();
           DTSuperLayerId slId = wireId.superlayerId();
           hitsBySLMap[slId].push_back(*hit);
@@ -213,9 +213,7 @@ void DTVDriftCalibration::analyze(const Event& event, const EventSetup& eventSet
         LogWarning("Calibration") << "4d segment with only Z";
 
       //loop over the segments
-      for (map<DTSuperLayerId, vector<DTRecHit1D> >::const_iterator slIdAndHits = hitsBySLMap.begin();
-           slIdAndHits != hitsBySLMap.end();
-           ++slIdAndHits) {
+      for (auto slIdAndHits = hitsBySLMap.begin(); slIdAndHits != hitsBySLMap.end(); ++slIdAndHits) {
         if (slIdAndHits->second.size() < 3)
           continue;
         DTSuperLayerId slId = slIdAndHits->first;
@@ -285,9 +283,7 @@ void DTVDriftCalibration::endJob() {
 
   // write the TMax histograms of each SL to the root file
   if (theGranularity == bySL) {
-    for (map<DTWireId, cellInfo*>::const_iterator wireCell = theWireIdAndCellMap.begin();
-         wireCell != theWireIdAndCellMap.end();
-         ++wireCell) {
+    for (auto wireCell = theWireIdAndCellMap.begin(); wireCell != theWireIdAndCellMap.end(); ++wireCell) {
       cellInfo* cell = theWireIdAndCellMap[(*wireCell).first];
       hTMaxCell* cellHists = cell->getHists();
       theFile->cd();
@@ -402,7 +398,7 @@ void DTVDriftCalibration::cellInfo::add(const vector<const TMax*>& _tMaxes) {
   unsigned t0_134 = 0;
   unsigned t0_234 = 0;
   unsigned hSubGroup = 0;
-  for (vector<const TMax*>::const_iterator it = tMaxes.begin(); it != tMaxes.end(); ++it) {
+  for (auto it = tMaxes.begin(); it != tMaxes.end(); ++it) {
     if (*it == nullptr) {
       continue;
     } else {

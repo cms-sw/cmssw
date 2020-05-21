@@ -165,7 +165,7 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
   int delt_ieta = 0;
   int delt_iphi = 0;
 
-  for (EcalRecHitCollection::const_iterator it = ecalhitsCollEB->begin(); it != ecalhitsCollEB->end(); ++it) {
+  for (auto it = ecalhitsCollEB->begin(); it != ecalhitsCollEB->end(); ++it) {
     EBDetId dit = it->detid();
 
     iphicell = dit.iphi();
@@ -351,7 +351,7 @@ void PhotonMIPHaloTagger::GetSeedHighestE(const reco::Photon* photon,
   std::vector<std::pair<DetId, float> >::const_iterator detitr;
   for (detitr = PhotonHit_DetIds.begin(); detitr != PhotonHit_DetIds.end(); ++detitr) {
     if (((*detitr).first).det() == DetId::Ecal && ((*detitr).first).subdetId() == EcalBarrel) {
-      EcalRecHitCollection::const_iterator j = Brechit->find(((*detitr).first));
+      auto j = Brechit->find(((*detitr).first));
       EcalRecHitCollection::const_iterator thishit;
 
       if (j != Brechit->end())

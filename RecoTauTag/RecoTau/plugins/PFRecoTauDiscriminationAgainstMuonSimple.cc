@@ -110,7 +110,7 @@ namespace {
     const reco::CandidatePtr& pfLeadChargedHadron = pfTau->leadChargedHadrCand();
     bool passesCaloMuonVeto = true;
     if (pfLeadChargedHadron.isNonnull()) {
-      const pat::PackedCandidate* pCand = dynamic_cast<const pat::PackedCandidate*>(pfLeadChargedHadron.get());
+      const auto* pCand = dynamic_cast<const pat::PackedCandidate*>(pfLeadChargedHadron.get());
       if (pCand != nullptr) {
         double rawCaloEnergyFraction = pCand->rawCaloFraction();
         //if ( !(rawCaloEnergyFraction > 0.) ) rawCaloEnergyFraction = 99; //MB: hack against cases when rawCaloEnergyFraction is not stored; it makes performance of the H/P cut rather poor

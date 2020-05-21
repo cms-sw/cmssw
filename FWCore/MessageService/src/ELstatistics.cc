@@ -161,7 +161,7 @@ namespace edm {
 
       // Account for this message, making a new table entry if needed:
       //
-      ELmap_stats::iterator s = stats.find(msg.xid());
+      auto s = stats.find(msg.xid());
       if (s == stats.end()) {
         if (tableLimit < 0 || static_cast<int>(stats.size()) < tableLimit) {
           stats[msg.xid()] = StatsCount();
@@ -231,9 +231,9 @@ namespace edm {
         part3() : n(0L), t(0L) { ; }
       } p3[ELseverityLevel::nLevels];
 
-      std::set<std::string>::iterator gcEnd = groupedCategories.end();
+      auto gcEnd = groupedCategories.end();
       std::set<std::string> gCats = groupedCategories;  // TEMP FOR DEBUGGING SANITY
-      for (ELmap_stats::const_iterator i = stats.begin(); i != stats.end(); ++i) {
+      for (auto i = stats.begin(); i != stats.end(); ++i) {
         // If this is a grouped category, wait till later to output its stats
         std::string cat = (*i).first.id;
         if (groupedCategories.find(cat) != gcEnd) {  // 8/16/07 mf
@@ -266,12 +266,12 @@ namespace edm {
       }  // for i
 
       // ----- Part Ia:  The grouped categories
-      for (std::set<std::string>::iterator g = groupedCategories.begin(); g != gcEnd; ++g) {
+      for (auto g = groupedCategories.begin(); g != gcEnd; ++g) {
         int groupTotal = 0;
         int groupAggregateN = 0;
         ELseverityLevel severityLevel;
         bool groupIgnored = true;
-        for (ELmap_stats::const_iterator i = stats.begin(); i != stats.end(); ++i) {
+        for (auto i = stats.begin(); i != stats.end(); ++i) {
           if ((*i).first.id == *g) {
             if (groupTotal == 0)
               severityLevel = (*i).first.severity;
@@ -306,7 +306,7 @@ namespace edm {
       // -----  Summary part II:
       //
       n = 0;
-      for (ELmap_stats::const_iterator i = stats.begin(); i != stats.end(); ++i) {
+      for (auto i = stats.begin(); i != stats.end(); ++i) {
         std::string cat = (*i).first.id;
         if (groupedCategories.find(cat) != gcEnd) {  // 8/16/07 mf
           continue;                                  // We will process these categories later
@@ -367,11 +367,11 @@ namespace edm {
         part3() : n(0L), t(0L) { ; }
       } p3[ELseverityLevel::nLevels];
 
-      std::set<std::string>::iterator gcEnd = groupedCategories.end();
+      auto gcEnd = groupedCategories.end();
       std::set<std::string> gCats = groupedCategories;  // TEMP FOR DEBUGGING SANITY
 
       // ----- Part I:  The ungrouped categories
-      for (ELmap_stats::const_iterator i = stats.begin(); i != stats.end(); ++i) {
+      for (auto i = stats.begin(); i != stats.end(); ++i) {
         // If this is a grouped category, wait till later to output its stats
         std::string cat = (*i).first.id;
         if (groupedCategories.find(cat) != gcEnd) {
@@ -401,11 +401,11 @@ namespace edm {
       }  // for i
 
       // ----- Part Ia:  The grouped categories
-      for (std::set<std::string>::iterator g = groupedCategories.begin(); g != gcEnd; ++g) {
+      for (auto g = groupedCategories.begin(); g != gcEnd; ++g) {
         int groupTotal = 0;
         int groupAggregateN = 0;
         ELseverityLevel severityLevel;
-        for (ELmap_stats::const_iterator i = stats.begin(); i != stats.end(); ++i) {
+        for (auto i = stats.begin(); i != stats.end(); ++i) {
           if ((*i).first.id == *g) {
             if (groupTotal == 0)
               severityLevel = (*i).first.severity;

@@ -106,7 +106,7 @@ namespace edm {
       double xp = (xoff_ * cm2mm_ + (-1) * parY_->at(ip));  // 90 degree rotation applied
       double yp = (yoff_ * cm2mm_ + parX_->at(ip));         // 90 degree rotation applied
       double zp = zpos_ * cm2mm_;
-      HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(xp, yp, zp));
+      auto* Vtx = new HepMC::GenVertex(HepMC::FourVector(xp, yp, zp));
       double pxGeV = MeV2GeV_ * (-1) * parPy_->at(ip);  // 90 degree rotation applied
       double pyGeV = MeV2GeV_ * parPx_->at(ip);         // 90 degree rotation applied
       double pzGeV = MeV2GeV_ * parPz_->at(ip);
@@ -128,7 +128,7 @@ namespace edm {
       }
 
       HepMC::FourVector p(px, py, pz, energy);
-      HepMC::GenParticle* part = new HepMC::GenParticle(p, partID, 1);
+      auto* part = new HepMC::GenParticle(p, partID, 1);
       part->suggest_barcode(barcode);
       barcode++;
       Vtx->add_particle_out(part);
@@ -136,7 +136,7 @@ namespace edm {
       if (fAddAntiParticle) {
         HepMC::FourVector ap(-px, -py, -pz, energy);
         int apartID = (partID == 22 || partID == 23) ? partID : -partID;
-        HepMC::GenParticle* apart = new HepMC::GenParticle(ap, apartID, 1);
+        auto* apart = new HepMC::GenParticle(ap, apartID, 1);
         apart->suggest_barcode(barcode);
         if (fVerbosity > 0)
           edm::LogVerbatim("BeamMomentumGun")

@@ -86,7 +86,7 @@ bool HLTExclDiJetFilter<T>::hltFilter(edm::Event& iEvent,
 
     TRef JetRef1, JetRef2;
 
-    typename TCollection::const_iterator recojet(recojets->begin());
+    auto recojet(recojets->begin());
     for (; recojet <= (recojets->begin() + 1); ++recojet) {
       //
       if (countjets == 0) {

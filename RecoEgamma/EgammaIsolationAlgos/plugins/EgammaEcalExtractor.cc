@@ -30,7 +30,7 @@ reco::IsoDeposit EgammaEcalExtractor::deposit(const edm::Event &ev,
   ev.getByToken(superClusterToken_, superClusterCollectionH);
   ev.getByToken(basicClusterToken_, basicClusterCollectionH);
 
-  reco::SuperClusterRef sc = candidate.get<reco::SuperClusterRef>();
+  auto sc = candidate.get<reco::SuperClusterRef>();
   math::XYZPoint position = sc->position();
   // match the photon hybrid supercluster with those with Algo==0 (island)
   double delta1 = 1000.;
@@ -43,9 +43,7 @@ reco::IsoDeposit EgammaEcalExtractor::deposit(const edm::Event &ev,
   deposit.setVeto(reco::IsoDeposit::Veto(candDir, 0));  // no veto is needed for this deposit
   deposit.addCandEnergy(sc->energy() * sin(2 * atan(exp(-sc->eta()))));
 
-  for (reco::SuperClusterCollection::const_iterator scItr = superClusterCollectionH->begin();
-       scItr != superClusterCollectionH->end();
-       ++scItr) {
+  for (auto scItr = superClusterCollectionH->begin(); scItr != superClusterCollectionH->end(); ++scItr) {
     const reco::SuperCluster *supercluster = &(*scItr);
 
     if (supercluster->seed()->algo() == 0) {
@@ -61,9 +59,7 @@ reco::IsoDeposit EgammaEcalExtractor::deposit(const edm::Event &ev,
   const reco::BasicCluster *cluster = nullptr;
 
   //loop over basic clusters
-  for (reco::BasicClusterCollection::const_iterator cItr = basicClusterCollectionH->begin();
-       cItr != basicClusterCollectionH->end();
-       ++cItr) {
+  for (auto cItr = basicClusterCollectionH->begin(); cItr != basicClusterCollectionH->end(); ++cItr) {
     cluster = &(*cItr);
     //    double ebc_bcchi2 = cluster->chi2();
     int ebc_bcalgo = cluster->algo();

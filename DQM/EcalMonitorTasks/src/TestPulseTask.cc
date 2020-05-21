@@ -66,7 +66,7 @@ namespace ecaldqm {
   }
 
   void TestPulseTask::runOnRawData(EcalRawDataCollection const& _rawData) {
-    for (EcalRawDataCollection::const_iterator rItr(_rawData.begin()); rItr != _rawData.end(); ++rItr) {
+    for (auto rItr(_rawData.begin()); rItr != _rawData.end(); ++rItr) {
       unsigned iDCC(rItr->id() - 1);
 
       if (!enable_[iDCC]) {
@@ -127,7 +127,7 @@ namespace ecaldqm {
 
     unsigned iME(-1);
 
-    for (EcalPnDiodeDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr) {
+    for (auto digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr) {
       EcalPnDiodeDetId const& id(digiItr->id());
 
       int iDCC(dccId(id) - 1);
@@ -176,7 +176,7 @@ namespace ecaldqm {
 
     unsigned iME(-1);
 
-    for (EcalUncalibratedRecHitCollection::const_iterator uhitItr(_uhits.begin()); uhitItr != _uhits.end(); ++uhitItr) {
+    for (auto uhitItr(_uhits.begin()); uhitItr != _uhits.end(); ++uhitItr) {
       DetId id(uhitItr->id());
 
       int iDCC(dccId(id) - 1);

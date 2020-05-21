@@ -97,8 +97,8 @@ bool HLTDiJetEtaTopologyFilter<T>::hltFilter(edm::Event& iEvent,
   int n(0);
 
   if (objects->size() > 1) {  // events with two or more jets
-    typename TCollection::const_iterator iProbe(objects->begin());
-    typename TCollection::const_iterator iEnd(objects->end());
+    auto iProbe(objects->begin());
+    auto iEnd(objects->end());
     for (; iProbe != iEnd; ++iProbe) {
       if (iProbe->pt() < minPtProbe_)
         continue;
@@ -133,7 +133,7 @@ bool HLTDiJetEtaTopologyFilter<T>::hltFilter(edm::Event& iEvent,
       if (!isProbe)
         continue;
 
-      typename TCollection::const_iterator iTag(objects->begin());
+      auto iTag(objects->begin());
       for (; iTag != iEnd; ++iTag) {
         if (iTag == iProbe)
           continue;

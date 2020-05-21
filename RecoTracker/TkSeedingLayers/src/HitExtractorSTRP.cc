@@ -78,7 +78,7 @@ std::pair<bool, ProjectedSiStripRecHit2D*> HitExtractorSTRP::skipThis(
     const TkTransientTrackingRecHitBuilder& ttrhBuilder,
     TkHitRef matched,
     edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > >& stripClusterMask) const {
-  const SiStripMatchedRecHit2D& hit = (SiStripMatchedRecHit2D const&)(matched);
+  const auto& hit = (SiStripMatchedRecHit2D const&)(matched);
 
   assert(dynamic_cast<SiStripMatchedRecHit2D const*>(&matched));
 

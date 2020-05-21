@@ -47,7 +47,7 @@ void HLTExoticaPlotter::plotterBookHistos(DQMStore::IBooker &iBooker,
                                           const edm::Run &iRun,
                                           const edm::EventSetup &iSetup) {
   LogDebug("ExoticaValidation") << "In HLTExoticaPlotter::plotterBookHistos()";
-  for (std::set<unsigned int>::iterator it = _objectsType.begin(); it != _objectsType.end(); ++it) {
+  for (auto it = _objectsType.begin(); it != _objectsType.end(); ++it) {
     std::vector<std::string> sources(2);
     sources[0] = "gen";
     sources[1] = "rec";
@@ -112,7 +112,7 @@ void HLTExoticaPlotter::analyze(const bool &isPassTrigger,
 
   std::map<unsigned int, int> countobjects;
   // Initializing the count of the used object
-  for (std::set<unsigned int>::iterator co = _objectsType.begin(); co != _objectsType.end(); ++co) {
+  for (auto co = _objectsType.begin(); co != _objectsType.end(); ++co) {
     countobjects[*co] = 0;
   }
 

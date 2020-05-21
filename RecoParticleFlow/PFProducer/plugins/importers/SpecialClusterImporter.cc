@@ -38,10 +38,9 @@ void SpecialClusterImporter<T>::importToBlock(const edm::Event& e, BlockElementI
   ecals.reserve(clusters->size());
   for (auto clus = bclus; clus != eclus; ++clus) {
     reco::PFClusterRef tempref(clusters, std::distance(bclus, clus));
-    reco::PFBlockElementCluster* newelem = new reco::PFBlockElementCluster(tempref, T);
+    auto* newelem = new reco::PFBlockElementCluster(tempref, T);
     for (auto scelem = elems.begin(); scelem != sc_end; ++scelem) {
-      const reco::PFBlockElementSuperCluster* elem_as_sc =
-          static_cast<const reco::PFBlockElementSuperCluster*>(scelem->get());
+      const auto* elem_as_sc = static_cast<const reco::PFBlockElementSuperCluster*>(scelem->get());
       const reco::SuperClusterRef& this_sc = elem_as_sc->superClusterRef();
 
       const bool in_sc = (elem_as_sc->fromPFSuperCluster() ?

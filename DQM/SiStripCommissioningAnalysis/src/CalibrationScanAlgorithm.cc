@@ -36,7 +36,7 @@ void CalibrationScanAlgorithm::extract(const std::vector<TH1*>& histos) {
     return;
   }
 
-  CommissioningAnalysis* tmp = const_cast<CommissioningAnalysis*>(anal());
+  auto* tmp = const_cast<CommissioningAnalysis*>(anal());
   cal_ = dynamic_cast<CalibrationScanAnalysis*>(tmp);
   if (!cal_) {
     edm::LogWarning(mlCommissioning_) << "[CalibrationScanAlgorithm::" << __func__ << "]"
@@ -50,7 +50,7 @@ void CalibrationScanAlgorithm::extract(const std::vector<TH1*>& histos) {
   }
 
   // Extract histograms
-  std::vector<TH1*>::const_iterator ihis = histos.begin();
+  auto ihis = histos.begin();
   unsigned int cnt = 0;
   for (; ihis != histos.end(); ihis++, cnt++) {
     // Check for NULL pointer

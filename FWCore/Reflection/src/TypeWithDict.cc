@@ -615,7 +615,7 @@ namespace edm {
     if (meth == nullptr) {
       return FunctionWithDict();
     }
-    FunctionWithDict theFunction = FunctionWithDict(meth);
+    auto theFunction = FunctionWithDict(meth);
     functionMap.insert(std::make_pair(key, theFunction));
     return theFunction;
   }

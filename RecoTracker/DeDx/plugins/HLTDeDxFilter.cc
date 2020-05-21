@@ -169,7 +169,7 @@ bool HLTDeDxFilter::hltFilter(edm::Event& iEvent,
         double caloEMDeltaRp5 = 0;
         double caloHadDeltaRp5 = 0;
         const CaloTowerCollection& caloTower = *caloTowersHandle.product();
-        for (CaloTowerCollection::const_iterator j = caloTower.begin(); j != caloTower.end(); j++) {
+        for (auto j = caloTower.begin(); j != caloTower.end(); j++) {
           auto caloDeltaR2 = deltaR2(eta[i], phi[i], j->eta(), j->phi());
           double Eem = j->emEnergy();
           double Ehad = j->hadEnergy();

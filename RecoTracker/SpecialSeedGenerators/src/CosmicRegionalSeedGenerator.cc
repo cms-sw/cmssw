@@ -103,8 +103,7 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
     //+++++++++++++++++++++++++
 
     int nmuons = 0;
-    for (reco::MuonCollection::const_iterator staMuon = muonsHandle->begin(); staMuon != muonsHandle->end();
-         ++staMuon) {
+    for (auto staMuon = muonsHandle->begin(); staMuon != muonsHandle->end(); ++staMuon) {
       //select sta muons
       if (!staMuon->isStandAloneMuon()) {
         LogDebug("CosmicRegionalSeedGenerator") << "This muon is not a stand alone muon";
@@ -176,7 +175,7 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
       //exclude region built in jets
       if (doJetsExclusionCheck_) {
         double delta_R_min = 1000.;
-        for (CaloJetCollection::const_iterator jet = caloJetsHandle->begin(); jet != caloJetsHandle->end(); jet++) {
+        for (auto jet = caloJetsHandle->begin(); jet != caloJetsHandle->end(); jet++) {
           if (jet->pt() < jetsPtMin_)
             continue;
 
@@ -254,9 +253,7 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
     //+++++++++++++++++++++++++
 
     int nmuons = 0;
-    for (reco::TrackCollection::const_iterator cosmicMuon = cosmicMuonsHandle->begin();
-         cosmicMuon != cosmicMuonsHandle->end();
-         ++cosmicMuon) {
+    for (auto cosmicMuon = cosmicMuonsHandle->begin(); cosmicMuon != cosmicMuonsHandle->end(); ++cosmicMuon) {
       //bit 25 as a coverage -1.4 < eta < 1.4
       if (abs(cosmicMuon->eta()) > 1.5)
         continue;
@@ -317,7 +314,7 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
       //exclude region built in jets
       if (doJetsExclusionCheck_) {
         double delta_R_min = 1000.;
-        for (CaloJetCollection::const_iterator jet = caloJetsHandle->begin(); jet != caloJetsHandle->end(); jet++) {
+        for (auto jet = caloJetsHandle->begin(); jet != caloJetsHandle->end(); jet++) {
           if (jet->pt() < jetsPtMin_)
             continue;
 
@@ -390,9 +387,7 @@ std::vector<std::unique_ptr<TrackingRegion>> CosmicRegionalSeedGenerator::region
     //+++++++++++++++++++++++++
 
     int nmuons = 0;
-    for (reco::RecoChargedCandidateCollection::const_iterator L2Muon = L2MuonsHandle->begin();
-         L2Muon != L2MuonsHandle->end();
-         ++L2Muon) {
+    for (auto L2Muon = L2MuonsHandle->begin(); L2Muon != L2MuonsHandle->end(); ++L2Muon) {
       reco::TrackRef tkL2Muon = L2Muon->get<reco::TrackRef>();
 
       //bit 25 as a coverage -1.4 < eta < 1.4

@@ -14,7 +14,7 @@ LASConstants::LASConstants() : atRadius(0.), tecBsZPosition(0.), atZPosition(0.)
 LASConstants::LASConstants(std::vector<edm::ParameterSet> const& theConstConf) {
   InitContainers();
 
-  for (std::vector<edm::ParameterSet>::const_iterator iter = theConstConf.begin(); iter < theConstConf.end(); ++iter) {
+  for (auto iter = theConstConf.begin(); iter < theConstConf.end(); ++iter) {
     if (iter->getParameter<std::string>("PSetName") == "BeamsplitterKinks")
       FillBsKinks(*iter);
     else if (iter->getParameter<std::string>("PSetName") == "Radii")

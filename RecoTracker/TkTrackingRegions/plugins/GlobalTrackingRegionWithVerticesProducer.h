@@ -110,7 +110,7 @@ public:
       if (doScaling)
         ev.getByToken(token_pc, pixelClusterDSV);
 
-      for (reco::VertexCollection::const_iterator iV = vertexCollection->begin(); iV != vertexCollection->end(); iV++) {
+      for (auto iV = vertexCollection->begin(); iV != vertexCollection->end(); iV++) {
         if (!iV->isValid())
           continue;
         if (iV->isFake() && !(theUseFakeVertices && theUseFixedError))

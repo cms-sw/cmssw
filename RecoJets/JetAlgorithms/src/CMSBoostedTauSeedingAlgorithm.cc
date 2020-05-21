@@ -162,16 +162,13 @@ FASTJET_BEGIN_NAMESPACE  // defined in fastjet/internal/base.hh
         std::cout << "after recombination:" << std::endl;
         std::vector<fastjet::PseudoJet> subjets = result_local.pieces();
         int idx_subjet = 0;
-        for (std::vector<fastjet::PseudoJet>::const_iterator subjet = subjets.begin(); subjet != subjets.end();
-             ++subjet) {
+        for (auto subjet = subjets.begin(); subjet != subjets.end(); ++subjet) {
           std::cout << " subjet #" << idx_subjet << ": Pt = " << subjet->pt() << ", eta = " << subjet->eta()
                     << ", phi = " << subjet->phi() << ", mass = " << subjet->m()
                     << " (#constituents = " << subjet->constituents().size() << ")" << std::endl;
           std::vector<fastjet::PseudoJet> constituents = subjet->constituents();
           int idx_constituent = 0;
-          for (std::vector<fastjet::PseudoJet>::const_iterator constituent = constituents.begin();
-               constituent != constituents.end();
-               ++constituent) {
+          for (auto constituent = constituents.begin(); constituent != constituents.end(); ++constituent) {
             if (constituent->pt() < 1.e-3)
               continue;  // CV: skip ghosts
             std::cout << "  constituent #" << idx_constituent << ": Pt = " << constituent->pt()
@@ -183,7 +180,7 @@ FASTJET_BEGIN_NAMESPACE  // defined in fastjet/internal/base.hh
         }
       }
 
-      CMSBoostedTauSeedingAlgorithmStructure* s = new CMSBoostedTauSeedingAlgorithmStructure(result_local);
+      auto* s = new CMSBoostedTauSeedingAlgorithmStructure(result_local);
       //s->_original_jet = jet;
       s->_mu = (jet.m2() > 0.) ? sqrt(std::max(subjet1.m2(), subjet2.m2()) / jet.m2()) : 0.;
       s->_y = (jet.m2() > 0.) ? subjet1.kt_distance(subjet2) / jet.m2() : 0.;

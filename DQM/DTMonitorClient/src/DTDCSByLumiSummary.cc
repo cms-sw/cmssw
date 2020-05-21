@@ -113,8 +113,8 @@ void DTDCSByLumiSummary::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
 
 void DTDCSByLumiSummary::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   // Book trend plots ME & loop on map to fill it with by lumi info
-  map<int, std::vector<float> >::const_iterator fracPerLumiIt = dcsFracPerLumi.begin();
-  map<int, std::vector<float> >::const_iterator fracPerLumiEnd = dcsFracPerLumi.end();
+  auto fracPerLumiIt = dcsFracPerLumi.begin();
+  auto fracPerLumiEnd = dcsFracPerLumi.end();
 
   if (fracPerLumiIt != fracPerLumiEnd) {
     int fLumi = dcsFracPerLumi.begin()->first;

@@ -112,16 +112,16 @@ void CaloTowersMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
     auto output = std::make_unique<CaloTowerCollection>();
     output->reserve(regTower->size() + extraTower->size());
 
-    CaloTowerCollection::const_iterator rt_begin = regTower->begin();
-    CaloTowerCollection::const_iterator rt_end = regTower->end();
-    CaloTowerCollection::const_iterator rt_it = rt_begin;
+    auto rt_begin = regTower->begin();
+    auto rt_end = regTower->end();
+    auto rt_it = rt_begin;
 
     //vector of overlapping towers
     std::vector<CaloTowerCollection::const_iterator> overlappingTowers;
     overlappingTowers.reserve(extraTower->size());
 
     for (; rt_it != rt_end; ++rt_it) {
-      CaloTowerCollection::const_iterator et_it = extraTower->find(rt_it->id());
+      auto et_it = extraTower->find(rt_it->id());
       if (et_it != extraTower->end()) {
         //need to merge the components
         //FIXME
@@ -139,9 +139,9 @@ void CaloTowersMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
         output->push_back(*rt_it);
       }
     }
-    CaloTowerCollection::const_iterator et_begin = extraTower->begin();
-    CaloTowerCollection::const_iterator et_end = extraTower->end();
-    CaloTowerCollection::const_iterator et_it = et_begin;
+    auto et_begin = extraTower->begin();
+    auto et_end = extraTower->end();
+    auto et_it = et_begin;
     for (; et_it != et_end; ++et_it) {
       if (std::find(overlappingTowers.begin(), overlappingTowers.end(), et_it) == overlappingTowers.end())
         //non overlapping tower
@@ -182,8 +182,8 @@ CaloTower CaloTowersMerger::mergedTower(const CaloTower& rt, const CaloTower& et
 
   // check if there are HCAL/ECAL constituents in the towers
 
-  std::vector<DetId>::const_iterator rc_begin = rt.constituents().begin();
-  std::vector<DetId>::const_iterator rc_end = rt.constituents().end();
+  auto rc_begin = rt.constituents().begin();
+  auto rc_end = rt.constituents().end();
   std::vector<DetId>::const_iterator rc_it;
 
   for (rc_it = rc_begin; rc_it != rc_end; ++rc_it) {
@@ -197,8 +197,8 @@ CaloTower CaloTowersMerger::mergedTower(const CaloTower& rt, const CaloTower& et
     break;
   }
 
-  std::vector<DetId>::const_iterator ec_begin = et.constituents().begin();
-  std::vector<DetId>::const_iterator ec_end = et.constituents().end();
+  auto ec_begin = et.constituents().begin();
+  auto ec_end = et.constituents().end();
   std::vector<DetId>::const_iterator ec_it;
 
   for (ec_it = ec_begin; ec_it != ec_end; ++ec_it) {

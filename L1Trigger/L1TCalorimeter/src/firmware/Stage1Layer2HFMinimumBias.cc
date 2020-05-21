@@ -17,7 +17,7 @@ void l1t::Stage1Layer2HFMinimumBias::processEvent(const std::vector<l1t::CaloReg
                                                   l1t::CaloSpare* spare) {
   int sumBits[4] = {0, 0, 0, 0};
 
-  for (std::vector<CaloRegion>::const_iterator region = regions.begin(); region != regions.end(); region++) {
+  for (auto region = regions.begin(); region != regions.end(); region++) {
     switch (region->hwEta()) {
       case 0:  //1-
         sumBits[1] += region->hwQual();

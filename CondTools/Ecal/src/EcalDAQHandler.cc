@@ -452,7 +452,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
   uint16_t newEEStatus[20][20][2];
 
   // we copy the last valid record to a temporary object peds
-  EcalDAQTowerStatus* daq_temp = new EcalDAQTowerStatus();
+  auto* daq_temp = new EcalDAQTowerStatus();
 
   if (tagInfo().size) {
     Ref daq_db = lastPayload();
@@ -473,7 +473,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
             dbStatus = (daq_db->barrel(ebid.hashedIndex())).getStatusCode();
             oldEBStatus[iphi - 1][ieta - 1][k] = dbStatus;
 
-            EcalDAQTowerStatus::const_iterator it = daq_db->find(ebid.rawId());
+            auto it = daq_db->find(ebid.rawId());
             if (it != daq_db->end()) {
             } else {
               std::cout << "*** error channel not found: eta/phi =" << ieta << "/" << iphi << std::endl;
@@ -492,7 +492,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
           if (EcalScDetId::validDetId(ix, iy, iz)) {
             EcalScDetId eeid(ix, iy, iz);
 
-            EcalDAQTowerStatus::const_iterator it = daq_db->find(eeid.rawId());
+            auto it = daq_db->find(eeid.rawId());
 
             uint16_t dbStatus = 0;
             if (it != daq_db->end()) {
@@ -638,7 +638,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
         int SM[36] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
                       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
         int Sect[2][9] = {{0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0}};
-        for (fedIter p = fed_dat.begin(); p != fed_dat.end(); p++) {
+        for (auto p = fed_dat.begin(); p != fed_dat.end(); p++) {
           idfed = p->first;
           int sm = 0;
           int z = 0;
@@ -699,7 +699,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
       RunFEConfigDat rd_fe;
 
       int fe_conf_id = 0;
-      for (feConfIter p = feconfig.begin(); p != feconfig.end(); p++) {
+      for (auto p = feconfig.begin(); p != feconfig.end(); p++) {
         //	ecid_xt = p->first;
         rd_fe = p->second;
         fe_conf_id = rd_fe.getConfigId();
@@ -854,7 +854,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
 
       if (somediff) {
         // we copy the last valid record to the object that is sent to the DB
-        EcalDAQTowerStatus* daq_pop = new EcalDAQTowerStatus();
+        auto* daq_pop = new EcalDAQTowerStatus();
 
         int iz = -1;
         for (int k = 0; k < 2; k++) {
@@ -877,7 +877,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
               if (EcalScDetId::validDetId(ix, iy, iz)) {
                 EcalScDetId eeid(ix, iy, iz);
 
-                EcalDAQTowerStatus::const_iterator it = daq_temp->find(eeid.rawId());
+                auto it = daq_temp->find(eeid.rawId());
                 uint16_t dbStatus = 0;
                 if (it != daq_temp->end()) {
                   dbStatus = it->getStatusCode();

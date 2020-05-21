@@ -80,9 +80,7 @@ void RPCSeedrecHitFinder::fillrecHits() {
 }
 
 void RPCSeedrecHitFinder::complete(unsigned int LayerIndex) {
-  for (MuonRecHitContainer::const_iterator it = recHitsRPC[LayersinRPC[LayerIndex]]->begin();
-       it != recHitsRPC[LayersinRPC[LayerIndex]]->end();
-       it++) {
+  for (auto it = recHitsRPC[LayersinRPC[LayerIndex]]->begin(); it != recHitsRPC[LayersinRPC[LayerIndex]]->end(); it++) {
     cout << "Completing layer[" << LayersinRPC[LayerIndex] << "]." << endl;
 
     // Check validation
@@ -103,7 +101,7 @@ void RPCSeedrecHitFinder::complete(unsigned int LayerIndex) {
     bool Clustercheck = false;
     if (ClusterSet.empty())
       Clustercheck = true;
-    for (std::vector<int>::const_iterator CluIter = ClusterSet.begin(); CluIter != ClusterSet.end(); CluIter++)
+    for (auto CluIter = ClusterSet.begin(); CluIter != ClusterSet.end(); CluIter++)
       if (ClusterSize == (*CluIter))
         Clustercheck = true;
     if (Clustercheck != true)
@@ -143,7 +141,7 @@ double RPCSeedrecHitFinder::getdeltaPhifromrecHits() {
   ConstMuonRecHitContainer sortRecHits = therecHits;
   sort(sortRecHits.begin(), sortRecHits.end(), lessPhi);
   cout << "Sorted recHit's Phi: ";
-  for (ConstMuonRecHitContainer::const_iterator iter = sortRecHits.begin(); iter != sortRecHits.end(); iter++)
+  for (auto iter = sortRecHits.begin(); iter != sortRecHits.end(); iter++)
     cout << (*iter)->globalPosition().phi() << ", ";
   cout << endl;
   // Calculate the deltaPhi, take care Geom::Phi always in range [-pi,pi)
@@ -152,8 +150,8 @@ double RPCSeedrecHitFinder::getdeltaPhifromrecHits() {
   if (sortRecHits.size() <= 1)
     return deltaPhi;
   if (sortRecHits.size() == 2) {
-    ConstMuonRecHitContainer::const_iterator iter1 = sortRecHits.begin();
-    ConstMuonRecHitContainer::const_iterator iter2 = sortRecHits.begin();
+    auto iter1 = sortRecHits.begin();
+    auto iter2 = sortRecHits.begin();
     iter2++;
     deltaPhi = (((*iter2)->globalPosition().phi().value() - (*iter1)->globalPosition().phi().value()) > M_PI)
                    ? (2 * M_PI - ((*iter2)->globalPosition().phi().value() - (*iter1)->globalPosition().phi().value()))
@@ -162,16 +160,16 @@ double RPCSeedrecHitFinder::getdeltaPhifromrecHits() {
   } else {
     deltaPhi = 2 * M_PI;
     int n = 0;
-    for (ConstMuonRecHitContainer::const_iterator iter = sortRecHits.begin(); iter != sortRecHits.end(); iter++) {
+    for (auto iter = sortRecHits.begin(); iter != sortRecHits.end(); iter++) {
       cout << "Before this loop deltaPhi is " << deltaPhi << endl;
       n++;
       double deltaPhi_more = 0;
       double deltaPhi_less = 0;
       if (iter == sortRecHits.begin()) {
         cout << "Calculateing frist loop..." << endl;
-        ConstMuonRecHitContainer::const_iterator iter_more = ++iter;
+        auto iter_more = ++iter;
         --iter;
-        ConstMuonRecHitContainer::const_iterator iter_less = sortRecHits.end();
+        auto iter_less = sortRecHits.end();
         --iter_less;
         cout << "more_Phi: " << (*iter_more)->globalPosition().phi()
              << ", less_Phi: " << (*iter_less)->globalPosition().phi()
@@ -181,9 +179,9 @@ double RPCSeedrecHitFinder::getdeltaPhifromrecHits() {
         deltaPhi_less = (*iter_less)->globalPosition().phi().value() - (*iter)->globalPosition().phi().value();
       } else if (iter == (--sortRecHits.end())) {
         cout << "Calculateing last loop..." << endl;
-        ConstMuonRecHitContainer::const_iterator iter_less = --iter;
+        auto iter_less = --iter;
         ++iter;
-        ConstMuonRecHitContainer::const_iterator iter_more = sortRecHits.begin();
+        auto iter_more = sortRecHits.begin();
         cout << "more_Phi: " << (*iter_more)->globalPosition().phi()
              << ", less_Phi: " << (*iter_less)->globalPosition().phi()
              << ", iter_Phi: " << (*iter)->globalPosition().phi() << endl;
@@ -192,9 +190,9 @@ double RPCSeedrecHitFinder::getdeltaPhifromrecHits() {
         deltaPhi_more = (*iter)->globalPosition().phi().value() - (*iter_more)->globalPosition().phi().value();
       } else {
         cout << "Calculateing " << n << "st loop..." << endl;
-        ConstMuonRecHitContainer::const_iterator iter_less = --iter;
+        auto iter_less = --iter;
         ++iter;
-        ConstMuonRecHitContainer::const_iterator iter_more = ++iter;
+        auto iter_more = ++iter;
         --iter;
         cout << "more_Phi: " << (*iter_more)->globalPosition().phi()
              << ", less_Phi: " << (*iter_less)->globalPosition().phi()

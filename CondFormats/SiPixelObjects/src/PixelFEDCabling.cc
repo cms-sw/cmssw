@@ -30,7 +30,7 @@ bool PixelFEDCabling::checkLinkNumbering() const {
   bool result = true;
   typedef Links::const_iterator IL;
   unsigned int idx_expected = 0;
-  for (IL il = theLinks.begin(); il != theLinks.end(); il++) {
+  for (auto il = theLinks.begin(); il != theLinks.end(); il++) {
     idx_expected++;
     if ((*il).id() != 0 && idx_expected != (*il).id()) {
       result = false;
@@ -50,7 +50,7 @@ string PixelFEDCabling::print(int depth) const {
   typedef vector<PixelFEDLink>::const_iterator IT;
   if (depth-- >= 0) {
     out << "FED: " << id() << endl;
-    for (IT it = theLinks.begin(); it != theLinks.end(); it++)
+    for (auto it = theLinks.begin(); it != theLinks.end(); it++)
       out << (*it).print(depth);
     out << "# total number of Links: " << numberOfLinks() << endl;
   }

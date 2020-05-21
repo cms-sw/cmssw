@@ -168,7 +168,7 @@ bool AlCaLowPUHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& 
       edm::LogInfo("LowPUHBHEMuon") << "AlCaLowPUHBHEMuonFilter::Muon Handle " << _Muon.isValid();
 #endif
       if (_Muon.isValid()) {
-        for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
+        for (auto RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
 #ifdef EDM_ML_DEBUG
           edm::LogInfo("LowPUHBHEMuon") << "AlCaLowPUHBHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull()
                                         << " innerTrack " << RecMuon->innerTrack().isNonnull() << " outerTrack "

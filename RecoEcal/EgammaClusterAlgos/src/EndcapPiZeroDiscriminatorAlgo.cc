@@ -80,7 +80,7 @@ vector<float> EndcapPiZeroDiscriminatorAlgo::findPreshVector(ESDetId strip,
       << road_2d.size();
 
   // Find the energy of each strip
-  RecHitsMap::iterator final_strip = rechits_map->end();
+  auto final_strip = rechits_map->end();
   // very dangerous, added a protection on the rechits_map->size()
   // at the beginning of the method
   final_strip--;
@@ -91,7 +91,7 @@ vector<float> EndcapPiZeroDiscriminatorAlgo::findPreshVector(ESDetId strip,
     LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPreshVectors: ID = " << *itID;
 
     float E = 0.;
-    RecHitsMap::iterator strip_it = rechits_map->find(*itID);
+    auto strip_it = rechits_map->find(*itID);
     if (goodPi0Strip(strip_it, last_stripID)) {  // continue if strip not found in rechit_map
       E = strip_it->second.energy();
     }
@@ -118,7 +118,7 @@ vector<float> EndcapPiZeroDiscriminatorAlgo::findPreshVector(ESDetId strip,
 
 // returns true if the candidate strip fulfills the requirements to be added to the cluster:
 bool EndcapPiZeroDiscriminatorAlgo::goodPi0Strip(RecHitsMap::iterator candidate_it, ESDetId lastID) {
-  RecHitsMap::iterator candidate_tmp = candidate_it;
+  auto candidate_tmp = candidate_it;
   candidate_tmp--;
 
   // crystal should not be included...

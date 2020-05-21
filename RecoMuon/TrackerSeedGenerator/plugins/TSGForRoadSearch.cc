@@ -393,12 +393,12 @@ void TSGForRoadSearch::makeSeeds_4(const reco::Track &muon, std::vector<Trajecto
 
   //if none were found. you should do something more.
   if (compatible.empty()) {
-    std::vector<const ForwardDetLayer *>::const_iterator pxlEnd = (z > 0) ? ppxlc.end() : npxlc.end();
-    std::vector<const ForwardDetLayer *>::const_iterator tidEnd = (z > 0) ? ptidc.end() : ntidc.end();
-    std::vector<const ForwardDetLayer *>::const_iterator tecEnd = (z > 0) ? ptecc.end() : ntecc.end();
-    std::vector<const ForwardDetLayer *>::const_iterator pxlBegin = (z > 0) ? ppxlc.begin() : npxlc.begin();
-    std::vector<const ForwardDetLayer *>::const_iterator tidBegin = (z > 0) ? ptidc.begin() : ntidc.begin();
-    std::vector<const ForwardDetLayer *>::const_iterator tecBegin = (z > 0) ? ptecc.begin() : ntecc.begin();
+    auto pxlEnd = (z > 0) ? ppxlc.end() : npxlc.end();
+    auto tidEnd = (z > 0) ? ptidc.end() : ntidc.end();
+    auto tecEnd = (z > 0) ? ptecc.end() : ntecc.end();
+    auto pxlBegin = (z > 0) ? ppxlc.begin() : npxlc.begin();
+    auto tidBegin = (z > 0) ? ptidc.begin() : ntidc.begin();
+    auto tecBegin = (z > 0) ? ptecc.begin() : ntecc.begin();
 
     //go to first disk if not already in a disk situation
     if (!dynamic_cast<const ForwardDetLayer *>(inLayer))
@@ -473,7 +473,7 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track &muon,
 
   if (theManySeeds) {
     //finf out every compatible measurements
-    for (std::vector<DetLayer::DetWithState>::iterator DWSit = compatible.begin(); DWSit != compatible.end(); ++DWSit) {
+    for (auto DWSit = compatible.begin(); DWSit != compatible.end(); ++DWSit) {
       bool aBareTS = false;
       const GeomDet *gd = DWSit->first;
       if (!gd) {
@@ -485,14 +485,14 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track &muon,
           DWSit->second, DWSit->second, *theProxyService->propagator(thePropagatorCompatibleName), *theChi2Estimator);
       //make a trajectory seed for each of them
 
-      for (std::vector<TrajectoryMeasurement>::iterator Mit = tmp.begin(); Mit != tmp.end(); ++Mit) {
+      for (auto Mit = tmp.begin(); Mit != tmp.end(); ++Mit) {
         TrajectoryStateOnSurface predState(Mit->predictedState());
         TrajectoryMeasurement::ConstRecHitPointer hit = Mit->recHit();
         TrajectorySeed::recHitContainer rhContainer;
         if (theCopyMuonRecHit) {
           LogDebug(theCategory) << "copying (" << muon.recHitsSize() << ") muon recHits";
           //copy the muon rechit into the seed
-          for (trackingRecHit_iterator trit = muon.recHitsBegin(); trit != muon.recHitsEnd(); trit++) {
+          for (auto trit = muon.recHitsBegin(); trit != muon.recHitsEnd(); trit++) {
             rhContainer.push_back((*trit)->clone());
           }
         }
@@ -540,7 +540,7 @@ void TSGForRoadSearch::pushTrajectorySeed(const reco::Track &muon,
     if (theCopyMuonRecHit) {
       LogDebug(theCategory) << "copying (" << muon.recHitsSize() << ") muon recHits";
       //copy the muon rechit into the seed
-      for (trackingRecHit_iterator trit = muon.recHitsBegin(); trit != muon.recHitsEnd(); trit++) {
+      for (auto trit = muon.recHitsBegin(); trit != muon.recHitsEnd(); trit++) {
         rhContainer.push_back((*trit)->clone());
       }
     }

@@ -65,7 +65,7 @@ bool TrackWithVertexSelector::testVertices(const reco::Track &t, const reco::Ver
   bool ok = false;
   if (!vtxs.empty()) {
     unsigned int tested = 1;
-    for (reco::VertexCollection::const_iterator it = vtxs.begin(), ed = vtxs.end(); it != ed; ++it) {
+    for (auto it = vtxs.begin(), ed = vtxs.end(); it != ed; ++it) {
       if ((std::abs(t.dxy(it->position())) < rhoVtx_) && (std::abs(t.dz(it->position())) < zetaVtx_)) {
         ok = true;
         break;
@@ -85,7 +85,7 @@ bool TrackWithVertexSelector::testVertices(const reco::TrackRef &tref, const rec
   bool ok = false;
   if (!vtxs.empty()) {
     unsigned int tested = 1;
-    for (reco::VertexCollection::const_iterator it = vtxs.begin(), ed = vtxs.end(); it != ed; ++it) {
+    for (auto it = vtxs.begin(), ed = vtxs.end(); it != ed; ++it) {
       const bool useTime = timeAvailable && it->t() != 0.;
       float time = useTime ? (*timescoll_)[tref] : -1.f;
       float timeReso = useTime ? (*timeresoscoll_)[tref] : -1.f;

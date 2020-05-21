@@ -19,7 +19,7 @@ simromanpot::strip_charge_map RPLinearInduceChargeOnStrips::Induce(
   const double sqrt_2 = sqrt(2.0);
   if (verbosity_)
     edm::LogInfo("RPLinearInduceChargeOnStrips ") << det_id_ << " : Clouds to be induced:" << charge_map.size() << "\n";
-  for (simromanpot::charge_induced_on_surface::const_iterator i = charge_map.begin(); i != charge_map.end(); ++i) {
+  for (auto i = charge_map.begin(); i != charge_map.end(); ++i) {
     double hit_pos;
     std::vector<strip_info> relevant_strips =
         theRPDetTopology.GetStripsInvolved((*i).Position().x(), (*i).Position().y(), (*i).Sigma(), hit_pos);
@@ -27,7 +27,7 @@ simromanpot::strip_charge_map RPLinearInduceChargeOnStrips::Induce(
       edm::LogInfo("RPLinearInduceChargeOnStrips ")
           << det_id_ << " : relevant_strips" << relevant_strips.size() << "\n";
     }
-    for (std::vector<strip_info>::const_iterator j = relevant_strips.begin(); j != relevant_strips.end(); ++j) {
+    for (auto j = relevant_strips.begin(); j != relevant_strips.end(); ++j) {
       double strip_begin = (*j).LowerBoarder();
       double strip_end = (*j).HigherBoarder();
       double effic = (*j).EffFactor();

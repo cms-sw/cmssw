@@ -61,9 +61,7 @@ void DTTTrigCorrection::endJob() {
   // Create the object to be written to DB
   DTTtrig* tTrigNewMap = new DTTtrig();
 
-  for (vector<const DTSuperLayer*>::const_iterator sl = muonGeom_->superLayers().begin();
-       sl != muonGeom_->superLayers().end();
-       ++sl) {
+  for (auto sl = muonGeom_->superLayers().begin(); sl != muonGeom_->superLayers().end(); ++sl) {
     // Get old value from DB
     float tTrigMean, tTrigSigma, kFactor;
     int status = tTrigMap_->get((*sl)->id(), tTrigMean, tTrigSigma, kFactor, DTTimeUnits::ns);

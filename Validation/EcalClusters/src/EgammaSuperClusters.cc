@@ -430,9 +430,7 @@ void EgammaSuperClusters::analyze(const edm::Event &evt, const edm::EventSetup &
   hist_EB_CorSC_Size_->Fill(barrelCorSuperClusters->size());
 
   // Do RAW BARREL SuperClusters
-  for (reco::SuperClusterCollection::const_iterator aClus = barrelRawSuperClusters->begin();
-       aClus != barrelRawSuperClusters->end();
-       aClus++) {
+  for (auto aClus = barrelRawSuperClusters->begin(); aClus != barrelRawSuperClusters->end(); aClus++) {
     // kinematics
     hist_EB_RawSC_NumBC_->Fill(aClus->clustersSize());
     hist_EB_RawSC_ET_->Fill(aClus->energy() / std::cosh(aClus->position().eta()));
@@ -456,9 +454,7 @@ void EgammaSuperClusters::analyze(const edm::Event &evt, const edm::EventSetup &
   }
 
   // Do CORRECTED BARREL SuperClusters
-  for (reco::SuperClusterCollection::const_iterator aClus = barrelCorSuperClusters->begin();
-       aClus != barrelCorSuperClusters->end();
-       aClus++) {
+  for (auto aClus = barrelCorSuperClusters->begin(); aClus != barrelCorSuperClusters->end(); aClus++) {
     // kinematics
     hist_EB_CorSC_NumBC_->Fill(aClus->clustersSize());
     hist_EB_CorSC_ET_->Fill(aClus->energy() / std::cosh(aClus->position().eta()));
@@ -520,9 +516,7 @@ void EgammaSuperClusters::analyze(const edm::Event &evt, const edm::EventSetup &
   hist_EE_CorSC_Size_->Fill(endcapCorSuperClusters->size());
 
   // Do RAW ENDCAP SuperClusters
-  for (reco::SuperClusterCollection::const_iterator aClus = endcapRawSuperClusters->begin();
-       aClus != endcapRawSuperClusters->end();
-       aClus++) {
+  for (auto aClus = endcapRawSuperClusters->begin(); aClus != endcapRawSuperClusters->end(); aClus++) {
     hist_EE_RawSC_NumBC_->Fill(aClus->clustersSize());
     hist_EE_RawSC_ET_->Fill(aClus->energy() / std::cosh(aClus->position().eta()));
     hist_EE_RawSC_Eta_->Fill(aClus->position().eta());
@@ -544,9 +538,7 @@ void EgammaSuperClusters::analyze(const edm::Event &evt, const edm::EventSetup &
   }
 
   // Do ENDCAP SuperClusters with PRESHOWER
-  for (reco::SuperClusterCollection::const_iterator aClus = endcapPreSuperClusters->begin();
-       aClus != endcapPreSuperClusters->end();
-       aClus++) {
+  for (auto aClus = endcapPreSuperClusters->begin(); aClus != endcapPreSuperClusters->end(); aClus++) {
     hist_EE_PreSC_NumBC_->Fill(aClus->clustersSize());
     hist_EE_PreSC_ET_->Fill(aClus->energy() / std::cosh(aClus->position().eta()));
     hist_EE_PreSC_Eta_->Fill(aClus->position().eta());
@@ -569,9 +561,7 @@ void EgammaSuperClusters::analyze(const edm::Event &evt, const edm::EventSetup &
   }
 
   // Do CORRECTED ENDCAP SuperClusters
-  for (reco::SuperClusterCollection::const_iterator aClus = endcapCorSuperClusters->begin();
-       aClus != endcapCorSuperClusters->end();
-       aClus++) {
+  for (auto aClus = endcapCorSuperClusters->begin(); aClus != endcapCorSuperClusters->end(); aClus++) {
     hist_EE_CorSC_NumBC_->Fill(aClus->clustersSize());
     hist_EE_CorSC_ET_->Fill(aClus->energy() / std::cosh(aClus->position().eta()));
     hist_EE_CorSC_Eta_->Fill(aClus->position().eta());

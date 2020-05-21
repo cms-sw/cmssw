@@ -152,17 +152,13 @@ bool TriggerHelper::acceptDcs(const edm::Event &event) {
 
   // Determine decision of DCS partition combination and return
   if (andOrDcs_) {  // OR combination
-    for (std::vector<int>::const_iterator partitionNumber = dcsPartitions_.begin();
-         partitionNumber != dcsPartitions_.end();
-         ++partitionNumber) {
+    for (auto partitionNumber = dcsPartitions_.begin(); partitionNumber != dcsPartitions_.end(); ++partitionNumber) {
       if (acceptDcsPartition(dcsStatus, *partitionNumber))
         return true;
     }
     return false;
   }
-  for (std::vector<int>::const_iterator partitionNumber = dcsPartitions_.begin();
-       partitionNumber != dcsPartitions_.end();
-       ++partitionNumber) {
+  for (auto partitionNumber = dcsPartitions_.begin(); partitionNumber != dcsPartitions_.end(); ++partitionNumber) {
     if (!acceptDcsPartition(dcsStatus, *partitionNumber))
       return false;
   }
@@ -226,16 +222,14 @@ bool TriggerHelper::acceptGt(const edm::Event &event) {
   // Determine decision of GT status bits logical expression combination and
   // return
   if (andOrGt_) {  // OR combination
-    for (std::vector<std::string>::const_iterator gtLogicalExpression = gtLogicalExpressions_.begin();
-         gtLogicalExpression != gtLogicalExpressions_.end();
+    for (auto gtLogicalExpression = gtLogicalExpressions_.begin(); gtLogicalExpression != gtLogicalExpressions_.end();
          ++gtLogicalExpression) {
       if (acceptGtLogicalExpression(gtReadoutRecord, *gtLogicalExpression))
         return true;
     }
     return false;
   }
-  for (std::vector<std::string>::const_iterator gtLogicalExpression = gtLogicalExpressions_.begin();
-       gtLogicalExpression != gtLogicalExpressions_.end();
+  for (auto gtLogicalExpression = gtLogicalExpressions_.begin(); gtLogicalExpression != gtLogicalExpressions_.end();
        ++gtLogicalExpression) {
     if (!acceptGtLogicalExpression(gtReadoutRecord, *gtLogicalExpression))
       return false;
@@ -293,16 +287,14 @@ bool TriggerHelper::acceptL1(const edm::Event &event, const edm::EventSetup &set
 
   // Determine decision of L1 logical expression combination and return
   if (andOrL1_) {  // OR combination
-    for (std::vector<std::string>::const_iterator l1LogicalExpression = l1LogicalExpressions_.begin();
-         l1LogicalExpression != l1LogicalExpressions_.end();
+    for (auto l1LogicalExpression = l1LogicalExpressions_.begin(); l1LogicalExpression != l1LogicalExpressions_.end();
          ++l1LogicalExpression) {
       if (acceptL1LogicalExpression(event, *l1LogicalExpression))
         return true;
     }
     return false;
   }
-  for (std::vector<std::string>::const_iterator l1LogicalExpression = l1LogicalExpressions_.begin();
-       l1LogicalExpression != l1LogicalExpressions_.end();
+  for (auto l1LogicalExpression = l1LogicalExpressions_.begin(); l1LogicalExpression != l1LogicalExpressions_.end();
        ++l1LogicalExpression) {
     if (!acceptL1LogicalExpression(event, *l1LogicalExpression))
       return false;
@@ -377,7 +369,7 @@ bool TriggerHelper::acceptHlt(const edm::Event &event) {
 
   // Determine decision of HLT logical expression combination and return
   if (andOrHlt_) {  // OR combination
-    for (std::vector<std::string>::const_iterator hltLogicalExpression = hltLogicalExpressions_.begin();
+    for (auto hltLogicalExpression = hltLogicalExpressions_.begin();
          hltLogicalExpression != hltLogicalExpressions_.end();
          ++hltLogicalExpression) {
       if (acceptHltLogicalExpression(hltTriggerResults, *hltLogicalExpression))
@@ -385,8 +377,7 @@ bool TriggerHelper::acceptHlt(const edm::Event &event) {
     }
     return false;
   }
-  for (std::vector<std::string>::const_iterator hltLogicalExpression = hltLogicalExpressions_.begin();
-       hltLogicalExpression != hltLogicalExpressions_.end();
+  for (auto hltLogicalExpression = hltLogicalExpressions_.begin(); hltLogicalExpression != hltLogicalExpressions_.end();
        ++hltLogicalExpression) {
     if (!acceptHltLogicalExpression(hltTriggerResults, *hltLogicalExpression))
       return false;
@@ -443,7 +434,7 @@ std::vector<std::string> TriggerHelper::expressionsFromDB(const std::string &key
   edm::ESHandle<AlCaRecoTriggerBits> logicalExpressions;
   setup.get<AlCaRecoTriggerBitsRcd>().get(logicalExpressions);
   const std::map<std::string, std::string> &expressionMap = logicalExpressions->m_alcarecoToTrig;
-  std::map<std::string, std::string>::const_iterator listIter = expressionMap.find(key);
+  auto listIter = expressionMap.find(key);
   if (listIter == expressionMap.end()) {
     edm::LogError("TriggerHelper") << "No logical expressions found under key " << key
                                    << " in 'AlCaRecoTriggerBitsRcd'";

@@ -56,7 +56,7 @@ void Phase2StripCPE::fillParam() {
   for (auto i = m_off; i != dus.size(); ++i) {
     auto& p = m_Params[i - m_off];
 
-    const Phase2TrackerGeomDetUnit& det = (const Phase2TrackerGeomDetUnit&)(*dus[i]);
+    const auto& det = (const Phase2TrackerGeomDetUnit&)(*dus[i]);
     assert(det.index() == int(i));
     p.topology = &det.specificTopology();
 

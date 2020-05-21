@@ -339,7 +339,7 @@ std::vector<SiPixelCluster> JetCoreClusterSplitter::fittingSplit(const SiPixelCl
     // Iterate starting from the ones with furthest second best clusters, i.e.
     // easy choices
     std::vector<float> weightOfPixel(pixels.size());
-    for (std::multimap<float, int>::iterator it = scores.begin(); it != scores.end(); it++) {
+    for (auto it = scores.begin(); it != scores.end(); it++) {
       int pixel_index = it->second;
       if (verbose)
         std::cout << "Original Pixel " << pixel_index << " with score " << it->first << std::endl;

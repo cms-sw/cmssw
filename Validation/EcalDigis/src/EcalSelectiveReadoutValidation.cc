@@ -185,7 +185,7 @@ EcalSelectiveReadoutValidation::EcalSelectiveReadoutValidation(const ParameterSe
 
   vector<string> hists(ps.getUntrackedParameter<vector<string> >("histograms", vector<string>(1, "all")));
 
-  for (vector<string>::iterator it = hists.begin(); it != hists.end(); ++it)
+  for (auto it = hists.begin(); it != hists.end(); ++it)
     histList_.insert(*it);
   if (histList_.find("all") != histList_.end())
     allHists_ = true;
@@ -343,7 +343,7 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event, const ed
 
   //EE rec hits:
   if (!localReco_) {
-    for (RecHitCollection::const_iterator it = eeRecHits_->begin(); it != eeRecHits_->end(); ++it) {
+    for (auto it = eeRecHits_->begin(); it != eeRecHits_->end(); ++it) {
       const RecHit& hit = *it;
       int iX0 = iXY2cIndex(static_cast<const EEDetId&>(hit.id()).ix());
       int iY0 = iXY2cIndex(static_cast<const EEDetId&>(hit.id()).iy());
@@ -363,7 +363,7 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event, const ed
   }
 
   //EE sim hits:
-  for (vector<PCaloHit>::const_iterator it = eeSimHits_->begin(); it != eeSimHits_->end(); ++it) {
+  for (auto it = eeSimHits_->begin(); it != eeSimHits_->end(); ++it) {
     const PCaloHit& simHit = *it;
     EEDetId detId(simHit.id());
     int iX = detId.ix();
@@ -422,7 +422,7 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event, const ed
       }
     }
 
-    EESrFlagCollection::const_iterator srf = eeSrFlags_->find(readOutUnitOf(frame.id()));
+    auto srf = eeSrFlags_->find(readOutUnitOf(frame.id()));
 
     bool highInterest = false;
 
@@ -510,7 +510,7 @@ void EcalSelectiveReadoutValidation::analyzeEE(const edm::Event& event, const ed
   char eeSrfMark[2][20][20];
   bzero(eeSrfMark, sizeof(eeSrfMark));
   //Filling RU histo
-  for (EESrFlagCollection::const_iterator it = eeSrFlags_->begin(); it != eeSrFlags_->end(); ++it) {
+  for (auto it = eeSrFlags_->begin(); it != eeSrFlags_->end(); ++it) {
     const EESrFlag& srf = *it;
     // srf.id() is EcalScDetId; 1 <= ix <= 20 1 <= iy <= 20
     int iX = srf.id().ix();
@@ -616,7 +616,7 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
   }  //next non-zs digi
 
   //EB sim hits
-  for (vector<PCaloHit>::const_iterator it = ebSimHits_->begin(); it != ebSimHits_->end(); ++it) {
+  for (auto it = ebSimHits_->begin(); it != ebSimHits_->end(); ++it) {
     const PCaloHit& simHit = *it;
     EBDetId detId(simHit.id());
     int iEta = detId.ieta();
@@ -675,7 +675,7 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
       }
     }
 
-    EBSrFlagCollection::const_iterator srf = ebSrFlags_->find(readOutUnitOf(frame.id()));
+    auto srf = ebSrFlags_->find(readOutUnitOf(frame.id()));
 
     bool highInterest = false;
 
@@ -722,7 +722,7 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
   }
 
   if (!localReco_) {
-    for (RecHitCollection::const_iterator it = ebRecHits_->begin(); it != ebRecHits_->end(); ++it) {
+    for (auto it = ebRecHits_->begin(); it != ebRecHits_->end(); ++it) {
       ++nEbDigi;
       const RecHit& hit = *it;
       int iEta = static_cast<const EBDetId&>(hit.id()).ieta();
@@ -783,7 +783,7 @@ void EcalSelectiveReadoutValidation::analyzeEB(const edm::Event& event, const ed
   char ebSrfMark[2][17][72];
   bzero(ebSrfMark, sizeof(ebSrfMark));
   //      int idbg = 0;
-  for (EBSrFlagCollection::const_iterator it = ebSrFlags_->begin(); it != ebSrFlags_->end(); ++it) {
+  for (auto it = ebSrFlags_->begin(); it != ebSrFlags_->end(); ++it) {
     const EBSrFlag& srf = *it;
     int iEtaAbs = srf.id().ietaAbs();
     int iPhi = srf.id().iphi();
@@ -1471,7 +1471,7 @@ void EcalSelectiveReadoutValidation::bookHistograms(DQMStore::IBooker& ibooker,
 
   //check the histList parameter:
   stringstream s;
-  for (set<string>::iterator it = histList_.begin(); it != histList_.end(); ++it) {
+  for (auto it = histList_.begin(); it != histList_.end(); ++it) {
     if (*it != string("all") && availableHistList_.find(*it) == availableHistList_.end()) {
       s << (s.str().empty() ? "" : ", ") << *it;
     }
@@ -1515,12 +1515,12 @@ void EcalSelectiveReadoutValidation::analyzeTP(edm::Event const& event, edm::Eve
   es.get<EcalTPGLutIdMapRcd>().get(lutMapHandle);
   const EcalTPGLutIdMap::EcalTPGLutMap& lutMap = lutMapHandle.product()->getMap();
 
-  EcalTPGPhysicsConstMapIterator ebItr(physMap.find(DetId(DetId::Ecal, EcalBarrel).rawId()));
+  auto ebItr(physMap.find(DetId(DetId::Ecal, EcalBarrel).rawId()));
   double lsb10bitsEB(ebItr == physMap.end() ? 0. : ebItr->second.EtSat / 1024.);
-  EcalTPGPhysicsConstMapIterator eeItr(physMap.find(DetId(DetId::Ecal, EcalEndcap).rawId()));
+  auto eeItr(physMap.find(DetId(DetId::Ecal, EcalEndcap).rawId()));
   double lsb10bitsEE(eeItr == physMap.end() ? 0. : eeItr->second.EtSat / 1024.);
 
-  for (EcalTrigPrimDigiCollection::const_iterator it = tps_->begin(); it != tps_->end(); ++it) {
+  for (auto it = tps_->begin(); it != tps_->end(); ++it) {
     double tpEt;
     if (tpInGeV_) {
       EcalTrigTowerDetId const& towerId(it->id());
@@ -1533,12 +1533,12 @@ void EcalSelectiveReadoutValidation::analyzeTP(edm::Event const& event, edm::Eve
         lsb10bits = lsb10bitsEE;
 
       int tpg10bits = 0;
-      EcalTPGGroups::EcalTPGGroupsMapItr itgrp = lutGrpMap.find(towerId.rawId());
+      auto itgrp = lutGrpMap.find(towerId.rawId());
       uint32_t lutGrp = 999;
       if (itgrp != lutGrpMap.end())
         lutGrp = itgrp->second;
 
-      EcalTPGLutIdMap::EcalTPGLutMapItr itLut = lutMap.find(lutGrp);
+      auto itLut = lutMap.find(lutGrp);
       if (itLut != lutMap.end()) {
         const unsigned int* lut = (itLut->second).getLut();
         for (unsigned int i = 0; i < 1024; i++)
@@ -1664,7 +1664,7 @@ void EcalSelectiveReadoutValidation::anaDigi(const T& frame, const U& srFlagColl
   const DetId& xtalId = frame.id();
   typedef typename U::key_type RuDetId;
   const RuDetId& ruId = readOutUnitOf(frame.id());
-  typename U::const_iterator srf = srFlagColl.find(ruId);
+  auto srf = srFlagColl.find(ruId);
 
   bool highInterest = false;
   int flag = 0;
@@ -2067,7 +2067,7 @@ void EcalSelectiveReadoutValidation::readAllCollections(const edm::Event& event)
 void EcalSelectiveReadoutValidation::printAvailableHists() {
   LogInfo log("HistoList");
   log << "Avalailable histograms (DQM monitor elements): \n";
-  for (map<string, string>::iterator it = availableHistList_.begin(); it != availableHistList_.end(); ++it) {
+  for (auto it = availableHistList_.begin(); it != availableHistList_.end(); ++it) {
     log << it->first << ": " << it->second << "\n";
   }
   log << "\nTo include an histogram add its name in the vstring parameter "
@@ -2229,8 +2229,8 @@ template <class T>  //T must be either an EBSrFlagCollection or an EESrFlagColle
 void EcalSelectiveReadoutValidation::compareSrfColl(const edm::Event& event, T& srfFromData, T& computedSrf) {
   typedef typename T::const_iterator SrFlagCollectionConstIt;
   typedef typename T::key_type MyRuDetIdType;
-  SrFlagCollectionConstIt itSrfFromData = srfFromData.begin();
-  SrFlagCollectionConstIt itComputedSr = computedSrf.begin();
+  auto itSrfFromData = srfFromData.begin();
+  auto itComputedSr = computedSrf.begin();
 
   while (itSrfFromData != srfFromData.end() || itComputedSr != computedSrf.end()) {
     MyRuDetIdType inconsistentRu = 0;
@@ -2292,13 +2292,13 @@ int EcalSelectiveReadoutValidation::dccId(const EcalTrigTowerDetId& detId) const
 void EcalSelectiveReadoutValidation::selectFedsForLog() {
   logErrForDccs_ = vector<bool>(nDccs_, false);
 
-  for (EBSrFlagCollection::const_iterator it = ebSrFlags_->begin(); it != ebSrFlags_->end(); ++it) {
+  for (auto it = ebSrFlags_->begin(); it != ebSrFlags_->end(); ++it) {
     int iDcc = dccId(it->id()) - minDccId_;
 
     logErrForDccs_.at(iDcc) = true;
   }
 
-  for (EESrFlagCollection::const_iterator it = eeSrFlags_->begin(); it != eeSrFlags_->end(); ++it) {
+  for (auto it = eeSrFlags_->begin(); it != eeSrFlags_->end(); ++it) {
     int iDcc = dccId(it->id()) - minDccId_;
 
     logErrForDccs_.at(iDcc) = true;
@@ -2324,7 +2324,7 @@ void EcalSelectiveReadoutValidation::checkSrApplication(const edm::Event& event,
   typedef typename T::const_iterator SrFlagCollectionConstIt;
   typedef typename T::key_type MyRuDetIdType;
 
-  for (SrFlagCollectionConstIt itSrf = srfs.begin(); itSrf != srfs.end(); ++itSrf) {
+  for (auto itSrf = srfs.begin(); itSrf != srfs.end(); ++itSrf) {
     int flag = itSrf->value() & ~EcalSrFlag::SRF_FORCED_MASK;
     pair<int, int> ru = dccCh(itSrf->id());
 

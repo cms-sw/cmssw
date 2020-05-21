@@ -322,7 +322,7 @@ Local3DPoint MuonSensitiveDetector::InitialStepPositionVsParent(const G4Step* cu
   const G4StepPoint* preStepPoint = currentStep->GetPreStepPoint();
   const G4ThreeVector& globalCoordinates = preStepPoint->GetPosition();
 
-  const G4TouchableHistory* theTouchable = (const G4TouchableHistory*)(preStepPoint->GetTouchable());
+  const auto* theTouchable = (const G4TouchableHistory*)(preStepPoint->GetTouchable());
 
   G4int depth = theTouchable->GetHistory()->GetDepth();
   G4ThreeVector localCoordinates =
@@ -336,7 +336,7 @@ Local3DPoint MuonSensitiveDetector::FinalStepPositionVsParent(const G4Step* curr
   const G4StepPoint* preStepPoint = currentStep->GetPreStepPoint();
   const G4ThreeVector& globalCoordinates = postStepPoint->GetPosition();
 
-  const G4TouchableHistory* theTouchable = (const G4TouchableHistory*)(preStepPoint->GetTouchable());
+  const auto* theTouchable = (const G4TouchableHistory*)(preStepPoint->GetTouchable());
 
   G4int depth = theTouchable->GetHistory()->GetDepth();
   G4ThreeVector localCoordinates =

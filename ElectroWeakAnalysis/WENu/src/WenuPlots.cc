@@ -208,7 +208,7 @@ void WenuPlots::analyze(const edm::Event &iEvent, const edm::EventSetup &es) {
     return;
   }
   const pat::CompositeCandidateCollection *wcands = WenuCands.product();
-  const pat::CompositeCandidateCollection::const_iterator wenuIter = wcands->begin();
+  const auto wenuIter = wcands->begin();
   const pat::CompositeCandidate wenu = *wenuIter;
   //
   // get the parts of the composite candidate:
@@ -354,7 +354,7 @@ void WenuPlots::analyze(const edm::Event &iEvent, const edm::EventSetup &es) {
         float *nCaloET = new float[nCaloJets];
         float *nCaloEta = new float[nCaloJets];
         float *nCaloPhi = new float[nCaloJets];
-        reco::CaloJetCollection::const_iterator cjet = caloJets->begin();
+        auto cjet = caloJets->begin();
         int counter = 0;
         for (; cjet != caloJets->end(); ++cjet) {
           // store them only if they are far enough from the electron
@@ -392,7 +392,7 @@ void WenuPlots::analyze(const edm::Event &iEvent, const edm::EventSetup &es) {
         float *nPfET = new float[nPfJets];
         float *nPfEta = new float[nPfJets];
         float *nPfPhi = new float[nPfJets];
-        reco::PFJetCollection::const_iterator pjet = pfJets->begin();
+        auto pjet = pfJets->begin();
         int counter = 0;
         for (; pjet != pfJets->end(); ++pjet) {
           // store them only if they are far enough from the electron

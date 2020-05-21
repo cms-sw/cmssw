@@ -72,18 +72,18 @@ void DTNoiseAnalysisTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
       << "[DTNoiseAnalysisTest]: End of LS transition, performing the DQM client operation";
 
   // Reset the summary plots
-  for (map<int, MonitorElement*>::iterator plot = noiseHistos.begin(); plot != noiseHistos.end(); ++plot) {
+  for (auto plot = noiseHistos.begin(); plot != noiseHistos.end(); ++plot) {
     (*plot).second->Reset();
   }
 
-  for (map<int, MonitorElement*>::iterator plot = noisyCellHistos.begin(); plot != noisyCellHistos.end(); ++plot) {
+  for (auto plot = noisyCellHistos.begin(); plot != noisyCellHistos.end(); ++plot) {
     (*plot).second->Reset();
   }
 
   summaryNoiseHisto->Reset();
 
-  vector<const DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
-  vector<const DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
+  auto ch_it = muonGeom->chambers().begin();
+  auto ch_end = muonGeom->chambers().end();
 
   LogTrace("DTDQM|DTMonitorClient|DTNoiseAnalysisTest") << "[DTNoiseAnalysisTest]: Fill the summary histos";
 

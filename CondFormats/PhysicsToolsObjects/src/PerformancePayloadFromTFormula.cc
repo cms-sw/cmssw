@@ -8,8 +8,7 @@ const int PerformancePayloadFromTFormula::InvalidPos = -1;
 using namespace std;
 
 void PerformancePayloadFromTFormula::initialize() {
-  for (std::vector<std::string>::const_iterator formula = pl.formulas().begin(); formula != pl.formulas().end();
-       ++formula) {
+  for (auto formula = pl.formulas().begin(); formula != pl.formulas().end(); ++formula) {
     const auto formulaUniqueName = edm::createGlobalIdentifier();
     //be sure not to add TFormula to ROOT's global list
     auto temp = std::make_shared<TFormula>(formulaUniqueName.c_str(), formula->c_str(), false);
@@ -38,7 +37,7 @@ float PerformancePayloadFromTFormula::getResult(PerformanceResult::ResultType r,
   // sorry, TFormulas just work up to dimension==4
   Double_t values[4];
   int i = 0;
-  for (std::vector<BinningVariables::BinningVariablesType>::const_iterator it = t.begin(); it != t.end(); ++it, ++i) {
+  for (auto it = t.begin(); it != t.end(); ++it, ++i) {
     values[i] = p.value(*it);
   }
   //
@@ -49,7 +48,7 @@ bool PerformancePayloadFromTFormula::isOk(const BinningPointByMap& _p) const {
   BinningPointByMap p = _p;
   std::vector<BinningVariables::BinningVariablesType> t = myBinning();
 
-  for (std::vector<BinningVariables::BinningVariablesType>::const_iterator it = t.begin(); it != t.end(); ++it) {
+  for (auto it = t.begin(); it != t.end(); ++it) {
     if (!p.isKeyAvailable(*it))
       return false;
     float v = p.value(*it);
@@ -87,7 +86,7 @@ void PerformancePayloadFromTFormula::printFormula(PerformanceResult::ResultType 
   //
   std::vector<BinningVariables::BinningVariablesType> t = myBinning();
 
-  for (std::vector<BinningVariables::BinningVariablesType>::const_iterator it = t.begin(); it != t.end(); ++it) {
+  for (auto it = t.begin(); it != t.end(); ++it) {
     int pos = limitPos(*it);
     std::pair<float, float> limits = (pl.limits())[pos];
     cout << "      Variable: " << *it << " with limits: "

@@ -170,7 +170,7 @@ float EcalCleaningAlgo::recHitE(const DetId id, const EcalRecHitCollection& recH
   if (id.subdetId() == EcalEndcap)
     threshold = e4e1Treshold_endcap_;
 
-  EcalRecHitCollection::const_iterator it = recHits.find(id);
+  auto it = recHits.find(id);
   if (it != recHits.end()) {
     float ene = (*it).energy();
 

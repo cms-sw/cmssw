@@ -79,7 +79,7 @@ void FlatEGunASCIIWriter::analyze(const Event&, const EventSetup& /* not used so
   // now actualy, cook up the event from PDGTable and gun parameters
   //
   //HepMC::GenVertex* Vtx = new HepMC::GenVertex( CLHEP::HepLorentzVector(0.,0.,0.) );
-  HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
+  auto* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
 
   // loop over particles
   //
@@ -101,7 +101,7 @@ void FlatEGunASCIIWriter::analyze(const Event&, const EventSetup& /* not used so
     //HepMC::GenParticle* Part =
     //    new HepMC::GenParticle(CLHEP::HepLorentzVector(p,energy),fPartIDs[ip],1);
     HepMC::FourVector p(px, py, pz, energy);
-    HepMC::GenParticle* Part = new HepMC::GenParticle(p, fPartIDs[ip], 1);
+    auto* Part = new HepMC::GenParticle(p, fPartIDs[ip], 1);
     Vtx->add_particle_out(Part);
   }
   fEvt->add_vertex(Vtx);

@@ -88,7 +88,7 @@ void PixelTripletLowPtGenerator::hitTriplets(const TrackingRegion& region,
   int size = thirdLayers.size();
 
   // Set aliases
-  const RecHitsSortedInPhi** thirdHitMap = new const RecHitsSortedInPhi*[size];
+  const auto** thirdHitMap = new const RecHitsSortedInPhi*[size];
   for (int il = 0; il < size; il++)
     thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, es);
 
@@ -96,7 +96,7 @@ void PixelTripletLowPtGenerator::hitTriplets(const TrackingRegion& region,
   getTracker(es);
 
   // Look at all generated pairs
-  for (OrderedHitPairs::const_iterator ip = pairs.begin(); ip != pairs.end(); ip++) {
+  for (auto ip = pairs.begin(); ip != pairs.end(); ip++) {
     // Fill rechits and points
     vector<const TrackingRecHit*> recHits(3);
     vector<GlobalPoint> points(3);
@@ -135,7 +135,7 @@ void PixelTripletLowPtGenerator::hitTriplets(const TrackingRegion& region,
       vector<Hit> thirdHits = thirdHitMap[il]->hits(phiRange.min(), phiRange.max());
       typedef vector<Hit>::const_iterator IH;
 
-      for (IH th = thirdHits.begin(), eh = thirdHits.end(); th < eh; ++th) {
+      for (auto th = thirdHits.begin(), eh = thirdHits.end(); th < eh; ++th) {
         // Fill rechit and point
         recHits[2] = (*th)->hit();
         points[2] = getGlobalPosition(recHits[2]);

@@ -40,7 +40,7 @@ void HcalHistogramRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   std::vector<HcalHistogramDigi> digis;
 
   // Step C: unpack all requested FEDs
-  for (std::vector<int>::const_iterator i = fedUnpackList_.begin(); i != fedUnpackList_.end(); i++) {
+  for (auto i = fedUnpackList_.begin(); i != fedUnpackList_.end(); i++) {
     const FEDRawData& fed = rawraw->FEDData(*i);
 
     unpacker_.unpack(fed, *readoutMap, digis);

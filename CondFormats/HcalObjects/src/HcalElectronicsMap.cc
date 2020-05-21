@@ -109,10 +109,10 @@ bool HcalElectronicsMap::lookup(const HcalElectronicsId pid, HcalElectronicsId& 
 
 std::vector<HcalElectronicsId> HcalElectronicsMap::allElectronicsId() const {
   std::vector<HcalElectronicsId> result;
-  for (std::vector<PrecisionItem>::const_iterator item = mPItems.begin(); item != mPItems.end(); item++)
+  for (auto item = mPItems.begin(); item != mPItems.end(); item++)
     if (item->mElId)
       result.push_back(HcalElectronicsId(item->mElId));
-  for (std::vector<TriggerItem>::const_iterator item = mTItems.begin(); item != mTItems.end(); item++)
+  for (auto item = mTItems.begin(); item != mTItems.end(); item++)
     if (item->mElId)
       result.push_back(HcalElectronicsId(item->mElId));
 
@@ -121,7 +121,7 @@ std::vector<HcalElectronicsId> HcalElectronicsMap::allElectronicsId() const {
 
 std::vector<HcalElectronicsId> HcalElectronicsMap::allElectronicsIdPrecision() const {
   std::vector<HcalElectronicsId> result;
-  for (std::vector<PrecisionItem>::const_iterator item = mPItems.begin(); item != mPItems.end(); item++)
+  for (auto item = mPItems.begin(); item != mPItems.end(); item++)
     if (item->mElId)
       result.push_back(HcalElectronicsId(item->mElId));
   return result;
@@ -129,7 +129,7 @@ std::vector<HcalElectronicsId> HcalElectronicsMap::allElectronicsIdPrecision() c
 
 std::vector<HcalElectronicsId> HcalElectronicsMap::allElectronicsIdTrigger() const {
   std::vector<HcalElectronicsId> result;
-  for (std::vector<TriggerItem>::const_iterator item = mTItems.begin(); item != mTItems.end(); item++)
+  for (auto item = mTItems.begin(); item != mTItems.end(); item++)
     if (item->mElId)
       result.push_back(HcalElectronicsId(item->mElId));
 
@@ -139,10 +139,10 @@ std::vector<HcalElectronicsId> HcalElectronicsMap::allElectronicsIdTrigger() con
 std::vector<HcalGenericDetId> HcalElectronicsMap::allPrecisionId() const {
   std::vector<HcalGenericDetId> result;
   std::set<unsigned long> allIds;
-  for (std::vector<PrecisionItem>::const_iterator item = mPItems.begin(); item != mPItems.end(); item++)
+  for (auto item = mPItems.begin(); item != mPItems.end(); item++)
     if (item->mId)
       allIds.insert(item->mId);
-  for (std::set<unsigned long>::const_iterator channel = allIds.begin(); channel != allIds.end(); channel++) {
+  for (auto channel = allIds.begin(); channel != allIds.end(); channel++) {
     result.push_back(HcalGenericDetId(*channel));
   }
   return result;
@@ -151,10 +151,10 @@ std::vector<HcalGenericDetId> HcalElectronicsMap::allPrecisionId() const {
 std::vector<HcalTrigTowerDetId> HcalElectronicsMap::allTriggerId() const {
   std::vector<HcalTrigTowerDetId> result;
   std::set<unsigned long> allIds;
-  for (std::vector<TriggerItem>::const_iterator item = mTItems.begin(); item != mTItems.end(); item++)
+  for (auto item = mTItems.begin(); item != mTItems.end(); item++)
     if (item->mTrigId)
       allIds.insert(item->mTrigId);
-  for (std::set<unsigned long>::const_iterator channel = allIds.begin(); channel != allIds.end(); channel++)
+  for (auto channel = allIds.begin(); channel != allIds.end(); channel++)
     result.push_back(HcalTrigTowerDetId(*channel));
   return result;
 }

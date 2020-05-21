@@ -126,7 +126,7 @@ bool JetHTJetPlusHOFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.getByToken(tok_hoht_, hoht);
   if (hoht.isValid()) {
     if (!(*hoht).empty()) {
-      for (PFClusterCollection::const_iterator ij = (*hoht).begin(); ij != (*hoht).end(); ij++) {
+      for (auto ij = (*hoht).begin(); ij != (*hoht).end(); ij++) {
         double hoenr = (*ij).energy();
         if (hoenr < hothres)
           continue;

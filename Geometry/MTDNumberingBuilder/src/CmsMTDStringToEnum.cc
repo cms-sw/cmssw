@@ -20,7 +20,7 @@ GeometricTimingDet::GeometricTimingEnumType CmsMTDStringToEnum::type(std::string
   std::string_view v = s;
   auto first = v.find_first_of(":");
   v.remove_prefix(std::min(first + 1, v.size()));
-  MapEnumType::const_iterator p = map().find({v.data(), v.size()});
+  auto p = map().find({v.data(), v.size()});
   if (p != map().end())
     return p->second;
   return GeometricTimingDet::unknown;

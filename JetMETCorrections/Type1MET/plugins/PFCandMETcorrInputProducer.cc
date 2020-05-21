@@ -12,8 +12,7 @@ PFCandMETcorrInputProducer::PFCandMETcorrInputProducer(const edm::ParameterSet& 
   if (cfg.exists("binning")) {
     typedef std::vector<edm::ParameterSet> vParameterSet;
     vParameterSet cfgBinning = cfg.getParameter<vParameterSet>("binning");
-    for (vParameterSet::const_iterator cfgBinningEntry = cfgBinning.begin(); cfgBinningEntry != cfgBinning.end();
-         ++cfgBinningEntry) {
+    for (auto cfgBinningEntry = cfgBinning.begin(); cfgBinningEntry != cfgBinning.end(); ++cfgBinningEntry) {
       binning_.emplace_back(new binningEntryType(*cfgBinningEntry));
     }
   } else {

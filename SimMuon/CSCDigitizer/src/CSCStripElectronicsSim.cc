@@ -110,8 +110,7 @@ void CSCStripElectronicsSim::runComparator(std::vector<CSCComparatorDigi> &resul
   }
   // no need to sort
   comparatorsWithSignal.unique();
-  for (std::list<int>::iterator listItr = comparatorsWithSignal.begin(); listItr != comparatorsWithSignal.end();
-       ++listItr) {
+  for (auto listItr = comparatorsWithSignal.begin(); listItr != comparatorsWithSignal.end(); ++listItr) {
     int iComparator = *listItr;
     // find signal1 and signal2
     // iComparator counts from 0
@@ -206,8 +205,7 @@ void CSCStripElectronicsSim::runComparator(std::vector<CSCComparatorDigi> &resul
 
 std::list<int> CSCStripElectronicsSim::getKeyStrips(const std::vector<CSCComparatorDigi> &comparators) const {
   std::list<int> result;
-  for (std::vector<CSCComparatorDigi>::const_iterator compItr = comparators.begin(); compItr != comparators.end();
-       ++compItr) {
+  for (auto compItr = comparators.begin(); compItr != comparators.end(); ++compItr) {
     if (std::abs(compItr->getTimeBin() - theOffsetOfBxZero) <= 2) {
       result.push_back(compItr->getStrip());
     }
@@ -237,7 +235,7 @@ std::list<int> CSCStripElectronicsSim::getKeyStripsFromMC() const {
 
 std::list<int> CSCStripElectronicsSim::channelsToRead(const std::list<int> &keyStrips, int window) const {
   std::list<int> result;
-  std::list<int>::const_iterator keyStripItr = keyStrips.begin();
+  auto keyStripItr = keyStrips.begin();
   if (doSuppression_) {
     for (; keyStripItr != keyStrips.end(); ++keyStripItr) {
       // pick the five strips around the comparator
@@ -270,7 +268,7 @@ std::list<int> CSCStripElectronicsSim::channelsToRead(const std::list<int> &keyS
     cfebsToRead.unique();
 
     // now convert the CFEBS to strips
-    for (std::list<int>::const_iterator cfebItr = cfebsToRead.begin(); cfebItr != cfebsToRead.end(); ++cfebItr) {
+    for (auto cfebItr = cfebsToRead.begin(); cfebItr != cfebsToRead.end(); ++cfebItr) {
       for (int i = 1; i <= 16; ++i) {
         result.push_back((*cfebItr) * 16 + i);
       }
@@ -309,7 +307,7 @@ void CSCStripElectronicsSim::fillStripDigis(const std::list<int> &keyStrips,
   std::list<int> stripsToDo = channelsToRead(keyStrips, 3);
   std::vector<CSCStripDigi> stripDigis;
   stripDigis.reserve(stripsToDo.size());
-  for (std::list<int>::const_iterator stripItr = stripsToDo.begin(); stripItr != stripsToDo.end(); ++stripItr) {
+  for (auto stripItr = stripsToDo.begin(); stripItr != stripsToDo.end(); ++stripItr) {
     createDigi(*stripItr, find(*stripItr, engine), stripDigis, engine);
   }
 
@@ -322,12 +320,12 @@ void CSCStripElectronicsSim::addCrosstalk(CLHEP::HepRandomEngine *engine) {
   // without messing up any iterators
   std::vector<CSCAnalogSignal> realSignals;
   realSignals.reserve(theSignalMap.size());
-  CSCSignalMap::iterator mapI = theSignalMap.begin(), mapEnd = theSignalMap.end();
+  auto mapI = theSignalMap.begin(), mapEnd = theSignalMap.end();
   for (; mapI != mapEnd; ++mapI) {
     realSignals.push_back((*mapI).second);
   }
   sort(realSignals.begin(), realSignals.end(), SortSignalsByTotal);
-  std::vector<CSCAnalogSignal>::iterator realSignalItr = realSignals.begin(), realSignalsEnd = realSignals.end();
+  auto realSignalItr = realSignals.begin(), realSignalsEnd = realSignals.end();
   for (; realSignalItr != realSignalsEnd; ++realSignalItr) {
     int thisStrip = (*realSignalItr).getElement();
     // add it to each neighbor

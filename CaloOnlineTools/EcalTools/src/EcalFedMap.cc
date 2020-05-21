@@ -85,7 +85,7 @@ EcalFedMap::EcalFedMap() {
 
 std::string EcalFedMap::getSliceFromFed(int fedNumber) {
   //std::cout << "received: " << fedNumber << std::endl;
-  std::map<int, std::string>::iterator found = fedToSliceMap_.find(fedNumber);
+  auto found = fedToSliceMap_.find(fedNumber);
 
   if (found != fedToSliceMap_.end())
     return (*found).second;
@@ -96,7 +96,7 @@ std::string EcalFedMap::getSliceFromFed(int fedNumber) {
 int EcalFedMap::getFedFromSlice(std::string slice) {
   transform(slice.begin(), slice.end(), slice.begin(), toupper);
 
-  std::map<std::string, int>::iterator found = sliceToFedMap_.find(slice);
+  auto found = sliceToFedMap_.find(slice);
 
   if (found != sliceToFedMap_.end())
     return (*found).second;

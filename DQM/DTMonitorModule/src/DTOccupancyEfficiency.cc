@@ -98,9 +98,7 @@ void DTOccupancyEfficiency::analyze(const edm::Event& event, const edm::EventSet
 
   DTDigiCollection::DigiRangeIterator dtLayerId_It;
   for (dtLayerId_It = dtdigis->begin(); dtLayerId_It != dtdigis->end(); ++dtLayerId_It) {  // Loop over layers
-    for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
-         digiIt != ((*dtLayerId_It).second).second;
-         ++digiIt) {
+    for (auto digiIt = ((*dtLayerId_It).second).first; digiIt != ((*dtLayerId_It).second).second; ++digiIt) {
       numberOfDigis++;
       int wheelId = ((*dtLayerId_It).first).wheel();
       int stationId = ((*dtLayerId_It).first).station();

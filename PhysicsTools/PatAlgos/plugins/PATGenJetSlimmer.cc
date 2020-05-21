@@ -109,8 +109,7 @@ void pat::PATGenJetSlimmer::produce(edm::Event& iEvent, const edm::EventSetup& i
         //	}
         ptrs[((*gp2pgp)[old[i]]).key()] = refToPtr((*gp2pgp)[old[i]]);
       }
-      for (std::map<unsigned int, reco::CandidatePtr>::iterator itp = ptrs.begin(); itp != ptrs.end();
-           itp++)  //iterate on sorted items
+      for (auto itp = ptrs.begin(); itp != ptrs.end(); itp++)  //iterate on sorted items
       {
         jet.addDaughter(itp->second);
       }

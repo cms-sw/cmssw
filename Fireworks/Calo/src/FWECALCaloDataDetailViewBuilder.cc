@@ -255,7 +255,7 @@ void FWECALCaloDataDetailViewBuilder::fillData(const EcalRecHitCollection* hits,
   const float barrelCR = m_size * 0.0172;  // barrel cell range
 
   // loop on all the detids
-  for (EcalRecHitCollection::const_iterator k = hits->begin(), kEnd = hits->end(); k != kEnd; ++k) {
+  for (auto k = hits->begin(), kEnd = hits->end(); k != kEnd; ++k) {
     // get reco geometry
     double centerEta = 0;
     double centerPhi = 0;
@@ -276,7 +276,7 @@ void FWECALCaloDataDetailViewBuilder::fillData(const EcalRecHitCollection* hits,
 
     // check what slice to put in
     int slice = 0;
-    std::map<DetId, int>::const_iterator itr = m_detIdsToColor.find(k->id());
+    auto itr = m_detIdsToColor.find(k->id());
     if (itr != m_detIdsToColor.end())
       slice = itr->second;
 

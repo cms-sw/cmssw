@@ -145,11 +145,11 @@ OOTResult* ComputeOOTFraction(TFile* ff,
       ootmult->SetMarkerColor(kRed);
       //      ootmult->Draw();
       //      itmult->Draw("same");
-      for (std::vector<int>::const_iterator fbx = filledbx.begin(); fbx != filledbx.end(); ++fbx) {
+      for (auto fbx = filledbx.begin(); fbx != filledbx.end(); ++fbx) {
         nzb += itmult->GetBinEntries(*fbx);
         nrandom += ootmult->GetBinEntries(*fbx + 1);
       }
-      for (std::vector<int>::const_iterator fbx = filledbx.begin(); fbx != filledbx.end(); ++fbx) {
+      for (auto fbx = filledbx.begin(); fbx != filledbx.end(); ++fbx) {
         if (nzb > 0 && nrandom > 0) {
           rclzb += (itmult->GetBinContent(*fbx) * itmult->GetBinEntries(*fbx)) / nzb;
           errclzb += (itmult->GetBinError(*fbx) * itmult->GetBinEntries(*fbx)) *

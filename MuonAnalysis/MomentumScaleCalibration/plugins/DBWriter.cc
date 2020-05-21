@@ -38,7 +38,7 @@ DBWriter::~DBWriter() {
 
 // ------------ method called to for each event  ------------
 void DBWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  MuScleFitDBobject* dbObject = new MuScleFitDBobject;
+  auto* dbObject = new MuScleFitDBobject;
 
   dbObject->identifiers = corrector_->identifiers();
   dbObject->parameters = corrector_->parameters();

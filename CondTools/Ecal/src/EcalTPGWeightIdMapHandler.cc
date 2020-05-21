@@ -166,13 +166,13 @@ void popcon::EcalTPGWeightIdMapHandler::getNewObjects() {
               std::map<EcalLogicID, FEConfigWeightGroupDat> dataset_TpgWeight;
               econn->fetchDataSet(&dataset_TpgWeight, &fe_weight_info);
               edm::LogInfo("EcalTPGWeightIdMapHandler") << "Got object!";
-              EcalTPGWeightIdMap* weightMap = new EcalTPGWeightIdMap;
+              auto* weightMap = new EcalTPGWeightIdMap;
               typedef std::map<EcalLogicID, FEConfigWeightGroupDat>::const_iterator CIfeweight;
               EcalLogicID ecid_xt;
               FEConfigWeightGroupDat rd_w;
 
               int igroups = 0;
-              for (CIfeweight p = dataset_TpgWeight.begin(); p != dataset_TpgWeight.end(); p++) {
+              for (auto p = dataset_TpgWeight.begin(); p != dataset_TpgWeight.end(); p++) {
                 rd_w = p->second;
                 // EB and EE data
                 EcalTPGWeights w;
@@ -245,7 +245,7 @@ void popcon::EcalTPGWeightIdMapHandler::readtxtFile() {
   }
   unsigned int wloc[5];
   EcalTPGWeights w;
-  EcalTPGWeightIdMap* weightMap = new EcalTPGWeightIdMap;
+  auto* weightMap = new EcalTPGWeightIdMap;
   int igroups = 0;
   std::string line;
   while (!fInput.eof()) {
@@ -280,7 +280,7 @@ void popcon::EcalTPGWeightIdMapHandler::readxmlFile() {
   std::string dummyLine, bid;
   unsigned int wloc[5];
   EcalTPGWeights w;
-  EcalTPGWeightIdMap* weightMap = new EcalTPGWeightIdMap;
+  auto* weightMap = new EcalTPGWeightIdMap;
   int ngroups, igroups;
   edm::LogInfo("EcalTPGWeightIdMapHandler") << "found " << igroups << "Weight groups";
   for (int i = 0; i < 5; i++)

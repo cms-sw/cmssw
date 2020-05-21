@@ -735,8 +735,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
     bool integrity = status->first, se = false, sm = false, bx = false, af = false, fmm = false;
     int nStat = 0;
 
-    for (std::vector<L1CSCSPStatusDigi>::const_iterator stat = status->second.begin(); stat != status->second.end();
-         stat++) {
+    for (auto stat = status->second.begin(); stat != status->second.end(); stat++) {
       se |= stat->SEs() & 0xFFF;
       sm |= stat->SMs() & 0xFFF;
       bx |= stat->BXs() & 0xFFF;
@@ -940,7 +939,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
          csc != corrlcts.product()->end();
          csc++) {
       CSCCorrelatedLCTDigiCollection::Range range1 = corrlcts.product()->get((*csc).first);
-      for (CSCCorrelatedLCTDigiCollection::const_iterator lct = range1.first; lct != range1.second; lct++) {
+      for (auto lct = range1.first; lct != range1.second; lct++) {
         int endcap = (*csc).first.endcap() - 1;
         int station = (*csc).first.station() - 1;
         int sector = (*csc).first.triggerSector() - 1;
@@ -1291,7 +1290,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
   if (trackProducer.label() != "null") {
     edm::Handle<L1CSCTrackCollection> tracks;
     e.getByToken(tracksToken_, tracks);
-    for (L1CSCTrackCollection::const_iterator trk = tracks->begin(); trk < tracks->end(); trk++) {
+    for (auto trk = tracks->begin(); trk < tracks->end(); trk++) {
       NumCSCTfTracksRep++;
       long LUTAdd = trk->first.ptLUTAddress();
       int trigMode = ((LUTAdd)&0xf0000) >> 16;
@@ -1435,7 +1434,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
            trackStub != lctsOfTracks.end();
            trackStub++) {
         CSCCorrelatedLCTDigiCollection::Range range2 = lctsOfTracks.get((*trackStub).first);
-        for (CSCCorrelatedLCTDigiCollection::const_iterator lct = range2.first; lct != range2.second; lct++) {
+        for (auto lct = range2.first; lct != range2.second; lct++) {
           //                   int station = (*trackStub).first.station()-1;
           //                   if(station != 4)
           //                     {
@@ -1486,7 +1485,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
 
     // loop on the DT stubs
     std::vector<csctf::TrackStub> vstubs = dtStubs->get();
-    for (std::vector<csctf::TrackStub>::const_iterator stub = vstubs.begin(); stub != vstubs.end(); stub++) {
+    for (auto stub = vstubs.begin(); stub != vstubs.end(); stub++) {
       if (verbose_) {
         edm::LogInfo("DataNotFound") << "\n mbEndcap: " << stub->endcap();
         edm::LogInfo("DataNotFound") << "\n stub->getStrip()[FLAG]: " << stub->getStrip();
@@ -1517,7 +1516,7 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c) {
         if (isCSCcand_) {
           //look for tracks in the event and compare the matching DT stubs
           int trkBX = 0;
-          for (L1CSCTrackCollection::const_iterator trk = tracks->begin(); trk < tracks->end(); trk++) {
+          for (auto trk = tracks->begin(); trk < tracks->end(); trk++) {
             trkBX = trk->first.BX();
             int trkId = (trk->first.endcap() == 2) ? 6 : 0;
             trkId += trk->first.sector();

@@ -192,9 +192,7 @@ namespace edm {
 
       std::vector<edm::InputTag> GenPUProtonsInputTags;
       GenPUProtonsInputTags = ps.getParameter<std::vector<edm::InputTag>>("GenPUProtonsInputTags");
-      for (std::vector<edm::InputTag>::const_iterator it_InputTag = GenPUProtonsInputTags.begin();
-           it_InputTag != GenPUProtonsInputTags.end();
-           ++it_InputTag)
+      for (auto it_InputTag = GenPUProtonsInputTags.begin(); it_InputTag != GenPUProtonsInputTags.end(); ++it_InputTag)
         produces<std::vector<reco::GenParticle>>(it_InputTag->label());
 
       PUWorker_ = new DataMixingPileupCopy(ps, consumesCollector());

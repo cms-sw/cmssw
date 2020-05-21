@@ -406,8 +406,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
         }
       }
     } else {
-      for (typename std::vector<IPTI>::const_iterator it = trackIPTagInfos->begin(); it != trackIPTagInfos->end();
-           ++it) {
+      for (auto it = trackIPTagInfos->begin(); it != trackIPTagInfos->end(); ++it) {
         std::vector<edm::Ptr<reco::Candidate> > constituents = it->jet()->getJetConstituents();
         std::vector<edm::Ptr<reco::Candidate> >::const_iterator m;
         for (m = constituents.begin(); m != constituents.end(); ++m) {
@@ -520,8 +519,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
 
         std::vector<int> svIndices;
         // loop over jet constituents and try to find "ghosts"
-        for (std::vector<fastjet::PseudoJet>::const_iterator it = constituents.begin(); it != constituents.end();
-             ++it) {
+        for (auto it = constituents.begin(); it != constituents.end(); ++it) {
           if (!it->has_user_info())
             continue;  // skip if not a "ghost"
 
@@ -609,8 +607,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
         std::vector<fastjet::PseudoJet> constituents = inclusiveJets.at(reclusteredIndices.at(i)).constituents();
 
         // loop over jet constituents and try to find "ghosts"
-        for (std::vector<fastjet::PseudoJet>::const_iterator it = constituents.begin(); it != constituents.end();
-             ++it) {
+        for (auto it = constituents.begin(); it != constituents.end(); ++it) {
           if (!it->has_user_info())
             continue;  // skip if not a "ghost"
           // push back clustered SV indices
@@ -700,9 +697,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
 
   auto tagInfos = std::make_unique<Product>();
 
-  for (typename std::vector<IPTI>::const_iterator iterJets = trackIPTagInfos->begin();
-       iterJets != trackIPTagInfos->end();
-       ++iterJets) {
+  for (auto iterJets = trackIPTagInfos->begin(); iterJets != trackIPTagInfos->end(); ++iterJets) {
     TrackDataVector trackData;
     //		      std::cout << "Jet " << iterJets-trackIPTagInfos->begin() << std::endl;
 
@@ -710,8 +705,8 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
 
     std::set<TransientTrack> primaries;
     if (constraint == CONSTRAINT_PV_PRIMARIES_IN_FIT) {
-      for (Vertex::trackRef_iterator iter = pv.tracks_begin(); iter != pv.tracks_end(); ++iter) {
-        TransientTrackMap::iterator pos = primariesMap.lower_bound(iter->get());
+      for (auto iter = pv.tracks_begin(); iter != pv.tracks_end(); ++iter) {
+        auto pos = primariesMap.lower_bound(iter->get());
 
         if (pos != primariesMap.end() && pos->first == iter->get())
           primaries.insert(pos->second);
@@ -757,7 +752,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::produce(edm::Event &event, con
         continue;
       }
 
-      TransientTrackMap::const_iterator pos = primariesMap.find(reco::btag::toTrack((trackRef)));
+      auto pos = primariesMap.find(reco::btag::toTrack((trackRef)));
       TransientTrack fitTrack;
       if (pos != primariesMap.end()) {
         primaries.erase(pos->second);
@@ -930,7 +925,7 @@ void TemplatedSecondaryVertexProducer<TrackIPTagInfo, reco::Vertex>::markUsedTra
                                                                                     const input_container &trackRefs,
                                                                                     const SecondaryVertex &sv,
                                                                                     size_t idx) {
-  for (Vertex::trackRef_iterator iter = sv.tracks_begin(); iter != sv.tracks_end(); ++iter) {
+  for (auto iter = sv.tracks_begin(); iter != sv.tracks_end(); ++iter) {
     if (sv.trackWeight(*iter) < minTrackWeight)
       continue;
 
@@ -952,10 +947,8 @@ void TemplatedSecondaryVertexProducer<TrackIPTagInfo, reco::Vertex>::markUsedTra
 template <>
 void TemplatedSecondaryVertexProducer<CandIPTagInfo, reco::VertexCompositePtrCandidate>::markUsedTracks(
     TrackDataVector &trackData, const input_container &trackRefs, const SecondaryVertex &sv, size_t idx) {
-  for (typename input_container::const_iterator iter = sv.daughterPtrVector().begin();
-       iter != sv.daughterPtrVector().end();
-       ++iter) {
-    typename input_container::const_iterator pos = std::find(trackRefs.begin(), trackRefs.end(), *iter);
+  for (auto iter = sv.daughterPtrVector().begin(); iter != sv.daughterPtrVector().end(); ++iter) {
+    auto pos = std::find(trackRefs.begin(), trackRefs.end(), *iter);
 
     if (pos != trackRefs.end()) {
       unsigned int index = pos - trackRefs.begin();
@@ -997,14 +990,11 @@ TemplatedSecondaryVertexProducer<CandIPTagInfo, reco::VertexCompositePtrCandidat
     vtxCompPtrCand.setVertex(Candidate::Point(sv.position().x(), sv.position().y(), sv.position().z()));
 
     Candidate::LorentzVector p4;
-    for (std::vector<reco::TransientTrack>::const_iterator tt = sv.originalTracks().begin();
-         tt != sv.originalTracks().end();
-         ++tt) {
+    for (auto tt = sv.originalTracks().begin(); tt != sv.originalTracks().end(); ++tt) {
       if (sv.trackWeight(*tt) < minTrackWeight)
         continue;
 
-      const CandidatePtrTransientTrack *cptt =
-          dynamic_cast<const CandidatePtrTransientTrack *>(tt->basicTransientTrack());
+      const auto *cptt = dynamic_cast<const CandidatePtrTransientTrack *>(tt->basicTransientTrack());
       if (cptt == nullptr)
         edm::LogError("DynamicCastingFailed") << "Casting of TransientTrack to CandidatePtrTransientTrack failed!";
       else {
@@ -1111,7 +1101,7 @@ void TemplatedSecondaryVertexProducer<IPTI, VTX>::matchGroomedJets(const edm::Ha
   }
 
   for (size_t j = 0; j < jets->size(); ++j) {
-    std::vector<int>::iterator matchedIndex = std::find(jetIndices.begin(), jetIndices.end(), j);
+    auto matchedIndex = std::find(jetIndices.begin(), jetIndices.end(), j);
 
     matchedIndices.push_back(matchedIndex != jetIndices.end() ? std::distance(jetIndices.begin(), matchedIndex) : -1);
   }

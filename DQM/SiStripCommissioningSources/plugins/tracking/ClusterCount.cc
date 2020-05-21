@@ -30,11 +30,10 @@ void ClusterCount::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   iEvent.getByToken(clusterToken_, clusters);
   const edm::DetSetVector<SiStripCluster>* clusterSet = clusters.product();
   // loop on the detsetvector<cluster>
-  for (edm::DetSetVector<SiStripCluster>::const_iterator DSViter = clusterSet->begin(); DSViter != clusterSet->end();
-       DSViter++) {
-    edm::DetSet<SiStripCluster>::const_iterator begin = DSViter->data.begin();
-    edm::DetSet<SiStripCluster>::const_iterator end = DSViter->data.end();
-    for (edm::DetSet<SiStripCluster>::const_iterator iter = begin; iter != end; ++iter) {
+  for (auto DSViter = clusterSet->begin(); DSViter != clusterSet->end(); DSViter++) {
+    auto begin = DSViter->data.begin();
+    auto end = DSViter->data.end();
+    for (auto iter = begin; iter != end; ++iter) {
       LogDebug("ReconstructedClusters") << "Detid/Strip: " << std::hex << DSViter->id << std::dec << " / "
                                         << iter->barycenter();
     }

@@ -39,8 +39,7 @@ cond::XMLAuthenticationService::DataSourceEntry::DataSourceEntry(const std::stri
 
 cond::XMLAuthenticationService::DataSourceEntry::~DataSourceEntry() {
   delete m_default;
-  for (std::map<std::string, coral::AuthenticationCredentials*>::iterator iData = m_data.begin(); iData != m_data.end();
-       ++iData)
+  for (auto iData = m_data.begin(); iData != m_data.end(); ++iData)
     delete iData->second;
 }
 
@@ -52,7 +51,7 @@ void cond::XMLAuthenticationService::DataSourceEntry::appendCredentialItem(const
 void cond::XMLAuthenticationService::DataSourceEntry::appendCredentialItemForRole(const std::string& item,
                                                                                   const std::string& value,
                                                                                   const std::string& role) {
-  std::map<std::string, coral::AuthenticationCredentials*>::iterator iRole = m_data.find(role);
+  auto iRole = m_data.find(role);
   if (iRole == m_data.end()) {
     iRole = m_data.insert(std::make_pair(role, new coral::AuthenticationCredentials(m_serviceName))).first;
   }
@@ -90,9 +89,7 @@ cond::XMLAuthenticationService::XMLAuthenticationService::XMLAuthenticationServi
 }
 
 cond::XMLAuthenticationService::XMLAuthenticationService::~XMLAuthenticationService() {
-  for (std::map<std::string, cond::XMLAuthenticationService::DataSourceEntry*>::iterator iConnection = m_data.begin();
-       iConnection != m_data.end();
-       ++iConnection)
+  for (auto iConnection = m_data.begin(); iConnection != m_data.end(); ++iConnection)
     delete iConnection->second;
 }
 
@@ -188,8 +185,7 @@ bool cond::XMLAuthenticationService::XMLAuthenticationService::processFile(const
 
           // Locate the credential
           cond::XMLAuthenticationService::DataSourceEntry* credential = nullptr;
-          std::map<std::string, cond::XMLAuthenticationService::DataSourceEntry*>::iterator iConnection =
-              m_data.find(sConnectionName);
+          auto iConnection = m_data.find(sConnectionName);
           if (iConnection != m_data.end()) {
             credential = iConnection->second;
             // Issue a warning here.
@@ -324,9 +320,7 @@ bool cond::XMLAuthenticationService::XMLAuthenticationService::initialize() {
   }
 
   bool result = false;
-  for (std::set<std::string>::const_reverse_iterator iFileName = inputFileNames.rbegin();
-       iFileName != inputFileNames.rend();
-       ++iFileName) {
+  for (auto iFileName = inputFileNames.rbegin(); iFileName != inputFileNames.rend(); ++iFileName) {
     if (this->processFile(*iFileName)) {
       result = true;
     }
@@ -341,9 +335,7 @@ bool cond::XMLAuthenticationService::XMLAuthenticationService::initialize() {
 }
 
 void cond::XMLAuthenticationService::XMLAuthenticationService::reset() {
-  for (std::map<std::string, cond::XMLAuthenticationService::DataSourceEntry*>::iterator iConnection = m_data.begin();
-       iConnection != m_data.end();
-       ++iConnection)
+  for (auto iConnection = m_data.begin(); iConnection != m_data.end(); ++iConnection)
     delete iConnection->second;
   m_data.clear();
   m_isInitialized = false;
@@ -355,8 +347,7 @@ const coral::IAuthenticationCredentials& cond::XMLAuthenticationService::XMLAuth
   if (!m_isInitialized) {
     const_cast<cond::XMLAuthenticationService::XMLAuthenticationService*>(this)->initialize();
   }
-  std::map<std::string, cond::XMLAuthenticationService::DataSourceEntry*>::const_iterator iConnection =
-      m_data.find(connectionString);
+  auto iConnection = m_data.find(connectionString);
   if (iConnection == m_data.end())
     throw coral::UnknownConnectionException(this->name(), connectionString);
   return iConnection->second->credentials();
@@ -368,8 +359,7 @@ const coral::IAuthenticationCredentials& cond::XMLAuthenticationService::XMLAuth
   if (!m_isInitialized) {
     const_cast<cond::XMLAuthenticationService::XMLAuthenticationService*>(this)->initialize();
   }
-  std::map<std::string, cond::XMLAuthenticationService::DataSourceEntry*>::const_iterator iConnection =
-      m_data.find(connectionString);
+  auto iConnection = m_data.find(connectionString);
   if (iConnection == m_data.end())
     throw coral::UnknownConnectionException(this->name(), connectionString);
   return iConnection->second->credentials(role);

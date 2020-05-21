@@ -130,8 +130,7 @@ double helper::ScannerBase::eval(const void *ptr, size_t iexpr) const {
 void helper::ScannerBase::print(const void *ptr) const {
   edm::ObjectWithDict obj(objType_, const_cast<void *>(ptr));
   if ((cuts_[0].get() == nullptr) || (*cuts_[0])(obj)) {
-    for (std::vector<reco::parser::ExpressionPtr>::const_iterator it = exprs_.begin(), ed = exprs_.end(); it != ed;
-         ++it) {
+    for (auto it = exprs_.begin(), ed = exprs_.end(); it != ed; ++it) {
       if (ptr == nullptr || it->get() == nullptr) {
         printf(" : %8s", "#ERR");
       } else {
@@ -157,8 +156,7 @@ void helper::ScannerBase::print(const void *ptr) const {
         }
       }
     }
-    for (std::vector<reco::parser::SelectorPtr>::const_iterator it = cuts_.begin() + 1, ed = cuts_.end(); it != ed;
-         ++it) {
+    for (auto it = cuts_.begin() + 1, ed = cuts_.end(); it != ed; ++it) {
       if (ptr == nullptr || it->get() == nullptr) {
         printf(" : %8s", "#ERR");
       } else {

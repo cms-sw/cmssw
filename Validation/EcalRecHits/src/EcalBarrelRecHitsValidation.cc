@@ -129,9 +129,7 @@ void EcalBarrelRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
 
   // ----------------------
   // loop over UncalibRecHits
-  for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EBUncalibRecHit->begin();
-       uncalibRecHit != EBUncalibRecHit->end();
-       ++uncalibRecHit) {
+  for (auto uncalibRecHit = EBUncalibRecHit->begin(); uncalibRecHit != EBUncalibRecHit->end(); ++uncalibRecHit) {
     EBDetId EBid = EBDetId(uncalibRecHit->id());
 
     // general checks
@@ -195,7 +193,7 @@ void EcalBarrelRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
 
       // ratio uncalibratedRecHit amplitude + ped / max energy digi
       const EcalPedestals *myped = ecalPeds.product();
-      EcalPedestalsMap::const_iterator it = myped->getMap().find(EBid);
+      auto it = myped->getMap().find(EBid);
       if (it != myped->getMap().end()) {
         if (eMax > (*it).mean_x1 + 5 * (*it).rms_x1 && eMax != 0) {  // only real signal RecHit
 

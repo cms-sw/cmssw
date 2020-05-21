@@ -133,7 +133,7 @@ void PatBJetVertexAnalyzer::analyze(const edm::Event &event, const edm::EventSet
   event.getByToken(jetsToken_, jetsHandle);
 
   // now go through all jets
-  for (pat::JetCollection::const_iterator jet = jetsHandle->begin(); jet != jetsHandle->end(); ++jet) {
+  for (auto jet = jetsHandle->begin(); jet != jetsHandle->end(); ++jet) {
     // only look at jets that pass the pt and eta cut
     if (jet->pt() < jetPtCut_ || std::abs(jet->eta()) > jetEtaCut_)
       continue;
@@ -213,7 +213,7 @@ void PatBJetVertexAnalyzer::analyze(const edm::Event &event, const edm::EventSet
     math::XYZTLorentzVector trackFourVectorSum;
 
     // loop over all tracks in the vertex
-    for (reco::Vertex::trackRef_iterator track = sv.tracks_begin(); track != sv.tracks_end(); ++track) {
+    for (auto track = sv.tracks_begin(); track != sv.tracks_end(); ++track) {
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double> > vec;
       vec.SetPx((*track)->px());
       vec.SetPy((*track)->py());

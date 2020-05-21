@@ -445,7 +445,7 @@ void ZeePlots::analyze(const edm::Event &iEvent, const edm::EventSetup &es) {
   }
 
   const pat::CompositeCandidateCollection *zcands = ZeeCands.product();
-  const pat::CompositeCandidateCollection::const_iterator zeeIter = zcands->begin();
+  const auto zeeIter = zcands->begin();
   const pat::CompositeCandidate zee = *zeeIter;
 
   // get the parts of the composite candidate:
@@ -610,7 +610,7 @@ void ZeePlots::analyze(const edm::Event &iEvent, const edm::EventSetup &es) {
 
         Int_t counter = 0;
 
-        for (reco::CaloJetCollection::const_iterator cjet = caloJets->begin(); cjet != caloJets->end(); ++cjet) {
+        for (auto cjet = caloJets->begin(); cjet != caloJets->end(); ++cjet) {
           // store them only if they are far enough from the electron
           Double_t DR1 = reco::deltaR(cjet->eta(), cjet->phi(), myElec1->gsfTrack()->eta(), ele1_sc_phi);
           Double_t DR2 = reco::deltaR(cjet->eta(), cjet->phi(), myElec2->gsfTrack()->eta(), ele2_sc_phi);
@@ -658,7 +658,7 @@ void ZeePlots::analyze(const edm::Event &iEvent, const edm::EventSetup &es) {
 
         Int_t counter = 0;
 
-        for (reco::PFJetCollection::const_iterator pjet = pfJets->begin(); pjet != pfJets->end(); ++pjet) {
+        for (auto pjet = pfJets->begin(); pjet != pfJets->end(); ++pjet) {
           // store them only if they are far enough from the electron
 
           Double_t DR1 = reco::deltaR(pjet->eta(), pjet->phi(), myElec1->gsfTrack()->eta(), ele1_sc_phi);

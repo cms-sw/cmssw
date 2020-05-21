@@ -69,7 +69,7 @@ PixelLumiDQM::PixelLumiDQM(const edm::ParameterSet &iConfig)
     edm::LogInfo("Configuration") << "No pixel modules specified to be ignored";
   } else {
     edm::LogInfo("Configuration") << fDeadModules.size() << " pixel modules specified to be ignored:";
-    for (std::vector<uint32_t>::const_iterator it = fDeadModules.begin(); it != fDeadModules.end(); ++it) {
+    for (auto it = fDeadModules.begin(); it != fDeadModules.end(); ++it) {
       edm::LogInfo("Configuration") << "  " << *it;
     }
   }
@@ -95,7 +95,7 @@ void PixelLumiDQM::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
   fHistBunchCrossings->Fill(float(fBXNo));
   fHistBunchCrossingsLastLumi->Fill(float(fBXNo));
   // This serves as event counter to compute luminosity from cluster counts.
-  std::map<int, PixelClusterCount>::iterator it = fNumPixelClusters.find(fBXNo);
+  auto it = fNumPixelClusters.find(fBXNo);
   if (it == fNumPixelClusters.end())
     fNumPixelClusters[fBXNo] = PixelClusterCount();
 
@@ -109,8 +109,7 @@ void PixelLumiDQM::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
     iEvent.getByToken(fPixelClusterLabel, pixelClusters);
 
     // Loop over entire tracker geometry.
-    for (TrackerGeometry::DetContainer::const_iterator i = trackerGeo->dets().begin(); i != trackerGeo->dets().end();
-         ++i) {
+    for (auto i = trackerGeo->dets().begin(); i != trackerGeo->dets().end(); ++i) {
       // See if this is a pixel unit(?).
 
       if (GeomDetEnumerators::isTrackerPixel((*i)->subDetector())) {
@@ -179,12 +178,11 @@ void PixelLumiDQM::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
     iEvent.getByToken(fPixelClusterLabel, pixelClusters);
 
     bool filterDeadModules = (!fDeadModules.empty());
-    std::vector<uint32_t>::const_iterator deadModulesBegin = fDeadModules.begin();
-    std::vector<uint32_t>::const_iterator deadModulesEnd = fDeadModules.end();
+    auto deadModulesBegin = fDeadModules.begin();
+    auto deadModulesEnd = fDeadModules.end();
 
     // Loop over entire tracker geometry.
-    for (TrackerGeometry::DetContainer::const_iterator i = trackerGeo->dets().begin(); i != trackerGeo->dets().end();
-         ++i) {
+    for (auto i = trackerGeo->dets().begin(); i != trackerGeo->dets().end(); ++i) {
       // See if this is a pixel module.
       if (GeomDetEnumerators::isTrackerPixel((*i)->subDetector())) {
         DetId detId = (*i)->geographicalId();
@@ -201,7 +199,7 @@ void PixelLumiDQM::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
         if (iSearch != pixelClusters->end()) {
           for (edmNew::DetSet<SiPixelCluster>::const_iterator clus = iSearch->begin(); clus != iSearch->end(); ++clus) {
             if ((clus->size() >= fMinPixelsPerCluster) && (clus->charge() >= fMinClusterCharge)) {
-              PixelGeomDetUnit const *theGeomDet = dynamic_cast<PixelGeomDetUnit const *>(trackerGeo->idToDet(detId));
+              auto const *theGeomDet = dynamic_cast<PixelGeomDetUnit const *>(trackerGeo->idToDet(detId));
               PixelTopology const *topol = &(theGeomDet->specificTopology());
               double x = clus->x();
               double y = clus->y();
@@ -425,7 +423,7 @@ void PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const &lumiBlock, edm
   else
     lumi_factor_per_bx = FREQ_ORBIT * SECONDS_PER_LS * fResetIntervalInLumiSections / rXSEC_PIXEL_CLUSTER;
 
-  for (std::map<int, PixelClusterCount>::iterator it = fNumPixelClusters.begin(); it != fNumPixelClusters.end(); it++) {
+  for (auto it = fNumPixelClusters.begin(); it != fNumPixelClusters.end(); it++) {
     // Sum all clusters for this BX.
     unsigned int total = (*it).second.numB.at(1) + (*it).second.numB.at(2) + (*it).second.numFP.at(0) +
                          (*it).second.numFP.at(1) + (*it).second.numFM.at(0) + (*it).second.numFM.at(1);

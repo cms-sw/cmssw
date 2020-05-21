@@ -110,9 +110,7 @@ void CaloCleaner<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     edm::Handle<RecHitCollection> recHitCollection;
     // iEvent.getByToken(input_.second[0], recHitCollection);
     iEvent.getByToken(input_.second, recHitCollection);
-    for (typename RecHitCollection::const_iterator recHit = recHitCollection->begin();
-         recHit != recHitCollection->end();
-         ++recHit) {
+    for (auto recHit = recHitCollection->begin(); recHit != recHitCollection->end(); ++recHit) {
       if (correction_map[recHit->detid().rawId()] > 0) {
         float new_energy = recHit->energy() - correction_map[recHit->detid().rawId()];
         if (new_energy <= 0)

@@ -180,7 +180,7 @@ std::vector<L1MuRegionalCand> RPCTrigger::giveFinallCandindates(const L1RpcTBMuo
       for (RPCDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt) {
         ++digiIndex;
 
-        RPCMuon::TDigiLinkVec::iterator it = digiIVec.begin();
+        auto it = digiIVec.begin();
         for (; it != digiIVec.end(); ++it) {
           if (digiIndex == it->m_digiIdx) {
             newDigiLink.setLink(it->m_layer + 1, rawId, digiIt->strip(), digiIt->bx());

@@ -175,40 +175,35 @@ namespace l1t {
 
     // Put EG into Collections
     for (unsigned int it = 0; it < fEgBx.size(); it++) {
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>* egLorentz =
-          new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>();
+      auto* egLorentz = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>();
       l1t::EGamma fakeEG(*egLorentz, fEgHwPt.at(it), fEgHwEta.at(it), fEgHwPhi.at(it), 0, fEgIso.at(it));
       egammas->push_back(fEgBx.at(it), fakeEG);
     }
 
     // Put Muons into Collections
     for (unsigned int it = 0; it < fMuBx.size(); it++) {
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>* muLorentz =
-          new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>();
+      auto* muLorentz = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>();
       l1t::Muon fakeMU(*muLorentz, fMuHwPt.at(it), fMuHwEta.at(it), fMuHwPhi.at(it), 4, 0, 0, fMuIso.at(it));
       muons->push_back(fMuBx.at(it), fakeMU);
     }
 
     // Put Taus into Collections
     for (unsigned int it = 0; it < fTauBx.size(); it++) {
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>* tauLorentz =
-          new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>();
+      auto* tauLorentz = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>();
       l1t::Tau fakeTAU(*tauLorentz, fTauHwPt.at(it), fTauHwEta.at(it), fTauHwPhi.at(it), 0, fTauIso.at(it));
       taus->push_back(fTauBx.at(it), fakeTAU);
     }
 
     // Put Jets into Collections
     for (unsigned int it = 0; it < fJetBx.size(); it++) {
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>* jetLorentz =
-          new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>();
+      auto* jetLorentz = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>();
       l1t::Jet fakeJET(*jetLorentz, fJetHwPt.at(it), fJetHwEta.at(it), fJetHwPhi.at(it), 0);
       jets->push_back(fJetBx.at(it), fakeJET);
     }
 
     // Put EtSums into Collections
     for (unsigned int it = 0; it < fEtSumBx.size(); it++) {
-      ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>* etsumLorentz =
-          new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>();
+      auto* etsumLorentz = new ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double>>();
       l1t::EtSum fakeETSUM(
           *etsumLorentz, l1t::EtSum::EtSumType::kMissingEt, fEtSumHwPt.at(it), 0, fEtSumHwPhi.at(it), 0);
       etsums->push_back(fEtSumBx.at(it), fakeETSUM);

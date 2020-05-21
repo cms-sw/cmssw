@@ -42,9 +42,7 @@ void BoostedJetMerger::produce(edm::Event& iEvent, const edm::EventSetup&) {
       }
     }
     outputs->back().clearDaughters();
-    for (std::vector<edm::Ptr<reco::Candidate>>::const_iterator nextSubjet = nextSubjets.begin(),
-                                                                nextSubjetEnd = nextSubjets.end();
-         nextSubjet != nextSubjetEnd;
+    for (auto nextSubjet = nextSubjets.begin(), nextSubjetEnd = nextSubjets.end(); nextSubjet != nextSubjetEnd;
          ++nextSubjet) {
       outputs->back().addDaughter(*nextSubjet);
     }

@@ -448,7 +448,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
         // Step 1:  Set PET flag  (short fibers of |ieta|==29)
         // Neighbor/partner channels that are flagged by Pulse Shape algorithm (HFDigiTime)
         // won't be considered in these calculations
-        for (HFRecHitCollection::iterator i = rec->begin(); i != rec->end(); ++i) {
+        for (auto i = rec->begin(); i != rec->end(); ++i) {
           int depth = i->id().depth();
           int ieta = i->id().ieta();
           // Short fibers and all channels at |ieta|=29 use PET settings in Algo 3
@@ -457,7 +457,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
         }
 
         // Step 2:  Set S8S1 flag (short fibers or |ieta|==29)
-        for (HFRecHitCollection::iterator i = rec->begin(); i != rec->end(); ++i) {
+        for (auto i = rec->begin(); i != rec->end(); ++i) {
           int depth = i->id().depth();
           int ieta = i->id().ieta();
           // Short fibers and all channels at |ieta|=29 use PET settings in Algo 3
@@ -466,7 +466,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
         }
 
         // Set 3:  Set S9S1 flag (long fibers)
-        for (HFRecHitCollection::iterator i = rec->begin(); i != rec->end(); ++i) {
+        for (auto i = rec->begin(); i != rec->end(); ++i) {
           int depth = i->id().depth();
           int ieta = i->id().ieta();
           // Short fibers and all channels at |ieta|=29 use PET settings in Algo 3

@@ -23,7 +23,7 @@ boost::regex MP7FileReader::reValid_("([01])v([0-9a-fA-F]{8})");
 
 //____________________________________________________________________________//
 const std::vector<uint64_t>& FileData::link(uint32_t i) const {
-  LinkMap::const_iterator it = links_.find(i);
+  auto it = links_.find(i);
   if (it == links_.end()) {
     edm::LogError("L1T") << "Link id " << i << " not found";
   }

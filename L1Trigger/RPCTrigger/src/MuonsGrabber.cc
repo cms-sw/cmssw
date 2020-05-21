@@ -150,7 +150,7 @@ void MuonsGrabber::writeDataForRelativeBX(int bx) {
 
         DOMElement* pac = nullptr;
         // for (int segment = 0; segment <= 11; ++segment ) {
-        std::vector<RPCMuonExtraStruct>::iterator it = m_muons.begin();
+        auto it = m_muons.begin();
         while (it != m_muons.end()) {
           int muSegment = it->_mu.getLogSegment();
           //if
@@ -227,7 +227,7 @@ void MuonsGrabber::writeDataForRelativeBX(int bx) {
     for (int half = 0; half <= 1; ++half) {
       for (int be = 0; be <= 1; ++be) {  // brl/endcap
 
-        std::vector<RPCMuonExtraStruct>::iterator it = m_muons.begin();
+        auto it = m_muons.begin();
         DOMElement* hs = nullptr;
         while (it != m_muons.end()) {
           if ((int(it->_level) != level) || int(it->_hsHalf) != half || int(it->_region) != be) {

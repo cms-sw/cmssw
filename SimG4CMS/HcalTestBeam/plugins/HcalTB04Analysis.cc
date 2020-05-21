@@ -407,8 +407,8 @@ void HcalTB04Analysis::update(const G4Step* aStep) {
       if (aTrack->GetCurrentStepNumber() == 1) {
         if (!shortLivedSecondaries.empty()) {
           int pid = parentID;
-          std::vector<int>::iterator pos1 = shortLivedSecondaries.begin();
-          std::vector<int>::iterator pos2 = shortLivedSecondaries.end();
+          auto pos1 = shortLivedSecondaries.begin();
+          auto pos2 = shortLivedSecondaries.end();
           std::vector<int>::iterator pos;
           for (pos = pos1; pos != pos2; pos++) {
             if (*pos == pid) {  //ParentID is on the list of short-lived

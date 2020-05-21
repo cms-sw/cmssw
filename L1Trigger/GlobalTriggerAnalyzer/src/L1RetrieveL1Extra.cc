@@ -425,9 +425,7 @@ void L1RetrieveL1Extra::printL1Extra(std::ostream& oStr,
 
       int indexInColl = -1;
 
-      for (l1extra::L1MuonParticleCollection::const_iterator iterColl = m_l1ExtraMuon->begin();
-           iterColl != m_l1ExtraMuon->end();
-           ++iterColl) {
+      for (auto iterColl = m_l1ExtraMuon->begin(); iterColl != m_l1ExtraMuon->end(); ++iterColl) {
         if (checkBxInEvent) {
           if (iterColl->bx() != bxInEvent) {
             continue;
@@ -465,9 +463,7 @@ void L1RetrieveL1Extra::printL1Extra(std::ostream& oStr,
 
       int indexInColl = -1;
 
-      for (l1extra::L1EmParticleCollection::const_iterator iterColl = m_l1ExtraNoIsoEG->begin();
-           iterColl != m_l1ExtraNoIsoEG->end();
-           ++iterColl) {
+      for (auto iterColl = m_l1ExtraNoIsoEG->begin(); iterColl != m_l1ExtraNoIsoEG->end(); ++iterColl) {
         if (checkBxInEvent) {
           if (iterColl->bx() != bxInEvent) {
             continue;
@@ -504,9 +500,7 @@ void L1RetrieveL1Extra::printL1Extra(std::ostream& oStr,
 
       int indexInColl = -1;
 
-      for (l1extra::L1EmParticleCollection::const_iterator iterColl = m_l1ExtraIsoEG->begin();
-           iterColl != m_l1ExtraIsoEG->end();
-           ++iterColl) {
+      for (auto iterColl = m_l1ExtraIsoEG->begin(); iterColl != m_l1ExtraIsoEG->end(); ++iterColl) {
         if (checkBxInEvent) {
           if (iterColl->bx() != bxInEvent) {
             continue;
@@ -543,9 +537,7 @@ void L1RetrieveL1Extra::printL1Extra(std::ostream& oStr,
 
       int indexInColl = -1;
 
-      for (l1extra::L1JetParticleCollection::const_iterator iterColl = m_l1ExtraCenJet->begin();
-           iterColl != m_l1ExtraCenJet->end();
-           ++iterColl) {
+      for (auto iterColl = m_l1ExtraCenJet->begin(); iterColl != m_l1ExtraCenJet->end(); ++iterColl) {
         if (checkBxInEvent) {
           if (iterColl->bx() != bxInEvent) {
             continue;
@@ -582,9 +574,7 @@ void L1RetrieveL1Extra::printL1Extra(std::ostream& oStr,
 
       int indexInColl = -1;
 
-      for (l1extra::L1JetParticleCollection::const_iterator iterColl = m_l1ExtraForJet->begin();
-           iterColl != m_l1ExtraForJet->end();
-           ++iterColl) {
+      for (auto iterColl = m_l1ExtraForJet->begin(); iterColl != m_l1ExtraForJet->end(); ++iterColl) {
         if (checkBxInEvent) {
           if (iterColl->bx() != bxInEvent) {
             continue;
@@ -621,9 +611,7 @@ void L1RetrieveL1Extra::printL1Extra(std::ostream& oStr,
 
       int indexInColl = -1;
 
-      for (l1extra::L1JetParticleCollection::const_iterator iterColl = m_l1ExtraTauJet->begin();
-           iterColl != m_l1ExtraTauJet->end();
-           ++iterColl) {
+      for (auto iterColl = m_l1ExtraTauJet->begin(); iterColl != m_l1ExtraTauJet->end(); ++iterColl) {
         if (checkBxInEvent) {
           if (iterColl->bx() != bxInEvent) {
             continue;
@@ -660,9 +648,7 @@ void L1RetrieveL1Extra::printL1Extra(std::ostream& oStr,
 
       int indexInColl = -1;
 
-      for (l1extra::L1EtMissParticleCollection::const_iterator iterColl = m_l1ExtraETM->begin();
-           iterColl != m_l1ExtraETM->end();
-           ++iterColl) {
+      for (auto iterColl = m_l1ExtraETM->begin(); iterColl != m_l1ExtraETM->end(); ++iterColl) {
         if (checkBxInEvent) {
           if (iterColl->bx() != bxInEvent) {
             continue;
@@ -696,9 +682,7 @@ void L1RetrieveL1Extra::printL1Extra(std::ostream& oStr,
 
       int indexInColl = -1;
 
-      for (l1extra::L1EtMissParticleCollection::const_iterator iterColl = m_l1ExtraETT->begin();
-           iterColl != m_l1ExtraETT->end();
-           ++iterColl) {
+      for (auto iterColl = m_l1ExtraETT->begin(); iterColl != m_l1ExtraETT->end(); ++iterColl) {
         if (checkBxInEvent) {
           if (iterColl->bx() != bxInEvent) {
             continue;
@@ -729,9 +713,7 @@ void L1RetrieveL1Extra::printL1Extra(std::ostream& oStr,
 
       int indexInColl = -1;
 
-      for (l1extra::L1EtMissParticleCollection::const_iterator iterColl = m_l1ExtraHTT->begin();
-           iterColl != m_l1ExtraHTT->end();
-           ++iterColl) {
+      for (auto iterColl = m_l1ExtraHTT->begin(); iterColl != m_l1ExtraHTT->end(); ++iterColl) {
         if (checkBxInEvent) {
           if (iterColl->bx() != bxInEvent) {
             continue;
@@ -762,9 +744,7 @@ void L1RetrieveL1Extra::printL1Extra(std::ostream& oStr,
 
       int indexInColl = -1;
 
-      for (l1extra::L1EtMissParticleCollection::const_iterator iterColl = m_l1ExtraHTM->begin();
-           iterColl != m_l1ExtraHTM->end();
-           ++iterColl) {
+      for (auto iterColl = m_l1ExtraHTM->begin(); iterColl != m_l1ExtraHTM->end(); ++iterColl) {
         if (checkBxInEvent) {
           if (iterColl->bx() != bxInEvent) {
             continue;
@@ -800,9 +780,7 @@ void L1RetrieveL1Extra::printL1Extra(std::ostream& oStr,
     case HfBitCounts: {
       oStr << "\n HfBitCounts collection\n" << std::endl;
 
-      for (l1extra::L1HFRingsCollection::const_iterator iterColl = m_l1ExtraHfBitCounts->begin();
-           iterColl != m_l1ExtraHfBitCounts->end();
-           ++iterColl) {
+      for (auto iterColl = m_l1ExtraHfBitCounts->begin(); iterColl != m_l1ExtraHfBitCounts->end(); ++iterColl) {
         if (checkBxInEvent) {
           if (iterColl->bx() != bxInEvent) {
             continue;
@@ -839,9 +817,7 @@ void L1RetrieveL1Extra::printL1Extra(std::ostream& oStr,
     case HfRingEtSums: {
       oStr << "\n HfRingEtSums collection\n" << std::endl;
 
-      for (l1extra::L1HFRingsCollection::const_iterator iterColl = m_l1ExtraHfRingEtSums->begin();
-           iterColl != m_l1ExtraHfRingEtSums->end();
-           ++iterColl) {
+      for (auto iterColl = m_l1ExtraHfRingEtSums->begin(); iterColl != m_l1ExtraHfRingEtSums->end(); ++iterColl) {
         if (checkBxInEvent) {
           if (iterColl->bx() != bxInEvent) {
             continue;

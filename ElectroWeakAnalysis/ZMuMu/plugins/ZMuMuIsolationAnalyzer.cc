@@ -218,7 +218,7 @@ void ZMuMuIsolationAnalyzer::analyze(const edm::Event& event, const edm::EventSe
     const Candidate* dau0 = zmm.daughter(0);
     const Candidate* dau1 = zmm.daughter(1);
     const pat::Muon& mu0 = dynamic_cast<const pat::Muon&>(*dau0->masterClone());
-    const pat::GenericParticle& mu1 = dynamic_cast<const pat::GenericParticle&>(*dau1->masterClone());
+    const auto& mu1 = dynamic_cast<const pat::GenericParticle&>(*dau1->masterClone());
 
     const pat::IsoDeposit* muTrackIso = mu0.isoDeposit(pat::TrackIso);
     const pat::IsoDeposit* tkTrackIso = mu1.isoDeposit(pat::TrackIso);

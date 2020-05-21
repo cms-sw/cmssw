@@ -528,7 +528,7 @@ namespace edm {
         mmr << "    maximum increase in vsize; event on which maximum occurred \n";
         mmr << "  (during early ignored events) \n";
         mmr << "    total and maximum vsize increases \n \n";
-        for (SignificantModulesMap::iterator im = modules_.begin(); im != modules_.end(); ++im) {
+        for (auto im = modules_.begin(); im != modules_.end(); ++im) {
           SignificantModule const& m = im->second;
           if (m.totalDeltaVsize == 0 && m.totalEarlyVsize == 0)
             continue;
@@ -603,7 +603,7 @@ namespace edm {
       reportData.insert(std::make_pair("PeakValueRss", d2str(eventRssT1_.rss)));
 
       if (moduleSummaryRequested_) {  // changelog 2
-        for (SignificantModulesMap::iterator im = modules_.begin(); im != modules_.end(); ++im) {
+        for (auto im = modules_.begin(); im != modules_.end(); ++im) {
           SignificantModule const& m = im->second;
           if (m.totalDeltaVsize == 0 && m.totalEarlyVsize == 0)
             continue;

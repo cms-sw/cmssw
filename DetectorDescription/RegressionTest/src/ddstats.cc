@@ -54,7 +54,7 @@ void ddstats(std::ostream& os) {
 
   typedef DDLogicalPart::StoreT::value_type lpst_type;
   lpst_type& lpst = DDLogicalPart::StoreT::instance();
-  lpst_type::iterator lpstit = lpst.begin();
+  auto lpstit = lpst.begin();
   for (; lpstit != lpst.end(); ++lpstit) {
     noCLog += lpstit->first.name().size();
     ++noLog;
@@ -62,7 +62,7 @@ void ddstats(std::ostream& os) {
 
   typedef DDMaterial::StoreT::value_type mast_type;
   mast_type& mast = DDMaterial::StoreT::instance();
-  mast_type::iterator mastit = mast.begin();
+  auto mastit = mast.begin();
   for (; mastit != mast.end(); ++mastit) {
     noCMat += mastit->first.name().size();
     ++noMat;
@@ -70,7 +70,7 @@ void ddstats(std::ostream& os) {
 
   typedef DDSolid::StoreT::value_type sost_type;
   sost_type& sost = DDSolid::StoreT::instance();
-  sost_type::iterator sostit = sost.begin();
+  auto sostit = sost.begin();
   for (; sostit != sost.end(); ++sostit) {
     noCSol += sostit->first.name().size();
     DDSolid s(sostit->first);
@@ -80,7 +80,7 @@ void ddstats(std::ostream& os) {
 
   typedef DDRotation::StoreT::value_type rost_type;
   rost_type& rost = DDRotation::StoreT::instance();
-  rost_type::iterator rostit = rost.begin();
+  auto rostit = rost.begin();
   for (; rostit != rost.end(); ++rostit) {
     noCRot += rostit->first.name().size();
     ++noRot;

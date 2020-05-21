@@ -122,7 +122,7 @@ int RPCSimAsymmetricCls::getClSize(float posX, CLHEP::HepRandomEngine* engine) {
     sum_clsize = clsMap[5];
   }
 
-  for (vector<double>::iterator iter = sum_clsize.begin(); iter != sum_clsize.end(); ++iter) {
+  for (auto iter = sum_clsize.begin(); iter != sum_clsize.end(); ++iter) {
     cnt++;
     if (func > (*iter)) {
       min = cnt;
@@ -146,7 +146,7 @@ void RPCSimAsymmetricCls::simulate(const RPCRoll* roll,
   std::string nameRoll = RPCname.name();
 
   const Topology& topology = roll->specs()->topology();
-  for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin(); _hit != rpcHits.end(); ++_hit) {
+  for (auto _hit = rpcHits.begin(); _hit != rpcHits.end(); ++_hit) {
     if (!eledig && _hit->particleType() == 11)
       continue;
     // Here I hould check if the RPC are up side down;
@@ -159,7 +159,7 @@ void RPCSimAsymmetricCls::simulate(const RPCRoll* roll,
 
     std::stringstream veffstream;
     veffstream << "[";
-    for (std::vector<float>::iterator veffIt = veff.begin(); veffIt != veff.end(); ++veffIt) {
+    for (auto veffIt = veff.begin(); veffIt != veff.end(); ++veffIt) {
       veffstream << (*veffIt) << ",";
     }
     veffstream << "]";
@@ -266,7 +266,7 @@ void RPCSimAsymmetricCls::simulate(const RPCRoll* roll,
       int max_strip = 0;
 
       //correction for the edges
-      for (std::vector<int>::iterator i = cls.begin(); i != cls.end(); i++) {
+      for (auto i = cls.begin(); i != cls.end(); i++) {
         if (*i + strip_shift < min_strip) {
           min_strip = *i + strip_shift;
         }
@@ -280,10 +280,10 @@ void RPCSimAsymmetricCls::simulate(const RPCRoll* roll,
       }
 
       //Now shift the cluster
-      for (std::vector<int>::iterator i = cls.begin(); i != cls.end(); i++) {
+      for (auto i = cls.begin(); i != cls.end(); i++) {
         shifted_cls.push_back(*i + strip_shift);
       }
-      for (std::vector<int>::iterator i = shifted_cls.begin(); i != shifted_cls.end(); i++) {
+      for (auto i = shifted_cls.begin(); i != shifted_cls.end(); i++) {
         // Check the timing of the adjacent strip
         if (*i != centralStrip) {
           double fire2 = CLHEP::RandFlat::shoot(engine);
@@ -325,7 +325,7 @@ void RPCSimAsymmetricCls::simulateNoise(const RPCRoll* roll, CLHEP::HepRandomEng
 
   std::stringstream vnoisestream;
   vnoisestream << "[";
-  for (std::vector<float>::iterator vnoiseIt = vnoise.begin(); vnoiseIt != vnoise.end(); ++vnoiseIt) {
+  for (auto vnoiseIt = vnoise.begin(); vnoiseIt != vnoise.end(); ++vnoiseIt) {
     vnoisestream << (*vnoiseIt) << ",";
   }
   vnoisestream << "]";
@@ -337,13 +337,13 @@ void RPCSimAsymmetricCls::simulateNoise(const RPCRoll* roll, CLHEP::HepRandomEng
   double area = 0.0;
 
   if (rpcId.region() == 0) {
-    const RectangularStripTopology* top_ = dynamic_cast<const RectangularStripTopology*>(&(roll->topology()));
+    const auto* top_ = dynamic_cast<const RectangularStripTopology*>(&(roll->topology()));
     float xmin = (top_->localPosition(0.)).x();
     float xmax = (top_->localPosition((float)roll->nstrips())).x();
     float striplength = (top_->stripLength());
     area = striplength * (xmax - xmin);
   } else {
-    const TrapezoidalStripTopology* top_ = dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology()));
+    const auto* top_ = dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology()));
     float xmin = (top_->localPosition(0.)).x();
     float xmax = (top_->localPosition((float)roll->nstrips())).x();
     float striplength = (top_->stripLength());

@@ -160,7 +160,7 @@ namespace evf {
         fm->registerGlobalMonitorable(&fastLockCountJ_, false);
 
         for (unsigned int i = 0; i < nStreams; i++) {
-          jsoncollector::AtomicMonUInt* p = new jsoncollector::AtomicMonUInt;
+          auto* p = new jsoncollector::AtomicMonUInt;
           *p = 0;
           processed_.push_back(p);
           streamLumi_.push_back(0);

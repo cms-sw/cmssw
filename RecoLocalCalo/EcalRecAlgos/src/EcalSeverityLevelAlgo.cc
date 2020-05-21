@@ -31,12 +31,11 @@ EcalSeverityLevelAlgo::EcalSeverityLevelAlgo(const edm::ParameterSet& p) {
   // read configuration of severities
 
   for (unsigned int is = 0; is != severities.size(); ++is) {
-    EcalSeverityLevel::SeverityLevel snum =
-        (EcalSeverityLevel::SeverityLevel)StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severities[is]);
+    auto snum = (EcalSeverityLevel::SeverityLevel)StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severities[is]);
     flags = ps.getParameter<std::vector<std::string> >(severities[is]);
     uint32_t mask = 0;
     for (unsigned int ifi = 0; ifi != flags.size(); ++ifi) {
-      EcalRecHit::Flags f = (EcalRecHit::Flags)StringToEnumValue<EcalRecHit::Flags>(flags[ifi]);
+      auto f = (EcalRecHit::Flags)StringToEnumValue<EcalRecHit::Flags>(flags[ifi]);
       //manipulate the mask
       mask |= (0x1 << f);
     }
@@ -52,14 +51,12 @@ EcalSeverityLevelAlgo::EcalSeverityLevelAlgo(const edm::ParameterSet& p) {
   dbstatusMask_.resize(dbseverities.size());
 
   for (unsigned int is = 0; is != dbseverities.size(); ++is) {
-    EcalSeverityLevel::SeverityLevel snum =
-        (EcalSeverityLevel::SeverityLevel)StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severities[is]);
+    auto snum = (EcalSeverityLevel::SeverityLevel)StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severities[is]);
 
     dbflags = dbps.getParameter<std::vector<std::string> >(severities[is]);
     uint32_t mask = 0;
     for (unsigned int ifi = 0; ifi != dbflags.size(); ++ifi) {
-      EcalChannelStatusCode::Code f =
-          (EcalChannelStatusCode::Code)StringToEnumValue<EcalChannelStatusCode::Code>(dbflags[ifi]);
+      auto f = (EcalChannelStatusCode::Code)StringToEnumValue<EcalChannelStatusCode::Code>(dbflags[ifi]);
 
       //manipulate the mask
       mask |= (0x1 << f);
@@ -74,7 +71,7 @@ EcalSeverityLevel::SeverityLevel EcalSeverityLevelAlgo::severityLevel(const DetI
   using namespace EcalSeverityLevel;
 
   // if the detid is within our rechits, evaluate from flag
-  EcalRecHitCollection::const_iterator rh = rhs.find(id);
+  auto rh = rhs.find(id);
   if (rh != rhs.end())
     return severityLevel(*rh);
 
@@ -85,7 +82,7 @@ EcalSeverityLevel::SeverityLevel EcalSeverityLevelAlgo::severityLevel(const DetI
 EcalSeverityLevel::SeverityLevel EcalSeverityLevelAlgo::severityLevel(const DetId& id) const {
   using namespace EcalSeverityLevel;
 
-  EcalChannelStatus::const_iterator chIt = chStatus_->find(id);
+  auto chIt = chStatus_->find(id);
 
   uint16_t dbStatus = chIt->getStatusCode();
 

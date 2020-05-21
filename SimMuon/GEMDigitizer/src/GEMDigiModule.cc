@@ -85,7 +85,7 @@ void GEMDigiModule::addLinksWithPartId(unsigned int strip, int bx) {
   std::pair<unsigned int, int> digi(strip, bx);
   std::pair<DetectorHitMap::iterator, DetectorHitMap::iterator> channelHitItr = detectorHitMap_.equal_range(digi);
 
-  for (DetectorHitMap::iterator hitItr = channelHitItr.first; hitItr != channelHitItr.second; ++hitItr) {
+  for (auto hitItr = channelHitItr.first; hitItr != channelHitItr.second; ++hitItr) {
     const PSimHit* hit = (hitItr->second);
     // might be zero for unit tests and such
     if (hit == nullptr)

@@ -54,7 +54,7 @@ MagGeometry::MagGeometry(int geomVersion,
       geometryVersion(geomVersion) {
   vector<double> rBorders;
 
-  for (vector<MagBLayer const*>::const_iterator ilay = theBLayers.begin(); ilay != theBLayers.end(); ++ilay) {
+  for (auto ilay = theBLayers.begin(); ilay != theBLayers.end(); ++ilay) {
     LogTrace("MagGeoBuilder") << "  Barrel layer at " << (*ilay)->minR() << endl;
     //FIXME assume layers are already sorted in minR
     rBorders.push_back((*ilay)->minR() * (*ilay)->minR());
@@ -110,11 +110,11 @@ MagGeometry::~MagGeometry() {
   if (theEndcapBinFinder != nullptr)
     delete theEndcapBinFinder;
 
-  for (vector<MagBLayer const*>::const_iterator ilay = theBLayers.begin(); ilay != theBLayers.end(); ++ilay) {
+  for (auto ilay = theBLayers.begin(); ilay != theBLayers.end(); ++ilay) {
     delete (*ilay);
   }
 
-  for (vector<MagESector const*>::const_iterator ilay = theESectors.begin(); ilay != theESectors.end(); ++ilay) {
+  for (auto ilay = theESectors.begin(); ilay != theESectors.end(); ++ilay) {
     delete (*ilay);
   }
 }
@@ -145,7 +145,7 @@ MagVolume const* MagGeometry::findVolume1(const GlobalPoint& gp, double toleranc
 
   int errCnt = 0;
   if (inBarrel(gp)) {  // Barrel
-    for (vector<MagVolume6Faces const*>::const_iterator v = theBVolumes.begin(); v != theBVolumes.end(); ++v) {
+    for (auto v = theBVolumes.begin(); v != theBVolumes.end(); ++v) {
       if ((*v) == nullptr) {  //FIXME: remove this check
         LogError("MagGeometry") << endl << "***ERROR: MagGeometry::findVolume: MagVolume for barrel not set" << endl;
         ++errCnt;
@@ -161,7 +161,7 @@ MagVolume const* MagGeometry::findVolume1(const GlobalPoint& gp, double toleranc
     }
 
   } else {  // Endcaps
-    for (vector<MagVolume6Faces const*>::const_iterator v = theEVolumes.begin(); v != theEVolumes.end(); ++v) {
+    for (auto v = theEVolumes.begin(); v != theEVolumes.end(); ++v) {
       if ((*v) == nullptr) {  //FIXME: remove this check
         LogError("MagGeometry") << endl << "***ERROR: MagGeometry::findVolume: MagVolume for endcap not set" << endl;
         ++errCnt;

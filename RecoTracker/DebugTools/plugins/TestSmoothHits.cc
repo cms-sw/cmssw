@@ -200,7 +200,7 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   TrajectoryStateCombiner combiner;
 
-  for (TrackCandidateCollection::const_iterator i = theTCCollection->begin(); i != theTCCollection->end(); i++) {
+  for (auto i = theTCCollection->begin(); i != theTCCollection->end(); i++) {
     LogTrace("TestSmoothHits") << "new candidate" << std::endl;
 
     const TrackCandidate* theTC = &(*i);
@@ -227,7 +227,7 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     std::vector<Trajectory> fitted = fit->fit(theTC->seed(), hits, theTSOS);
     //call the smoother
     std::vector<Trajectory> result;
-    for (std::vector<Trajectory>::iterator it = fitted.begin(); it != fitted.end(); it++) {
+    for (auto it = fitted.begin(); it != fitted.end(); it++) {
       std::vector<Trajectory> smoothed = smooth->trajectories(*it);
       result.insert(result.end(), smoothed.begin(), smoothed.end());
     }
@@ -236,7 +236,7 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     std::vector<TrajectoryMeasurement> vtm = result[0].measurements();
 
     TSOS lastState = theTSOS;
-    for (std::vector<TrajectoryMeasurement>::iterator tm = vtm.begin(); tm != vtm.end(); tm++) {
+    for (auto tm = vtm.begin(); tm != vtm.end(); tm++) {
       TransientTrackingRecHit::ConstRecHitPointer rhit = tm->recHit();
       if ((rhit)->isValid() == 0 && rhit->det() != nullptr)
         continue;
@@ -254,7 +254,7 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       if (assSimHits.empty())
         continue;
       PSimHit shit;
-      for (std::vector<PSimHit>::const_iterator m = assSimHits.begin(); m < assSimHits.end(); m++) {
+      for (auto m = assSimHits.begin(); m < assSimHits.end(); m++) {
         if ((m->localPosition() - rhitLPv).mag() < delta) {
           shit = *m;
           delta = (m->localPosition() - rhitLPv).mag();
@@ -289,7 +289,7 @@ void TestSmoothHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
         std::pair<LocalPoint, LocalVector> closestPair;
         const StripGeomDetUnit* stripDet = (StripGeomDetUnit*)((const GluedGeomDet*)(rhit)->det())->stereoDet();
         const BoundPlane& plane = (rhit)->det()->surface();
-        for (std::vector<PSimHit>::const_iterator m = assSimHits.begin(); m < assSimHits.end(); m++) {
+        for (auto m = assSimHits.begin(); m < assSimHits.end(); m++) {
           //project simhit;
           std::pair<LocalPoint, LocalVector> hitPair = projectHit((*m), stripDet, plane);
           distx = fabs(rechitmatchedx - hitPair.first.x());

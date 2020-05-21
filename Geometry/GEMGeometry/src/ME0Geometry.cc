@@ -22,7 +22,7 @@ const ME0Geometry::DetIdContainer& ME0Geometry::detIds() const { return theDetId
 const GeomDet* ME0Geometry::idToDetUnit(DetId id) const { return dynamic_cast<const GeomDet*>(idToDet(id)); }
 
 const GeomDet* ME0Geometry::idToDet(DetId id) const {
-  mapIdToDet::const_iterator i = theMap.find(id);
+  auto i = theMap.find(id);
   return (i != theMap.end()) ? i->second : nullptr;
 }
 

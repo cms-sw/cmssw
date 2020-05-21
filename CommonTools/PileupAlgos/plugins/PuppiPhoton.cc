@@ -143,7 +143,7 @@ void PuppiPhoton::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
   std::set<int> foundPhoIndex;
   for (CandidateView::const_iterator itPF = pupCol->begin(); itPF != pupCol->end(); itPF++) {
     auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(itPF->pdgId());
-    const reco::PFCandidate *pPF = dynamic_cast<const reco::PFCandidate *>(&(*itPF));
+    const auto *pPF = dynamic_cast<const reco::PFCandidate *>(&(*itPF));
     reco::PFCandidate pCand(pPF ? *pPF : reco::PFCandidate(itPF->charge(), itPF->p4(), id));
     LorentzVector pVec = itPF->p4();
     float pWeight = 1.;
@@ -151,7 +151,7 @@ void PuppiPhoton::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
       pWeight = (*pupWeights)[pupCol->ptrAt(iPF)];
     if (!usePFRef_) {
       int iPho = -1;
-      for (std::vector<const reco::Candidate *>::iterator itPho = phoCands.begin(); itPho != phoCands.end(); itPho++) {
+      for (auto itPho = phoCands.begin(); itPho != phoCands.end(); itPho++) {
         iPho++;
         if ((!matchPFCandidate(&(*itPF), *itPho)) || (foundPhoIndex.count(iPho) != 0))
           continue;
@@ -167,7 +167,7 @@ void PuppiPhoton::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
       }
     } else {
       int iPho = -1;
-      for (std::vector<uint16_t>::const_iterator itPho = phoIndx.begin(); itPho != phoIndx.end(); itPho++) {
+      for (auto itPho = phoIndx.begin(); itPho != phoIndx.end(); itPho++) {
         iPho++;
         if (pupCol->refAt(iPF).key() != *itPho)
           continue;

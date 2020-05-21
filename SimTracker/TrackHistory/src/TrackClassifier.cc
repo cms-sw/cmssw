@@ -254,9 +254,7 @@ void TrackClassifier::processesAtGenerator() {
 
   // Loop over the generated particles (reco::GenParticle in the
   // recoGenParticleTrail)
-  for (TrackHistory::RecoGenParticleTrail::const_iterator iparticle = recoGenParticleTrail.begin();
-       iparticle != recoGenParticleTrail.end();
-       ++iparticle) {
+  for (auto iparticle = recoGenParticleTrail.begin(); iparticle != recoGenParticleTrail.end(); ++iparticle) {
     pdgid = std::abs((*iparticle)->pdgId());
     // Get particle type
     HepPDT::ParticleID particleID(pdgid);
@@ -304,9 +302,7 @@ void TrackClassifier::processesAtSimulation() {
   TrackHistory::SimParticleTrail const &simParticleTrail = tracer_.simParticleTrail();
 
   // Loop over the simulated particles
-  for (TrackHistory::SimParticleTrail::const_iterator iparticle = simParticleTrail.begin();
-       iparticle != simParticleTrail.end();
-       ++iparticle) {
+  for (auto iparticle = simParticleTrail.begin(); iparticle != simParticleTrail.end(); ++iparticle) {
     // pdgid of the real source parent vertex
     int pdgid = 0;
 
@@ -428,9 +424,7 @@ void TrackClassifier::vertexInformation() {
   double oldZ = genpv.z;
 
   // Loop over the generated particles
-  for (TrackHistory::GenParticleTrail::const_reverse_iterator iparticle = genParticleTrail.rbegin();
-       iparticle != genParticleTrail.rend();
-       ++iparticle) {
+  for (auto iparticle = genParticleTrail.rbegin(); iparticle != genParticleTrail.rend(); ++iparticle) {
     // Look for those with production vertex
     HepMC::GenVertex *parent = (*iparticle)->production_vertex();
     if (parent) {
@@ -456,9 +450,7 @@ void TrackClassifier::vertexInformation() {
   const TrackHistory::SimParticleTrail &simParticleTrail = tracer_.simParticleTrail();
 
   // Loop over the generated particles
-  for (TrackHistory::SimParticleTrail::const_reverse_iterator iparticle = simParticleTrail.rbegin();
-       iparticle != simParticleTrail.rend();
-       ++iparticle) {
+  for (auto iparticle = simParticleTrail.rbegin(); iparticle != simParticleTrail.rend(); ++iparticle) {
     // Look for those with production vertex
     TrackingParticle::Point p = (*iparticle)->vertex();
 
@@ -532,7 +524,7 @@ void TrackClassifier::genPrimaryVertices() {
 
       GeneratedPrimaryVertex pv(pos.x() * mm, pos.y() * mm, pos.z() * mm);
 
-      std::vector<GeneratedPrimaryVertex>::iterator ientry = genpvs_.begin();
+      auto ientry = genpvs_.begin();
 
       // Search for a VERY close vertex in the list
       for (; ientry != genpvs_.end(); ++ientry) {

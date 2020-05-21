@@ -77,7 +77,7 @@ const GeomDet* DTGeometry::idToDetUnit(DetId id) const { return dynamic_cast<con
 const GeomDet* DTGeometry::idToDet(DetId id) const {
   // Strip away wire#, if any!
   DTLayerId lId(id.rawId());
-  DTDetMap::const_iterator i = theMap.find(lId);
+  auto i = theMap.find(lId);
   return (i != theMap.end()) ? i->second : nullptr;
 }
 

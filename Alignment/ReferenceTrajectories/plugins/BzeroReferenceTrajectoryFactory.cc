@@ -38,7 +38,7 @@ const BzeroReferenceTrajectoryFactory::ReferenceTrajectoryCollection BzeroRefere
   edm::ESHandle<MagneticField> magneticField;
   setup.get<IdealMagneticFieldRecord>().get(magneticField);
 
-  ConstTrajTrackPairCollection::const_iterator itTracks = tracks.begin();
+  auto itTracks = tracks.begin();
 
   while (itTracks != tracks.end()) {
     TrajectoryInput input = this->innermostStateAndRecHits(*itTracks);
@@ -79,8 +79,8 @@ const BzeroReferenceTrajectoryFactory::ReferenceTrajectoryCollection BzeroRefere
   edm::ESHandle<MagneticField> magneticField;
   setup.get<IdealMagneticFieldRecord>().get(magneticField);
 
-  ConstTrajTrackPairCollection::const_iterator itTracks = tracks.begin();
-  ExternalPredictionCollection::const_iterator itExternal = external.begin();
+  auto itTracks = tracks.begin();
+  auto itExternal = external.begin();
 
   while (itTracks != tracks.end()) {
     TrajectoryInput input = innermostStateAndRecHits(*itTracks);

@@ -56,7 +56,7 @@ EcalPnGraphs::EcalPnGraphs(const edm::ParameterSet& ps) {
     if (ebs_[0] != "none") {
       //EB id is given and convert to FED id
       fedMap = new EcalFedMap();
-      for (std::vector<std::string>::const_iterator ebItr = ebs_.begin(); ebItr != ebs_.end(); ++ebItr) {
+      for (auto ebItr = ebs_.begin(); ebItr != ebs_.end(); ++ebItr) {
         feds_.push_back(fedMap->getFedFromSlice(*ebItr));
       }
       delete fedMap;
@@ -150,7 +150,7 @@ void EcalPnGraphs::analyze(const edm::Event& e, const edm::EventSetup& c) {
       int ipn_c = ipn + u;
       if (ipn_c < 1 || ipn_c > 10)
         continue;
-      std::vector<int>::iterator notInList = find(listAllPns.begin(), listAllPns.end(), ipn_c);
+      auto notInList = find(listAllPns.begin(), listAllPns.end(), ipn_c);
       if (notInList == listAllPns.end()) {
         listAllPns.push_back(ipn_c);
       }
@@ -158,7 +158,7 @@ void EcalPnGraphs::analyze(const edm::Event& e, const edm::EventSetup& c) {
   }
 
   //Loop over PN digis
-  for (EcalPnDiodeDigiCollection::const_iterator pnItr = pn_digis->begin(); pnItr != pn_digis->end(); ++pnItr) {
+  for (auto pnItr = pn_digis->begin(); pnItr != pn_digis->end(); ++pnItr) {
     //Get PNid of a digi
     int ipn = (*pnItr).id().iPnId();
     //Get DCC id where the digi is from
@@ -167,7 +167,7 @@ void EcalPnGraphs::analyze(const edm::Event& e, const edm::EventSetup& c) {
     //Make sure that these are PnDigis from the requested FEDid
     int FEDid = ieb + 600;
 
-    std::vector<int>::iterator fedIter = find(feds_.begin(), feds_.end(), FEDid);
+    auto fedIter = find(feds_.begin(), feds_.end(), FEDid);
 
     if (fedIter == feds_.end()) {
       edm::LogWarning("EcalPnGraphs") << "For Event " << eventCounter

@@ -262,7 +262,7 @@ namespace cscdqm {
    */
   const bool Cache::nextBookedFED(unsigned int& n, unsigned int& fedId) const {
     if (n < fedData.size()) {
-      FEDMapType::const_iterator iter = fedData.begin();
+      auto iter = fedData.begin();
       for (unsigned int i = n; i > 0; i--)
         iter++;
       fedId = iter->first;
@@ -280,7 +280,7 @@ namespace cscdqm {
    */
   const bool Cache::nextBookedDDU(unsigned int& n, unsigned int& dduId) const {
     if (n < dduData.size()) {
-      DDUMapType::const_iterator iter = dduData.begin();
+      auto iter = dduData.begin();
       for (unsigned int i = n; i > 0; i--)
         iter++;
       dduId = iter->first;
@@ -310,7 +310,7 @@ namespace cscdqm {
    * @return true if FED was booked, false - otherwise
    */
   const bool Cache::isBookedFED(const HwId& fedId) const {
-    FEDMapType::const_iterator iter = fedData.find(fedId);
+    auto iter = fedData.find(fedId);
     return (iter != fedData.end());
   }
 
@@ -320,7 +320,7 @@ namespace cscdqm {
    * @return true if DDU was booked, false - otherwise
    */
   const bool Cache::isBookedDDU(const HwId& dduId) const {
-    DDUMapType::const_iterator iter = dduData.find(dduId);
+    auto iter = dduData.find(dduId);
     return (iter != dduData.end());
   }
 

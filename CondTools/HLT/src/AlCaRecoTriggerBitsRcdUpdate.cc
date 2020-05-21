@@ -107,7 +107,7 @@ AlCaRecoTriggerBitsRcdUpdate::createStartTriggerBits(bool startEmpty, const edm:
 ///////////////////////////////////////////////////////////////////////
 bool AlCaRecoTriggerBitsRcdUpdate::removeKeysFromMap(const std::vector<std::string> &keys,
                                                      TriggerMap &triggerMap) const {
-  for (std::vector<std::string>::const_iterator iKey = keys.begin(), endKey = keys.end(); iKey != endKey; ++iKey) {
+  for (auto iKey = keys.begin(), endKey = keys.end(); iKey != endKey; ++iKey) {
     if (triggerMap.find(*iKey) != triggerMap.end()) {
       // remove
       //      edm::LogError("Temp") << "@SUB=removeKeysFromMap" << "Cannot yet remove '" << *iKey
@@ -158,8 +158,7 @@ bool AlCaRecoTriggerBitsRcdUpdate::addTriggerLists(const std::vector<edm::Parame
   TriggerMap &triggerMap = bits.m_alcarecoToTrig;
 
   // loop on PSets, each containing the key (filter name) and a vstring with triggers
-  for (std::vector<edm::ParameterSet>::const_iterator iSet = triggerListsAdd.begin(); iSet != triggerListsAdd.end();
-       ++iSet) {
+  for (auto iSet = triggerListsAdd.begin(); iSet != triggerListsAdd.end(); ++iSet) {
     const std::vector<std::string> paths(iSet->getParameter<std::vector<std::string> >("hltPaths"));
     // We must avoid a map<string,vector<string> > in DB for performance reason,
     // so we have to merge the paths into one string that will be decoded when needed:

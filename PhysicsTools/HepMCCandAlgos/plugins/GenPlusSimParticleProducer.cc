@@ -158,8 +158,7 @@ void GenPlusSimParticleProducer::addGenParticle(const SimTrack &stMom,
 
   //look for simtrack daughters of stDau to see if we need to recur further down the chain
 
-  for (SimTrackContainer::const_iterator isimtrk = simtracksSorted.begin(); isimtrk != simtracksSorted.end();
-       ++isimtrk) {
+  for (auto isimtrk = simtracksSorted.begin(); isimtrk != simtracksSorted.end(); ++isimtrk) {
     if (!isimtrk->noVertex()) {
       // Pick the vertex (isimtrk.vertIndex() is really an index)
       const SimVertex &vtx = simvertices[isimtrk->vertIndex()];
@@ -168,8 +167,7 @@ void GenPlusSimParticleProducer::addGenParticle(const SimTrack &stMom,
       if (!vtx.noParent()) {
         // Now note that vtx.parentIndex() is NOT an index, it's a track id, so I have to search for it
         unsigned int idx = vtx.parentIndex();
-        SimTrackContainer::const_iterator it =
-            std::lower_bound(simtracksSorted.begin(), simtracksSorted.end(), idx, LessById());
+        auto it = std::lower_bound(simtracksSorted.begin(), simtracksSorted.end(), idx, LessById());
         if ((it != simtracksSorted.end()) && (it->trackId() == idx)) {
           if (it->trackId() == stDau.trackId()) {
             //need the genparticle index of stDau which is dauidx
@@ -186,7 +184,7 @@ void GenPlusSimParticleProducer::produce(Event &event, const EventSetup &iSetup)
   if (firstEvent_) {
     if (!pdts_.empty()) {
       pdgIds_.clear();
-      for (vector<PdtEntry>::iterator itp = pdts_.begin(), edp = pdts_.end(); itp != edp; ++itp) {
+      for (auto itp = pdts_.begin(), edp = pdts_.end(); itp != edp; ++itp) {
         itp->setup(iSetup);  // decode string->pdgId and vice-versa
         pdgIds_.insert(std::abs(itp->pdgId()));
       }
@@ -257,7 +255,7 @@ void GenPlusSimParticleProducer::produce(Event &event, const EventSetup &iSetup)
     }
   }
 
-  for (SimTrackContainer::const_iterator isimtrk = simtracks->begin(); isimtrk != simtracks->end(); ++isimtrk) {
+  for (auto isimtrk = simtracks->begin(); isimtrk != simtracks->end(); ++isimtrk) {
     // Skip PYTHIA tracks.
     if (isimtrk->genpartIndex() != -1)
       continue;
@@ -278,8 +276,7 @@ void GenPlusSimParticleProducer::produce(Event &event, const EventSetup &iSetup)
       if (!vtx.noParent()) {
         // Now note that vtx.parentIndex() is NOT an index, it's a track id, so I have to search for it
         unsigned int idx = vtx.parentIndex();
-        SimTrackContainer::const_iterator it =
-            std::lower_bound(simtracksSorted->begin(), simtracksSorted->end(), idx, LessById());
+        auto it = std::lower_bound(simtracksSorted->begin(), simtracksSorted->end(), idx, LessById());
         if ((it != simtracksSorted->end()) && (it->trackId() == idx)) {  //it is the parent sim track
           if (it->genpartIndex() != -1) {
             std::vector<int>::const_iterator itIndex;

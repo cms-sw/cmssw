@@ -128,7 +128,7 @@ float EcalClusterLazyToolsBase::BasicClusterSeedTime(const reco::BasicCluster &c
   const EcalRecHitCollection *recHits = getEcalRecHitCollection(cluster);
 
   DetId id = cluster.seed();
-  EcalRecHitCollection::const_iterator theSeedHit = recHits->find(id);
+  auto theSeedHit = recHits->find(id);
   //  std::cout << "the seed of the BC has time: "
   //<< (*theSeedHit).time()
   //<< "and energy: " << (*theSeedHit).energy() << " collection size: " << recHits->size()
@@ -148,18 +148,16 @@ float EcalClusterLazyToolsBase::BasicClusterTime(const reco::BasicCluster &clust
   float weightedTsum = 0;
   float sumOfWeights = 0;
 
-  for (std::vector<std::pair<DetId, float> >::const_iterator detitr = clusterComponents.begin();
-       detitr != clusterComponents.end();
-       detitr++) {
+  for (auto detitr = clusterComponents.begin(); detitr != clusterComponents.end(); detitr++) {
     //      EcalRecHitCollection::const_iterator theSeedHit = recHits->find (id); // trash this
-    EcalRecHitCollection::const_iterator oneHit = recHits->find((detitr->first));
+    auto oneHit = recHits->find((detitr->first));
 
     // in order to get back the ADC counts from the recHit energy, three ingredients are necessary:
     // 1) get laser correction coefficient
     float lasercalib = 1.;
     lasercalib = laser->getLaserCorrection(detitr->first, ev.time());
     // 2) get intercalibration
-    EcalIntercalibConstantMap::const_iterator icalit = icalMap->find(detitr->first);
+    auto icalit = icalMap->find(detitr->first);
     EcalIntercalibConstant icalconst = 1.;
     if (icalit != icalMap->end()) {
       icalconst = (*icalit);

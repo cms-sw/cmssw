@@ -37,8 +37,8 @@ bool MuonGeometryConstantsBuild::build(const DDCompactView* cpv, MuonGeometryCon
     throw cms::Exception("GeometryBuildFailure", msg);
   }
 
-  DDsvalues_type::const_iterator bit = mySpecs.begin();
-  DDsvalues_type::const_iterator eit = mySpecs.end();
+  auto bit = mySpecs.begin();
+  auto eit = mySpecs.end();
   for (; bit != eit; ++bit) {
     if (bit->second.isEvaluated()) {
       php.addValue(bit->second.name(), static_cast<int>(bit->second.doubles()[0]));

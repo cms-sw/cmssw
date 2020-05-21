@@ -133,7 +133,7 @@ public:
     return nullptr;
   }
   static const reco::Track* getFromPF(const reco::Candidate& rc) {
-    const reco::PFCandidate* pf = dynamic_cast<const reco::PFCandidate*>(&rc);
+    const auto* pf = dynamic_cast<const reco::PFCandidate*>(&rc);
     if (pf == nullptr)
       return nullptr;
     try {
@@ -145,7 +145,7 @@ public:
     return nullptr;
   }
   static const reco::Track* getFromGP(const reco::Candidate& rc) {
-    const pat::GenericParticle* gp = dynamic_cast<const pat::GenericParticle*>(&rc);
+    const auto* gp = dynamic_cast<const pat::GenericParticle*>(&rc);
     if (gp == nullptr)
       return nullptr;
     try {
@@ -165,7 +165,7 @@ public:
     return nullptr;
   }
   static const reco::Track* getFromPC(const reco::Candidate& rc) {
-    const pat::PackedCandidate* pp = dynamic_cast<const pat::PackedCandidate*>(&rc);
+    const auto* pp = dynamic_cast<const pat::PackedCandidate*>(&rc);
     if (pp == nullptr)
       return nullptr;
     try {

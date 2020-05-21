@@ -156,7 +156,7 @@ bool EEBadScFilter::filter(edm::StreamID, edm::Event &iEvent, const edm::EventSe
 
   // loop over the list of bad SCs (defined in the python file)
 
-  for (std::vector<int>::const_iterator scit = badsc_.begin(); scit != badsc_.end(); ++scit) {
+  for (auto scit = badsc_.begin(); scit != badsc_.end(); ++scit) {
     // unpack the SC coordinates from the python file into ix,iy,iz
 
     iz = int(*scit / 1000000);

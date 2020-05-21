@@ -187,7 +187,7 @@ void popcon::EcalTPGWeightGroupHandler::getNewObjects() {
               std::map<EcalLogicID, FEConfigWeightDat> dataset_TpgW;
               econn->fetchDataSet(&dataset_TpgW, &fe_w_info);
 
-              EcalTPGWeightGroup* weightG = new EcalTPGWeightGroup;
+              auto* weightG = new EcalTPGWeightGroup;
               typedef std::map<EcalLogicID, FEConfigWeightDat>::const_iterator CIfesli;
               EcalLogicID ecid_xt;
               int weightGroup;
@@ -196,7 +196,7 @@ void popcon::EcalTPGWeightGroupHandler::getNewObjects() {
               std::map<std::string, int> map;
               std::string str;
 
-              for (CIfesli p = dataset_TpgW.begin(); p != dataset_TpgW.end(); p++) {
+              for (auto p = dataset_TpgW.begin(); p != dataset_TpgW.end(); p++) {
                 ecid_xt = p->first;
                 weightGroup = p->second.getWeightGroupId();
 
@@ -309,7 +309,7 @@ void popcon::EcalTPGWeightGroupHandler::readtxtFile() {
     exit(1);
   }
   int weightGroup, stripEBId, stripEEId;
-  EcalTPGWeightGroup* weightG = new EcalTPGWeightGroup;
+  auto* weightG = new EcalTPGWeightGroup;
   for (int strip = 0; strip < kEBStrips; strip++) {
     fInput >> stripEBId >> weightGroup;
     weightG->setValue(stripEBId, weightGroup);
@@ -337,7 +337,7 @@ void popcon::EcalTPGWeightGroupHandler::readxmlFile() {
   }
   std::string dummyLine, bid;
   int weightGroup, stripEBId, stripEEId;
-  EcalTPGWeightGroup* weightG = new EcalTPGWeightGroup;
+  auto* weightG = new EcalTPGWeightGroup;
   for (int i = 0; i < 6; i++)
     std::getline(fxml, dummyLine);  // skip first lines
   fxml >> bid;

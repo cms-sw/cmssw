@@ -151,7 +151,7 @@ namespace ecaldqm {
       int status(kGood);
 
       if (status == kGood && sLaser) {
-        for (map<int, unsigned>::iterator wlItr(laserWlToME_.begin()); wlItr != laserWlToME_.end(); ++wlItr) {
+        for (auto wlItr(laserWlToME_.begin()); wlItr != laserWlToME_.end(); ++wlItr) {
           sLaser->use(wlItr->second);
           if (sLaser->getBinContent(id) == kBad) {
             status = kBad;
@@ -163,7 +163,7 @@ namespace ecaldqm {
       if (status == kGood && sLed) {
         DetId id(qItr->getId());
         if (id.subdetId() == EcalEndcap) {
-          for (map<int, unsigned>::iterator wlItr(ledWlToME_.begin()); wlItr != ledWlToME_.end(); ++wlItr) {
+          for (auto wlItr(ledWlToME_.begin()); wlItr != ledWlToME_.end(); ++wlItr) {
             sLed->use(wlItr->second);
             if (sLed->getBinContent(id) == kBad) {
               status = kBad;
@@ -174,7 +174,7 @@ namespace ecaldqm {
       }
 
       if (status == kGood && sTestPulse) {
-        for (map<int, unsigned>::iterator gainItr(tpGainToME_.begin()); gainItr != tpGainToME_.end(); ++gainItr) {
+        for (auto gainItr(tpGainToME_.begin()); gainItr != tpGainToME_.end(); ++gainItr) {
           sTestPulse->use(gainItr->second);
           if (sTestPulse->getBinContent(id) == kBad) {
             status = kBad;
@@ -184,7 +184,7 @@ namespace ecaldqm {
       }
 
       if (status == kGood && sPedestal) {
-        for (map<int, unsigned>::iterator gainItr(pedGainToME_.begin()); gainItr != pedGainToME_.end(); ++gainItr) {
+        for (auto gainItr(pedGainToME_.begin()); gainItr != pedGainToME_.end(); ++gainItr) {
           sPedestal->use(gainItr->second);
           if (sPedestal->getBinContent(id) == kBad) {
             status = kBad;
@@ -214,7 +214,7 @@ namespace ecaldqm {
           status = kBad;
 
         if (status == kGood && sLaserPN) {
-          for (map<int, unsigned>::iterator wlItr(laserWlToME_.begin()); wlItr != laserWlToME_.end(); ++wlItr) {
+          for (auto wlItr(laserWlToME_.begin()); wlItr != laserWlToME_.end(); ++wlItr) {
             sLaserPN->use(wlItr->second);
             if (sLaserPN->getBinContent(id) == kBad) {
               status = kBad;
@@ -224,7 +224,7 @@ namespace ecaldqm {
         }
 
         if (status == kGood && sLedPN) {
-          for (map<int, unsigned>::iterator wlItr(ledWlToME_.begin()); wlItr != ledWlToME_.end(); ++wlItr) {
+          for (auto wlItr(ledWlToME_.begin()); wlItr != ledWlToME_.end(); ++wlItr) {
             sLedPN->use(wlItr->second);
             if (sLedPN->getBinContent(id) == kBad) {
               status = kBad;
@@ -234,7 +234,7 @@ namespace ecaldqm {
         }
 
         if (status == kGood && sTestPulsePN) {
-          for (map<int, unsigned>::iterator gainItr(tpPNGainToME_.begin()); gainItr != tpPNGainToME_.end(); ++gainItr) {
+          for (auto gainItr(tpPNGainToME_.begin()); gainItr != tpPNGainToME_.end(); ++gainItr) {
             sTestPulsePN->use(gainItr->second);
             if (sTestPulsePN->getBinContent(id) == kBad) {
               status = kBad;
@@ -244,8 +244,7 @@ namespace ecaldqm {
         }
 
         if (status == kGood && sPedestalPN) {
-          for (map<int, unsigned>::iterator gainItr(pedPNGainToME_.begin()); gainItr != pedPNGainToME_.end();
-               ++gainItr) {
+          for (auto gainItr(pedPNGainToME_.begin()); gainItr != pedPNGainToME_.end(); ++gainItr) {
             sPedestalPN->use(gainItr->second);
             if (sPedestalPN->getBinContent(id) == kBad) {
               status = kBad;

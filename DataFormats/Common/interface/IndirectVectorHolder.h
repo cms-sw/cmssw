@@ -79,7 +79,7 @@ namespace edm {
             Exception::throwThis(edm::errors::InvalidReference,
                                  "In IndirectVectorHolder trying to dereference a null pointer");
           }
-          const const_iterator_imp_specific* oo = dynamic_cast<const const_iterator_imp_specific*>(o);
+          const auto* oo = dynamic_cast<const const_iterator_imp_specific*>(o);
           if (oo == nullptr) {
             Exception::throwThis(errors::InvalidReference,
                                  "In IndirectVectorHolder trying to cast iterator to wrong type ");

@@ -57,7 +57,7 @@ PFTauPrimaryVertexProducerBase::~PFTauPrimaryVertexProducerBase() {}
 
 namespace {
   edm::Ptr<reco::TrackBase> getTrack(const reco::Candidate& cand) {
-    const reco::PFCandidate* pfCandPtr = dynamic_cast<const reco::PFCandidate*>(&cand);
+    const auto* pfCandPtr = dynamic_cast<const reco::PFCandidate*>(&cand);
     if (pfCandPtr) {
       if (pfCandPtr->trackRef().isNonnull())
         return edm::refToPtr(pfCandPtr->trackRef());
@@ -66,7 +66,7 @@ namespace {
       else
         return edm::Ptr<reco::TrackBase>();
     }
-    const pat::PackedCandidate* pCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
+    const auto* pCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
     if (pCand && pCand->hasTrackDetails()) {
       const reco::TrackBase* trkPtr = pCand->bestTrack();
       return edm::Ptr<reco::TrackBase>(trkPtr, 0);

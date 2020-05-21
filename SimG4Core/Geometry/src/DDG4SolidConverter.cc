@@ -44,7 +44,7 @@ G4VSolid *DDG4SolidConverter::convert(const DDSolid &solid) {
   }
   G4VSolid *result = nullptr;
   par_ = &(solid.parameters());
-  std::map<DDSolidShape, FNPTR>::iterator it = convDispatch_.find(solid.shape());
+  auto it = convDispatch_.find(solid.shape());
   if (it != convDispatch_.end()) {
     result = it->second(solid);
   } else {
@@ -120,7 +120,7 @@ G4VSolid *DDG4SolidConverter::polycone_rz(const DDSolid &solid) {
   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: pcon_rz = " << solid;
   std::vector<double> r;
   std::vector<double> z;
-  std::vector<double>::const_iterator i = (*par_).begin() + 2;
+  auto i = (*par_).begin() + 2;
   int count = 0;
   for (; i != (*par_).end(); ++i) {
     LogDebug("SimG4CoreGeometry") << " z=" << *i / CLHEP::cm;
@@ -152,7 +152,7 @@ G4VSolid *DDG4SolidConverter::polycone_rrz(const DDSolid &solid) {
   std::vector<double> z_p;
   std::vector<double> rmin_p;
   std::vector<double> rmax_p;
-  std::vector<double>::const_iterator i = par_->begin() + 2;
+  auto i = par_->begin() + 2;
   int count = 0;
   for (; i != par_->end(); ++i) {
     LogDebug("SimG4CoreGeometry") << "z=" << *i / CLHEP::cm;
@@ -189,7 +189,7 @@ G4VSolid *DDG4SolidConverter::polyhedra_rz(const DDSolid &solid) {
   LogDebug("SimG4CoreGeometry") << "DDG4SolidConverter: phed_rz = " << solid;
   std::vector<double> r;
   std::vector<double> z;
-  std::vector<double>::const_iterator i = par_->begin() + 3;
+  auto i = par_->begin() + 3;
   int count = 0;
 
   for (; i != par_->end(); ++i) {
@@ -213,7 +213,7 @@ G4VSolid *DDG4SolidConverter::polyhedra_rrz(const DDSolid &solid) {
   std::vector<double> z_p;
   std::vector<double> rmin_p;
   std::vector<double> rmax_p;
-  std::vector<double>::const_iterator i = par_->begin() + 3;
+  auto i = par_->begin() + 3;
   int count = 0;
   for (; i != par_->end(); ++i) {
     LogDebug("SimG4CoreGeometry") << "z=" << *i / CLHEP::cm;
@@ -464,7 +464,7 @@ G4VSolid *DDG4SolidConverter::trunctubs(const DDSolid &solid) {
   LogDebug("SimG4CoreGeometry") << "alpha=" << alpha / CLHEP::deg;
 
   // rotationmatrix of box w.r.t. tubs
-  G4RotationMatrix *rot = new G4RotationMatrix;
+  auto *rot = new G4RotationMatrix;
   rot->rotateZ(-alpha);
   LogDebug("SimG4CoreGeometry") << (*rot);
 

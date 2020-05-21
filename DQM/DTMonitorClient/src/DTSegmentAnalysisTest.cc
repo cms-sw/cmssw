@@ -104,8 +104,8 @@ void DTSegmentAnalysisTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGet
 void DTSegmentAnalysisTest::performClientDiagnostic(DQMStore::IGetter& igetter) {
   summaryHistos[3]->Reset();
   summaryHistos[4]->Reset();
-  vector<const DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
-  vector<const DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
+  auto ch_it = muonGeom->chambers().begin();
+  auto ch_end = muonGeom->chambers().end();
 
   for (; ch_it != ch_end; ++ch_it) {
     DTChamberId chID = (*ch_it)->id();
@@ -204,13 +204,11 @@ void DTSegmentAnalysisTest::performClientDiagnostic(DQMStore::IGetter& igetter) 
 
   if (detailedAnalysis) {
     string chi2CriterionName = parameters.getUntrackedParameter<string>("chi2TestName", "chi2InRange");
-    for (map<pair<int, int>, MonitorElement*>::const_iterator histo = chi2Histos.begin(); histo != chi2Histos.end();
-         histo++) {
+    for (auto histo = chi2Histos.begin(); histo != chi2Histos.end(); histo++) {
       const QReport* theChi2QReport = (*histo).second->getQReport(chi2CriterionName);
       if (theChi2QReport) {
         vector<dqm::me_util::Channel> badChannels = theChi2QReport->getBadChannels();
-        for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-             channel++) {
+        for (auto channel = badChannels.begin(); channel != badChannels.end(); channel++) {
           LogError("DTDQM|DTMonitorClient|DTSegmentAnalysisTest")
               << "Wheel: " << (*histo).first.first << " Sector: " << (*histo).first.second
               << " Bad stations: " << (*channel).getBin() << "  Contents : " << (*channel).getContents();
@@ -220,14 +218,11 @@ void DTSegmentAnalysisTest::performClientDiagnostic(DQMStore::IGetter& igetter) 
 
     string segmRecHitCriterionName =
         parameters.getUntrackedParameter<string>("segmRecHitTestName", "segmRecHitInRange");
-    for (map<pair<int, int>, MonitorElement*>::const_iterator histo = segmRecHitHistos.begin();
-         histo != segmRecHitHistos.end();
-         histo++) {
+    for (auto histo = segmRecHitHistos.begin(); histo != segmRecHitHistos.end(); histo++) {
       const QReport* theSegmRecHitQReport = (*histo).second->getQReport(segmRecHitCriterionName);
       if (theSegmRecHitQReport) {
         vector<dqm::me_util::Channel> badChannels = theSegmRecHitQReport->getBadChannels();
-        for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-             channel++) {
+        for (auto channel = badChannels.begin(); channel != badChannels.end(); channel++) {
           LogError("DTDQM|DTMonitorClient|DTSegmentAnalysisTest")
               << "Wheel: " << (*histo).first.first << " Sector: " << (*histo).first.second
               << " Bad stations on recHit number: " << (*channel).getBin()

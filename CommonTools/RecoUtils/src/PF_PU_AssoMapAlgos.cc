@@ -527,11 +527,10 @@ bool PF_PU_AssoMapAlgos::ComesFromV0Decay(const TrackRef trackref,
                                           const VertexCompositeCandidateCollection& cleanedLambda,
                                           VertexCompositeCandidate* V0) {
   //the part for the reassociation of particles from Kshort decays
-  for (VertexCompositeCandidateCollection::const_iterator iKS = cleanedKshort.begin(); iKS != cleanedKshort.end();
-       iKS++) {
-    const RecoChargedCandidate* dauCand1 = dynamic_cast<const RecoChargedCandidate*>(iKS->daughter(0));
+  for (auto iKS = cleanedKshort.begin(); iKS != cleanedKshort.end(); iKS++) {
+    const auto* dauCand1 = dynamic_cast<const RecoChargedCandidate*>(iKS->daughter(0));
     TrackRef dauTk1 = dauCand1->track();
-    const RecoChargedCandidate* dauCand2 = dynamic_cast<const RecoChargedCandidate*>(iKS->daughter(1));
+    const auto* dauCand2 = dynamic_cast<const RecoChargedCandidate*>(iKS->daughter(1));
     TrackRef dauTk2 = dauCand2->track();
 
     if ((trackref == dauTk1) || (trackref == dauTk2)) {
@@ -541,12 +540,10 @@ bool PF_PU_AssoMapAlgos::ComesFromV0Decay(const TrackRef trackref,
   }
 
   //the part for the reassociation of particles from Lambda decays
-  for (VertexCompositeCandidateCollection::const_iterator iLambda = cleanedLambda.begin();
-       iLambda != cleanedLambda.end();
-       iLambda++) {
-    const RecoChargedCandidate* dauCand1 = dynamic_cast<const RecoChargedCandidate*>(iLambda->daughter(0));
+  for (auto iLambda = cleanedLambda.begin(); iLambda != cleanedLambda.end(); iLambda++) {
+    const auto* dauCand1 = dynamic_cast<const RecoChargedCandidate*>(iLambda->daughter(0));
     TrackRef dauTk1 = dauCand1->track();
-    const RecoChargedCandidate* dauCand2 = dynamic_cast<const RecoChargedCandidate*>(iLambda->daughter(1));
+    const auto* dauCand2 = dynamic_cast<const RecoChargedCandidate*>(iLambda->daughter(1));
     TrackRef dauTk2 = dauCand2->track();
 
     if ((trackref == dauTk1) || (trackref == dauTk2)) {
@@ -591,7 +588,7 @@ unique_ptr<PFDisplacedVertexCollection> PF_PU_AssoMapAlgos::GetCleanedNI(Handle<
                                                                          bool cleanedColl) {
   unique_ptr<PFDisplacedVertexCollection> cleanedNIColl(new PFDisplacedVertexCollection());
 
-  for (PFDisplacedVertexCollection::const_iterator niref = NuclIntH->begin(); niref != NuclIntH->end(); niref++) {
+  for (auto niref = NuclIntH->begin(); niref != NuclIntH->end(); niref++) {
     if ((niref->isFake()) || !(niref->isNucl()))
       continue;
 
@@ -631,7 +628,7 @@ bool PF_PU_AssoMapAlgos::ComesFromNI(const TrackRef trackref,
                                      const PFDisplacedVertexCollection& cleanedNI,
                                      PFDisplacedVertex* displVtx) {
   //the part for the reassociation of particles from nuclear interactions
-  for (PFDisplacedVertexCollection::const_iterator iDisplV = cleanedNI.begin(); iDisplV != cleanedNI.end(); iDisplV++) {
+  for (auto iDisplV = cleanedNI.begin(); iDisplV != cleanedNI.end(); iDisplV++) {
     if (iDisplV->trackWeight(trackref) > 1.e-5) {
       *displVtx = *iDisplV;
       return true;
@@ -655,8 +652,7 @@ VertexRef PF_PU_AssoMapAlgos::FindNIVertex(const TrackRef trackref,
   TrackCollection refittedTracks = displVtx.refittedTracks();
 
   if ((displVtx.isTherePrimaryTracks()) || (displVtx.isThereMergedTracks())) {
-    for (TrackCollection::const_iterator trkcoll_ite = refittedTracks.begin(); trkcoll_ite != refittedTracks.end();
-         trkcoll_ite++) {
+    for (auto trkcoll_ite = refittedTracks.begin(); trkcoll_ite != refittedTracks.end(); trkcoll_ite++) {
       const TrackBaseRef retrackbaseref = displVtx.originalTrack(*trkcoll_ite);
 
       if (displVtx.isIncomingTrack(retrackbaseref)) {

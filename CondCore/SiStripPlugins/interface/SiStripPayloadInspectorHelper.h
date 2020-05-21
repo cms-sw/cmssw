@@ -502,7 +502,7 @@ namespace SiStripPI {
                            SiStripPI::estimator est)
   /*--------------------------------------------------------------------*/
   {
-    SiStripNoises::RegistryIterator rit = payload->getRegistryVectorBegin(), erit = payload->getRegistryVectorEnd();
+    auto rit = payload->getRegistryVectorBegin(), erit = payload->getRegistryVectorEnd();
     uint16_t Nstrips;
     std::vector<float> vstripnoise;
     double mean, rms, min, max;
@@ -561,7 +561,7 @@ namespace SiStripPI {
   /*--------------------------------------------------------------------*/
   {
     edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-    SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+    auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
     const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& DetInfos = reader->getAllData();
     for (const auto& det : DetInfos) {
       int nAPVs = reader->getNumberOfApvsAndStripLength(det.first).first;
@@ -679,14 +679,14 @@ namespace SiStripPI {
     //&&&&&&&&&&&&&&&&&&
 
     edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-    SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+    auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
     float percentage = 0;
 
-    SiStripQuality::RegistryIterator rbegin = siStripQuality_->getRegistryVectorBegin();
-    SiStripQuality::RegistryIterator rend = siStripQuality_->getRegistryVectorEnd();
+    auto rbegin = siStripQuality_->getRegistryVectorBegin();
+    auto rend = siStripQuality_->getRegistryVectorEnd();
 
-    for (SiStripBadStrip::RegistryIterator rp = rbegin; rp != rend; ++rp) {
+    for (auto rp = rbegin; rp != rend; ++rp) {
       uint32_t detid = rp->detid;
 
       int subdet = -999;

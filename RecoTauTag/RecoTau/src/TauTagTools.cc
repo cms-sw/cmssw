@@ -50,9 +50,7 @@ namespace tautagtools {
                                                              double ChargedHadrCand_tkmaxChi2,
                                                              const Vertex& pv) {
     std::vector<reco::CandidatePtr> filteredPFChargedHadrCands;
-    for (std::vector<reco::CandidatePtr>::const_iterator iPFCand = theInitialPFCands.begin();
-         iPFCand != theInitialPFCands.end();
-         iPFCand++) {
+    for (auto iPFCand = theInitialPFCands.begin(); iPFCand != theInitialPFCands.end(); iPFCand++) {
       if (std::abs((*iPFCand)->pdgId()) == 211 || std::abs((*iPFCand)->pdgId()) == 13 ||
           std::abs((*iPFCand)->pdgId()) == 11) {
         // *** Whether the charged hadron candidate will be selected or not depends on its rec. tk properties.
@@ -81,9 +79,7 @@ namespace tautagtools {
     if (pv.isFake())
       ChargedHadrCand_tktorefpointmaxDZ = 30.;
     std::vector<reco::CandidatePtr> filteredPFChargedHadrCands;
-    for (std::vector<reco::CandidatePtr>::const_iterator iPFCand = theInitialPFCands.begin();
-         iPFCand != theInitialPFCands.end();
-         iPFCand++) {
+    for (auto iPFCand = theInitialPFCands.begin(); iPFCand != theInitialPFCands.end(); iPFCand++) {
       if (std::abs((*iPFCand)->pdgId()) == 211 || std::abs((*iPFCand)->pdgId()) == 13 ||
           std::abs((*iPFCand)->pdgId()) == 11) {
         // *** Whether the charged hadron candidate will be selected or not depends on its rec. tk properties.
@@ -105,9 +101,7 @@ namespace tautagtools {
   std::vector<reco::CandidatePtr> filteredPFNeutrHadrCands(const std::vector<reco::CandidatePtr>& theInitialPFCands,
                                                            double NeutrHadrCand_HcalclusMinEt) {
     std::vector<reco::CandidatePtr> filteredPFNeutrHadrCands;
-    for (std::vector<reco::CandidatePtr>::const_iterator iPFCand = theInitialPFCands.begin();
-         iPFCand != theInitialPFCands.end();
-         iPFCand++) {
+    for (auto iPFCand = theInitialPFCands.begin(); iPFCand != theInitialPFCands.end(); iPFCand++) {
       if (std::abs((*iPFCand)->pdgId()) == 130) {
         // *** Whether the neutral hadron candidate will be selected or not depends on its rec. HCAL cluster properties.
         if ((**iPFCand).et() >= NeutrHadrCand_HcalclusMinEt) {
@@ -121,9 +115,7 @@ namespace tautagtools {
   std::vector<reco::CandidatePtr> filteredPFGammaCands(const std::vector<reco::CandidatePtr>& theInitialPFCands,
                                                        double GammaCand_EcalclusMinEt) {
     std::vector<reco::CandidatePtr> filteredPFGammaCands;
-    for (std::vector<reco::CandidatePtr>::const_iterator iPFCand = theInitialPFCands.begin();
-         iPFCand != theInitialPFCands.end();
-         iPFCand++) {
+    for (auto iPFCand = theInitialPFCands.begin(); iPFCand != theInitialPFCands.end(); iPFCand++) {
       if (std::abs((*iPFCand)->pdgId()) == 22) {
         // *** Whether the gamma candidate will be selected or not depends on its rec. ECAL cluster properties.
         if ((**iPFCand).et() >= GammaCand_EcalclusMinEt) {

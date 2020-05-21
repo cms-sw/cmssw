@@ -99,7 +99,7 @@ bool edm::decode(std::vector<bool>& to, std::string const& from) {
   }
 
   to.clear();
-  for (std::vector<std::string>::const_iterator b = temp.begin(), e = temp.end(); b != e; ++b) {
+  for (auto b = temp.begin(), e = temp.end(); b != e; ++b) {
     bool val = false;
     if (!decode(val, *b)) {
       return false;
@@ -115,7 +115,7 @@ bool edm::encode(std::string& to, std::vector<bool> const& from) {
   to = "{";
 
   std::string converted;
-  for (std::vector<bool>::const_iterator b = from.begin(), e = from.end(); b != e; ++b) {
+  for (auto b = from.begin(), e = from.end(); b != e; ++b) {
     if (!encode(converted, *b)) {
       return false;
     }
@@ -222,7 +222,7 @@ bool edm::decode(std::vector<int>& to, std::string const& from) {
   }
 
   to.clear();
-  for (std::vector<std::string>::const_iterator b = temp.begin(), e = temp.end(); b != e; ++b) {
+  for (auto b = temp.begin(), e = temp.end(); b != e; ++b) {
     int val = 0;
     if (!decode(val, *b)) {
       return false;
@@ -239,7 +239,7 @@ bool edm::encode(std::string& to, std::vector<int> const& from) {
   to = "{";
 
   std::string converted;
-  for (std::vector<int>::const_iterator b = from.begin(), e = from.end(); b != e; ++b) {
+  for (auto b = from.begin(), e = from.end(); b != e; ++b) {
     if (!encode(converted, *b)) {
       return false;
     }
@@ -265,7 +265,7 @@ bool edm::decode(std::vector<long long>& to, std::string const& from) {
   }
 
   to.clear();
-  for (std::vector<std::string>::const_iterator b = temp.begin(), e = temp.end(); b != e; ++b) {
+  for (auto b = temp.begin(), e = temp.end(); b != e; ++b) {
     long long val = 0LL;
     if (!decode(val, *b)) {
       return false;
@@ -282,7 +282,7 @@ bool edm::encode(std::string& to, std::vector<long long> const& from) {
   to = "{";
 
   std::string converted;
-  for (std::vector<long long>::const_iterator b = from.begin(), e = from.end(); b != e; ++b) {
+  for (auto b = from.begin(), e = from.end(); b != e; ++b) {
     if (!encode(converted, *b)) {
       return false;
     }
@@ -368,7 +368,7 @@ bool edm::decode(std::vector<unsigned int>& to, std::string const& from) {
     return false;
   }
   to.clear();
-  for (std::vector<std::string>::const_iterator b = temp.begin(), e = temp.end(); b != e; ++b) {
+  for (auto b = temp.begin(), e = temp.end(); b != e; ++b) {
     unsigned int val = 0;
     if (!decode(val, *b)) {
       return false;
@@ -385,7 +385,7 @@ bool edm::encode(std::string& to, std::vector<unsigned int> const& from) {
   to = "{";
 
   std::string converted;
-  for (std::vector<unsigned int>::const_iterator b = from.begin(), e = from.end(); b != e; ++b) {
+  for (auto b = from.begin(), e = from.end(); b != e; ++b) {
     if (!encode(converted, *b)) {
       return false;
     }
@@ -409,7 +409,7 @@ bool edm::decode(std::vector<unsigned long long>& to, std::string const& from) {
     return false;
   }
   to.clear();
-  for (std::vector<std::string>::const_iterator b = temp.begin(), e = temp.end(); b != e; ++b) {
+  for (auto b = temp.begin(), e = temp.end(); b != e; ++b) {
     unsigned long long val = 0ULL;
     if (!decode(val, *b)) {
       return false;
@@ -426,7 +426,7 @@ bool edm::encode(std::string& to, std::vector<unsigned long long> const& from) {
   to = "{";
 
   std::string converted;
-  for (std::vector<unsigned long long>::const_iterator b = from.begin(), e = from.end(); b != e; ++b) {
+  for (auto b = from.begin(), e = from.end(); b != e; ++b) {
     if (!encode(converted, *b)) {
       return false;
     }
@@ -490,7 +490,7 @@ bool edm::decode(std::vector<double>& to, std::string const& from) {
     return false;
 
   to.clear();
-  for (std::vector<std::string>::const_iterator b = temp.begin(), e = temp.end(); b != e; ++b) {
+  for (auto b = temp.begin(), e = temp.end(); b != e; ++b) {
     double val;
     if (!decode(val, *b))
       return false;
@@ -506,7 +506,7 @@ bool edm::encode(std::string& to, std::vector<double> const& from) {
   to = "{";
 
   std::string converted;
-  for (std::vector<double>::const_iterator b = from.begin(), e = from.end(); b != e; ++b) {
+  for (auto b = from.begin(), e = from.end(); b != e; ++b) {
     if (!encode(converted, *b))
       return false;
 
@@ -604,9 +604,7 @@ bool edm::decode(std::vector<InputTag>& to, std::string const& from) {
   std::vector<std::string> strings;
   decode(strings, from);
 
-  for (std::vector<std::string>::const_iterator stringItr = strings.begin(), stringItrEnd = strings.end();
-       stringItr != stringItrEnd;
-       ++stringItr) {
+  for (auto stringItr = strings.begin(), stringItrEnd = strings.end(); stringItr != stringItrEnd; ++stringItr) {
     to.push_back(InputTag(*stringItr));
   }
   return true;
@@ -614,8 +612,7 @@ bool edm::decode(std::vector<InputTag>& to, std::string const& from) {
 
 bool edm::encode(std::string& to, std::vector<InputTag> const& from) {
   std::vector<std::string> strings;
-  for (std::vector<InputTag>::const_iterator tagItr = from.begin(), tagItrEnd = from.end(); tagItr != tagItrEnd;
-       ++tagItr) {
+  for (auto tagItr = from.begin(), tagItrEnd = from.end(); tagItr != tagItrEnd; ++tagItr) {
     strings.push_back(tagItr->encode());
   }
   encode(to, strings);
@@ -651,9 +648,7 @@ bool edm::decode(std::vector<ESInputTag>& to, std::string const& from) {
   std::vector<std::string> strings;
   decode(strings, from);
 
-  for (std::vector<std::string>::const_iterator stringItr = strings.begin(), stringItrEnd = strings.end();
-       stringItr != stringItrEnd;
-       ++stringItr) {
+  for (auto stringItr = strings.begin(), stringItrEnd = strings.end(); stringItr != stringItrEnd; ++stringItr) {
     to.push_back(ESInputTag(*stringItr));
   }
   return true;
@@ -661,8 +656,7 @@ bool edm::decode(std::vector<ESInputTag>& to, std::string const& from) {
 
 bool edm::encode(std::string& to, std::vector<ESInputTag> const& from) {
   std::vector<std::string> strings;
-  for (std::vector<ESInputTag>::const_iterator tagItr = from.begin(), tagItrEnd = from.end(); tagItr != tagItrEnd;
-       ++tagItr) {
+  for (auto tagItr = from.begin(), tagItrEnd = from.end(); tagItr != tagItrEnd; ++tagItr) {
     strings.push_back(tagItr->encode());
   }
   encode(to, strings);
@@ -703,9 +697,7 @@ bool edm::decode(std::vector<edm::EventID>& to, std::string const& from) {
   std::vector<std::string> strings;
   decode(strings, from);
 
-  for (std::vector<std::string>::const_iterator stringItr = strings.begin(), stringItrEnd = strings.end();
-       stringItr != stringItrEnd;
-       ++stringItr) {
+  for (auto stringItr = strings.begin(), stringItrEnd = strings.end(); stringItr != stringItrEnd; ++stringItr) {
     edm::EventID eventID;
     decode(eventID, *stringItr);
     to.push_back(eventID);
@@ -715,8 +707,7 @@ bool edm::decode(std::vector<edm::EventID>& to, std::string const& from) {
 
 bool edm::encode(std::string& to, std::vector<edm::EventID> const& from) {
   std::vector<std::string> strings;
-  for (std::vector<edm::EventID>::const_iterator idItr = from.begin(), idItrEnd = from.end(); idItr != idItrEnd;
-       ++idItr) {
+  for (auto idItr = from.begin(), idItrEnd = from.end(); idItr != idItrEnd; ++idItr) {
     std::string encodedEventID;
     encode(encodedEventID, *idItr);
     strings.push_back(encodedEventID);
@@ -753,9 +744,7 @@ bool edm::decode(std::vector<edm::LuminosityBlockID>& to, std::string const& fro
   std::vector<std::string> strings;
   decode(strings, from);
 
-  for (std::vector<std::string>::const_iterator stringItr = strings.begin(), stringItrEnd = strings.end();
-       stringItr != stringItrEnd;
-       ++stringItr) {
+  for (auto stringItr = strings.begin(), stringItrEnd = strings.end(); stringItr != stringItrEnd; ++stringItr) {
     edm::LuminosityBlockID lumiID;
     decode(lumiID, *stringItr);
     to.push_back(lumiID);
@@ -765,9 +754,7 @@ bool edm::decode(std::vector<edm::LuminosityBlockID>& to, std::string const& fro
 
 bool edm::encode(std::string& to, std::vector<edm::LuminosityBlockID> const& from) {
   std::vector<std::string> strings;
-  for (std::vector<edm::LuminosityBlockID>::const_iterator idItr = from.begin(), idItrEnd = from.end();
-       idItr != idItrEnd;
-       ++idItr) {
+  for (auto idItr = from.begin(), idItrEnd = from.end(); idItr != idItrEnd; ++idItr) {
     std::string encodedLuminosityBlockID;
     encode(encodedLuminosityBlockID, *idItr);
     strings.push_back(encodedLuminosityBlockID);
@@ -806,9 +793,7 @@ bool edm::decode(std::vector<edm::LuminosityBlockRange>& to, std::string const& 
   std::vector<std::string> strings;
   decode(strings, from);
 
-  for (std::vector<std::string>::const_iterator stringItr = strings.begin(), stringItrEnd = strings.end();
-       stringItr != stringItrEnd;
-       ++stringItr) {
+  for (auto stringItr = strings.begin(), stringItrEnd = strings.end(); stringItr != stringItrEnd; ++stringItr) {
     edm::LuminosityBlockRange lumiRange;
     decode(lumiRange, *stringItr);
     to.push_back(lumiRange);
@@ -818,9 +803,7 @@ bool edm::decode(std::vector<edm::LuminosityBlockRange>& to, std::string const& 
 
 bool edm::encode(std::string& to, std::vector<edm::LuminosityBlockRange> const& from) {
   std::vector<std::string> strings;
-  for (std::vector<edm::LuminosityBlockRange>::const_iterator idItr = from.begin(), idItrEnd = from.end();
-       idItr != idItrEnd;
-       ++idItr) {
+  for (auto idItr = from.begin(), idItrEnd = from.end(); idItr != idItrEnd; ++idItr) {
     std::string encodedLuminosityBlockRange;
     encode(encodedLuminosityBlockRange, *idItr);
     strings.push_back(encodedLuminosityBlockRange);
@@ -868,9 +851,7 @@ bool edm::decode(std::vector<edm::EventRange>& to, std::string const& from) {
   std::vector<std::string> strings;
   decode(strings, from);
 
-  for (std::vector<std::string>::const_iterator stringItr = strings.begin(), stringItrEnd = strings.end();
-       stringItr != stringItrEnd;
-       ++stringItr) {
+  for (auto stringItr = strings.begin(), stringItrEnd = strings.end(); stringItr != stringItrEnd; ++stringItr) {
     edm::EventRange eventRange;
     decode(eventRange, *stringItr);
     to.push_back(eventRange);
@@ -880,8 +861,7 @@ bool edm::decode(std::vector<edm::EventRange>& to, std::string const& from) {
 
 bool edm::encode(std::string& to, std::vector<edm::EventRange> const& from) {
   std::vector<std::string> strings;
-  for (std::vector<edm::EventRange>::const_iterator idItr = from.begin(), idItrEnd = from.end(); idItr != idItrEnd;
-       ++idItr) {
+  for (auto idItr = from.begin(), idItrEnd = from.end(); idItr != idItrEnd; ++idItr) {
     std::string encodedEventRange;
     encode(encodedEventRange, *idItr);
     strings.push_back(encodedEventRange);
@@ -1022,7 +1002,7 @@ bool edm::decode(std::vector<std::string>& to, std::string const& from) {
     return false;
 
   to.clear();
-  for (std::vector<std::string>::const_iterator b = temp.begin(), e = temp.end(); b != e; ++b) {
+  for (auto b = temp.begin(), e = temp.end(); b != e; ++b) {
     std::string val;
     // treat blank string specially
     if (*b == "XXX") {
@@ -1042,7 +1022,7 @@ bool edm::encode(std::string& to, std::vector<std::string> const& from) {
   to = "{";
 
   std::string converted;
-  for (std::vector<std::string>::const_iterator b = from.begin(), e = from.end(); b != e; ++b) {
+  for (auto b = from.begin(), e = from.end(); b != e; ++b) {
     // treat blank string specially
     if (b->empty()) {
       converted = "XXX";
@@ -1085,7 +1065,7 @@ bool edm::decode(std::vector<ParameterSet>& to, std::string const& from) {
     return false;
 
   to.clear();
-  for (std::vector<std::string>::const_iterator b = temp.begin(), e = temp.end(); b != e; ++b) {
+  for (auto b = temp.begin(), e = temp.end(); b != e; ++b) {
     ParameterSet val;
     if (!decode(val, *b)) {
       return false;
@@ -1102,7 +1082,7 @@ bool edm::encode(std::string& to, std::vector<ParameterSet> const& from) {
   to = "{";
 
   std::string converted;
-  for (std::vector<ParameterSet>::const_iterator b = from.begin(), e = from.end(); b != e; ++b) {
+  for (auto b = from.begin(), e = from.end(); b != e; ++b) {
     if (!encode(converted, *b)) {
       return false;
     }

@@ -309,7 +309,7 @@ void ElectronCalibration::endJob() {
 
     write_calibrations.writeLine(itmap->first, newCalibs[icry]);
     float Compare = 1.;
-    std::map<EBDetId, float>::iterator iter = OldCoeff.find(itmap->first);
+    auto iter = OldCoeff.find(itmap->first);
     if (iter != OldCoeff.end())
       Compare = iter->second;
 
@@ -365,7 +365,7 @@ void ElectronCalibration::endJob() {
   for (itmapp = ReducedMap.begin(); itmapp != ReducedMap.end(); itmapp++) {
     newCalibs[icryp] = solutionNoCuts[icryp];
     float Compare2 = 1.;
-    std::map<EBDetId, float>::iterator iter2 = OldCoeff.find(itmapp->first);
+    auto iter2 = OldCoeff.find(itmapp->first);
     if (iter2 != OldCoeff.end())
       Compare2 = iter2->second;
 
@@ -435,7 +435,7 @@ EBDetId ElectronCalibration::findMaxHit2(const std::vector<DetId>& v1, const EBR
   double currEnergy = 0.;
   EBDetId maxHit;
 
-  for (std::vector<DetId>::const_iterator idsIt = v1.begin(); idsIt != v1.end(); ++idsIt) {
+  for (auto idsIt = v1.begin(); idsIt != v1.end(); ++idsIt) {
     if (idsIt->subdetId() != 1)
       continue;
     EBRecHitCollection::const_iterator itrechit;
@@ -493,7 +493,7 @@ void ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
   ////////////////////////////////////////////////////////////////////////////////////////
   //                          START HERE....
   ///////////////////////////////////////////////////////////////////////////////////////
-  reco::GsfElectronCollection::const_iterator eleIt = electronCollection->begin();
+  auto eleIt = electronCollection->begin();
 
   reco::GsfElectron highPtElectron;
 
@@ -527,9 +527,7 @@ void ElectronCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   std::vector<DetId> v1;
   //Loop to fill the vector of DetIds
-  for (std::vector<std::pair<DetId, float> >::const_iterator idsIt = sc.hitsAndFractions().begin();
-       idsIt != sc.hitsAndFractions().end();
-       ++idsIt) {
+  for (auto idsIt = sc.hitsAndFractions().begin(); idsIt != sc.hitsAndFractions().end(); ++idsIt) {
     v1.push_back(idsIt->first);
   }
 

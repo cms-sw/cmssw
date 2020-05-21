@@ -63,7 +63,7 @@ SingleEleCalibSelector::select (edm::Handle<collection> inputHandle,
   iSetup.get<CaloTopologyRecord>().get(theCaloTopology);
 
   //Loop over electrons
-  for (collection::const_iterator ele = (*inputHandle).begin(); ele != (*inputHandle).end(); ++ele) {
+  for (auto ele = (*inputHandle).begin(); ele != (*inputHandle).end(); ++ele) {
     //Find DetID max hit
     DetId maxHitId = findMaxHit((*ele).superCluster()->hitsAndFractions(), EBHitsColl, EEHitsColl);
 
@@ -115,7 +115,7 @@ DetId SingleEleCalibSelector::findMaxHit(const std::vector<std::pair<DetId, floa
                                          const EERecHitCollection* EEhits) {
   double currEnergy = 0.;
   DetId maxHit;
-  for (std::vector<std::pair<DetId, float> >::const_iterator idsIt = v1.begin(); idsIt != v1.end(); ++idsIt) {
+  for (auto idsIt = v1.begin(); idsIt != v1.end(); ++idsIt) {
     if (idsIt->first.subdetId() == EcalBarrel) {
       EBRecHitCollection::const_iterator itrechit;
       itrechit = EBhits->find((*idsIt).first);

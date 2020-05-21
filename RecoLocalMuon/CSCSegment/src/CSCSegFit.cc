@@ -39,7 +39,7 @@ void CSCSegFit::fit2(void) {
   // with m = (y2-y1)/(x2-x1)
   // and  c = (y1*x2-x2*y1)/(x2-x1)
 
-  CSCSetOfHits::const_iterator ih = hits_.begin();
+  auto ih = hits_.begin();
   int il1 = (*ih)->cscDetId().layer();
   const CSCRecHit2D& h1 = (**ih);
   ++ih;
@@ -150,7 +150,7 @@ void CSCSegFit::fitlsq(void) {
   SMatrix4 M;  // 4x4, init to 0
   SVector4 B;  // 4x1, init to 0;
 
-  CSCSetOfHits::const_iterator ih = hits_.begin();
+  auto ih = hits_.begin();
 
   for (ih = hits_.begin(); ih != hits_.end(); ++ih) {
     const CSCRecHit2D& hit = (**ih);
@@ -286,7 +286,7 @@ CSCSegFit::SMatrixSym12 CSCSegFit::weightMatrix() {
 
   int row = 0;
 
-  for (CSCSetOfHits::const_iterator it = hits_.begin(); it != hits_.end(); ++it) {
+  for (auto it = hits_.begin(); it != hits_.end(); ++it) {
     const CSCRecHit2D& hit = (**it);
 
     // Note scaleXError allows rescaling the x error if necessary
@@ -311,7 +311,7 @@ CSCSegFit::SMatrix12by4 CSCSegFit::derivativeMatrix() {
   SMatrix12by4 matrix;  // 12x4, init to 0
   int row = 0;
 
-  for (CSCSetOfHits::const_iterator it = hits_.begin(); it != hits_.end(); ++it) {
+  for (auto it = hits_.begin(); it != hits_.end(); ++it) {
     const CSCRecHit2D& hit = (**it);
     const CSCLayer* layer = chamber()->layer(hit.cscDetId().layer());
     GlobalPoint gp = layer->toGlobal(hit.localPosition());

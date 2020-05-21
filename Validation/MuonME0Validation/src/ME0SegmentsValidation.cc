@@ -153,7 +153,7 @@ void ME0SegmentsValidation::analyze(const edm::Event &e, const edm::EventSetup &
       continue;
     int count = 0;
 
-    for (edm::PSimHitContainer::const_iterator itHit = ME0Hits->begin(); itHit != ME0Hits->end(); ++itHit) {
+    for (auto itHit = ME0Hits->begin(); itHit != ME0Hits->end(); ++itHit) {
       int particleType_sh = itHit->particleType();
       int evtId_sh = itHit->eventId().event();
       int bx_sh = itHit->eventId().bunchCrossing();

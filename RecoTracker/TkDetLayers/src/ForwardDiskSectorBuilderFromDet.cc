@@ -12,7 +12,7 @@ BoundDiskSector* ForwardDiskSectorBuilderFromDet::operator()(const vector<const 
   // check that the dets are all at about the same radius and z
   float rcheck = dets.front()->surface().position().perp();
   float zcheck = dets.front()->surface().position().z();
-  for (vector<const GeomDet*>::const_iterator i = dets.begin(); i != dets.end(); i++) {
+  for (auto i = dets.begin(); i != dets.end(); i++) {
     float rdiff = (**i).surface().position().perp() - rcheck;
     if (std::abs(rdiff) > 1.)
       edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromDet: Trying to build Petal Wedge from "
@@ -40,13 +40,13 @@ pair<DiskSectorBounds*, GlobalVector> ForwardDiskSectorBuilderFromDet::computeBo
   float phimin((**(dets.begin())).surface().position().phi());
   float phimax(phimin);
 
-  for (vector<const GeomDet*>::const_iterator idet = dets.begin(); idet != dets.end(); idet++) {
+  for (auto idet = dets.begin(); idet != dets.end(); idet++) {
     vector<const GeomDet*> detUnits = (**idet).components();
     if (!detUnits.empty()) {
-      for (vector<const GeomDet*>::const_iterator detu = detUnits.begin(); detu != detUnits.end(); detu++) {
+      for (auto detu = detUnits.begin(); detu != detUnits.end(); detu++) {
         // edm::LogInfo(TkDetLayers) << " Builder: Position of detUnit :"<< (**detu).position() ;
         vector<GlobalPoint> corners = computeTrapezoidalCorners(*detu);
-        for (vector<GlobalPoint>::const_iterator i = corners.begin(); i != corners.end(); i++) {
+        for (auto i = corners.begin(); i != corners.end(); i++) {
           float r = i->perp();
           float z = i->z();
           float phi = i->phi();
@@ -83,7 +83,7 @@ pair<DiskSectorBounds*, GlobalVector> ForwardDiskSectorBuilderFromDet::computeBo
       }
     } else {
       vector<GlobalPoint> corners = computeTrapezoidalCorners(*idet);
-      for (vector<GlobalPoint>::const_iterator i = corners.begin(); i != corners.end(); i++) {
+      for (auto i = corners.begin(); i != corners.end(); i++) {
         float r = i->perp();
         float z = i->z();
         float phi = i->phi();
@@ -154,7 +154,7 @@ Surface::RotationType ForwardDiskSectorBuilderFromDet::computeRotation(const vec
 vector<GlobalPoint> ForwardDiskSectorBuilderFromDet::computeTrapezoidalCorners(const GeomDet* det) const {
   const Plane& plane(det->specificSurface());
 
-  const TrapezoidalPlaneBounds* myBounds(static_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
+  const auto* myBounds(static_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
 
   /*
   if (myBounds == 0) {

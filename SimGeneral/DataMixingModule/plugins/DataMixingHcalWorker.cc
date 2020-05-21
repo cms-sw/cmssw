@@ -81,7 +81,7 @@ namespace edm {
 
     if (HBHERecHits) {
       // loop over rechits, storing them in a map so we can add pileup later
-      for (HBHERecHitCollection::const_iterator it = HBHERecHits->begin(); it != HBHERecHits->end(); ++it) {
+      for (auto it = HBHERecHits->begin(); it != HBHERecHits->end(); ++it) {
         HBHERecHitStorage_.insert(HBHERecHitMap::value_type((it->id()), *it));
 
 #ifdef DEBUG
@@ -106,7 +106,7 @@ namespace edm {
 
     if (HORecHits) {
       // loop over rechits, storing them in a map so we can add pileup later
-      for (HORecHitCollection::const_iterator it = HORecHits->begin(); it != HORecHits->end(); ++it) {
+      for (auto it = HORecHits->begin(); it != HORecHits->end(); ++it) {
         HORecHitStorage_.insert(HORecHitMap::value_type((it->id()), *it));
 
 #ifdef DEBUG
@@ -131,7 +131,7 @@ namespace edm {
 
     if (HFRecHits) {
       // loop over rechits, storing them in a map so we can add pileup later
-      for (HFRecHitCollection::const_iterator it = HFRecHits->begin(); it != HFRecHits->end(); ++it) {
+      for (auto it = HFRecHits->begin(); it != HFRecHits->end(); ++it) {
         HFRecHitStorage_.insert(HFRecHitMap::value_type((it->id()), *it));
 
 #ifdef DEBUG
@@ -156,7 +156,7 @@ namespace edm {
 
     if (ZDCRecHits) {
       // loop over rechits, storing them in a map so we can add pileup later
-      for (ZDCRecHitCollection::const_iterator it = ZDCRecHits->begin(); it != ZDCRecHits->end(); ++it) {
+      for (auto it = ZDCRecHits->begin(); it != ZDCRecHits->end(); ++it) {
         ZDCRecHitStorage_.insert(ZDCRecHitMap::value_type((it->id()), *it));
 
 #ifdef DEBUG
@@ -189,7 +189,7 @@ namespace edm {
       LogDebug("DataMixingEMWorker") << "total # HBHE rechits: " << HBHERecHits->size();
 
       // loop over rechits, adding these to the existing maps
-      for (HBHERecHitCollection::const_iterator it = HBHERecHits->begin(); it != HBHERecHits->end(); ++it) {
+      for (auto it = HBHERecHits->begin(); it != HBHERecHits->end(); ++it) {
         HBHERecHitStorage_.insert(HBHERecHitMap::value_type((it->id()), *it));
 
 #ifdef DEBUG
@@ -210,7 +210,7 @@ namespace edm {
       LogDebug("DataMixingEMWorker") << "total # HO rechits: " << HORecHits->size();
 
       // loop over rechits, adding these to the existing maps
-      for (HORecHitCollection::const_iterator it = HORecHits->begin(); it != HORecHits->end(); ++it) {
+      for (auto it = HORecHits->begin(); it != HORecHits->end(); ++it) {
         HORecHitStorage_.insert(HORecHitMap::value_type((it->id()), *it));
 
 #ifdef DEBUG
@@ -231,7 +231,7 @@ namespace edm {
       LogDebug("DataMixingEMWorker") << "total # HF rechits: " << HFRecHits->size();
 
       // loop over rechits, adding these to the existing maps
-      for (HFRecHitCollection::const_iterator it = HFRecHits->begin(); it != HFRecHits->end(); ++it) {
+      for (auto it = HFRecHits->begin(); it != HFRecHits->end(); ++it) {
         HFRecHitStorage_.insert(HFRecHitMap::value_type((it->id()), *it));
 
 #ifdef DEBUG
@@ -252,7 +252,7 @@ namespace edm {
       LogDebug("DataMixingEMWorker") << "total # ZDC rechits: " << ZDCRecHits->size();
 
       // loop over rechits, adding these to the existing maps
-      for (ZDCRecHitCollection::const_iterator it = ZDCRecHits->begin(); it != ZDCRecHits->end(); ++it) {
+      for (auto it = ZDCRecHits->begin(); it != ZDCRecHits->end(); ++it) {
         ZDCRecHitStorage_.insert(ZDCRecHitMap::value_type((it->id()), *it));
 
 #ifdef DEBUG
@@ -281,7 +281,7 @@ namespace edm {
 
     HBHERecHitMap::const_iterator iHBchk;
 
-    for (HBHERecHitMap::const_iterator iHB = HBHERecHitStorage_.begin(); iHB != HBHERecHitStorage_.end(); ++iHB) {
+    for (auto iHB = HBHERecHitStorage_.begin(); iHB != HBHERecHitStorage_.end(); ++iHB) {
       currentID = iHB->first;
 
       if (currentID == formerID) {  // we have to add these rechits together
@@ -317,7 +317,7 @@ namespace edm {
 
     HORecHitMap::const_iterator iHOchk;
 
-    for (HORecHitMap::const_iterator iHO = HORecHitStorage_.begin(); iHO != HORecHitStorage_.end(); ++iHO) {
+    for (auto iHO = HORecHitStorage_.begin(); iHO != HORecHitStorage_.end(); ++iHO) {
       currentID = iHO->first;
 
       if (currentID == formerID) {  // we have to add these rechits together
@@ -353,7 +353,7 @@ namespace edm {
 
     HFRecHitMap::const_iterator iHFchk;
 
-    for (HFRecHitMap::const_iterator iHF = HFRecHitStorage_.begin(); iHF != HFRecHitStorage_.end(); ++iHF) {
+    for (auto iHF = HFRecHitStorage_.begin(); iHF != HFRecHitStorage_.end(); ++iHF) {
       currentID = iHF->first;
 
       if (currentID == formerID) {  // we have to add these rechits together
@@ -391,7 +391,7 @@ namespace edm {
 
     ZDCRecHitMap::const_iterator iZDCchk;
 
-    for (ZDCRecHitMap::const_iterator iZDC = ZDCRecHitStorage_.begin(); iZDC != ZDCRecHitStorage_.end(); ++iZDC) {
+    for (auto iZDC = ZDCRecHitStorage_.begin(); iZDC != ZDCRecHitStorage_.end(); ++iZDC) {
       currentID = iZDC->first;
 
       if (currentID == formerID) {  // we have to add these rechits together

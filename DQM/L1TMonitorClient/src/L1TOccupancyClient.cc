@@ -69,7 +69,7 @@ void L1TOccupancyClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter& ige
   //dbe_->setCurrentFolder("L1T/L1TOccupancy/Certification");
 
   // Loop over all tests in defined
-  for (vector<ParameterSet>::iterator it = tests_.begin(); it != tests_.end(); it++) {
+  for (auto it = tests_.begin(); it != tests_.end(); it++) {
     // If the test algorithm is XYSymmetry we create the necessary histograms
     if ((*it).getUntrackedParameter<string>("algoName", "XYSymmetry") == "XYSymmetry") {
       // Getting Parameters for the test
@@ -141,7 +141,7 @@ void L1TOccupancyClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter
   }
 
   // Loop over every test in python
-  for (std::vector<ParameterSet*>::iterator it = mValidTests.begin(); it != mValidTests.end(); it++) {
+  for (auto it = mValidTests.begin(); it != mValidTests.end(); it++) {
     ParameterSet& test = (**it);
     string algo_name = test.getUntrackedParameter<string>("algoName", "XYSymmetry");
     string test_name = test.getParameter<string>("testName");
@@ -276,7 +276,7 @@ void L1TOccupancyClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   }
 
   // Loop over every test in python
-  for (std::vector<ParameterSet*>::const_iterator it = mValidTests.begin(); it != mValidTests.end(); it++) {
+  for (auto it = mValidTests.begin(); it != mValidTests.end(); it++) {
     ParameterSet& test = (**it);
     string algo_name = test.getUntrackedParameter<string>("algoName", "XYSymmetry");
     string test_name = test.getParameter<string>("testName");
@@ -683,7 +683,7 @@ void L1TOccupancyClient::printDeadChannels(const vector<pair<int, double> >& iDe
   float chi2 = 0.0;
 
   // put all bad (value=1) and masked (value=-1) cells in histo
-  for (std::vector<pair<int, double> >::const_iterator it = iDeadChannels.begin(); it != iDeadChannels.end(); it++) {
+  for (auto it = iDeadChannels.begin(); it != iDeadChannels.end(); it++) {
     int bin = (*it).first;
     oHistDeadChannels->GetBinXYZ(bin, x, y, z);
 
@@ -701,7 +701,7 @@ void L1TOccupancyClient::printDeadChannels(const vector<pair<int, double> >& iDe
   }
 
   // FIXME: Is this needed?
-  for (std::vector<pair<int, double> >::const_iterator it = statDev.begin(); it != statDev.end(); it++) {
+  for (auto it = statDev.begin(); it != statDev.end(); it++) {
     double dev = (*it).second;
     chi2 += dev;
   }

@@ -54,9 +54,7 @@ int Muon::numberOfChambersCSCorDT() const {
 
 int Muon::numberOfMatches(ArbitrationType type) const {
   int matches(0);
-  for (std::vector<MuonChamberMatch>::const_iterator chamberMatch = muMatches_.begin();
-       chamberMatch != muMatches_.end();
-       chamberMatch++) {
+  for (auto chamberMatch = muMatches_.begin(); chamberMatch != muMatches_.end(); chamberMatch++) {
     if (type == RPCHitAndTrackArbitration) {
       if (chamberMatch->rpcMatches.empty())
         continue;
@@ -83,8 +81,7 @@ int Muon::numberOfMatches(ArbitrationType type) const {
       continue;
     }
 
-    for (std::vector<MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
-         segmentMatch != chamberMatch->segmentMatches.end();
+    for (auto segmentMatch = chamberMatch->segmentMatches.begin(); segmentMatch != chamberMatch->segmentMatches.end();
          segmentMatch++) {
       if (type == SegmentArbitration)
         if (segmentMatch->isMask(MuonSegmentMatch::BestInChamberByDR)) {
@@ -144,9 +141,7 @@ unsigned int Muon::stationMask(ArbitrationType type) const {
   unsigned int totMask(0);
   unsigned int curMask(0);
 
-  for (std::vector<MuonChamberMatch>::const_iterator chamberMatch = muMatches_.begin();
-       chamberMatch != muMatches_.end();
-       chamberMatch++) {
+  for (auto chamberMatch = muMatches_.begin(); chamberMatch != muMatches_.end(); chamberMatch++) {
     if (type == RPCHitAndTrackArbitration) {
       if (chamberMatch->rpcMatches.empty())
         continue;
@@ -157,9 +152,7 @@ unsigned int Muon::stationMask(ArbitrationType type) const {
       if (region != 0)
         rpcIndex = 2;
 
-      for (std::vector<MuonRPCHitMatch>::const_iterator rpcMatch = chamberMatch->rpcMatches.begin();
-           rpcMatch != chamberMatch->rpcMatches.end();
-           rpcMatch++) {
+      for (auto rpcMatch = chamberMatch->rpcMatches.begin(); rpcMatch != chamberMatch->rpcMatches.end(); rpcMatch++) {
         curMask = 1 << ((chamberMatch->station() - 1) + 4 * (rpcIndex - 1));
 
         // do not double count
@@ -179,8 +172,7 @@ unsigned int Muon::stationMask(ArbitrationType type) const {
       continue;
     }
 
-    for (std::vector<MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
-         segmentMatch != chamberMatch->segmentMatches.end();
+    for (auto segmentMatch = chamberMatch->segmentMatches.begin(); segmentMatch != chamberMatch->segmentMatches.end();
          segmentMatch++) {
       if (type == SegmentArbitration)
         if (segmentMatch->isMask(MuonSegmentMatch::BestInStationByDR)) {
@@ -230,9 +222,7 @@ int Muon::numberOfMatchedRPCLayers(ArbitrationType type) const {
 unsigned int Muon::RPClayerMask(ArbitrationType type) const {
   unsigned int totMask(0);
   unsigned int curMask(0);
-  for (std::vector<MuonChamberMatch>::const_iterator chamberMatch = muMatches_.begin();
-       chamberMatch != muMatches_.end();
-       chamberMatch++) {
+  for (auto chamberMatch = muMatches_.begin(); chamberMatch != muMatches_.end(); chamberMatch++) {
     if (chamberMatch->rpcMatches.empty())
       continue;
 
@@ -248,9 +238,7 @@ unsigned int Muon::RPClayerMask(ArbitrationType type) const {
     } else
       rpcLayer += 6;
 
-    for (std::vector<MuonRPCHitMatch>::const_iterator rpcMatch = chamberMatch->rpcMatches.begin();
-         rpcMatch != chamberMatch->rpcMatches.end();
-         rpcMatch++) {
+    for (auto rpcMatch = chamberMatch->rpcMatches.begin(); rpcMatch != chamberMatch->rpcMatches.end(); rpcMatch++) {
       curMask = 1 << (rpcLayer - 1);
 
       // do not double count
@@ -267,9 +255,7 @@ unsigned int Muon::stationGapMaskDistance(float distanceCut) const {
   for (int stationIndex = 1; stationIndex < 5; stationIndex++) {
     for (int detectorIndex = 1; detectorIndex < 4; detectorIndex++) {
       unsigned int curMask(0);
-      for (std::vector<MuonChamberMatch>::const_iterator chamberMatch = muMatches_.begin();
-           chamberMatch != muMatches_.end();
-           chamberMatch++) {
+      for (auto chamberMatch = muMatches_.begin(); chamberMatch != muMatches_.end(); chamberMatch++) {
         if (!(chamberMatch->station() == stationIndex && chamberMatch->detector() == detectorIndex))
           continue;
 
@@ -298,9 +284,7 @@ unsigned int Muon::stationGapMaskPull(float sigmaCut) const {
   for (int stationIndex = 1; stationIndex < 5; stationIndex++) {
     for (int detectorIndex = 1; detectorIndex < 4; detectorIndex++) {
       unsigned int curMask(0);
-      for (std::vector<MuonChamberMatch>::const_iterator chamberMatch = muMatches_.begin();
-           chamberMatch != muMatches_.end();
-           chamberMatch++) {
+      for (auto chamberMatch = muMatches_.begin(); chamberMatch != muMatches_.end(); chamberMatch++) {
         if (!(chamberMatch->station() == stationIndex && chamberMatch->detector() == detectorIndex))
           continue;
 
@@ -391,9 +375,7 @@ int Muon::numberOfShowers(int nDtDigisCut, int nCscDigisCut) const {
 
 int Muon::numberOfSegments(int station, int muonSubdetId, ArbitrationType type) const {
   int segments(0);
-  for (std::vector<MuonChamberMatch>::const_iterator chamberMatch = muMatches_.begin();
-       chamberMatch != muMatches_.end();
-       chamberMatch++) {
+  for (auto chamberMatch = muMatches_.begin(); chamberMatch != muMatches_.end(); chamberMatch++) {
     if (chamberMatch->segmentMatches.empty())
       continue;
     if (!(chamberMatch->station() == station && chamberMatch->detector() == muonSubdetId))
@@ -404,8 +386,7 @@ int Muon::numberOfSegments(int station, int muonSubdetId, ArbitrationType type) 
       continue;
     }
 
-    for (std::vector<MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
-         segmentMatch != chamberMatch->segmentMatches.end();
+    for (auto segmentMatch = chamberMatch->segmentMatches.begin(); segmentMatch != chamberMatch->segmentMatches.end();
          segmentMatch++) {
       if (type == SegmentArbitration)
         if (segmentMatch->isMask(MuonSegmentMatch::BestInStationByDR)) {
@@ -433,9 +414,7 @@ int Muon::numberOfSegments(int station, int muonSubdetId, ArbitrationType type) 
 
 const std::vector<const MuonChamberMatch*> Muon::chambers(int station, int muonSubdetId) const {
   std::vector<const MuonChamberMatch*> chambers;
-  for (std::vector<MuonChamberMatch>::const_iterator chamberMatch = muMatches_.begin();
-       chamberMatch != muMatches_.end();
-       chamberMatch++)
+  for (auto chamberMatch = muMatches_.begin(); chamberMatch != muMatches_.end(); chamberMatch++)
     if (chamberMatch->station() == station && chamberMatch->detector() == muonSubdetId)
       chambers.push_back(&(*chamberMatch));
   return chambers;
@@ -449,15 +428,13 @@ std::pair<const MuonChamberMatch*, const MuonSegmentMatch*> Muon::pair(
 
   if (chambers.empty())
     return chamberSegmentPair;
-  for (std::vector<const MuonChamberMatch*>::const_iterator chamberMatch = chambers.begin();
-       chamberMatch != chambers.end();
-       chamberMatch++) {
+  for (auto chamberMatch = chambers.begin(); chamberMatch != chambers.end(); chamberMatch++) {
     if ((*chamberMatch)->segmentMatches.empty())
       continue;
     if (type == NoArbitration)
       return std::make_pair(*chamberMatch, &((*chamberMatch)->segmentMatches.front()));
 
-    for (std::vector<MuonSegmentMatch>::const_iterator segmentMatch = (*chamberMatch)->segmentMatches.begin();
+    for (auto segmentMatch = (*chamberMatch)->segmentMatches.begin();
          segmentMatch != (*chamberMatch)->segmentMatches.end();
          segmentMatch++) {
       if (type == SegmentArbitration)
@@ -675,9 +652,7 @@ float Muon::trackEdgeX(int station, int muonSubdetId, ArbitrationType type) cons
   if (chamberSegmentPair.first == nullptr || chamberSegmentPair.second == nullptr) {
     float dist = 999999;
     float supVar = 999999;
-    for (std::vector<const MuonChamberMatch*>::const_iterator muonChamber = muonChambers.begin();
-         muonChamber != muonChambers.end();
-         ++muonChamber) {
+    for (auto muonChamber = muonChambers.begin(); muonChamber != muonChambers.end(); ++muonChamber) {
       float currDist = (*muonChamber)->dist();
       if (currDist < dist) {
         dist = currDist;
@@ -698,9 +673,7 @@ float Muon::trackEdgeY(int station, int muonSubdetId, ArbitrationType type) cons
   if (chamberSegmentPair.first == nullptr || chamberSegmentPair.second == nullptr) {
     float dist = 999999;
     float supVar = 999999;
-    for (std::vector<const MuonChamberMatch*>::const_iterator muonChamber = muonChambers.begin();
-         muonChamber != muonChambers.end();
-         ++muonChamber) {
+    for (auto muonChamber = muonChambers.begin(); muonChamber != muonChambers.end(); ++muonChamber) {
       float currDist = (*muonChamber)->dist();
       if (currDist < dist) {
         dist = currDist;
@@ -721,9 +694,7 @@ float Muon::trackX(int station, int muonSubdetId, ArbitrationType type) const {
   if (chamberSegmentPair.first == nullptr || chamberSegmentPair.second == nullptr) {
     float dist = 999999;
     float supVar = 999999;
-    for (std::vector<const MuonChamberMatch*>::const_iterator muonChamber = muonChambers.begin();
-         muonChamber != muonChambers.end();
-         ++muonChamber) {
+    for (auto muonChamber = muonChambers.begin(); muonChamber != muonChambers.end(); ++muonChamber) {
       float currDist = (*muonChamber)->dist();
       if (currDist < dist) {
         dist = currDist;
@@ -744,9 +715,7 @@ float Muon::trackY(int station, int muonSubdetId, ArbitrationType type) const {
   if (chamberSegmentPair.first == nullptr || chamberSegmentPair.second == nullptr) {
     float dist = 999999;
     float supVar = 999999;
-    for (std::vector<const MuonChamberMatch*>::const_iterator muonChamber = muonChambers.begin();
-         muonChamber != muonChambers.end();
-         ++muonChamber) {
+    for (auto muonChamber = muonChambers.begin(); muonChamber != muonChambers.end(); ++muonChamber) {
       float currDist = (*muonChamber)->dist();
       if (currDist < dist) {
         dist = currDist;
@@ -767,9 +736,7 @@ float Muon::trackDxDz(int station, int muonSubdetId, ArbitrationType type) const
   if (chamberSegmentPair.first == nullptr || chamberSegmentPair.second == nullptr) {
     float dist = 999999;
     float supVar = 999999;
-    for (std::vector<const MuonChamberMatch*>::const_iterator muonChamber = muonChambers.begin();
-         muonChamber != muonChambers.end();
-         ++muonChamber) {
+    for (auto muonChamber = muonChambers.begin(); muonChamber != muonChambers.end(); ++muonChamber) {
       float currDist = (*muonChamber)->dist();
       if (currDist < dist) {
         dist = currDist;
@@ -790,9 +757,7 @@ float Muon::trackDyDz(int station, int muonSubdetId, ArbitrationType type) const
   if (chamberSegmentPair.first == nullptr || chamberSegmentPair.second == nullptr) {
     float dist = 999999;
     float supVar = 999999;
-    for (std::vector<const MuonChamberMatch*>::const_iterator muonChamber = muonChambers.begin();
-         muonChamber != muonChambers.end();
-         ++muonChamber) {
+    for (auto muonChamber = muonChambers.begin(); muonChamber != muonChambers.end(); ++muonChamber) {
       float currDist = (*muonChamber)->dist();
       if (currDist < dist) {
         dist = currDist;
@@ -813,9 +778,7 @@ float Muon::trackXErr(int station, int muonSubdetId, ArbitrationType type) const
   if (chamberSegmentPair.first == nullptr || chamberSegmentPair.second == nullptr) {
     float dist = 999999;
     float supVar = 999999;
-    for (std::vector<const MuonChamberMatch*>::const_iterator muonChamber = muonChambers.begin();
-         muonChamber != muonChambers.end();
-         ++muonChamber) {
+    for (auto muonChamber = muonChambers.begin(); muonChamber != muonChambers.end(); ++muonChamber) {
       float currDist = (*muonChamber)->dist();
       if (currDist < dist) {
         dist = currDist;
@@ -836,9 +799,7 @@ float Muon::trackYErr(int station, int muonSubdetId, ArbitrationType type) const
   if (chamberSegmentPair.first == nullptr || chamberSegmentPair.second == nullptr) {
     float dist = 999999;
     float supVar = 999999;
-    for (std::vector<const MuonChamberMatch*>::const_iterator muonChamber = muonChambers.begin();
-         muonChamber != muonChambers.end();
-         ++muonChamber) {
+    for (auto muonChamber = muonChambers.begin(); muonChamber != muonChambers.end(); ++muonChamber) {
       float currDist = (*muonChamber)->dist();
       if (currDist < dist) {
         dist = currDist;
@@ -859,9 +820,7 @@ float Muon::trackDxDzErr(int station, int muonSubdetId, ArbitrationType type) co
   if (chamberSegmentPair.first == nullptr || chamberSegmentPair.second == nullptr) {
     float dist = 999999;
     float supVar = 999999;
-    for (std::vector<const MuonChamberMatch*>::const_iterator muonChamber = muonChambers.begin();
-         muonChamber != muonChambers.end();
-         ++muonChamber) {
+    for (auto muonChamber = muonChambers.begin(); muonChamber != muonChambers.end(); ++muonChamber) {
       float currDist = (*muonChamber)->dist();
       if (currDist < dist) {
         dist = currDist;
@@ -882,9 +841,7 @@ float Muon::trackDyDzErr(int station, int muonSubdetId, ArbitrationType type) co
   if (chamberSegmentPair.first == nullptr || chamberSegmentPair.second == nullptr) {
     float dist = 999999;
     float supVar = 999999;
-    for (std::vector<const MuonChamberMatch*>::const_iterator muonChamber = muonChambers.begin();
-         muonChamber != muonChambers.end();
-         ++muonChamber) {
+    for (auto muonChamber = muonChambers.begin(); muonChamber != muonChambers.end(); ++muonChamber) {
       float currDist = (*muonChamber)->dist();
       if (currDist < dist) {
         dist = currDist;
@@ -904,9 +861,7 @@ float Muon::trackDist(int station, int muonSubdetId, ArbitrationType type) const
   std::pair<const MuonChamberMatch*, const MuonSegmentMatch*> chamberSegmentPair = pair(muonChambers, type);
   if (chamberSegmentPair.first == nullptr || chamberSegmentPair.second == nullptr) {
     float dist = 999999;
-    for (std::vector<const MuonChamberMatch*>::const_iterator muonChamber = muonChambers.begin();
-         muonChamber != muonChambers.end();
-         ++muonChamber) {
+    for (auto muonChamber = muonChambers.begin(); muonChamber != muonChambers.end(); ++muonChamber) {
       float currDist = (*muonChamber)->dist();
       if (currDist < dist)
         dist = currDist;
@@ -925,9 +880,7 @@ float Muon::trackDistErr(int station, int muonSubdetId, ArbitrationType type) co
   if (chamberSegmentPair.first == nullptr || chamberSegmentPair.second == nullptr) {
     float dist = 999999;
     float supVar = 999999;
-    for (std::vector<const MuonChamberMatch*>::const_iterator muonChamber = muonChambers.begin();
-         muonChamber != muonChambers.end();
-         ++muonChamber) {
+    for (auto muonChamber = muonChambers.begin(); muonChamber != muonChambers.end(); ++muonChamber) {
       float currDist = (*muonChamber)->dist();
       if (currDist < dist) {
         dist = currDist;

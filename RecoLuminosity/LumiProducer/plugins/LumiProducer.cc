@@ -178,14 +178,14 @@ std::string LumiProducer::toParentString(const xercesc::DOMNode& nodeToConvert) 
     xercesc::DOMNode* childNode = childList->item(i);
     if (childNode->getNodeType() != xercesc::DOMNode::ELEMENT_NODE)
       continue;
-    xercesc::DOMElement* child = static_cast<xercesc::DOMElement*>(childNode);
+    auto* child = static_cast<xercesc::DOMElement*>(childNode);
     xercesc::DOMNamedNodeMap* attributes = child->getAttributes();
     unsigned int numAttributes = attributes->getLength();
     for (unsigned int j = 0; j < numAttributes; ++j) {
       xercesc::DOMNode* attributeNode = attributes->item(j);
       if (attributeNode->getNodeType() != xercesc::DOMNode::ATTRIBUTE_NODE)
         continue;
-      xercesc::DOMAttr* attribute = static_cast<xercesc::DOMAttr*>(attributeNode);
+      auto* attribute = static_cast<xercesc::DOMAttr*>(attributeNode);
 
       oss << "(" << x2s(child->getTagName()) << x2s(attribute->getName()) << "=" << x2s(attribute->getValue()) << ")";
     }
@@ -209,7 +209,7 @@ const std::string LumiProducer::servletTranslation(const std::string& servlet) c
 
     xercesc::DOMNodeList* frontierConnectList = doc->getElementsByTagName(s2x("frontier-connect"));
     if (frontierConnectList->getLength() > 0) {
-      xercesc::DOMElement* frontierConnectElement = static_cast<xercesc::DOMElement*>(frontierConnectList->item(0));
+      auto* frontierConnectElement = static_cast<xercesc::DOMElement*>(frontierConnectList->item(0));
       frontierConnect = toParentString(*frontierConnectElement);
     }
     // Replace the last component of every "serverurl=" piece (up to the
@@ -384,7 +384,7 @@ std::string LumiProducer::getCurrentDataTag(const coral::ISchema& schema) {
   }
   delete tagQuery;
   unsigned long long maxid = 0;
-  for (std::map<unsigned long long, std::string>::iterator it = alltags.begin(); it != alltags.end(); ++it) {
+  for (auto it = alltags.begin(); it != alltags.end(); ++it) {
     if (it->first > maxid) {
       maxid = it->first;
     }
@@ -809,14 +809,14 @@ void LumiProducer::writeProductsForEntry(edm::LuminosityBlock& iLBlock, unsigned
   pIn1->setlsnumber(luminum);
   pIn1->setOrbitData(lsdata.startorbit, lsdata.numorbit);
   std::vector<LumiSummary::L1> l1temp;
-  for (std::vector<L1Data>::iterator it = lsdata.l1data.begin(); it != lsdata.l1data.end(); ++it) {
+  for (auto it = lsdata.l1data.begin(); it != lsdata.l1data.end(); ++it) {
     LumiSummary::L1 trgtmp;
     trgtmp.triggernameidx = m_runcache.TRGBitNameToIndex[it->bitname];
     trgtmp.prescale = it->prescale;
     l1temp.push_back(trgtmp);
   }
   std::vector<LumiSummary::HLT> hlttemp;
-  for (std::vector<HLTData>::iterator it = lsdata.hltdata.begin(); it != lsdata.hltdata.end(); ++it) {
+  for (auto it = lsdata.hltdata.begin(); it != lsdata.hltdata.end(); ++it) {
     LumiSummary::HLT hlttmp;
     hlttmp.pathnameidx = m_runcache.HLTPathNameToIndex[it->pathname];
     ;

@@ -54,9 +54,7 @@ BsJpsiPhiFilter::BsJpsiPhiFilter(const edm::ParameterSet& iConfig)
 }
 
 HepMC::GenParticle* BsJpsiPhiFilter::findParticle(HepMC::GenVertex* vertex, const int requested_id) const {
-  for (std::vector<HepMC::GenParticle*>::const_iterator p = vertex->particles_out_const_begin();
-       p != vertex->particles_out_const_end();
-       p++) {
+  for (auto p = vertex->particles_out_const_begin(); p != vertex->particles_out_const_end(); p++) {
     int event_particle_id = abs((*p)->pdg_id());
     if (requested_id == event_particle_id)
       return *p;
@@ -110,9 +108,7 @@ bool BsJpsiPhiFilter::cuts(const HepMC::GenParticle* jpsi, const CutStruct& cut)
   HepMC::GenVertex* myVertex = jpsi->end_vertex();
   int numChildren = myVertex->particles_out_size();
   std::vector<HepMC::GenParticle*> psiChild;
-  for (std::vector<HepMC::GenParticle*>::const_iterator p = myVertex->particles_out_const_begin();
-       p != myVertex->particles_out_const_end();
-       p++)
+  for (auto p = myVertex->particles_out_const_begin(); p != myVertex->particles_out_const_end(); p++)
     psiChild.push_back((*p));
 
   if (numChildren > 1) {

@@ -795,7 +795,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
     if (!initL1_) {
       initL1_ = true;
       edm::LogVerbatim("IsoTrack") << "menuName " << menuName;
-      for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
+      for (auto itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
         std::string algName = itAlgo->first;
         int algBitNumber = (itAlgo->second).algoBitNumber();
         l1AlgoMap_.insert(std::pair<std::pair<unsigned int, std::string>, int>(
@@ -809,7 +809,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
     }
 
     std::vector<int> algbits;
-    for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
+    for (auto itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
       std::string algName = itAlgo->first;
       int algBitNumber = (itAlgo->second).algoBitNumber();
       bool decision = m_l1GtUtils->decision(iEvent, itAlgo->first, iErrorCode);
@@ -946,7 +946,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
       double vtxTrkSumPtHP = 0.0, vtxTrkSumPtHPWt = 0.0;
       int vtxTrkNHP = 0, vtxTrkNHPWt = 0;
 
-      reco::Vertex::trackRef_iterator vtxTrack = (*recVtxs)[ind].tracks_begin();
+      auto vtxTrack = (*recVtxs)[ind].tracks_begin();
 
       for (vtxTrack = (*recVtxs)[ind].tracks_begin(); vtxTrack != (*recVtxs)[ind].tracks_end(); vtxTrack++) {
         if ((*vtxTrack)->pt() < pvTracksPtMin_)
@@ -1129,7 +1129,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
     int pVtxTkId = -1;
     for (unsigned int ind = 0; ind < recVtxs->size(); ind++) {
       if (!((*recVtxs)[ind].isFake())) {
-        reco::Vertex::trackRef_iterator vtxTrack = (*recVtxs)[ind].tracks_begin();
+        auto vtxTrack = (*recVtxs)[ind].tracks_begin();
         for (vtxTrack = (*recVtxs)[ind].tracks_begin(); vtxTrack != (*recVtxs)[ind].tracks_end(); vtxTrack++) {
           const edm::RefToBase<reco::Track> pvtxTrack = (*vtxTrack);
           if (pTrack == pvtxTrack.get()) {
@@ -1209,8 +1209,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
       t_trackChiSqAll->push_back(chisq1);
     }
     if (doMC_) {
-      edm::SimTrackContainer::const_iterator matchedSimTrkAll =
-          spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false);
+      auto matchedSimTrkAll = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false);
       if (writeAllTracks_ && matchedSimTrkAll != SimTk->end())
         t_trackPdgIdAll->push_back(matchedSimTrkAll->type());
     }
@@ -1253,8 +1252,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
         // get the matching simTrack
         double simTrackP = -1;
         if (doMC_) {
-          edm::SimTrackContainer::const_iterator matchedSimTrk =
-              spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false);
+          auto matchedSimTrk = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false);
           if (matchedSimTrk != SimTk->end())
             simTrackP = matchedSimTrk->momentum().P();
         }
@@ -1851,7 +1849,7 @@ void IsolatedTracksNxN::analyze(const edm::Event &iEvent, const edm::EventSetup 
 
         for (unsigned int ind = 0; ind < recVtxs->size(); ind++) {
           if (!((*recVtxs)[ind].isFake())) {
-            reco::Vertex::trackRef_iterator vtxTrack = (*recVtxs)[ind].tracks_begin();
+            auto vtxTrack = (*recVtxs)[ind].tracks_begin();
             if (deltaR(eta1, phi1, (*vtxTrack)->eta(), (*vtxTrack)->phi()) < 0.01)
               t_trackPVIdx->push_back(ind);
             else

@@ -73,7 +73,7 @@ void MatchJet::matchCollections(const edm::RefToBaseVector<reco::Jet>& refJets_,
   typedef Matching<double>::Match Match;
 
   const std::vector<Match>& matches = matching.match(std::less<double>(), [&](auto& c) { return c < this->maxChi2; });
-  for (std::vector<Match>::const_iterator iter = matches.begin(); iter != matches.end(); ++iter) {
+  for (auto iter = matches.begin(); iter != matches.end(); ++iter) {
     refToRec[iter->index1] = iter->index2;
     recToRef[iter->index2] = iter->index1;
   }

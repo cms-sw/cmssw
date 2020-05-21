@@ -38,8 +38,7 @@ void SiStripPedestalsDQM::fillModMEs(const std::vector<uint32_t> &selectedDetIds
 
   ModMEs CondObj_ME;
 
-  for (std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin(); detIter_ != selectedDetIds.end();
-       detIter_++) {
+  for (auto detIter_ = selectedDetIds.begin(); detIter_ != selectedDetIds.end(); detIter_++) {
     fillMEsForDet(CondObj_ME, *detIter_, tTopo);
   }
 }
@@ -68,12 +67,11 @@ void SiStripPedestalsDQM::fillSummaryMEs(const std::vector<uint32_t> &selectedDe
   es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology *const tTopo = tTopoHandle.product();
 
-  for (std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin(); detIter_ != selectedDetIds.end();
-       detIter_++) {
+  for (auto detIter_ = selectedDetIds.begin(); detIter_ != selectedDetIds.end(); detIter_++) {
     fillMEsForLayer(/*SummaryMEsMap_,*/ *detIter_, tTopo);
   }
 
-  for (std::map<uint32_t, ModMEs>::iterator iter = SummaryMEsMap_.begin(); iter != SummaryMEsMap_.end(); iter++) {
+  for (auto iter = SummaryMEsMap_.begin(); iter != SummaryMEsMap_.end(); iter++) {
     ModMEs selME;
     selME = iter->second;
 
@@ -117,7 +115,7 @@ void SiStripPedestalsDQM::fillMEsForLayer(
   //     // Cumulative distribution with average Ped value on a layer (not
   //     needed):
 
-  std::map<uint32_t, ModMEs>::iterator selMEsMapIter_ = SummaryMEsMap_.find(getLayerNameAndId(selDetId_, tTopo).second);
+  auto selMEsMapIter_ = SummaryMEsMap_.find(getLayerNameAndId(selDetId_, tTopo).second);
   ModMEs selME_;
   if (selMEsMapIter_ != SummaryMEsMap_.end())
     selME_ = selMEsMapIter_->second;

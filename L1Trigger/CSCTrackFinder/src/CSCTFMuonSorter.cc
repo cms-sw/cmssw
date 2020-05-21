@@ -19,8 +19,8 @@ std::vector<L1MuRegionalCand> CSCTFMuonSorter::run(const CSCTriggerContainer<csc
     if (tks.size() > 4)
       tks.resize(4);  // resize to max number of muons the MS can output
 
-    std::vector<csc::L1Track>::iterator itr = tks.begin();
-    std::vector<csc::L1Track>::const_iterator end = tks.end();
+    auto itr = tks.begin();
+    auto end = tks.end();
     for (; itr != end; itr++) {
       unsigned gbl_phi =
           itr->localPhi() + ((itr->sector() - 1) * 24) + 6;  // for now, convert using this.. LUT in the future
@@ -43,7 +43,7 @@ std::vector<L1MuRegionalCand> CSCTFMuonSorter::run(const CSCTriggerContainer<csc
     }
   }
 
-  std::vector<L1MuRegionalCand>::const_iterator ittr = result.begin();
+  auto ittr = result.begin();
   unsigned ii = 1;
   for (; ittr != result.end(); ittr++) {
     LogDebug("CSCTFMuonSorter:run()") << "TRACK " << ii++ << ": Eta: " << ittr->etaValue()

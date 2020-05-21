@@ -45,9 +45,7 @@ PATJetUpdater::PATJetUpdater(const edm::ParameterSet& iConfig)
   if (discriminatorTags_.empty()) {
     addDiscriminators_ = false;
   } else {
-    for (std::vector<edm::InputTag>::const_iterator it = discriminatorTags_.begin(), ed = discriminatorTags_.end();
-         it != ed;
-         ++it) {
+    for (auto it = discriminatorTags_.begin(), ed = discriminatorTags_.end(); it != ed; ++it) {
       std::string label = it->label();
       std::string::size_type pos = label.find("JetTags");
       if ((pos != std::string::npos) && (pos != label.length() - 7)) {
@@ -62,8 +60,7 @@ PATJetUpdater::PATJetUpdater(const edm::ParameterSet& iConfig)
   if (tagInfoTags_.empty()) {
     addTagInfos_ = false;
   } else {
-    for (std::vector<edm::InputTag>::const_iterator it = tagInfoTags_.begin(), ed = tagInfoTags_.end(); it != ed;
-         ++it) {
+    for (auto it = tagInfoTags_.begin(), ed = tagInfoTags_.end(); it != ed; ++it) {
       std::string label = it->label();
       std::string::size_type pos = label.find("TagInfos");
       if ((pos != std::string::npos) && (pos != label.length() - 8)) {

@@ -66,9 +66,7 @@ void RPCSeedOverlapper::CheckOverlap(const edm::EventSetup &iSetup,
     tempRecHits.clear();
     tempweightedSeeds.clear();
     int N = 0;
-    for (vector<weightedTrajectorySeed>::iterator itweightedseed = weightedSeedsRef->begin();
-         itweightedseed != weightedSeedsRef->end();
-         N++) {
+    for (auto itweightedseed = weightedSeedsRef->begin(); itweightedseed != weightedSeedsRef->end(); N++) {
       TrajectorySeed::range RecHitsRange = itweightedseed->first.recHits();
       if (N == 0) {
         cout << "Always take the 1st weighted seed to be the referrence." << endl;
@@ -112,9 +110,7 @@ void RPCSeedOverlapper::CheckOverlap(const edm::EventSetup &iSetup,
     double Quality = 1000000;
     unsigned NumberofHits = 0;
     cout << "Find " << tempweightedSeeds.size() << " seeds into one trajectory group" << endl;
-    for (vector<weightedTrajectorySeed>::iterator itweightedseed = tempweightedSeeds.begin();
-         itweightedseed != tempweightedSeeds.end();
-         itweightedseed++) {
+    for (auto itweightedseed = tempweightedSeeds.begin(); itweightedseed != tempweightedSeeds.end(); itweightedseed++) {
       unsigned int nHits = itweightedseed->first.nHits();
       //std::vector<float> seed_error = itweightedseed->first.startingState().errorMatrix();
       //double Spt = seed_error[1];
@@ -137,8 +133,7 @@ void RPCSeedOverlapper::CheckOverlap(const edm::EventSetup &iSetup,
          it++)
       tempRecHits.push_back(it->clone());
 
-    for (vector<weightedTrajectorySeed>::iterator itweightedseed = tempweightedSeeds.begin();
-         itweightedseed != tempweightedSeeds.end();) {
+    for (auto itweightedseed = tempweightedSeeds.begin(); itweightedseed != tempweightedSeeds.end();) {
       cout << "Checking the temp weighted seed's " << itweightedseed->first.nHits() << " hits to " << tempRecHits.size()
            << " temp recHits" << endl;
       TrajectorySeed::range RecHitsRange = itweightedseed->first.recHits();

@@ -131,8 +131,7 @@ void AnalysisRootpleProducerOnlyMC::analyze(const Event& e, const EventSetup&) {
   MonteCarlo->Clear();
 
   if (!ChgGenJetsHandle->empty()) {
-    for (GenJetCollection::const_iterator it(ChgGenJetsHandle->begin()), itEnd(ChgGenJetsHandle->end()); it != itEnd;
-         ++it) {
+    for (auto it(ChgGenJetsHandle->begin()), itEnd(ChgGenJetsHandle->end()); it != itEnd; ++it) {
       ChgGenJetContainer.push_back(*it);
     }
 
@@ -146,7 +145,7 @@ void AnalysisRootpleProducerOnlyMC::analyze(const Event& e, const EventSetup&) {
   }
 
   if (!GenJetsHandle->empty()) {
-    for (GenJetCollection::const_iterator it(GenJetsHandle->begin()), itEnd(GenJetsHandle->end()); it != itEnd; ++it) {
+    for (auto it(GenJetsHandle->begin()), itEnd(GenJetsHandle->end()); it != itEnd; ++it) {
       GenJetContainer.push_back(*it);
     }
 
@@ -160,7 +159,7 @@ void AnalysisRootpleProducerOnlyMC::analyze(const Event& e, const EventSetup&) {
   }
 
   if (!CandHandleMC->empty()) {
-    for (vector<GenParticle>::const_iterator it(CandHandleMC->begin()), itEnd(CandHandleMC->end()); it != itEnd; it++) {
+    for (auto it(CandHandleMC->begin()), itEnd(CandHandleMC->end()); it != itEnd; it++) {
       GenPart.push_back(it->p4());
     }
 

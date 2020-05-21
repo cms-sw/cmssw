@@ -73,7 +73,7 @@ void AnalysisTasksAnalyzerBTag::analyze(const edm::EventBase& event) {
   event.getByLabel(Jets_, Jets);
 
   // loop Jet collection and fill histograms
-  for (std::vector<Jet>::const_iterator Jet_it = Jets->begin(); Jet_it != Jets->end(); ++Jet_it) {
+  for (auto Jet_it = Jets->begin(); Jet_it != Jets->end(); ++Jet_it) {
     pat::Jet Jet(*Jet_it);
 
     //Categorize the Jets

@@ -39,7 +39,7 @@ public:
 
 protected:
   inline bool isEqual(const AbsHcalFunctor& other) const override {
-    const HcalCubicInterpolator& r = static_cast<const HcalCubicInterpolator&>(other);
+    const auto& r = static_cast<const HcalCubicInterpolator&>(other);
     return abscissae_ == r.abscissae_ && values_ == r.values_ && derivatives_ == r.derivatives_;
   }
 

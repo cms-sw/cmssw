@@ -70,7 +70,7 @@ namespace edm {
       edm::Handle<C> h_c;
       event.getByToken(src_, h_c);
       // loop through and add passing value_types to the output vector
-      for (typename C::const_iterator ibegin = h_c->begin(), iend = h_c->end(), i = ibegin; i != iend; ++i) {
+      for (auto ibegin = h_c->begin(), iend = h_c->end(), i = ibegin; i != iend; ++i) {
         if ((*filter_)(*i)) {
           objsToPut->push_back(*i);
         }

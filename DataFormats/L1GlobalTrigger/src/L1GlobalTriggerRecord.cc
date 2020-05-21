@@ -146,8 +146,7 @@ void L1GlobalTriggerRecord::printGtDecision(std::ostream& myCout) const {
   std::vector<std::string> decWord;
   decWord.reserve(nrDecWord);
 
-  for (std::vector<bool>::const_reverse_iterator ritBit = m_gtDecisionWord.rbegin(); ritBit != m_gtDecisionWord.rend();
-       ++ritBit) {
+  for (auto ritBit = m_gtDecisionWord.rbegin(); ritBit != m_gtDecisionWord.rend(); ++ritBit) {
     stream64 << (*ritBit ? '1' : '0');
 
     if ((((iBit + 1) % 16) == (sizeW64 % 16))) {
@@ -168,7 +167,7 @@ void L1GlobalTriggerRecord::printGtDecision(std::ostream& myCout) const {
   int iWord = 0;
 
   myCout << "\n  DecisionWord after trigger mask (bitset style)";
-  for (std::vector<std::string>::reverse_iterator ritWord = decWord.rbegin(); ritWord != decWord.rend(); ++ritWord) {
+  for (auto ritWord = decWord.rbegin(); ritWord != decWord.rend(); ++ritWord) {
     myCout << "\n  Bits " << iWord * sizeW64 + sizeW64 - 1 << " : " << iWord * sizeW64 << "\n  ";
     myCout << *ritWord;
 
@@ -183,9 +182,7 @@ void L1GlobalTriggerRecord::printTechnicalTrigger(std::ostream& myCout) const {
   int sizeW64 = 64;  // 64 bits words
   int iBit = 0;
 
-  for (std::vector<bool>::const_reverse_iterator ritBit = m_gtTechnicalTriggerWord.rbegin();
-       ritBit != m_gtTechnicalTriggerWord.rend();
-       ++ritBit) {
+  for (auto ritBit = m_gtTechnicalTriggerWord.rbegin(); ritBit != m_gtTechnicalTriggerWord.rend(); ++ritBit) {
     myCout << (*ritBit ? '1' : '0');
 
     if ((((iBit + 1) % 16) == (sizeW64 % 16)) && (iBit != 63)) {
@@ -200,21 +197,17 @@ void L1GlobalTriggerRecord::printTechnicalTrigger(std::ostream& myCout) const {
 void L1GlobalTriggerRecord::reset() {
   m_gtGlobalDecision = false;
 
-  for (std::vector<bool>::iterator itBit = m_gtDecisionWord.begin(); itBit != m_gtDecisionWord.end(); ++itBit) {
+  for (auto itBit = m_gtDecisionWord.begin(); itBit != m_gtDecisionWord.end(); ++itBit) {
     *itBit = false;
   }
-  for (std::vector<bool>::iterator itBit = m_gtTechnicalTriggerWord.begin(); itBit != m_gtTechnicalTriggerWord.end();
-       ++itBit) {
+  for (auto itBit = m_gtTechnicalTriggerWord.begin(); itBit != m_gtTechnicalTriggerWord.end(); ++itBit) {
     *itBit = false;
   }
-  for (std::vector<bool>::iterator itBit = m_gtDecisionWordBeforeMask.begin();
-       itBit != m_gtDecisionWordBeforeMask.end();
-       ++itBit) {
+  for (auto itBit = m_gtDecisionWordBeforeMask.begin(); itBit != m_gtDecisionWordBeforeMask.end(); ++itBit) {
     *itBit = false;
   }
 
-  for (std::vector<bool>::iterator itBit = m_gtTechnicalTriggerWordBeforeMask.begin();
-       itBit != m_gtTechnicalTriggerWordBeforeMask.end();
+  for (auto itBit = m_gtTechnicalTriggerWordBeforeMask.begin(); itBit != m_gtTechnicalTriggerWordBeforeMask.end();
        ++itBit) {
     *itBit = false;
   }

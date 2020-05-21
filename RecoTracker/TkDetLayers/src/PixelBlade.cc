@@ -32,13 +32,13 @@ PixelBlade::PixelBlade(vector<const GeomDet*>& frontDets, vector<const GeomDet*>
                           << this->position().perp() << " , " << theDiskSector->innerRadius() << " , "
                           << theDiskSector->outerRadius();
 
-  for (vector<const GeomDet*>::const_iterator it = theFrontDets.begin(); it != theFrontDets.end(); it++) {
+  for (auto it = theFrontDets.begin(); it != theFrontDets.end(); it++) {
     LogDebug("TkDetLayers") << "frontDet phi,z,r: " << (*it)->position().phi() << " , " << (*it)->position().z()
                             << " , " << (*it)->position().perp();
     ;
   }
 
-  for (vector<const GeomDet*>::const_iterator it = theBackDets.begin(); it != theBackDets.end(); it++) {
+  for (auto it = theBackDets.begin(); it != theBackDets.end(); it++) {
     LogDebug("TkDetLayers") << "backDet phi,z,r: " << (*it)->position().phi() << " , " << (*it)->position().z() << " , "
                             << (*it)->position().perp();
   }
@@ -217,7 +217,7 @@ int PixelBlade::findBin(float R, int diskSectorIndex) const {
   int theBin = 0;
   float rDiff = std::abs(R - localDets.front()->surface().position().perp());
   ;
-  for (vector<const GeomDet*>::const_iterator i = localDets.begin(); i != localDets.end(); i++) {
+  for (auto i = localDets.begin(); i != localDets.end(); i++) {
     float testDiff = std::abs(R - (**i).surface().position().perp());
     if (testDiff < rDiff) {
       rDiff = testDiff;

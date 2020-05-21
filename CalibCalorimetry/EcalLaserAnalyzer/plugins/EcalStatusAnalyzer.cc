@@ -119,8 +119,7 @@ void EcalStatusAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& c) 
   // Decode Basic DCCHeader Information
   // ====================================
 
-  for (EcalRawDataCollection::const_iterator headerItr = DCCHeader->begin(); headerItr != DCCHeader->end();
-       ++headerItr) {
+  for (auto headerItr = DCCHeader->begin(); headerItr != DCCHeader->end(); ++headerItr) {
     // Get run type and run number
     runType = headerItr->getRunType();
     runNum = headerItr->getRunNumber();

@@ -43,7 +43,7 @@ string EcalAlignmentXMLTranslator::dumpXML(const EcalCondHeader& header, const A
 
   xuti::writeHeader(root, header);
 
-  for (vector<AlignTransform>::const_iterator it = record.m_align.begin(); it != record.m_align.end(); it++) {
+  for (auto it = record.m_align.begin(); it != record.m_align.end(); it++) {
     int Id = (*it).rawId();
     int sub = (Id >> 24) & 0xF;
     stringstream subdet;

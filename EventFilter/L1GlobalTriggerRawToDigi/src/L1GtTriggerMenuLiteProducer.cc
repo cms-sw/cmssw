@@ -190,7 +190,7 @@ void L1GtTriggerMenuLiteProducer::beginRunProduce(edm::Run& iRun, const edm::Eve
 
   //
   L1GtTriggerMenuLite::L1TriggerMap algMap;
-  for (CItAlgo itAlgo = m_algorithmMap->begin(); itAlgo != m_algorithmMap->end(); itAlgo++) {
+  for (auto itAlgo = m_algorithmMap->begin(); itAlgo != m_algorithmMap->end(); itAlgo++) {
     unsigned int bitNumber = (itAlgo->second).algoBitNumber();
     algMap[bitNumber] = itAlgo->first;
   }
@@ -199,7 +199,7 @@ void L1GtTriggerMenuLiteProducer::beginRunProduce(edm::Run& iRun, const edm::Eve
 
   //
   L1GtTriggerMenuLite::L1TriggerMap algAliasMap;
-  for (CItAlgo itAlgo = m_algorithmAliasMap->begin(); itAlgo != m_algorithmAliasMap->end(); itAlgo++) {
+  for (auto itAlgo = m_algorithmAliasMap->begin(); itAlgo != m_algorithmAliasMap->end(); itAlgo++) {
     unsigned int bitNumber = (itAlgo->second).algoBitNumber();
     algAliasMap[bitNumber] = itAlgo->first;
   }
@@ -208,7 +208,7 @@ void L1GtTriggerMenuLiteProducer::beginRunProduce(edm::Run& iRun, const edm::Eve
 
   //
   L1GtTriggerMenuLite::L1TriggerMap techMap;
-  for (CItAlgo itAlgo = m_technicalTriggerMap->begin(); itAlgo != m_technicalTriggerMap->end(); itAlgo++) {
+  for (auto itAlgo = m_technicalTriggerMap->begin(); itAlgo != m_technicalTriggerMap->end(); itAlgo++) {
     unsigned int bitNumber = (itAlgo->second).algoBitNumber();
     techMap[bitNumber] = itAlgo->first;
   }
@@ -219,9 +219,7 @@ void L1GtTriggerMenuLiteProducer::beginRunProduce(edm::Run& iRun, const edm::Eve
   std::vector<unsigned int> triggerMaskAlgoTrig(m_numberPhysTriggers, 0);
   int iBit = -1;
 
-  for (std::vector<unsigned int>::const_iterator itBit = m_triggerMaskAlgoTrig->begin();
-       itBit != m_triggerMaskAlgoTrig->end();
-       itBit++) {
+  for (auto itBit = m_triggerMaskAlgoTrig->begin(); itBit != m_triggerMaskAlgoTrig->end(); itBit++) {
     iBit++;
     triggerMaskAlgoTrig[iBit] = (*itBit) & (1 << m_physicsDaqPartition);
   }
@@ -231,9 +229,7 @@ void L1GtTriggerMenuLiteProducer::beginRunProduce(edm::Run& iRun, const edm::Eve
   std::vector<unsigned int> triggerMaskTechTrig(m_numberTechnicalTriggers, 0);
   iBit = -1;
 
-  for (std::vector<unsigned int>::const_iterator itBit = m_triggerMaskTechTrig->begin();
-       itBit != m_triggerMaskTechTrig->end();
-       itBit++) {
+  for (auto itBit = m_triggerMaskTechTrig->begin(); itBit != m_triggerMaskTechTrig->end(); itBit++) {
     iBit++;
     triggerMaskTechTrig[iBit] = (*itBit) & (1 << m_physicsDaqPartition);
   }

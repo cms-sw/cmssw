@@ -138,7 +138,7 @@ bool Tau3MuReco::find3rdTrack(const edm::Event& iEvent,
     return false;
   }
 
-  std::multimap<double, const reco::Track>::iterator it = TrackMultiMap.begin();
+  auto it = TrackMultiMap.begin();
 
   if (it == TrackMultiMap.end()) {
     LogDebug("Tau3MuReco") << "Not enough tracks (0) left! Event skipped!" << std::endl;
@@ -199,7 +199,7 @@ bool Tau3MuReco::findCorrectPairing() {
 
   std::vector<std::vector<UInt_t> > CombinationVec = myCombinatorics.GetCombinations();
 
-  std::vector<std::vector<UInt_t> >::iterator it = CombinationVec.begin();
+  auto it = CombinationVec.begin();
 
   char Charge = 0;
 

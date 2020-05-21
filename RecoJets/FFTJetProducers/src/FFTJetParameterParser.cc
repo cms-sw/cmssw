@@ -175,7 +175,7 @@ namespace fftjetcms {
       std::ifstream in(file.c_str(), std::ios_base::in | std::ios_base::binary);
       if (!in.is_open())
         throw cms::Exception("FFTJetBadConfig") << "Failed to open file " << file << std::endl;
-      EtaAndPtDependentPeakSelector* ptr = new EtaAndPtDependentPeakSelector(in);
+      auto* ptr = new EtaAndPtDependentPeakSelector(in);
       if (!ptr->isValid())
         throw cms::Exception("FFTJetBadConfig") << "Failed to read file " << file << std::endl;
       return return_type(ptr);
@@ -266,7 +266,7 @@ namespace fftjetcms {
                                                    "MagneticSmearingKernel"
                                                 << std::endl;
 
-      fftjet::LinearInterpolator1d* fragmentationFunction =
+      auto* fragmentationFunction =
           new fftjet::LinearInterpolator1d(&fragmentationData[0], fragmentationData.size(), 0.0, 1.0);
 
       return return_type(new fftjet::MagneticSmearingKernel<fftjet::LinearInterpolator1d>(

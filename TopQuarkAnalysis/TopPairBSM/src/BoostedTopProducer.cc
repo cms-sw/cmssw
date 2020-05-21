@@ -91,10 +91,10 @@ void BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   // ----------------------
   // Find isolated muons, and highest pt lepton
   // ----------------------
-  std::vector<pat::Muon>::const_iterator isolatedMuon = muons.end();
-  std::vector<pat::Muon>::const_iterator muon = muons.end();
+  auto isolatedMuon = muons.end();
+  auto muon = muons.end();
   unsigned int nIsolatedMuons = 0;
-  std::vector<pat::Muon>::const_iterator muonIt = muons.begin(), muonEnd = muons.end();
+  auto muonIt = muons.begin(), muonEnd = muons.end();
   for (; muonIt != muonEnd; ++muonIt) {
     // Find highest pt lepton
     double pt = muonIt->pt();
@@ -114,10 +114,10 @@ void BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   // ----------------------
   // Find isolated electrons, and highest pt lepton
   // ----------------------
-  std::vector<pat::Electron>::const_iterator isolatedElectron = electrons.end();
-  std::vector<pat::Electron>::const_iterator electron = electrons.end();
+  auto isolatedElectron = electrons.end();
+  auto electron = electrons.end();
   unsigned int nIsolatedElectrons = 0;
-  std::vector<pat::Electron>::const_iterator electronIt = electrons.begin(), electronEnd = electrons.end();
+  auto electronIt = electrons.begin(), electronEnd = electrons.end();
   for (; electronIt != electronEnd; ++electronIt) {
     // Find highest pt lepton
     double pt = electronIt->pt();
@@ -302,7 +302,7 @@ void BoostedTopProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       TLorentzVector p4_W(lepW.px(), lepW.py(), lepW.pz(), lepW.energy());
 
       // Loop over the jets
-      std::vector<pat::Jet>::const_iterator jetit = jets.begin(), jetend = jets.end();
+      auto jetit = jets.begin(), jetend = jets.end();
       unsigned long ii = 1;  // Count by 1 for naming histograms
       for (; jetit != jetend; ++jetit, ++ii) {
         // Get this jet's momentum

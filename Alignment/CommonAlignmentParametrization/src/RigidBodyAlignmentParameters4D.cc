@@ -34,8 +34,7 @@ AlgebraicMatrix RigidBodyAlignmentParameters4D::derivatives(const TrajectoryStat
 //__________________________________________________________________________________________________
 RigidBodyAlignmentParameters4D *RigidBodyAlignmentParameters4D::clone(const AlgebraicVector &parameters,
                                                                       const AlgebraicSymMatrix &covMatrix) const {
-  RigidBodyAlignmentParameters4D *rbap =
-      new RigidBodyAlignmentParameters4D(alignable(), parameters, covMatrix, selector());
+  auto *rbap = new RigidBodyAlignmentParameters4D(alignable(), parameters, covMatrix, selector());
 
   if (userVariables())
     rbap->setUserVariables(userVariables()->clone());
@@ -47,7 +46,7 @@ RigidBodyAlignmentParameters4D *RigidBodyAlignmentParameters4D::clone(const Alge
 //__________________________________________________________________________________________________
 RigidBodyAlignmentParameters4D *RigidBodyAlignmentParameters4D::cloneFromSelected(
     const AlgebraicVector &parameters, const AlgebraicSymMatrix &covMatrix) const {
-  RigidBodyAlignmentParameters4D *rbap = new RigidBodyAlignmentParameters4D(
+  auto *rbap = new RigidBodyAlignmentParameters4D(
       alignable(), expandVector(parameters, selector()), expandSymMatrix(covMatrix, selector()), selector());
 
   if (userVariables())

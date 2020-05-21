@@ -20,7 +20,7 @@ void TopTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& setup
   // fill histograms
 
   mult_->Fill(taus->size());
-  for (std::vector<pat::Tau>::const_iterator tau = taus->begin(); tau != taus->end(); ++tau) {
+  for (auto tau = taus->begin(); tau != taus->end(); ++tau) {
     en_->Fill(tau->energy());
     pt_->Fill(tau->pt());
     eta_->Fill(tau->eta());

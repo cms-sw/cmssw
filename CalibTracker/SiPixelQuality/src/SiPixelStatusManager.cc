@@ -86,8 +86,8 @@ void SiPixelStatusManager::readLumi(const LuminosityBlock& iLumi) {
 
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusManager::createBadComponents() {
-  siPixelStatusVtr_iterator firstStatus = siPixelStatusVtr_.begin();
-  siPixelStatusVtr_iterator lastStatus = siPixelStatusVtr_.end();
+  auto firstStatus = siPixelStatusVtr_.begin();
+  auto lastStatus = siPixelStatusVtr_.end();
 
   siPixelStatusMap_.clear();
 
@@ -99,7 +99,7 @@ void SiPixelStatusManager::createBadComponents() {
 
     LuminosityBlockNumber_t tmpLumi;
     SiPixelDetectorStatus tmpSiPixelStatus;
-    for (siPixelStatusVtr_iterator it = firstStatus; it != lastStatus; it++) {
+    for (auto it = firstStatus; it != lastStatus; it++) {
       // this is the begining of an IOV
       if (iterationLumi % nLumi_ == 0) {
         tmpLumi = edm::LuminosityBlockNumber_t(it->getLSRange().first);
@@ -112,8 +112,8 @@ void SiPixelStatusManager::createBadComponents() {
         tmpSiPixelStatus.setLSRange(int(tmpLumi), (*it).getLSRange().second);
       }
 
-      siPixelStatusVtr_iterator currentIt = it;
-      siPixelStatusVtr_iterator nextIt = std::next(currentIt);
+      auto currentIt = it;
+      auto nextIt = std::next(currentIt);
       // wirte out if current lumi is the last lumi-section in the IOV
       if (iterationLumi % nLumi_ == nLumi_ - 1 || nextIt == lastStatus) {
         // fill it into a new map (with IOV structured)
@@ -131,11 +131,11 @@ void SiPixelStatusManager::createBadComponents() {
     // if it is, combine last IOV with the IOV before it
     if (siPixelStatusVtr_.size() % nLumi_ != 0 && siPixelStatusMap_.size() > 1) {
       // start from the iterator of the end of std::map
-      siPixelStatusMap_iterator iterEnd = siPixelStatusMap_.end();
+      auto iterEnd = siPixelStatusMap_.end();
       // the last IOV
-      siPixelStatusMap_iterator iterLastIOV = std::prev(iterEnd);
+      auto iterLastIOV = std::prev(iterEnd);
       // the IOV before the last IOV
-      siPixelStatusMap_iterator iterBeforeLastIOV = std::prev(iterLastIOV);
+      auto iterBeforeLastIOV = std::prev(iterLastIOV);
 
       // combine the last IOV data to the IOV before the last IOV
       (iterBeforeLastIOV->second).updateDetectorStatus(iterLastIOV->second);
@@ -154,7 +154,7 @@ void SiPixelStatusManager::createBadComponents() {
     bool isNewIOV = true;
 
     int counter = 0;
-    for (siPixelStatusVtr_iterator it = firstStatus; it != lastStatus; it++) {
+    for (auto it = firstStatus; it != lastStatus; it++) {
       if (isNewIOV) {  // if it is new IOV, init with the current data
         tmpLumi = edm::LuminosityBlockNumber_t(it->getLSRange().first);
         tmpSiPixelStatus = (*it);
@@ -164,8 +164,8 @@ void SiPixelStatusManager::createBadComponents() {
       }
 
       // if reaching the end of data, write the last IOV to the map whatsoevec
-      siPixelStatusVtr_iterator currentIt = it;
-      siPixelStatusVtr_iterator nextIt = std::next(currentIt);
+      auto currentIt = it;
+      auto nextIt = std::next(currentIt);
       if (tmpSiPixelStatus.perRocDigiOcc() < aveDigiOcc && nextIt != lastStatus) {
         isNewIOV = false;  // if digi occ is not enough, next data will not belong to new IOV
       } else {             // if (accunumated) digi occ is enough, write the data to the map
@@ -182,13 +182,13 @@ void SiPixelStatusManager::createBadComponents() {
     // if not, combine with previous IOV
     if (siPixelStatusMap_.size() > 1) {
       // start from the end iterator of the std::map
-      siPixelStatusMap_iterator iterEnd = siPixelStatusMap_.end();
+      auto iterEnd = siPixelStatusMap_.end();
       // the last IOV
-      siPixelStatusMap_iterator iterLastIOV = std::prev(iterEnd);
+      auto iterLastIOV = std::prev(iterEnd);
       // if the statistics of the last IOV is not enough
       if ((iterLastIOV->second).perRocDigiOcc() < aveDigiOcc) {
         // the IOV before the last IOV of the map
-        siPixelStatusMap_iterator iterBeforeLastIOV = std::prev(iterLastIOV);
+        auto iterBeforeLastIOV = std::prev(iterLastIOV);
         // combine the last IOV data to the IOV before the last IOV
         (iterBeforeLastIOV->second).updateDetectorStatus(iterLastIOV->second);
         (iterBeforeLastIOV->second)
@@ -202,8 +202,8 @@ void SiPixelStatusManager::createBadComponents() {
     edm::LuminosityBlockNumber_t tmpLumi = edm::LuminosityBlockNumber_t(firstStatus->getLSRange().first);
     SiPixelDetectorStatus tmpSiPixelStatus = (*firstStatus);
 
-    siPixelStatusVtr_iterator nextStatus = ++siPixelStatusVtr_.begin();
-    for (siPixelStatusVtr_iterator it = nextStatus; it != lastStatus; it++) {
+    auto nextStatus = ++siPixelStatusVtr_.begin();
+    for (auto it = nextStatus; it != lastStatus; it++) {
       tmpSiPixelStatus.updateDetectorStatus((*it));
       tmpSiPixelStatus.setLSRange(int(tmpLumi), (*it).getLSRange().second);
     }
@@ -217,27 +217,27 @@ void SiPixelStatusManager::createBadComponents() {
 
 void SiPixelStatusManager::createFEDerror25() {
   // initialize the first IOV and SiPixelDetector status (in the first IOV)
-  siPixelStatusVtr_iterator firstStatus = siPixelStatusVtr_.begin();
+  auto firstStatus = siPixelStatusVtr_.begin();
   edm::LuminosityBlockNumber_t firstLumi = edm::LuminosityBlockNumber_t(firstStatus->getLSRange().first);
   SiPixelDetectorStatus firstFEDerror25 = (*firstStatus);
   FEDerror25Map_[firstLumi] = firstFEDerror25.getFEDerror25Rocs();
 
-  siPixelStatusVtr_iterator lastStatus = siPixelStatusVtr_.end();
+  auto lastStatus = siPixelStatusVtr_.end();
 
   ///////////
   bool sameAsLastIOV = true;
   edm::LuminosityBlockNumber_t previousLumi = firstLumi;
 
-  siPixelStatusVtr_iterator secondStatus = std::next(siPixelStatusVtr_.begin());
-  for (siPixelStatusVtr_iterator it = secondStatus; it != lastStatus; it++) {
+  auto secondStatus = std::next(siPixelStatusVtr_.begin());
+  for (auto it = secondStatus; it != lastStatus; it++) {
     // init for each lumi section (iterator)
     edm::LuminosityBlockNumber_t tmpLumi = edm::LuminosityBlockNumber_t(it->getLSRange().first);
     SiPixelDetectorStatus tmpFEDerror25 = (*it);
 
     std::map<int, std::vector<int> > tmpBadRocLists = tmpFEDerror25.getFEDerror25Rocs();
 
-    std::map<int, SiPixelModuleStatus>::iterator itModEnd = tmpFEDerror25.end();
-    for (std::map<int, SiPixelModuleStatus>::iterator itMod = tmpFEDerror25.begin(); itMod != itModEnd; ++itMod) {
+    auto itModEnd = tmpFEDerror25.end();
+    for (auto itMod = tmpFEDerror25.begin(); itMod != itModEnd; ++itMod) {
       int detid = itMod->first;
       // if the badroc list differs for any detid, update the payload
       if (tmpBadRocLists[detid] != (FEDerror25Map_[previousLumi])[detid]) {

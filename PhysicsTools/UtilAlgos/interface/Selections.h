@@ -110,7 +110,7 @@ public:
       if (OK)
         filterORlistCopy = filterORlistCopy.substr(0 + size + 4);
 
-      std::map<std::string, Filter*>::const_iterator it = filters.find(filter);
+      auto it = filters.find(filter);
       if (it == filters.end()) {
         edm::LogError("FilterOR") << "cannot do an OR of: " << filter << " OR expression is: " << filterORlist;
         break;
@@ -187,7 +187,7 @@ public:
     }
     std::map<std::string, bool> ret;
     bool global = true;
-    for (iterator filter = begin(); filter != end(); ++filter) {
+    for (auto filter = begin(); filter != end(); ++filter) {
       const std::string& fName = (*filter)->name();
       Count& count = counts_[fName];
       count.nSeen_++;
@@ -207,7 +207,7 @@ public:
       std::stringstream summary;
       summary << std::setw(20) << name().substr(0, 19) << " : " << std::setw(10) << iEvent.id().run() << " : "
               << std::setw(10) << iEvent.id().event();
-      for (iterator filter = begin(); filter != end(); ++filter) {
+      for (auto filter = begin(); filter != end(); ++filter) {
         const std::string& fName = (*filter)->name();
         summary << " : " << std::setw(10) << (ret[fName] ? "pass" : "reject");
       }
@@ -225,7 +225,7 @@ public:
       summary << std::setw(20) << " selection name "
               << " : " << std::setw(10) << " run "
               << " : " << std::setw(10) << " event ";
-      for (iterator filter = begin(); filter != end(); ++filter) {
+      for (auto filter = begin(); filter != end(); ++filter) {
         summary << " : " << std::setw(10) << (*filter)->name().substr(0, 9);
       }
       edm::LogVerbatim(detailledPrintoutCategory_) << summary.str();
@@ -237,7 +237,7 @@ public:
       return;
 
     unsigned int maxFnameSize = 20;
-    for (iterator filter = begin(); filter != end(); ++filter) {
+    for (auto filter = begin(); filter != end(); ++filter) {
       if ((*filter)->name().size() > maxFnameSize)
         maxFnameSize = (*filter)->name().size() + 1;
     }
@@ -249,7 +249,7 @@ public:
     if (nSeen_ == 0)
       return;
     if (description) {
-      for (iterator filter = begin(); filter != end(); ++filter) {
+      for (auto filter = begin(); filter != end(); ++filter) {
         const std::string& fName = (*filter)->name();
         summary << "filter: " << std::right << std::setw(10) << fName << "\n" << (*filter)->descriptionText() << "\n";
       }
@@ -257,7 +257,7 @@ public:
     summary << " filter stand-alone pass: " << std::endl;
     summary << std::right << std::setw(maxFnameSize) << "total read"
             << ": " << std::right << std::setw(10) << nSeen_ << std::endl;
-    for (iterator filter = begin(); filter != end(); ++filter) {
+    for (auto filter = begin(); filter != end(); ++filter) {
       std::string fName = (*filter)->name();
       const Count& count = counts_[fName];
       if ((*filter).inverted())
@@ -270,7 +270,7 @@ public:
     summary << std::right << std::setw(maxFnameSize) << "total read"
             << ": " << std::right << std::setw(10) << nSeen_ << std::endl;
     unsigned int lastCount = nSeen_;
-    for (iterator filter = begin(); filter != end(); ++filter) {
+    for (auto filter = begin(); filter != end(); ++filter) {
       std::string fName = (*filter)->name();
       const Count& count = counts_[fName];
       if ((*filter).inverted())
@@ -357,11 +357,9 @@ public:
     //    unsigned int nestedDepth=0; //FIXME not taken care of
 
     //resolving dependencies
-    for (std::map<std::string, std::vector<std::string> >::iterator sIt = selectionFilters.begin();
-         sIt != selectionFilters.end();
-         ++sIt) {
+    for (auto sIt = selectionFilters.begin(); sIt != selectionFilters.end(); ++sIt) {
       //parse the vector of filterNames
-      for (std::vector<std::string>::iterator fOrS = sIt->second.begin(); fOrS != sIt->second.end(); ++fOrS) {
+      for (auto fOrS = sIt->second.begin(); fOrS != sIt->second.end(); ++fOrS) {
         if (filters_.find(*fOrS) == filters_.end()) {
           //not a know filter names uncountered : either Selection of _OR_.
           if (fOrS->find("_OR_") != std::string::npos) {
@@ -369,7 +367,7 @@ public:
           }  //_OR_ filter
           else {
             // look for a selection name
-            std::map<std::string, std::vector<std::string> >::iterator s = selectionFilters.find(*fOrS);
+            auto s = selectionFilters.find(*fOrS);
             if (s == selectionFilters.end()) {
               //error.
               if ((*fOrS)[0] != '!') {
@@ -379,7 +377,7 @@ public:
             else {
               // JR-2014 : don't do anything here, and move on : in fact no, replace it to have the details in the histograming tool
               //remove the occurence
-              std::vector<std::string>::iterator newLoc = sIt->second.erase(fOrS);
+              auto newLoc = sIt->second.erase(fOrS);
               //insert the list of filters corresponding to this selection in there
               sIt->second.insert(newLoc, s->second.begin(), s->second.end());
               //decrement selection iterator to come back to it
@@ -397,25 +395,25 @@ public:
     //    for (std::map<std::string, FilterSelection>::iterator sIt=selections_.begin();sIt!=selections_.end();++sIt)
     //      const std::string & sName=sIt->first;
     //FilterSelection & selection =sIt->second;
-    for (std::vector<FilterSelection>::iterator sIt = selections_.begin(); sIt != selections_.end(); ++sIt) {
+    for (auto sIt = selections_.begin(); sIt != selections_.end(); ++sIt) {
       const std::string& sName = sIt->name();
       FilterSelection& selection = *sIt;
 
       //parse the vector of filterNames
       std::vector<std::string>& listOfFilters = selectionFilters[sName];
-      for (std::vector<std::string>::iterator fIt = listOfFilters.begin(); fIt != listOfFilters.end(); ++fIt) {
+      for (auto fIt = listOfFilters.begin(); fIt != listOfFilters.end(); ++fIt) {
         std::string fOsName = *fIt;
         bool inverted = false;
         if (fOsName[0] == '!') {
           inverted = true;
           fOsName = fOsName.substr(1);
         }
-        std::map<std::string, Filter*>::iterator filterInstance = filters_.find(fOsName);
+        auto filterInstance = filters_.find(fOsName);
         if (filterInstance == filters_.end()) {
           // JR-2014 include the selection here, directly !
           bool replaceBySelection = false;
           //find an existing selection that match that name
-          for (std::vector<FilterSelection>::iterator sit = selections_.begin(); sit != selections_.end(); ++sit) {
+          for (auto sit = selections_.begin(); sit != selections_.end(); ++sit) {
             if (fOsName == sit->name_) {
               selection.filters_.push_back(SFilter(&(*sit), inverted));
               replaceBySelection = true;
@@ -432,7 +430,7 @@ public:
       }
     }
 
-    for (iterator sIt = begin(); sIt != end(); ++sIt)
+    for (auto sIt = begin(); sIt != end(); ++sIt)
       sIt->printDetailledPrintoutHeader();
   }
 
@@ -441,7 +439,7 @@ public:
 
   //print each selection
   void print() {
-    for (std::vector<FilterSelection>::iterator sIt = selections_.begin(); sIt != selections_.end(); ++sIt)
+    for (auto sIt = selections_.begin(); sIt != selections_.end(); ++sIt)
       sIt->print();
   }
 

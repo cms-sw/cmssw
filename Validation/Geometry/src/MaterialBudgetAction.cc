@@ -270,7 +270,7 @@ void MaterialBudgetAction::update(const G4Step* aStep) {
 
 //-------------------------------------------------------------------------
 std::string MaterialBudgetAction::getSubDetectorName(G4StepPoint* aStepPoint) {
-  const G4TouchableHistory* theTouchable = (const G4TouchableHistory*)(aStepPoint->GetTouchable());
+  const auto* theTouchable = (const G4TouchableHistory*)(aStepPoint->GetTouchable());
   G4int num_levels = theTouchable->GetHistoryDepth();
 
   if (theTouchable->GetVolume()) {
@@ -282,7 +282,7 @@ std::string MaterialBudgetAction::getSubDetectorName(G4StepPoint* aStepPoint) {
 
 //-------------------------------------------------------------------------
 std::string MaterialBudgetAction::getPartName(G4StepPoint* aStepPoint) {
-  const G4TouchableHistory* theTouchable = (const G4TouchableHistory*)(aStepPoint->GetTouchable());
+  const auto* theTouchable = (const G4TouchableHistory*)(aStepPoint->GetTouchable());
   G4int num_levels = theTouchable->GetHistoryDepth();
 
   if (theTouchable->GetVolume()) {

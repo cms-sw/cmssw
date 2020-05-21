@@ -105,12 +105,12 @@ namespace sistrip {
     rawToDigi_->triggerFed(*buffers, *summary, event.id().event());
 
     // Create containers for digis
-    edm::DetSetVector<SiStripRawDigi>* sm = new edm::DetSetVector<SiStripRawDigi>();
-    edm::DetSetVector<SiStripRawDigi>* vr = new edm::DetSetVector<SiStripRawDigi>();
-    edm::DetSetVector<SiStripRawDigi>* pr = new edm::DetSetVector<SiStripRawDigi>();
-    edm::DetSetVector<SiStripDigi>* zs = new edm::DetSetVector<SiStripDigi>();
+    auto* sm = new edm::DetSetVector<SiStripRawDigi>();
+    auto* vr = new edm::DetSetVector<SiStripRawDigi>();
+    auto* pr = new edm::DetSetVector<SiStripRawDigi>();
+    auto* zs = new edm::DetSetVector<SiStripDigi>();
     DetIdCollection* ids = new DetIdCollection();
-    edm::DetSetVector<SiStripRawDigi>* cm = new edm::DetSetVector<SiStripRawDigi>();
+    auto* cm = new edm::DetSetVector<SiStripRawDigi>();
 
     // Create digis
     if (rawToDigi_) {

@@ -335,7 +335,7 @@ void JetAnaPythia<Jet>::endJob() {
   if (m_file != nullptr) {
     m_file->cd();
     mcTruthTree_->Write();
-    for (std::map<TString, TH1*>::iterator hid = m_HistNames1D.begin(); hid != m_HistNames1D.end(); hid++)
+    for (auto hid = m_HistNames1D.begin(); hid != m_HistNames1D.end(); hid++)
       hid->second->Write();
     delete m_file;
     m_file = nullptr;
@@ -344,7 +344,7 @@ void JetAnaPythia<Jet>::endJob() {
 ////////////////////////////////////////////////////////////////////////////////////////
 template <class Jet>
 void JetAnaPythia<Jet>::FillHist1D(const TString& histName, const Double_t& value, const Double_t& wt) {
-  std::map<TString, TH1*>::iterator hid = m_HistNames1D.find(histName);
+  auto hid = m_HistNames1D.find(histName);
   if (hid == m_HistNames1D.end())
     std::cout << "%fillHist -- Could not find histogram with name: " << histName << std::endl;
   else

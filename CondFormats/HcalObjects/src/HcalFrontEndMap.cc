@@ -83,7 +83,7 @@ const int HcalFrontEndMap::lookupRBXIndex(DetId fId) const {
 
 std::vector<DetId> HcalFrontEndMap::allDetIds() const {
   std::vector<DetId> result;
-  for (std::vector<PrecisionItem>::const_iterator item = mPItems.begin(); item != mPItems.end(); item++)
+  for (auto item = mPItems.begin(); item != mPItems.end(); item++)
     if (item->mId)
       result.push_back(DetId(item->mId));
   return result;
@@ -91,7 +91,7 @@ std::vector<DetId> HcalFrontEndMap::allDetIds() const {
 
 std::vector<int> HcalFrontEndMap::allRMs() const {
   std::vector<int> result;
-  for (std::vector<PrecisionItem>::const_iterator item = mPItems.begin(); item != mPItems.end(); item++) {
+  for (auto item = mPItems.begin(); item != mPItems.end(); item++) {
     if (std::find(result.begin(), result.end(), item->mRM) == result.end())
       result.push_back(item->mRM);
   }
@@ -100,7 +100,7 @@ std::vector<int> HcalFrontEndMap::allRMs() const {
 
 std::vector<std::string> HcalFrontEndMap::allRBXs() const {
   std::vector<std::string> result;
-  for (std::vector<PrecisionItem>::const_iterator item = mPItems.begin(); item != mPItems.end(); item++) {
+  for (auto item = mPItems.begin(); item != mPItems.end(); item++) {
     if (std::find(result.begin(), result.end(), item->mRBX) == result.end())
       result.push_back(item->mRBX);
   }

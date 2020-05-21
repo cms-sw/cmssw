@@ -64,9 +64,7 @@ namespace {
     double trackSum_isNotVtxAssociated = 0.;
 
     std::vector<reco::PFCandidatePtr> pfConsts = jet.getPFConstituents();
-    for (std::vector<reco::PFCandidatePtr>::const_iterator jetConstituent = pfConsts.begin();
-         jetConstituent != pfConsts.end();
-         ++jetConstituent) {
+    for (auto jetConstituent = pfConsts.begin(); jetConstituent != pfConsts.end(); ++jetConstituent) {
       if ((*jetConstituent)->charge() == 0)
         continue;
 

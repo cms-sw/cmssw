@@ -17,7 +17,7 @@ bool SiStripNoises::put(const uint32_t& DetId, const InputVector& input) {
   std::vector<unsigned char> Vo_CHAR;
   encode(input, Vo_CHAR);
 
-  Registry::iterator p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiStripNoises::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiStripNoises::StrictWeakOrdering());
   if (p != indexes.end() && p->detid == DetId)
     return false;
 
@@ -34,7 +34,7 @@ bool SiStripNoises::put(const uint32_t& DetId, const InputVector& input) {
 const SiStripNoises::Range SiStripNoises::getRange(const uint32_t DetId) const {
   // get SiStripNoises Range of DetId
 
-  RegistryIterator p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiStripNoises::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiStripNoises::StrictWeakOrdering());
   if (p == indexes.end() || p->detid != DetId)
     return SiStripNoises::Range(v_noises.end(), v_noises.end());
   else {
@@ -57,10 +57,10 @@ SiStripNoises::Range SiStripNoises::getRangeByPos(unsigned short pos) const {
 
 void SiStripNoises::getDetIds(std::vector<uint32_t>& DetIds_) const {
   // returns vector of DetIds in map
-  SiStripNoises::RegistryIterator begin = indexes.begin();
-  SiStripNoises::RegistryIterator end = indexes.end();
+  auto begin = indexes.begin();
+  auto end = indexes.end();
   DetIds_.reserve(indexes.size());
-  for (SiStripNoises::RegistryIterator p = begin; p != end; ++p) {
+  for (auto p = begin; p != end; ++p) {
     DetIds_.push_back(p->detid);
   }
 }
@@ -127,7 +127,7 @@ void SiStripNoises::allNoises(std::vector<float>& noises, const Range& range) co
                                           << " strips, I have it only for " << mysize << " strips\n";
   size_t size8 = size & (~0x7), carry = size & 0x7;  // we have an optimized way of unpacking 8 strips
   const uint8_t* ptr = (&*range.second) - 1;
-  std::vector<float>::iterator out = noises.begin(), end8 = noises.begin() + size8;
+  auto out = noises.begin(), end8 = noises.begin() + size8;
   // we do it this baroque way instead of just loopin on all the strips because it's faster
   // as the value of 'skip' is a constant, so the compiler can compute the masks directly
   while (out < end8) {
@@ -194,7 +194,7 @@ std::string SiStripNoises::print_short_as_binary(const short ch) const
 */
 
 void SiStripNoises::printDebug(std::stringstream& ss, const TrackerTopology* /*trackerTopo*/) const {
-  RegistryIterator rit = getRegistryVectorBegin(), erit = getRegistryVectorEnd();
+  auto rit = getRegistryVectorBegin(), erit = getRegistryVectorEnd();
   uint16_t Nstrips;
   std::vector<float> vstripnoise;
 
@@ -226,7 +226,7 @@ void SiStripNoises::printSummary(std::stringstream& ss, const TrackerTopology* t
 
   std::stringstream tempss;
 
-  RegistryIterator rit = getRegistryVectorBegin(), erit = getRegistryVectorEnd();
+  auto rit = getRegistryVectorBegin(), erit = getRegistryVectorEnd();
   uint16_t Nstrips;
   std::vector<float> vstripnoise;
   double mean, rms, min, max;
@@ -268,8 +268,8 @@ std::vector<SiStripNoises::ratioData> SiStripNoises::operator/(const SiStripNois
   std::vector<ratioData> result;
   ratioData aData;
 
-  RegistryIterator iter = getRegistryVectorBegin();
-  RegistryIterator iterE = getRegistryVectorEnd();
+  auto iter = getRegistryVectorBegin();
+  auto iterE = getRegistryVectorEnd();
 
   //Divide result by d
   for (; iter != iterE; ++iter) {

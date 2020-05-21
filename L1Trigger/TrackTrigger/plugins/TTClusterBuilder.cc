@@ -41,10 +41,8 @@ void TTClusterBuilder<Ref_Phase2TrackerDigi_>::produce(edm::Event& iEvent, const
     std::vector<std::vector<Ref_Phase2TrackerDigi_>> lowerHits, upperHits;
 
     /// Find the hits in each stack member
-    typename std::map<DetId, std::vector<Ref_Phase2TrackerDigi_>>::const_iterator lowerHitFind =
-        rawHits.find(lowerDetid);
-    typename std::map<DetId, std::vector<Ref_Phase2TrackerDigi_>>::const_iterator upperHitFind =
-        rawHits.find(upperDetid);
+    auto lowerHitFind = rawHits.find(lowerDetid);
+    auto upperHitFind = rawHits.find(upperDetid);
 
     /// If there are hits, cluster them
     /// It is the TTClusterAlgorithm::Cluster method which

@@ -56,7 +56,7 @@ void FWTypeToRepresentations::add(std::shared_ptr<FWRepresentationCheckerBase> i
   m_checkers.push_back(iChecker);
   if (!m_typeToReps.empty()) {
     //see if this works with types we already know about
-    for (TypeToReps::iterator it = m_typeToReps.begin(), itEnd = m_typeToReps.end(); it != itEnd; ++it) {
+    for (auto it = m_typeToReps.begin(), itEnd = m_typeToReps.end(); it != itEnd; ++it) {
       FWRepresentationInfo info = iChecker->infoFor(it->first);
       if (info.isValid()) {
         //NOTE TO SELF: should probably sort by proximity
@@ -67,10 +67,7 @@ void FWTypeToRepresentations::add(std::shared_ptr<FWRepresentationCheckerBase> i
 }
 void FWTypeToRepresentations::insert(const FWTypeToRepresentations& iOther) {
   m_typeToReps.clear();
-  for (std::vector<std::shared_ptr<FWRepresentationCheckerBase> >::const_iterator it = iOther.m_checkers.begin(),
-                                                                                  itEnd = iOther.m_checkers.end();
-       it != itEnd;
-       ++it) {
+  for (auto it = iOther.m_checkers.begin(), itEnd = iOther.m_checkers.end(); it != itEnd; ++it) {
     m_checkers.push_back(*it);
   }
 }
@@ -80,14 +77,11 @@ void FWTypeToRepresentations::insert(const FWTypeToRepresentations& iOther) {
 //
 const std::vector<FWRepresentationInfo>& FWTypeToRepresentations::representationsForType(
     const std::string& iTypeName) const {
-  TypeToReps::const_iterator itFound = m_typeToReps.find(iTypeName);
+  auto itFound = m_typeToReps.find(iTypeName);
   if (itFound == m_typeToReps.end()) {
     std::vector<FWRepresentationInfo> reps;
     //check all reps
-    for (std::vector<std::shared_ptr<FWRepresentationCheckerBase> >::const_iterator it = m_checkers.begin(),
-                                                                                    itEnd = m_checkers.end();
-         it != itEnd;
-         ++it) {
+    for (auto it = m_checkers.begin(), itEnd = m_checkers.end(); it != itEnd; ++it) {
       FWRepresentationInfo info = (*it)->infoFor(iTypeName);
       if (info.isValid())
         reps.push_back(info);

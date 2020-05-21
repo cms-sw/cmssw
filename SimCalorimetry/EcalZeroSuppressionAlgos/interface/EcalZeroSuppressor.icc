@@ -2,7 +2,7 @@ template <class C>
 void EcalZeroSuppressor<C>::findGain12Pedestal(const DetId &detId, double &ped, double &width) {
   ped = 200.;
   width = 1.;
-  EcalPedestalsMapIterator mapItr = thePedestals->getMap().find(detId);
+  auto mapItr = thePedestals->getMap().find(detId);
   // should I care if it doesn't get found?
   if (mapItr == thePedestals->getMap().end()) {
     edm::LogError("SetupInfo") << "Could not find pedestal for " << detId.rawId() << " among the "

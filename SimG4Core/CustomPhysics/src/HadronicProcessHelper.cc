@@ -90,7 +90,7 @@ G4double HadronicProcessHelper::inclusiveCrossSection(const G4DynamicParticle* p
 
   G4double totalNucleonCrossSection = 0;
 
-  for (std::vector<G4int>::iterator it = quarks.begin(); it != quarks.end(); it++) {
+  for (auto it = quarks.begin(); it != quarks.end(); it++) {
     // 12mb for each 'up' or 'down'
     if (*it == 1 || *it == 2)
       totalNucleonCrossSection += 12 * millibarn;
@@ -154,8 +154,7 @@ HadronicProcessHelper::ReactionProduct HadronicProcessHelper::finalState(
   //This is the list to be populated
   ReactionProductList goodReactionProductList;
 
-  for (ReactionProductList::iterator prod_it = reactionProductList->begin(); prod_it != reactionProductList->end();
-       prod_it++) {
+  for (auto prod_it = reactionProductList->begin(); prod_it != reactionProductList->end(); prod_it++) {
     G4int secondaries = prod_it->size();
     // If the reaction is not possible we will not consider it
     if (m_reactionIsPossible(*prod_it, incidentDynamicParticle, target)) {
@@ -204,7 +203,7 @@ HadronicProcessHelper::ReactionProduct HadronicProcessHelper::finalState(
   }
 
   //Normalising probabilities to 1
-  for (std::vector<G4double>::iterator it = probabilities.begin(); it != probabilities.end(); it++) {
+  for (auto it = probabilities.begin(); it != probabilities.end(); it++) {
     *it /= cumulatedProbability;
   }
 
@@ -260,7 +259,7 @@ G4double HadronicProcessHelper::m_reactionProductMass(const ReactionProduct& rea
   // Sum of rest masses after reaction:
   G4double productsMass = 0;
   //Loop on reaction producs
-  for (ReactionProduct::const_iterator r_it = reactionProd.begin(); r_it != reactionProd.end(); r_it++) {
+  for (auto r_it = reactionProd.begin(); r_it != reactionProd.end(); r_it++) {
     //Sum the masses of the products
     productsMass += m_particleTable->FindParticle(*r_it)->GetPDGMass();
   }

@@ -119,8 +119,7 @@ void SUSY_HLT_InclusiveHT::analyze(edm::Event const &e, edm::EventSetup const &e
   if (hasFiredAuxiliaryForHadronicLeg || !e.isRealData()) {
     float caloHT = 0.0;
     float pfHT = 0.0;
-    for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end();
-         ++i_pfjet) {
+    for (auto i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end(); ++i_pfjet) {
       if (i_pfjet->pt() < ptThrJet_)
         continue;
       if (fabs(i_pfjet->eta()) > etaThrJet_)
@@ -129,9 +128,7 @@ void SUSY_HLT_InclusiveHT::analyze(edm::Event const &e, edm::EventSetup const &e
     }
 
     if (hasFired) {
-      for (reco::CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin();
-           i_calojet != caloJetCollection->end();
-           ++i_calojet) {
+      for (auto i_calojet = caloJetCollection->begin(); i_calojet != caloJetCollection->end(); ++i_calojet) {
         if (i_calojet->pt() < ptThrJet_)
           continue;
         if (fabs(i_calojet->eta()) > etaThrJet_)
@@ -141,8 +138,7 @@ void SUSY_HLT_InclusiveHT::analyze(edm::Event const &e, edm::EventSetup const &e
         h_caloJetPhi->Fill(i_calojet->phi());
         caloHT += i_calojet->pt();
       }
-      for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end();
-           ++i_pfjet) {
+      for (auto i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end(); ++i_pfjet) {
         if (i_pfjet->pt() < ptThrJet_)
           continue;
         if (fabs(i_pfjet->eta()) > etaThrJet_)

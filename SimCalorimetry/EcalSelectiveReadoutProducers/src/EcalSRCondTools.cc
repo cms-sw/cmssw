@@ -129,7 +129,7 @@ void EcalSRCondTools::analyze(const edm::Event& event, const edm::EventSetup& es
         cout << "Error: TPG physics record is of unexpected size: " << mymap.size()
              << " elements instead of two (one for EB, one for EE)\n";
       } else {
-        EcalTPGPhysicsConstMap::const_iterator it = mymap.begin();
+        auto it = mymap.begin();
         cout << "----------------------------------------------------------------------\n"
                 "Trigger tower Et thresholds extracted from TPG configuration \n"
                 "(EcalSRCondTools modules supports only read mode for these parameters):\n\n";

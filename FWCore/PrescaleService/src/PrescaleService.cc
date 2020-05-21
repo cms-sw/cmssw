@@ -111,7 +111,7 @@ namespace edm {
         }
       }
       // Check all HLTPrescaler instances are on a path
-      for (std::map<std::string, std::string>::const_iterator it = module2path.begin(); it != module2path.end(); ++it) {
+      for (auto it = module2path.begin(); it != module2path.end(); ++it) {
         if (it->second.empty()) {
           throw cms::Exception("PrescaleServiceConfigError")
               << " HLTPrescaler '" << it->first << "' not found on any path!";
@@ -119,9 +119,7 @@ namespace edm {
       }
 
       // Check paths stored Prescale Table: each path is actually in the process config
-      for (std::map<std::string, std::vector<unsigned int> >::const_iterator it = prescaleTable_.begin();
-           it != prescaleTable_.end();
-           ++it) {
+      for (auto it = prescaleTable_.begin(); it != prescaleTable_.end(); ++it) {
         if (path2module.find(it->first) == path2module.end()) {
           throw cms::Exception("PrescaleServiceConfigError")
               << " Path '" << it->first << "' is unknown or does not contain any HLTPrescaler!";
@@ -143,7 +141,7 @@ namespace edm {
         throw cms::Exception("InvalidLvl1Index")
             << "lvl1Index '" << lvl1Index << "' exceeds number of prescale columns " << lvl1Labels_.size() << "!";
       }
-      PrescaleTable_t::const_iterator it = prescaleTable_.find(prescaledPath);
+      auto it = prescaleTable_.find(prescaledPath);
       return (it == prescaleTable_.end()) ? 1 : it->second[lvl1Index];
     }
 

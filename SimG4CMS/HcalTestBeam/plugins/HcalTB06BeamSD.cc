@@ -82,7 +82,7 @@ uint32_t HcalTB06BeamSD::setDetUnitId(const G4Step* aStep) {
 }
 
 bool HcalTB06BeamSD::isItWireChamber(const std::string& name) {
-  std::vector<std::string>::const_iterator it = hcalBeamPar_->wchambers_.begin();
+  auto it = hcalBeamPar_->wchambers_.begin();
   for (; it != hcalBeamPar_->wchambers_.end(); it++)
     if (name == *it)
       return true;

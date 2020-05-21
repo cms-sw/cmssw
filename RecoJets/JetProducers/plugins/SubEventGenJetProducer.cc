@@ -45,7 +45,7 @@ SubEventGenJetProducer::SubEventGenJetProducer(edm::ParameterSet const& conf) : 
 }
 
 void SubEventGenJetProducer::inputTowers() {
-  std::vector<edm::Ptr<reco::Candidate>>::const_iterator inBegin = inputs_.begin(), inEnd = inputs_.end(), i = inBegin;
+  auto inBegin = inputs_.begin(), inEnd = inputs_.end(), i = inBegin;
   for (; i != inEnd; ++i) {
     reco::CandidatePtr input = inputs_[i - inBegin];
     if (edm::isNotFinite(input->pt()))

@@ -53,7 +53,7 @@ std::string trivialParser::getNextLine(std::ifstream& input) {
 
 void trivialParser::print(std::string prefix) {
   std::cerr << "read parameters: " << std::endl;
-  for (std::map<std::string, double>::const_iterator mapIT = m_config.begin(); mapIT != m_config.end(); ++mapIT) {
+  for (auto mapIT = m_config.begin(); mapIT != m_config.end(); ++mapIT) {
     std::cerr << prefix << mapIT->first << " = " << mapIT->second << "\n";
   }
 }

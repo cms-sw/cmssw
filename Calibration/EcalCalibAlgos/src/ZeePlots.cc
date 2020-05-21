@@ -222,9 +222,7 @@ void ZeePlots::fillEleInfo(const reco::GsfElectronCollection* electronCollection
 
   h1_nEleReco_->Fill(electronCollection->size());
 
-  for (reco::GsfElectronCollection::const_iterator eleIt = electronCollection->begin();
-       eleIt != electronCollection->end();
-       eleIt++) {
+  for (auto eleIt = electronCollection->begin(); eleIt != electronCollection->end(); eleIt++) {
     file_->cd();
 
     h1_recoEleEnergy_->Fill(eleIt->superCluster()->energy());

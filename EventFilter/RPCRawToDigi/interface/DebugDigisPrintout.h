@@ -41,7 +41,7 @@ namespace rpcrawtodigi {
         RPCDetId rpcDetId = (*it).first;
         uint32_t rawDetId = rpcDetId.rawId();
         RPCDigiCollection::Range range = digis->get(rpcDetId);
-        for (std::vector<RPCDigi>::const_iterator id = range.first; id != range.second; id++) {
+        for (auto id = range.first; id != range.second; id++) {
           nDigisAll++;
           const RPCDigi& digi = (*id);
           MyDigi myDigi = {rawDetId, digi.strip(), digi.bx()};
@@ -51,7 +51,7 @@ namespace rpcrawtodigi {
       }
       std::sort(myDigis.begin(), myDigis.end());
       str << " dets: " << nDet << " allDigis: " << nDigisAll << " unigueDigis: " << myDigis.size() << std::endl;
-      for (std::vector<MyDigi>::const_iterator it = myDigis.begin(); it != myDigis.end(); ++it)
+      for (auto it = myDigis.begin(); it != myDigis.end(); ++it)
         str << "debugDIGI: " << it->det << ", " << it->strip << ", " << it->bx << std::endl;
       return str.str();
     }

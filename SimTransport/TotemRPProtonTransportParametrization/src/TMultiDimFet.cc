@@ -482,7 +482,7 @@ void TMultiDimFet::ZeroDoubiousCoefficients(double error) {
   double del_error_abs = 0;
   int deleted_terms_count = 0;
 
-  for (cmt::iterator it = m.begin(); it != m.end() && del_error_abs < error; ++it) {
+  for (auto it = m.begin(); it != m.end() && del_error_abs < error; ++it) {
     if (TMath::Abs(it->first) + del_error_abs < error) {
       fCoefficients(it->second) = 0.0;
       del_error_abs = TMath::Abs(it->first) + del_error_abs;

@@ -66,7 +66,7 @@ namespace ecaldqm {
     std::vector<double> inExpectedPNAmplitude(
         _params.getUntrackedParameter<std::vector<double> >("expectedPNAmplitude"));
 
-    for (std::map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr) {
+    for (auto wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr) {
       unsigned iME(wlItr->second);
       int iWL(wlItr->first - 1);
       expectedAmplitude_[iME] = inExpectedAmplitude[iWL];
@@ -97,7 +97,7 @@ namespace ecaldqm {
     MESetMulti const& sPNAmplitude(static_cast<MESetMulti const&>(sources_.at("PNAmplitude")));
     MESet const& sCalibStatus(static_cast<MESet const&>(sources_.at("CalibStatus")));
 
-    for (std::map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr) {
+    for (auto wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr) {
       meQuality.use(wlItr->second);
       meQualitySummary.use(wlItr->second);
       meAmplitudeMean.use(wlItr->second);

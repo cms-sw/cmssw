@@ -267,7 +267,7 @@ void PATTriggerProducer::beginRun(const Run& iRun, const EventSetup& iSetup) {
     ProcessConfiguration processConfiguration;
     ParameterSet processPSet;
     // unbroken loop, which relies on time ordering (accepts the last found entry)
-    for (ProcessHistory::const_iterator iHist = processHistory.begin(); iHist != processHistory.end(); ++iHist) {
+    for (auto iHist = processHistory.begin(); iHist != processHistory.end(); ++iHist) {
       if (processHistory.getConfigurationForProcess(iHist->processName(), processConfiguration) &&
           pset::Registry::instance()->getMapped(processConfiguration.parameterSetID(), processPSet) &&
           processPSet.exists(tagTriggerEvent_.label())) {
@@ -504,14 +504,13 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
         }
         // add L1 seeds
         const L1SeedCollection& l1Seeds(hltConfig.hltL1GTSeeds(namePath));
-        for (L1SeedCollection::const_iterator iSeed = l1Seeds.begin(); iSeed != l1Seeds.end(); ++iSeed) {
+        for (auto iSeed = l1Seeds.begin(); iSeed != l1Seeds.end(); ++iSeed) {
           triggerPath.addL1Seed(*iSeed);
         }
         // store path
         triggerPaths->push_back(triggerPath);
         // cache module states to be used for the filters
-        for (std::map<unsigned, std::string>::const_iterator iM = indicesModules.begin(); iM != indicesModules.end();
-             ++iM) {
+        for (auto iM = indicesModules.begin(); iM != indicesModules.end(); ++iM) {
           if (iM->first < indexLastFilterPathModules) {
             moduleStates[iM->second] = 1;
           } else if (iM->first == indexLastFilterPathModules) {
@@ -584,8 +583,7 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
         triggerObjectStandAlone.addFilterLabel(frange.first->second);
         const std::vector<ModuleLabelToPathAndFlags::PathAndFlags>& paths =
             moduleLabelToPathAndFlags_[frange.first->second];
-        for (std::vector<ModuleLabelToPathAndFlags::PathAndFlags>::const_iterator iP = paths.begin(); iP != paths.end();
-             ++iP) {
+        for (auto iP = paths.begin(); iP != paths.end(); ++iP) {
           bool pathFired = handleTriggerResults->wasrun(iP->pathIndex) && handleTriggerResults->accept(iP->pathIndex);
           triggerObjectStandAlone.addPathName(iP->pathName, pathFired && iP->lastFilter, pathFired && iP->l3Filter);
         }
@@ -626,7 +624,7 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
           }
         }
         // set status from path info
-        std::map<std::string, int>::iterator iS(moduleStates.find(nameFilter));
+        auto iS(moduleStates.find(nameFilter));
         if (iS != moduleStates.end()) {
           if (!triggerFilter.setStatus(iS->second)) {
             triggerFilter.setStatus(-1);  // FIXME different code for "unvalid status determined" needed?
@@ -974,7 +972,7 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
         }
       }
       // physics algorithms
-      for (CItAlgo iAlgo = l1GtAlgorithms.begin(); iAlgo != l1GtAlgorithms.end(); ++iAlgo) {
+      for (auto iAlgo = l1GtAlgorithms.begin(); iAlgo != l1GtAlgorithms.end(); ++iAlgo) {
         const std::string& algoName(iAlgo->second.algoName());
         if (!(iAlgo->second.algoBitNumber() < int(L1GlobalTriggerReadoutSetup::NumberPhysTriggers))) {
           LogError("l1Algo") << "L1 physics algorithm '" << algoName << "' has bit number "
@@ -1119,7 +1117,7 @@ void PATTriggerProducer::produce(Event& iEvent, const EventSetup& iSetup) {
         triggerAlgos->push_back(triggerAlgo);
       }
       // technical triggers
-      for (CItAlgo iAlgo = l1GtTechTriggers.begin(); iAlgo != l1GtTechTriggers.end(); ++iAlgo) {
+      for (auto iAlgo = l1GtTechTriggers.begin(); iAlgo != l1GtTechTriggers.end(); ++iAlgo) {
         const std::string& algoName(iAlgo->second.algoName());
         if (!(iAlgo->second.algoBitNumber() < int(L1GlobalTriggerReadoutSetup::NumberTechnicalTriggers))) {
           LogError("l1Algo") << "L1 technical trigger '" << algoName << "' has bit number "

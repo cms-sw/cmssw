@@ -66,7 +66,7 @@ public:
     std::vector<float> probabilities;
     std::vector<float> probabilitiesB;
     int i = 0;
-    for (std::vector<float>::const_iterator it = allProbabilities.begin(); it != allProbabilities.end(); ++it, i++) {
+    for (auto it = allProbabilities.begin(); it != allProbabilities.end(); ++it, i++) {
       if (fabs(impactParameters[i].distanceToJetAxis.value()) < m_cutMaxDistToAxis &&  // distance to JetAxis
           (impactParameters[i].closestToJetAxis - pv).mag() < m_cutMaxDecayLen &&      // max decay len
           (m_useAllQualities == true ||
@@ -114,7 +114,7 @@ public:
     int ngoodtracks = v.size();
     double SumJet = 0.;
 
-    for (std::vector<float>::const_iterator q = v.begin(); q != v.end(); q++) {
+    for (auto q = v.begin(); q != v.end(); q++) {
       SumJet += (*q > m_minTrackProb) ? log(*q) : log(m_minTrackProb);
     }
 

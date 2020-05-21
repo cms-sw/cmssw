@@ -100,8 +100,8 @@ void QualityFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       outputTJ->push_back(*traj);
       if (copyExtras_) {
         //TRACKING HITS
-        trackingRecHit_iterator irhit = (*itc).recHitsBegin();
-        trackingRecHit_iterator lasthit = (*itc).recHitsEnd();
+        auto irhit = (*itc).recHitsBegin();
+        auto lasthit = (*itc).recHitsEnd();
         for (; irhit != lasthit; ++irhit) {
           selHits->push_back((*irhit)->clone());
         }

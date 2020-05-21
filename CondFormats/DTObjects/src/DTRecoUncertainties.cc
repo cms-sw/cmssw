@@ -21,7 +21,7 @@ DTRecoUncertainties::~DTRecoUncertainties() {}
 float DTRecoUncertainties::get(const DTWireId& wireid, unsigned int index) const {
   // FIXME: what to do in case the superlayerId is not found in the map?
   // FIXME: any check on the type?
-  map<uint32_t, vector<float> >::const_iterator slIt = payload.find(wireid.superlayerId().rawId());
+  auto slIt = payload.find(wireid.superlayerId().rawId());
   if (slIt == payload.end()) {
     cout << "[DTRecoUncertainties]***Error: the SLId: " << wireid.superlayerId() << " is not in the paylaod map!"
          << endl;

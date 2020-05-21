@@ -118,11 +118,11 @@ public:
 
   double median(int which) {
     std::vector<double> residuals;
-    for (std::vector<double *>::const_iterator r = residualsPos_begin(); r != residualsPos_end(); ++r) {
+    for (auto r = residualsPos_begin(); r != residualsPos_end(); ++r) {
       residuals.push_back((*r)[which]);
     }
     if (m_twoBin) {
-      for (std::vector<double *>::const_iterator r = residualsNeg_begin(); r != residualsNeg_end(); ++r) {
+      for (auto r = residualsNeg_begin(); r != residualsNeg_end(); ++r) {
         residuals.push_back((*r)[which]);
       }
     }
@@ -134,7 +134,7 @@ public:
   double mean(int which, double truncate) {
     double sum = 0.;
     double n = 0.;
-    for (std::vector<double *>::const_iterator r = residualsPos_begin(); r != residualsPos_end(); ++r) {
+    for (auto r = residualsPos_begin(); r != residualsPos_end(); ++r) {
       double value = (*r)[which];
       if (fabs(value) < truncate) {
         sum += value;
@@ -142,7 +142,7 @@ public:
       }
     }
     if (m_twoBin) {
-      for (std::vector<double *>::const_iterator r = residualsNeg_begin(); r != residualsNeg_end(); ++r) {
+      for (auto r = residualsNeg_begin(); r != residualsNeg_end(); ++r) {
         double value = (*r)[which];
         if (fabs(value) < truncate) {
           sum += value;
@@ -156,7 +156,7 @@ public:
   double wmean(int which, int whichredchi2, double truncate) {
     double sum = 0.;
     double n = 0.;
-    for (std::vector<double *>::const_iterator r = residualsPos_begin(); r != residualsPos_end(); ++r) {
+    for (auto r = residualsPos_begin(); r != residualsPos_end(); ++r) {
       double value = (*r)[which];
       if (fabs(value) < truncate) {
         double weight = 1. / (*r)[whichredchi2];
@@ -167,7 +167,7 @@ public:
       }
     }
     if (m_twoBin) {
-      for (std::vector<double *>::const_iterator r = residualsNeg_begin(); r != residualsNeg_end(); ++r) {
+      for (auto r = residualsNeg_begin(); r != residualsNeg_end(); ++r) {
         double value = (*r)[which];
         if (fabs(value) < truncate) {
           double weight = 1. / (*r)[whichredchi2];
@@ -185,7 +185,7 @@ public:
     double sum2 = 0.;
     double sum = 0.;
     double n = 0.;
-    for (std::vector<double *>::const_iterator r = residualsPos_begin(); r != residualsPos_end(); ++r) {
+    for (auto r = residualsPos_begin(); r != residualsPos_end(); ++r) {
       double value = (*r)[which];
       if (fabs(value) < truncate) {
         sum2 += value * value;
@@ -194,7 +194,7 @@ public:
       }
     }
     if (m_twoBin) {
-      for (std::vector<double *>::const_iterator r = residualsNeg_begin(); r != residualsNeg_end(); ++r) {
+      for (auto r = residualsNeg_begin(); r != residualsNeg_end(); ++r) {
         double value = (*r)[which];
         if (fabs(value) < truncate) {
           sum2 += value * value;

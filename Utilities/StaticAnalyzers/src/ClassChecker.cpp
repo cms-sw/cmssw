@@ -174,24 +174,23 @@ namespace clangcms {
 
   void WalkAST::CheckBinaryOperator(const clang::BinaryOperator *BO, const clang::MemberExpr *IME) {
     if (BO->isAssignmentOp()) {
-      if (clang::MemberExpr *ME = dyn_cast_or_null<clang::MemberExpr>(BO->getLHS())) {
+      if (auto *ME = dyn_cast_or_null<clang::MemberExpr>(BO->getLHS())) {
         if (ME->isImplicitAccess())
           ReportMember(ME);
       }
     } else {
-      if (clang::UnaryOperator *UO =
-              llvm::dyn_cast_or_null<clang::UnaryOperator>(BO->getLHS()->IgnoreParenImpCasts())) {
+      if (auto *UO = llvm::dyn_cast_or_null<clang::UnaryOperator>(BO->getLHS()->IgnoreParenImpCasts())) {
         if (UO->getOpcode() == clang::UnaryOperatorKind::UO_Deref) {
-          if (clang::MemberExpr *ME = dyn_cast_or_null<clang::MemberExpr>(UO->getSubExpr()->IgnoreParenImpCasts())) {
+          if (auto *ME = dyn_cast_or_null<clang::MemberExpr>(UO->getSubExpr()->IgnoreParenImpCasts())) {
             if (ME->isImplicitAccess())
               ReportMember(ME);
           }
-          if (clang::DeclRefExpr *DRE = dyn_cast_or_null<clang::DeclRefExpr>(UO->getSubExpr()->IgnoreParenImpCasts())) {
+          if (auto *DRE = dyn_cast_or_null<clang::DeclRefExpr>(UO->getSubExpr()->IgnoreParenImpCasts())) {
             if (const clang::VarDecl *D = llvm::dyn_cast_or_null<clang::VarDecl>(DRE->getDecl())) {
               clang::QualType t = D->getType();
               const clang::Expr *E = llvm::dyn_cast_or_null<clang::Expr>(D->getInit());
               if (E && t->isPointerType()) {
-                const clang::MemberExpr *ME = dyn_cast_or_null<clang::MemberExpr>(E->IgnoreParenImpCasts());
+                const auto *ME = dyn_cast_or_null<clang::MemberExpr>(E->IgnoreParenImpCasts());
                 if (ME && ME->isImplicitAccess())
                   ReportMember(ME);
               }
@@ -204,7 +203,7 @@ namespace clangcms {
 
   void WalkAST::CheckUnaryOperator(const clang::UnaryOperator *UO, const clang::MemberExpr *E) {
     if (UO->isIncrementDecrementOp()) {
-      if (clang::MemberExpr *ME = dyn_cast_or_null<clang::MemberExpr>(UO->getSubExpr()->IgnoreParenImpCasts()))
+      if (auto *ME = dyn_cast_or_null<clang::MemberExpr>(UO->getSubExpr()->IgnoreParenImpCasts()))
         ReportMember(ME);
     }
   }
@@ -221,15 +220,14 @@ namespace clangcms {
       case OO_PipeEqual:
       case OO_LessLessEqual:
       case OO_GreaterGreaterEqual:
-        if (const clang::MemberExpr *ME =
-                dyn_cast_or_null<clang::MemberExpr>((*OCE->arg_begin())->IgnoreParenImpCasts())) {
+        if (const auto *ME = dyn_cast_or_null<clang::MemberExpr>((*OCE->arg_begin())->IgnoreParenImpCasts())) {
           if (ME->isImplicitAccess())
             ReportMember(ME);
         }
 
       case OO_PlusPlus:
       case OO_MinusMinus:
-        if (const clang::MemberExpr *ME = dyn_cast_or_null<clang::MemberExpr>(OCE->getCallee()->IgnoreParenCasts())) {
+        if (const auto *ME = dyn_cast_or_null<clang::MemberExpr>(OCE->getCallee()->IgnoreParenCasts())) {
           if (ME->isImplicitAccess())
             ReportMember(ME);
         }
@@ -277,7 +275,7 @@ namespace clangcms {
           RD = RTy->getAsCXXRecordDecl();
         else
           RD = RTy->getPointeeCXXRecordDecl();
-        const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD);
+        const auto *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD);
         for (unsigned J = 0, F = SD->getTemplateArgs().size(); J != F; ++J) {
           if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type) {
             const QualType QAT = SD->getTemplateArgs().get(J).getAsType();
@@ -464,9 +462,9 @@ namespace clangcms {
     for (int i = 0, j = CE->getNumArgs(); i < j; i++) {
       if (CE->getArg(i)) {
         if (const clang::Expr *E = llvm::dyn_cast_or_null<clang::Expr>(CE->getArg(i))) {
-          const clang::MemberExpr *AME = llvm::dyn_cast_or_null<clang::MemberExpr>(E);
+          const auto *AME = llvm::dyn_cast_or_null<clang::MemberExpr>(E);
           if (AME && AME->isImplicitAccess()) {
-            clang::ParmVarDecl *PVD = llvm::dyn_cast_or_null<clang::ParmVarDecl>(MD->getParamDecl(i));
+            auto *PVD = llvm::dyn_cast_or_null<clang::ParmVarDecl>(MD->getParamDecl(i));
             clang::QualType QT = PVD->getOriginalType();
             const clang::Type *T = QT.getTypePtr();
             if (!support::isConst(QT) && T->isReferenceType() && ME && ME->isImplicitAccess())
@@ -576,8 +574,8 @@ namespace clangcms {
     clang::PrintingPolicy Policy(LangOpts);
 
     clang::CXXMethodDecl *CMD = llvm::dyn_cast<clang::CXXMemberCallExpr>(CE)->getMethodDecl();
-    const clang::MemberExpr *E = llvm::dyn_cast<clang::MemberExpr>(CE->getArg(i));
-    clang::ValueDecl *VD = llvm::dyn_cast<clang::ValueDecl>(E->getMemberDecl());
+    const auto *E = llvm::dyn_cast<clang::MemberExpr>(CE->getArg(i));
+    auto *VD = llvm::dyn_cast<clang::ValueDecl>(E->getMemberDecl());
     os << "Member data '" << VD->getQualifiedNameAsString();
     os << "' is passed to a non-const reference parameter";
     os << " of CXX method '" << CMD->getQualifiedNameAsString() << "' in const function";
@@ -615,7 +613,7 @@ namespace clangcms {
     os << "in const function in statement '";
     RS->printPretty(os, nullptr, Policy);
     os << "\n";
-    const clang::CXXMethodDecl *MD = llvm::cast<clang::CXXMethodDecl>(AD);
+    const auto *MD = llvm::cast<clang::CXXMethodDecl>(AD);
     clang::ento::PathDiagnosticLocation CELoc =
         clang::ento::PathDiagnosticLocation::createBegin(RS, BR.getSourceManager(), AC);
     std::string pname = support::getQualifiedName(*(AD->getParent()));
@@ -693,7 +691,7 @@ namespace clangcms {
         continue;
       if (!(*I)->isConst())
         continue;
-      clang::CXXMethodDecl *MD = llvm::cast<clang::CXXMethodDecl>((*I)->getMostRecentDecl());
+      auto *MD = llvm::cast<clang::CXXMethodDecl>((*I)->getMostRecentDecl());
       if (MD->hasAttr<CMSThreadGuardAttr>() || MD->hasAttr<CMSThreadSafeAttr>() || MD->hasAttr<CMSSaAllowAttr>())
         continue;
       if (MD->hasBody()) {
@@ -732,7 +730,7 @@ namespace clangcms {
             RD = RTy->getAsCXXRecordDecl();
           else
             RD = RTy->getPointeeCXXRecordDecl();
-          const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD);
+          const auto *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD);
           for (unsigned J = 0, F = SD->getTemplateArgs().size(); J != F; ++J) {
             if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type) {
               const QualType QAT = SD->getTemplateArgs().get(J).getAsType();

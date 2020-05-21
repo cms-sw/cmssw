@@ -6,8 +6,8 @@
 #include "DataFormats/GeometryVector/interface/VectorUtil.h"
 
 void BoundSpan::compute(Surface const& plane) {
-  const TrapezoidalPlaneBounds* trapezoidalBounds(dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
-  const RectangularPlaneBounds* rectangularBounds(dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));
+  const auto* trapezoidalBounds(dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
+  const auto* rectangularBounds(dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));
 
   Surface::GlobalPoint corners[8];
 

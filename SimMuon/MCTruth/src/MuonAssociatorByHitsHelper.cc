@@ -110,7 +110,7 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
   }
 
   int tindex = 0;
-  for (TrackHitsCollection::const_iterator track = tC.begin(); track != tC.end(); track++, tindex++) {
+  for (auto track = tC.begin(); track != tC.end(); track++, tindex++) {
     edm::LogVerbatim("MuonAssociatorByHitsHelper")
         << "\n"
         << "reco::Track " << tindex << ", number of RecHits = " << (track->second - track->first) << "\n";
@@ -286,7 +286,7 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
           << "/muons:" << n_muon_selected_hits << ")";
 
       int tpindex = 0;
-      for (TrackingParticleCollection::const_iterator trpart = tPC.begin(); trpart != tPC.end(); ++trpart, ++tpindex) {
+      for (auto trpart = tPC.begin(); trpart != tPC.end(); ++trpart, ++tpindex) {
         tracker_nshared = getShared(tracker_matchedIds_valid, trpart);
         muon_nshared = getShared(muon_matchedIds_valid, trpart);
 
@@ -359,7 +359,7 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
               << ", pT = " << (*trpart).pt() << ", eta = " << (*trpart).eta() << ", phi = " << (*trpart).phi() << "\n\t"
               << " pdg code = " << (*trpart).pdgId() << ", made of " << (*trpart).numberOfHits() << " PSimHits"
               << " from " << (*trpart).g4Tracks().size() << " SimTrack:";
-          for (TrackingParticle::g4t_iterator g4T = (*trpart).g4Track_begin(); g4T != (*trpart).g4Track_end(); ++g4T) {
+          for (auto g4T = (*trpart).g4Track_begin(); g4T != (*trpart).g4Track_end(); ++g4T) {
             edm::LogVerbatim("MuonAssociatorByHitsHelper")
                 << "\t"
                 << " Id:" << (*g4T).trackId() << "/Evt:(" << (*g4T).eventId().event() << ","
@@ -397,7 +397,7 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
   if (tC.empty())
     edm::LogVerbatim("MuonAssociatorByHitsHelper") << "0 reconstructed tracks (-->> 0 associated !)";
 
-  for (IndexAssociation::iterator it = outputCollection.begin(), ed = outputCollection.end(); it != ed; ++it) {
+  for (auto it = outputCollection.begin(), ed = outputCollection.end(); it != ed; ++it) {
     std::sort(it->second.begin(), it->second.end());
   }
   return outputCollection;
@@ -454,7 +454,7 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
   bool any_trackingParticle_matched = false;
 
   int tindex = 0;
-  for (TrackHitsCollection::const_iterator track = tC.begin(); track != tC.end(); track++, tindex++) {
+  for (auto track = tC.begin(); track != tC.end(); track++, tindex++) {
     if (printRtS)
       edm::LogVerbatim("MuonAssociatorByHitsHelper")
           << "\n"
@@ -623,7 +623,7 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
 
     if (n_matching_simhits != 0) {
       int tpindex = 0;
-      for (TrackingParticleCollection::const_iterator trpart = tPC.begin(); trpart != tPC.end(); ++trpart, ++tpindex) {
+      for (auto trpart = tPC.begin(); trpart != tPC.end(); ++trpart, ++tpindex) {
         //	int n_tracker_simhits = 0;
         int n_tracker_recounted_simhits = 0;
         int n_muon_simhits = 0;
@@ -829,7 +829,7 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
               << " PSimHits, recounted " << n_global_simhits << " PSimHits"
               << " (tracker:" << n_tracker_recounted_simhits << "/muons:" << n_muon_simhits << ")"
               << ", from " << (*trpart).g4Tracks().size() << " SimTrack:";
-          for (TrackingParticle::g4t_iterator g4T = (*trpart).g4Track_begin(); g4T != (*trpart).g4Track_end(); ++g4T) {
+          for (auto g4T = (*trpart).g4Track_begin(); g4T != (*trpart).g4Track_end(); ++g4T) {
             edm::LogVerbatim("MuonAssociatorByHitsHelper")
                 << " Id:" << (*g4T).trackId() << "/Evt:(" << (*g4T).eventId().event() << ","
                 << (*g4T).eventId().bunchCrossing() << ")";
@@ -864,8 +864,7 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
                   << " PSimHits, recounted " << n_global_simhits << " PSimHits"
                   << " (tracker:" << n_tracker_recounted_simhits << "/muons:" << n_muon_simhits << ")"
                   << ", from " << (*trpart).g4Tracks().size() << " SimTrack:";
-            for (TrackingParticle::g4t_iterator g4T = (*trpart).g4Track_begin(); g4T != (*trpart).g4Track_end();
-                 ++g4T) {
+            for (auto g4T = (*trpart).g4Track_begin(); g4T != (*trpart).g4Track_end(); ++g4T) {
               if (printRtS)
                 edm::LogVerbatim("MuonAssociatorByHitsHelper")
                     << " Id:" << (*g4T).trackId() << "/Evt:(" << (*g4T).eventId().event() << ","
@@ -904,7 +903,7 @@ MuonAssociatorByHitsHelper::IndexAssociation MuonAssociatorByHitsHelper::associa
         << "\n";
   }
 
-  for (IndexAssociation::iterator it = outputCollection.begin(), ed = outputCollection.end(); it != ed; ++it) {
+  for (auto it = outputCollection.begin(), ed = outputCollection.end(); it != ed; ++it) {
     std::sort(it->second.begin(), it->second.end());
   }
   return outputCollection;
@@ -980,7 +979,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
   // main loop on TrackingRecHits
   int iloop = 0;
   int iH = -1;
-  for (trackingRecHit_iterator it = begin; it != end; it++, iloop++) {
+  for (auto it = begin; it != end; it++, iloop++) {
     stringstream hit_index;
     hit_index << iloop;
 
@@ -1111,9 +1110,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
             SimTrackIds.clear();
             std::vector<SimHitIdpr> i_SimTrackIds;
             int i_compHit = 0;
-            for (std::vector<const TrackingRecHit *>::const_iterator ithit = componentHits.begin();
-                 ithit != componentHits.end();
-                 ++ithit) {
+            for (auto ithit = componentHits.begin(); ithit != componentHits.end(); ++ithit) {
               i_compHit++;
 
               const DTRecHit1D *dtrechit1D = dynamic_cast<const DTRecHit1D *>(*ithit);
@@ -1222,9 +1219,7 @@ void MuonAssociatorByHitsHelper::getMatchedIds(MapOfMatchedIds &tracker_matchedI
             SimTrackIds.clear();
             std::vector<SimHitIdpr> i_SimTrackIds;
             int i_compHit = 0;
-            for (std::vector<const TrackingRecHit *>::const_iterator ithit = componentHits.begin();
-                 ithit != componentHits.end();
-                 ++ithit) {
+            for (auto ithit = componentHits.begin(); ithit != componentHits.end(); ++ithit) {
               i_compHit++;
 
               const CSCRecHit2D *cscrechit2D = dynamic_cast<const CSCRecHit2D *>(*ithit);

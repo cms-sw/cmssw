@@ -438,7 +438,7 @@ namespace edm {
       std::string const source("source");
       ProductRegistry::ProductList& pList = inputProdDescReg.productListUpdator();
       BranchKey finder(rawData, source, "", "");
-      ProductRegistry::ProductList::iterator it = pList.lower_bound(finder);
+      auto it = pList.lower_bound(finder);
       if (it != pList.end() && it->first.friendlyClassName() == rawData && it->first.moduleLabel() == source) {
         // We found raw data with a module label of source.
         // We need to change the module label and process name.
@@ -726,7 +726,7 @@ namespace edm {
   }
 
   std::string const& RootFile::newBranchToOldBranch(std::string const& newBranch) const {
-    std::map<std::string, std::string>::const_iterator it = newBranchToOldBranch_.find(newBranch);
+    auto it = newBranchToOldBranch_.find(newBranch);
     if (it != newBranchToOldBranch_.end()) {
       return it->second;
     }
@@ -1023,7 +1023,7 @@ namespace edm {
     RunItemSortByRun runItemSortByRun;
     stable_sort_all(emptyRuns, runItemSortByRun);
 
-    RunList::iterator itRuns = runs.begin(), endRuns = runs.end();
+    auto itRuns = runs.begin(), endRuns = runs.end();
     for (auto const& emptyRun : emptyRuns) {
       for (; itRuns != endRuns; ++itRuns) {
         if (runItemSortByRun(emptyRun, *itRuns)) {
@@ -1051,7 +1051,7 @@ namespace edm {
           // Use the process history ID from the corresponding run.  In cases of practical
           // importance, this should be the correct process history ID,  but it is possible
           // to construct files where this is not the correct process history ID ...
-          PHIDMap::const_iterator iPhidMap = phidMap.find(lumiAux->run());
+          auto iPhidMap = phidMap.find(lumiAux->run());
           assert(iPhidMap != phidMap.end());
           emptyLumis.emplace_back(
               iPhidMap->second, lumiAux->run(), lumiAux->luminosityBlock(), IndexIntoFile::invalidEntry);  // (insert 7)
@@ -1066,7 +1066,7 @@ namespace edm {
     LumiItemSortByRunLumi lumiItemSortByRunLumi;
     stable_sort_all(emptyLumis, lumiItemSortByRunLumi);
 
-    LumiList::iterator itLumis = lumis.begin(), endLumis = lumis.end();
+    auto itLumis = lumis.begin(), endLumis = lumis.end();
     for (auto const& emptyLumi : emptyLumis) {
       for (; itLumis != endLumis; ++itLumis) {
         if (lumiItemSortByRunLumi(emptyLumi, *itLumis)) {
@@ -1086,13 +1086,13 @@ namespace edm {
     assert(entries.empty());
     int rcount = 0;
     for (auto& run : runs) {
-      RunCountMap::const_iterator countMapItem = runCountMap.find(run);
+      auto countMapItem = runCountMap.find(run);
       if (countMapItem == runCountMap.end()) {
         countMapItem = runCountMap.insert(std::make_pair(run, rcount)).first;  // Insert (17)
         assert(countMapItem != runCountMap.end());
         ++rcount;
       }
-      std::vector<ProcessHistoryID>::const_iterator phidItem = find_in_all(phids, run.phid_);
+      auto phidItem = find_in_all(phids, run.phid_);
       if (phidItem == phids.end()) {
         phids.push_back(run.phid_);
         phidItem = phids.end() - 1;
@@ -1112,15 +1112,15 @@ namespace edm {
     LumiCountMap lumiCountMap;  // Declare (19)
     int lcount = 0;
     for (auto& lumi : lumis) {
-      RunCountMap::const_iterator runCountMapItem = runCountMap.find(RunItem(lumi.phid_, lumi.run_));
+      auto runCountMapItem = runCountMap.find(RunItem(lumi.phid_, lumi.run_));
       assert(runCountMapItem != runCountMap.end());
-      LumiCountMap::const_iterator countMapItem = lumiCountMap.find(lumi);
+      auto countMapItem = lumiCountMap.find(lumi);
       if (countMapItem == lumiCountMap.end()) {
         countMapItem = lumiCountMap.insert(std::make_pair(lumi, lcount)).first;  // Insert (17)
         assert(countMapItem != lumiCountMap.end());
         ++lcount;
       }
-      std::vector<ProcessHistoryID>::const_iterator phidItem = find_in_all(phids, lumi.phid_);
+      auto phidItem = find_in_all(phids, lumi.phid_);
       assert(phidItem != phids.end());
       entries.emplace_back(runCountMapItem->second,
                            countMapItem->second,
@@ -1773,8 +1773,8 @@ namespace edm {
     }
 
     // On this pass, actually drop the branches.
-    std::set<BranchID>::const_iterator branchesToDropEnd = branchesToDrop.end();
-    for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
+    auto branchesToDropEnd = branchesToDrop.end();
+    for (auto it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
       BranchDescription const& prod = it->second;
       bool drop = branchesToDrop.find(prod.branchID()) != branchesToDropEnd;
       if (drop) {
@@ -1787,7 +1787,7 @@ namespace edm {
           treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
           hasNewlyDroppedBranch_[prod.branchType()] = true;
         }
-        ProductRegistry::ProductList::iterator icopy = it;
+        auto icopy = it;
         ++it;
         prodList.erase(icopy);
       } else {
@@ -1798,7 +1798,7 @@ namespace edm {
     // Drop on input mergeable run and lumi products, this needs to be invoked for secondary file input
     if (inputType == InputType::SecondaryFile) {
       TString tString;
-      for (ProductRegistry::ProductList::iterator it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
+      for (auto it = prodList.begin(), itEnd = prodList.end(); it != itEnd;) {
         BranchDescription const& prod = it->second;
         if (prod.branchType() != InEvent) {
           TClass* cp = prod.wrappedType().getClass();
@@ -1807,7 +1807,7 @@ namespace edm {
           std::unique_ptr<WrapperBase> edp = getWrapperBasePtr(p, offset);
           if (edp->isMergeable()) {
             treePointers_[prod.branchType()]->dropBranch(newBranchToOldBranch(prod.branchName()));
-            ProductRegistry::ProductList::iterator icopy = it;
+            auto icopy = it;
             ++it;
             prodList.erase(icopy);
           } else {
@@ -1967,7 +1967,7 @@ namespace edm {
   std::set<ProductProvenance> ReducedProvenanceReader::readProvenance(unsigned int transitionIndex) const {
     {
       std::lock_guard<std::recursive_mutex> guard(*mutex_);
-      ReducedProvenanceReader* me = const_cast<ReducedProvenanceReader*>(this);
+      auto* me = const_cast<ReducedProvenanceReader*>(this);
       me->rootTree_->fillBranchEntry(
           me->provBranch_, me->rootTree_->entryNumberForIndex(transitionIndex), me->pProvVector_);
     }
@@ -2116,7 +2116,7 @@ namespace edm {
     }
     std::set<ProductProvenance> retValue;
     for (auto const& info : infoVector_) {
-      EntryDescriptionMap::const_iterator iter = entryDescriptionMap_.find(info.entryDescriptionID());
+      auto iter = entryDescriptionMap_.find(info.entryDescriptionID());
       assert(iter != entryDescriptionMap_.end());
       Parentage parentage(iter->second.parents());
       if (daqProvenanceHelper_) {

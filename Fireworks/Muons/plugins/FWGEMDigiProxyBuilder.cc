@@ -71,7 +71,7 @@ void FWGEMDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
     float bottomPitch = parameters[4];
 
     for (GEMDigiCollection::const_iterator dit = range.first; dit != range.second; ++dit) {
-      TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet;
+      auto* stripDigiSet = new TEveStraightLineSet;
       stripDigiSet->SetLineWidth(3);
       setupAddElement(stripDigiSet, product);
 
@@ -148,7 +148,7 @@ void FWGEMPadDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* 
     float bottomPitch = parameters[4] * nStrips / nPads;
 
     for (GEMPadDigiCollection::const_iterator dit = range.first; dit != range.second; ++dit) {
-      TEveStraightLineSet* stripDigiSet = new TEveStraightLineSet;
+      auto* stripDigiSet = new TEveStraightLineSet;
       stripDigiSet->SetLineWidth(3 * nStrips / nPads);
       setupAddElement(stripDigiSet, product);
 

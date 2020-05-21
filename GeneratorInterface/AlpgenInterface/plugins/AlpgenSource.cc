@@ -263,7 +263,7 @@ void AlpgenSource::beginRun(edm::Run &run) {
 
 template <typename T>
 T AlpgenSource::getParameter(AlpgenHeader::Parameter index) const {
-  std::map<AlpgenHeader::Parameter, double>::const_iterator pos = header.params.find(index);
+  auto pos = header.params.find(index);
   if (pos == header.params.end())
     throw cms::Exception("Generator|AlpgenInterface")
         << "Requested Alpgen parameter \"" << AlpgenHeader::parameterName(index)
@@ -276,7 +276,7 @@ T AlpgenSource::getParameter(AlpgenHeader::Parameter index) const {
 
 template <typename T>
 T AlpgenSource::getParameter(AlpgenHeader::Parameter index, const T &defValue) const {
-  std::map<AlpgenHeader::Parameter, double>::const_iterator pos = header.params.find(index);
+  auto pos = header.params.find(index);
   if (pos == header.params.end())
     return defValue;
   else

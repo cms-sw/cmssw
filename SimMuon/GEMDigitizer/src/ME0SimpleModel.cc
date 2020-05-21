@@ -112,7 +112,7 @@ int ME0SimpleModel::getSimHitBx(const PSimHit* simhit, CLHEP::HepRandomEngine* e
   double muRadius = sqrt(globMiddleRol.x() * globMiddleRol.x() + globMiddleRol.y() * globMiddleRol.y() +
                          globMiddleRol.z() * globMiddleRol.z());
   double timeCalibrationOffset_ = (muRadius * CLHEP::ns * CLHEP::cm) / (CLHEP::c_light);  //[cm/ns]
-  const TrapezoidalStripTopology* top(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
+  const auto* top(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
   const float halfStripLength(0.5 * top->stripLength());
   const float distanceFromEdge(halfStripLength - simHitPos.y());
 
@@ -153,7 +153,7 @@ void ME0SimpleModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::HepRandom
     throw cms::Exception("Geometry")
         << "ME0Synchronizer::simulateNoise() - this ME0 id is from barrel, which cannot happen.";
   }
-  const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
+  const auto* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
   const float striplength(top_->stripLength());
   trStripArea = (roll->pitch()) * striplength;
   trArea = trStripArea * nstrips;

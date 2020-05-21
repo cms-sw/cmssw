@@ -48,7 +48,7 @@ void MuonTagger::initialize(const JetTagComputerRecord& record) {
 float MuonTagger::discriminator(const TagInfoHelper& tagInfo) const {
   float bestTag =
       -std::numeric_limits<float>::infinity();  // default value, used if there are no leptons associated to this jet
-  const reco::CandSoftLeptonTagInfo& info = tagInfo.get<reco::CandSoftLeptonTagInfo>();
+  const auto& info = tagInfo.get<reco::CandSoftLeptonTagInfo>();
 
   std::mt19937_64 random;
   std::uniform_real_distribution<float> dist(0.f, 1.f);

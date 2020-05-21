@@ -85,7 +85,7 @@ std::vector<int> ESElectronicsMapper::GetListofFEDs(const std::vector<int>& eeFE
 
 void ESElectronicsMapper::GetListofFEDs(const std::vector<int>& eeFEDs, std::vector<int>& esFEDs) const {
   for (int eeFED : eeFEDs) {
-    std::map<int, std::vector<int> >::const_iterator itr = ee_es_map_.find(eeFED);
+    auto itr = ee_es_map_.find(eeFED);
     if (itr == ee_es_map_.end())
       continue;
     std::vector<int> fed = itr->second;
@@ -95,7 +95,7 @@ void ESElectronicsMapper::GetListofFEDs(const std::vector<int>& eeFEDs, std::vec
   }
 
   sort(esFEDs.begin(), esFEDs.end());
-  std::vector<int>::iterator it = unique(esFEDs.begin(), esFEDs.end());
+  auto it = unique(esFEDs.begin(), esFEDs.end());
   esFEDs.erase(it, esFEDs.end());
 }
 

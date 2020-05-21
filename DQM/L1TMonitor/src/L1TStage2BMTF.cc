@@ -126,9 +126,7 @@ void L1TStage2BMTF::analyze(const edm::Event& eve, const edm::EventSetup& eveSet
   //  eve.getByToken(bmtfTokenTwinMux2, bmtfMuonTwinMux2);
 
   for (int itBX = bmtfMuon->getFirstBX(); itBX <= bmtfMuon->getLastBX(); ++itBX) {
-    for (l1t::RegionalMuonCandBxCollection::const_iterator itMuon = bmtfMuon->begin(itBX);
-         itMuon != bmtfMuon->end(itBX);
-         ++itMuon) {
+    for (auto itMuon = bmtfMuon->begin(itBX); itMuon != bmtfMuon->end(itBX); ++itMuon) {
       bmtf_hwEta->Fill(itMuon->hwEta());
       bmtf_hwLocalPhi->Fill(itMuon->hwPhi());
       bmtf_hwPt->Fill(itMuon->hwPt());

@@ -103,7 +103,7 @@ void ElectronPATIdMVAProducer::produce(edm::Event& iEvent, const edm::EventSetup
   std::vector<float> values;
   values.reserve(egCollection->size());
 
-  for (pat::ElectronCollection::const_iterator egIter = egCandidates.begin(); egIter != egCandidates.end(); ++egIter) {
+  for (auto egIter = egCandidates.begin(); egIter != egCandidates.end(); ++egIter) {
     double mvaVal = -999999;
 
     mvaVal = mvaID_->mvaValue(*egIter, _Rho, verbose_);

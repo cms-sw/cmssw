@@ -96,14 +96,14 @@ void LHE2HepMCConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   iEvent.getByLabel(_lheEventSrcTag, lheEventSrc);
 
   HepMC::GenEvent* evt = new HepMC::GenEvent();
-  HepMC::GenVertex* v = new HepMC::GenVertex();
+  auto* v = new HepMC::GenVertex();
   evt->add_vertex(v);
   if (_lheRunSrc) {
     HepMC::FourVector beam1(0, 0, _lheRunSrc->heprup().EBMUP.first, _lheRunSrc->heprup().EBMUP.first);
-    HepMC::GenParticle* gp1 = new HepMC::GenParticle(beam1, _lheRunSrc->heprup().IDBMUP.first, 4);
+    auto* gp1 = new HepMC::GenParticle(beam1, _lheRunSrc->heprup().IDBMUP.first, 4);
     v->add_particle_in(gp1);
     HepMC::FourVector beam2(0, 0, _lheRunSrc->heprup().EBMUP.second, _lheRunSrc->heprup().EBMUP.second);
-    HepMC::GenParticle* gp2 = new HepMC::GenParticle(beam2, _lheRunSrc->heprup().IDBMUP.second, 4);
+    auto* gp2 = new HepMC::GenParticle(beam2, _lheRunSrc->heprup().IDBMUP.second, 4);
     v->add_particle_in(gp2);
     evt->set_beam_particles(gp1, gp2);
   } else {
@@ -120,7 +120,7 @@ void LHE2HepMCConverter::produce(edm::Event& iEvent, const edm::EventSetup& iSet
                         lheEventSrc->hepeup().PUP[i][1],
                         lheEventSrc->hepeup().PUP[i][2],
                         lheEventSrc->hepeup().PUP[i][3]);
-    HepMC::GenParticle* gp = new HepMC::GenParticle(p, lheEventSrc->hepeup().IDUP[i], 1);
+    auto* gp = new HepMC::GenParticle(p, lheEventSrc->hepeup().IDUP[i], 1);
     gp->set_generated_mass(lheEventSrc->hepeup().PUP[i][4]);
     v->add_particle_out(gp);
   }

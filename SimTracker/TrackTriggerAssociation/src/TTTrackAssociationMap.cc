@@ -16,7 +16,7 @@ edm::Ptr<TrackingParticle> TTTrackAssociationMap<Ref_Phase2TrackerDigi_>::findTr
   }
 
   /// Default: return NULL
-  edm::Ptr<TrackingParticle>* temp = new edm::Ptr<TrackingParticle>();
+  auto* temp = new edm::Ptr<TrackingParticle>();
   return *temp;
 }
 

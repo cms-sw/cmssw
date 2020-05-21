@@ -63,7 +63,7 @@ void RctDigiToRctText::analyze(const edm::Event &iEvent, const edm::EventSetup &
   bool iso;
   int id;
 
-  for (L1CaloEmCollection::const_iterator iem = em->begin(); iem != em->end(); iem++) {
+  for (auto iem = em->begin(); iem != em->end(); iem++) {
     int crate = iem->rctCrate();
     iso = iem->isolated();
     unsigned data = iem->raw();
@@ -94,7 +94,7 @@ void RctDigiToRctText::analyze(const edm::Event &iEvent, const edm::EventSetup &
   unsigned short RCtau[18][7][2] = {{{0}}};
   unsigned short HF[18][4][2] = {{{0}}};
 
-  for (L1CaloRegionCollection::const_iterator irgn = rgn->begin(); irgn != rgn->end(); irgn++) {
+  for (auto irgn = rgn->begin(); irgn != rgn->end(); irgn++) {
     int crate = irgn->rctCrate();
     int card = irgn->rctCard();
     int rgnidx = irgn->rctRegionIndex();

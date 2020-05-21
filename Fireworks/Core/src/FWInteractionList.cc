@@ -40,7 +40,7 @@ FWInteractionList::FWInteractionList(const FWEventItem* item) : m_item(item) {}
 // }
 
 FWInteractionList::~FWInteractionList() {
-  for (std::vector<TEveCompound*>::iterator i = m_compounds.begin(); i != m_compounds.end(); ++i) {
+  for (auto i = m_compounds.begin(); i != m_compounds.end(); ++i) {
     // Interaction are created only in the standard use case, where user data is FWFromEveSelectorBase.
     // This is defined with return value of virtual function FWPRoxyBuilderBase::willHandleInteraction().
 
@@ -104,7 +104,7 @@ void FWInteractionList::added(TEveElement* el, unsigned int idx) {
 void FWInteractionList::modelChanges(const FWModelIds& iIds) {
   assert(m_compounds.size() >= m_item->size());
 
-  for (std::set<FWModelId>::const_iterator it = iIds.begin(); it != iIds.end(); ++it) {
+  for (auto it = iIds.begin(); it != iIds.end(); ++it) {
     const FWEventItem::ModelInfo& info = m_item->modelInfo(it->index());
     // std::cout <<" FWInteractionList::modelChanges  color "<< info.displayProperties().color()  << "(*it).index() " <<(*it).index() << "  " << m_item->name() <<std::endl;
     const FWDisplayProperties& p = info.displayProperties();

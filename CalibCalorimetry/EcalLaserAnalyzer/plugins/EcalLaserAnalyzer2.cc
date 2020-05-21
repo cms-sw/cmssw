@@ -342,8 +342,7 @@ void EcalLaserAnalyzer2::analyze(const edm::Event& e, const edm::EventSetup& c) 
   // Decode Basic DCCHeader Information
   // ====================================
 
-  for (EcalRawDataCollection::const_iterator headerItr = DCCHeader->begin(); headerItr != DCCHeader->end();
-       ++headerItr) {
+  for (auto headerItr = DCCHeader->begin(); headerItr != DCCHeader->end(); ++headerItr) {
     // Get run type and run number
 
     int fed = headerItr->fedId();
@@ -376,7 +375,7 @@ void EcalLaserAnalyzer2::analyze(const edm::Event& e, const edm::EventSetup& c) 
     if (color < 0)
       return;
 
-    vector<int>::iterator iter = find(colors.begin(), colors.end(), color);
+    auto iter = find(colors.begin(), colors.end(), color);
     if (iter == colors.end()) {
       colors.push_back(color);
       cout << " new color found " << color << " " << colors.size() << endl;
@@ -413,8 +412,8 @@ void EcalLaserAnalyzer2::analyze(const edm::Event& e, const edm::EventSetup& c) 
 
   // Loop on PNs digis
 
-  for (EcalPnDiodeDigiCollection::const_iterator pnItr = PNDigi->begin(); pnItr != PNDigi->end(); ++pnItr) {
-    EcalPnDiodeDetId pnDetId = EcalPnDiodeDetId((*pnItr).id());
+  for (auto pnItr = PNDigi->begin(); pnItr != PNDigi->end(); ++pnItr) {
+    auto pnDetId = EcalPnDiodeDetId((*pnItr).id());
 
     if (_debug == 1)
       cout << "-- debug test -- Inside PNDigi - pnID=" << pnDetId.iPnId() << ", dccID=" << pnDetId.iDCCId() << endl;
@@ -849,7 +848,7 @@ void EcalLaserAnalyzer2::endJob() {
   // Declare function for APD ampl fit
   //===================================
 
-  PulseFitWithShape* psfit = new PulseFitWithShape();
+  auto* psfit = new PulseFitWithShape();
 
   for (unsigned int iCry = 0; iCry < nCrys; iCry++) {
     for (unsigned int icol = 0; icol < nCol; icol++) {

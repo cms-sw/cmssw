@@ -315,7 +315,7 @@ void PFPhotonTranslator::produce(edm::Event &iEvent, const edm::EventSetup &iSet
     //std::cout << "PFPhoton cand " << iphot << std::endl;
 
     int iegphot = 0;
-    for (reco::PhotonCollection::const_iterator gamIter = egPhotons->begin(); gamIter != egPhotons->end(); ++gamIter) {
+    for (auto gamIter = egPhotons->begin(); gamIter != egPhotons->end(); ++gamIter) {
       if (cand.superClusterRef() == gamIter->superCluster()) {
         reco::PhotonRef PhotRef(reco::PhotonRef(egPhotons, iegphot));
         egPhotonRef_.push_back(PhotRef);
@@ -713,7 +713,7 @@ void PFPhotonTranslator::createSuperClusters(const reco::PFCandidateCollection &
       //	  std::cout <<"Adding Ref to SC " << basicClusterPtr_[iphot][ibc].index() << std::endl;
       const std::vector<std::pair<DetId, float> > &v1 = basicClusters_[iphot][ibc].hitsAndFractions();
       //	  std::cout << " Number of cells " << v1.size() << std::endl;
-      for (std::vector<std::pair<DetId, float> >::const_iterator diIt = v1.begin(); diIt != v1.end(); ++diIt) {
+      for (auto diIt = v1.begin(); diIt != v1.end(); ++diIt) {
         //	    std::cout << " Adding DetId " << (diIt->first).rawId() << " " << diIt->second << std::endl;
         mySuperCluster.addHitAndFraction(diIt->first, diIt->second);
       }  // loop over rechits
@@ -1076,7 +1076,7 @@ const reco::PFCandidate &PFPhotonTranslator::correspondingDaughterCandidate(cons
   reco::PFCandidate::const_iterator itend = cand.end();
 
   for (; myDaughterCandidate != itend; ++myDaughterCandidate) {
-    const reco::PFCandidate *myPFCandidate = (const reco::PFCandidate *)&*myDaughterCandidate;
+    const auto *myPFCandidate = (const reco::PFCandidate *)&*myDaughterCandidate;
     if (myPFCandidate->elementsInBlocks().size() != 1) {
       //	  std::cout << " Daughter with " << myPFCandidate.elementsInBlocks().size()<< " element in block " << std::endl;
       return cand;

@@ -81,7 +81,7 @@ inline CSCDBNoiseMatrix *CSCNoiseMatrixDBConditions::prefillDBNoiseMatrix() {
   std::vector<float> new_elem67;
   std::vector<float> new_elem77;
 
-  CSCDBNoiseMatrix *cndbmatrix = new CSCDBNoiseMatrix();
+  auto *cndbmatrix = new CSCDBNoiseMatrix();
 
   int counter;
   int db_nrlines = 0;

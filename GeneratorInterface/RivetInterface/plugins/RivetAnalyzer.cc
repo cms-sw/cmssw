@@ -84,8 +84,7 @@ void RivetAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup
     typedef std::vector<LHERunInfoProduct::Header>::const_iterator headers_const_iterator;
 
     std::regex reg("<weight.*> ?(.*?) ?<\\/weight>");
-    for (headers_const_iterator iter = lheRunInfoHandle->headers_begin(); iter != lheRunInfoHandle->headers_end();
-         iter++) {
+    for (auto iter = lheRunInfoHandle->headers_begin(); iter != lheRunInfoHandle->headers_end(); iter++) {
       std::vector<std::string> lines = iter->lines();
       for (unsigned int iLine = 0; iLine < lines.size(); iLine++) {
         std::smatch match;

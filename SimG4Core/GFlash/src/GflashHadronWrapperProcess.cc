@@ -161,7 +161,7 @@ G4VParticleChange *GflashHadronWrapperProcess::PostStepDoIt(const G4Track &track
   // this->PostStepDoIt in G4SteppingManager::InvokePSDIP
 
   // move the iterator to the (nSecondarySave+1)th element in the secondary list
-  G4TrackVector::iterator itv = fSecondary->begin();
+  auto itv = fSecondary->begin();
   itv += nSecondarySave;
 
   // delete next num2ndaries tracks from the secondary list

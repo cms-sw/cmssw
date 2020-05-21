@@ -35,7 +35,7 @@ namespace {
 
   GlobalPoint average(const std::vector<MyPair>& pairs, int nq) {
     GlobalPoint location(0, 0, 0);
-    for (std::vector<MyPair>::const_iterator i = pairs.begin(); i != (pairs.begin() + nq); ++i)
+    for (auto i = pairs.begin(); i != (pairs.begin() + nq); ++i)
       location += *(i->second);
     location /= nq;
     return location;
@@ -43,7 +43,7 @@ namespace {
 
   GlobalPoint average(const std::vector<MyPairWt>& pairs, int nq) {
     GlobalPoint location(0, 0, 0);
-    for (std::vector<MyPairWt>::const_iterator i = pairs.begin(); i != (pairs.begin() + nq); ++i)
+    for (auto i = pairs.begin(); i != (pairs.begin() + nq); ++i)
       location += (i->second)->first;
     location /= nq;
     return location;
@@ -66,10 +66,10 @@ GlobalPoint SMS::location(const std::vector<GlobalPoint>& data) const {
   // Compute distances
   std::vector<MyPair> pairs;
 
-  for (std::vector<GlobalPoint>::const_iterator i = data.begin(); i != data.end(); ++i) {
+  for (auto i = data.begin(); i != data.end(); ++i) {
     std::vector<float> D;
     // Compute squared distances to all points
-    for (std::vector<GlobalPoint>::const_iterator j = data.begin(); j != data.end(); ++j) {
+    for (auto j = data.begin(); j != data.end(); ++j) {
       D.push_back((*j - *i).mag2());
     }
     // Find q-quantile in each row of the distance matrix
@@ -107,7 +107,7 @@ GlobalPoint SMS::location(const std::vector<GlobalPoint>& data) const {
 GlobalPoint SMS::location(const std::vector<GlPtWt>& wdata) const {
   if (!(theType & Weighted)) {
     std::vector<GlobalPoint> points;
-    for (std::vector<GlPtWt>::const_iterator i = wdata.begin(); i != wdata.end(); ++i) {
+    for (auto i = wdata.begin(); i != wdata.end(); ++i) {
       points.push_back(i->first);
     };
     if (debug()) {

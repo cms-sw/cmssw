@@ -101,7 +101,7 @@ bool HLTJetCollectionsFilter<jetType>::hltFilter(edm::Event& iEvent,
   }
 
   // fill the filter object
-  for (typename std::set<JetRef>::const_iterator ref = goodJetRefs.begin(); ref != goodJetRefs.end(); ++ref) {
+  for (auto ref = goodJetRefs.begin(); ref != goodJetRefs.end(); ++ref) {
     filterproduct.addObject(triggerType_, *ref);
   }
 

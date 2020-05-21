@@ -114,7 +114,7 @@ bool ZGoldenFilter::operator()(const reco::Candidate& z) const {
     }
     if (!toc.empty()) {
       const trigger::Keys& k = handleTriggerEvent_->filterKeys(ia);
-      for (trigger::Keys::const_iterator ki = k.begin(); ki != k.end(); ++ki) {
+      for (auto ki = k.begin(); ki != k.end(); ++ki) {
         if (name == L3FilterName_) {
           HLTMuMatched.push_back(toc[*ki].particle());
           nMuHLT++;

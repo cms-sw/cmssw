@@ -11,7 +11,7 @@ int CSCTriggerMapping::chamber(int endcap, int station, int sector, int subsecto
   int cid = 0;
   int hid = hwId(endcap, station, sector, subsector, cscid);
   // Search for that hw id in mapping
-  std::map<int, int>::const_iterator it = hw2sw_.find(hid);
+  auto it = hw2sw_.find(hid);
   if (it != hw2sw_.end()) {
     cid = it->second;
     if (debugV())

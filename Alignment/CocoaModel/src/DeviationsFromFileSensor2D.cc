@@ -48,7 +48,7 @@ void DeviationsFromFileSensor2D::readFile(ALIFileIn& ifdevi) {
     if (ifdevi.eof())
       break;
 
-    DeviationSensor2D* dev = new DeviationSensor2D();
+    auto* dev = new DeviationSensor2D();
     dev->fillData(wl);
 
     if (verbose >= 5) {

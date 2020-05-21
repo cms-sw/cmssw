@@ -34,7 +34,7 @@ PixelForwardLayerPhase1::PixelForwardLayerPhase1(vector<const Phase1PixelBlade*>
   // or probably need to change the way this is done, e.g. a smarter binFinder
   float theRmin = (*(theComps.begin()))->surface().position().perp();
   float theRmax = theRmin;
-  for (vector<const GeometricSearchDet*>::const_iterator it = theComps.begin(); it != theComps.end(); it++) {
+  for (auto it = theComps.begin(); it != theComps.end(); it++) {
     theRmin = std::min(theRmin, (*it)->surface().position().perp());
     theRmax = std::max(theRmax, (*it)->surface().position().perp());
   }
@@ -42,7 +42,7 @@ PixelForwardLayerPhase1::PixelForwardLayerPhase1(vector<const Phase1PixelBlade*>
   // force the splitting rdius to be 10 cm to cope also with the FPIX disks with only the outer ring
   float split_inner_outer_radius = 10.;
   _num_innerpanels = 0;
-  for (vector<const GeometricSearchDet*>::const_iterator it = theComps.begin(); it != theComps.end(); it++) {
+  for (auto it = theComps.begin(); it != theComps.end(); it++) {
     if ((**it).surface().position().perp() <= split_inner_outer_radius)
       ++_num_innerpanels;
   }
@@ -52,7 +52,7 @@ PixelForwardLayerPhase1::PixelForwardLayerPhase1(vector<const Phase1PixelBlade*>
                               << " num inner, outer disks = " << _num_innerpanels << ", " << _num_outerpanels
                               << std::endl;
 
-  for (vector<const GeometricSearchDet*>::const_iterator it = theComps.begin(); it != theComps.end(); it++) {
+  for (auto it = theComps.begin(); it != theComps.end(); it++) {
     theBasicComps.insert(theBasicComps.end(), (**it).basicComponents().begin(), (**it).basicComponents().end());
   }
 
@@ -77,7 +77,7 @@ PixelForwardLayerPhase1::PixelForwardLayerPhase1(vector<const Phase1PixelBlade*>
                           << "\n"
                           << "PixelForwardLayerPhase1.surfcace.outerR(): " << this->specificSurface().outerRadius();
 
-  for (vector<const GeometricSearchDet*>::const_iterator it = theComps.begin(); it != theComps.end(); it++) {
+  for (auto it = theComps.begin(); it != theComps.end(); it++) {
     LogDebug("TkDetLayers") << "blades phi,z,r: " << (*it)->surface().position().phi() << " , "
                             << (*it)->surface().position().z() << " , " << (*it)->surface().position().perp();
     //for(vector<const GeomDet*>::const_iterator iu=(**it).basicComponents().begin();

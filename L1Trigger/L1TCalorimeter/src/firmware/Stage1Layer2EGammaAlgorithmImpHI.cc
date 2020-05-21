@@ -32,7 +32,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHI::processEvent(const std::vector<l1t::
   std::vector<l1t::EGamma> preSortEGammas;
   std::vector<l1t::EGamma> preGtEGammas;
 
-  for (CaloEmCandBxCollection::const_iterator egCand = EMCands.begin(); egCand != EMCands.end(); egCand++) {
+  for (auto egCand = EMCands.begin(); egCand != EMCands.end(); egCand++) {
     int eg_et = egCand->hwPt();
     int eg_eta = egCand->hwEta();
     int eg_phi = egCand->hwPhi();

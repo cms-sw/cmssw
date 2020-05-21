@@ -18,9 +18,9 @@ float FindPeakFastPV(const std::vector<float> &zProjections,
                      const float m_weightCut) {
   float centerWMax = oldVertex;
   if (m_zClusterWidth > 0 && m_zClusterSearchArea > 0) {
-    std::vector<float>::const_iterator itCenter = zProjections.begin();
-    std::vector<float>::const_iterator itLeftSide = zProjections.begin();
-    std::vector<float>::const_iterator itRightSide = zProjections.begin();
+    auto itCenter = zProjections.begin();
+    auto itLeftSide = zProjections.begin();
+    auto itRightSide = zProjections.begin();
     const float zClusterWidth = m_zClusterWidth * 0.5;  //take half zCluster width
     const float zLowerBound = oldVertex - zClusterWidth - m_zClusterSearchArea;
     const float zUpperBound = oldVertex + zClusterWidth + m_zClusterSearchArea;
@@ -37,7 +37,7 @@ float FindPeakFastPV(const std::vector<float> &zProjections,
       float nWeighted = 0;
       float centerW = 0;
 
-      for (std::vector<float>::const_iterator ii = itLeftSide; ii != itRightSide; ii++) {
+      for (auto ii = itLeftSide; ii != itRightSide; ii++) {
         //loop inside the peak and calculate its weight
         if (zWeights[ii - zProjections.begin()] < m_weightCut)
           continue;

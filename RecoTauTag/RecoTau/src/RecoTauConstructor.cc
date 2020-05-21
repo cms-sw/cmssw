@@ -87,7 +87,7 @@ namespace reco::tau {
   namespace {
     void checkOverlap(const CandidatePtr& neutral, const std::vector<CandidatePtr>& pfGammas, bool& isUnique) {
       LogDebug("TauConstructorCheckOverlap") << " pfGammas: #entries = " << pfGammas.size();
-      for (std::vector<CandidatePtr>::const_iterator pfGamma = pfGammas.begin(); pfGamma != pfGammas.end(); ++pfGamma) {
+      for (auto pfGamma = pfGammas.begin(); pfGamma != pfGammas.end(); ++pfGamma) {
         LogDebug("TauConstructorCheckOverlap") << "pfGamma = " << pfGamma->id() << ":" << pfGamma->key();
         if ((*pfGamma).refCore() == neutral.refCore() && (*pfGamma).key() == neutral.key())
           isUnique = false;
@@ -96,8 +96,7 @@ namespace reco::tau {
 
     void checkOverlap(const CandidatePtr& neutral, const std::vector<reco::RecoTauPiZero>& piZeros, bool& isUnique) {
       LogDebug("TauConstructorCheckOverlap") << " piZeros: #entries = " << piZeros.size();
-      for (std::vector<reco::RecoTauPiZero>::const_iterator piZero = piZeros.begin(); piZero != piZeros.end();
-           ++piZero) {
+      for (auto piZero = piZeros.begin(); piZero != piZeros.end(); ++piZero) {
         size_t numPFGammas = piZero->numberOfDaughters();
         for (size_t iPFGamma = 0; iPFGamma < numPFGammas; ++iPFGamma) {
           reco::CandidatePtr pfGamma = piZero->daughterPtr(iPFGamma);
@@ -115,7 +114,7 @@ namespace reco::tau {
     // CV: need to make sure that PFGammas merged with ChargedHadrons are not part of PiZeros
     const std::vector<CandidatePtr>& neutrals = chargedHadron.getNeutralPFCandidates();
     std::vector<CandidatePtr> neutrals_cleaned;
-    for (std::vector<CandidatePtr>::const_iterator neutral = neutrals.begin(); neutral != neutrals.end(); ++neutral) {
+    for (auto neutral = neutrals.begin(); neutral != neutrals.end(); ++neutral) {
       LogDebug("TauConstructorAddChH") << "neutral = " << neutral->id() << ":" << neutral->key();
       bool isUnique = true;
       if (copyGammas_)
@@ -144,7 +143,7 @@ namespace reco::tau {
         addPFCand(kSignal, kChargedHadron, convertToPtr(chargedHadron_cleaned.getChargedPFCandidate()), true);
       }
       const std::vector<CandidatePtr>& neutrals = chargedHadron_cleaned.getNeutralPFCandidates();
-      for (std::vector<CandidatePtr>::const_iterator neutral = neutrals.begin(); neutral != neutrals.end(); ++neutral) {
+      for (auto neutral = neutrals.begin(); neutral != neutrals.end(); ++neutral) {
         if (std::abs((*neutral)->pdgId()) == 22)
           addPFCand(kSignal, kGamma, convertToPtr(*neutral), true);
         else if (std::abs((*neutral)->pdgId()) == 130)
@@ -159,7 +158,7 @@ namespace reco::tau {
           addPFCand(kIsolation, kNeutralHadron, convertToPtr(chargedHadron_cleaned.getChargedPFCandidate()));
       }
       const std::vector<CandidatePtr>& neutrals = chargedHadron_cleaned.getNeutralPFCandidates();
-      for (std::vector<CandidatePtr>::const_iterator neutral = neutrals.begin(); neutral != neutrals.end(); ++neutral) {
+      for (auto neutral = neutrals.begin(); neutral != neutrals.end(); ++neutral) {
         if (std::abs((*neutral)->pdgId()) == 22)
           addPFCand(kIsolation, kGamma, convertToPtr(*neutral));
         else if (std::abs((*neutral)->pdgId()) == 130)
@@ -268,9 +267,7 @@ namespace reco::tau {
       SortedListPtr sortedCollection = sortedCollections_[colkey.first];
       std::sort(sortedCollection->begin(), sortedCollection->end(), ptDescendingPtr<CandidatePtr>);
       // Copy into the real tau collection
-      for (std::vector<CandidatePtr>::const_iterator particle = sortedCollection->begin();
-           particle != sortedCollection->end();
-           ++particle) {
+      for (auto particle = sortedCollection->begin(); particle != sortedCollection->end(); ++particle) {
         colkey.second->push_back(*particle);
       }
     }
@@ -290,7 +287,7 @@ namespace reco::tau {
 
       unsigned int nPiZeros = 0;
       const std::vector<RecoTauPiZero>& piZeros = tau.signalPiZeroCandidates();
-      for (std::vector<RecoTauPiZero>::const_iterator piZero = piZeros.begin(); piZero != piZeros.end(); ++piZero) {
+      for (auto piZero = piZeros.begin(); piZero != piZeros.end(); ++piZero) {
         double photonSumPt_insideSignalCone = 0.;
         double photonSumPt_outsideSignalCone = 0.;
         int numPhotons = piZero->numberOfDaughters();
@@ -344,8 +341,7 @@ namespace reco::tau {
     int charge = 0;
     double leadChargedHadronPt = 0.;
     int leadChargedHadronCharge = 0;
-    for (std::vector<PFRecoTauChargedHadron>::const_iterator chargedHadron =
-             tau_->signalTauChargedHadronCandidatesRestricted().begin();
+    for (auto chargedHadron = tau_->signalTauChargedHadronCandidatesRestricted().begin();
          chargedHadron != tau_->signalTauChargedHadronCandidatesRestricted().end();
          ++chargedHadron) {
       if (chargedHadron->algoIs(PFRecoTauChargedHadron::kChargedPFCandidate) ||
@@ -398,20 +394,20 @@ namespace reco::tau {
     if (setupLeadingObjects) {
       typedef std::vector<CandidatePtr>::const_iterator Iter;
       // Find the highest PT object in the signal cone
-      Iter leadingCand = leadCand(getCollection(kSignal, kAll)->begin(), getCollection(kSignal, kAll)->end());
+      auto leadingCand = leadCand(getCollection(kSignal, kAll)->begin(), getCollection(kSignal, kAll)->end());
 
       if (leadingCand != getCollection(kSignal, kAll)->end())
         tau_->setleadCand(*leadingCand);
 
       // Hardest charged object in signal cone
-      Iter leadingChargedCand =
+      auto leadingChargedCand =
           leadCand(getCollection(kSignal, kChargedHadron)->begin(), getCollection(kSignal, kChargedHadron)->end());
 
       if (leadingChargedCand != getCollection(kSignal, kChargedHadron)->end())
         tau_->setleadChargedHadrCand(*leadingChargedCand);
 
       // Hardest gamma object in signal cone
-      Iter leadingGammaCand = leadCand(getCollection(kSignal, kGamma)->begin(), getCollection(kSignal, kGamma)->end());
+      auto leadingGammaCand = leadCand(getCollection(kSignal, kGamma)->begin(), getCollection(kSignal, kGamma)->end());
 
       if (leadingGammaCand != getCollection(kSignal, kGamma)->end())
         tau_->setleadNeutralCand(*leadingGammaCand);

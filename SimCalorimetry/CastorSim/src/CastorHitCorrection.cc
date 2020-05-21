@@ -23,7 +23,7 @@ void CastorHitCorrection::fillChargeSums(MixCollection<PCaloHit> &hits) {
 
 void CastorHitCorrection::fillChargeSums(const std::vector<PCaloHit> &hits) {
   //  clear();
-  for (std::vector<PCaloHit>::const_iterator hitItr = hits.begin(); hitItr != hits.end(); ++hitItr) {
+  for (auto hitItr = hits.begin(); hitItr != hits.end(); ++hitItr) {
     LogDebug("CastorHitCorrection") << "CastorHitCorrection::Hit 0x" << std::hex << hitItr->id() << std::dec;
     int tbin = timeBin(*hitItr);
     LogDebug("CastorHitCorrection") << "CastorHitCorrection::Hit tbin" << tbin;
@@ -62,7 +62,7 @@ double CastorHitCorrection::delay(const PCaloHit &hit, CLHEP::HepRandomEngine *)
   double delay = 0.;
   int tbin = timeBin(hit);
   if (tbin >= 0 && tbin < 10) {
-    ChargeSumsByChannel::const_iterator totalChargeItr = theChargeSumsForTimeBin[tbin].find(detId);
+    auto totalChargeItr = theChargeSumsForTimeBin[tbin].find(detId);
     if (totalChargeItr == theChargeSumsForTimeBin[tbin].end()) {
       throw cms::Exception("CastorHitCorrection") << "Cannot find HCAL/CASTOR charge sum for hit " << hit;
     }

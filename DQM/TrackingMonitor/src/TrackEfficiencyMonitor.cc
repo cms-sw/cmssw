@@ -424,9 +424,9 @@ void TrackEfficiencyMonitor::testTrackerTracks(edm::Handle<reco::TrackCollection
         //look for associated tracks
         //---------------------------------------------------
         float DR2min = 1000;
-        reco::TrackCollection::const_iterator closestTrk = tkTracks->end();
+        auto closestTrk = tkTracks->end();
 
-        for (reco::TrackCollection::const_iterator tkTrack = tkTracks->begin(); tkTrack != tkTracks->end(); ++tkTrack) {
+        for (auto tkTrack = tkTracks->begin(); tkTrack != tkTracks->end(); ++tkTrack) {
           reco::TransientTrack tkTT = theTTrackBuilder->build(*tkTrack);
           TrajectoryStateOnSurface tkInner = tkTT.innermostMeasurementState();
           staState = thePropagator->propagate(staTT.outermostMeasurementState(), tkInner.surface());
@@ -505,10 +505,9 @@ void TrackEfficiencyMonitor::testSTATracks(edm::Handle<reco::TrackCollection> tk
     //---------------------------------------------------
 
     float DR2min = 1000;
-    reco::TrackCollection::const_iterator closestTrk = staTracks->end();
+    auto closestTrk = staTracks->end();
     //----------------------loop on tracker tracks:
-    for (reco::TrackCollection::const_iterator staTrack = staTracks->begin(); staTrack != staTracks->end();
-         ++staTrack) {
+    for (auto staTrack = staTracks->begin(); staTrack != staTracks->end(); ++staTrack) {
       if (checkSemiCylinder(*staTrack) == TrackEfficiencyMonitor::Up) {
         reco::TransientTrack staTT = theTTrackBuilder->build(*staTrack);
         failedToPropagate = 1;

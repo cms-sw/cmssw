@@ -1020,9 +1020,7 @@ void ApeEstimatorSummary::analyze(const edm::Event& iEvent, const edm::EventSetu
       unsigned int nModules(0);
       for (auto const& i_rawId : i_sector.second.v_rawId) {
         std::vector<AlignTransformErrorExtended> alignErrors = alignmentErrors->m_alignError;
-        for (std::vector<AlignTransformErrorExtended>::const_iterator i_alignError = alignErrors.begin();
-             i_alignError != alignErrors.end();
-             ++i_alignError) {
+        for (auto i_alignError = alignErrors.begin(); i_alignError != alignErrors.end(); ++i_alignError) {
           if (i_rawId == i_alignError->rawId()) {
             CLHEP::HepSymMatrix errMatrix = i_alignError->matrix();
             defaultApeX += errMatrix[0][0];

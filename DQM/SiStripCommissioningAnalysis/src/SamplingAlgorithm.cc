@@ -61,7 +61,7 @@ void SamplingAlgorithm::extract(const std::vector<TH1*>& histos) {
     return;
   }
 
-  CommissioningAnalysis* tmp = const_cast<CommissioningAnalysis*>(anal());
+  auto* tmp = const_cast<CommissioningAnalysis*>(anal());
   samp_ = dynamic_cast<SamplingAnalysis*>(tmp);
   if (!samp_) {
     edm::LogWarning(mlCommissioning_) << "[SamplingAlgorithm::" << __func__ << "]"
@@ -80,7 +80,7 @@ void SamplingAlgorithm::extract(const std::vector<TH1*>& histos) {
   }
 
   // Extract
-  std::vector<TH1*>::const_iterator ihis = histos.begin();
+  auto ihis = histos.begin();
   for (; ihis != histos.end(); ihis++) {
     // Check pointer
     if (!(*ihis)) {

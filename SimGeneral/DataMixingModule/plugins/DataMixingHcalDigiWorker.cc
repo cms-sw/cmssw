@@ -321,7 +321,7 @@ namespace edm {
 
       if (ZDCDigis) {
         // loop over digis, storing them in a map so we can add pileup later
-        for (ZDCDigiCollection::const_iterator it = ZDCDigis->begin(); it != ZDCDigis->end(); ++it) {
+        for (auto it = ZDCDigis->begin(); it != ZDCDigis->end(); ++it) {
           // calibration, for future reference:  (same block for all Hcal types)
           // ZDC is different
           HcalZDCDetId cell = it->id();
@@ -380,7 +380,7 @@ namespace edm {
         LogDebug("DataMixingHcalDigiWorker") << "total # ZDC digis: " << ZDCDigis->size();
 
         // loop over digis, adding these to the existing maps
-        for (ZDCDigiCollection::const_iterator it = ZDCDigis->begin(); it != ZDCDigis->end(); ++it) {
+        for (auto it = ZDCDigis->begin(); it != ZDCDigis->end(); ++it) {
           // calibration, for future reference:  (same block for all Hcal types)
           // ZDC is different
           HcalZDCDetId cell = it->id();
@@ -438,7 +438,7 @@ namespace edm {
 
     ZDCDigiMap::const_iterator iZDCchk;
 
-    for (ZDCDigiMap::const_iterator iZDC = ZDCDigiStorage_.begin(); iZDC != ZDCDigiStorage_.end(); ++iZDC) {
+    for (auto iZDC = ZDCDigiStorage_.begin(); iZDC != ZDCDigiStorage_.end(); ++iZDC) {
       currentID = iZDC->first;
 
       if (currentID == formerID) {  // we have to add these digis together

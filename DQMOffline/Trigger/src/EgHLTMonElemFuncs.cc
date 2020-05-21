@@ -913,7 +913,7 @@ void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffEle>*>&
     //  float etCutValue = trigTools::getSecondEtThresFromName(trigName);
     float etCutValue = 0.;
     //std::cout<<"TrigName= "<<trigName<<"   etCutValue= "<<etCutValue<<std::endl;
-    MonElemContainer<OffEle>* monElemCont = new MonElemContainer<OffEle>(
+    auto* monElemCont = new MonElemContainer<OffEle>(
         "trigTagProbe",
         "Trigger Tag and Probe",
         new EgTrigTagProbeCut_New(trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),
@@ -988,7 +988,7 @@ void MonElemFuncs::initTrigTagProbeHist(std::vector<MonElemContainer<OffEle>*>& 
   //float etCutValue = 1.1*trigTools::getSecondEtThresFromName(filterName);
   float etCutValue = 0.;
   //std::cout<<"TrigName= "<<trigName<<"   etCutValue= "<<etCutValue<<std::endl;
-  MonElemContainer<OffEle>* monElemCont = new MonElemContainer<OffEle>(
+  auto* monElemCont = new MonElemContainer<OffEle>(
       "trigTagProbe",
       "Trigger Tag and Probe",
       new EgTrigTagProbeCut_New(trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),
@@ -1060,7 +1060,7 @@ void MonElemFuncs::initTrigTagProbeHist_2Leg(std::vector<MonElemContainer<OffEle
   std::string trigNameLeg2 = filterName.substr(filterName.find("::") + 2);
 
   float etCutValue = 0.;
-  MonElemContainer<OffEle>* monElemCont = new MonElemContainer<OffEle>(
+  auto* monElemCont = new MonElemContainer<OffEle>(
       "trigTagProbe",
       "Trigger Tag and Probe",
       new EgTrigTagProbeCut_New(trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),
@@ -1093,7 +1093,7 @@ void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffPho>*>&
     //float etCutValue = trigTools::getSecondEtThresFromName(trigName);
     float etCutValue = 0.;
     //std::cout<<"TrigName= "<<trigName<<"   etCutValue= "<<etCutValue<<std::endl;
-    MonElemContainer<OffPho>* monElemCont = new MonElemContainer<OffPho>(
+    auto* monElemCont = new MonElemContainer<OffPho>(
         "trigTagProbe",
         "Trigger Tag and Probe",
         new EgTrigTagProbeCut_NewPho(trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),
@@ -1167,7 +1167,7 @@ void MonElemFuncs::initTrigTagProbeHist(std::vector<MonElemContainer<OffPho>*>& 
   //float etCutValue = 1.1*trigTools::getSecondEtThresFromName(trigName);
   float etCutValue = 0.;
   //std::cout<<"TrigName= "<<trigName<<"   etCutValue= "<<etCutValue<<std::endl;
-  MonElemContainer<OffPho>* monElemCont = new MonElemContainer<OffPho>(
+  auto* monElemCont = new MonElemContainer<OffPho>(
       "trigTagProbe",
       "Trigger Tag and Probe",
       new EgTrigTagProbeCut_NewPho(trigCodes.getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),

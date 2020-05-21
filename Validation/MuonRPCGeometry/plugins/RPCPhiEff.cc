@@ -97,12 +97,12 @@ void RPCPhiEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // ask MC muons to be separated
   double deltarMin = -1;
-  edm::SimTrackContainer::const_iterator simTrk = simTracks->begin();
+  auto simTrk = simTracks->begin();
   for (; simTrk != simTracks->end(); ++simTrk) {
     if (simTrk->type() != -13 && simTrk->type() != 13)
       continue;
 
-    edm::SimTrackContainer::const_iterator simTrk2 = simTrk;
+    auto simTrk2 = simTrk;
     ++simTrk2;
     for (; simTrk2 != simTracks->end(); ++simTrk2) {
       if (simTrk2->type() != -13 && simTrk2->type() != 13)
@@ -138,9 +138,7 @@ void RPCPhiEff::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       // Iter rpc muon cands, perform delta R matching
       // todo perform matching also using eta...
-      for (std::vector<edm::Handle<std::vector<L1MuRegionalCand> > >::iterator it = handleVec.begin();
-           it != handleVec.end();
-           ++it) {
+      for (auto it = handleVec.begin(); it != handleVec.end(); ++it) {
         std::vector<L1MuRegionalCand>::const_iterator itRPC;
         for (itRPC = (*it)->begin(); itRPC != (*it)->end(); itRPC++) {
           int ptCode = itRPC->pt_packed();
@@ -262,7 +260,7 @@ std::string RPCPhiEff::fromRaw(const edm::Event& iEvent) {
       std::cout << "??????????????" << std::endl;
   }
 
-  for (std::set<int>::iterator it = hwPlanes.begin(); it != hwPlanes.end(); ++it) {
+  for (auto it = hwPlanes.begin(); it != hwPlanes.end(); ++it) {
     ss << " " << *it;
   }
 

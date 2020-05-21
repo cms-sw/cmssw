@@ -150,7 +150,7 @@ private:
   private:
     bool isFirst(const HepMC::GenParticle *p) {
       if (p->production_vertex()) {
-        for (HepMC::GenVertex::particles_in_const_iterator m = p->production_vertex()->particles_in_const_begin();
+        for (auto m = p->production_vertex()->particles_in_const_begin();
              m != p->production_vertex()->particles_in_const_end();
              m++) {
           if (abs((*m)->pdg_id()) == abs(p->pdg_id()))
@@ -167,7 +167,7 @@ private:
         bool foundSimilar = false;
         if (aPart->end_vertex()) {
           if (aPart->end_vertex()->particles_out_size() != 0) {
-            for (HepMC::GenVertex::particles_out_const_iterator d = aPart->end_vertex()->particles_out_const_begin();
+            for (auto d = aPart->end_vertex()->particles_out_const_begin();
                  d != aPart->end_vertex()->particles_out_const_end();
                  d++) {
               if (abs((*d)->pdg_id()) == abs(aPart->pdg_id())) {

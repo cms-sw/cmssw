@@ -4,7 +4,7 @@ bool mySiStripNoises::put(const uint32_t DetId, InputVector& input) {
   // put in SiStripNoises of DetId
   std::vector<unsigned char> Vo_CHAR;
   encode(input, Vo_CHAR);
-  Registry::iterator p = std::lower_bound(indexes.begin(), indexes.end(), DetId, mySiStripNoises::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes.begin(), indexes.end(), DetId, mySiStripNoises::StrictWeakOrdering());
   if (p != indexes.end() && p->detid == DetId)
     return false;
   size_t sd = Vo_CHAR.end() - Vo_CHAR.begin();
@@ -19,7 +19,7 @@ bool mySiStripNoises::put(const uint32_t DetId, InputVector& input) {
 
 const mySiStripNoises::Range mySiStripNoises::getRange(const uint32_t& DetId) const {
   // get SiStripNoises Range of DetId
-  RegistryIterator p = std::lower_bound(indexes.begin(), indexes.end(), DetId, StrictWeakOrdering());
+  auto p = std::lower_bound(indexes.begin(), indexes.end(), DetId, StrictWeakOrdering());
   if (p == indexes.end() || p->detid != DetId)
     return mySiStripNoises::Range(v_noises.end(), v_noises.end());
   else
@@ -28,9 +28,9 @@ const mySiStripNoises::Range mySiStripNoises::getRange(const uint32_t& DetId) co
 
 void mySiStripNoises::getDetIds(std::vector<uint32_t>& DetIds) const {
   // returns vector of DetIds in map
-  mySiStripNoises::RegistryIterator begin = indexes.begin();
-  mySiStripNoises::RegistryIterator end = indexes.end();
-  for (mySiStripNoises::RegistryIterator p = begin; p != end; ++p) {
+  auto begin = indexes.begin();
+  auto end = indexes.end();
+  for (auto p = begin; p != end; ++p) {
     DetIds.push_back(p->detid);
   }
 }

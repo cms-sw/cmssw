@@ -260,7 +260,7 @@ void SiStripBadAPVAlgorithmFromClusterOccupancy::extractBadAPVs(SiStripQuality* 
         std::cout << "### DetRawId: " << detrawid << " ###" << std::endl;
     }
 
-    const StripGeomDetUnit* theStripDet = dynamic_cast<const StripGeomDetUnit*>((TkGeom->idToDet(detectorId)));
+    const auto* theStripDet = dynamic_cast<const StripGeomDetUnit*>((TkGeom->idToDet(detectorId)));
     const StripTopology* theStripTopol = dynamic_cast<const StripTopology*>(&(theStripDet->specificTopology()));
 
     for (int apv = 0; apv < number_apvs; apv++) {

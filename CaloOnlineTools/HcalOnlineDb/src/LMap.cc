@@ -188,7 +188,7 @@ EMap::EMap(const HcalElectronicsMap* emap) {
     //_____ precision channels __________________________________________
     //
     std::vector<HcalElectronicsId> v_eId = emap->allElectronicsIdPrecision();
-    for (std::vector<HcalElectronicsId>::const_iterator eId = v_eId.begin(); eId != v_eId.end(); eId++) {
+    for (auto eId = v_eId.begin(); eId != v_eId.end(); eId++) {
       EMapRow row;
       //row.rawId     = eId->rawId();
       row.crate = eId->readoutVMECrateId();
@@ -233,7 +233,7 @@ EMap::EMap(const HcalElectronicsMap* emap) {
     //_____ trigger channels __________________________________________
     //
     v_eId = emap->allElectronicsIdTrigger();
-    for (std::vector<HcalElectronicsId>::const_iterator eId = v_eId.begin(); eId != v_eId.end(); eId++) {
+    for (auto eId = v_eId.begin(); eId != v_eId.end(); eId++) {
       EMapRow row;
       //row.rawId     = eId->rawId();
       row.crate = eId->readoutVMECrateId();

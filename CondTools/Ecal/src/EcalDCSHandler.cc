@@ -30,7 +30,7 @@ void popcon::EcalDCSHandler::printHVDataSet(const std::map<EcalLogicID, RunDCSHV
 
   int count = 0;
   typedef std::map<EcalLogicID, RunDCSHVDat>::const_iterator CI;
-  for (CI p = dataset->begin(); p != dataset->end(); ++p) {
+  for (auto p = dataset->begin(); p != dataset->end(); ++p) {
     count++;
     if (limit && count > limit) {
       return;
@@ -58,7 +58,7 @@ void popcon::EcalDCSHandler::printLVDataSet(const std::map<EcalLogicID, RunDCSLV
 
   int count = 0;
   typedef std::map<EcalLogicID, RunDCSLVDat>::const_iterator CI;
-  for (CI p = dataset->begin(); p != dataset->end(); ++p) {
+  for (auto p = dataset->begin(); p != dataset->end(); ++p) {
     count++;
     if (limit && count > limit) {
       return;
@@ -167,7 +167,7 @@ bool popcon::EcalDCSHandler::insertHVDataSetToOffline(const std::map<EcalLogicID
 
   typedef std::map<EcalLogicID, RunDCSHVDat>::const_iterator CI;
 
-  for (CI p = dataset->begin(); p != dataset->end(); ++p) {
+  for (auto p = dataset->begin(); p != dataset->end(); ++p) {
     ecid = p->first;
     hv = p->second;
 
@@ -185,7 +185,7 @@ bool popcon::EcalDCSHandler::insertHVDataSetToOffline(const std::map<EcalLogicID
       for (int ik = i1; ik <= i2; ik++) {
         if (EcalTrigTowerDetId::validDetId(iz, EcalBarrel, j, ik)) {
           EcalTrigTowerDetId ebid(iz, EcalBarrel, j, ik);
-          EcalDCSTowerStatus::const_iterator it = dcs_temp->find(ebid.rawId());
+          auto it = dcs_temp->find(ebid.rawId());
 
           uint16_t dbStatus = 0;
           if (it != dcs_temp->end()) {
@@ -290,7 +290,7 @@ bool popcon::EcalDCSHandler::insertHVDataSetToOffline(const std::map<EcalLogicID
           if (not_excluded) {
             if (EcalScDetId::validDetId(ik, ip, iz)) {
               EcalScDetId eeid(ik, ip, iz);
-              EcalDCSTowerStatus::const_iterator it = dcs_temp->find(eeid.rawId());
+              auto it = dcs_temp->find(eeid.rawId());
 
               uint16_t dbStatus = 0;
               if (it != dcs_temp->end()) {
@@ -317,7 +317,7 @@ bool popcon::EcalDCSHandler::insertHVDataSetToOffline(const std::map<EcalLogicID
           int ip = ex_y[l];
           if (EcalScDetId::validDetId(ik, ip, iz)) {
             EcalScDetId eeid(ik, ip, iz);
-            EcalDCSTowerStatus::const_iterator it = dcs_temp->find(eeid.rawId());
+            auto it = dcs_temp->find(eeid.rawId());
 
             uint16_t dbStatus = 0;
             if (it != dcs_temp->end()) {
@@ -554,7 +554,7 @@ bool popcon::EcalDCSHandler::insertLVDataSetToOffline(const std::map<EcalLogicID
   RunDCSLVDat lv;
 
   typedef std::map<EcalLogicID, RunDCSLVDat>::const_iterator CI;
-  for (CI p = dataset->begin(); p != dataset->end(); ++p) {
+  for (auto p = dataset->begin(); p != dataset->end(); ++p) {
     ecid = p->first;
     lv = p->second;
 
@@ -574,7 +574,7 @@ bool popcon::EcalDCSHandler::insertLVDataSetToOffline(const std::map<EcalLogicID
         for (int j = j1; j <= j2; j++) {
           if (EcalTrigTowerDetId::validDetId(iz, EcalBarrel, j, ik)) {
             EcalTrigTowerDetId ebid(iz, EcalBarrel, j, ik);
-            EcalDCSTowerStatus::const_iterator it = dcs_temp->find(ebid.rawId());
+            auto it = dcs_temp->find(ebid.rawId());
             uint16_t dbStatus = 0;
             if (it != dcs_temp->end()) {
               dbStatus = it->getStatusCode();
@@ -626,7 +626,7 @@ bool popcon::EcalDCSHandler::insertLVDataSetToOffline(const std::map<EcalLogicID
 
             if (EcalScDetId::validDetId(ixtower, iytower, iz)) {
               EcalScDetId eeid(ixtower, iytower, iz);
-              EcalDCSTowerStatus::const_iterator it = dcs_temp->find(eeid.rawId());
+              auto it = dcs_temp->find(eeid.rawId());
               uint16_t dbStatus = 0;
               if (it != dcs_temp->end()) {
                 dbStatus = it->getStatusCode();
@@ -663,7 +663,7 @@ void popcon::EcalDCSHandler::getNewObjects() {
   unsigned long long max_since = 1;
 
   // we copy the last valid record to a temporary object
-  EcalDCSTowerStatus* dcs_temp = new EcalDCSTowerStatus();
+  auto* dcs_temp = new EcalDCSTowerStatus();
   if (tagInfo().size) {
     max_since = tagInfo().lastInterval.since;
     Ref dcs_db = lastPayload();
@@ -684,7 +684,7 @@ void popcon::EcalDCSHandler::getNewObjects() {
             uint16_t dbStatus = 0;
             dbStatus = (dcs_db->barrel(ebid.hashedIndex())).getStatusCode();
 
-            EcalDCSTowerStatus::const_iterator it = dcs_db->find(ebid.rawId());
+            auto it = dcs_db->find(ebid.rawId());
             if (it != dcs_db->end()) {
             } else {
               std::cout << "*** error channel not found: j/i=" << j << "/" << i << std::endl;
@@ -706,7 +706,7 @@ void popcon::EcalDCSHandler::getNewObjects() {
           if (EcalScDetId::validDetId(i, j, iz)) {
             EcalScDetId eeid(i, j, iz);
 
-            EcalDCSTowerStatus::const_iterator it = dcs_db->find(eeid.rawId());
+            auto it = dcs_db->find(eeid.rawId());
 
             uint16_t dbStatus = 0;
             if (it != dcs_db->end()) {
@@ -761,7 +761,7 @@ void popcon::EcalDCSHandler::getNewObjects() {
   std::string location_p5 = "P5_Co";
   econn->fetchValidDataSet(&rundat, &rp, location_p5, runmax);
 
-  unsigned long long irun = (unsigned long long)rp.getRunNumber();
+  auto irun = (unsigned long long)rp.getRunNumber();
 
   // just for testing purposes
   //	irun= max_since+1;

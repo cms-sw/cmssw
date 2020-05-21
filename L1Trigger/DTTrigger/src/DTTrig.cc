@@ -71,7 +71,7 @@ void DTTrig::createTUs(const edm::EventSetup& iSetup) {
       }
       DTSectCollId scid(iwh, ise);
       {
-        SC_iterator it = _cache1.find(scid);
+        auto it = _cache1.find(scid);
         if (it != _cache1.end()) {
           if (_debug) {
             std::cout << "DTTrig::createTUs: Sector Collector unit already exists" << std::endl;
@@ -91,11 +91,10 @@ void DTTrig::createTUs(const edm::EventSetup& iSetup) {
 
   edm::ESHandle<DTGeometry> dtGeom;
   iSetup.get<MuonGeometryRecord>().get(dtGeom);
-  for (std::vector<const DTChamber*>::const_iterator ich = dtGeom->chambers().begin(); ich != dtGeom->chambers().end();
-       ich++) {
+  for (auto ich = dtGeom->chambers().begin(); ich != dtGeom->chambers().end(); ich++) {
     const DTChamber* chamb = (*ich);
     DTChamberId chid = chamb->id();
-    TU_iterator it = _cache.find(chid);
+    auto it = _cache.find(chid);
     if (it != _cache.end()) {
       if (_debug)
         std::cout << "DTTrig::init: Trigger unit already exists" << std::endl;
@@ -116,7 +115,7 @@ void DTTrig::createTUs(const edm::EventSetup& iSetup) {
       scid = DTSectCollId(chid.wheel(), chid.sector());
     }
 
-    SC_iterator it1 = _cache1.find(scid);
+    auto it1 = _cache1.find(scid);
 
     if (it1 != _cache1.end()) {
       auto& sc = (*it1).second;
@@ -158,7 +157,7 @@ void DTTrig::triggerReco(const edm::Event& iEvent, const edm::EventSetup& iSetup
   }
 
   //Run reconstruct for single trigger subsystem (Bti, Traco TS)
-  for (TU_iterator it = _cache.begin(); it != _cache.end(); it++) {
+  for (auto it = _cache.begin(); it != _cache.end(); it++) {
     DTSCTrigUnit& thisTU = (*it).second;
     if (thisTU.BtiTrigs()->size() > 0) {
       thisTU.BtiTrigs()->clearCache();
@@ -167,7 +166,7 @@ void DTTrig::triggerReco(const edm::Event& iEvent, const edm::EventSetup& iSetup
       thisTU.TSPhTrigs()->clearCache();
     }
     DTChamberId chid = thisTU.statId();
-    DTDigiMap_iterator dmit = digiMap.find(chid);
+    auto dmit = digiMap.find(chid);
     if (dmit != digiMap.end()) {
       thisTU.BtiTrigs()->reconstruct((*dmit).second);
       if (thisTU.BtiTrigs()->size() > 0) {
@@ -179,7 +178,7 @@ void DTTrig::triggerReco(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   }
   //Run reconstruct for Sector Collector
-  for (SC_iterator it = _cache1.begin(); it != _cache1.end(); it++) {
+  for (auto it = _cache1.begin(); it != _cache1.end(); it++) {
     DTSectColl& sectcoll = (*it).second;
     DTSectCollId scid = (*it).first;
     if (sectcoll.sizePh() > 0 || sectcoll.sizeTh() > 0)
@@ -218,10 +217,10 @@ void DTTrig::updateES(const edm::EventSetup& iSetup) {
     _configid = iSetup.get<DTConfigManagerRcd>().cacheIdentifier();
     iSetup.get<DTConfigManagerRcd>().get(confHandle);
     _conf_manager = confHandle.product();
-    for (TU_iterator it = _cache.begin(); it != _cache.end(); it++) {
+    for (auto it = _cache.begin(); it != _cache.end(); it++) {
       (*it).second.setConfig(_conf_manager);
     }
-    for (SC_iterator it = _cache1.begin(); it != _cache1.end(); it++) {
+    for (auto it = _cache1.begin(); it != _cache1.end(); it++) {
       (*it).second.setConfig(_conf_manager);
     }
   }
@@ -232,7 +231,7 @@ void DTTrig::updateES(const edm::EventSetup& iSetup) {
 
     _geomid = iSetup.get<MuonGeometryRecord>().cacheIdentifier();
     iSetup.get<MuonGeometryRecord>().get(geomHandle);
-    for (TU_iterator it = _cache.begin(); it != _cache.end(); it++) {
+    for (auto it = _cache.begin(); it != _cache.end(); it++) {
       (*it).second.setGeom(geomHandle->chamber((*it).second.statId()));
     }
   }
@@ -250,7 +249,7 @@ DTSCTrigUnit* DTTrig::trigUnit(DTChamberId chid) { /*check();*/
 
 DTSCTrigUnit const* DTTrig::constTrigUnit(DTChamberId chid) const {
   //    std::cout << " SC: running DTTrig::constTrigUnit(DTChamberId chid)" << std::endl;
-  TU_const_iterator it = _cache.find(chid);
+  auto it = _cache.find(chid);
   if (it == _cache.end()) {
     std::cout << "DTTrig::trigUnit: Trigger Unit not in the map: ";
     std::cout << " wheel=" << chid.wheel();
@@ -264,7 +263,7 @@ DTSCTrigUnit const* DTTrig::constTrigUnit(DTChamberId chid) const {
 }
 
 DTSectColl const* DTTrig::SCUnit(DTSectCollId scid) const {
-  SC_const_iterator it = _cache1.find(scid);
+  auto it = _cache1.find(scid);
   if (it == _cache1.end()) {
     std::cout << "DTTrig::SCUnit: Trigger Unit not in the map: ";
     std::cout << " wheel=" << scid.wheel();
@@ -393,13 +392,13 @@ DTSectCollThSegm* DTTrig::chSectCollThSegm(int wheel, int sect, int step) {
 
 void DTTrig::dumpGeom() const {
   /*check();*/
-  for (TU_const_iterator it = _cache.begin(); it != _cache.end(); it++) {
+  for (auto it = _cache.begin(); it != _cache.end(); it++) {
     ((*it).second).dumpGeom();
   }
 }
 
 void DTTrig::dumpLuts(short int lut_btic, const DTConfigManager* conf) const {
-  for (TU_const_iterator it = _cache.begin(); it != _cache.end(); it++) {
+  for (auto it = _cache.begin(); it != _cache.end(); it++) {
     const DTSCTrigUnit& thisTU = (*it).second;
 
     // dump lut command file from geometry

@@ -14,7 +14,7 @@ namespace {
     }
     static void set_element_info(reco::PFBlockElement* elem,
                                  const edm::Ref<reco::PFDisplacedTrackerVertexCollection>& parref) {
-      const reco::PFBlockElementTrack* tkelem = static_cast<const reco::PFBlockElementTrack*>(elem);
+      const auto* tkelem = static_cast<const reco::PFBlockElementTrack*>(elem);
       const reco::PFRecTrackRef& reftrack = tkelem->trackRefPF();
       reco::PFBlockElement::TrackType tkType = reco::PFBlockElement::DEFAULT;
       if (parref->isIncomingTrack(reftrack))

@@ -122,16 +122,16 @@ std::ostream& operator<<(std::ostream& s, const GltDEDigi& glt) {
   if (glbit[0] != glbit[1])
     s << "(data), " << glbit[1] << "(emul)";
   s << "\n data dec-word: ";
-  for (GltDEDigi::GltBits::const_iterator i = dbits[0].begin(); i != dbits[0].end(); i++)
+  for (auto i = dbits[0].begin(); i != dbits[0].end(); i++)
     s << *i;
   s << "\n emul dec-word: ";
-  for (GltDEDigi::GltBits::const_iterator i = dbits[1].begin(); i != dbits[1].end(); i++)
+  for (auto i = dbits[1].begin(); i != dbits[1].end(); i++)
     s << *i;
   s << "\n data techical: ";
-  for (GltDEDigi::GltBits::const_iterator i = tbits[0].begin(); i != tbits[0].end(); i++)
+  for (auto i = tbits[0].begin(); i != tbits[0].end(); i++)
     s << *i;
   s << "\n emul technical: ";
-  for (GltDEDigi::GltBits::const_iterator i = tbits[1].begin(); i != tbits[1].end(); i++)
+  for (auto i = tbits[1].begin(); i != tbits[1].end(); i++)
     s << *i;
   return s;
 }

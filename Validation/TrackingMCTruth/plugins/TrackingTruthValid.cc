@@ -83,7 +83,7 @@ void TrackingTruthValid::analyze(const edm::Event &event, const edm::EventSetup 
   const TrackingParticleCollection *tPC = TruthTrackContainer.product();
 
   // Loop over TrackingParticle's
-  for (TrackingParticleCollection::const_iterator t = tPC->begin(); t != tPC->end(); ++t) {
+  for (auto t = tPC->begin(); t != tPC->end(); ++t) {
     // if(t -> trackerPSimHit().size() ==0) cout << " Track with 0 SimHit " <<
     // endl;
 

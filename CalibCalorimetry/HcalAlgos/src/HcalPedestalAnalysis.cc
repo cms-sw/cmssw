@@ -147,7 +147,7 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
   try {
     if (hbhe.empty())
       throw(int) hbhe.size();
-    for (HBHEDigiCollection::const_iterator j = hbhe.begin(); j != hbhe.end(); ++j) {
+    for (auto j = hbhe.begin(); j != hbhe.end(); ++j) {
       const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
       m_coder = cond.getHcalCoder(digi.id());
       m_shape = cond.getHcalShape(m_coder);
@@ -180,7 +180,7 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
   try {
     if (ho.empty())
       throw(int) ho.size();
-    for (HODigiCollection::const_iterator j = ho.begin(); j != ho.end(); ++j) {
+    for (auto j = ho.begin(); j != ho.end(); ++j) {
       const HODataFrame digi = (const HODataFrame)(*j);
       m_coder = cond.getHcalCoder(digi.id());
       for (int i = m_startTS; i < digi.size() && i <= m_endTS; i++) {
@@ -208,7 +208,7 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
   try {
     if (hf.empty())
       throw(int) hf.size();
-    for (HFDigiCollection::const_iterator j = hf.begin(); j != hf.end(); ++j) {
+    for (auto j = hf.begin(); j != hf.end(); ++j) {
       const HFDataFrame digi = (const HFDataFrame)(*j);
       m_coder = cond.getHcalCoder(digi.id());
       for (int i = m_startTS; i < digi.size() && i <= m_endTS; i++) {

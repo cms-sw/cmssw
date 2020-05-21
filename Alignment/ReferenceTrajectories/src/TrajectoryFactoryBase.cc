@@ -40,7 +40,7 @@ const TrajectoryFactoryBase::TrajectoryInput TrajectoryFactoryBase::innermostSta
 
   // get the trajectory measurements in the correct order, i.e. reverse if needed
   Trajectory::DataContainer trajectoryMeasurements = this->orderedTrajectoryMeasurements(*track.first);
-  Trajectory::DataContainer::iterator itM = trajectoryMeasurements.begin();
+  auto itM = trajectoryMeasurements.begin();
 
   // get the innermost valid trajectory state - the corresponding hit must be o.k. as well
   while (itM != trajectoryMeasurements.end()) {

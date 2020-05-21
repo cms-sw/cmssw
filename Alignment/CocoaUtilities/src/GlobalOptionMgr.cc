@@ -90,7 +90,7 @@ void GlobalOptionMgr::setDefaultGlobalOptions() {
 ALIdouble GlobalOptionMgr::getGlobalOption(const ALIstring& sstr) {
   ALIdouble val = 0.;
   //---------- Find Global Option by name
-  std::map<ALIstring, ALIdouble, std::less<ALIstring> >::const_iterator msdcite = GlobalOptions().find(sstr);
+  auto msdcite = GlobalOptions().find(sstr);
 
   //---------- Dump Global Option found
   if (ALIUtils::debug >= 6) {
@@ -114,7 +114,7 @@ ALIdouble GlobalOptionMgr::getGlobalOption(const ALIstring& sstr) {
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ALIint GlobalOptionMgr::getGlobalOptionValue(const ALIstring& sstr, ALIdouble& val) {
   //---------- Find Global Option by name
-  std::map<ALIstring, ALIdouble, std::less<ALIstring> >::const_iterator msdcite = GlobalOptions().find(sstr);
+  auto msdcite = GlobalOptions().find(sstr);
 
   //---------- Dump Global Option found
   if (ALIUtils::debug >= 6) {

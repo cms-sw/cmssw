@@ -20,7 +20,7 @@ std::string PixelToLNKAssociateFromAscii::version() const { return theVersion; }
 const PixelToLNKAssociateFromAscii::CablingRocId* PixelToLNKAssociateFromAscii::operator()(
     const PixelToLNKAssociateFromAscii::DetectorRocId& roc) const {
   typedef std::vector<std::pair<DetectorRocId, CablingRocId> >::const_iterator IM;
-  for (IM im = theConnection.begin(); im != theConnection.end(); im++) {
+  for (auto im = theConnection.begin(); im != theConnection.end(); im++) {
     if ((*(im->first.module) == *roc.module) && (im->first.rocDetId == roc.rocDetId)) {
       return &(im->second);
     }
@@ -116,7 +116,7 @@ void PixelToLNKAssociateFromAscii::init(const string& cfg_name) {
   std::ostringstream str;
   str << " **PixelToLNKAssociateFromAscii ** CONNECTIONS: " << endl;
   typedef vector<pair<DetectorRocId, CablingRocId> >::const_iterator ICON;
-  for (ICON ic = theConnection.begin(); ic != theConnection.end(); ic++) {
+  for (auto ic = theConnection.begin(); ic != theConnection.end(); ic++) {
     str << (*ic).first.module->name() << ", rocDetId=" << (*ic).first.rocDetId << ", fedId=" << ic->second.fedId
         << ", linkId=" << ic->second.linkId << ", rocLinkId=" << ic->second.rocLinkId << endl;
   }

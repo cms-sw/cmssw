@@ -41,9 +41,7 @@ public:
     int npv = 0;
     int _ntotal = 0;
     mvSelPvs.clear();
-    for (std::vector<reco::Vertex>::const_iterator ibegin = h_primVtx->begin(), iend = h_primVtx->end(), i = ibegin;
-         i != iend;
-         ++i) {
+    for (auto ibegin = h_primVtx->begin(), iend = h_primVtx->end(), i = ibegin; i != iend; ++i) {
       reco::Vertex const& pv = *i;
       bool ipass = pvSel_(pv);
       if (ipass) {

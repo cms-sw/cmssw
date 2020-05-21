@@ -94,7 +94,7 @@ void CastorRawToDigi::produce(edm::Event& e, const edm::EventSetup& es) {
   const int fed722size = fed722.size();
   const FEDRawData& fed693 = rawraw->FEDData(693);
   const int fed693size = fed693.size();
-  for (std::vector<int>::const_iterator i = fedUnpackList_.begin(); i != fedUnpackList_.end(); i++) {
+  for (auto i = fedUnpackList_.begin(); i != fedUnpackList_.end(); i++) {
     const FEDRawData& fed = rawraw->FEDData(*i);
     //std::cout<<"Fed number "<<*i<<"is being worked on"<<std::endl;
     if (*i == 693 && fed693size == 0 && fed722size != 0)

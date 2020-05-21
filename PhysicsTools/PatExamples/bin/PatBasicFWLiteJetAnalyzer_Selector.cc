@@ -398,11 +398,7 @@ int main(int argc, char* argv[]) {
       if (retCalo.test(caloSelector.caloDeltaPhi())) {
         vector<pat::Jet> const& allCaloJets = caloSelector.allCaloJets();
 
-        for (std::vector<pat::Jet>::const_iterator jetBegin = allCaloJets.begin(),
-                                                   jetEnd = jetBegin + 2,
-                                                   ijet = jetBegin;
-             ijet != jetEnd;
-             ++ijet) {
+        for (auto jetBegin = allCaloJets.begin(), jetEnd = jetBegin + 2, ijet = jetBegin; ijet != jetEnd; ++ijet) {
           const pat::Jet& jet = *ijet;
 
           double pt = jet.pt();
@@ -483,9 +479,7 @@ int main(int argc, char* argv[]) {
     if (retPF.test(pfSelector.pfDeltaPhi())) {
       vector<pat::Jet> const& allPFJets = pfSelector.allPFJets();
 
-      for (std::vector<pat::Jet>::const_iterator jetBegin = allPFJets.begin(), jetEnd = jetBegin + 2, ijet = jetBegin;
-           ijet != jetEnd;
-           ++ijet) {
+      for (auto jetBegin = allPFJets.begin(), jetEnd = jetBegin + 2, ijet = jetBegin; ijet != jetEnd; ++ijet) {
         const pat::Jet& jet = *ijet;
 
         double pt = jet.pt();

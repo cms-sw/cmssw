@@ -64,7 +64,7 @@ EcalURecHitHists::EcalURecHitHists(const edm::ParameterSet& iConfig)
     //if "actual" EB id given, then convert to FEDid and put in listFEDs_
     if (maskedEBs_[0] != "none") {
       maskedFEDs_.clear();
-      for (vector<string>::const_iterator ebItr = maskedEBs_.begin(); ebItr != maskedEBs_.end(); ++ebItr) {
+      for (auto ebItr = maskedEBs_.begin(); ebItr != maskedEBs_.end(); ++ebItr) {
         maskedFEDs_.push_back(fedMap_->getFedFromSlice(*ebItr));
       }
     }
@@ -89,7 +89,7 @@ void EcalURecHitHists::analyze(edm::Event const& iEvent, edm::EventSetup const& 
   iEvent.getByLabel(EEUncalibratedRecHitCollection_, EEhits);
   LogDebug("EcalURecHitHists") << "event " << ievt << " hits collection size " << EEhits->size();
 
-  for (EcalUncalibratedRecHitCollection::const_iterator hitItr = EBhits->begin(); hitItr != EBhits->end(); ++hitItr) {
+  for (auto hitItr = EBhits->begin(); hitItr != EBhits->end(); ++hitItr) {
     EcalUncalibratedRecHit hit = (*hitItr);
     EBDetId ebDet = hit.id();
     int ic = ebDet.ic();
@@ -127,7 +127,7 @@ void EcalURecHitHists::analyze(edm::Event const& iEvent, edm::EventSetup const& 
   }
 
   // Again for the endcap
-  for (EcalUncalibratedRecHitCollection::const_iterator hitItr = EEhits->begin(); hitItr != EEhits->end(); ++hitItr) {
+  for (auto hitItr = EEhits->begin(); hitItr != EEhits->end(); ++hitItr) {
     EcalUncalibratedRecHit hit = (*hitItr);
     EEDetId eeDet = hit.id();
     int ic = eeDet.ic();
@@ -206,7 +206,7 @@ void EcalURecHitHists::endJob() {
 
   TFile root_file_(fileName_.c_str(), "RECREATE");
 
-  for (map<int, TH1F*>::const_iterator itr = FEDsAndHists_.begin(); itr != FEDsAndHists_.end(); ++itr) {
+  for (auto itr = FEDsAndHists_.begin(); itr != FEDsAndHists_.end(); ++itr) {
     string dir = fedMap_->getSliceFromFed(itr->first);
     TDirectory* FEDdir = gDirectory->mkdir(dir.c_str());
     FEDdir->cd();
@@ -231,7 +231,7 @@ void EcalURecHitHists::endJob() {
   root_file_.Close();
 
   std::string channels;
-  for (std::vector<int>::const_iterator itr = maskedChannels_.begin(); itr != maskedChannels_.end(); ++itr) {
+  for (auto itr = maskedChannels_.begin(); itr != maskedChannels_.end(); ++itr) {
     channels += intToString(*itr);
     channels += ",";
   }

@@ -175,7 +175,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects() {
             econn->fetchDataSet(&dataset_TpgPhysicsLut, &fe_physLut_info);
             econn->fetchDataSet(&dataset_TpgPhysicsFgr, &fe_physFgr_info);
 
-            EcalTPGPhysicsConst* physC = new EcalTPGPhysicsConst;
+            auto* physC = new EcalTPGPhysicsConst;
             typedef std::map<EcalLogicID, FEConfigLinParamDat>::const_iterator CIfeLin;
             typedef std::map<EcalLogicID, FEConfigLUTParamDat>::const_iterator CIfeLUT;
             typedef std::map<EcalLogicID, FEConfigFgrParamDat>::const_iterator CIfeFgr;
@@ -196,7 +196,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects() {
             typedef std::map<int, EcalTPGPhysicsConst::Item>::iterator iterEB;
             typedef std::map<int, EcalTPGPhysicsConst::Item>::iterator iterEE;
 
-            for (CIfeLin p0 = dataset_TpgPhysicsLin.begin(); p0 != dataset_TpgPhysicsLin.end(); p0++) {
+            for (auto p0 = dataset_TpgPhysicsLin.begin(); p0 != dataset_TpgPhysicsLin.end(); p0++) {
               ecidLin_xt = p0->first;
               rd_physLin = p0->second;
 
@@ -212,7 +212,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects() {
             }
 
             int icells = 0;
-            for (CIfeLUT p1 = dataset_TpgPhysicsLut.begin(); p1 != dataset_TpgPhysicsLut.end(); p1++) {
+            for (auto p1 = dataset_TpgPhysicsLut.begin(); p1 != dataset_TpgPhysicsLut.end(); p1++) {
               ecidLut_xt = p1->first;
               rd_physLut = p1->second;
 
@@ -222,7 +222,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects() {
               if (ecid_nameLut == "EB") {
                 DetId eb(DetId::Ecal, EcalBarrel);
 
-                for (itEtSat it1 = EtSatLinEB.begin(); it1 != EtSatLinEB.end(); it1++) {
+                for (auto it1 = EtSatLinEB.begin(); it1 != EtSatLinEB.end(); it1++) {
                   if (it1->first == (int)eb.rawId()) {
                     float ETSatLin = it1->second;
 
@@ -247,7 +247,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects() {
 
                 DetId ee(DetId::Ecal, EcalEndcap);
 
-                for (itEtSat it2 = EtSatLinEE.begin(); it2 != EtSatLinEE.end(); it2++) {
+                for (auto it2 = EtSatLinEE.begin(); it2 != EtSatLinEE.end(); it2++) {
                   if (it2->first == (int)ee.rawId()) {
                     float ETSatLin = it2->second;
 
@@ -272,7 +272,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects() {
 
             int icellsEB = 0;
             int icellsEE = 0;
-            for (CIfeFgr p2 = dataset_TpgPhysicsFgr.begin(); p2 != dataset_TpgPhysicsFgr.end(); p2++) {
+            for (auto p2 = dataset_TpgPhysicsFgr.begin(); p2 != dataset_TpgPhysicsFgr.end(); p2++) {
               ecidFgr_xt = p2->first;
               rd_physFgr = p2->second;
 
@@ -282,7 +282,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects() {
               if (ecid_nameFgr == "EB") {
                 DetId eb(DetId::Ecal, EcalBarrel);
 
-                for (iterEB itt = temporaryMapEB.begin(); itt != temporaryMapEB.end(); itt++) {
+                for (auto itt = temporaryMapEB.begin(); itt != temporaryMapEB.end(); itt++) {
                   if (itt->first == (int)eb.rawId()) {
                     (itt->second).FG_lowThreshold = rd_physFgr.getFGlowthresh();
                     (itt->second).FG_highThreshold = rd_physFgr.getFGhighthresh();
@@ -301,7 +301,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects() {
                 DetId ee(DetId::Ecal, EcalEndcap);
 
                 int countEE = 0;
-                for (iterEE itEE = temporaryMapEE.begin(); itEE != temporaryMapEE.end(); itEE++) {
+                for (auto itEE = temporaryMapEE.begin(); itEE != temporaryMapEE.end(); itEE++) {
                   if (itEE->first == (int)ee.rawId()) {
                     (itEE->second).FG_lowThreshold = rd_physFgr.getFGlowthresh();
                     (itEE->second).FG_highThreshold = rd_physFgr.getFGhighthresh();

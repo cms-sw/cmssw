@@ -200,9 +200,7 @@ void L1GtVmeWriterCore::writeVME(const std::vector<ConditionMap> &_conditionMap,
     outputFile << spaces(1) << "<" << m_xmlTagChip << index << ">" << std::endl;
 
     // loop over condition map
-    for (ConditionMap::iterator iterCond = conditionMap.at(index - 1).begin();
-         iterCond != conditionMap.at(index - 1).end();
-         iterCond++) {
+    for (auto iterCond = conditionMap.at(index - 1).begin(); iterCond != conditionMap.at(index - 1).end(); iterCond++) {
       // open a condition
       outputFile << spaces(2) << "<" << iterCond->first << " " << m_xmlConditionAttrObject << "=\""
                  << maps.obj2str((iterCond->second->objectType())[0]) << "\" " << m_xmlConditionAttrType << "=\""
@@ -210,7 +208,7 @@ void L1GtVmeWriterCore::writeVME(const std::vector<ConditionMap> &_conditionMap,
 
       switch ((iterCond->second)->condCategory()) {
         case CondMuon: {
-          L1GtMuonTemplate *muonTemplate = static_cast<L1GtMuonTemplate *>(iterCond->second);
+          auto *muonTemplate = static_cast<L1GtMuonTemplate *>(iterCond->second);
           const std::vector<L1GtMuonTemplate::ObjectParameter> *op = muonTemplate->objectParameter();
 
           // get the number of objects
@@ -260,7 +258,7 @@ void L1GtVmeWriterCore::writeVME(const std::vector<ConditionMap> &_conditionMap,
         } break;
 
         case CondCalo: {
-          L1GtCaloTemplate *m_gtCaloTemplate = static_cast<L1GtCaloTemplate *>(iterCond->second);
+          auto *m_gtCaloTemplate = static_cast<L1GtCaloTemplate *>(iterCond->second);
           const std::vector<L1GtCaloTemplate::ObjectParameter> *op = m_gtCaloTemplate->objectParameter();
 
           // get the number of objects
@@ -280,7 +278,7 @@ void L1GtVmeWriterCore::writeVME(const std::vector<ConditionMap> &_conditionMap,
         } break;
 
         case CondEnergySum: {
-          L1GtEnergySumTemplate *energySumTempl = static_cast<L1GtEnergySumTemplate *>(iterCond->second);
+          auto *energySumTempl = static_cast<L1GtEnergySumTemplate *>(iterCond->second);
 
           const std::vector<L1GtEnergySumTemplate::ObjectParameter> *op = energySumTempl->objectParameter();
 
@@ -304,7 +302,7 @@ void L1GtVmeWriterCore::writeVME(const std::vector<ConditionMap> &_conditionMap,
         break;
 
         case CondJetCounts: {
-          L1GtJetCountsTemplate *jetsTemplate = static_cast<L1GtJetCountsTemplate *>(iterCond->second);
+          auto *jetsTemplate = static_cast<L1GtJetCountsTemplate *>(iterCond->second);
           const std::vector<L1GtJetCountsTemplate::ObjectParameter> *op = jetsTemplate->objectParameter();
 
           // get the number of objects

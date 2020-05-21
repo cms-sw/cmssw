@@ -714,8 +714,7 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
     std::cerr << "Error! can't get the product " << eventHeaderCollection_.c_str() << std::endl;
   }
   //........... Decode myEventHeader infos
-  for (EcalRawDataCollection::const_iterator headerItr = myEventHeader->begin(); headerItr != myEventHeader->end();
-       ++headerItr) {
+  for (auto headerItr = myEventHeader->begin(); headerItr != myEventHeader->end(); ++headerItr) {
     //===> fRunNumber, fRunTypeNumber, fMgpaGainNumber, fFedId, fEvtNumber
     //     will be used in AnalysisOutcome(...) below
     fRunNumber = (Int_t)headerItr->getRunNumber();
@@ -919,7 +918,7 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
                 //......................................... date of first event
                 //(in real time)
                 edm::Timestamp Time = iEvent.time();
-                edm::TimeValue_t t_current_ev_time = (cond::Time_t)Time.value();
+                auto t_current_ev_time = (cond::Time_t)Time.value();
                 time_t i_current_ev_time = (time_t)(t_current_ev_time >> 32);
                 const time_t *p_current_ev_time = &i_current_ev_time;
                 char *astime = ctime(p_current_ev_time);
@@ -1165,7 +1164,7 @@ void EcnaAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
                 //......................................... date of first event
                 //(in real time)
                 edm::Timestamp Time = iEvent.time();
-                edm::TimeValue_t t_current_ev_time = (cond::Time_t)Time.value();
+                auto t_current_ev_time = (cond::Time_t)Time.value();
                 time_t i_current_ev_time = (time_t)(t_current_ev_time >> 32);
                 const time_t *p_current_ev_time = &i_current_ev_time;
                 char *astime = ctime(p_current_ev_time);

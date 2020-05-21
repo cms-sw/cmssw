@@ -61,7 +61,7 @@ void CalibrationHistograms::histoAnalysis(bool debug) {
   data().clear();
 
   // Iterate through map containing vectors of profile histograms
-  HistosMap::const_iterator iter = histos().begin();
+  auto iter = histos().begin();
 
   // One entry for each LLD channel --> differnt thousand entries
   for (; iter != histos().end(); iter++) {
@@ -73,7 +73,7 @@ void CalibrationHistograms::histoAnalysis(bool debug) {
 
     // Retrieve pointers to 1D histos for this FED channel --> all strips in the fiber = 256
     vector<TH1*> profs;
-    Histos::const_iterator ihis = iter->second.begin();
+    auto ihis = iter->second.begin();
     for (; ihis != iter->second.end(); ihis++) {
       TH1F* prof = ExtractTObject<TH1F>().extract((*ihis)->me_);
       if (prof) {
@@ -87,7 +87,7 @@ void CalibrationHistograms::histoAnalysis(bool debug) {
       isdeconv = true;
 
     if (task() == sistrip::CALIBRATION_SCAN or task() == sistrip::CALIBRATION_SCAN_DECO) {
-      CalibrationScanAnalysis* anal = new CalibrationScanAnalysis(iter->first, isdeconv);
+      auto* anal = new CalibrationScanAnalysis(iter->first, isdeconv);
       CalibrationScanAlgorithm algo(this->pset(), anal);
       algo.analysis(profs);
       data()[iter->first] = anal;
@@ -101,7 +101,7 @@ void CalibrationHistograms::histoAnalysis(bool debug) {
         algo.fillTunedObservables(iapv);
       }
     } else {
-      CalibrationAnalysis* anal = new CalibrationAnalysis(iter->first, isdeconv);
+      auto* anal = new CalibrationAnalysis(iter->first, isdeconv);
       CalibrationAlgorithm algo(this->pset(), anal);
       algo.analysis(profs);
       data()[iter->first] = anal;
@@ -112,8 +112,8 @@ void CalibrationHistograms::histoAnalysis(bool debug) {
 // -----------------------------------------------------------------------------
 /** */
 void CalibrationHistograms::printAnalyses() {
-  Analyses::iterator ianal = data().begin();
-  Analyses::iterator janal = data().end();
+  auto ianal = data().begin();
+  auto janal = data().end();
   for (; ianal != janal; ++ianal) {
     if (ianal->second) {
       std::stringstream ss;
@@ -185,11 +185,11 @@ void CalibrationHistograms::save(std::string& path, uint32_t run_number, std::st
   bool save_graph_vfs = false;
 
   // loop on the analysis objects which are storing all relevant results
-  Analyses::iterator ianal = data().begin();
-  Analyses::iterator janal = data().end();
+  auto ianal = data().begin();
+  auto janal = data().end();
   for (; ianal != janal; ++ianal) {
     if (ianal->second) {
-      CalibrationScanAnalysis* anal = dynamic_cast<CalibrationScanAnalysis*>(ianal->second);
+      auto* anal = dynamic_cast<CalibrationScanAnalysis*>(ianal->second);
       SiStripFecKey feckey = anal->fecKey();
 
       TString directory;

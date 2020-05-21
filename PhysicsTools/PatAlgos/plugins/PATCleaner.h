@@ -69,7 +69,7 @@ pat::PATCleaner<PATObjType>::PATCleaner(const edm::ParameterSet& iConfig)
   // get all the names of the tests (all nested PSets in this PSet)
   std::vector<std::string> overlapNames = overlapPSet.getParameterNamesForType<edm::ParameterSet>();
   // loop on them
-  for (std::vector<std::string>::const_iterator itn = overlapNames.begin(); itn != overlapNames.end(); ++itn) {
+  for (auto itn = overlapNames.begin(); itn != overlapNames.end(); ++itn) {
     // retrieve configuration
     edm::ParameterSet cfg = overlapPSet.getParameter<edm::ParameterSet>(*itn);
     // skip empty parameter sets

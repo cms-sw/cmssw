@@ -28,7 +28,7 @@ private:
 };
 
 void PGeometricDetExtraBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
-  PGeometricDetExtra* pgde = new PGeometricDetExtra;
+  auto* pgde = new PGeometricDetExtra;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
     edm::LogError("PGeometricDetExtraBuilder") << "PoolDBOutputService unavailable";
@@ -40,8 +40,8 @@ void PGeometricDetExtraBuilder::beginRun(const edm::Run&, edm::EventSetup const&
   es.get<IdealGeometryRecord>().get(gdeH);
   const std::vector<GeometricDetExtra>& gdes = (*gdeH);
 
-  std::vector<GeometricDetExtra>::const_iterator git = gdes.begin();
-  std::vector<GeometricDetExtra>::const_iterator egit = gdes.end();
+  auto git = gdes.begin();
+  auto egit = gdes.end();
 
   for (; git != egit; ++git) {  // one level below "tracker"
     putOne(*git, pgde);

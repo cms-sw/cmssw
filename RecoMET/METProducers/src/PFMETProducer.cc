@@ -35,7 +35,7 @@ namespace cms {
 
       jetToken_ = mayConsume<edm::View<reco::Jet>>(iConfig.getParameter<edm::InputTag>("srcJets"));
       std::vector<edm::InputTag> srcLeptonsTags = iConfig.getParameter<std::vector<edm::InputTag>>("srcLeptons");
-      for (std::vector<edm::InputTag>::const_iterator it = srcLeptonsTags.begin(); it != srcLeptonsTags.end(); it++) {
+      for (auto it = srcLeptonsTags.begin(); it != srcLeptonsTags.end(); it++) {
         lepTokens_.push_back(mayConsume<edm::View<reco::Candidate>>(*it));
       }
 
@@ -88,9 +88,7 @@ namespace cms {
                                                     const edm::Handle<edm::View<reco::Candidate>>& candInput) const {
     // leptons
     std::vector<edm::Handle<reco::CandidateView>> leptons;
-    for (std::vector<edm::EDGetTokenT<edm::View<reco::Candidate>>>::const_iterator srcLeptons_i = lepTokens_.begin();
-         srcLeptons_i != lepTokens_.end();
-         ++srcLeptons_i) {
+    for (auto srcLeptons_i = lepTokens_.begin(); srcLeptons_i != lepTokens_.end(); ++srcLeptons_i) {
       edm::Handle<reco::CandidateView> leptons_i;
       event.getByToken(*srcLeptons_i, leptons_i);
       leptons.push_back(leptons_i);

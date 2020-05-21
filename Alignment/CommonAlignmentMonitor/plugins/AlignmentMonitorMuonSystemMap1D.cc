@@ -270,8 +270,7 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent,
 
   if (m_muonCollectionTag.label().empty())  // use trajectories
   {
-    for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin(); trajtrack != trajtracks.end();
-         ++trajtrack) {
+    for (auto trajtrack = trajtracks.begin(); trajtrack != trajtracks.end(); ++trajtrack) {
       m_counter_track++;
       const Trajectory *traj = (*trajtrack).first;
       const reco::Track *track = (*trajtrack).second;
@@ -292,7 +291,7 @@ void AlignmentMonitorMuonSystemMap1D::event(const edm::Event &iEvent,
     edm::Handle<reco::MuonCollection> muons;
     iEvent.getByLabel(m_muonCollectionTag, muons);
 
-    for (reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
+    for (auto muon = muons->begin(); muon != muons->end(); ++muon) {
       if (!(muon->isTrackerMuon() && muon->innerTrack().isNonnull()))
         continue;
 
@@ -335,7 +334,7 @@ void AlignmentMonitorMuonSystemMap1D::processMuonResidualsFromTrack(MuonResidual
 
   m_counter_trackokay++;
 
-  for (std::vector<DetId>::const_iterator chamberId = chamberIds.begin(); chamberId != chamberIds.end(); ++chamberId) {
+  for (auto chamberId = chamberIds.begin(); chamberId != chamberIds.end(); ++chamberId) {
     if (chamberId->det() != DetId::Muon)
       continue;
 

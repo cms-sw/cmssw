@@ -322,7 +322,7 @@ void EvtGenInterface::init() {
   std::list<EvtDecayBase*> extraModels = genList.getListOfModels();  // get interface to Pythia and Tauola
   std::list<EvtDecayBase*> myExtraModels;
   for (unsigned int i = 0; i < extraModels.size(); i++) {
-    std::list<EvtDecayBase*>::iterator it = extraModels.begin();
+    auto it = extraModels.begin();
     std::advance(it, i);
     TString name = (*it)->getName();
     if (name.Contains("PYTHIA") && usePythia)
@@ -336,7 +336,7 @@ void EvtGenInterface::init() {
   EvtModelUserReg userList;
   std::list<EvtDecayBase*> userModels = userList.getUserModels();  // get interface to user models
   for (unsigned int i = 0; i < userModels.size(); i++) {
-    std::list<EvtDecayBase*>::iterator it = userModels.begin();
+    auto it = userModels.begin();
     std::advance(it, i);
     TString name = (*it)->getName();
     edm::LogInfo("EvtGenInterface::~EvtGenInterface") << "Adding user model: " << name;
@@ -596,15 +596,14 @@ bool EvtGenInterface::addToHepMC(HepMC::GenParticle* partHep,
 void EvtGenInterface::update_particles(HepMC::GenParticle* partHep, HepMC::GenEvent* theEvent, HepMC::GenParticle* p) {
   if (p->end_vertex()) {
     if (!partHep->end_vertex()) {
-      HepMC::GenVertex* vtx = new HepMC::GenVertex(p->end_vertex()->position());
+      auto* vtx = new HepMC::GenVertex(p->end_vertex()->position());
       theEvent->add_vertex(vtx);
       vtx->add_particle_in(partHep);
     }
     if (p->end_vertex()->particles_out_size() != 0) {
-      for (HepMC::GenVertex::particles_out_const_iterator d = p->end_vertex()->particles_out_const_begin();
-           d != p->end_vertex()->particles_out_const_end();
+      for (auto d = p->end_vertex()->particles_out_const_begin(); d != p->end_vertex()->particles_out_const_end();
            d++) {
-        HepMC::GenParticle* daughter = new HepMC::GenParticle((*d)->momentum(), (*d)->pdg_id(), (*d)->status());
+        auto* daughter = new HepMC::GenParticle((*d)->momentum(), (*d)->pdg_id(), (*d)->status());
         daughter->suggest_barcode(theEvent->particles_size() + 1);
         partHep->end_vertex()->add_particle_out(daughter);
         if ((*d)->end_vertex())
@@ -633,8 +632,7 @@ double EvtGenInterface::flat() {
 bool EvtGenInterface::findLastinChain(HepMC::GenParticle*& p) {
   if (p->end_vertex()) {
     if (p->end_vertex()->particles_out_size() != 0) {
-      for (HepMC::GenVertex::particles_out_const_iterator d = p->end_vertex()->particles_out_const_begin();
-           d != p->end_vertex()->particles_out_const_end();
+      for (auto d = p->end_vertex()->particles_out_const_begin(); d != p->end_vertex()->particles_out_const_end();
            d++) {
         if (abs((*d)->pdg_id()) == abs(p->pdg_id())) {
           p = *d;

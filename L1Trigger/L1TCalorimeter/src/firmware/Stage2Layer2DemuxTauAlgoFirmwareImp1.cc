@@ -95,7 +95,7 @@ void l1t::Stage2Layer2DemuxTauAlgoFirmwareImp1::processEvent(const std::vector<l
   }
 
   //sorting with descending pT
-  std::vector<l1t::Tau>::iterator start_ = outputTaus.begin();
-  std::vector<l1t::Tau>::iterator end_ = outputTaus.end();
+  auto start_ = outputTaus.begin();
+  auto end_ = outputTaus.end();
   BitonicSort<l1t::Tau>(down, start_, end_);
 }

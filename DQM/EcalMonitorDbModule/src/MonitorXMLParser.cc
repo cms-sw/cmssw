@@ -66,7 +66,7 @@ void MonitorXMLParser::handleElement(xercesc::DOMElement *element) {
     for (XMLSize_t d1Index = 0; d1Index < d1Count; ++d1Index) {
       xercesc::DOMNode *d1Node = d1Nodes->item(d1Index);
 
-      xercesc::DOMElement *d1Element = dynamic_cast<xercesc::DOMElement *>(d1Node);
+      auto *d1Element = dynamic_cast<xercesc::DOMElement *>(d1Node);
 
       const XMLCh *d1titleXMLCh = d1Element->getAttribute(tags_->ATTR_TITLE);
       c = xercesc::XMLString::transcode(d1titleXMLCh);
@@ -124,7 +124,7 @@ void MonitorXMLParser::handleElement(xercesc::DOMElement *element) {
     for (XMLSize_t d2Index = 0; d2Index < d2Count; ++d2Index) {
       xercesc::DOMNode *d2Node = d2Nodes->item(d2Index);
 
-      xercesc::DOMElement *d2Element = dynamic_cast<xercesc::DOMElement *>(d2Node);
+      auto *d2Element = dynamic_cast<xercesc::DOMElement *>(d2Node);
 
       const XMLCh *d2titleXMLCh = d2Element->getAttribute(tags_->ATTR_TITLE);
       c = xercesc::XMLString::transcode(d2titleXMLCh);
@@ -200,7 +200,7 @@ void MonitorXMLParser::handleElement(xercesc::DOMElement *element) {
     for (XMLSize_t tpIndex = 0; tpIndex < tpCount; ++tpIndex) {
       xercesc::DOMNode *tpNode = tpNodes->item(tpIndex);
 
-      xercesc::DOMElement *tpElement = dynamic_cast<xercesc::DOMElement *>(tpNode);
+      auto *tpElement = dynamic_cast<xercesc::DOMElement *>(tpNode);
 
       const XMLCh *tptitleXMLCh = tpElement->getAttribute(tags_->ATTR_TITLE);
       c = xercesc::XMLString::transcode(tptitleXMLCh);
@@ -276,7 +276,7 @@ void MonitorXMLParser::handleElement(xercesc::DOMElement *element) {
     for (XMLSize_t tp2dIndex = 0; tp2dIndex < tp2dCount; ++tp2dIndex) {
       xercesc::DOMNode *tp2dNode = tp2dNodes->item(tp2dIndex);
 
-      xercesc::DOMElement *tp2dElement = dynamic_cast<xercesc::DOMElement *>(tp2dNode);
+      auto *tp2dElement = dynamic_cast<xercesc::DOMElement *>(tp2dNode);
 
       const XMLCh *tp2dtitleXMLCh = tp2dElement->getAttribute(tags_->ATTR_TITLE);
       c = xercesc::XMLString::transcode(tp2dtitleXMLCh);
@@ -369,7 +369,7 @@ void MonitorXMLParser::handleElement(xercesc::DOMElement *element) {
     for (XMLSize_t qIndex = 0; qIndex < qCount; ++qIndex) {
       xercesc::DOMNode *qNode = qNodes->item(qIndex);
 
-      xercesc::DOMElement *qElement = dynamic_cast<xercesc::DOMElement *>(qNode);
+      auto *qElement = dynamic_cast<xercesc::DOMElement *>(qNode);
 
       const XMLCh *nameXMLCh = qElement->getAttribute(tags_->ATTR_NAME);
       c = xercesc::XMLString::transcode(nameXMLCh);
@@ -431,7 +431,7 @@ void MonitorXMLParser::load() noexcept(false) {
           continue;
         }
 
-        xercesc::DOMElement *currentElement = dynamic_cast<xercesc::DOMElement *>(currentNode);
+        auto *currentElement = dynamic_cast<xercesc::DOMElement *>(currentNode);
 
         handleElement(currentElement);
       }

@@ -62,7 +62,7 @@ public:
   std::vector<febItem> theFebs;
 
   RPCReadOutMapping const* convert() const {
-    RPCReadOutMapping* cabling = new RPCReadOutMapping(theVersion);
+    auto* cabling = new RPCReadOutMapping(theVersion);
     int diskOffset = 4;
     int year = atoi(theVersion.substr(6, 4).c_str());
     int month = atoi(theVersion.substr(3, 2).c_str());

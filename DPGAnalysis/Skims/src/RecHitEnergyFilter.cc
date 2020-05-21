@@ -82,7 +82,7 @@ bool RecHitEnergyFilter::filter(edm::Event& evt, const edm::EventSetup& iSetup) 
   if (doEb_) {
     evt.getByLabel(ebRecHitsTag_, ebRecHitsH_);
     ebRecHits_ = ebRecHitsH_.product();
-    for (EcalRecHitCollection::const_iterator it = ebRecHits_->begin(); it != ebRecHits_->end(); ++it) {
+    for (auto it = ebRecHits_->begin(); it != ebRecHits_->end(); ++it) {
       double hitE = it->energy();
       if (hitE > ebThresh_) {
         return true;
@@ -92,7 +92,7 @@ bool RecHitEnergyFilter::filter(edm::Event& evt, const edm::EventSetup& iSetup) 
   if (doEe_) {
     evt.getByLabel(eeRecHitsTag_, eeRecHitsH_);
     eeRecHits_ = eeRecHitsH_.product();
-    for (EcalRecHitCollection::const_iterator it = eeRecHits_->begin(); it != eeRecHits_->end(); ++it) {
+    for (auto it = eeRecHits_->begin(); it != eeRecHits_->end(); ++it) {
       double hitE = it->energy();
       if (hitE > eeThresh_) {
         return true;

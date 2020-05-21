@@ -300,9 +300,7 @@ void GenXSecAnalyzer::globalEndRun(edm::Run const &iRun, edm::EventSetup const &
   // set the correct combined LHE+filter cross sections
   unsigned int i = 0;
   std::vector<GenLumiInfoProduct::ProcessInfo> newInfos;
-  for (std::map<int, GenLumiInfoProduct::XSec>::const_iterator iter = runC->currentLumiBlockLHEXSec_.begin();
-       iter != runC->currentLumiBlockLHEXSec_.end();
-       ++iter, i++) {
+  for (auto iter = runC->currentLumiBlockLHEXSec_.begin(); iter != runC->currentLumiBlockLHEXSec_.end(); ++iter, i++) {
     GenLumiInfoProduct::ProcessInfo temp = runC->product_.getProcessInfos()[i];
     temp.setLheXSec(iter->second.value(), iter->second.error());
     newInfos.push_back(temp);
@@ -542,8 +540,7 @@ void GenXSecAnalyzer::endJob() {
     double matching_eff = 1;
     double matching_efferr = 1;
 
-    for (std::map<int, GenFilterInfo>::const_iterator iter = jetMatchEffStat_.begin(); iter != jetMatchEffStat_.end();
-         ++iter, i++) {
+    for (auto iter = jetMatchEffStat_.begin(); iter != jetMatchEffStat_.end(); ++iter, i++) {
       GenFilterInfo thisJetMatchStat = iter->second;
       GenFilterInfo thisEventEffStat =
           GenFilterInfo(thisJetMatchStat.numPassPositiveEvents() + thisJetMatchStat.numPassNegativeEvents(),

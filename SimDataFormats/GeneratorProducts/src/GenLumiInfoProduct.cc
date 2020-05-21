@@ -98,7 +98,7 @@ bool GenLumiInfoProduct::mergeProduct(GenLumiInfoProduct const& other) {
 
   internalProcesses_.resize(processes.size());
   unsigned int i = 0;
-  for (std::map<int, ProcessInfo>::const_iterator iter = processes.begin(); iter != processes.end(); ++iter, i++)
+  for (auto iter = processes.begin(); iter != processes.end(); ++iter, i++)
     internalProcesses_[i] = iter->second;
   return true;
 }

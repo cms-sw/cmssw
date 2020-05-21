@@ -882,7 +882,7 @@ void IPTagPlotter<Container, Base>::analyzeTag(const reco::BaseTagInfo* baseTagI
                                                float w /*=1*/) {
   //  const reco::TrackIPTagInfo * tagInfo =
   //    dynamic_cast<const reco::TrackIPTagInfo *>(baseTagInfo);
-  const reco::IPTagInfo<Container, Base>* tagInfo = dynamic_cast<const reco::IPTagInfo<Container, Base>*>(baseTagInfo);
+  const auto* tagInfo = dynamic_cast<const reco::IPTagInfo<Container, Base>*>(baseTagInfo);
 
   if (!tagInfo) {
     throw cms::Exception("Configuration")

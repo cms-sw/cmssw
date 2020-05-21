@@ -39,7 +39,7 @@ void FWElectronLegoProxyBuilder::build(const reco::GsfElectron& iData,
                                        unsigned int iIndex,
                                        TEveElement& oItemHolder,
                                        const FWViewContext*) {
-  TEveStraightLineSet* marker = new TEveStraightLineSet("marker");
+  auto* marker = new TEveStraightLineSet("marker");
   setupAddElement(marker, &oItemHolder);
 
   TEveTrack* track(nullptr);

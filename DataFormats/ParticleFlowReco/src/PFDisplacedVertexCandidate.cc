@@ -26,7 +26,7 @@ void PFDisplacedVertexCandidate::setLink(
       l.test_ |= (1 << test);
     } else  //delete if existing
     {
-      VertexLinkData::iterator it = vertexLinkData_.find(index);
+      auto it = vertexLinkData_.find(index);
       if (it != vertexLinkData_.end())
         vertexLinkData_.erase(it);
     }
@@ -59,7 +59,7 @@ void PFDisplacedVertexCandidate::associatedElements(const unsigned i,
       continue;
 
     float c2 = -1;
-    VertexLinkData::const_iterator it = vertexLinkData.find(index);
+    auto it = vertexLinkData.find(index);
     if (it != vertexLinkData.end() && (((1 << test) & it->second.test_) != 0 || (test == LINKTEST_ALL)))
       c2 = it->second.distance_;
 
@@ -129,7 +129,7 @@ const GlobalPoint PFDisplacedVertexCandidate::dcaPoint(unsigned ie1, unsigned ie
   unsigned index = 0;
   if (!matrix2vector(ie1, ie2, index))
     return dcaPoint;
-  VertexLinkData::const_iterator it = vertexLinkData_.find(index);
+  auto it = vertexLinkData_.find(index);
   if (it != vertexLinkData_.end())
     dcaPoint = it->second.dcaPoint_;
 
@@ -151,7 +151,7 @@ const float PFDisplacedVertexCandidate::dist(unsigned ie1, unsigned ie2) const {
   unsigned index = 0;
   if (!matrix2vector(ie1, ie2, index))
     return dist;
-  VertexLinkData::const_iterator it = vertexLinkData_.find(index);
+  auto it = vertexLinkData_.find(index);
   if (it != vertexLinkData_.end())
     dist = it->second.distance_;
 

@@ -245,7 +245,7 @@ void HitParentTest::endJob() {
 
   // sort in decreasing order of occurence
   std::vector<int> sorted_pids;
-  for (std::map<int, unsigned>::const_iterator it = particle_type_count.begin(); it != particle_type_count.end(); ++it)
+  for (auto it = particle_type_count.begin(); it != particle_type_count.end(); ++it)
     sorted_pids.push_back(it->first);
 
   // now sort the pids
@@ -262,7 +262,7 @@ void HitParentTest::endJob() {
 }
 
 void HitParentTest::analyzeHits(const std::vector<PCaloHit>& hits, int type) {
-  for (std::vector<PCaloHit>::const_iterator hit_it = hits.begin(); hit_it != hits.end(); ++hit_it) {
+  for (auto hit_it = hits.begin(); hit_it != hits.end(); ++hit_it) {
     int id(type), flag(0);
     if (type == 3) {
       HcalDetId id_ = HcalDetId(hit_it->id());
@@ -286,8 +286,7 @@ void HitParentTest::analyzeHits(const std::vector<PCaloHit>& hits, int type) {
       bool found = false;
       flag = 2;
       // check whether this id is actually there in the list of simtracks
-      for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end() && !found;
-           ++simTrkItr) {
+      for (auto simTrkItr = SimTk->begin(); simTrkItr != SimTk->end() && !found; ++simTrkItr) {
         if (hit_geant_track_id == (int)(simTrkItr->trackId())) {
           found = true;
           flag = 3;
@@ -306,7 +305,7 @@ void HitParentTest::analyzeHits(const std::vector<PCaloHit>& hits, int type) {
           int pid = simTrkItr->type();
           math::XYZTLorentzVectorD oldest_parent_vertex = getOldestParentVertex(simTrkItr);
 
-          edm::SimTrackContainer::const_iterator oldest_parent_track = parentSimTrack(simTrkItr);
+          auto oldest_parent_track = parentSimTrack(simTrkItr);
 
           edm::LogVerbatim("HitParentTest")
               << "[" << detector[type] << "] Hit pid = " << pid << "  hit track id = " << hit_geant_track_id
@@ -332,7 +331,7 @@ void HitParentTest::analyzeHits(const std::vector<PCaloHit>& hits, int type) {
 }
 
 void HitParentTest::analyzeAPDHits(const std::vector<PCaloHit>& hits, int depth) {
-  for (std::vector<PCaloHit>::const_iterator hit_it = hits.begin(); hit_it != hits.end(); ++hit_it) {
+  for (auto hit_it = hits.begin(); hit_it != hits.end(); ++hit_it) {
     if (hit_it->depth() == depth) {
       ++total_num_apd_hits_seen[depth - 1];
 
@@ -344,8 +343,7 @@ void HitParentTest::analyzeAPDHits(const std::vector<PCaloHit>& hits, int depth)
       } else {
         bool found = false;
         // check whether this id is actually there in the list of simtracks
-        for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end() && !found;
-             ++simTrkItr) {
+        for (auto simTrkItr = SimTk->begin(); simTrkItr != SimTk->end() && !found; ++simTrkItr) {
           if (hit_geant_track_id == (int)(simTrkItr->trackId())) {
             found = true;
             bool match = validSimTrack(hit_geant_track_id, simTrkItr);
@@ -360,7 +358,7 @@ void HitParentTest::analyzeAPDHits(const std::vector<PCaloHit>& hits, int depth)
             }
 
             int apd_pid = simTrkItr->type();
-            std::map<int, unsigned>::iterator count_it = particle_type_count.find(apd_pid);
+            auto count_it = particle_type_count.find(apd_pid);
             if (count_it == particle_type_count.end())
               // first occurence of this particle pid
               particle_type_count[apd_pid] = 1;
@@ -372,7 +370,7 @@ void HitParentTest::analyzeAPDHits(const std::vector<PCaloHit>& hits, int depth)
             // beam pipe...
             math::XYZTLorentzVectorD oldest_parent_vertex = getOldestParentVertex(simTrkItr);
 
-            edm::SimTrackContainer::const_iterator oldest_parent_track = parentSimTrack(simTrkItr);
+            auto oldest_parent_track = parentSimTrack(simTrkItr);
 
             edm::LogVerbatim("HitParentTest")
                 << "APD hit pid = " << apd_pid << " APD hit track id = " << hit_geant_track_id
@@ -395,7 +393,7 @@ void HitParentTest::analyzeAPDHits(const std::vector<PCaloHit>& hits, int depth)
 }
 
 bool HitParentTest::simTrackPresent(int id) {
-  for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); ++simTrkItr) {
+  for (auto simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); ++simTrkItr) {
     if ((int)(simTrkItr->trackId()) == id)
       return true;
   }
@@ -406,7 +404,7 @@ math::XYZTLorentzVectorD HitParentTest::getOldestParentVertex(edm::SimTrackConta
   static const math::XYZTLorentzVectorD invalid_vertex(
       10000, 10000, 10000, 10000);  // default value if no valid vertex found
 
-  edm::SimTrackContainer::const_iterator oldest_parent_track = parentSimTrack(track);
+  auto oldest_parent_track = parentSimTrack(track);
 
   int vertex_index = oldest_parent_track->vertIndex();
 
@@ -418,7 +416,7 @@ math::XYZTLorentzVectorD HitParentTest::getOldestParentVertex(edm::SimTrackConta
 }
 
 edm::SimTrackContainer::const_iterator HitParentTest::parentSimTrack(edm::SimTrackContainer::const_iterator thisTrkItr) {
-  edm::SimTrackContainer::const_iterator itr = SimTk->end();
+  auto itr = SimTk->end();
 
   int vertIndex = thisTrkItr->vertIndex();
   int type = thisTrkItr->type();
@@ -431,7 +429,7 @@ edm::SimTrackContainer::const_iterator HitParentTest::parentSimTrack(edm::SimTra
   else if (vertIndex >= (int)SimVtx->size())
     return itr;
 
-  edm::SimVertexContainer::const_iterator simVtxItr = SimVtx->begin();
+  auto simVtxItr = SimVtx->begin();
   for (int iv = 0; iv < vertIndex; iv++)
     simVtxItr++;
   int parent = simVtxItr->parentIndex();
@@ -449,7 +447,7 @@ edm::SimTrackContainer::const_iterator HitParentTest::parentSimTrack(edm::SimTra
       }
     }
   }
-  for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
+  for (auto simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
     if ((int)simTrkItr->trackId() == parent && simTrkItr != thisTrkItr)
       return parentSimTrack(simTrkItr);
   }
@@ -469,7 +467,7 @@ bool HitParentTest::validSimTrack(unsigned int simTkId, edm::SimTrackContainer::
   int vertIndex = thisTrkItr->vertIndex();
   if (vertIndex == -1 || vertIndex >= (int)SimVtx->size())
     return false;
-  edm::SimVertexContainer::const_iterator simVtxItr = SimVtx->begin();
+  auto simVtxItr = SimVtx->begin();
   for (int iv = 0; iv < vertIndex; iv++)
     simVtxItr++;
   int parent = simVtxItr->parentIndex();
@@ -488,7 +486,7 @@ bool HitParentTest::validSimTrack(unsigned int simTkId, edm::SimTrackContainer::
     }
   }
   edm::LogVerbatim("HitParentTest") << "HitParentTes::final index " << parent;
-  for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
+  for (auto simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
     if ((int)simTrkItr->trackId() == parent && simTrkItr != thisTrkItr)
       return validSimTrack(simTkId, simTrkItr);
   }

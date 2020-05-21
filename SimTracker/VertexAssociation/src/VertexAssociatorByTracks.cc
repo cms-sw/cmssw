@@ -59,9 +59,7 @@ reco::VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
     double recoDaughterWeight = 0.;
 
     // Loop over daughter tracks of RecoVertex
-    for (reco::Vertex::trackRef_iterator recoDaughter = recoVertex->tracks_begin();
-         recoDaughter != recoVertex->tracks_end();
-         ++recoDaughter) {
+    for (auto recoDaughter = recoVertex->tracks_begin(); recoDaughter != recoVertex->tracks_end(); ++recoDaughter) {
       // Check the quality of the RecoDoughters
       if (!(*recoDaughter)->quality(trackQuality_))
         continue;
@@ -71,9 +69,7 @@ reco::VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
         std::vector<std::pair<TrackingParticleRef, double>> associations = (*trackRecoToSimAssociation_)[*recoDaughter];
 
         // Loop over TrackingParticles associated with RecoDaughter
-        for (std::vector<std::pair<TrackingParticleRef, double>>::const_iterator association = associations.begin();
-             association != associations.end();
-             ++association) {
+        for (auto association = associations.begin(); association != associations.end(); ++association) {
           // Get a reference to parent vertex of TrackingParticle associated to
           // the RecoDaughter
           TrackingVertexRef trackingVertex = association->first->parentVertex();
@@ -89,9 +85,7 @@ reco::VertexRecoToSimCollection VertexAssociatorByTracks::associateRecoToSim(
     std::size_t assoIndex = 0;
 
     // Loop over map between TrackingVertexes and matched RecoDaugther
-    for (std::map<TrackingVertexRef, std::pair<double, std::size_t>>::const_iterator match = matches.begin();
-         match != matches.end();
-         ++match) {
+    for (auto match = matches.begin(); match != matches.end(); ++match) {
       // Getting the TrackingVertex information
       TrackingVertexRef trackingVertex = match->first;
       double matchedDaughterWeight = match->second.first;
@@ -167,16 +161,13 @@ reco::VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
         std::vector<std::pair<reco::TrackBaseRef, double>> associations = (*trackSimToRecoAssociation_)[*simDaughter];
 
         // Loop over RecoTracks associated with TrackingParticle
-        for (std::vector<std::pair<reco::TrackBaseRef, double>>::const_iterator association = associations.begin();
-             association != associations.end();
-             ++association) {
+        for (auto association = associations.begin(); association != associations.end(); ++association) {
           reco::TrackBaseRef recoTrack = association->first;
 
           for (std::size_t recoIndex = 0; recoIndex < recoVertexes->size(); ++recoIndex) {
             reco::VertexBaseRef recoVertex(recoVertexes, recoIndex);
 
-            for (reco::Vertex::trackRef_iterator recoDaughter = recoVertex->tracks_begin();
-                 recoDaughter != recoVertex->tracks_end();
+            for (auto recoDaughter = recoVertex->tracks_begin(); recoDaughter != recoVertex->tracks_end();
                  ++recoDaughter) {
               // Store matched RecoDaughter to the RecoVertex
               if (recoDaughter->id() == recoTrack.id() && recoDaughter->key() == recoTrack.key()) {
@@ -194,9 +185,7 @@ reco::VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
     std::size_t assoIndex = 0;
 
     // Loop over map, set score, add to outputCollection
-    for (std::map<std::size_t, std::pair<double, std::size_t>>::const_iterator match = matches.begin();
-         match != matches.end();
-         ++match) {
+    for (auto match = matches.begin(); match != matches.end(); ++match) {
       // Getting the TrackingVertex information
       reco::VertexBaseRef recoVertex(recoVertexes, match->first);
       double matchedDaughterWeight = match->second.first;
@@ -206,9 +195,7 @@ reco::VertexSimToRecoCollection VertexAssociatorByTracks::associateSimToReco(
 
       // Weighted count of those tracks with a given quality of the
       // RecoDoughters
-      for (reco::Vertex::trackRef_iterator recoDaughter = recoVertex->tracks_begin();
-           recoDaughter != recoVertex->tracks_end();
-           ++recoDaughter)
+      for (auto recoDaughter = recoVertex->tracks_begin(); recoDaughter != recoVertex->tracks_end(); ++recoDaughter)
         if ((*recoDaughter)->quality(trackQuality_))
           recoDaughterWeight += recoVertex->trackWeight(*recoDaughter);
 

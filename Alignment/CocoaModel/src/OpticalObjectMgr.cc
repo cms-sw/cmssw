@@ -18,7 +18,7 @@ OpticalObjectMgr* OpticalObjectMgr::getInstance() {
 //-----------------------------------------------------------------------
 OpticalObject* OpticalObjectMgr::findOptO(const ALIstring& longName, bool exists) const {
   OpticalObject* opto = nullptr;
-  msopto::const_iterator cite = theOptODict.find(longName);
+  auto cite = theOptODict.find(longName);
   if (cite == theOptODict.end()) {
     if (exists) {
       std::cerr << "!!!! EXITING: OptO not found: " << longName << std::endl;

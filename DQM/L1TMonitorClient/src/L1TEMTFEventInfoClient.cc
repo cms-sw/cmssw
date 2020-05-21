@@ -635,7 +635,7 @@ void L1TEMTFEventInfoClient::readQtResults(DQMStore::IBooker& ibooker, DQMStore:
   if (m_verbose)
     std::cout << "\nInside L1TEMTFEventInfoClient::readQtResults" << std::endl;  // Extra printout - AWB 03.12.16
 
-  for (std::vector<int>::iterator it = m_summaryContent.begin(); it != m_summaryContent.end(); ++it) {
+  for (auto it = m_summaryContent.begin(); it != m_summaryContent.end(); ++it) {
     (*it) = dqm::qstatus::DISABLED;
   }
 

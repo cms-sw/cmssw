@@ -125,8 +125,7 @@ namespace edm {
       typedef std::vector<ParameterSet> Parameters;
       Parameters const& toGet = pSet_.getParameterSetVector("toGet");
 
-      for (Parameters::const_iterator itToGet = toGet.begin(), itToGetEnd = toGet.end(); itToGet != itToGetEnd;
-           ++itToGet) {
+      for (auto itToGet = toGet.begin(), itToGetEnd = toGet.end(); itToGet != itToGetEnd; ++itToGet) {
         std::string recordName = itToGet->getParameter<std::string>("record");
 
         eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType(recordName));
@@ -139,8 +138,7 @@ namespace edm {
         typedef std::vector<std::string> Strings;
         Strings dataNames = itToGet->getParameter<Strings>("data");
         std::vector<eventsetup::DataKey> dataKeys;
-        for (Strings::iterator itDatum = dataNames.begin(), itDatumEnd = dataNames.end(); itDatum != itDatumEnd;
-             ++itDatum) {
+        for (auto itDatum = dataNames.begin(), itDatumEnd = dataNames.end(); itDatum != itDatumEnd; ++itDatum) {
           std::string datumName(*itDatum, 0, itDatum->find_first_of("/"));
           std::string labelName;
           if (itDatum->size() != datumName.size()) {
@@ -165,10 +163,7 @@ namespace edm {
         iSetup.fillAvailableRecordKeys(recordKeys);
         std::vector<eventsetup::DataKey> dataKeys;
 
-        for (std::vector<eventsetup::EventSetupRecordKey>::iterator itRKey = recordKeys.begin(),
-                                                                    itRKeyEnd = recordKeys.end();
-             itRKey != itRKeyEnd;
-             ++itRKey) {
+        for (auto itRKey = recordKeys.begin(), itRKeyEnd = recordKeys.end(); itRKey != itRKeyEnd; ++itRKey) {
           auto record = iSetup.find(*itRKey);
           assert(record);
           dataKeys.clear();
@@ -183,8 +178,7 @@ namespace edm {
 
     //For each requested Record get the requested data only if the Record is in a new IOV
 
-    for (RecordToDataKeys::iterator itRecord = recordToDataKeys_.begin(), itRecordEnd = recordToDataKeys_.end();
-         itRecord != itRecordEnd;
+    for (auto itRecord = recordToDataKeys_.begin(), itRecordEnd = recordToDataKeys_.end(); itRecord != itRecordEnd;
          ++itRecord) {
       auto pRecord = iSetup.find(itRecord->first);
       if (not pRecord) {
@@ -195,7 +189,7 @@ namespace edm {
         recordToCacheIdentifier_[itRecord->first] = pRecord->cacheIdentifier();
         typedef std::vector<DataKey> Keys;
         Keys const& keys = itRecord->second;
-        for (Keys::const_iterator itKey = keys.begin(), itKeyEnd = keys.end(); itKey != itKeyEnd; ++itKey) {
+        for (auto itKey = keys.begin(), itKeyEnd = keys.end(); itKey != itKeyEnd; ++itKey) {
           if (!pRecord->doGet(*itKey)) {
             edm::LogWarning("DataGetter")
                 << "No data of type \"" << itKey->type().name() << "\" with name \"" << itKey->name().value()

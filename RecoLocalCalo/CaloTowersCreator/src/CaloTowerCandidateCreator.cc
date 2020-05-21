@@ -37,7 +37,7 @@ void CaloTowerCandidateCreator::produce(Event& evt, const EventSetup&) {
     }
     if (cal->et() >= mEtThreshold && cal->energy() >= mEThreshold) {
       math::PtEtaPhiMLorentzVector p(cal->et(), cal->eta(), cal->phi(), 0);
-      RecoCaloTowerCandidate* c = new RecoCaloTowerCandidate(0, Candidate::LorentzVector(p));
+      auto* c = new RecoCaloTowerCandidate(0, Candidate::LorentzVector(p));
       c->setCaloTower(CaloTowerRef(caloTowers, idx));
       cands->push_back(c);
       if (mVerbose >= 2)

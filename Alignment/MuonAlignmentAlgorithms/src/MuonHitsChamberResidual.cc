@@ -58,9 +58,9 @@ void MuonHitsChamberResidual::segment_fit() {
   m_chi2 = 0.;
   double a = m_residual;
   double b = m_resslope;
-  std::vector<double>::const_iterator x = m_individual_x.begin();
-  std::vector<double>::const_iterator y = m_individual_y.begin();
-  std::vector<double>::const_iterator w = m_individual_weight.begin();
+  auto x = m_individual_x.begin();
+  auto y = m_individual_y.begin();
+  auto w = m_individual_weight.begin();
   for (; x != m_individual_x.end(); ++x, ++y, ++w)
     m_chi2 += pow((*y) - a - b * (*x), 2) * (*w);
 

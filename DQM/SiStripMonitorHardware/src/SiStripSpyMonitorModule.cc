@@ -330,10 +330,10 @@ void SiStripSpyMonitorModule::analyze(const edm::Event& iEvent, const edm::Event
       //uint16_t lNPairs = lConnection.nApvPairs();
       uint16_t lPair = lConnection.apvPairNumber();
 
-      edm::DetSetVector<SiStripRawDigi>::const_iterator lDigis = lInputDigis->find(lFedIndex);
+      auto lDigis = lInputDigis->find(lFedIndex);
 
       //pedsubtr digis
-      edm::DetSetVector<SiStripRawDigi>::const_iterator lPayload = lPayloadDigis->find(lDetId);
+      auto lPayload = lPayloadDigis->find(lDetId);
 
       //no digis found, continue.
       if (lDigis == lInputDigis->end()) {
@@ -503,8 +503,8 @@ void SiStripSpyMonitorModule::analyze(const edm::Event& iEvent, const edm::Event
 
 bool SiStripSpyMonitorModule::hasNegativePedSubtr(const edm::DetSetVector<SiStripRawDigi>::detset& channelDigis,
                                                   uint16_t aPair) {
-  edm::DetSetVector<SiStripRawDigi>::detset::const_iterator iDigi = channelDigis.begin();
-  const edm::DetSetVector<SiStripRawDigi>::detset::const_iterator endChannelDigis = channelDigis.end();
+  auto iDigi = channelDigis.begin();
+  const auto endChannelDigis = channelDigis.end();
 
   uint32_t count = 0;
   for (; iDigi != endChannelDigis; ++iDigi) {
@@ -524,7 +524,7 @@ bool SiStripSpyMonitorModule::identifyTickmarks(const edm::DetSetVector<SiStripR
   uint16_t count = sistrip::SPY_SAMPLES_PER_CHANNEL - 3;
   uint16_t lastPos = sistrip::SPY_SAMPLES_PER_CHANNEL;
   uint16_t nTrailers = 0;
-  edm::DetSetVector<SiStripRawDigi>::detset::const_iterator iDigi = channelDigis.end();
+  auto iDigi = channelDigis.end();
 
   for (; count == 0; count--) {
     iDigi = findTwoConsecutive(channelDigis, threshold, count);
@@ -548,8 +548,8 @@ bool SiStripSpyMonitorModule::identifyTickmarks(const edm::DetSetVector<SiStripR
 
 edm::DetSetVector<SiStripRawDigi>::detset::const_iterator SiStripSpyMonitorModule::findTwoConsecutive(
     const edm::DetSetVector<SiStripRawDigi>::detset& channelDigis, const uint16_t threshold, uint16_t& aCounter) {
-  const edm::DetSetVector<SiStripRawDigi>::detset::const_iterator endChannelDigis = channelDigis.end();
-  edm::DetSetVector<SiStripRawDigi>::detset::const_iterator lStart = channelDigis.begin() + aCounter;
+  const auto endChannelDigis = channelDigis.end();
+  auto lStart = channelDigis.begin() + aCounter;
 
   bool foundTrailer = false;
   // Loop over digis looking for last two above threshold

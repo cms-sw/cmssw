@@ -31,12 +31,12 @@ void BasicMuonAnalyzer::analyze(const edm::EventBase& event) {
   event.getByLabel(muons_, muons);
 
   // loop muon collection and fill histograms
-  for (std::vector<Muon>::const_iterator mu1 = muons->begin(); mu1 != muons->end(); ++mu1) {
+  for (auto mu1 = muons->begin(); mu1 != muons->end(); ++mu1) {
     hists_["muonPt"]->Fill(mu1->pt());
     hists_["muonEta"]->Fill(mu1->eta());
     hists_["muonPhi"]->Fill(mu1->phi());
     if (mu1->pt() > 20 && fabs(mu1->eta()) < 2.1) {
-      for (std::vector<Muon>::const_iterator mu2 = muons->begin(); mu2 != muons->end(); ++mu2) {
+      for (auto mu2 = muons->begin(); mu2 != muons->end(); ++mu2) {
         if (mu2 > mu1) {                            // prevent double conting
           if (mu1->charge() * mu2->charge() < 0) {  // check only muon pairs of unequal charge
             if (mu2->pt() > 20 && fabs(mu2->eta()) < 2.1) {

@@ -65,12 +65,12 @@ namespace clangcms {
     clang::QualType OTy;
     clang::QualType TTy;
     if (lname == ename && ImplicitCastExpr::classof(RHS)) {
-      ImplicitCastExpr *ICE = dyn_cast_or_null<ImplicitCastExpr>(RHS);
+      auto *ICE = dyn_cast_or_null<ImplicitCastExpr>(RHS);
       TTy = BR.getContext().getCanonicalType(LHS->getType());
       OTy = BR.getContext().getCanonicalType(ICE->getSubExprAsWritten()->getType());
     }
     if (rname == ename && ImplicitCastExpr::classof(LHS)) {
-      ImplicitCastExpr *ICE = dyn_cast_or_null<ImplicitCastExpr>(LHS);
+      auto *ICE = dyn_cast_or_null<ImplicitCastExpr>(LHS);
       TTy = BR.getContext().getCanonicalType(RHS->getType());
       OTy = BR.getContext().getCanonicalType(ICE->getSubExprAsWritten()->getType());
     }
@@ -203,7 +203,7 @@ namespace clangcms {
     for (auto I = D->method_begin(), E = D->method_end(); I != E; ++I) {
       if (!llvm::isa<clang::CXXMethodDecl>((*I)))
         continue;
-      clang::CXXMethodDecl *MD = llvm::cast<clang::CXXMethodDecl>((*I)->getMostRecentDecl());
+      auto *MD = llvm::cast<clang::CXXMethodDecl>((*I)->getMostRecentDecl());
       if (!MD->hasBody())
         continue;
       clang::Stmt *Body = MD->getBody();

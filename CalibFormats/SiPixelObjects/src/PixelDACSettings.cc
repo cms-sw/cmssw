@@ -765,7 +765,7 @@ void PixelDACSettings::setVcthrEnable(PixelFECConfigInterface* pixelFEC,
 
 bool PixelDACSettings::rocIsDisabled(const PixelDetectorConfig* detconfig, const PixelROCName rocname) const {
   const std::map<PixelROCName, PixelROCStatus>& roclist = detconfig->getROCsList();
-  const std::map<PixelROCName, PixelROCStatus>::const_iterator iroc = roclist.find(rocname);
+  const auto iroc = roclist.find(rocname);
   assert(iroc != roclist.end());  // the roc name should always be found
   PixelROCStatus thisROCstatus = iroc->second;
 

@@ -72,7 +72,7 @@ namespace {  // anonymous
     if (!ctx)
       return new ConfContext(cur - begin + 1, count);
 
-    for (ConfigCtx::iterator iter = cur; iter != end; iter++) {
+    for (auto iter = cur; iter != end; iter++) {
       iter->mask = Variable::FLAG_ALL;
       iter->origin = ctx->origin;
     }

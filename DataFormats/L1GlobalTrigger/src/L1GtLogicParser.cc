@@ -330,7 +330,7 @@ bool L1GtLogicParser::buildRpnVector(const std::string& logicalExpressionVal) {
 
   // count all operations and check if the result is 1
   int counter = 0;
-  for (RpnVector::iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
+  for (auto it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
     if (it->operation == OP_OPERAND)
       counter++;
     if (it->operation == OP_OR || it->operation == OP_AND)
@@ -375,7 +375,7 @@ void L1GtLogicParser::buildOperandTokenVector() {
 
   int opNumber = 0;
 
-  for (RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
+  for (auto it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
     //LogTrace("L1GtLogicParser")
     //<< "\nit->operation = " << it->operation
     //<< "\nit->operand =   '" << it->operand << "'\n"
@@ -592,7 +592,7 @@ const bool L1GtLogicParser::expressionResult() const {
   std::stack<bool> resultStack;
   bool b1, b2;
 
-  for (RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
+  for (auto it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
     //LogTrace("L1GtLogicParser")
     //<< "\nit->operation = " << it->operation
     //<< "\nit->operand =   '" << it->operand << "'\n"
@@ -755,7 +755,7 @@ void L1GtLogicParser::buildOperandTokenVectorNumExp() {
 
   int opNumber = 0;
 
-  for (RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
+  for (auto it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
     //LogTrace("L1GtLogicParser")
     //<< "\nit->operation = " << it->operation
     //<< "\nit->operand =   '" << it->operand << "'\n"
@@ -816,7 +816,7 @@ const bool L1GtLogicParser::expressionResultNumExp() const {
   std::stack<bool> resultStack;
   bool b1, b2;
 
-  for (RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
+  for (auto it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
     //LogTrace("L1GtLogicParser")
     //<< "\nit->operation = " << it->operation
     //<< "\nit->operand =   '" << it->operand << "'\n"
@@ -916,7 +916,7 @@ void L1GtLogicParser::convertNameToIntLogicalExpression(const std::map<std::stri
     } else {
       typedef std::map<std::string, int>::const_iterator CIter;
 
-      CIter it = nameToIntMap.find(rpnToken.operand);
+      auto it = nameToIntMap.find(rpnToken.operand);
       if (it != nameToIntMap.end()) {
         intValue = it->second;
         std::stringstream intStr;
@@ -1000,7 +1000,7 @@ void L1GtLogicParser::convertIntToNameLogicalExpression(const std::map<int, std:
       std::istringstream iss(rpnToken.operand);
       iss >> std::dec >> indexInt;
 
-      CIter it = intToNameMap.find(indexInt);
+      auto it = intToNameMap.find(indexInt);
       if (it != intToNameMap.end()) {
         convertedLogicalExpression.append(it->second);
 
@@ -1069,7 +1069,7 @@ std::vector<L1GtLogicParser::OperandToken> L1GtLogicParser::expressionSeedsOpera
   dummyToken.tokenNumber = -1;
   dummyToken.tokenResult = false;
 
-  for (RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
+  for (auto it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
     //LogTrace("L1GtLogicParser")
     //<< "\nit->operation = " << it->operation
     //<< "\nit->operand =   '" << it->operand << "'\n"
@@ -1082,8 +1082,7 @@ std::vector<L1GtLogicParser::OperandToken> L1GtLogicParser::expressionSeedsOpera
         // push operands from previous block, if any in the tmpVector
         // (reverse order to compensate the stack push/top/pop)
         if ((!newOperandBlock)) {
-          for (std::vector<OperandToken>::reverse_iterator itOp = tmpVector.rbegin(); itOp != tmpVector.rend();
-               itOp++) {
+          for (auto itOp = tmpVector.rbegin(); itOp != tmpVector.rend(); itOp++) {
             opVector.push_back(*itOp);
 
             //LogTrace("L1GtLogicParser")
@@ -1209,7 +1208,7 @@ std::vector<L1GtLogicParser::OperandToken> L1GtLogicParser::expressionSeedsOpera
     }
 
     //
-    for (std::vector<OperandToken>::reverse_iterator itOp = tmpVector.rbegin(); itOp != tmpVector.rend(); itOp++) {
+    for (auto itOp = tmpVector.rbegin(); itOp != tmpVector.rend(); itOp++) {
       opVector.push_back(*itOp);
 
       //LogTrace("L1GtLogicParser")
@@ -1222,7 +1221,7 @@ std::vector<L1GtLogicParser::OperandToken> L1GtLogicParser::expressionSeedsOpera
     //LogTrace("L1GtLogicParser")
     //        << "  More blocks:  push the last block on the seed operand list" << std::endl;
 
-    for (std::vector<OperandToken>::reverse_iterator itOp = tmpVector.rbegin(); itOp != tmpVector.rend(); itOp++) {
+    for (auto itOp = tmpVector.rbegin(); itOp != tmpVector.rend(); itOp++) {
       opVector.push_back(*itOp);
 
       //LogTrace("L1GtLogicParser")
@@ -1237,10 +1236,10 @@ std::vector<L1GtLogicParser::OperandToken> L1GtLogicParser::expressionSeedsOpera
   std::vector<OperandToken> opVectorU;
   opVectorU.reserve(opVector.size());
 
-  for (std::vector<OperandToken>::const_iterator constIt = opVector.begin(); constIt != opVector.end(); constIt++) {
+  for (auto constIt = opVector.begin(); constIt != opVector.end(); constIt++) {
     bool tokenIncluded = false;
 
-    for (std::vector<OperandToken>::iterator itOpU = opVectorU.begin(); itOpU != opVectorU.end(); itOpU++) {
+    for (auto itOpU = opVectorU.begin(); itOpU != opVectorU.end(); itOpU++) {
       if ((*itOpU).tokenName == (*constIt).tokenName) {
         tokenIncluded = true;
         break;

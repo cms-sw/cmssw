@@ -82,19 +82,19 @@ int main(int argc, char* argv[]) {
         edm::Handle<std::vector<float> > muonPt;
         event.getByLabel(std::string("patMuonAnalyzer:pt"), muonPt);
         // loop muon collection and fill histograms
-        for (std::vector<float>::const_iterator mu1 = muonPt->begin(); mu1 != muonPt->end(); ++mu1) {
+        for (auto mu1 = muonPt->begin(); mu1 != muonPt->end(); ++mu1) {
           muonPt_->Fill(*mu1);
         }
         // Handle to the muon eta
         edm::Handle<std::vector<float> > muonEta;
         event.getByLabel(std::string("patMuonAnalyzer:eta"), muonEta);
-        for (std::vector<float>::const_iterator mu1 = muonEta->begin(); mu1 != muonEta->end(); ++mu1) {
+        for (auto mu1 = muonEta->begin(); mu1 != muonEta->end(); ++mu1) {
           muonEta_->Fill(*mu1);
         }
         // Handle to the muon phi
         edm::Handle<std::vector<float> > muonPhi;
         event.getByLabel(std::string("patMuonAnalyzer:phi"), muonPhi);
-        for (std::vector<float>::const_iterator mu1 = muonPhi->begin(); mu1 != muonPhi->end(); ++mu1) {
+        for (auto mu1 = muonPhi->begin(); mu1 != muonPhi->end(); ++mu1) {
           muonPhi_->Fill(*mu1);
         }
       }

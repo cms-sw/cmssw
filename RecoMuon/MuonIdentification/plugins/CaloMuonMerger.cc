@@ -74,7 +74,7 @@ void CaloMuonMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   out->reserve(muons->size() + (mergeTracks_ ? tracks->size() : 0));
 
   // copy reco::Muons, turning on the CaloCompatibility flag if enabled and possible
-  for (std::vector<reco::Muon>::const_iterator it = muons->begin(), ed = muons->end(); it != ed; ++it) {
+  for (auto it = muons->begin(), ed = muons->end(); it != ed; ++it) {
     if (!muonsCut_(*it))
       continue;
     out->push_back(*it);
@@ -92,7 +92,7 @@ void CaloMuonMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
   if (mergeCaloMuons_) {
     // copy reco::CaloMuon
-    for (std::vector<reco::CaloMuon>::const_iterator it = caloMuons->begin(), ed = caloMuons->end(); it != ed; ++it) {
+    for (auto it = caloMuons->begin(), ed = caloMuons->end(); it != ed; ++it) {
       if (!caloMuonsCut_(*it))
         continue;
       // make a reco::Muon
@@ -117,7 +117,7 @@ void CaloMuonMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
         continue;
       // check if it is a muon or calomuon
       bool isMuon = false;
-      for (std::vector<reco::Muon>::const_iterator muon = muons->begin(); muon < muons->end(); muon++) {
+      for (auto muon = muons->begin(); muon < muons->end(); muon++) {
         if (muon->innerTrack() == track) {
           isMuon = true;
           break;
@@ -127,7 +127,7 @@ void CaloMuonMerger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
         continue;
       if (mergeCaloMuons_) {
         bool isCaloMuon = false;
-        for (std::vector<reco::CaloMuon>::const_iterator muon = caloMuons->begin(); muon < caloMuons->end(); muon++) {
+        for (auto muon = caloMuons->begin(); muon < caloMuons->end(); muon++) {
           if (muon->innerTrack() == track) {
             isCaloMuon = true;
             break;

@@ -39,7 +39,7 @@ vector<std::vector<PartitionGenerator::Partition> > PartitionGenerator::sortedPa
   std::vector<std::vector<Partition> > sortedPartitions;
   sortedPartitions.resize(partitions.rbegin()->size());
 
-  for (std::vector<Partition>::const_iterator i = partitions.begin(); i != partitions.end(); i++) {
+  for (auto i = partitions.begin(); i != partitions.end(); i++) {
     sortedPartitions[(*i).size() - 1].push_back(*i);
   }
 

@@ -35,7 +35,7 @@ DigiConverterFP420::DigiConverterFP420(float in, int verbosity) {
 DConverterFP420::DigitalMapType DigiConverterFP420::convert(const signal_map_type &analogSignal) {
   DConverterFP420::DigitalMapType _temp;
 
-  for (signal_map_type::const_iterator i = analogSignal.begin(); i != analogSignal.end(); i++) {
+  for (auto i = analogSignal.begin(); i != analogSignal.end(); i++) {
     // convert analog amplitude to digital, means integer number simulating ADC
     // digitization!
     // with truncation check

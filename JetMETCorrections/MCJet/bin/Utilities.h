@@ -73,7 +73,7 @@ private:
 template <class T>
 T CommandLine::getValue(const std::string& name) {
   T result = T();
-  OptionMap_t::iterator it = _options.find(name);
+  auto it = _options.find(name);
   if (it != _options.end()) {
     it->second.second = true;
     _ordered_options.push_back(name);
@@ -89,7 +89,7 @@ T CommandLine::getValue(const std::string& name) {
 //______________________________________________________________________________
 template <class T>
 T CommandLine::getValue(const std::string& name, T default_value) {
-  OptionMap_t::const_iterator it = _options.find(name);
+  auto it = _options.find(name);
   if (it != _options.end())
     return getValue<T>(name);
   std::string default_as_string;
@@ -104,7 +104,7 @@ T CommandLine::getValue(const std::string& name, T default_value) {
 //______________________________________________________________________________
 template <>
 bool CommandLine::getValue<bool>(const std::string& name) {
-  OptionMap_t::iterator it = _options.find(name);
+  auto it = _options.find(name);
   if (it != _options.end()) {
     it->second.second = true;
     _ordered_options.push_back(name);
@@ -126,7 +126,7 @@ bool CommandLine::getValue<bool>(const std::string& name) {
 //______________________________________________________________________________
 template <>
 bool CommandLine::getValue(const std::string& name, bool default_value) {
-  OptionMap_t::const_iterator it = _options.find(name);
+  auto it = _options.find(name);
   if (it != _options.end())
     return getValue<bool>(name);
   _options[name] = (default_value) ? std::make_pair("true", true) : std::make_pair("false", true);
@@ -138,7 +138,7 @@ bool CommandLine::getValue(const std::string& name, bool default_value) {
 template <class T>
 std::vector<T> CommandLine::getVector(const std::string& name) {
   std::vector<T> result;
-  OptionMap_t::iterator it = _options.find(name);
+  auto it = _options.find(name);
   if (it != _options.end()) {
     it->second.second = true;
     _ordered_options.push_back(name);
@@ -164,7 +164,7 @@ std::vector<T> CommandLine::getVector(const std::string& name) {
 //______________________________________________________________________________
 template <class T>
 std::vector<T> CommandLine::getVector(const std::string& name, const std::string& default_as_string) {
-  OptionMap_t::iterator it = _options.find(name);
+  auto it = _options.find(name);
   if (it == _options.end())
     _options[name] = std::make_pair(default_as_string, false);
   return getVector<T>(name);
@@ -235,7 +235,7 @@ bool CommandLine::check() {
     result = false;
     std::cout << "\nCommandLine WARNING: " << _unknowns.size()
               << " the followingparameters *must* be provided:" << std::endl;
-    for (StrVec_t::const_iterator it = _unknowns.begin(); it != _unknowns.end(); ++it)
+    for (auto it = _unknowns.begin(); it != _unknowns.end(); ++it)
       std::cout << (*it) << std::endl;
     std::cout << std::endl;
   }
@@ -246,8 +246,8 @@ void CommandLine::print() {
   std::cout << "------------------------------------------------------------" << std::endl;
   std::cout << _exe << " options:" << std::endl;
   std::cout << "------------------------------------------------------------" << std::endl;
-  for (StrVec_t::const_iterator itvec = _ordered_options.begin(); itvec != _ordered_options.end(); ++itvec) {
-    OptionMap_t::const_iterator it = _options.find(*itvec);
+  for (auto itvec = _ordered_options.begin(); itvec != _ordered_options.end(); ++itvec) {
+    auto it = _options.find(*itvec);
     assert(it != _options.end());
     if (it->second.first.find(",") < std::string::npos) {
       std::string tmp = it->second.first;

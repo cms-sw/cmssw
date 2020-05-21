@@ -52,8 +52,7 @@ void SubsystemNeutronReader::generateChamberNoise(int chamberType,
       vector<PSimHit> neutronHits;
       theHitReader->readNextEvent(chamberType, neutronHits);
 
-      for (vector<PSimHit>::const_iterator neutronHitItr = neutronHits.begin(); neutronHitItr != neutronHits.end();
-           ++neutronHitItr) {
+      for (auto neutronHitItr = neutronHits.begin(); neutronHitItr != neutronHits.end(); ++neutronHitItr) {
         const PSimHit& rawHit = *neutronHitItr;
         // do the time offset and local det id
         int det = detId(chamberIndex, rawHit.detUnitId());

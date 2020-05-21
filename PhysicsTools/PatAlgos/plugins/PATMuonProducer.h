@@ -294,7 +294,7 @@ void pat::PATMuonProducer::readIsolationLabels(const edm::ParameterSet& iConfig,
     }
     if (depconf.exists("user")) {
       std::vector<edm::InputTag> userdeps = depconf.getParameter<std::vector<edm::InputTag>>("user");
-      std::vector<edm::InputTag>::const_iterator it = userdeps.begin(), ed = userdeps.end();
+      auto it = userdeps.begin(), ed = userdeps.end();
       int key = pat::IsolationKeys::UserBaseIso;
       for (; it != ed; ++it, ++key) {
         labels.push_back(std::make_pair(pat::IsolationKeys(key), *it));

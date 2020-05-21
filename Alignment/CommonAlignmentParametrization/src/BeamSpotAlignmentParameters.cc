@@ -50,7 +50,7 @@ BeamSpotAlignmentParameters::~BeamSpotAlignmentParameters() {}
 //__________________________________________________________________________________________________
 BeamSpotAlignmentParameters *BeamSpotAlignmentParameters::clone(const AlgebraicVector &parameters,
                                                                 const AlgebraicSymMatrix &covMatrix) const {
-  BeamSpotAlignmentParameters *rbap = new BeamSpotAlignmentParameters(alignable(), parameters, covMatrix, selector());
+  auto *rbap = new BeamSpotAlignmentParameters(alignable(), parameters, covMatrix, selector());
 
   if (userVariables())
     rbap->setUserVariables(userVariables()->clone());
@@ -62,7 +62,7 @@ BeamSpotAlignmentParameters *BeamSpotAlignmentParameters::clone(const AlgebraicV
 //__________________________________________________________________________________________________
 BeamSpotAlignmentParameters *BeamSpotAlignmentParameters::cloneFromSelected(const AlgebraicVector &parameters,
                                                                             const AlgebraicSymMatrix &covMatrix) const {
-  BeamSpotAlignmentParameters *rbap = new BeamSpotAlignmentParameters(
+  auto *rbap = new BeamSpotAlignmentParameters(
       alignable(), expandVector(parameters, selector()), expandSymMatrix(covMatrix, selector()), selector());
 
   if (userVariables())

@@ -109,7 +109,7 @@ void L1MuDTWedgeSorter::run() {
   runCOL(wedgecands);
 
   // remove disabled candidates
-  vector<L1MuDTTrack*>::iterator it = wedgecands.begin();
+  auto it = wedgecands.begin();
   while (it != wedgecands.end()) {
     if (*it && (*it)->empty()) {
       wedgecands.erase(it);
@@ -148,7 +148,7 @@ void L1MuDTWedgeSorter::reset() {
 void L1MuDTWedgeSorter::print() const {
   if (anyTrack()) {
     cout << "Muon candidates found in Wedge Sorter " << m_wsid << " : " << endl;
-    vector<const L1MuDTTrack*>::const_iterator iter = m_TrackCands.begin();
+    auto iter = m_TrackCands.begin();
     while (iter != m_TrackCands.end()) {
       if (*iter)
         cout << *(*iter) << " found in " << (*iter)->spid() << endl;
@@ -161,7 +161,7 @@ void L1MuDTWedgeSorter::print() const {
 // are there any muon candidates?
 //
 bool L1MuDTWedgeSorter::anyTrack() const {
-  vector<const L1MuDTTrack*>::const_iterator iter = m_TrackCands.begin();
+  auto iter = m_TrackCands.begin();
   while (iter != m_TrackCands.end()) {
     if (*iter && !(*iter)->empty())
       return true;
@@ -181,14 +181,14 @@ void L1MuDTWedgeSorter::runCOL(vector<L1MuDTTrack*>& cands) const {
   // compare addresses from stations 2, 3 and 4
 
   typedef vector<L1MuDTTrack*>::iterator TI;
-  for (TI iter1 = cands.begin(); iter1 != cands.end(); iter1++) {
+  for (auto iter1 = cands.begin(); iter1 != cands.end(); iter1++) {
     if (*iter1 == nullptr)
       continue;
     if ((*iter1)->empty())
       continue;
     L1MuDTSecProcId sp1 = (*iter1)->spid();
     int qual1 = (*iter1)->quality();
-    for (TI iter2 = cands.begin(); iter2 != cands.end(); iter2++) {
+    for (auto iter2 = cands.begin(); iter2 != cands.end(); iter2++) {
       if (*iter2 == nullptr)
         continue;
       if (*iter1 == *iter2)

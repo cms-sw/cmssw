@@ -103,7 +103,7 @@ void popcon::EcalPulseShapesHandler::getNewObjects() {
       if (EBDetId::validDetId(iEta, iPhi)) {
         EBDetId ebdetid(iEta, iPhi, EBDetId::ETAPHIMODE);
 
-        std::vector<EBDetId>::iterator it = find(ebgood.begin(), ebgood.end(), ebdetid);
+        auto it = find(ebgood.begin(), ebgood.end(), ebdetid);
         if (it == ebgood.end()) {
           EcalPulseShapes::Item item;
           fillSimPulseShape(&item, true);
@@ -119,7 +119,7 @@ void popcon::EcalPulseShapesHandler::getNewObjects() {
         if (EEDetId::validDetId(iX, iY, iZ)) {
           EEDetId eedetid(iX, iY, iZ);
 
-          std::vector<EEDetId>::iterator it = find(eegood.begin(), eegood.end(), eedetid);
+          auto it = find(eegood.begin(), eegood.end(), eedetid);
           if (it == eegood.end()) {
             EcalPulseShapes::Item item;
             fillSimPulseShape(&item, false);

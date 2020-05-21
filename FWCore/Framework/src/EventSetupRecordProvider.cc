@@ -122,7 +122,7 @@ namespace edm {
         ProxyList& keyedProxies(iProvider->keyedProxies(this->key(), record.iovIndex()));
 
         for (auto keyedProxy : keyedProxies) {
-          PreferredMap::const_iterator itFound = iMap.find(keyedProxy.dataKey_);
+          auto itFound = iMap.find(keyedProxy.dataKey_);
           if (iMap.end() != itFound) {
             if (itFound->second.type_ != keyedProxy.dataProxy_->providerDescription()->type_ ||
                 itFound->second.label_ != keyedProxy.dataProxy_->providerDescription()->label_) {

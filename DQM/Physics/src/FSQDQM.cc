@@ -173,7 +173,7 @@ void FSQDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       PV_d0->Fill(sqrt(pvtx.x() * pvtx.x() + pvtx.y() * pvtx.y()));
       PV_numTrks->Fill(pvtx.tracksSize());
       double vertex_sumTrks = 0.0;
-      for (reco::Vertex::trackRef_iterator iTrack = pvtx.tracks_begin(); iTrack != pvtx.tracks_end(); iTrack++) {
+      for (auto iTrack = pvtx.tracks_begin(); iTrack != pvtx.tracks_end(); iTrack++) {
         vertex_sumTrks += (*iTrack)->pt();
       }
       PV_sumTrks->Fill(vertex_sumTrks);
@@ -188,7 +188,7 @@ void FSQDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   iEvent.getByToken(tok_pfjet_, pfjetchscoll);
   if (pfjetchscoll.isValid()) {
     const reco::PFJetCollection* pfchsjets = pfjetchscoll.product();
-    reco::PFJetCollection::const_iterator pfjetchsclus = pfchsjets->begin();
+    auto pfjetchsclus = pfchsjets->begin();
     for (pfjetchsclus = pfchsjets->begin(); pfjetchsclus != pfchsjets->end(); ++pfjetchsclus) {
       PFJetpt->Fill(pfjetchsclus->pt());
       PFJeteta->Fill(pfjetchsclus->eta());
@@ -233,7 +233,7 @@ void FSQDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     float ptsum_away = 0;
 
     T_trackRec_P4.clear();
-    for (reco::TrackCollection::const_iterator iT = itracks->begin(); iT != itracks->end(); ++iT) {
+    for (auto iT = itracks->begin(); iT != itracks->end(); ++iT) {
       if (iT->quality(hiPurity)) {
         math::XYZPoint bestvtx(bestvx, bestvy, bestvz);
         double dzvtx = iT->dz(bestvtx);

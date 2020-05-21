@@ -95,8 +95,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
   if (m_debug)
     std::cout << "  Size of vector of TrajectoryMeasurements: " << vTrajMeasurement.size() << std::endl;
   int nTrajMeasurement = 0;
-  for (std::vector<TrajectoryMeasurement>::const_iterator iTrajMeasurement = vTrajMeasurement.begin();
-       iTrajMeasurement != vTrajMeasurement.end();
+  for (auto iTrajMeasurement = vTrajMeasurement.begin(); iTrajMeasurement != vTrajMeasurement.end();
        ++iTrajMeasurement) {
     nTrajMeasurement++;
     if (m_debug)
@@ -198,15 +197,11 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
             std::vector<const TrackingRecHit*> vDTSeg2D = trajMeasurementHit->recHits();
             if (m_debug)
               std::cout << "          vDTSeg2D size: " << vDTSeg2D.size() << std::endl;
-            for (std::vector<const TrackingRecHit*>::const_iterator itDTSeg2D = vDTSeg2D.begin();
-                 itDTSeg2D != vDTSeg2D.end();
-                 ++itDTSeg2D) {
+            for (auto itDTSeg2D = vDTSeg2D.begin(); itDTSeg2D != vDTSeg2D.end(); ++itDTSeg2D) {
               std::vector<const TrackingRecHit*> vDTHits1D = (*itDTSeg2D)->recHits();
               if (m_debug)
                 std::cout << "            vDTHits1D size: " << vDTHits1D.size() << std::endl;
-              for (std::vector<const TrackingRecHit*>::const_iterator itDTHits1D = vDTHits1D.begin();
-                   itDTHits1D != vDTHits1D.end();
-                   ++itDTHits1D) {
+              for (auto itDTHits1D = vDTHits1D.begin(); itDTHits1D != vDTHits1D.end(); ++itDTHits1D) {
                 const TrackingRecHit* hit = *itDTHits1D;
                 if (m_debug)
                   std::cout << "              hit dimension: " << hit->dimension() << std::endl;
@@ -279,9 +274,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
             if (m_debug)
               std::cout << "          vCSCHits2D size: " << vCSCHits2D.size() << std::endl;
             if (vCSCHits2D.size() >= 5) {
-              for (std::vector<const TrackingRecHit*>::const_iterator itCSCHits2D = vCSCHits2D.begin();
-                   itCSCHits2D != vCSCHits2D.end();
-                   ++itCSCHits2D) {
+              for (auto itCSCHits2D = vCSCHits2D.begin(); itCSCHits2D != vCSCHits2D.end(); ++itCSCHits2D) {
                 const TrackingRecHit* cscHit2D = *itCSCHits2D;
                 if (m_debug)
                   std::cout << "            cscHit2D dimension: " << cscHit2D->dimension() << std::endl;
@@ -367,8 +360,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
             //                                                          itDTSeg2D != vDTSeg2D.end();
             //                                                        ++itDTSeg2D ) {
 
-            for (std::vector<TrackingRecHit*>::const_iterator itDTSeg2D = vDTSeg2D.begin(); itDTSeg2D != vDTSeg2D.end();
-                 ++itDTSeg2D) {
+            for (auto itDTSeg2D = vDTSeg2D.begin(); itDTSeg2D != vDTSeg2D.end(); ++itDTSeg2D) {
               // std::vector<const TrackingRecHit*> vDTHits1D =  (*itDTSeg2D)->recHits();
               std::vector<TrackingRecHit*> vDTHits1D = (*itDTSeg2D)->recHits();
               if (m_debug)
@@ -376,9 +368,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
               // for ( std::vector<const TrackingRecHit*>::const_iterator itDTHits1D =  vDTHits1D.begin();
               //                                                          itDTHits1D != vDTHits1D.end();
               //                                                        ++itDTHits1D ) {
-              for (std::vector<TrackingRecHit*>::const_iterator itDTHits1D = vDTHits1D.begin();
-                   itDTHits1D != vDTHits1D.end();
-                   ++itDTHits1D) {
+              for (auto itDTHits1D = vDTHits1D.begin(); itDTHits1D != vDTHits1D.end(); ++itDTHits1D) {
                 //const TrackingRecHit* hit = *itDTHits1D;
                 TrackingRecHit* hit = *itDTHits1D;
                 if (m_debug)
@@ -494,9 +484,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
               //                                                          itCSCHits2D != vCSCHits2D.end();
               //                                                        ++itCSCHits2D ) {
 
-              for (std::vector<TrackingRecHit*>::const_iterator itCSCHits2D = vCSCHits2D.begin();
-                   itCSCHits2D != vCSCHits2D.end();
-                   ++itCSCHits2D) {
+              for (auto itCSCHits2D = vCSCHits2D.begin(); itCSCHits2D != vCSCHits2D.end(); ++itCSCHits2D) {
                 // const TrackingRecHit* cscHit2D = *itCSCHits2D;
                 TrackingRecHit* cscHit2D = *itCSCHits2D;
                 if (m_debug)
@@ -618,14 +606,11 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(edm::ESHandle<GlobalTrackingGeome
                    }
                    */
 
-  for (std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch = m_recoMuon->matches().begin();
-       chamberMatch != m_recoMuon->matches().end();
-       chamberMatch++) {
+  for (auto chamberMatch = m_recoMuon->matches().begin(); chamberMatch != m_recoMuon->matches().end(); chamberMatch++) {
     if (chamberMatch->id.det() != DetId::Muon)
       continue;
 
-    for (std::vector<reco::MuonSegmentMatch>::const_iterator segMatch = chamberMatch->segmentMatches.begin();
-         segMatch != chamberMatch->segmentMatches.end();
+    for (auto segMatch = chamberMatch->segmentMatches.begin(); segMatch != chamberMatch->segmentMatches.end();
          ++segMatch) {
       // select the only segment that belongs to track and is the best in station by dR
       if (!(segMatch->isMask(reco::MuonSegmentMatch::BestInStationByDR) &&
@@ -694,16 +679,13 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(edm::ESHandle<GlobalTrackingGeome
 // This is destructor
 // It deletes all chambers residulas
 MuonResidualsFromTrack::~MuonResidualsFromTrack() {
-  for (std::map<DetId, MuonChamberResidual*>::const_iterator residual = m_dt13.begin(); residual != m_dt13.end();
-       ++residual) {
+  for (auto residual = m_dt13.begin(); residual != m_dt13.end(); ++residual) {
     delete residual->second;
   }
-  for (std::map<DetId, MuonChamberResidual*>::const_iterator residual = m_dt2.begin(); residual != m_dt2.end();
-       ++residual) {
+  for (auto residual = m_dt2.begin(); residual != m_dt2.end(); ++residual) {
     delete residual->second;
   }
-  for (std::map<DetId, MuonChamberResidual*>::const_iterator residual = m_csc.begin(); residual != m_csc.end();
-       ++residual) {
+  for (auto residual = m_csc.begin(); residual != m_csc.end(); ++residual) {
     delete residual->second;
   }
 }

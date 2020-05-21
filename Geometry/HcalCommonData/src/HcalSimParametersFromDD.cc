@@ -131,7 +131,7 @@ bool HcalSimParametersFromDD::build(const cms::DDCompactView& cpv, HcalSimulatio
     std::for_each(php.shortFiberLength_.begin(), php.shortFiberLength_.end(), [](double& n) { n = convertCmToMm(n); });
 
     //Parameters for the PMT
-    std::vector<double> neta = fv.get<std::vector<double> >("hfpmt", "indexPMTR");
+    auto neta = fv.get<std::vector<double> >("hfpmt", "indexPMTR");
     fillPMTs(neta, false, php);
     neta = fv.get<std::vector<double> >("hfpmt", "indexPMTL");
     fillPMTs(neta, true, php);

@@ -91,7 +91,7 @@ void MuonDetCleaner<T1, T2>::produce(edm::Event& iEvent, const edm::EventSetup& 
       assert(0);
     }
 
-    for (trackingRecHit_iterator hitIt = track->recHitsBegin(); hitIt != track->recHitsEnd(); ++hitIt) {
+    for (auto hitIt = track->recHitsBegin(); hitIt != track->recHitsEnd(); ++hitIt) {
       const TrackingRecHit& murechit = **hitIt;  // Base class for all rechits
       if (!(murechit).isValid())
         continue;
@@ -118,9 +118,7 @@ void MuonDetCleaner<T1, T2>::produce(edm::Event& iEvent, const edm::EventSetup& 
 
     // Last step savet the output in the CMSSW Data Format
     std::unique_ptr<RecHitCollection> output(new RecHitCollection());
-    for (typename std::map<T1, std::vector<T2> >::const_iterator recHit = recHits_output.begin();
-         recHit != recHits_output.end();
-         ++recHit) {
+    for (auto recHit = recHits_output.begin(); recHit != recHits_output.end(); ++recHit) {
       output->put(recHit->first, recHit->second.begin(), recHit->second.end());
     }
     output->post_insert();
@@ -134,9 +132,7 @@ void MuonDetCleaner<T1, T2>::fillVetoHits(const TrackingRecHit& rh, std::vector<
   if (rh_components.empty()) {
     HitsList->push_back(rh.rawId());
   } else {
-    for (std::vector<const TrackingRecHit*>::const_iterator rh_component = rh_components.begin();
-         rh_component != rh_components.end();
-         ++rh_component) {
+    for (auto rh_component = rh_components.begin(); rh_component != rh_components.end(); ++rh_component) {
       fillVetoHits(**rh_component, HitsList);
     }
   }

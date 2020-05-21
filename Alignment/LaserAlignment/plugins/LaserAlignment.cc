@@ -68,8 +68,7 @@ LaserAlignment::LaserAlignment(edm::ParameterSet const& theConf)
               << std::flush;
     std::cout << " The following " << theMaskTecModules.size()
               << " TEC modules have been masked out and will not be considered by the TEC algorithm:\n " << std::flush;
-    for (std::vector<unsigned int>::iterator moduleIt = theMaskTecModules.begin(); moduleIt != theMaskTecModules.end();
-         ++moduleIt) {
+    for (auto moduleIt = theMaskTecModules.begin(); moduleIt != theMaskTecModules.end(); ++moduleIt) {
       std::cout << *moduleIt << (moduleIt != --theMaskTecModules.end() ? ", " : "") << std::flush;
     }
     std::cout << std::endl << std::flush;
@@ -81,8 +80,7 @@ LaserAlignment::LaserAlignment(edm::ParameterSet const& theConf)
               << std::flush;
     std::cout << " The following " << theMaskAtModules.size()
               << " AT modules have been masked out and will not be considered by the AT algorithm:\n " << std::flush;
-    for (std::vector<unsigned int>::iterator moduleIt = theMaskAtModules.begin(); moduleIt != theMaskAtModules.end();
-         ++moduleIt) {
+    for (auto moduleIt = theMaskAtModules.begin(); moduleIt != theMaskAtModules.end(); ++moduleIt) {
       std::cout << *moduleIt << (moduleIt != --theMaskAtModules.end() ? ", " : "") << std::flush;
     }
     std::cout << std::endl << std::flush;
@@ -532,7 +530,7 @@ void LaserAlignment::endRunProduce(edm::Run& theRun, const edm::EventSetup& theS
 
     // access the tracker geometry for this module
     const DetId theDetId(detectorId.GetTECEntry(det, ring, beam, disk));
-    const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(theDetId));
+    const auto* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(theDetId));
 
     if (theStripDet) {
       // first, set the measured coordinates to their nominal values
@@ -584,7 +582,7 @@ void LaserAlignment::endRunProduce(edm::Run& theRun, const edm::EventSetup& theS
 
     // access the tracker geometry for this module
     const DetId theDetId(detectorId.GetTIBTOBEntry(det, beam, pos));
-    const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(theDetId));
+    const auto* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(theDetId));
 
     if (theStripDet) {
       // first, set the measured coordinates to their nominal values
@@ -631,7 +629,7 @@ void LaserAlignment::endRunProduce(edm::Run& theRun, const edm::EventSetup& theS
 
     // access the tracker geometry for this module
     const DetId theDetId(detectorId.GetTEC2TECEntry(det, beam, disk));
-    const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(theDetId));
+    const auto* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(theDetId));
 
     if (theStripDet) {
       // first, set the measured coordinates to their nominal values
@@ -793,8 +791,7 @@ void LaserAlignment::endRunProduce(edm::Run& theRun, const edm::EventSetup& theS
           const SiStripDetId theDetId(detectorId.GetTECEntry(det, ring, beam, disk));
 
           // need this to calculate the localPosition and its error
-          const StripGeomDetUnit* const theStripDet =
-              dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(theDetId));
+          const auto* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(theDetId));
 
           // the hit container
           const SiStripLaserRecHit2D currentHit(theStripDet->specificTopology().localPosition(
@@ -826,7 +823,7 @@ void LaserAlignment::endRunProduce(edm::Run& theRun, const edm::EventSetup& theS
       const SiStripDetId theDetId(detectorId.GetTEC2TECEntry(det, beam, disk));
 
       // need this to calculate the localPosition and its error
-      const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(theDetId));
+      const auto* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(theDetId));
 
       // the hit container
       const SiStripLaserRecHit2D currentHit(
@@ -846,7 +843,7 @@ void LaserAlignment::endRunProduce(edm::Run& theRun, const edm::EventSetup& theS
         const SiStripDetId theDetId(detectorId.GetTIBTOBEntry(det, beam, pos));
 
         // need this to calculate the localPosition and its error
-        const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(theDetId));
+        const auto* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(theDetId));
 
         // the hit container
         const SiStripLaserRecHit2D currentHit(
@@ -866,7 +863,7 @@ void LaserAlignment::endRunProduce(edm::Run& theRun, const edm::EventSetup& theS
       const SiStripDetId theDetId(detectorId.GetTEC2TECEntry(det, beam, disk));
 
       // need this to calculate the localPosition and its error
-      const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(theDetId));
+      const auto* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(theDetId));
 
       // the hit container
       const SiStripLaserRecHit2D currentHit(
@@ -942,8 +939,7 @@ void LaserAlignment::fillDataProfiles(edm::Event const& theEvent, edm::EventSetu
   int det = 0, ring = 0, beam = 0, disk = 0, pos = 0;
 
   // query config set and loop over all PSets in the VPSet
-  for (std::vector<edm::ParameterSet>::iterator itDigiProducersList = theDigiProducersList.begin();
-       itDigiProducersList != theDigiProducersList.end();
+  for (auto itDigiProducersList = theDigiProducersList.begin(); itDigiProducersList != theDigiProducersList.end();
        ++itDigiProducersList) {
     std::string digiProducer = itDigiProducersList->getParameter<std::string>("DigiProducer");
     std::string digiLabel = itDigiProducersList->getParameter<std::string>("DigiLabel");
@@ -977,15 +973,15 @@ void LaserAlignment::fillDataProfiles(edm::Event const& theEvent, edm::EventSetu
       if (isRawDigi) {  // we have raw SiStripRawDigis
 
         // search the digis for the raw id
-        edm::DetSetVector<SiStripRawDigi>::const_iterator detSetIter = theStripRawDigis->find(detRawId);
+        auto detSetIter = theStripRawDigis->find(detRawId);
         if (detSetIter == theStripRawDigis->end()) {
           throw cms::Exception("[Laser Alignment::fillDataProfiles]")
               << " ** ERROR: No raw DetSet found for det: " << detRawId << "." << std::endl;
         }
 
         // fill the digis to the profiles
-        edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator = detSetIter->data.begin();  // for the loop
-        edm::DetSet<SiStripRawDigi>::const_iterator digiRangeStart = digiRangeIterator;  // save starting positions
+        auto digiRangeIterator = detSetIter->data.begin();  // for the loop
+        auto digiRangeStart = digiRangeIterator;            // save starting positions
 
         // loop all digis
         for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator) {
@@ -1004,14 +1000,14 @@ void LaserAlignment::fillDataProfiles(edm::Event const& theEvent, edm::EventSetu
       else {  // we have zero suppressed SiStripDigis
 
         // search the digis for the raw id
-        edm::DetSetVector<SiStripDigi>::const_iterator detSetIter = theStripDigis->find(detRawId);
+        auto detSetIter = theStripDigis->find(detRawId);
 
         // processed DetSets may be missing, just skip
         if (detSetIter == theStripDigis->end())
           continue;
 
         // fill the digis to the profiles
-        edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator = detSetIter->data.begin();  // for the loop
+        auto digiRangeIterator = detSetIter->data.begin();  // for the loop
 
         for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator) {
           const SiStripDigi& digi = *digiRangeIterator;
@@ -1040,15 +1036,15 @@ void LaserAlignment::fillDataProfiles(edm::Event const& theEvent, edm::EventSetu
       if (isRawDigi) {  // we have raw SiStripRawDigis
 
         // search the digis for the raw id
-        edm::DetSetVector<SiStripRawDigi>::const_iterator detSetIter = theStripRawDigis->find(detRawId);
+        auto detSetIter = theStripRawDigis->find(detRawId);
         if (detSetIter == theStripRawDigis->end()) {
           throw cms::Exception("[Laser Alignment::fillDataProfiles]")
               << " ** ERROR: No raw DetSet found for det: " << detRawId << "." << std::endl;
         }
 
         // fill the digis to the profiles
-        edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator = detSetIter->data.begin();  // for the loop
-        edm::DetSet<SiStripRawDigi>::const_iterator digiRangeStart = digiRangeIterator;  // save starting positions
+        auto digiRangeIterator = detSetIter->data.begin();  // for the loop
+        auto digiRangeStart = digiRangeIterator;            // save starting positions
 
         // loop all digis
         for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator) {
@@ -1067,14 +1063,14 @@ void LaserAlignment::fillDataProfiles(edm::Event const& theEvent, edm::EventSetu
       else {  // we have zero suppressed SiStripDigis
 
         // search the digis for the raw id
-        edm::DetSetVector<SiStripDigi>::const_iterator detSetIter = theStripDigis->find(detRawId);
+        auto detSetIter = theStripDigis->find(detRawId);
 
         // processed DetSets may be missing, just skip
         if (detSetIter == theStripDigis->end())
           continue;
 
         // fill the digis to the profiles
-        edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator = detSetIter->data.begin();  // for the loop
+        auto digiRangeIterator = detSetIter->data.begin();  // for the loop
 
         for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator) {
           const SiStripDigi& digi = *digiRangeIterator;
@@ -1103,15 +1099,15 @@ void LaserAlignment::fillDataProfiles(edm::Event const& theEvent, edm::EventSetu
       if (isRawDigi) {  // we have raw SiStripRawDigis
 
         // search the digis for the raw id
-        edm::DetSetVector<SiStripRawDigi>::const_iterator detSetIter = theStripRawDigis->find(detRawId);
+        auto detSetIter = theStripRawDigis->find(detRawId);
         if (detSetIter == theStripRawDigis->end()) {
           throw cms::Exception("[Laser Alignment::fillDataProfiles]")
               << " ** ERROR: No raw DetSet found for det: " << detRawId << "." << std::endl;
         }
 
         // fill the digis to the profiles
-        edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator = detSetIter->data.begin();  // for the loop
-        edm::DetSet<SiStripRawDigi>::const_iterator digiRangeStart = digiRangeIterator;  // save starting positions
+        auto digiRangeIterator = detSetIter->data.begin();  // for the loop
+        auto digiRangeStart = digiRangeIterator;            // save starting positions
 
         // loop all digis
         for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator) {
@@ -1130,14 +1126,14 @@ void LaserAlignment::fillDataProfiles(edm::Event const& theEvent, edm::EventSetu
       else {  // we have zero suppressed SiStripDigis
 
         // search the digis for the raw id
-        edm::DetSetVector<SiStripDigi>::const_iterator detSetIter = theStripDigis->find(detRawId);
+        auto detSetIter = theStripDigis->find(detRawId);
 
         // processed DetSets may be missing, just skip
         if (detSetIter == theStripDigis->end())
           continue;
 
         // fill the digis to the profiles
-        edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator = detSetIter->data.begin();  // for the loop
+        auto digiRangeIterator = detSetIter->data.begin();  // for the loop
 
         for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator) {
           const SiStripDigi& digi = *digiRangeIterator;
@@ -1579,8 +1575,7 @@ void LaserAlignment::ApplyEndcapMaskingCorrections(LASGlobalData<LASCoordinateSe
                                                    LASGlobalData<LASCoordinateSet>& nominalCoordinates,
                                                    LASEndcapAlignmentParameterSet& endcapParameters) {
   // loop the list of modules to be masked
-  for (std::vector<unsigned int>::iterator moduleIt = theMaskTecModules.begin(); moduleIt != theMaskTecModules.end();
-       ++moduleIt) {
+  for (auto moduleIt = theMaskTecModules.begin(); moduleIt != theMaskTecModules.end(); ++moduleIt) {
     // loop variables
     LASGlobalLoop moduleLoop;
     int det, ring, beam, disk;
@@ -1619,8 +1614,7 @@ void LaserAlignment::ApplyATMaskingCorrections(LASGlobalData<LASCoordinateSet>& 
                                                LASGlobalData<LASCoordinateSet>& nominalCoordinates,
                                                LASBarrelAlignmentParameterSet& atParameters) {
   // loop the list of modules to be masked
-  for (std::vector<unsigned int>::iterator moduleIt = theMaskAtModules.begin(); moduleIt != theMaskAtModules.end();
-       ++moduleIt) {
+  for (auto moduleIt = theMaskAtModules.begin(); moduleIt != theMaskAtModules.end(); ++moduleIt) {
     // loop variables
     LASGlobalLoop moduleLoop;
     int det, beam, disk, pos;
@@ -1698,7 +1692,7 @@ void LaserAlignment::testRoutine(void) {
 
     // access the tracker geometry for this module
     const DetId theDetId(detectorId.GetTECEntry(det, ring, beam, disk));
-    const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(theDetId));
+    const auto* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(theDetId));
 
     if (theStripDet) {
       const GlobalPoint gp(GlobalPoint::Cylindrical(radius, tecPhiPositions[beam], zPositions[disk]));
@@ -1721,7 +1715,7 @@ void LaserAlignment::testRoutine(void) {
 
     // access the tracker geometry for this module
     const DetId theDetId(detectorId.GetTIBTOBEntry(det, beam, pos));
-    const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(theDetId));
+    const auto* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(theDetId));
 
     if (theStripDet) {
       const GlobalPoint gp(GlobalPoint::Cylindrical(radius, atPhiPositions[beam], theZ));
@@ -1743,7 +1737,7 @@ void LaserAlignment::testRoutine(void) {
 
     // access the tracker geometry for this module
     const DetId theDetId(detectorId.GetTEC2TECEntry(det, beam, disk));
-    const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(theDetId));
+    const auto* const theStripDet = dynamic_cast<const StripGeomDetUnit*>(theTracker.idToDet(theDetId));
 
     if (theStripDet) {
       const GlobalPoint gp(GlobalPoint::Cylindrical(radius, atPhiPositions[beam], zPositions[disk]));

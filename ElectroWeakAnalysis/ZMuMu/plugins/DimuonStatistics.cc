@@ -81,7 +81,7 @@ void DimuonStatistics::analyze(const edm::Event& evt, const edm::EventSetup&) {
       //     if (mc1.isNonnull()) cout << "DimuonStatistics> genParticleRef1 " << mc1->pdgId() << endl;
       trackIso1 = mu1->trackIso();
     } else {
-      const pat::GenericParticle* gp1 = dynamic_cast<const pat::GenericParticle*>(c1);
+      const auto* gp1 = dynamic_cast<const pat::GenericParticle*>(c1);
       if (gp1 == nullptr)
         throw Exception(errors::InvalidReference)
             << "first of two daughter is neither a pat::Muon not pat::GenericParticle\n";
@@ -95,7 +95,7 @@ void DimuonStatistics::analyze(const edm::Event& evt, const edm::EventSetup&) {
       //      if (mc2.isNonnull()) cout << "DimuonStatistics> genParticleRef2 " << mc2->pdgId() << endl;
       trackIso2 = mu2->trackIso();
     } else {
-      const pat::GenericParticle* gp2 = dynamic_cast<const pat::GenericParticle*>(c2);
+      const auto* gp2 = dynamic_cast<const pat::GenericParticle*>(c2);
       if (gp2 == nullptr)
         throw Exception(errors::InvalidReference)
             << "first of two daughter is neither a pat::Muon not pat::GenericParticle\n";

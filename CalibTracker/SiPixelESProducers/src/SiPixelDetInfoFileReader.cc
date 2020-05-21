@@ -38,7 +38,7 @@ SiPixelDetInfoFileReader::SiPixelDetInfoFileReader(std::string filePath) {
 
         //       edm::LogInfo("SiPixelDetInfoFileReader::SiPixelDetInfoFileReader") << detid <<" " <<numberOfAPVs <<" " <<stripLength << " "<< thickness<< endl;
 
-        std::map<uint32_t, std::pair<int, int> >::const_iterator it = detData_.find(detid);
+        auto it = detData_.find(detid);
 
         if (it == detData_.end()) {
           detData_[detid] = pair<int, int>(ncols, nrows);
@@ -87,7 +87,7 @@ const std::vector<uint32_t>& SiPixelDetInfoFileReader::getAllDetIds() const { re
 // get method
 //
 const std::pair<int, int>& SiPixelDetInfoFileReader::getDetUnitDimensions(uint32_t detId) const {
-  std::map<uint32_t, std::pair<int, int> >::const_iterator it = detData_.find(detId);
+  auto it = detData_.find(detId);
 
   if (it != detData_.end()) {
     return (*it).second;

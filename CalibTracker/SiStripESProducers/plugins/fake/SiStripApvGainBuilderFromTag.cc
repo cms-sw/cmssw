@@ -44,7 +44,7 @@ void SiStripApvGainBuilderFromTag::analyze(const edm::Event& evt, const edm::Eve
 
   uint32_t count = 0;
   for (const auto det : tGeom.detUnits()) {
-    const StripGeomDetUnit* stripDet = dynamic_cast<const StripGeomDetUnit*>(det);
+    const auto* stripDet = dynamic_cast<const StripGeomDetUnit*>(det);
     if (stripDet != nullptr) {
       const DetId detid = stripDet->geographicalId();
       // Find if this DetId is in the input tag and if so how many are the Apvs for which it contains information

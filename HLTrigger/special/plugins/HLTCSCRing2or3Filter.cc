@@ -50,7 +50,7 @@ bool HLTCSCRing2or3Filter::hltFilter(edm::Event& iEvent,
     int chamber_id = CSCDetId(id.endcap(), id.station(), id.ring(), id.chamber(), 0).rawId();
 
     if (id.ring() == 2 || id.ring() == 3) {
-      std::map<int, std::vector<const CSCRecHit2D*> >::const_iterator chamber_iter = chamber_tohit.find(chamber_id);
+      auto chamber_iter = chamber_tohit.find(chamber_id);
       if (chamber_iter == chamber_tohit.end()) {
         std::vector<const CSCRecHit2D*> newlist;
         newlist.push_back(&hit);
@@ -60,9 +60,7 @@ bool HLTCSCRing2or3Filter::hltFilter(edm::Event& iEvent,
   }    // end loop over hits
 
   unsigned int minHitsAlmostSquared = (m_minHits - 1) * (m_minHits - 2);
-  for (std::map<int, std::vector<const CSCRecHit2D*> >::const_iterator chamber_iter = chamber_tohit.begin();
-       chamber_iter != chamber_tohit.end();
-       ++chamber_iter) {
+  for (auto chamber_iter = chamber_tohit.begin(); chamber_iter != chamber_tohit.end(); ++chamber_iter) {
     if (chamber_iter->second.size() >= m_minHits) {
       if (!got_cscGeometry) {
         iSetup.get<MuonGeometryRecord>().get(cscGeometry);

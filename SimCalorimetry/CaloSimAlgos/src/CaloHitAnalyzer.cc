@@ -34,7 +34,7 @@ void CaloHitAnalyzer::fillHits(MixCollection<PCaloHit> &hits) {
       double energy = hitItr->energy() * samplingFactor;
 
       // add it to the map
-      std::map<int, double>::iterator mapItr = hitEnergySumMap_.find(id);
+      auto mapItr = hitEnergySumMap_.find(id);
       if (mapItr == hitEnergySumMap_.end()) {
         hitEnergySumMap_[id] = energy;
       } else {
@@ -46,7 +46,7 @@ void CaloHitAnalyzer::fillHits(MixCollection<PCaloHit> &hits) {
 
 void CaloHitAnalyzer::analyze(int id, double recEnergy) {
   if (recEnergy > hitEnergyThreshold_) {
-    std::map<int, double>::iterator mapItr = hitEnergySumMap_.find(id);
+    auto mapItr = hitEnergySumMap_.find(id);
     if (mapItr == hitEnergySumMap_.end()) {
       ++noiseHits_;
     } else {

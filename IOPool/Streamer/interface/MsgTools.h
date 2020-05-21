@@ -71,7 +71,7 @@ namespace MsgTools {
     pos = len_pos + sizeof(char_uint32);         // area for full string of names
     bool first = true;
 
-    for (Strings::const_iterator beg = names.begin(); beg != names.end(); ++beg) {
+    for (auto beg = names.begin(); beg != names.end(); ++beg) {
       if (first)
         first = false;
       else

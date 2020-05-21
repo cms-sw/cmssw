@@ -89,7 +89,7 @@ bool DTOccupancyCluster::addPoint(const DTOccupancyPoint& anotherPoint) {
 double DTOccupancyCluster::distance(const DTOccupancyPoint& point) const {
   double dist = 99999999;
   // compute the minimum distance from a point
-  for (vector<DTOccupancyPoint>::const_iterator pt = thePoints.begin(); pt != thePoints.end(); ++pt) {
+  for (auto pt = thePoints.begin(); pt != thePoints.end(); ++pt) {
     double distance = point.distance(*pt);
     if (distance < dist) {
       dist = distance;
@@ -116,7 +116,7 @@ TH2F* DTOccupancyCluster::getHisto(std::string histoName,
                                    int fillColor) const {
   TH2F* histo = new TH2F(histoName.c_str(), histoName.c_str(), nBinsX, minX, maxX, nBinsY, minY, maxY);
   histo->SetFillColor(fillColor);
-  for (vector<DTOccupancyPoint>::const_iterator pt = thePoints.begin(); pt != thePoints.end(); ++pt) {
+  for (auto pt = thePoints.begin(); pt != thePoints.end(); ++pt) {
     histo->Fill((*pt).mean(), (*pt).rms());
   }
   return histo;
@@ -152,8 +152,8 @@ bool DTOccupancyCluster::qualityCriterion(const DTOccupancyPoint& anotherPoint) 
 
 void DTOccupancyCluster::computeRadius() {
   double radius_squared = 0;
-  for (vector<DTOccupancyPoint>::const_iterator pt_i = thePoints.begin(); pt_i != thePoints.end(); ++pt_i) {
-    for (vector<DTOccupancyPoint>::const_iterator pt_j = thePoints.begin(); pt_j != thePoints.end(); ++pt_j) {
+  for (auto pt_i = thePoints.begin(); pt_i != thePoints.end(); ++pt_i) {
+    for (auto pt_j = thePoints.begin(); pt_j != thePoints.end(); ++pt_j) {
       radius_squared += TMath::Power(pt_i->distance(*pt_j), 2);
     }
   }
@@ -165,7 +165,7 @@ int DTOccupancyCluster::nPoints() const { return thePoints.size(); }
 
 set<DTLayerId> DTOccupancyCluster::getLayerIDs() const {
   set<DTLayerId> ret;
-  for (vector<DTOccupancyPoint>::const_iterator point = thePoints.begin(); point != thePoints.end(); ++point) {
+  for (auto point = thePoints.begin(); point != thePoints.end(); ++point) {
     ret.insert((*point).layerId());
   }
   return ret;

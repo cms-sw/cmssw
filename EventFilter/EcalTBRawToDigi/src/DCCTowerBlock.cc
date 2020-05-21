@@ -174,9 +174,7 @@ std::vector<DCCTBXtalBlock *> DCCTBTowerBlock::xtalBlocksById(uint32_t stripId, 
 int DCCTBTowerBlock::towerID() {
   int result = -1;
 
-  for (std::set<DCCTBDataField *, DCCTBDataFieldComparator>::iterator it = mapperFields_->begin();
-       it != mapperFields_->end();
-       it++) {
+  for (auto it = mapperFields_->begin(); it != mapperFields_->end(); it++) {
     if ((*it)->name() == "TT/SC ID")
       result = getDataField((*it)->name());
   }

@@ -143,7 +143,7 @@ void L1TStage2InputPatternWriter::analyze(const edm::Event& iEvent, const edm::E
 
   std::vector<l1t::CaloTower> towers;
 
-  for (std::vector<l1t::CaloTower>::const_iterator tower = towHandle->begin(0); tower != towHandle->end(0); ++tower) {
+  for (auto tower = towHandle->begin(0); tower != towHandle->end(0); ++tower) {
     towers.push_back(*tower);
   }
 

@@ -31,9 +31,7 @@ namespace pf2pat {
         mask_ = 0;
         if (cfg.existsAs<std::vector<std::string> >("bitsToCheck")) {
           std::vector<std::string> strbits = cfg.getParameter<std::vector<std::string> >("bitsToCheck");
-          for (std::vector<std::string>::const_iterator istrbit = strbits.begin(), estrbit = strbits.end();
-               istrbit != estrbit;
-               ++istrbit) {
+          for (auto istrbit = strbits.begin(), estrbit = strbits.end(); istrbit != estrbit; ++istrbit) {
             if (*istrbit == "id") {
               mask_ |= 1;
             } else if (*istrbit == "iso") {
@@ -71,7 +69,7 @@ namespace pf2pat {
       e.getByToken(electronIdToken_, electronId);
 
       unsigned key = 0;
-      for (collection::const_iterator pfc = hc->begin(); pfc != hc->end(); ++pfc, ++key) {
+      for (auto pfc = hc->begin(); pfc != hc->end(); ++pfc, ++key) {
         // Get GsfTrack for matching with reco::GsfElectron objects
         reco::GsfTrackRef PfTk = pfc->gsfTrackRef();
 
@@ -81,8 +79,7 @@ namespace pf2pat {
 
         int match = -1;
         // try first the non-ambiguous tracks
-        for (reco::GsfElectronCollection::const_iterator it = electrons->begin(), ed = electrons->end(); it != ed;
-             ++it) {
+        for (auto it = electrons->begin(), ed = electrons->end(); it != ed; ++it) {
           if (it->gsfTrack() == PfTk) {
             match = it - electrons->begin();
             break;
@@ -90,8 +87,7 @@ namespace pf2pat {
         }
         // then the ambiguous ones
         if (match == -1) {
-          for (reco::GsfElectronCollection::const_iterator it = electrons->begin(), ed = electrons->end(); it != ed;
-               ++it) {
+          for (auto it = electrons->begin(), ed = electrons->end(); it != ed; ++it) {
             if (std::count(it->ambiguousGsfTracksBegin(), it->ambiguousGsfTracksEnd(), PfTk) > 0) {
               match = it - electrons->begin();
               break;

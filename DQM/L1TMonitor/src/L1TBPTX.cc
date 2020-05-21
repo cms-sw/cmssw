@@ -87,11 +87,11 @@ void L1TBPTX::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run& iRun, c
   const L1GtTriggerMenu* menu = menuRcd.product();
 
   // Filling Alias-Bit Map
-  for (CItAlgo algo = menu->gtAlgorithmAliasMap().begin(); algo != menu->gtAlgorithmAliasMap().end(); ++algo) {
+  for (auto algo = menu->gtAlgorithmAliasMap().begin(); algo != menu->gtAlgorithmAliasMap().end(); ++algo) {
     m_algoBit_Alias[(algo->second).algoBitNumber()] = (algo->second).algoAlias();
   }
 
-  for (CItAlgo algo = menu->gtTechnicalTriggerMap().begin(); algo != menu->gtTechnicalTriggerMap().end(); ++algo) {
+  for (auto algo = menu->gtTechnicalTriggerMap().begin(); algo != menu->gtTechnicalTriggerMap().end(); ++algo) {
     m_techBit_Alias[(algo->second).algoBitNumber()] = (algo->second).algoName();
   }
 
@@ -468,7 +468,7 @@ void L1TBPTX::analyze(const Event& iEvent, const EventSetup& eventSetup) {
   iEvent.getByToken(m_scalersSource, triggerScalers);
 
   if (triggerScalers.isValid()) {
-    Level1TriggerScalersCollection::const_iterator itL1TScalers = triggerScalers->begin();
+    auto itL1TScalers = triggerScalers->begin();
     Level1TriggerRates trigRates(*itL1TScalers, iEvent.id().run());
 
     m_currentGTLS = (*itL1TScalers).lumiSegmentNr();

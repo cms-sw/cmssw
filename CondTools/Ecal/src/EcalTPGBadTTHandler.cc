@@ -159,7 +159,7 @@ void popcon::EcalTPGBadTTHandler::getNewObjects() {
 
             econn->fetchConfigDataSet(&dataset_TpgBadTT, &fe_badTT_info);
 
-            EcalTPGTowerStatus* towerStatus = new EcalTPGTowerStatus;
+            auto* towerStatus = new EcalTPGTowerStatus;
             typedef std::vector<FEConfigBadTTDat>::const_iterator CIfeped;
             EcalLogicID ecid_xt;
             FEConfigBadTTDat rd_badTT;
@@ -186,7 +186,7 @@ void popcon::EcalTPGBadTTHandler::getNewObjects() {
 
             // now put at 1 those that are bad
             int icells = 0;
-            for (CIfeped p = dataset_TpgBadTT.begin(); p != dataset_TpgBadTT.end(); p++) {
+            for (auto p = dataset_TpgBadTT.begin(); p != dataset_TpgBadTT.end(); p++) {
               rd_badTT = *p;
 
               int tcc_num = rd_badTT.getTCCId();

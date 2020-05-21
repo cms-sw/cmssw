@@ -46,14 +46,13 @@ void FWSiPixelDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
   }
   const FWGeometry* geom = iItem->getGeom();
 
-  for (edm::DetSetVector<PixelDigi>::const_iterator it = digis->begin(), end = digis->end(); it != end; ++it) {
+  for (auto it = digis->begin(), end = digis->end(); it != end; ++it) {
     edm::DetSet<PixelDigi> ds = *it;
     unsigned int id = ds.id;
 
     const float* pars = geom->getParameters(id);
 
-    for (edm::DetSet<PixelDigi>::const_iterator idigi = ds.data.begin(), idigiEnd = ds.data.end(); idigi != idigiEnd;
-         ++idigi) {
+    for (auto idigi = ds.data.begin(), idigiEnd = ds.data.end(); idigi != idigiEnd; ++idigi) {
       TEvePointSet* pointSet = new TEvePointSet;
       pointSet->SetMarkerSize(2);
       pointSet->SetMarkerStyle(2);

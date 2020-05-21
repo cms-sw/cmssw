@@ -77,7 +77,7 @@ void MuonCkfTrajectoryBuilder::collectMeasurement(const DetLayer* layer,
                                                   std::vector<TM>& result,
                                                   int& invalidHits,
                                                   const Propagator* prop) const {
-  for (std::vector<const DetLayer*>::const_iterator il = nl.begin(); il != nl.end(); il++) {
+  for (auto il = nl.begin(); il != nl.end(); il++) {
     TSOS stateToUse = currentState;
 
     if (layer == (*il)) {

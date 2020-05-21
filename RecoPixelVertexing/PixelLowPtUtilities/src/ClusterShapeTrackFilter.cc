@@ -52,7 +52,7 @@ float ClusterShapeTrackFilter::areaParallelogram(const Global2DVector& a, const 
 vector<GlobalVector> ClusterShapeTrackFilter::getGlobalDirs(const vector<GlobalPoint>& g) const {
   // Get 2d points
   vector<Global2DVector> p;
-  for (vector<GlobalPoint>::const_iterator ig = g.begin(); ig != g.end(); ig++)
+  for (auto ig = g.begin(); ig != g.end(); ig++)
     p.push_back(Global2DVector(ig->x(), ig->y()));
 
   //
@@ -84,7 +84,7 @@ vector<GlobalVector> ClusterShapeTrackFilter::getGlobalDirs(const vector<GlobalP
 
     float curvature = circle.curvature();
 
-    for (vector<Global2DVector>::const_iterator ip = p.begin(); ip != p.end(); ip++) {
+    for (auto ip = p.begin(); ip != p.end(); ip++) {
       Global2DVector v = (*ip - c) * curvature * dir;
       globalDirs.push_back(GlobalVector(-v.y() * sinTheta, v.x() * sinTheta, cosTheta));
     }
@@ -97,7 +97,7 @@ vector<GlobalVector> ClusterShapeTrackFilter::getGlobalDirs(const vector<GlobalP
 vector<GlobalPoint> ClusterShapeTrackFilter::getGlobalPoss(const vector<const TrackingRecHit*>& recHits) const {
   vector<GlobalPoint> globalPoss;
 
-  for (vector<const TrackingRecHit*>::const_iterator recHit = recHits.begin(); recHit != recHits.end(); recHit++) {
+  for (auto recHit = recHits.begin(); recHit != recHits.end(); recHit++) {
     DetId detId = (*recHit)->geographicalId();
 
     GlobalPoint gpos = theTracker->idToDet(detId)->toGlobal((*recHit)->localPosition());

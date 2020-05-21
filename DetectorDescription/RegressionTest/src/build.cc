@@ -200,7 +200,7 @@ void output(string filename) {
     loop = exv.next();
   }
 
-  vector<DDTranslation>::iterator it = tvec.begin();
+  auto it = tvec.begin();
   os << endl << "center points of all solids" << endl;
   for (; it != tvec.end(); ++it) {
     os << (*it).x() << " " << (*it).y() << " " << (*it).z() << endl;

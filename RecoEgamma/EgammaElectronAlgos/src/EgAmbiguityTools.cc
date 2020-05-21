@@ -53,7 +53,7 @@ namespace egamma {
     unsigned int shared = 0;
 
     int gsfHitCounter1 = 0;
-    for (trackingRecHit_iterator elHitsIt1 = gsfTrackRef1->recHitsBegin(); elHitsIt1 != gsfTrackRef1->recHitsEnd();
+    for (auto elHitsIt1 = gsfTrackRef1->recHitsBegin(); elHitsIt1 != gsfTrackRef1->recHitsEnd();
          elHitsIt1++, gsfHitCounter1++) {
       if (!(*elHitsIt1)->isValid()) {
         //count only valid Hits
@@ -68,7 +68,7 @@ namespace egamma {
       }
 
       int gsfHitsCounter2 = 0;
-      for (trackingRecHit_iterator gsfHitsIt2 = gsfTrackRef2->recHitsBegin(); gsfHitsIt2 != gsfTrackRef2->recHitsEnd();
+      for (auto gsfHitsIt2 = gsfTrackRef2->recHitsBegin(); gsfHitsIt2 != gsfTrackRef2->recHitsEnd();
            gsfHitsIt2++, gsfHitsCounter2++) {
         if (!(**gsfHitsIt2).isValid()) {
           //count only valid Hits
@@ -100,7 +100,7 @@ namespace egamma {
     unsigned int shared = 0;
 
     int gsfHitCounter1 = 0;
-    for (trackingRecHit_iterator elHitsIt1 = gsfTrackRef1->recHitsBegin(); elHitsIt1 != gsfTrackRef1->recHitsEnd();
+    for (auto elHitsIt1 = gsfTrackRef1->recHitsBegin(); elHitsIt1 != gsfTrackRef1->recHitsEnd();
          elHitsIt1++, gsfHitCounter1++) {
       if (!((**elHitsIt1).isValid())) {
         //count only valid Hits
@@ -115,7 +115,7 @@ namespace egamma {
       }
 
       int gsfHitsCounter2 = 0;
-      for (trackingRecHit_iterator gsfHitsIt2 = gsfTrackRef2->recHitsBegin(); gsfHitsIt2 != gsfTrackRef2->recHitsEnd();
+      for (auto gsfHitsIt2 = gsfTrackRef2->recHitsBegin(); gsfHitsIt2 != gsfTrackRef2->recHitsEnd();
            gsfHitsIt2++, gsfHitsCounter2++) {
         if (!((**gsfHitsIt2).isValid())) {
           //count only valid Hits!

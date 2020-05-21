@@ -35,7 +35,7 @@ namespace lumi {
     //
     //generate dummy data of hlt for the given run and write data to LumiDB
     //
-    coral::ConnectionService* svc = new coral::ConnectionService;
+    auto* svc = new coral::ConnectionService;
     lumi::DBConfig dbconf(*svc);
     if (!m_authpath.empty()) {
       dbconf.setAuthentication(m_authpath);
@@ -57,12 +57,12 @@ namespace lumi {
       hltData.extend<unsigned int>("PRESCALE");
       coral::IBulkOperation* hltInserter = hlttable.dataEditor().bulkInsert(hltData, totalcmsls * 260);
       //loop over lumi LS
-      unsigned long long& hlt_id = hltData["HLT_ID"].data<unsigned long long>();
+      auto& hlt_id = hltData["HLT_ID"].data<unsigned long long>();
       unsigned int& hltrunnum = hltData["RUNNUM"].data<unsigned int>();
       unsigned int& cmslsnum = hltData["CMSLSNUM"].data<unsigned int>();
       std::string& pathname = hltData["PATHNAME"].data<std::string>();
-      unsigned long long& inputcount = hltData["INPUTCOUNT"].data<unsigned long long>();
-      unsigned long long& acceptcount = hltData["ACCEPTCOUNT"].data<unsigned long long>();
+      auto& inputcount = hltData["INPUTCOUNT"].data<unsigned long long>();
+      auto& acceptcount = hltData["ACCEPTCOUNT"].data<unsigned long long>();
       unsigned int& prescale = hltData["PRESCALE"].data<unsigned int>();
 
       for (unsigned int i = 1; i <= totalcmsls; ++i) {

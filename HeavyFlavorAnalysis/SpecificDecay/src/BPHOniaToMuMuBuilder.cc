@@ -57,8 +57,8 @@ BPHOniaToMuMuBuilder::BPHOniaToMuMuBuilder(const edm::EventSetup& es,
 // Destructor --
 //--------------
 BPHOniaToMuMuBuilder::~BPHOniaToMuMuBuilder() {
-  map<oniaType, OniaParameters>::iterator iter = oniaPar.begin();
-  map<oniaType, OniaParameters>::iterator iend = oniaPar.end();
+  auto iter = oniaPar.begin();
+  auto iend = oniaPar.end();
   while (iter != iend) {
     OniaParameters& par = iter++->second;
     delete par.ptSel;
@@ -82,8 +82,8 @@ vector<BPHPlusMinusConstCandPtr> BPHOniaToMuMuBuilder::build() {
   BPHMultiSelect<BPHSlimSelect<BPHMomentumSelect>> mSel(BPHSelectOperation::or_mode);
   BPHMultiSelect<BPHSlimSelect<BPHVertexSelect>> vSel(BPHSelectOperation::or_mode);
 
-  map<oniaType, OniaParameters>::iterator iter = oniaPar.begin();
-  map<oniaType, OniaParameters>::iterator iend = oniaPar.end();
+  auto iter = oniaPar.begin();
+  auto iend = oniaPar.end();
   while (iter != iend) {
     OniaParameters& par = iter++->second;
     ptSel.include(*par.ptSel);
@@ -232,8 +232,8 @@ double BPHOniaToMuMuBuilder::getConstrSigma(oniaType type) const {
 }
 
 void BPHOniaToMuMuBuilder::setNotUpdated() {
-  map<oniaType, OniaParameters>::iterator iter = oniaPar.begin();
-  map<oniaType, OniaParameters>::iterator iend = oniaPar.end();
+  auto iter = oniaPar.begin();
+  auto iend = oniaPar.end();
   while (iter != iend)
     iter++->second.updated = false;
   updated = false;
@@ -288,7 +288,7 @@ void BPHOniaToMuMuBuilder::extractList(oniaType type) {
       continue;
     if (!par.chi2Sel->accept(*ptr))
       continue;
-    BPHPlusMinusCandidate* np = new BPHPlusMinusCandidate(evSetup);
+    auto* np = new BPHPlusMinusCandidate(evSetup);
     np->add("MuPos", muPos, ptr->getTrackSearchList(mcPos), BPHParticleMasses::muonMass, BPHParticleMasses::muonMSigma);
     np->add("MuNeg", muNeg, ptr->getTrackSearchList(mcNeg), BPHParticleMasses::muonMass, BPHParticleMasses::muonMSigma);
     if (par.mass > 0.0)

@@ -104,8 +104,7 @@ public:
 
     // Get configs for WPs - negative cut values are used to switch of the condition
     std::vector<edm::ParameterSet> wpDefs = pset.getParameter<std::vector<edm::ParameterSet>>("IDWPdefinitions");
-    for (std::vector<edm::ParameterSet>::iterator wpDefsEntry = wpDefs.begin(); wpDefsEntry != wpDefs.end();
-         ++wpDefsEntry) {
+    for (auto wpDefsEntry = wpDefs.begin(); wpDefsEntry != wpDefs.end(); ++wpDefsEntry) {
       maxAbsValue_.push_back(wpDefsEntry->getParameter<std::vector<double>>("maximumAbsoluteValues"));
       maxRelValue_.push_back(wpDefsEntry->getParameter<std::vector<double>>("maximumRelativeValues"));
       offsetRelValue_.push_back(wpDefsEntry->getParameter<std::vector<double>>("relativeValueOffsets"));
@@ -142,7 +141,7 @@ public:
     applyFootprintCorrection_ = pset.getParameter<bool>("applyFootprintCorrection");
     if (applyFootprintCorrection_ || storeRawFootprintCorrection) {
       edm::VParameterSet cfgFootprintCorrections = pset.getParameter<edm::VParameterSet>("footprintCorrections");
-      for (edm::VParameterSet::const_iterator cfgFootprintCorrection = cfgFootprintCorrections.begin();
+      for (auto cfgFootprintCorrection = cfgFootprintCorrections.begin();
            cfgFootprintCorrection != cfgFootprintCorrections.end();
            ++cfgFootprintCorrection) {
         std::string selection = cfgFootprintCorrection->getParameter<std::string>("selection");
@@ -532,9 +531,7 @@ reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationContaine
 
     double footprintCorrection_value = 0.;
     if (applyFootprintCorrection_ || storeRawValue_.at(i) == FootPrintCorrection) {
-      for (std::vector<std::unique_ptr<FootprintCorrection>>::const_iterator footprintCorrection =
-               footprintCorrections_.begin();
-           footprintCorrection != footprintCorrections_.end();
+      for (auto footprintCorrection = footprintCorrections_.begin(); footprintCorrection != footprintCorrections_.end();
            ++footprintCorrection) {
         if ((*footprintCorrection)->selection_(*pfTau)) {
           footprintCorrection_value = (*footprintCorrection)->offset_(*pfTau);
@@ -605,9 +602,7 @@ reco::SingleTauDiscriminatorContainer PFRecoTauDiscriminationByIsolationContaine
     double photonSumPt_outsideSignalCone = 0.;
     if (storeRawValue_.at(i) == PhotonSumPt) {
       const std::vector<reco::CandidatePtr>& signalGammas = pfTau->signalGammaCands();
-      for (std::vector<reco::CandidatePtr>::const_iterator signalGamma = signalGammas.begin();
-           signalGamma != signalGammas.end();
-           ++signalGamma) {
+      for (auto signalGamma = signalGammas.begin(); signalGamma != signalGammas.end(); ++signalGamma) {
         double dR = deltaR(pfTau->eta(), pfTau->phi(), (*signalGamma)->eta(), (*signalGamma)->phi());
         if (dR > pfTau->signalConeSize())
           photonSumPt_outsideSignalCone += (*signalGamma)->pt();

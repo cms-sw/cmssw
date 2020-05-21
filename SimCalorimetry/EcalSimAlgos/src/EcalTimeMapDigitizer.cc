@@ -75,7 +75,7 @@ EcalTimeMapDigitizer::~EcalTimeMapDigitizer() {}
 
 void EcalTimeMapDigitizer::add(const std::vector<PCaloHit>& hits, int bunchCrossing) {
   if (bunchCrossing >= m_minBunch && bunchCrossing <= m_maxBunch) {
-    for (std::vector<PCaloHit>::const_iterator it = hits.begin(), itEnd = hits.end(); it != itEnd; ++it) {
+    for (auto it = hits.begin(), itEnd = hits.end(); it != itEnd; ++it) {
       //here goes the map logic
 
       if (edm::isNotFinite((*it).time()))

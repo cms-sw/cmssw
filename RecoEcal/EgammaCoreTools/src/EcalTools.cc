@@ -57,7 +57,7 @@ bool EcalTools::isNextToDead(const DetId& id, const edm::EventSetup& es) {
   edm::ESHandle<EcalNextToDeadChannel> dch;
   es.get<EcalNextToDeadChannelRcd>().get(dch);
 
-  EcalNextToDeadChannel::const_iterator chIt = dch->find(id);
+  auto chIt = dch->find(id);
 
   if (chIt != dch->end()) {
     return *chIt;
@@ -99,7 +99,7 @@ bool EcalTools::deadNeighbour(const DetId& id, const EcalChannelStatus& chs, int
   if (!nid)
     return false;
 
-  EcalChannelStatus::const_iterator chIt = chs.find(nid);
+  auto chIt = chs.find(nid);
   uint16_t dbStatus = 0;
   if (chIt != chs.end()) {
     // note that
@@ -129,7 +129,7 @@ float EcalTools::recHitE(const DetId id, const EcalRecHitCollection& recHits) {
   if (id == DetId(0)) {
     return 0;
   } else {
-    EcalRecHitCollection::const_iterator it = recHits.find(id);
+    auto it = recHits.find(id);
     if (it != recHits.end())
       return (*it).energy();
   }

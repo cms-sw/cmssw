@@ -92,7 +92,7 @@ void MuonMillepedeAlgorithm::collect() {
       do {
         std::string objectName(index->GetName());
         TMatrixD *mat = (TMatrixD *)index->ReadObj();
-        std::map<std::string, TMatrixD *>::iterator node = map.find(objectName);
+        auto node = map.find(objectName);
         if (node == map.end()) {
           TMatrixD *n_mat = new TMatrixD(mat->GetNrows(), mat->GetNcols());
           map.insert(make_pair(objectName, n_mat));
@@ -107,7 +107,7 @@ void MuonMillepedeAlgorithm::collect() {
   TFile theFile2(outputCollName.c_str(), "recreate");
   theFile2.cd();
 
-  std::map<std::string, TMatrixD *>::iterator m_it = map.begin();
+  auto m_it = map.begin();
   for (; m_it != map.end(); ++m_it) {
     if (m_it->first.find("_invCov") != std::string::npos) {
       std::string id_s = m_it->first.substr(0, m_it->first.find("_invCov"));
@@ -164,9 +164,9 @@ void MuonMillepedeAlgorithm::terminate(const edm::EventSetup &iSetup) {
 
   TFile *theFile = new TFile(collec_f.c_str(), "recreate");
   theFile->cd();
-  std::map<std::string, AlgebraicMatrix *>::iterator invCov_it = map_invCov.begin();
-  std::map<std::string, AlgebraicMatrix *>::iterator weightRes_it = map_weightRes.begin();
-  std::map<std::string, AlgebraicMatrix *>::iterator n_it = map_N.begin();
+  auto invCov_it = map_invCov.begin();
+  auto weightRes_it = map_weightRes.begin();
+  auto n_it = map_N.begin();
   for (; n_it != map_N.end(); ++invCov_it, ++weightRes_it, ++n_it) {
     TMatrixD tmat_invcov(0, 0);
     this->toTMat(invCov_it->second, &tmat_invcov);
@@ -203,7 +203,7 @@ void MuonMillepedeAlgorithm::run(const edm::EventSetup &setup, const EventInfo &
   // loop over tracks
   //int t_counter = 0;
   const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs();
-  for (ConstTrajTrackPairCollection::const_iterator it = tracks.begin(); it != tracks.end(); it++) {
+  for (auto it = tracks.begin(); it != tracks.end(); it++) {
     const Trajectory *traj = (*it).first;
     const reco::Track *track = (*it).second;
 
@@ -227,7 +227,7 @@ void MuonMillepedeAlgorithm::run(const edm::EventSetup &setup, const EventInfo &
       std::vector<TrajectoryMeasurement> measurements = traj->measurements();
 
       //In this loop the measurements and hits are extracted and put on two vectors
-      for (std::vector<TrajectoryMeasurement>::iterator im = measurements.begin(); im != measurements.end(); im++) {
+      for (auto im = measurements.begin(); im != measurements.end(); im++) {
         TrajectoryMeasurement meas = *im;
         const TransientTrackingRecHit *hit = &(*meas.recHit());
         //We are not very strict at this point
@@ -247,8 +247,8 @@ void MuonMillepedeAlgorithm::run(const edm::EventSetup &setup, const EventInfo &
       // get concatenated alignment parameters for list of alignables
       CompositeAlignmentParameters aap = theAlignmentParameterStore->selectParameters(alidetvec);
 
-      std::vector<TrajectoryStateOnSurface>::const_iterator itsos = tsosvec.begin();
-      std::vector<const TransientTrackingRecHit *>::const_iterator ihit = hitvec.begin();
+      auto itsos = tsosvec.begin();
+      auto ihit = hitvec.begin();
 
       //int ch_counter = 0;
 
@@ -445,7 +445,7 @@ void MuonMillepedeAlgorithm::updateInfo(const AlgebraicMatrix &m_invCov,
 
   edm::LogInfo("Alignment") << "Entrando";
 
-  std::map<std::string, AlgebraicMatrix *>::iterator node = map_invCov.find(id_invCov);
+  auto node = map_invCov.find(id_invCov);
   if (node == map_invCov.end()) {
     AlgebraicMatrix *f_invCov = new AlgebraicMatrix(m_invCov.num_row(), m_invCov.num_col());
     AlgebraicMatrix *f_weightRes = new AlgebraicMatrix(m_weightRes.num_row(), m_weightRes.num_col());

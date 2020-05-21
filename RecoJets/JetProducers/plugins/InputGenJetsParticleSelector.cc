@@ -105,20 +105,18 @@ bool InputGenJetsParticleSelector::isResonance(int pdgId) {
 
 bool InputGenJetsParticleSelector::isIgnored(int pdgId) const {
   pdgId = pdgId > 0 ? pdgId : -pdgId;
-  std::vector<unsigned int>::const_iterator pos =
-      std::lower_bound(ignoreParticleIDs.begin(), ignoreParticleIDs.end(), (unsigned int)pdgId);
+  auto pos = std::lower_bound(ignoreParticleIDs.begin(), ignoreParticleIDs.end(), (unsigned int)pdgId);
   return pos != ignoreParticleIDs.end() && *pos == (unsigned int)pdgId;
 }
 
 bool InputGenJetsParticleSelector::isExcludedFromResonance(int pdgId) const {
   pdgId = pdgId > 0 ? pdgId : -pdgId;
-  std::vector<unsigned int>::const_iterator pos =
-      std::lower_bound(excludeFromResonancePids.begin(), excludeFromResonancePids.end(), (unsigned int)pdgId);
+  auto pos = std::lower_bound(excludeFromResonancePids.begin(), excludeFromResonancePids.end(), (unsigned int)pdgId);
   return pos != excludeFromResonancePids.end() && *pos == (unsigned int)pdgId;
 }
 
 static unsigned int partIdx(const InputGenJetsParticleSelector::ParticleVector &p, const reco::Candidate *particle) {
-  InputGenJetsParticleSelector::ParticleVector::const_iterator pos = std::lower_bound(p.begin(), p.end(), particle);
+  auto pos = std::lower_bound(p.begin(), p.end(), particle);
   if (pos == p.end() || *pos != particle)
     throw cms::Exception("CorruptedData") << "reco::GenEvent corrupted: Unlisted particles"
                                              " in decay tree."

@@ -1402,7 +1402,7 @@ namespace {
     }  // fill method
 
     void pedestalsSummary(std::vector<EcalPedestal> vItems, float vals[], long unsigned int& total) {
-      for (std::vector<EcalPedestal>::const_iterator iItems = vItems.begin(); iItems != vItems.end(); ++iItems) {
+      for (auto iItems = vItems.begin(); iItems != vItems.end(); ++iItems) {
         //vals[0]=100;
         vals[0] += iItems->mean(1);  //G12
         vals[1] += iItems->rms(1);

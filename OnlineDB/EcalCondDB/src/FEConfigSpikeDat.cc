@@ -126,7 +126,7 @@ void FEConfigSpikeDat::writeArrayDB(const std::map<EcalLogicID, FEConfigSpikeDat
   const FEConfigSpikeDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, FEConfigSpikeDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
+  for (auto p = data->begin(); p != data->end(); ++p) {
     channel = &(p->first);
     int logicID = channel->getLogicID();
     if (!logicID) {

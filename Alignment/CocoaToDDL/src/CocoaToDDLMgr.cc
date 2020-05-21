@@ -263,11 +263,11 @@ void CocoaToDDLMgr::so(OpticalObject* opto) {
 
   if (solidType == "Box") {
     file_ << " <" << solidType << " name=\"" << name << "\"";
-    CocoaSolidShapeBox* sb = dynamic_cast<CocoaSolidShapeBox*>(so);
+    auto* sb = dynamic_cast<CocoaSolidShapeBox*>(so);
     file_ << " dx=\"" << UC(sb->getXHalfLength(), "Length") << "\" dy=\"" << UC(sb->getYHalfLength(), "Length")
           << "\" dz=\"" << UC(sb->getZHalfLength(), "Length") << "\"/>" << std::endl;
   } else if (solidType == "Tubs") {
-    CocoaSolidShapeTubs* tu = dynamic_cast<CocoaSolidShapeTubs*>(so);
+    auto* tu = dynamic_cast<CocoaSolidShapeTubs*>(so);
     file_ << " <" << solidType << " name=\"" << name << "\""
           << " rMin=\"" << UC(tu->getInnerRadius(), "Length") << "\""
           << " rMax=\"" << UC(tu->getOuterRadius(), "Length") << "\""

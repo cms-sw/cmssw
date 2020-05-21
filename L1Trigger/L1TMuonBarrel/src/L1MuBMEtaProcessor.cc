@@ -99,7 +99,7 @@ void L1MuBMEtaProcessor::run(int bx, const edm::Event& e, const edm::EventSetup&
 // reset Eta Processor
 //
 void L1MuBMEtaProcessor::reset() {
-  vector<const L1MuBMTrackSegEta*>::iterator iter = m_tseta.begin();
+  auto iter = m_tseta.begin();
   while (iter != m_tseta.end()) {
     if (*iter) {
       delete *iter;
@@ -326,7 +326,7 @@ void L1MuBMEtaProcessor::runEtaTrackFinder(const edm::EventSetup& c) {
   // Pattern comparator:
   // loop over all patterns and compare with local chamber pattern
   // result : list of valid pattern IDs ( m_foundPattern )
-  L1MuBMTEtaPatternLut::ETFLut_iter it = theEtaPatternLUT.begin();
+  auto it = theEtaPatternLUT.begin();
   while (it != theEtaPatternLUT.end()) {
     const L1MuDTEtaPattern pattern = (*it).second;
     int qualitycode = pattern.quality();

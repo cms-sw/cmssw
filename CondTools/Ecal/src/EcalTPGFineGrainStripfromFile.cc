@@ -45,7 +45,7 @@ void popcon::EcalTPGFineGrainStripfromFile::getNewObjects() {
   char strip[8];
   unsigned int stripId, Threshold, LUTFgr;
 
-  EcalTPGFineGrainStripEE* fgrStripEE = new EcalTPGFineGrainStripEE;
+  auto* fgrStripEE = new EcalTPGFineGrainStripEE;
 
   for (int istrip = 0; istrip < 15176; istrip++) {
     getline(fLin, line);

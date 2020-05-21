@@ -110,7 +110,7 @@ DigiBXCorrHistogramMaker<T>::DigiBXCorrHistogramMaker(const edm::ParameterSet& i
   std::vector<edm::ParameterSet> wantedsubds(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >(
       "wantedSubDets", std::vector<edm::ParameterSet>()));
 
-  for (std::vector<edm::ParameterSet>::iterator ps = wantedsubds.begin(); ps != wantedsubds.end(); ++ps) {
+  for (auto ps = wantedsubds.begin(); ps != wantedsubds.end(); ++ps) {
     m_binmax[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<int>("binMax");
     m_phasepart[ps->getParameter<unsigned int>("detSelection")] =
         ps->getUntrackedParameter<std::string>("phasePartition", "None");
@@ -128,12 +128,12 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int, 
 
   edm::LogInfo("NumberOfBins") << "Number of Bins: " << m_nbins;
   edm::LogInfo("ScaleFactors") << "x-axis range scale factors: ";
-  for (std::vector<int>::const_iterator sf = m_scalefact.begin(); sf != m_scalefact.end(); ++sf) {
+  for (auto sf = m_scalefact.begin(); sf != m_scalefact.end(); ++sf) {
     edm::LogVerbatim("ScaleFactors") << *sf;
   }
   edm::LogInfo("BinMaxValue") << "Setting bin max values";
 
-  for (std::map<int, std::string>::const_iterator lab = m_labels.begin(); lab != m_labels.end(); lab++) {
+  for (auto lab = m_labels.begin(); lab != m_labels.end(); lab++) {
     const int i = lab->first;
     const std::string slab = lab->second;
     const unsigned int ui = i;
@@ -149,7 +149,7 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int, 
 
   edm::LogInfo("PhasePartitions") << "Partitions for APV Cycle Phase";
 
-  for (std::map<int, std::string>::const_iterator lab = m_labels.begin(); lab != m_labels.end(); lab++) {
+  for (auto lab = m_labels.begin(); lab != m_labels.end(); lab++) {
     const int i = lab->first;
     const std::string slab = lab->second;
     const unsigned int ui = i;
@@ -158,7 +158,7 @@ void DigiBXCorrHistogramMaker<T>::book(const char* dirname, const std::map<int, 
                                                                                         : "not found");
   }
 
-  for (std::map<int, std::string>::const_iterator lab = m_labels.begin(); lab != m_labels.end(); lab++) {
+  for (auto lab = m_labels.begin(); lab != m_labels.end(); lab++) {
     const int i = lab->first;
     const std::string slab = lab->second;
     const unsigned int ui = i;
@@ -354,7 +354,7 @@ template <class T>
 void DigiBXCorrHistogramMaker<T>::beginRun(const unsigned int nrun) {
   m_rhm.beginRun(nrun);
 
-  for (std::map<int, std::string>::const_iterator lab = m_labels.begin(); lab != m_labels.end(); lab++) {
+  for (auto lab = m_labels.begin(); lab != m_labels.end(); lab++) {
     const int i = lab->first;
     if (m_runHisto) {
       if (m_ndigivscycletime[i]) {
@@ -370,7 +370,7 @@ template <class T>
 void DigiBXCorrHistogramMaker<T>::fill(const T& he,
                                        const std::map<int, int>& ndigi,
                                        const edm::Handle<APVCyclePhaseCollection>& phase) {
-  for (std::map<int, int>::const_iterator digi = ndigi.begin(); digi != ndigi.end(); digi++) {
+  for (auto digi = ndigi.begin(); digi != ndigi.end(); digi++) {
     if (m_labels.find(digi->first) != m_labels.end()) {
       const int i = digi->first;
       const unsigned int ui = i;
@@ -471,7 +471,7 @@ void DigiBXCorrHistogramMaker<T>::fill(const T& he,
 
 template <class T>
 void DigiBXCorrHistogramMaker<T>::fillcorr(const T& he1, const T& he2, const std::map<int, int>& ndigi) {
-  for (std::map<int, int>::const_iterator digi = ndigi.begin(); digi != ndigi.end(); digi++) {
+  for (auto digi = ndigi.begin(); digi != ndigi.end(); digi++) {
     if (m_labels.find(digi->first) != m_labels.end()) {
       const int i = digi->first;
 

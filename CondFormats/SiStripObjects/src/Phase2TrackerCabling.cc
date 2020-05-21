@@ -70,7 +70,7 @@ void Phase2TrackerCabling::initializeCabling() {
   fedCabling_.reserve(connections_.size());
   detCabling_.reserve(connections_.size());
   gbtCabling_.reserve(connections_.size());
-  for (key module = connections_.begin(); module < connections_.end(); ++module) {
+  for (auto module = connections_.begin(); module < connections_.end(); ++module) {
     fedCabling_.push_back(module);
     detCabling_.push_back(module);
     gbtCabling_.push_back(module);
@@ -83,7 +83,7 @@ void Phase2TrackerCabling::initializeCabling() {
 
 const Phase2TrackerModule& Phase2TrackerCabling::findFedCh(std::pair<unsigned int, unsigned int> fedch) const {
   // look for ch
-  cabling::const_iterator itid = std::lower_bound(fedCabling_.begin(), fedCabling_.end(), fedch, chComp);
+  auto itid = std::lower_bound(fedCabling_.begin(), fedCabling_.end(), fedch, chComp);
   if (itid != fedCabling_.end() && (*itid)->getCh() == fedch)
     return **itid;
   else
@@ -93,7 +93,7 @@ const Phase2TrackerModule& Phase2TrackerCabling::findFedCh(std::pair<unsigned in
 
 const Phase2TrackerModule& Phase2TrackerCabling::findDetid(uint32_t detid) const {
   // look for id
-  cabling::const_iterator itch = std::lower_bound(detCabling_.begin(), detCabling_.end(), detid, detidComp);
+  auto itch = std::lower_bound(detCabling_.begin(), detCabling_.end(), detid, detidComp);
   if (itch != detCabling_.end() && (*itch)->getDetid() == detid)
     return **itch;
   else
@@ -103,7 +103,7 @@ const Phase2TrackerModule& Phase2TrackerCabling::findDetid(uint32_t detid) const
 
 const Phase2TrackerModule& Phase2TrackerCabling::findGbtid(uint32_t gbtid) const {
   // look for id
-  cabling::const_iterator itch = std::lower_bound(gbtCabling_.begin(), gbtCabling_.end(), gbtid, gbtidComp);
+  auto itch = std::lower_bound(gbtCabling_.begin(), gbtCabling_.end(), gbtid, gbtidComp);
   if (itch != gbtCabling_.end() && (*itch)->getGbtid() == gbtid)
     return **itch;
   else
@@ -172,7 +172,7 @@ std::string Phase2TrackerCabling::summaryDescription() const {
 
 std::string Phase2TrackerCabling::description(bool compact) const {
   std::string mystring("Cabling:\n========\n");
-  for (std::vector<Phase2TrackerModule>::const_iterator it = connections_.begin(); it < connections_.end(); ++it) {
+  for (auto it = connections_.begin(); it < connections_.end(); ++it) {
     mystring += it->description(compact);
   }
   return mystring;

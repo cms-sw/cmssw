@@ -87,7 +87,7 @@ void JetEnergyShift::produce(edm::Event& event, const edm::EventSetup& setup) {
   double dPy = 0.;
   double dSumEt = 0.;
 
-  for (std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet != jets->end(); ++jet) {
+  for (auto jet = jets->begin(); jet != jets->end(); ++jet) {
     pat::Jet scaledJet = *jet;
     scaledJet.scaleEnergy(scaleFactor_);
     pJets->push_back(scaledJet);

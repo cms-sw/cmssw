@@ -76,7 +76,7 @@ void RPCSeedLayerFinder::fill() {
 
 void RPCSeedLayerFinder::fillLayers() {
   if (isSpecialLayers == false && isMixBarrelwithEndcap == false) {
-    for (std::vector<unsigned int>::iterator NumberofLayersinBarrel = RangeofLayersinBarrel.begin();
+    for (auto NumberofLayersinBarrel = RangeofLayersinBarrel.begin();
          NumberofLayersinBarrel != RangeofLayersinBarrel.end();
          NumberofLayersinBarrel++) {
       // find N layers out of 6 Barrel Layers to fill to SeedinRPC
@@ -89,7 +89,7 @@ void RPCSeedLayerFinder::fillLayers() {
       LayersinRPC.clear();
     }
 
-    for (std::vector<unsigned int>::iterator NumberofLayersinEndcap = RangeofLayersinEndcap.begin();
+    for (auto NumberofLayersinEndcap = RangeofLayersinEndcap.begin();
          NumberofLayersinEndcap != RangeofLayersinEndcap.end();
          NumberofLayersinEndcap++) {
       unsigned int NumberofLayers = *NumberofLayersinEndcap;
@@ -112,7 +112,7 @@ void RPCSeedLayerFinder::fillLayers() {
     bool EnoughforBarrel = true;
     unsigned int i = 0;
     LayersinRPC.clear();
-    for (std::vector<unsigned int>::iterator it = LayersinBarrel.begin(); it != LayersinBarrel.end(); it++, i++) {
+    for (auto it = LayersinBarrel.begin(); it != LayersinBarrel.end(); it++, i++) {
       if ((*it) != 0 && i < BarrelLayerNumber) {
         if (recHitsinLayers[i] != 0)
           LayersinRPC.push_back(i);
@@ -136,7 +136,7 @@ void RPCSeedLayerFinder::fillLayers() {
     i = BarrelLayerNumber;
     EnoughforEndcap = true;
     LayersinRPC.clear();
-    for (std::vector<unsigned int>::iterator it = LayersinEndcap.begin(); it != LayersinEndcap.end(); it++, i++) {
+    for (auto it = LayersinEndcap.begin(); it != LayersinEndcap.end(); it++, i++) {
       if ((*it) != 0 && i < (BarrelLayerNumber + EachEndcapLayerNumber)) {
         if (recHitsinLayers[i] != 0)
           LayersinRPC.push_back(i);
@@ -157,7 +157,7 @@ void RPCSeedLayerFinder::fillLayers() {
     i = BarrelLayerNumber;
     EnoughforEndcap = true;
     LayersinRPC.clear();
-    for (std::vector<unsigned int>::iterator it = LayersinEndcap.begin(); it != LayersinEndcap.end(); it++, i++) {
+    for (auto it = LayersinEndcap.begin(); it != LayersinEndcap.end(); it++, i++) {
       if ((*it) != 0 && i >= (BarrelLayerNumber + EachEndcapLayerNumber) &&
           i < (BarrelLayerNumber + EachEndcapLayerNumber * 2)) {
         if (recHitsinLayers[i] != 0)
@@ -188,7 +188,7 @@ void RPCSeedLayerFinder::fillCosmicLayers() {
     // Fill barrel layer for seed
     unsigned int i = 0;
     LayersinRPC.clear();
-    for (std::vector<unsigned int>::iterator it = LayersinBarrel.begin(); it != LayersinBarrel.end(); it++, i++) {
+    for (auto it = LayersinBarrel.begin(); it != LayersinBarrel.end(); it++, i++) {
       if ((*it) != 0 && i < BarrelLayerNumber)
         if (recHitsinLayers[i] != 0)
           LayersinRPC.push_back(i);
@@ -205,7 +205,7 @@ void RPCSeedLayerFinder::fillCosmicLayers() {
     // Fill endcap- layer for seed
     i = BarrelLayerNumber;
     LayersinRPC.clear();
-    for (std::vector<unsigned int>::iterator it = LayersinEndcap.begin(); it != LayersinEndcap.end(); it++, i++) {
+    for (auto it = LayersinEndcap.begin(); it != LayersinEndcap.end(); it++, i++) {
       if ((*it) != 0 && i < (BarrelLayerNumber + EachEndcapLayerNumber))
         if (recHitsinLayers[i] != 0)
           LayersinRPC.push_back(i);
@@ -220,7 +220,7 @@ void RPCSeedLayerFinder::fillCosmicLayers() {
     //Fill endcap+ layer for seed
     i = BarrelLayerNumber;
     LayersinRPC.clear();
-    for (std::vector<unsigned int>::iterator it = LayersinEndcap.begin(); it != LayersinEndcap.end(); it++, i++) {
+    for (auto it = LayersinEndcap.begin(); it != LayersinEndcap.end(); it++, i++) {
       if ((*it) != 0 && i >= (BarrelLayerNumber + EachEndcapLayerNumber) &&
           i < (BarrelLayerNumber + EachEndcapLayerNumber * 2))
         if (recHitsinLayers[i] != 0)
@@ -238,13 +238,13 @@ void RPCSeedLayerFinder::fillCosmicLayers() {
     // Fill all
     unsigned int i = 0;
     LayersinRPC.clear();
-    for (std::vector<unsigned int>::iterator it = LayersinBarrel.begin(); it != LayersinBarrel.end(); it++, i++) {
+    for (auto it = LayersinBarrel.begin(); it != LayersinBarrel.end(); it++, i++) {
       if ((*it) != 0 && i < BarrelLayerNumber)
         if (recHitsinLayers[i] != 0)
           LayersinRPC.push_back(i);
     }
     i = BarrelLayerNumber;
-    for (std::vector<unsigned int>::iterator it = LayersinEndcap.begin(); it != LayersinEndcap.end(); it++, i++) {
+    for (auto it = LayersinEndcap.begin(); it != LayersinEndcap.end(); it++, i++) {
       if ((*it) != 0 && i < (BarrelLayerNumber + EachEndcapLayerNumber * 2))
         if (recHitsinLayers[i] != 0)
           LayersinRPC.push_back(i);

@@ -51,7 +51,7 @@ DTTMax::DTTMax(const vector<DTRecHit1D>& hits,
   debug = "true";
 
   // Collect all information using InfoLayer
-  for (vector<DTRecHit1D>::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
+  for (auto hit = hits.begin(); hit != hits.end(); ++hit) {
     //     cout << "Hit Pos " << (*hit).localPosition() << endl;
 
     InfoLayer* layInfo = new InfoLayer((*hit), isl, dir, pos, sync);
@@ -69,7 +69,7 @@ DTTMax::DTTMax(const vector<DTRecHit1D>& hits,
 
   int layersIn = 0;
   int nGoodHits = 0;
-  for (vector<InfoLayer*>::const_iterator ilay = theInfoLayers.begin(); ilay != theInfoLayers.end(); ++ilay) {
+  for (auto ilay = theInfoLayers.begin(); ilay != theInfoLayers.end(); ++ilay) {
     if ((*ilay) == nullptr) {
       theSegType += "X";
       continue;
@@ -340,11 +340,11 @@ const DTTMax::TMax* DTTMax::getTMax(TMaxCells cCase) { return theTMaxes[cCase]; 
 
 /* Destructor */
 DTTMax::~DTTMax() {
-  for (vector<InfoLayer*>::const_iterator ilay = theInfoLayers.begin(); ilay != theInfoLayers.end(); ++ilay) {
+  for (auto ilay = theInfoLayers.begin(); ilay != theInfoLayers.end(); ++ilay) {
     delete (*ilay);
   }
 
-  for (vector<TMax*>::const_iterator iTmax = theTMaxes.begin(); iTmax != theTMaxes.end(); ++iTmax) {
+  for (auto iTmax = theTMaxes.begin(); iTmax != theTMaxes.end(); ++iTmax) {
     delete (*iTmax);
   }
 }

@@ -131,7 +131,7 @@ Hector::Hector(const edm::ParameterSet &param, bool verbosity, bool FP420Transpo
 }
 
 Hector::~Hector() {
-  for (std::map<unsigned int, H_BeamParticle *>::iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it) {
+  for (auto it = m_beamPart.begin(); it != m_beamPart.end(); ++it) {
     delete (*it).second;
   }
 
@@ -150,7 +150,7 @@ void Hector::clearApertureFlags() {
 }
 
 void Hector::clear() {
-  for (std::map<unsigned int, H_BeamParticle *>::iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it) {
+  for (auto it = m_beamPart.begin(); it != m_beamPart.end(); ++it) {
     delete (*it).second;
   };
   m_beamPart.clear();
@@ -499,7 +499,7 @@ void Hector::filterD1(TRandom3 *rootEngine) {
 }
 
 int Hector::getDirect(unsigned int part_n) const {
-  std::map<unsigned int, int>::const_iterator it = m_direct.find(part_n);
+  auto it = m_direct.find(part_n);
   if (it != m_direct.end()) {
     return (*it).second;
   }
@@ -507,7 +507,7 @@ int Hector::getDirect(unsigned int part_n) const {
 }
 
 void Hector::print() const {
-  for (std::map<unsigned int, H_BeamParticle *>::const_iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it) {
+  for (auto it = m_beamPart.begin(); it != m_beamPart.end(); ++it) {
     (*it).second->printProperties();
   };
 }
@@ -571,10 +571,10 @@ HepMC::GenEvent *Hector::addPartToHepMC(HepMC::GenEvent *evt) {
                                               << "Hector:: t= " << time;
           }
 
-          HepMC::GenVertex *vert = new HepMC::GenVertex(HepMC::FourVector((*(m_xAtTrPoint.find(line))).second * 0.001,
-                                                                          (*(m_yAtTrPoint.find(line))).second * 0.001,
-                                                                          ddd * (*(m_direct.find(line))).second * 1000.,
-                                                                          time + .001 * time));
+          auto *vert = new HepMC::GenVertex(HepMC::FourVector((*(m_xAtTrPoint.find(line))).second * 0.001,
+                                                              (*(m_yAtTrPoint.find(line))).second * 0.001,
+                                                              ddd * (*(m_direct.find(line))).second * 1000.,
+                                                              time + .001 * time));
 
           gpart->set_status(2);
           vert->add_particle_in(gpart);

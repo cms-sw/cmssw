@@ -67,7 +67,7 @@ void PixelTripletNoTipGenerator::hitTriplets(const TrackingRegion& region,
 
   int size = thirdLayers.size();
 
-  const RecHitsSortedInPhi** thirdHitMap = new const RecHitsSortedInPhi*[size];
+  const auto** thirdHitMap = new const RecHitsSortedInPhi*[size];
   for (int il = 0; il <= size - 1; il++) {
     thirdHitMap[il] = &(*theLayerCache)(thirdLayers[il], region, es);
   }
@@ -140,7 +140,7 @@ void PixelTripletNoTipGenerator::hitTriplets(const TrackingRegion& region,
       vector<Hit> thirdHits = thirdHitMap[il]->hits(c1_phi, c2_phi);
 
       typedef vector<Hit>::const_iterator IH;
-      for (IH th = thirdHits.begin(), eh = thirdHits.end(); th < eh; ++th) {
+      for (auto th = thirdHits.begin(), eh = thirdHits.end(); th < eh; ++th) {
         GlobalPoint p3((*th)->globalPosition() - shift);
         double p3_errorRPhi = sqrt(sqr((*th)->errorGlobalRPhi()) + sqr(msRPhi3) + sqr(errorXY));
 

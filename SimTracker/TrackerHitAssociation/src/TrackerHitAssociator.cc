@@ -210,7 +210,7 @@ void TrackerHitAssociator::makeMaps(const edm::Event& theEvent, const TrackerHit
 }
 
 std::vector<PSimHit> TrackerHitAssociator::associateHit(const TrackingRecHit& thit) const {
-  if (const SiTrackerMultiRecHit* rechit = dynamic_cast<const SiTrackerMultiRecHit*>(&thit)) {
+  if (const auto* rechit = dynamic_cast<const SiTrackerMultiRecHit*>(&thit)) {
     return associateMultiRecHit(rechit);
   }
 
@@ -340,7 +340,7 @@ void TrackerHitAssociator::associateHitId(const TrackingRecHit& thit,
                                           std::vector<simhitAddr>* simhitCFPos) const {
   simtkid.clear();
 
-  if (const SiTrackerMultiRecHit* rechit = dynamic_cast<const SiTrackerMultiRecHit*>(&thit))
+  if (const auto* rechit = dynamic_cast<const SiTrackerMultiRecHit*>(&thit))
     simtkid = associateMultiRecHitId(rechit, simhitCFPos);
 
   //check if it is a simple SiStripRecHit2D
@@ -352,15 +352,15 @@ void TrackerHitAssociator::associateHitId(const TrackingRecHit& thit,
     associateSiStripRecHit(rechit, simtkid, simhitCFPos);
 
   //check if it is a SiStripMatchedRecHit2D
-  else if (const SiStripMatchedRecHit2D* rechit = dynamic_cast<const SiStripMatchedRecHit2D*>(&thit))
+  else if (const auto* rechit = dynamic_cast<const SiStripMatchedRecHit2D*>(&thit))
     simtkid = associateMatchedRecHit(rechit, simhitCFPos);
 
   //check if it is a  ProjectedSiStripRecHit2D
-  else if (const ProjectedSiStripRecHit2D* rechit = dynamic_cast<const ProjectedSiStripRecHit2D*>(&thit))
+  else if (const auto* rechit = dynamic_cast<const ProjectedSiStripRecHit2D*>(&thit))
     simtkid = associateProjectedRecHit(rechit, simhitCFPos);
 
   //check if it is a Phase2TrackerRecHit1D
-  else if (const Phase2TrackerRecHit1D* rechit = dynamic_cast<const Phase2TrackerRecHit1D*>(&thit))
+  else if (const auto* rechit = dynamic_cast<const Phase2TrackerRecHit1D*>(&thit))
     associatePhase2TrackerRecHit(rechit, simtkid, simhitCFPos);
 
   //check if it is a SiPixelRecHit

@@ -64,7 +64,7 @@ bool SecondaryVertexFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
   edm::Handle<reco::SecondaryVertexTagInfoCollection> pvHandle;
   iEvent.getByLabel(vertexSrc, pvHandle);
   const reco::SecondaryVertexTagInfoCollection& vertices = *pvHandle.product();
-  for (reco::SecondaryVertexTagInfoCollection::const_iterator it = vertices.begin(); it != vertices.end(); ++it) {
+  for (auto it = vertices.begin(); it != vertices.end(); ++it) {
     if (it->nVertices() > 0)
       result = true;
     //   if(it->tracksSize() > minNumTracks &&

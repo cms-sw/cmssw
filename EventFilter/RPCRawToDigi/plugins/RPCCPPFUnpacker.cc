@@ -72,13 +72,13 @@ bool RPCCPPFUnpacker::processCPPF(RPCAMCLink const& link,
     return false;
   }
 
-  std::vector<std::uint64_t>::const_iterator word(payload.getData().begin());
+  auto word(payload.getData().begin());
   rpcmp7::Header header(&(*word));
   ++word;
   ++word;
   rpcmp7::SubHeader subheader(*word);
   ++word;
-  std::vector<std::uint64_t>::const_iterator word_end(payload.getData().end());
+  auto word_end(payload.getData().end());
   --word_end;  // rpcamc::Trailer
   unsigned int bx_counter(header.getBXCounter());
   unsigned int bx_counter_mod(bx_counter % 27);
@@ -168,7 +168,7 @@ void RPCCPPFUnpacker::processRXRecord(RPCAMCLink link,
     counters.add(RPCAMCLinkEvents::input_eod_, link);
   }
 
-  RPCAMCLinkMap::map_type::const_iterator link_it = es_cppf_link_map_->getMap().find(link);
+  auto link_it = es_cppf_link_map_->getMap().find(link);
   if (link_it == es_cppf_link_map_->getMap().end()) {
     if (fill_counters_ && bx_offset == 0) {
       counters.add(RPCAMCLinkEvents::amc_link_invalid_, RPCAMCLink(fed, amc_number));
@@ -202,7 +202,7 @@ void RPCCPPFUnpacker::processRXRecord(RPCAMCLink link,
   lb_link.setLinkBoard(record.getLinkBoard());
   lb_link.setConnector(record.getConnector());
 
-  RPCLBLinkMap::map_type::const_iterator lb_link_it = es_lb_link_map_->getMap().find(lb_link);
+  auto lb_link_it = es_lb_link_map_->getMap().find(lb_link);
   if (lb_link_it == es_lb_link_map_->getMap().end()) {
     if (fill_counters_ && bx_offset == 0) {
       counters.add(RPCAMCLinkEvents::input_connector_not_used_, link);

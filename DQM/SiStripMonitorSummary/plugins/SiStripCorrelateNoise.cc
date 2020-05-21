@@ -113,8 +113,8 @@ void SiStripCorrelateNoise::DoAnalysis(const edm::EventSetup &es,
 
   std::vector<TH1F *> histos;
 
-  collection::const_iterator iter = divNoise.begin();
-  collection::const_iterator iterE = divNoise.end();
+  auto iter = divNoise.begin();
+  auto iterE = divNoise.end();
 
   float value;
   float gainRatio = 1.;

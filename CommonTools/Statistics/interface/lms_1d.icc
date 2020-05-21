@@ -30,7 +30,7 @@ T lms_1d(std::vector<T> values) {
   T i_begin = *(values.begin());
   T i_end = *(values.begin() + half);
   T div = (T)fabs(i_begin - i_end);
-  for (typename std::vector<T>::const_iterator i = values.begin(); i != (values.begin() + n_steps); ++i) {
+  for (auto i = values.begin(); i != (values.begin() + n_steps); ++i) {
     if (fabs((*i) - (*(i + half))) < div) {
       i_begin = (*i);
       i_end = *(i + half);

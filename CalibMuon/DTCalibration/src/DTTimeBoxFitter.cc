@@ -195,10 +195,9 @@ void DTTimeBoxFitter::getFitSeeds(
     cout << "   Add macro intervals: " << endl;
   // Look for consecutive plateau: 2 plateau are consecutive if the gap is < 5 ns
   vector<pair<int, int> > superIntervals;
-  for (vector<pair<int, int> >::const_iterator interval = startAndLenght.begin(); interval != startAndLenght.end();
-       ++interval) {
+  for (auto interval = startAndLenght.begin(); interval != startAndLenght.end(); ++interval) {
     pair<int, int> theInterval = (*interval);
-    vector<pair<int, int> >::const_iterator next = interval;
+    auto next = interval;
     while (++next != startAndLenght.end()) {
       int gap = (*next).first - (theInterval.first + theInterval.second);
       double gabInNs = binValue * gap;
@@ -224,8 +223,7 @@ void DTTimeBoxFitter::getFitSeeds(
   int delta = 999999;
   int beginning = -1;
   int tbWidth = -1;
-  for (vector<pair<int, int> >::const_iterator stAndL = startAndLenght.begin(); stAndL != startAndLenght.end();
-       ++stAndL) {
+  for (auto stAndL = startAndLenght.begin(); stAndL != startAndLenght.end(); ++stAndL) {
     if (abs((*stAndL).second - tBoxWidth) < delta) {
       delta = abs((*stAndL).second - tBoxWidth);
       beginning = (*stAndL).first;

@@ -77,12 +77,12 @@ namespace cms {
     double SIGNAL_V_Z_ERROR = 0.;
     double ptmax = -100.;
 
-    VertexCollection::const_iterator vert = vertexes->begin();
+    auto vert = vertexes->begin();
     if (!vertexes->empty()) {
       for (; vert != vertexes->end(); vert++) {
         SIGNAL_V_Z = vert->z();
         double pt = 0.;
-        reco::Vertex::trackRef_iterator tr = vert->tracks_begin();
+        auto tr = vert->tracks_begin();
         for (; tr != vert->tracks_end(); tr++)
           pt += (*tr)->pt();
         if (pt >= ptmax) {
@@ -97,7 +97,7 @@ namespace cms {
     std::unique_ptr<ResultCollection1> result1(new ResultCollection1);
     std::unique_ptr<ResultCollection2> result2(new ResultCollection2);
 
-    CaloJetCollection::const_iterator jet = jets->begin();
+    auto jet = jets->begin();
 
     if (!jets->empty()) {
       for (; jet != jets->end(); jet++) {

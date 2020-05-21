@@ -33,9 +33,8 @@ void OniaAddV0TracksProducer::produce(edm::Event& event, const edm::EventSetup& 
 
   int exits_l = 0;
   int exits_k = 0;
-  for (reco::VertexCompositeCandidateCollection::const_iterator ik = kcandidates->begin(); ik != kcandidates->end();
-       ++ik) {
-    pat::CompositeCandidate* kc = new pat::CompositeCandidate();
+  for (auto ik = kcandidates->begin(); ik != kcandidates->end(); ++ik) {
+    auto* kc = new pat::CompositeCandidate();
     edm::RefToBase<reco::Track> ktrk0((*(dynamic_cast<const reco::RecoChargedCandidate*>(ik->daughter(0)))).track());
     edm::RefToBase<reco::Track> ktrk1((*(dynamic_cast<const reco::RecoChargedCandidate*>(ik->daughter(1)))).track());
     kc->addUserData<reco::Track>("track0", *ktrk0);
@@ -44,9 +43,8 @@ void OniaAddV0TracksProducer::produce(edm::Event& event, const edm::EventSetup& 
     exits_k++;
   }
 
-  for (reco::VertexCompositeCandidateCollection::const_iterator il = lcandidates->begin(); il != lcandidates->end();
-       ++il) {
-    pat::CompositeCandidate* lc = new pat::CompositeCandidate();
+  for (auto il = lcandidates->begin(); il != lcandidates->end(); ++il) {
+    auto* lc = new pat::CompositeCandidate();
     edm::RefToBase<reco::Track> ltrk0((*(dynamic_cast<const reco::RecoChargedCandidate*>(il->daughter(0)))).track());
     edm::RefToBase<reco::Track> ltrk1((*(dynamic_cast<const reco::RecoChargedCandidate*>(il->daughter(1)))).track());
     lc->addUserData<reco::Track>("track0", *ltrk0);

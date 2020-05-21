@@ -30,7 +30,7 @@ public:
   typedef typename edm::Handle<T> Handler;
   HT(Handler jetcoll, double ptThreshold, double maxAbsEta) : Hx(0), Hy(0), ScalarSum(0) {
     typedef typename T::const_iterator Iter;
-    for (Iter jet = jetcoll->begin(); jet != jetcoll->end(); ++jet) {
+    for (auto jet = jetcoll->begin(); jet != jetcoll->end(); ++jet) {
       if ((jet->pt() > ptThreshold) && (std::fabs(jet->eta()) < maxAbsEta)) {
         njet++;
         Hx += jet->px();

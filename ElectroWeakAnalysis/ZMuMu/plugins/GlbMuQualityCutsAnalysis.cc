@@ -86,7 +86,7 @@ void GlbMuQualityCutsAnalysis::analyze(const edm::Event& evt, const edm::EventSe
       // double trackIso1=mu1->trackIso();
       // std::cout << " mu1 iso" << trackIso1 << std::endl;
     } else {
-      const pat::GenericParticle* gp1 = dynamic_cast<const pat::GenericParticle*>(c1);
+      const auto* gp1 = dynamic_cast<const pat::GenericParticle*>(c1);
       if (gp1 == nullptr)
         throw Exception(errors::InvalidReference)
             << "first of two daughter is neither a pat::Muon not pat::GenericParticle\n";
@@ -98,7 +98,7 @@ void GlbMuQualityCutsAnalysis::analyze(const edm::Event& evt, const edm::EventSe
       // double trackIso2=mu2->trackIso();
       //std::cout << " mu2 iso" << trackIso2 << std::endl;
     } else {
-      const pat::GenericParticle* gp2 = dynamic_cast<const pat::GenericParticle*>(c2);
+      const auto* gp2 = dynamic_cast<const pat::GenericParticle*>(c2);
       if (gp2 == nullptr)
         throw Exception(errors::InvalidReference)
             << "first of two daughter is neither a pat::Muon not pat::GenericParticle\n";

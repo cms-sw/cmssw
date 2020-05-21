@@ -61,11 +61,11 @@ void PhiSymmetryCalibration_step2::setUp(const edm::EventSetup& se) {
       edm::LogError("PhiSym") << "Error reading XML files" << endl;
     ;
   } else {
-    for (vector<DetId>::iterator it = barrelCells.begin(); it != barrelCells.end(); ++it) {
+    for (auto it = barrelCells.begin(); it != barrelCells.end(); ++it) {
       miscalib_[*it] = 1;
     }
 
-    for (vector<DetId>::iterator it = endcapCells.begin(); it != endcapCells.end(); ++it) {
+    for (auto it = endcapCells.begin(); it != endcapCells.end(); ++it) {
       miscalib_[*it] = 1;
     }
   }
@@ -86,10 +86,10 @@ void PhiSymmetryCalibration_step2::setUp(const edm::EventSetup& se) {
     ;
 
   } else {
-    for (vector<DetId>::iterator it = barrelCells.begin(); it != barrelCells.end(); ++it)
+    for (auto it = barrelCells.begin(); it != barrelCells.end(); ++it)
       oldCalibs_[*it] = 1;
 
-    for (vector<DetId>::iterator it = endcapCells.begin(); it != endcapCells.end(); ++it)
+    for (auto it = endcapCells.begin(); it != endcapCells.end(); ++it)
       oldCalibs_[*it] = 1;
 
   }  // else
@@ -204,7 +204,7 @@ void PhiSymmetryCalibration_step2::endJob() {
 
   TH1D ebhisto("eb", "eb", 100, 0., 2.);
 
-  std::vector<DetId>::const_iterator barrelIt = barrelCells.begin();
+  auto barrelIt = barrelCells.begin();
   for (; barrelIt != barrelCells.end(); barrelIt++) {
     EBDetId eb(*barrelIt);
     int ieta = abs(eb.ieta()) - 1;
@@ -226,7 +226,7 @@ void PhiSymmetryCalibration_step2::endJob() {
   }  // barrelit
 
   TH1D eehisto("ee", "ee", 100, 0., 2.);
-  std::vector<DetId>::const_iterator endcapIt = endcapCells.begin();
+  auto endcapIt = endcapCells.begin();
 
   for (; endcapIt != endcapCells.end(); endcapIt++) {
     EEDetId ee(*endcapIt);

@@ -25,7 +25,7 @@ DTSuperLayer::DTSuperLayer(const DTSuperLayerId& id, ReferenceCountingPointer<Bo
 
 /* Destructor */
 DTSuperLayer::~DTSuperLayer() {
-  for (std::vector<const DTLayer*>::const_iterator il = theLayers.begin(); il != theLayers.end(); ++il)
+  for (auto il = theLayers.begin(); il != theLayers.end(); ++il)
     delete (*il);
 }
 

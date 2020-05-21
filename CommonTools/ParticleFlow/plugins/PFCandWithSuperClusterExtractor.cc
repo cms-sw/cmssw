@@ -49,7 +49,7 @@ IsoDeposit PFCandWithSuperClusterExtractor::depositFromObject(const Event& event
 
   double eta = cand.eta(), phi = cand.phi();
   const reco::Particle::Point& vtx = cand.vertex();
-  for (PFCandidateCollection::const_iterator it = PFCandH->begin(), ed = PFCandH->end(); it != ed; ++it) {
+  for (auto it = PFCandH->begin(), ed = PFCandH->end(); it != ed; ++it) {
     double dR = deltaR(it->eta(), it->phi(), eta, phi);
     // veto SC
     if (theVetoSuperClusterMatch && cand.superCluster().isNonnull() && it->superClusterRef().isNonnull() &&
@@ -79,7 +79,7 @@ IsoDeposit PFCandWithSuperClusterExtractor::depositFromObject(const Event& event
 
   double eta = cand.eta(), phi = cand.phi();
   const reco::Particle::Point& vtx = cand.vertex();
-  for (PFCandidateCollection::const_iterator it = PFCandH->begin(), ed = PFCandH->end(); it != ed; ++it) {
+  for (auto it = PFCandH->begin(), ed = PFCandH->end(); it != ed; ++it) {
     double dR = deltaR(it->eta(), it->phi(), eta, phi);
     // If MissHits>0 (possibly reconstructed as a photon in the PF in this case, kill the the photon if sharing the same SC)
     if (cand.gsfTrack()->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS) > 0 &&
@@ -110,7 +110,7 @@ IsoDeposit PFCandWithSuperClusterExtractor::depositFromObject(const Event& event
 
   double eta = cand.eta(), phi = cand.phi();
   const reco::Particle::Point& vtx = cand.vertex();
-  for (PFCandidateCollection::const_iterator it = PFCandH->begin(), ed = PFCandH->end(); it != ed; ++it) {
+  for (auto it = PFCandH->begin(), ed = PFCandH->end(); it != ed; ++it) {
     double dR = deltaR(it->eta(), it->phi(), eta, phi);
 
     if ((dR < theDR_Max) && (dR > theDR_Veto) && (std::abs(it->vz() - cand.vz()) < theDiff_z) &&
@@ -136,7 +136,7 @@ IsoDeposit PFCandWithSuperClusterExtractor::depositFromObject(const Event& event
 
   double eta = cand.eta(), phi = cand.phi();
   const reco::Particle::Point& vtx = cand.vertex();
-  for (PFCandidateCollection::const_iterator it = PFCandH->begin(), ed = PFCandH->end(); it != ed; ++it) {
+  for (auto it = PFCandH->begin(), ed = PFCandH->end(); it != ed; ++it) {
     // veto SC
     if (theVetoSuperClusterMatch && cand.superClusterRef().isNonnull() && it->superClusterRef().isNonnull() &&
         cand.superClusterRef() == it->superClusterRef())

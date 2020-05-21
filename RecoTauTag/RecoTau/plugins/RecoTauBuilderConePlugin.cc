@@ -236,7 +236,7 @@ namespace reco {
       // PFCandidates always a sorted list, so we can just take the first if it
       // if it exists.
       CandidatePtr leadPFCH;
-      CandPtrs::iterator leadPFCH_iter = std::find_if(pfchs.begin(), pfchs.end(), matchingConeFilter);
+      auto leadPFCH_iter = std::find_if(pfchs.begin(), pfchs.end(), matchingConeFilter);
 
       if (leadPFCH_iter != pfchs.end()) {
         leadPFCH = *leadPFCH_iter;
@@ -250,7 +250,7 @@ namespace reco {
 
       // Find the leading neutral candidate
       CandidatePtr leadPFGamma;
-      CandPtrs::iterator leadPFGamma_iter = std::find_if(pfGammas.begin(), pfGammas.end(), matchingConeFilter);
+      auto leadPFGamma_iter = std::find_if(pfGammas.begin(), pfGammas.end(), matchingConeFilter);
 
       if (leadPFGamma_iter != pfGammas.end()) {
         leadPFGamma = *leadPFGamma_iter;
@@ -331,8 +331,8 @@ namespace reco {
           ++numIsolationPFCHs;
         }
       }
-      CandPtrs::const_iterator signalPFCHs_begin = signalPFCHs.begin();
-      CandPtrs::const_iterator signalPFCHs_end = signalPFCHs.end();
+      auto signalPFCHs_begin = signalPFCHs.begin();
+      auto signalPFCHs_end = signalPFCHs.end();
 
       // Cross clean pi zero content using signal cone charged hadron constituents.
       xclean::CrossCleanPiZeros<CandPtrDRFilterIter> piZeroXCleaner(signalPFCHCands_begin, signalPFCHCands_end);
@@ -351,8 +351,8 @@ namespace reco {
         isolationPFCHs.push_back(*iter);
         ++numIsolationPFCHs;
       }
-      CandPtrs::const_iterator isolationPFCHs_begin = isolationPFCHs.begin();
-      CandPtrs::const_iterator isolationPFCHs_end = isolationPFCHs.end();
+      auto isolationPFCHs_begin = isolationPFCHs.begin();
+      auto isolationPFCHs_end = isolationPFCHs.end();
 
       // Build signal charged hadrons
       tau.addPFCands(

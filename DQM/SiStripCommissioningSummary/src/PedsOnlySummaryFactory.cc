@@ -10,7 +10,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 void PedsOnlySummaryFactory::extract(Iterator iter) {
-  PedsOnlyAnalysis* anal = dynamic_cast<PedsOnlyAnalysis*>(iter->second);
+  auto* anal = dynamic_cast<PedsOnlyAnalysis*>(iter->second);
   if (!anal) {
     return;
   }

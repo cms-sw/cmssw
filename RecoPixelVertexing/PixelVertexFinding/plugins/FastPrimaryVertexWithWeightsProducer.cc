@@ -266,8 +266,7 @@ void FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm
   std::vector<float> zProjections;
   std::vector<float> zWeights;
   int jet_count = 0;
-  for (vector<const reco::Jet*>::iterator jit = selectedJets.begin(); jit != selectedJets.end();
-       jit++) {  //loop on selected jets
+  for (auto jit = selectedJets.begin(); jit != selectedJets.end(); jit++) {  //loop on selected jets
     float px = (*jit)->px();
     float py = (*jit)->py();
     float pz = (*jit)->pz();
@@ -370,14 +369,14 @@ void FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm
   for (i = 0; i < zProjections.size(); i++)
     zWithW.insert(std::pair<float, float>(zProjections[i], zWeights[i]));
   i = 0;
-  for (std::multimap<float, float>::iterator it = zWithW.begin(); it != zWithW.end(); it++, i++) {
+  for (auto it = zWithW.begin(); it != zWithW.end(); it++, i++) {
     zProjections[i] = it->first;
     zWeights[i] = it->second;
   }  //order zProjections and zWeights by z
 
   //calculate zWeightsSquared
   std::vector<float> zWeightsSquared;
-  for (std::vector<float>::iterator it = zWeights.begin(); it != zWeights.end(); it++) {
+  for (auto it = zWeights.begin(); it != zWeights.end(); it++) {
     zWeightsSquared.push_back((*it) * (*it));
   }
 
@@ -425,7 +424,7 @@ void FastPrimaryVertexWithWeightsProducer::produce(edm::Event& iEvent, const edm
   const float half_width_peak = 1;
   float nWeightedTot = 0;
   float nWeightedTotPeak = 0;
-  for (std::vector<float>::iterator it = zProjections.begin(); it != zProjections.end(); it++) {
+  for (auto it = zProjections.begin(); it != zProjections.end(); it++) {
     nWeightedTot += zWeights[it - zProjections.begin()];
     if ((res - half_width_peak) <= (*it) && (*it) <= (res + half_width_peak)) {
       nWeightedTotPeak += zWeights[it - zProjections.begin()];

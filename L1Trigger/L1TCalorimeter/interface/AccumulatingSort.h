@@ -14,7 +14,7 @@ private:
 
     bool lAccInserted(false);
 
-    for (typename std::list<T>::const_iterator lIt(aInput.begin()); lIt != aInput.end(); ++lIt) {
+    for (auto lIt(aInput.begin()); lIt != aInput.end(); ++lIt) {
       if (!lAccInserted and
           !(*lIt >
             aAcc))  // Accumulator greater than or equal to new entry and not previously inserted -> Reinsert accumulator

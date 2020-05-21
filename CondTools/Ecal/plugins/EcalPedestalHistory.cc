@@ -256,7 +256,7 @@ void EcalPedestalHistory::beginRun(edm::Run const&, edm::EventSetup const& c) {
 
         // this to validate ...
         int nbad = 0;
-        for (CImon p = dataset_mon.begin(); p != dataset_mon.end(); p++) {
+        for (auto p = dataset_mon.begin(); p != dataset_mon.end(); p++) {
           ecid_xt = p->first;
           rd_ped = p->second;
           int sm_num = ecid_xt.getID1();
@@ -295,7 +295,7 @@ void EcalPedestalHistory::beginRun(edm::Run const&, edm::EventSetup const& c) {
             (nEB > 10200 || nEE > 2460)) {  // this is good run, fill histo and tree
           PedVal.Run = irun;
           int NbChan = 0;
-          for (CImon p = dataset_mon.begin(); p != dataset_mon.end(); p++) {
+          for (auto p = dataset_mon.begin(); p != dataset_mon.end(); p++) {
             ecid_xt = p->first;
             rd_ped = p->second;
             int sm_num = ecid_xt.getID1();

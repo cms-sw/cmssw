@@ -170,7 +170,7 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
   _alignTree->Branch("type", &_type, "type/I");
   _alignTree->Branch("surfDeform", &_surfDeform, "surfDeform[13]/D");
 
-  for (std::vector<TrackerMap>::iterator it = m_vtkmap.begin(); it != m_vtkmap.end(); ++it) {
+  for (auto it = m_vtkmap.begin(); it != m_vtkmap.end(); ++it) {
     it->setPalette(1);
     it->addPixel(true);
   }
@@ -201,7 +201,7 @@ void TrackerGeometryCompare::beginJob() { firstEvent_ = true; }
 
 void TrackerGeometryCompare::endJob() {
   int iname(0);
-  for (std::vector<TrackerMap>::iterator it = m_vtkmap.begin(); it != m_vtkmap.end(); ++it) {
+  for (auto it = m_vtkmap.begin(); it != m_vtkmap.end(); ++it) {
     std::stringstream mapname;
     mapname << "TkMap_SurfDeform" << iname << ".png";
     it->save(true, 0, 0, mapname.str());
@@ -292,7 +292,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup) {
 
   //declare alignments
   Alignments* alignments1 = new Alignments();
-  AlignmentErrorsExtended* alignmentErrors1 = new AlignmentErrorsExtended();
+  auto* alignmentErrors1 = new AlignmentErrorsExtended();
   if (_inputFilename1 != "IDEAL") {
     _inputRootFile1 = new TFile(_inputFilename1.c_str());
     TTree* _inputTree01 = (TTree*)_inputRootFile1->Get(_inputTreenameAlign.c_str());
@@ -326,7 +326,7 @@ void TrackerGeometryCompare::createROOTGeometry(const edm::EventSetup& iSetup) {
   }
   //------------------
   Alignments* alignments2 = new Alignments();
-  AlignmentErrorsExtended* alignmentErrors2 = new AlignmentErrorsExtended();
+  auto* alignmentErrors2 = new AlignmentErrorsExtended();
   if (_inputFilename2 != "IDEAL") {
     _inputRootFile2 = new TFile(_inputFilename2.c_str());
     TTree* _inputTree02 = (TTree*)_inputRootFile2->Get(_inputTreenameAlign.c_str());

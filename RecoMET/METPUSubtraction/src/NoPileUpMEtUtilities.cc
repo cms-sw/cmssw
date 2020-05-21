@@ -31,10 +31,9 @@ reco::PUSubMETCandInfoCollection NoPileUpMEtUtilities::cleanJets(
     double dRoverlap,
     bool invert) {
   reco::PUSubMETCandInfoCollection retVal;
-  for (reco::PUSubMETCandInfoCollection::const_iterator jet = jets.begin(); jet != jets.end(); ++jet) {
+  for (auto jet = jets.begin(); jet != jets.end(); ++jet) {
     bool isOverlap = false;
-    for (std::vector<reco::Candidate::LorentzVector>::const_iterator lepton = leptons.begin(); lepton != leptons.end();
-         ++lepton) {
+    for (auto lepton = leptons.begin(); lepton != leptons.end(); ++lepton) {
       if (deltaR2(jet->p4(), *lepton) < dRoverlap * dRoverlap) {
         isOverlap = true;
         break;
@@ -57,7 +56,7 @@ CommonMETData NoPileUpMEtUtilities::computeCandidateSum(const reco::PUSubMETCand
   double retVal_sumAbsPx = 0.;
   double retVal_sumAbsPy = 0.;
   double pFrac = 1;
-  for (reco::PUSubMETCandInfoCollection::const_iterator cand = cands.begin(); cand != cands.end(); ++cand) {
+  for (auto cand = cands.begin(); cand != cands.end(); ++cand) {
     pFrac = 1;
     if (neutralFracOnly)
       pFrac = (1 - cand->chargedEnFrac());
@@ -87,12 +86,9 @@ reco::PUSubMETCandInfoCollection NoPileUpMEtUtilities::cleanPFCandidates(
   //         true  = PFCandidates are required to overlap with leptons
 
   reco::PUSubMETCandInfoCollection retVal;
-  for (reco::PUSubMETCandInfoCollection::const_iterator pfCandidate = pfCandidates.begin();
-       pfCandidate != pfCandidates.end();
-       ++pfCandidate) {
+  for (auto pfCandidate = pfCandidates.begin(); pfCandidate != pfCandidates.end(); ++pfCandidate) {
     bool isOverlap = false;
-    for (std::vector<reco::Candidate::LorentzVector>::const_iterator lepton = leptons.begin(); lepton != leptons.end();
-         ++lepton) {
+    for (auto lepton = leptons.begin(); lepton != leptons.end(); ++lepton) {
       if (deltaR2(pfCandidate->p4(), *lepton) < dRoverlap * dRoverlap) {
         isOverlap = true;
         break;
@@ -111,7 +107,7 @@ reco::PUSubMETCandInfoCollection NoPileUpMEtUtilities::selectCandidates(const re
                                                                         bool isCharged,
                                                                         int isWithinJet) {
   reco::PUSubMETCandInfoCollection retVal;
-  for (reco::PUSubMETCandInfoCollection::const_iterator cand = cands.begin(); cand != cands.end(); ++cand) {
+  for (auto cand = cands.begin(); cand != cands.end(); ++cand) {
     if (isCharged && cand->charge() == 0)
       continue;
     double jetPt = cand->p4().pt();

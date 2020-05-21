@@ -297,7 +297,7 @@ DTTSCand *DTTSS::getDTTSCand(int ifs, unsigned n) const {
     std::cout << " empty pointer returned!" << std::endl;
     return nullptr;
   }
-  std::vector<DTTSCand *>::const_iterator p = _tctrig[ifs - 1].begin() + n - 1;
+  auto p = _tctrig[ifs - 1].begin() + n - 1;
   return (*p);
 }
 
@@ -321,7 +321,7 @@ DTTSCand *DTTSS::getTrack(int n) const {
     std::cout << " empty pointer returned!" << std::endl;
     return nullptr;
   }
-  std::vector<DTTSCand *>::const_iterator p = _outcand.begin() + n - 1;
+  auto p = _outcand.begin() + n - 1;
   return (*p);
 }
 

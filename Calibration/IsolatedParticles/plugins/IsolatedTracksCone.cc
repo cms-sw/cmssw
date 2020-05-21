@@ -695,8 +695,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent, const edm::EventSetup
 
     double simP = 0;
     if (doMC_) {
-      edm::SimTrackContainer::const_iterator matchedSimTrk =
-          spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false);
+      auto matchedSimTrk = spr::matchedSimTrack(iEvent, SimTk, SimVtx, pTrack, *associate, false);
       simP = matchedSimTrk->momentum().P();
     }
     ////////////////////////////////////////////

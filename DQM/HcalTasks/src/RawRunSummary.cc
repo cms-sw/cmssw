@@ -155,11 +155,11 @@ namespace hcaldqm {
     // ANALYZE THIS LS
     // iterate over all channels
     std::vector<HcalGenericDetId> gids = _emap->allPrecisionId();
-    for (std::vector<HcalGenericDetId>::const_iterator it = gids.begin(); it != gids.end(); ++it) {
+    for (auto it = gids.begin(); it != gids.end(); ++it) {
       if (!it->isHcalDetId())
         continue;
       HcalDetId did = HcalDetId(it->rawId());
-      HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
+      auto eid = HcalElectronicsId(_ehashmap.lookup(did));
 
       _xBadQ.get(eid) += cBadQuality_depth.getBinContent(did);
       _cBadQuality_depth.fill(did, cBadQuality_depth.getBinContent(did));
@@ -184,19 +184,19 @@ namespace hcaldqm {
     vtmpflags[fEvnMsm] = flag::Flag("EvnMsm");
     vtmpflags[fBcnMsm] = flag::Flag("BcnMsm");
     vtmpflags[fBadQ] = flag::Flag("BadQ");
-    for (std::vector<uint32_t>::const_iterator it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
+    for (auto it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
       HcalElectronicsId eid(*it);
 
       //	reset all the tmp flags to fNA
       //	MUST DO IT NOW! AS NCDAQ MIGHT OVERWRITE IT!
-      for (std::vector<flag::Flag>::iterator ft = vtmpflags.begin(); ft != vtmpflags.end(); ++ft)
+      for (auto ft = vtmpflags.begin(); ft != vtmpflags.end(); ++ft)
         ft->reset();
 
       //	check if this FED was @cDAQ
-      std::vector<uint32_t>::const_iterator cit = std::find(_vcdaqEids.begin(), _vcdaqEids.end(), *it);
+      auto cit = std::find(_vcdaqEids.begin(), _vcdaqEids.end(), *it);
       if (cit == _vcdaqEids.end()) {
         //	was not @cDAQ, set all the flags for this FED as fNCDAQ
-        for (std::vector<flag::Flag>::iterator ft = vtmpflags.begin(); ft != vtmpflags.end(); ++ft)
+        for (auto ft = vtmpflags.begin(); ft != vtmpflags.end(); ++ft)
           ft->_state = flag::fNCDAQ;
 
         // push all the flags for this FED
@@ -275,17 +275,16 @@ namespace hcaldqm {
 
     std::vector<flag::Flag> sumflags;  // flag per FED
     int ifed = 0;
-    for (std::vector<uint32_t>::const_iterator it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
+    for (auto it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
       flag::Flag fSumRun("RAW");  // summary flag for this FED
       HcalElectronicsId eid(*it);
 
       //	ITERATE OVER EACH LS
-      for (std::vector<LSSummary>::const_iterator itls = _vflagsLS.begin(); itls != _vflagsLS.end(); ++itls) {
+      for (auto itls = _vflagsLS.begin(); itls != _vflagsLS.end(); ++itls) {
         //	fill histograms per LS
         int iflag = 0;
         flag::Flag fSumLS("RAW");
-        for (std::vector<flag::Flag>::const_iterator ft = itls->_vflags[ifed].begin(); ft != itls->_vflags[ifed].end();
-             ++ft) {
+        for (auto ft = itls->_vflags[ifed].begin(); ft != itls->_vflags[ifed].end(); ++ft) {
           //	Flag vs LS per FEd
           cSummaryvsLS_FED.setBinContent(eid, itls->_LS, int(iflag), ft->_state);
           fSumLS += (*ft);

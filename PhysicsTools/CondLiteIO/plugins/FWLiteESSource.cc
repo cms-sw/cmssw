@@ -125,7 +125,7 @@ edm::eventsetup::DataProxyProvider::KeyedProxiesVector FWLiteESSource::registerP
   TypesAndLabels typesAndLabels = rec.typeAndLabelOfAvailableData();
 
   std::cout << "Looking for data in record " << iRecordKey.name() << std::endl;
-  for (TypesAndLabels::const_iterator it = typesAndLabels.begin(), itEnd = typesAndLabels.end(); it != itEnd; ++it) {
+  for (auto it = typesAndLabels.begin(), itEnd = typesAndLabels.end(); it != itEnd; ++it) {
     std::cout << " need type " << it->first << std::endl;
     HCTypeTag tt = HCTypeTag::findType(it->first);
     if (tt != HCTypeTag()) {
@@ -156,8 +156,7 @@ void FWLiteESSource::delaySettingRecords() {
   using edm::eventsetup::heterocontainer::HCTypeTag;
   std::vector<std::string> recordNames = m_es.namesOfAvailableRecords();
 
-  for (std::vector<std::string>::const_iterator it = recordNames.begin(), itEnd = recordNames.end(); it != itEnd;
-       ++it) {
+  for (auto it = recordNames.begin(), itEnd = recordNames.end(); it != itEnd; ++it) {
     HCTypeTag t = HCTypeTag::findType(*it);
     if (t != HCTypeTag()) {
       EventSetupRecordKey key(t);

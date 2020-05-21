@@ -72,7 +72,7 @@ int CSCGangedWireGrouping::wireGroup(int wire) const {
   // upper_bound works on a sorted range and points to first element
   // _succeeding_ supplied value.
 
-  CIterator it = upper_bound(theFirstWireOfEachWireGroup.begin(), theFirstWireOfEachWireGroup.end(), wire);
+  auto it = upper_bound(theFirstWireOfEachWireGroup.begin(), theFirstWireOfEachWireGroup.end(), wire);
 
   // We are now pointing to the wire group _after_ the required one
   // (unless we are at begin() or end() when we just return wireG=0)

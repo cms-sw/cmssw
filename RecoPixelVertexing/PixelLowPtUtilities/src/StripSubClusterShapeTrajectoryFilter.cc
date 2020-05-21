@@ -206,12 +206,12 @@ bool StripSubClusterShapeFilterBase::testLastHit(const TrackingRecHit *hit,
                                                  bool mustProject) const {
   const TrackerSingleRecHit *stripHit = nullptr;
   if (typeid(*hit) == typeid(SiStripMatchedRecHit2D)) {
-    const SiStripMatchedRecHit2D &mhit = static_cast<const SiStripMatchedRecHit2D &>(*hit);
+    const auto &mhit = static_cast<const SiStripMatchedRecHit2D &>(*hit);
     SiStripRecHit2D mono = mhit.monoHit();
     SiStripRecHit2D stereo = mhit.stereoHit();
     return testLastHit(&mono, gpos, gdir, true) && testLastHit(&stereo, gpos, gdir, true);
   } else if (typeid(*hit) == typeid(ProjectedSiStripRecHit2D)) {
-    const ProjectedSiStripRecHit2D &mhit = static_cast<const ProjectedSiStripRecHit2D &>(*hit);
+    const auto &mhit = static_cast<const ProjectedSiStripRecHit2D &>(*hit);
     const SiStripRecHit2D &orig = mhit.originalHit();
     return testLastHit(&orig, gpos, gdir, true);
   } else if ((stripHit = dynamic_cast<const TrackerSingleRecHit *>(hit)) != nullptr) {
@@ -290,7 +290,7 @@ bool StripSubClusterShapeFilterBase::testLastHit(const TrackingRecHit *hit,
       return true;
     }
 
-    const StripGeomDetUnit *stripDetUnit = dynamic_cast<const StripGeomDetUnit *>(det);
+    const auto *stripDetUnit = dynamic_cast<const StripGeomDetUnit *>(det);
     if (det == nullptr) {
       edm::LogError("Strip not a StripGeomDetUnit?") << " on " << detId.rawId() << "\n";
       return true;

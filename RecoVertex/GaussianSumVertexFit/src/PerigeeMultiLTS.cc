@@ -15,7 +15,7 @@ PerigeeMultiLTS::PerigeeMultiLTS(const GlobalPoint& linP,
   vector<TrajectoryStateOnSurface> tsosComp = theTSOS.components();
   //cout << "PerigeeMultiLTS components: "<<tsosComp.size()<<endl;
   ltComp.reserve(tsosComp.size());
-  for (vector<TrajectoryStateOnSurface>::iterator it = tsosComp.begin(); it != tsosComp.end(); it++) {
+  for (auto it = tsosComp.begin(); it != tsosComp.end(); it++) {
     // cout <<(*it).globalPosition()<<endl;
     ltComp.push_back(theLTSfactory.linearizedTrackState(theLinPoint, theTrack, *it));
   }
@@ -70,7 +70,7 @@ const AlgebraicVector5& PerigeeMultiLTS::parametersFromExpansion() const {
 const TrajectoryStateClosestToPoint& PerigeeMultiLTS::predictedState() const {
   if (!collapsedStateAvailable)
     prepareCollapsedState();
-  const PerigeeLinearizedTrackState* otherP = dynamic_cast<const PerigeeLinearizedTrackState*>(collapsedStateLT.get());
+  const auto* otherP = dynamic_cast<const PerigeeLinearizedTrackState*>(collapsedStateLT.get());
   return otherP->predictedState();
 }
 

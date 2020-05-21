@@ -80,8 +80,7 @@ SelectedElectronFEDListProducer<TEle, TCand>::SelectedElectronFEDListProducer(co
 
   // Consumes for the electron collection
   LogDebug("SelectedElectronFEDListProducer") << " Electron Collections" << std::endl;
-  for (std::vector<edm::InputTag>::const_iterator itEleTag = electronTags_.begin(); itEleTag != electronTags_.end();
-       ++itEleTag) {
+  for (auto itEleTag = electronTags_.begin(); itEleTag != electronTags_.end(); ++itEleTag) {
     electronToken_.push_back(consumes<TEleColl>(*itEleTag));
     LogDebug("SelectedElectronFEDListProducer") << " Ele collection: " << *(itEleTag) << std::endl;
   }
@@ -97,8 +96,7 @@ SelectedElectronFEDListProducer<TEle, TCand>::SelectedElectronFEDListProducer(co
                                              "collection are given --> need at least one \n";
 
   // Consumes for the recoEcal candidate collection
-  for (std::vector<edm::InputTag>::const_iterator itEcalCandTag = recoEcalCandidateTags_.begin();
-       itEcalCandTag != recoEcalCandidateTags_.end();
+  for (auto itEcalCandTag = recoEcalCandidateTags_.begin(); itEcalCandTag != recoEcalCandidateTags_.end();
        ++itEcalCandTag) {
     recoEcalCandidateToken_.push_back(consumes<trigger::TriggerFilterObjectWithRefs>(*itEcalCandTag));
     LogDebug("SelectedElectronFEDListProducer") << " Reco ecal candidate collection: " << *(itEcalCandTag) << std::endl;
@@ -158,7 +156,7 @@ SelectedElectronFEDListProducer<TEle, TCand>::SelectedElectronFEDListProducer(co
   } else
     addThisSelectedFEDs_.push_back(-1);
 
-  std::vector<int>::const_iterator AddFed = addThisSelectedFEDs_.begin();
+  auto AddFed = addThisSelectedFEDs_.begin();
   for (; AddFed != addThisSelectedFEDs_.end(); ++AddFed)
     LogDebug("SelectedElectronFEDListProducer") << " Additional FED: " << *(AddFed) << std::endl;
 
@@ -334,7 +332,7 @@ void SelectedElectronFEDListProducer<TEle, TCand>::produce(edm::Event& iEvent, c
 
   if (pixelModuleVector_.empty()) {
     // build the tracker pixel module map
-    std::vector<const GeomDet*>::const_iterator itTracker = trackerGeometry->dets().begin();
+    auto itTracker = trackerGeometry->dets().begin();
     for (; itTracker != trackerGeometry->dets().end(); ++itTracker) {
       int subdet = (*itTracker)->geographicalId().subdetId();
       if (!(subdet == PixelSubdetector::PixelBarrel || subdet == PixelSubdetector::PixelEndcap))
@@ -414,10 +412,9 @@ void SelectedElectronFEDListProducer<TEle, TCand>::produce(edm::Event& iEvent, c
   std::vector<edm::Ref<TCandColl>> recoEcalCandColl;
 
   // iterator to electron and ecal candidate collections
-  typename std::vector<edm::EDGetTokenT<TEleColl>>::const_iterator itElectronColl = electronToken_.begin();
-  std::vector<int>::const_iterator itElectronCollFlag = isGsfElectronCollection_.begin();
-  std::vector<edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>>::const_iterator itRecoEcalCandColl =
-      recoEcalCandidateToken_.begin();
+  auto itElectronColl = electronToken_.begin();
+  auto itElectronCollFlag = isGsfElectronCollection_.begin();
+  auto itRecoEcalCandColl = recoEcalCandidateToken_.begin();
 
   // if you want to dump just FED related to the triggering electron/s
   if (!dumpAllTrackerFed_ || !dumpAllEcalFed_) {
@@ -441,8 +438,7 @@ void SelectedElectronFEDListProducer<TEle, TCand>::produce(edm::Event& iEvent, c
       if (recoEcalCandColl.empty())
         triggerRecoEcalCandidateCollection->getObjects(trigger::TriggerElectron, recoEcalCandColl);
 
-      typename std::vector<edm::Ref<TCandColl>>::const_iterator itRecoEcalCand =
-          recoEcalCandColl.begin();  // loop on recoEcalCandidate objects
+      auto itRecoEcalCand = recoEcalCandColl.begin();  // loop on recoEcalCandidate objects
 
       // loop on the recoEcalCandidates
       for (; itRecoEcalCand != recoEcalCandColl.end(); ++itRecoEcalCand) {
@@ -450,7 +446,7 @@ void SelectedElectronFEDListProducer<TEle, TCand>::produce(edm::Event& iEvent, c
         reco::SuperClusterRef scRefRecoEcalCand =
             recoEcalCand->superCluster();  // take the supercluster in order to match with electron objects
 
-        typename TEleColl::const_iterator itEle = electrons->begin();
+        auto itEle = electrons->begin();
         for (; itEle != electrons->end(); ++itEle) {  // loop on all the electrons inside a collection
           // get electron supercluster and the associated hit -> detID
           electron = (*itEle);
@@ -460,7 +456,7 @@ void SelectedElectronFEDListProducer<TEle, TCand>::produce(edm::Event& iEvent, c
 
           const std::vector<std::pair<DetId, float>>& hits = scRef->hitsAndFractions();
           // start in dump the ecal FED associated to the electron
-          std::vector<std::pair<DetId, float>>::const_iterator itSChits = hits.begin();
+          auto itSChits = hits.begin();
           if (!dumpAllEcalFed_) {
             for (; itSChits != hits.end(); ++itSChits) {
               if ((*itSChits).first.subdetId() == EcalBarrel) {  // barrel part
@@ -542,7 +538,7 @@ void SelectedElectronFEDListProducer<TEle, TCand>::produce(edm::Event& iEvent, c
 
             // check HCAL behind each hit
             if (dumpSelectedHCALFed_) {
-              HBHERecHitCollection::const_iterator itHcalRecHit = hcalRecHitCollection->begin();
+              auto itHcalRecHit = hcalRecHitCollection->begin();
               for (; itHcalRecHit != hcalRecHitCollection->end(); ++itHcalRecHit) {
                 HcalDetId recHitId(itHcalRecHit->id());
                 const HcalGeometry* cellGeometry =
@@ -603,7 +599,7 @@ void SelectedElectronFEDListProducer<TEle, TCand>::produce(edm::Event& iEvent, c
                     //get map of vectors of feds withing the layer of subdet of region
                     const SiStripRegionCabling::ElementCabling fedVectorMap =
                         regSubdetLayers[ilayer];  // vector of the fed
-                    SiStripRegionCabling::ElementCabling::const_iterator itFedMap = fedVectorMap.begin();
+                    auto itFedMap = fedVectorMap.begin();
                     for (; itFedMap != fedVectorMap.end(); itFedMap++) {
                       for (uint32_t op = 0; op < (itFedMap->second).size(); op++) {
                         int hitFED = (itFedMap->second)[op].fedId();
@@ -667,7 +663,7 @@ void SelectedElectronFEDListProducer<TEle, TCand>::produce(edm::Event& iEvent, c
   // make the final raw data collection
   auto streamFEDRawProduct = std::make_unique<FEDRawDataCollection>();
   std::sort(fedList_.begin(), fedList_.end());
-  std::vector<uint32_t>::const_iterator itfedList = fedList_.begin();
+  auto itfedList = fedList_.begin();
   for (; itfedList != fedList_.end(); ++itfedList) {
     LogDebug("SelectedElectronFEDListProducer") << " fed point " << *itfedList << "  ";
     const FEDRawData& data = rawdata->FEDData(*itfedList);

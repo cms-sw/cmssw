@@ -44,7 +44,7 @@ std::map<unsigned short, double> RPixChargeShare::Share(const std::vector<RPixSi
 
   double CH = 0;
 
-  for (std::vector<RPixSignalPoint>::const_iterator i = charge_map.begin(); i != charge_map.end(); ++i) {
+  for (auto i = charge_map.begin(); i != charge_map.end(); ++i) {
     double hit_pos_x, hit_pos_y;
     // Used to avoid the abort due to hits out of detector
     if (((*i).Position().x() + 16.6 / 2) < 0 || ((*i).Position().x() + 16.6 / 2) > 16.6) {

@@ -30,9 +30,7 @@ BzeroReferenceTrajectory::BzeroReferenceTrajectory(const TrajectoryStateOnSurfac
     TransientTrackingRecHit::ConstRecHitContainer fwdRecHits;
     fwdRecHits.reserve(recHits.size());
 
-    for (TransientTrackingRecHit::ConstRecHitContainer::const_reverse_iterator it = recHits.rbegin();
-         it != recHits.rend();
-         ++it)
+    for (auto it = recHits.rbegin(); it != recHits.rend(); ++it)
       fwdRecHits.push_back(*it);
 
     theValidityFlag = this->construct(refTsosWithFixedMomentum, fwdRecHits, magField, beamSpot);

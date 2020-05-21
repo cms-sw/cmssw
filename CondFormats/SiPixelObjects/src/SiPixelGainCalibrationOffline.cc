@@ -47,8 +47,7 @@ SiPixelGainCalibrationOffline::SiPixelGainCalibrationOffline(float minPed, float
 bool SiPixelGainCalibrationOffline::put(const uint32_t& DetId, Range input, const int& nCols) {
   // put in SiPixelGainCalibrationOffline of DetId
 
-  Registry::iterator p =
-      std::lower_bound(indexes.begin(), indexes.end(), DetId, SiPixelGainCalibrationOffline::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiPixelGainCalibrationOffline::StrictWeakOrdering());
   if (p != indexes.end() && p->detid == DetId)
     return false;
 
@@ -66,8 +65,7 @@ bool SiPixelGainCalibrationOffline::put(const uint32_t& DetId, Range input, cons
 
 const int SiPixelGainCalibrationOffline::getNCols(const uint32_t& DetId) const {
   // get number of columns of DetId
-  RegistryIterator p =
-      std::lower_bound(indexes.begin(), indexes.end(), DetId, SiPixelGainCalibrationOffline::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiPixelGainCalibrationOffline::StrictWeakOrdering());
   if (p == indexes.end() || p->detid != DetId)
     return 0;
   else
@@ -77,8 +75,7 @@ const int SiPixelGainCalibrationOffline::getNCols(const uint32_t& DetId) const {
 const SiPixelGainCalibrationOffline::Range SiPixelGainCalibrationOffline::getRange(const uint32_t& DetId) const {
   // get SiPixelGainCalibrationOffline Range of DetId
 
-  RegistryIterator p =
-      std::lower_bound(indexes.begin(), indexes.end(), DetId, SiPixelGainCalibrationOffline::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiPixelGainCalibrationOffline::StrictWeakOrdering());
   if (p == indexes.end() || p->detid != DetId)
     return SiPixelGainCalibrationOffline::Range(v_pedestals.end(), v_pedestals.end());
   else
@@ -87,8 +84,7 @@ const SiPixelGainCalibrationOffline::Range SiPixelGainCalibrationOffline::getRan
 
 const std::pair<const SiPixelGainCalibrationOffline::Range, const int> SiPixelGainCalibrationOffline::getRangeAndNCols(
     const uint32_t& DetId) const {
-  RegistryIterator p =
-      std::lower_bound(indexes.begin(), indexes.end(), DetId, SiPixelGainCalibrationOffline::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiPixelGainCalibrationOffline::StrictWeakOrdering());
   if (p == indexes.end() || p->detid != DetId)
     return std::make_pair(SiPixelGainCalibrationOffline::Range(v_pedestals.end(), v_pedestals.end()), 0);
   else
@@ -98,9 +94,9 @@ const std::pair<const SiPixelGainCalibrationOffline::Range, const int> SiPixelGa
 
 void SiPixelGainCalibrationOffline::getDetIds(std::vector<uint32_t>& DetIds_) const {
   // returns vector of DetIds in map
-  SiPixelGainCalibrationOffline::RegistryIterator begin = indexes.begin();
-  SiPixelGainCalibrationOffline::RegistryIterator end = indexes.end();
-  for (SiPixelGainCalibrationOffline::RegistryIterator p = begin; p != end; ++p) {
+  auto begin = indexes.begin();
+  auto end = indexes.end();
+  for (auto p = begin; p != end; ++p) {
     DetIds_.push_back(p->detid);
   }
 }

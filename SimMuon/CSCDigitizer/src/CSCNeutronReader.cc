@@ -7,9 +7,7 @@ void CSCNeutronReader::addHits(std::map<int, edm::PSimHitContainer> &hitMap, CLH
   std::vector<int> chambersDone;
 
   std::map<int, edm::PSimHitContainer> signalHits = hitMap;
-  for (std::map<int, edm::PSimHitContainer>::const_iterator signalHitItr = signalHits.begin();
-       signalHitItr != signalHits.end();
-       ++signalHitItr) {
+  for (auto signalHitItr = signalHits.begin(); signalHitItr != signalHits.end(); ++signalHitItr) {
     int chamberIndex = chamberId(signalHitItr->first);
 
     // see if this chamber has been done yet
@@ -18,9 +16,7 @@ void CSCNeutronReader::addHits(std::map<int, edm::PSimHitContainer> &hitMap, CLH
       generateChamberNoise(chamberType(chamberIndex), chamberIndex, neutronHits, engine);
 
       // add these hits to the original map
-      for (edm::PSimHitContainer::const_iterator neutronHitItr = neutronHits.begin();
-           neutronHitItr != neutronHits.end();
-           ++neutronHitItr) {
+      for (auto neutronHitItr = neutronHits.begin(); neutronHitItr != neutronHits.end(); ++neutronHitItr) {
         uint32_t layerId = neutronHitItr->detUnitId();
         hitMap[layerId].push_back(*neutronHitItr);
       }

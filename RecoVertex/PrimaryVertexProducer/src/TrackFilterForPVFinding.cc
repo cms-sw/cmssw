@@ -41,7 +41,7 @@ bool TrackFilterForPVFinding::operator()(const reco::TransientTrack& tk) const {
 std::vector<reco::TransientTrack> TrackFilterForPVFinding::select(
     const std::vector<reco::TransientTrack>& tracks) const {
   std::vector<reco::TransientTrack> seltks;
-  for (std::vector<reco::TransientTrack>::const_iterator itk = tracks.begin(); itk != tracks.end(); itk++) {
+  for (auto itk = tracks.begin(); itk != tracks.end(); itk++) {
     if (operator()(*itk))
       seltks.push_back(*itk);  //  calls the filter function for single tracks
   }

@@ -211,7 +211,7 @@ void FastjetJetProducer::produceTrackJets(edm::Event& iEvent, const edm::EventSe
   auto jets = std::make_unique<std::vector<reco::TrackJet>>();
 
   // loop over the good vertices, clustering for each vertex separately
-  for (reco::VertexCollection::const_iterator itVtx = pvCollection->begin(); itVtx != pvCollection->end(); ++itVtx) {
+  for (auto itVtx = pvCollection->begin(); itVtx != pvCollection->end(); ++itVtx) {
     if (itVtx->isFake() || itVtx->ndof() < minVtxNdof_ || fabs(itVtx->z()) > maxVtxZ_)
       continue;
 
@@ -223,13 +223,11 @@ void FastjetJetProducer::produceTrackJets(edm::Event& iEvent, const edm::EventSe
     // if only vertex-associated tracks should be used
     if (useOnlyVertexTracks_) {
       // loop over the tracks associated to the vertex
-      for (reco::Vertex::trackRef_iterator itTr = itVtx->tracks_begin(); itTr != itVtx->tracks_end(); ++itTr) {
+      for (auto itTr = itVtx->tracks_begin(); itTr != itVtx->tracks_end(); ++itTr) {
         // whether a match was found in the track candidate input
         bool found = false;
         // loop over input track candidates
-        for (std::vector<edm::Ptr<reco::RecoChargedRefCandidate>>::iterator itIn = allInputs.begin();
-             itIn != allInputs.end();
-             ++itIn) {
+        for (auto itIn = allInputs.begin(); itIn != allInputs.end(); ++itIn) {
           // match the input track candidate to the track from the vertex
           reco::TrackRef trref(itTr->castTo<reco::TrackRef>());
           // check if the tracks match
@@ -251,9 +249,7 @@ void FastjetJetProducer::produceTrackJets(edm::Event& iEvent, const edm::EventSe
       // if all inpt track candidates should be used
     } else {
       // loop over input track candidates
-      for (std::vector<edm::Ptr<reco::RecoChargedRefCandidate>>::iterator itIn = allInputs.begin();
-           itIn != allInputs.end();
-           ++itIn) {
+      for (auto itIn = allInputs.begin(); itIn != allInputs.end(); ++itIn) {
         // check if the track is close enough to the vertex
         float dz = (*itIn)->track()->dz(itVtx->position());
         float dxy = (*itIn)->track()->dxy(itVtx->position());
@@ -263,8 +259,7 @@ void FastjetJetProducer::produceTrackJets(edm::Event& iEvent, const edm::EventSe
           continue;
         bool closervtx = false;
         // now loop over the good vertices a second time
-        for (reco::VertexCollection::const_iterator itVtx2 = pvCollection->begin(); itVtx2 != pvCollection->end();
-             ++itVtx2) {
+        for (auto itVtx2 = pvCollection->begin(); itVtx2 != pvCollection->end(); ++itVtx2) {
           if (itVtx->isFake() || itVtx->ndof() < minVtxNdof_ || fabs(itVtx->z()) > maxVtxZ_)
             continue;
           // and check this track is closer to any other vertex (if more than 1 vertex considered)
@@ -380,17 +375,16 @@ void FastjetJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const&
       bge_rho = unique_ptr<fastjet::JetMedianBackgroundEstimator>(new fastjet::JetMedianBackgroundEstimator(
           rho_range, fastjet::JetDefinition(fastjet::kt_algorithm, csRParam_), *fjAreaDefinition_));
       bge_rho->set_particles(fjInputs_);
-      fastjet::contrib::ConstituentSubtractor* constituentSubtractor =
-          new fastjet::contrib::ConstituentSubtractor(bge_rho.get());
+      auto* constituentSubtractor = new fastjet::contrib::ConstituentSubtractor(bge_rho.get());
 
       transformers.push_back(transformer_ptr(constituentSubtractor));
     };
     if (useMassDropTagger_) {
-      fastjet::MassDropTagger* md_tagger = new fastjet::MassDropTagger(muCut_, yCut_);
+      auto* md_tagger = new fastjet::MassDropTagger(muCut_, yCut_);
       transformers.push_back(transformer_ptr(md_tagger));
     }
     if (useCMSBoostedTauSeedingAlgorithm_) {
-      fastjet::contrib::CMSBoostedTauSeedingAlgorithm* tau_tagger = new fastjet::contrib::CMSBoostedTauSeedingAlgorithm(
+      auto* tau_tagger = new fastjet::contrib::CMSBoostedTauSeedingAlgorithm(
           subjetPtMin_, muMin_, muMax_, yMin_, yMax_, dRMin_, dRMax_, maxDepth_, verbosity_);
       transformers.push_back(transformer_ptr(tau_tagger));
     }
@@ -422,7 +416,7 @@ void FastjetJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const&
     }
 
     if (useSoftDrop_) {
-      fastjet::contrib::SoftDrop* sd = new fastjet::contrib::SoftDrop(beta_, zCut_, R0_);
+      auto* sd = new fastjet::contrib::SoftDrop(beta_, zCut_, R0_);
       transformers.push_back(transformer_ptr(sd));
     }
 
@@ -437,14 +431,10 @@ void FastjetJetProducer::runAlgorithm(edm::Event& iEvent, edm::EventSetup const&
       //subtractor->use_common_bge_for_rho_and_rhom(true);
     }
 
-    for (std::vector<fastjet::PseudoJet>::const_iterator ijet = tempJets.begin(), ijetEnd = tempJets.end();
-         ijet != ijetEnd;
-         ++ijet) {
+    for (auto ijet = tempJets.begin(), ijetEnd = tempJets.end(); ijet != ijetEnd; ++ijet) {
       fastjet::PseudoJet transformedJet = *ijet;
       bool passed = true;
-      for (transformer_coll::const_iterator itransf = transformers.begin(), itransfEnd = transformers.end();
-           itransf != itransfEnd;
-           ++itransf) {
+      for (auto itransf = transformers.begin(), itransfEnd = transformers.end(); itransf != itransfEnd; ++itransf) {
         if (transformedJet != 0) {
           transformedJet = (**itransf)(transformedJet);
         } else {

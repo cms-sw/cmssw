@@ -21,14 +21,13 @@ TrajAnnealing::TrajAnnealing(const Trajectory& traj, float ann) {
       increment = -1;
     }
 
-    for (Trajectory::DataContainer::const_iterator imeas = ibegin; imeas != iend; imeas += increment) {
+    for (auto imeas = ibegin; imeas != iend; imeas += increment) {
       theHits_.push_back(imeas->recHit());
       if (imeas->recHit()->isValid()) {
-        SiTrackerMultiRecHit const& mHit = dynamic_cast<SiTrackerMultiRecHit const&>(*imeas->recHit());
+        auto const& mHit = dynamic_cast<SiTrackerMultiRecHit const&>(*imeas->recHit());
         std::vector<const TrackingRecHit*> components = mHit.recHits();
         int iComp = 0;
-        for (std::vector<const TrackingRecHit*>::const_iterator iter = components.begin(); iter != components.end();
-             iter++, iComp++) {
+        for (auto iter = components.begin(); iter != components.end(); iter++, iComp++) {
           theWeights.push_back(mHit.weight(iComp));
         }
       }
@@ -42,6 +41,6 @@ std::pair<float, std::vector<float> > TrajAnnealing::getAnnealingWeight(const Tr
     return make_pair(0.0, dumpyVec);
   }
 
-  SiTrackerMultiRecHit const& mHit = dynamic_cast<SiTrackerMultiRecHit const&>(aRecHit);
+  auto const& mHit = dynamic_cast<SiTrackerMultiRecHit const&>(aRecHit);
   return make_pair(mHit.getAnnealingFactor(), mHit.weights());
 }

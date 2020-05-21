@@ -107,7 +107,7 @@ void L1RCTTestAnalyzer::analyze(const edm::Event &iEvent, const edm::EventSetup 
   iEvent.getByLabel(hcalDigisLabel, hcalColl);
 
   // for sorting later
-  L1CaloEmCollection *myL1EmColl = new L1CaloEmCollection;
+  auto *myL1EmColl = new L1CaloEmCollection;
 
   for (ecal = ecalColl->begin(); ecal != ecalColl->end(); ecal++) {
     for (unsigned short sample = 0; sample < (*ecal).size(); sample++) {

@@ -84,7 +84,7 @@ namespace reco {
 
         selector_.init(evt, es);
         auto tkBegin = hSrcTrack->begin();
-        for (reco::TrackCollection::const_iterator it = tkBegin, ed = hSrcTrack->end(); it != ed; ++it, ++current) {
+        for (auto it = tkBegin, ed = hSrcTrack->end(); it != ed; ++it, ++current) {
           const reco::Track& trk = *it;
           const reco::TrackRef tkref(hSrcTrack, std::distance(tkBegin, it));
           if (!selector_(tkref))
@@ -133,7 +133,7 @@ namespace reco {
             if (match != hTTAss->end()) {
               const edm::Ref<reco::TrackCollection>& trkRef = match->val;
               TrackRefKey oldKey = trkRef.key();
-              std::map<TrackRefKey, reco::TrackRef>::iterator getref = goodTracks.find(oldKey);
+              auto getref = goodTracks.find(oldKey);
               if (getref != goodTracks.end()) {
                 // do the clone
                 selTrajs_->push_back(Trajectory(*trajRef));

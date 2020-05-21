@@ -295,7 +295,7 @@ void Forest::updateRegTargets(Tree* tree, double learningRate, LossFunction* l) 
   std::list<Node*>& tn = tree->getTerminalNodes();
 
   // Loop through the terminal nodes.
-  for (std::list<Node*>::iterator it = tn.begin(); it != tn.end(); it++) {
+  for (auto it = tn.begin(); it != tn.end(); it++) {
     // Get the events in the current terminal region.
     std::vector<Event*>& v = (*it)->getEvents()[0];
 
@@ -332,7 +332,7 @@ void Forest::updateEvents(Tree* tree) {
   std::list<Node*>& tn = tree->getTerminalNodes();
 
   // Loop through the terminal nodes.
-  for (std::list<Node*>::iterator it = tn.begin(); it != tn.end(); it++) {
+  for (auto it = tn.begin(); it != tn.end(); it++) {
     std::vector<Event*>& v = (*it)->getEvents()[0];
     double fit = (*it)->getFitValue();
 

@@ -61,10 +61,10 @@ void TriggerObjectFilterByCollection::produce(edm::Event &iEvent, const edm::Eve
 
   std::unique_ptr<std::vector<pat::TriggerObjectStandAlone>> out(new std::vector<pat::TriggerObjectStandAlone>());
   out->reserve(src->size());
-  for (std::vector<pat::TriggerObjectStandAlone>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
+  for (auto it = src->begin(), ed = src->end(); it != ed; ++it) {
     const std::string &coll = it->collection();
     bool found = false;
-    for (std::vector<std::string>::const_iterator ic = collections_.begin(), ec = collections_.end(); ic != ec; ++ic) {
+    for (auto ic = collections_.begin(), ec = collections_.end(); ic != ec; ++ic) {
       if (strncmp(coll.c_str(), ic->c_str(), ic->size()) == 0) {
         found = true;
         break;

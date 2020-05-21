@@ -13,8 +13,7 @@ namespace hcal {
 
   void PluginManager::getFactories(const char* baseClass, std::vector<AbstractPluginFactory*>& result) {
     result.clear();
-    std::map<std::string, std::map<std::string, AbstractPluginFactory*> >::const_iterator j =
-        factories().find(baseClass);
+    auto j = factories().find(baseClass);
     if (j == factories().end())
       return;
     std::map<std::string, AbstractPluginFactory*>::const_iterator i;
@@ -23,11 +22,10 @@ namespace hcal {
   }
 
   AbstractPluginFactory* PluginManager::getFactory(const char* baseClass, const char* derivedClass) {
-    std::map<std::string, std::map<std::string, AbstractPluginFactory*> >::const_iterator j =
-        factories().find(baseClass);
+    auto j = factories().find(baseClass);
     if (j == factories().end())
       return nullptr;
-    std::map<std::string, AbstractPluginFactory*>::const_iterator i = j->second.find(derivedClass);
+    auto i = j->second.find(derivedClass);
     if (i == j->second.end())
       return nullptr;
     return i->second;

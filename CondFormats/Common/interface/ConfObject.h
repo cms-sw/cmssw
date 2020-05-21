@@ -42,7 +42,7 @@ public:
   template <class valueType>
   valueType get(const std::string& name) const {
     valueType returnValue;
-    parMap::const_iterator it = parameters.find(name);
+    auto it = parameters.find(name);
     std::stringstream ss;
     if (it != parameters.end()) {
       ss << it->second;

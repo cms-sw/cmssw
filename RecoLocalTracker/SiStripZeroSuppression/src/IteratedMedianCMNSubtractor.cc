@@ -58,7 +58,7 @@ inline void IteratedMedianCMNSubtractor::subtract_(uint32_t detId, uint16_t firs
     // for second, third... iterations, remove strips over threshold
     // and recalculate offset on remaining strips
     for (int ii = 0; ii < iterations_ - 1; ++ii) {
-      std::vector<std::pair<float, float> >::iterator si = subset.begin();
+      auto si = subset.begin();
       while (si != subset.end()) {
         if (si->first - offset > cut_to_avoid_signal_ * si->second)
           si = subset.erase(si);
@@ -83,7 +83,7 @@ inline void IteratedMedianCMNSubtractor::subtract_(uint32_t detId, uint16_t firs
 }
 
 inline float IteratedMedianCMNSubtractor::pairMedian(std::vector<std::pair<float, float> >& sample) {
-  std::vector<std::pair<float, float> >::iterator mid = sample.begin() + sample.size() / 2;
+  auto mid = sample.begin() + sample.size() / 2;
   std::nth_element(sample.begin(), mid, sample.end());
   if (sample.size() & 1)  //odd size
     return (*mid).first;

@@ -78,12 +78,12 @@ MuonDTSeedFromRecHits::ConstMuonRecHitPointer MuonDTSeedFromRecHits::bestBarrelH
   MuonRecHitPointer best = nullptr;
   MuonRecHitPointer alter = nullptr;
 
-  for (MuonRecHitContainer::const_iterator iter = barrelHits.begin(); iter != barrelHits.end(); iter++) {
+  for (auto iter = barrelHits.begin(); iter != barrelHits.end(); iter++) {
     bool hasZed = ((*iter)->projectionMatrix()[1][1] == 1);
 
     cur_npt = 0;
     vector<TrackingRecHit*> slrhs = (*iter)->recHits();
-    for (vector<TrackingRecHit*>::const_iterator slrh = slrhs.begin(); slrh != slrhs.end(); ++slrh) {
+    for (auto slrh = slrhs.begin(); slrh != slrhs.end(); ++slrh) {
       cur_npt += (*slrh)->recHits().size();
     }
     float radius1 = (*iter)->det()->position().perp();
@@ -124,13 +124,13 @@ float MuonDTSeedFromRecHits::bestEta() const {
   float Msdeta = 100.;
   float result = (*theRhits.begin())->globalPosition().eta();
 
-  for (MuonRecHitContainer::const_iterator iter = theRhits.begin(); iter != theRhits.end(); iter++) {
+  for (auto iter = theRhits.begin(); iter != theRhits.end(); iter++) {
     float eta1 = (*iter)->globalPosition().eta();
 
     int Nseg = 0;
     float sdeta = .0;
 
-    for (MuonRecHitContainer::const_iterator iter2 = theRhits.begin(); iter2 != theRhits.end(); iter2++) {
+    for (auto iter2 = theRhits.begin(); iter2 != theRhits.end(); iter2++) {
       if (iter2 == iter)
         continue;
 
@@ -155,7 +155,7 @@ float MuonDTSeedFromRecHits::bestEta() const {
 void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
   float eta0 = bestEta();
 
-  for (MuonRecHitContainer::const_iterator iter = theRhits.begin(); iter != theRhits.end(); iter++) {
+  for (auto iter = theRhits.begin(); iter != theRhits.end(); iter++) {
     //+vvp !:
 
     float eta1 = (*iter)->globalPosition().eta();
@@ -187,13 +187,13 @@ void MuonDTSeedFromRecHits::computePtWithVtx(double* pt, double* spt) const {
 void MuonDTSeedFromRecHits::computePtWithoutVtx(double* pt, double* spt) const {
   float eta0 = bestEta();
 
-  for (MuonRecHitContainer::const_iterator iter = theRhits.begin(); iter != theRhits.end(); iter++) {
+  for (auto iter = theRhits.begin(); iter != theRhits.end(); iter++) {
     //+vvp !:
     float eta1 = (*iter)->globalPosition().eta();
     if (fabs(eta1 - eta0) > .2)
       continue;  //   !!! +vvp
 
-    for (MuonRecHitContainer::const_iterator iter2 = theRhits.begin(); iter2 != iter; iter2++) {
+    for (auto iter2 = theRhits.begin(); iter2 != iter; iter2++) {
       //+vvp !:
       float eta2 = (*iter2)->globalPosition().eta();
       if (fabs(eta2 - eta0) > .2)

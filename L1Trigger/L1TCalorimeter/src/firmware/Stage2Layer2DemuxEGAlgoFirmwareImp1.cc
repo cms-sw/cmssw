@@ -95,7 +95,7 @@ void l1t::Stage2Layer2DemuxEGAlgoFirmwareImp1::processEvent(const std::vector<l1
   }
 
   //sorting with descending pT
-  std::vector<l1t::EGamma>::iterator start_ = outputEGammas.begin();
-  std::vector<l1t::EGamma>::iterator end_ = outputEGammas.end();
+  auto start_ = outputEGammas.begin();
+  auto end_ = outputEGammas.end();
   BitonicSort<l1t::EGamma>(down, start_, end_);
 }

@@ -131,7 +131,7 @@ void MonH4TablePositionDat::writeArrayDB(const std::map<EcalLogicID, MonH4TableP
   const MonH4TablePositionDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, MonH4TablePositionDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
+  for (auto p = data->begin(); p != data->end(); ++p) {
     channel = &(p->first);
     int logicID = channel->getLogicID();
     if (!logicID) {

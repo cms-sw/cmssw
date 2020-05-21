@@ -126,8 +126,7 @@ void DTResidualCalibration::analyze(const edm::Event& event, const edm::EventSet
       }
 
       // Loop over 1D RecHit inside 4D segment
-      for (std::vector<DTRecHit1D>::const_iterator recHit1D = recHits1D_S3.begin(); recHit1D != recHits1D_S3.end();
-           ++recHit1D) {
+      for (auto recHit1D = recHits1D_S3.begin(); recHit1D != recHits1D_S3.end(); ++recHit1D) {
         const DTWireId wireId = recHit1D->wireId();
 
         float segmDistance = segmentToWireDistance(*recHit1D, *segment);

@@ -257,7 +257,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   if (!vertexHandle.isValid())
     return;
   VertexCollection vertexCollection = *(vertexHandle.product());
-  VertexCollection::const_iterator v = vertexCollection.begin();
+  auto v = vertexCollection.begin();
   int vertex_number = vertexCollection.size();
   double vertex_chi2 = v->normalizedChi2();  // v->chi2();
   double vertex_d0 = sqrt(v->x() * v->x() + v->y() * v->y());
@@ -265,8 +265,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   double vertex_sumTrks = 0.0;
   // std::cout << "vertex_d0=" << vertex_d0 << "\n";
   // double vertex_ndof    = v->ndof();cout << "ndof="<<vertex_ndof<<endl;
-  for (Vertex::trackRef_iterator vertex_curTrack = v->tracks_begin(); vertex_curTrack != v->tracks_end();
-       vertex_curTrack++)
+  for (auto vertex_curTrack = v->tracks_begin(); vertex_curTrack != v->tracks_end(); vertex_curTrack++)
     vertex_sumTrks += (*vertex_curTrack)->pt();
 
   ////////////////////////////////////////////////////////////////////////////////
@@ -298,9 +297,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   // If it passed electron HLT and the collection was found, find electrons near
   // Z mass
   if (passed_electron_HLT) {
-    for (reco::GsfElectronCollection::const_iterator recoElectron = electronCollection->begin();
-         recoElectron != electronCollection->end();
-         recoElectron++) {
+    for (auto recoElectron = electronCollection->begin(); recoElectron != electronCollection->end(); recoElectron++) {
       // Require electron to pass some basic cuts
       if (recoElectron->et() < 20 || fabs(recoElectron->eta()) > 2.5)
         continue;
@@ -356,8 +353,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   TLorentzVector m1, m2;
 
   if (passed_muon_HLT) {
-    for (reco::MuonCollection::const_iterator recoMuon = muonCollection->begin(); recoMuon != muonCollection->end();
-         recoMuon++) {
+    for (auto recoMuon = muonCollection->begin(); recoMuon != muonCollection->end(); recoMuon++) {
       // Require muon to pass some basic cuts
       if (recoMuon->pt() < 20 || !recoMuon->isGlobalMuon())
         continue;

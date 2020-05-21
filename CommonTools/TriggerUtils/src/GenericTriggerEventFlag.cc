@@ -209,11 +209,11 @@ void GenericTriggerEventFlag::initRun(const edm::Run& run, const edm::EventSetup
       L1GtTriggerMenu const& l1GtTriggerMenu = setup.get<L1GtTriggerMenuRcd>().get(l1GtTriggerMenuToken_);
 
       const AlgorithmMap& l1GtPhys(l1GtTriggerMenu.gtAlgorithmMap());
-      for (CItAlgo iAlgo = l1GtPhys.begin(); iAlgo != l1GtPhys.end(); ++iAlgo) {
+      for (auto iAlgo = l1GtPhys.begin(); iAlgo != l1GtPhys.end(); ++iAlgo) {
         algoNames.push_back(iAlgo->second.algoName());
       }
       const AlgorithmMap& l1GtTech(l1GtTriggerMenu.gtTechnicalTriggerMap());
-      for (CItAlgo iAlgo = l1GtTech.begin(); iAlgo != l1GtTech.end(); ++iAlgo) {
+      for (auto iAlgo = l1GtTech.begin(); iAlgo != l1GtTech.end(); ++iAlgo) {
         algoNames.push_back(iAlgo->second.algoName());
       }
     }
@@ -296,17 +296,13 @@ bool GenericTriggerEventFlag::acceptDcs(const edm::Event& event) {
 
   // Determine decision of DCS partition combination and return
   if (andOrDcs_) {  // OR combination
-    for (std::vector<int>::const_iterator partitionNumber = dcsPartitions_.begin();
-         partitionNumber != dcsPartitions_.end();
-         ++partitionNumber) {
+    for (auto partitionNumber = dcsPartitions_.begin(); partitionNumber != dcsPartitions_.end(); ++partitionNumber) {
       if (acceptDcsPartition(dcsStatus, *partitionNumber))
         return true;
     }
     return false;
   }
-  for (std::vector<int>::const_iterator partitionNumber = dcsPartitions_.begin();
-       partitionNumber != dcsPartitions_.end();
-       ++partitionNumber) {
+  for (auto partitionNumber = dcsPartitions_.begin(); partitionNumber != dcsPartitions_.end(); ++partitionNumber) {
     if (!acceptDcsPartition(dcsStatus, *partitionNumber))
       return false;
   }
@@ -361,16 +357,14 @@ bool GenericTriggerEventFlag::acceptGt(const edm::Event& event) {
 
   // Determine decision of GT status bits logical expression combination and return
   if (andOrGt_) {  // OR combination
-    for (std::vector<std::string>::const_iterator gtLogicalExpression = gtLogicalExpressions_.begin();
-         gtLogicalExpression != gtLogicalExpressions_.end();
+    for (auto gtLogicalExpression = gtLogicalExpressions_.begin(); gtLogicalExpression != gtLogicalExpressions_.end();
          ++gtLogicalExpression) {
       if (acceptGtLogicalExpression(event, *gtLogicalExpression))
         return true;
     }
     return false;
   }
-  for (std::vector<std::string>::const_iterator gtLogicalExpression = gtLogicalExpressions_.begin();
-       gtLogicalExpression != gtLogicalExpressions_.end();
+  for (auto gtLogicalExpression = gtLogicalExpressions_.begin(); gtLogicalExpression != gtLogicalExpressions_.end();
        ++gtLogicalExpression) {
     if (!acceptGtLogicalExpression(event, *gtLogicalExpression))
       return false;
@@ -469,16 +463,14 @@ bool GenericTriggerEventFlag::acceptL1(const edm::Event& event, const edm::Event
 
   // Determine decision of L1 logical expression combination and return
   if (andOrL1_) {  // OR combination
-    for (std::vector<std::string>::const_iterator l1LogicalExpression = l1LogicalExpressions_.begin();
-         l1LogicalExpression != l1LogicalExpressions_.end();
+    for (auto l1LogicalExpression = l1LogicalExpressions_.begin(); l1LogicalExpression != l1LogicalExpressions_.end();
          ++l1LogicalExpression) {
       if (acceptL1LogicalExpression(event, setup, *l1LogicalExpression))
         return true;
     }
     return false;
   }
-  for (std::vector<std::string>::const_iterator l1LogicalExpression = l1LogicalExpressions_.begin();
-       l1LogicalExpression != l1LogicalExpressions_.end();
+  for (auto l1LogicalExpression = l1LogicalExpressions_.begin(); l1LogicalExpression != l1LogicalExpressions_.end();
        ++l1LogicalExpression) {
     if (!acceptL1LogicalExpression(event, setup, *l1LogicalExpression))
       return false;
@@ -586,7 +578,7 @@ bool GenericTriggerEventFlag::acceptHlt(const edm::Event& event) {
 
   // Determine decision of HLT logical expression combination and return
   if (andOrHlt_) {  // OR combination
-    for (std::vector<std::string>::const_iterator hltLogicalExpression = hltLogicalExpressions_.begin();
+    for (auto hltLogicalExpression = hltLogicalExpressions_.begin();
          hltLogicalExpression != hltLogicalExpressions_.end();
          ++hltLogicalExpression) {
       if (acceptHltLogicalExpression(hltTriggerResults, *hltLogicalExpression))
@@ -594,8 +586,7 @@ bool GenericTriggerEventFlag::acceptHlt(const edm::Event& event) {
     }
     return false;
   }
-  for (std::vector<std::string>::const_iterator hltLogicalExpression = hltLogicalExpressions_.begin();
-       hltLogicalExpression != hltLogicalExpressions_.end();
+  for (auto hltLogicalExpression = hltLogicalExpressions_.begin(); hltLogicalExpression != hltLogicalExpressions_.end();
        ++hltLogicalExpression) {
     if (!acceptHltLogicalExpression(hltTriggerResults, *hltLogicalExpression))
       return false;
@@ -706,7 +697,7 @@ std::vector<std::string> GenericTriggerEventFlag::expressionsFromDB(const std::s
     return std::vector<std::string>(1, emptyKeyError_);
   std::vector<edm::eventsetup::DataKey> labels;
   setup.get<AlCaRecoTriggerBitsRcd>().fillRegisteredDataKeys(labels);
-  std::vector<edm::eventsetup::DataKey>::const_iterator iKey = labels.begin();
+  auto iKey = labels.begin();
   while (iKey != labels.end() && iKey->name().value() != dbLabel_)
     ++iKey;
   if (iKey == labels.end()) {
@@ -717,7 +708,7 @@ std::vector<std::string> GenericTriggerEventFlag::expressionsFromDB(const std::s
   }
   AlCaRecoTriggerBits const& alCaRecoTriggerBits = setup.get<AlCaRecoTriggerBitsRcd>().get(alCaRecoTriggerBitsToken_);
   const std::map<std::string, std::string>& expressionMap = alCaRecoTriggerBits.m_alcarecoToTrig;
-  std::map<std::string, std::string>::const_iterator listIter = expressionMap.find(key);
+  auto listIter = expressionMap.find(key);
   if (listIter == expressionMap.end()) {
     if (verbose_ > 0)
       edm::LogWarning("GenericTriggerEventFlag")

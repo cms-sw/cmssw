@@ -31,7 +31,7 @@ SiStripCommissioningRunTypeFilter::SiStripCommissioningRunTypeFilter(const edm::
   summaryToken_ = consumes<SiStripEventSummary>(iConfig.getParameter<edm::InputTag>("InputModuleLabel"));
   //   inputModuleLabel_ = iConfig.getParameter<edm::InputTag>( "InputModuleLabel" ) ;
   std::vector<std::string> runTypes = iConfig.getParameter<std::vector<std::string> >("runTypes");
-  for (std::vector<std::string>::const_iterator run = runTypes.begin(); run != runTypes.end(); ++run) {
+  for (auto run = runTypes.begin(); run != runTypes.end(); ++run) {
     runTypes_.push_back(SiStripEnumsAndStrings::runType(*run));
   }
 }

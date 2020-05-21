@@ -38,7 +38,7 @@ namespace lumi {
     //
     //generate dummy data of trg for the given run and write data to LumiDB
     //
-    coral::ConnectionService* svc = new coral::ConnectionService;
+    auto* svc = new coral::ConnectionService;
     lumi::DBConfig dbconf(*svc);
 
     if (!m_authpath.empty()) {
@@ -67,13 +67,13 @@ namespace lumi {
       coral::IBulkOperation* trgInserter =
           trgtable.dataEditor().bulkInsert(trgData, totalcmsls * (lumi::N_TRGALGOBIT + lumi::N_TRGTECHBIT));
       //loop over lumi LS
-      unsigned long long& trg_id = trgData["TRG_ID"].data<unsigned long long>();
+      auto& trg_id = trgData["TRG_ID"].data<unsigned long long>();
       unsigned int& trgrunnum = trgData["RUNNUM"].data<unsigned int>();
       unsigned int& cmslsnum = trgData["CMSLSNUM"].data<unsigned int>();
       unsigned int& bitnum = trgData["BITNUM"].data<unsigned int>();
       std::string& bitname = trgData["BITNAME"].data<std::string>();
       unsigned int& count = trgData["TRGCOUNT"].data<unsigned int>();
-      unsigned long long& deadtime = trgData["DEADTIME"].data<unsigned long long>();
+      auto& deadtime = trgData["DEADTIME"].data<unsigned long long>();
       unsigned int& prescale = trgData["PRESCALE"].data<unsigned int>();
 
       for (unsigned int i = 1; i <= totalcmsls; ++i) {

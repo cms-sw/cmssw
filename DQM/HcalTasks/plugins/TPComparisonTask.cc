@@ -174,7 +174,7 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps) : DQTask(ps) {
     _logger.dqmthrow("Collection HcalTrigPrimDigiCollection isn't available" + _tag2.label() + " " + _tag2.instance());
 
   //	assume always coll1 is primary (uTCA) and coll2 is secondary(VME)
-  for (HcalTrigPrimDigiCollection::const_iterator it1 = coll1->begin(); it1 != coll1->end(); ++it1) {
+  for (auto it1 = coll1->begin(); it1 != coll1->end(); ++it1) {
     //	iterate thru utca collection
     //	get the same detid digi from vme collection
     //	if missing - fill vme missing
@@ -186,9 +186,9 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps) : DQTask(ps) {
     //	\tmp
 
     HcalTrigTowerDetId tid = it1->id();
-    HcalTrigPrimDigiCollection::const_iterator it2 = coll2->find(HcalTrigTowerDetId(tid.ieta(), tid.iphi(), 0));
-    HcalElectronicsId eid1 = HcalElectronicsId(_ehashmapuTCA.lookup(tid));
-    HcalElectronicsId eid2 = HcalElectronicsId(_ehashmapVME.lookup(tid));
+    auto it2 = coll2->find(HcalTrigTowerDetId(tid.ieta(), tid.iphi(), 0));
+    auto eid1 = HcalElectronicsId(_ehashmapuTCA.lookup(tid));
+    auto eid2 = HcalElectronicsId(_ehashmapVME.lookup(tid));
 
     if (it2 == coll2->end()) {
       //	missing from VME collection
@@ -221,7 +221,7 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps) : DQTask(ps) {
         }
       }
   }
-  for (HcalTrigPrimDigiCollection::const_iterator it2 = coll2->begin(); it2 != coll2->end(); ++it2) {
+  for (auto it2 = coll2->begin(); it2 != coll2->end(); ++it2) {
     //	itearte thru VME
     //	find utca tp digi by detid
     //	check if present of missing
@@ -230,9 +230,9 @@ TPComparisonTask::TPComparisonTask(edm::ParameterSet const& ps) : DQTask(ps) {
       if (tid.version() > 0)
         continue;
 
-    HcalTrigPrimDigiCollection::const_iterator it1 = coll1->find(HcalTrigTowerDetId(tid.ieta(), tid.iphi(), 0));
+    auto it1 = coll1->find(HcalTrigTowerDetId(tid.ieta(), tid.iphi(), 0));
     if (it1 == coll1->end()) {
-      HcalElectronicsId eid1 = HcalElectronicsId(_ehashmapuTCA.lookup(tid));
+      auto eid1 = HcalElectronicsId(_ehashmapuTCA.lookup(tid));
       if (_ptype != fOffline) {  // hidefed2crate
         _cMsn_FEDuTCA.fill(eid1);
       }

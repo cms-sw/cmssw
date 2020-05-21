@@ -120,8 +120,7 @@ namespace {
       if (m_cacheID != m_record->cacheIdentifier()) {
         m_cacheID = m_record->cacheIdentifier();
 
-        for (std::vector<DataInfo>::const_iterator it = m_dataInfos.begin(), itEnd = m_dataInfos.end(); it != itEnd;
-             ++it) {
+        for (auto it = m_dataInfos.begin(), itEnd = m_dataInfos.end(); it != itEnd; ++it) {
           fwliteeswriter::Handle h(&(*it));
           m_record->get(it->m_label, h);
           m_writer.update(h.m_data, (it->m_tag.value()), it->m_label.c_str());
@@ -177,11 +176,10 @@ FWLiteESRecordWriterAnalyzer::FWLiteESRecordWriterAnalyzer(const edm::ParameterS
   if (names.empty()) {
     throw edm::Exception(edm::errors::Configuration) << "No VPSets were given in configuration";
   }
-  for (std::vector<std::string>::const_iterator it = names.begin(), itEnd = names.end(); it != itEnd; ++it) {
+  for (auto it = names.begin(), itEnd = names.end(); it != itEnd; ++it) {
     const std::vector<edm::ParameterSet>& ps = iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >(*it);
     std::vector<std::pair<std::string, std::string> >& data = m_recordToDataNames[*it];
-    for (std::vector<edm::ParameterSet>::const_iterator itPS = ps.begin(), itPSEnd = ps.end(); itPS != itPSEnd;
-         ++itPS) {
+    for (auto itPS = ps.begin(), itPSEnd = ps.end(); itPS != itPSEnd; ++itPS) {
       std::string type = itPS->getUntrackedParameter<std::string>("type");
       std::string label = itPS->getUntrackedParameter<std::string>("label", std::string());
       data.push_back(std::make_pair(type, label));
@@ -205,11 +203,7 @@ void FWLiteESRecordWriterAnalyzer::update(const edm::EventSetup& iSetup) {
   using edm::eventsetup::heterocontainer::HCTypeTag;
   if (m_handlers.empty()) {
     //now we have access to the EventSetup so we can setup our data structure
-    for (std::map<std::string, std::vector<std::pair<std::string, std::string> > >::iterator
-             it = m_recordToDataNames.begin(),
-             itEnd = m_recordToDataNames.end();
-         it != itEnd;
-         ++it) {
+    for (auto it = m_recordToDataNames.begin(), itEnd = m_recordToDataNames.end(); it != itEnd; ++it) {
       HCTypeTag tt = HCTypeTag::findType(it->first);
       if (tt == HCTypeTag()) {
         throw cms::Exception("UnknownESRecordType")
@@ -233,17 +227,13 @@ void FWLiteESRecordWriterAnalyzer::update(const edm::EventSetup& iSetup) {
         //get everything from the record
         std::vector<edm::eventsetup::DataKey> keys;
         rec->fillRegisteredDataKeys(keys);
-        for (std::vector<edm::eventsetup::DataKey>::iterator itKey = keys.begin(), itKeyEnd = keys.end();
-             itKey != itKeyEnd;
-             ++itKey) {
+        for (auto itKey = keys.begin(), itKeyEnd = keys.end(); itKey != itKeyEnd; ++itKey) {
           data.push_back(std::make_pair(std::string(itKey->type().name()), std::string(itKey->name().value())));
         }
       }
 
       std::vector<DataInfo> dataInfos;
-      for (std::vector<std::pair<std::string, std::string> >::iterator itData = data.begin(), itDataEnd = data.end();
-           itData != itDataEnd;
-           ++itData) {
+      for (auto itData = data.begin(), itDataEnd = data.end(); itData != itDataEnd; ++itData) {
         HCTypeTag tt = HCTypeTag::findType(itData->first);
         if (tt == HCTypeTag()) {
           throw cms::Exception("UnknownESDataType")
@@ -263,9 +253,7 @@ void FWLiteESRecordWriterAnalyzer::update(const edm::EventSetup& iSetup) {
     }
   }
 
-  for (std::vector<std::shared_ptr<RecordHandler> >::iterator it = m_handlers.begin(), itEnd = m_handlers.end();
-       it != itEnd;
-       ++it) {
+  for (auto it = m_handlers.begin(), itEnd = m_handlers.end(); it != itEnd; ++it) {
     (*it)->update(iSetup);
   }
 }

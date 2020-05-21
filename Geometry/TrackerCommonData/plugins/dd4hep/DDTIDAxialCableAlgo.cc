@@ -29,9 +29,9 @@ namespace {
     double rTop = args.value<double>("RTop");                                      // Maximum radius (top)........
     double width = args.value<double>("Width");                                    // Angular width
     double thick = args.value<double>("Thick");                                    // Thickness
-    std::vector<double> angles = args.value<std::vector<double>>("Angles");        // Phi Angles
-    std::vector<double> zposWheel = args.value<std::vector<double>>("ZPosWheel");  // Z position of wheels
-    std::vector<double> zposRing = args.value<std::vector<double>>("ZPosRing");    // Z position of rings inside wheels
+    auto angles = args.value<std::vector<double>>("Angles");                       // Phi Angles
+    auto zposWheel = args.value<std::vector<double>>("ZPosWheel");                 // Z position of wheels
+    auto zposRing = args.value<std::vector<double>>("ZPosRing");                   // Z position of rings inside wheels
 
     std::string childName = args.value<std::string>("ChildName");  // Child name
     std::string matIn = args.value<std::string>("MaterialIn");     // Material name (for inner parts)

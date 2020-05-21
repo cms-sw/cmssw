@@ -34,12 +34,11 @@ CSCOverlapsAlignmentAlgorithm::CSCOverlapsAlignmentAlgorithm(const edm::Paramete
     throw cms::Exception("BadConfig") << "mode must be one of \"phiy\", \"phipos\", \"phiz\", \"radius\"" << std::endl;
 
   std::vector<edm::ParameterSet> fitters = iConfig.getParameter<std::vector<edm::ParameterSet> >("fitters");
-  for (std::vector<edm::ParameterSet>::const_iterator fitter = fitters.begin(); fitter != fitters.end(); ++fitter) {
+  for (auto fitter = fitters.begin(); fitter != fitters.end(); ++fitter) {
     m_fitters.push_back(CSCChamberFitter(*fitter, m_residualsConstraints));
   }
 
-  for (std::vector<CSCPairResidualsConstraint*>::const_iterator residualsConstraint = m_residualsConstraints.begin();
-       residualsConstraint != m_residualsConstraints.end();
+  for (auto residualsConstraint = m_residualsConstraints.begin(); residualsConstraint != m_residualsConstraints.end();
        ++residualsConstraint) {
     (*residualsConstraint)->configure(this);
     m_quickChamberLookup[std::pair<CSCDetId, CSCDetId>((*residualsConstraint)->id_i(), (*residualsConstraint)->id_j())] =
@@ -210,7 +209,7 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup,
     }
 
     std::vector<bool> selector = alignable->alignmentParameters()->selector();
-    for (std::vector<bool>::const_iterator i = selector.begin(); i != selector.end(); ++i) {
+    for (auto i = selector.begin(); i != selector.end(); ++i) {
       if (!(*i))
         throw cms::Exception("BadConfig") << "All selector strings should be \"111111\"" << std::endl;
     }
@@ -219,27 +218,23 @@ void CSCOverlapsAlignmentAlgorithm::initialize(const edm::EventSetup& iSetup,
   edm::ESHandle<CSCGeometry> cscGeometry;
   iSetup.get<MuonGeometryRecord>().get(cscGeometry);
 
-  for (std::vector<CSCPairResidualsConstraint*>::const_iterator residualsConstraint = m_residualsConstraints.begin();
-       residualsConstraint != m_residualsConstraints.end();
+  for (auto residualsConstraint = m_residualsConstraints.begin(); residualsConstraint != m_residualsConstraints.end();
        ++residualsConstraint) {
     (*residualsConstraint)->setZplane(&*cscGeometry);
   }
 
   if (!m_readTemporaryFiles.empty()) {
     std::vector<std::ifstream*> input;
-    for (std::vector<std::string>::const_iterator fileName = m_readTemporaryFiles.begin();
-         fileName != m_readTemporaryFiles.end();
-         ++fileName) {
+    for (auto fileName = m_readTemporaryFiles.begin(); fileName != m_readTemporaryFiles.end(); ++fileName) {
       input.push_back(new std::ifstream(fileName->c_str()));
     }
 
-    for (std::vector<CSCPairResidualsConstraint*>::const_iterator residualsConstraint = m_residualsConstraints.begin();
-         residualsConstraint != m_residualsConstraints.end();
+    for (auto residualsConstraint = m_residualsConstraints.begin(); residualsConstraint != m_residualsConstraints.end();
          ++residualsConstraint) {
       (*residualsConstraint)->read(input, m_readTemporaryFiles);
     }
 
-    for (std::vector<std::ifstream*>::const_iterator file = input.begin(); file != input.end(); ++file) {
+    for (auto file = input.begin(); file != input.end(); ++file) {
       delete (*file);
     }
   }
@@ -252,8 +247,7 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Eve
     if (m_propagatorPointer != &*propagator) {
       m_propagatorPointer = &*propagator;
 
-      for (std::vector<CSCPairResidualsConstraint*>::const_iterator residualsConstraint =
-               m_residualsConstraints.begin();
+      for (auto residualsConstraint = m_residualsConstraints.begin();
            residualsConstraint != m_residualsConstraints.end();
            ++residualsConstraint) {
         (*residualsConstraint)->setPropagator(m_propagatorPointer);
@@ -268,8 +262,7 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Eve
     m_trackTransformer->setServices(iSetup);
 
   const ConstTrajTrackPairCollection& trajtracks = eventInfo.trajTrackPairs();
-  for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin(); trajtrack != trajtracks.end();
-       ++trajtrack) {
+  for (auto trajtrack = trajtracks.begin(); trajtrack != trajtracks.end(); ++trajtrack) {
     const Trajectory* traj = (*trajtrack).first;
     const reco::Track* track = (*trajtrack).second;
 
@@ -283,9 +276,7 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Eve
       reco::TransientTrack transientTrack = transientTrackBuilder->build(track);
 
       std::map<int, std::map<CSCDetId, bool> > stationsToChambers;
-      for (std::vector<TrajectoryMeasurement>::const_iterator measurement = measurements.begin();
-           measurement != measurements.end();
-           ++measurement) {
+      for (auto measurement = measurements.begin(); measurement != measurements.end(); ++measurement) {
         DetId id = measurement->recHit()->geographicalId();
         if (id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::CSC) {
           CSCDetId cscid(id.rawId());
@@ -337,11 +328,9 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Eve
       }
 
       std::map<CSCPairResidualsConstraint*, bool> residualsConstraints;
-      for (std::map<int, std::map<CSCDetId, bool> >::const_iterator iter = stationsToChambers.begin();
-           iter != stationsToChambers.end();
-           ++iter) {
-        for (std::map<CSCDetId, bool>::const_iterator one = iter->second.begin(); one != iter->second.end(); ++one) {
-          for (std::map<CSCDetId, bool>::const_iterator two = one; two != iter->second.end(); ++two) {
+      for (auto iter = stationsToChambers.begin(); iter != stationsToChambers.end(); ++iter) {
+        for (auto one = iter->second.begin(); one != iter->second.end(); ++one) {
+          for (auto two = one; two != iter->second.end(); ++two) {
             if (one != two) {
               std::map<std::pair<CSCDetId, CSCDetId>, CSCPairResidualsConstraint*>::const_iterator quick;
 
@@ -357,9 +346,7 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Eve
         }
       }
 
-      for (std::map<CSCPairResidualsConstraint*, bool>::const_iterator residualsConstraint =
-               residualsConstraints.begin();
-           residualsConstraint != residualsConstraints.end();
+      for (auto residualsConstraint = residualsConstraints.begin(); residualsConstraint != residualsConstraints.end();
            ++residualsConstraint) {
         residualsConstraint->first->addTrack(measurements, transientTrack, m_trackTransformer);
       }
@@ -371,8 +358,7 @@ void CSCOverlapsAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup) {
   // write residuals partial fits to temporary files for collection
   if (m_writeTemporaryFile != std::string("")) {
     std::ofstream output(m_writeTemporaryFile.c_str());
-    for (std::vector<CSCPairResidualsConstraint*>::const_iterator residualsConstraint = m_residualsConstraints.begin();
-         residualsConstraint != m_residualsConstraints.end();
+    for (auto residualsConstraint = m_residualsConstraints.begin(); residualsConstraint != m_residualsConstraints.end();
          ++residualsConstraint) {
       (*residualsConstraint)->write(output);
     }
@@ -439,8 +425,7 @@ void CSCOverlapsAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup) {
              << std::endl;
     }
 
-    for (std::vector<CSCChamberFitter>::const_iterator fitter = m_fitters.begin(); fitter != m_fitters.end();
-         ++fitter) {
+    for (auto fitter = m_fitters.begin(); fitter != m_fitters.end(); ++fitter) {
       if (m_mode == CSCPairResidualsConstraint::kModeRadius) {
         fitter->radiusCorrection(m_alignableNavigator, m_alignmentParameterStore, m_combineME11);
 
@@ -449,9 +434,7 @@ void CSCOverlapsAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup) {
         fitter->fit(corrections);
 
         // corrections only exist if the fit was successful
-        for (std::vector<CSCAlignmentCorrections*>::iterator correction = corrections.begin();
-             correction != corrections.end();
-             ++correction) {
+        for (auto correction = corrections.begin(); correction != corrections.end(); ++correction) {
           (*correction)->applyAlignment(m_alignableNavigator, m_alignmentParameterStore, m_mode, m_combineME11);
           if (m_makeHistograms)
             (*correction)->plot();

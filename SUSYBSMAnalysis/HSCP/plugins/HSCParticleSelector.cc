@@ -66,18 +66,17 @@ bool HSCParticleSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   susybsm::HSCParticleCollection Source = *SourceHandle.product();
 
   // Output Collection
-  susybsm::HSCParticleCollection* output = new susybsm::HSCParticleCollection;
+  auto* output = new susybsm::HSCParticleCollection;
   std::unique_ptr<susybsm::HSCParticleCollection> result(output);
 
   // cleanup the collection based on the input selection
-  for (susybsm::HSCParticleCollection::iterator hscpcandidate = Source.begin(); hscpcandidate < Source.end();
-       ++hscpcandidate) {
+  for (auto hscpcandidate = Source.begin(); hscpcandidate < Source.end(); ++hscpcandidate) {
     bool decision = false;
     for (unsigned int i = 0; i < Selectors.size(); i++) {
       decision |= Selectors[i]->isSelected(*hscpcandidate);
     }
     if (decision) {
-      susybsm::HSCParticle* newhscp = new susybsm::HSCParticle(*hscpcandidate);
+      auto* newhscp = new susybsm::HSCParticle(*hscpcandidate);
       output->push_back(*newhscp);
     }
   }

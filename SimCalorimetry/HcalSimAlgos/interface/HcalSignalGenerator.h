@@ -82,7 +82,7 @@ public:
 private:
   virtual void fillDigis(const COLLECTION* digis) {
     // loop over digis, adding these to the existing maps
-    for (typename COLLECTION::const_iterator it = digis->begin(); it != digis->end(); ++it) {
+    for (auto it = digis->begin(); it != digis->end(); ++it) {
       // for the first signal, set the starting cap id
       if ((it == digis->begin()) && theElectronicsSim) {
         int startingCapId = (*it)[0].capid();

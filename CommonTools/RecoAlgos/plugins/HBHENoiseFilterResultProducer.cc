@@ -134,7 +134,7 @@ void HBHENoiseFilterResultProducer::produce(edm::Event& iEvent, const edm::Event
 
   // Write out the standard flags
   std::unique_ptr<bool> pOut;
-  for (std::map<std::string, bool>::const_iterator it = decisionMap_.begin(); it != decisionMap_.end(); ++it) {
+  for (auto it = decisionMap_.begin(); it != decisionMap_.end(); ++it) {
     pOut = std::unique_ptr<bool>(new bool(!it->second));
     iEvent.put(std::move(pOut), it->first);
   }
@@ -155,7 +155,7 @@ void HBHENoiseFilterResultProducer::produce(edm::Event& iEvent, const edm::Event
   }
 
   // Write out the default flag
-  std::map<std::string, bool>::const_iterator it = decisionMap_.find(defaultDecision_);
+  auto it = decisionMap_.find(defaultDecision_);
   if (it == decisionMap_.end())
     throw cms::Exception("Invalid HBHENoiseFilterResultProducer parameter \"defaultDecision\"");
   pOut = std::unique_ptr<bool>(new bool(!it->second));

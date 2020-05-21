@@ -288,9 +288,7 @@ void DiJetMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSet
     edm::LogWarning("DiJetMonitor") << "DiJet handle not valid \n";
     return;
   }
-  for (reco::PFJetCollection::const_iterator ibegin = offjets->begin(), iend = offjets->end(), ijet = ibegin;
-       ijet != iend;
-       ++ijet) {
+  for (auto ibegin = offjets->begin(), iend = offjets->end(), ijet = ibegin; ijet != iend; ++ijet) {
     if (ijet->pt() < ptcut_) {
       continue;
     }

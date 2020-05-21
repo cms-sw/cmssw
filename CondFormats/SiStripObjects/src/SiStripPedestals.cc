@@ -7,8 +7,7 @@ bool SiStripPedestals::put(const uint32_t& DetId, InputVector& input) {
   std::vector<unsigned char> Vo_CHAR;
   encode(input, Vo_CHAR);
 
-  Registry::iterator p =
-      std::lower_bound(indexes.begin(), indexes.end(), DetId, SiStripPedestals::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiStripPedestals::StrictWeakOrdering());
   if (p != indexes.end() && p->detid == DetId)
     return false;
 
@@ -28,7 +27,7 @@ bool SiStripPedestals::put(const uint32_t& DetId, InputVector& input) {
 const SiStripPedestals::Range SiStripPedestals::getRange(const uint32_t& DetId) const {
   // get SiStripPedestals Range of DetId
 
-  RegistryIterator p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiStripPedestals::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes.begin(), indexes.end(), DetId, SiStripPedestals::StrictWeakOrdering());
   if (p == indexes.end() || p->detid != DetId)
     return SiStripPedestals::Range(v_pedestals.end(), v_pedestals.end());
   else
@@ -37,9 +36,9 @@ const SiStripPedestals::Range SiStripPedestals::getRange(const uint32_t& DetId) 
 
 void SiStripPedestals::getDetIds(std::vector<uint32_t>& DetIds_) const {
   // returns vector of DetIds in map
-  SiStripPedestals::RegistryIterator begin = indexes.begin();
-  SiStripPedestals::RegistryIterator end = indexes.end();
-  for (SiStripPedestals::RegistryIterator p = begin; p != end; ++p) {
+  auto begin = indexes.begin();
+  auto end = indexes.end();
+  for (auto p = begin; p != end; ++p) {
     DetIds_.push_back(p->detid);
   }
 }
@@ -148,7 +147,7 @@ void SiStripPedestals::allPeds(std::vector<int>& peds, const Range& range) const
                                           << " strips, I have it only for " << mysize << " strips\n";
   size_t size4 = size & (~0x3), carry = size & 0x3;  // we have an optimized way of unpacking 4 strips
   const uint8_t* ptr = reinterpret_cast<const uint8_t*>(&*range.second) - 1;
-  std::vector<int>::iterator out = peds.begin(), end4 = peds.begin() + size4;
+  auto out = peds.begin(), end4 = peds.begin() + size4;
   // we do it this baroque way instead of just loopin on all the strips because it's faster
   // as the value of 'skip' is a constant, so the compiler can compute the masks directly
   while (out < end4) {

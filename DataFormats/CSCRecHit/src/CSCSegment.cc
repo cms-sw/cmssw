@@ -31,7 +31,7 @@ CSCSegment::~CSCSegment() {}
 
 std::vector<const TrackingRecHit*> CSCSegment::recHits() const {
   std::vector<const TrackingRecHit*> pointersOfRecHits;
-  for (std::vector<CSCRecHit2D>::const_iterator irh = theCSCRecHits.begin(); irh != theCSCRecHits.end(); ++irh) {
+  for (auto irh = theCSCRecHits.begin(); irh != theCSCRecHits.end(); ++irh) {
     pointersOfRecHits.push_back(&(*irh));
   }
   return pointersOfRecHits;
@@ -39,7 +39,7 @@ std::vector<const TrackingRecHit*> CSCSegment::recHits() const {
 
 std::vector<TrackingRecHit*> CSCSegment::recHits() {
   std::vector<TrackingRecHit*> pointersOfRecHits;
-  for (std::vector<CSCRecHit2D>::iterator irh = theCSCRecHits.begin(); irh != theCSCRecHits.end(); ++irh) {
+  for (auto irh = theCSCRecHits.begin(); irh != theCSCRecHits.end(); ++irh) {
     pointersOfRecHits.push_back(&(*irh));
   }
   return pointersOfRecHits;
@@ -100,11 +100,10 @@ bool CSCSegment::testSharesAllInSpecificRecHits(const std::vector<CSCRecHit2D>& 
   }
   //
   bool shareConditionPassed = true;
-  for (std::vector<CSCRecHit2D>::const_iterator itRH = rhContainer_1->begin(); itRH != rhContainer_1->end(); ++itRH) {
+  for (auto itRH = rhContainer_1->begin(); itRH != rhContainer_1->end(); ++itRH) {
     const CSCRecHit2D* firstRecHit = &(*itRH);
     bool sharedHit = false;
-    for (std::vector<CSCRecHit2D>::const_iterator itRH2 = rhContainer_2->begin(); itRH2 != rhContainer_2->end();
-         ++itRH2) {
+    for (auto itRH2 = rhContainer_2->begin(); itRH2 != rhContainer_2->end(); ++itRH2) {
       if (itRH2->sharesInput(firstRecHit, sharesInput)) {
         sharedHit = true;
         break;
@@ -144,7 +143,7 @@ bool CSCSegment::sharesRecHits(const CSCSegment& anotherSegment) const {
 float CSCSegment::time() const {
   float averageTime = 0;
   std::vector<float> wireTimes;
-  for (std::vector<CSCRecHit2D>::const_iterator itRH = theCSCRecHits.begin(); itRH != theCSCRecHits.end(); ++itRH) {
+  for (auto itRH = theCSCRecHits.begin(); itRH != theCSCRecHits.end(); ++itRH) {
     const CSCRecHit2D* recHit = &(*itRH);
     averageTime += recHit->tpeak();
     averageTime += recHit->wireTime();
@@ -158,7 +157,7 @@ float CSCSegment::time() const {
     modified = false;
     double maxDiff = -1;
     std::vector<float>::iterator maxHit;
-    for (std::vector<float>::iterator itWT = wireTimes.begin(); itWT != wireTimes.end(); ++itWT) {
+    for (auto itWT = wireTimes.begin(); itWT != wireTimes.end(); ++itWT) {
       float diff = fabs(*itWT - averageTime);
       if (diff > maxDiff) {
         maxDiff = diff;

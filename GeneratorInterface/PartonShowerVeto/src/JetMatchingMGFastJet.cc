@@ -72,7 +72,7 @@ namespace gen {
   T JetMatchingMGFastJet::getParameter(const std::map<std::string, std::string> &params,
                                        const std::string &var,
                                        const T &defValue) {
-    std::map<std::string, std::string>::const_iterator pos = params.find(var);
+    auto pos = params.find(var);
     if (pos == params.end())
       return defValue;
     return parseParameter<T>(pos->second);
@@ -86,7 +86,7 @@ namespace gen {
   static std::map<std::string, std::string> parseHeader(const std::vector<std::string> &header) {
     std::map<std::string, std::string> params;
 
-    for (std::vector<std::string>::const_iterator iter = header.begin(); iter != header.end(); ++iter) {
+    for (auto iter = header.begin(); iter != header.end(); ++iter) {
       std::string line = *iter;
       if (line.empty() || line[0] == '#')
         continue;
@@ -276,7 +276,7 @@ namespace gen {
 
     std::vector<Param> params;
     std::vector<Param> values;
-    for (std::map<std::string, std::string>::const_iterator iter = mgParams.begin(); iter != mgParams.end(); ++iter) {
+    for (auto iter = mgParams.begin(); iter != mgParams.end(); ++iter) {
       params.push_back(" " + iter->first);
       values.push_back(iter->second);
     }
@@ -290,7 +290,7 @@ namespace gen {
 
     std::map<std::string, std::string> mgInfoCMS = parseHeader(header);
 
-    for (std::map<std::string, std::string>::const_iterator iter = mgInfoCMS.begin(); iter != mgInfoCMS.end(); ++iter) {
+    for (auto iter = mgInfoCMS.begin(); iter != mgInfoCMS.end(); ++iter) {
       std::cout << "mgInfoCMS: " << iter->first << " " << iter->second << std::endl;
     }
 

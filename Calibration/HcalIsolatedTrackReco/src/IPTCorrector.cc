@@ -60,7 +60,7 @@ void IPTCorrector::produce(edm::StreamID, edm::Event& theEvent, edm::EventSetup 
     double minDR = 100;
     reco::TrackCollection::const_iterator citSel;
 
-    for (reco::TrackCollection::const_iterator cit = corTracks->begin(); cit != corTracks->end(); cit++) {
+    for (auto cit = corTracks->begin(); cit != corTracks->end(); cit++) {
       double dR = deltaR(cit->eta(), cit->phi(), iptEta, iptPhi);
       if (dR < minDR && dR < assocCone_) {
         minDR = dR;

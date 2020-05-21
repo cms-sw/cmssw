@@ -587,7 +587,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet>&
     }
 
     //Loop over jets and apply corrections
-    for (std::vector<l1t::Jet>::iterator jet = jets.begin(); jet != jets.end(); jet++) {
+    for (auto jet = jets.begin(); jet != jets.end(); jet++) {
       //Check jet is above the calibration threshold, if not do nothing
       if (jet->hwPt() < calibThreshold)
         continue;
@@ -623,7 +623,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet>&
       return;
     }
 
-    for (std::vector<l1t::Jet>::iterator jet = jets.begin(); jet != jets.end(); jet++) {
+    for (auto jet = jets.begin(); jet != jets.end(); jet++) {
       if (jet->hwPt() < calibThreshold)
         continue;
       if (jet->hwPt() >= 0xFFFF)
@@ -654,7 +654,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet>&
       return;
     }
 
-    for (std::vector<l1t::Jet>::iterator jet = jets.begin(); jet != jets.end(); jet++) {
+    for (auto jet = jets.begin(); jet != jets.end(); jet++) {
       if (jet->hwPt() < calibThreshold)
         continue;
       if (jet->hwPt() >= 0xFFFF)
@@ -690,7 +690,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet>&
     // The multiplicand is 10-bit unsigned, addend is 8-bit signed.
 
     //Loop over jets and apply corrections
-    for (std::vector<l1t::Jet>::iterator jet = jets.begin(); jet != jets.end(); jet++) {
+    for (auto jet = jets.begin(); jet != jets.end(); jet++) {
       //Check jet is above the calibration threshold, if not do nothing
       if (jet->hwPt() < calibThreshold)
         continue;

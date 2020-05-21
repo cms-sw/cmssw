@@ -60,7 +60,7 @@ void Mixing2DB::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 // ------------ method called once each job just after ending the event loop  ------------
 void Mixing2DB::endJob() {
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  MixingModuleConfig* config = new MixingModuleConfig();
+  auto* config = new MixingModuleConfig();
   config->read(cfi_);
   poolDbService->writeOne<MixingModuleConfig>(config, poolDbService->currentTime(), "MixingRcd");
 }

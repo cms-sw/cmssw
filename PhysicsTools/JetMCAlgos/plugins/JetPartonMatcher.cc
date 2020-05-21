@@ -242,7 +242,7 @@ int JetPartonMatcher::fillAlgoritDefinition(const Jet& theJet, WorkingVariables&
     // Associate to the first particle found in the priority list, regardless
     // of delta R.
     if (doPriority) {
-      vector<int>::const_iterator ipriority = find(priorityList.begin(), priorityList.end(), flavour);
+      auto ipriority = find(priorityList.begin(), priorityList.end(), flavour);
       // Check to see if this particle is in our priority list
       if (ipriority != priorityList.end()) {
         // This particle is on our priority list. If it matches,
@@ -359,7 +359,7 @@ int JetPartonMatcher::fillPhysicsDefinition(const Jet& theJet, WorkingVariables&
     // Associate to the first particle found in the priority list, regardless
     // of delta R.
     if (doPriority) {
-      vector<int>::const_iterator ipriority = find(priorityList.begin(), priorityList.end(), flavour);
+      auto ipriority = find(priorityList.begin(), priorityList.end(), flavour);
       // Check to see if this particle is in our priority list
       if (ipriority != priorityList.end()) {
         // This particle is on our priority list. If it matches,
@@ -415,7 +415,7 @@ int JetPartonMatcher::fillPhysicsDefinition(const Jet& theJet, WorkingVariables&
       return tempParticle;  //no contamination
     int initialPartonFlavour = abs((wv.particles->at(tempParticle).get())->pdgId());
 
-    vector<const Candidate*>::const_iterator itCont = theContaminations.begin();
+    auto itCont = theContaminations.begin();
     for (; itCont != theContaminations.end(); itCont++) {
       int contaminatingFlavour = abs((*itCont)->pdgId());
       if ((*itCont)->numberOfMothers() > 0 && (*itCont)->mother(0) == wv.particles->at(tempParticle).get())

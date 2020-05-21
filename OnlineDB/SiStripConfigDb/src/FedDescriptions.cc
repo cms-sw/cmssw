@@ -18,8 +18,8 @@ SiStripConfigDb::FedDescriptionsRange SiStripConfigDb::getFedDescriptions(std::s
 
   try {
     if (!dbParams_.usingDbCache()) {
-      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
-      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
+      auto iter = dbParams_.partitions().begin();
+      auto jter = dbParams_.partitions().end();
       for (; iter != jter; ++iter) {
         if (partition.empty() || partition == iter->second.partitionName()) {
           if (iter->second.partitionName() == SiStripPartition::defaultPartitionName_) {
@@ -148,8 +148,8 @@ void SiStripConfigDb::addFedDescriptions(std::string partition, FedDescriptionsV
     return;
   }
 
-  SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
-  SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
+  auto iter = dbParams_.partitions().begin();
+  auto jter = dbParams_.partitions().end();
   for (; iter != jter; ++iter) {
     if (partition == iter->second.partitionName()) {
       break;
@@ -214,8 +214,8 @@ void SiStripConfigDb::uploadFedDescriptions(std::string partition) {
   }
 
   try {
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
+    auto iter = dbParams_.partitions().begin();
+    auto jter = dbParams_.partitions().end();
     for (; iter != jter; ++iter) {
       if (partition.empty() || partition == iter->second.partitionName()) {
         FedDescriptionsRange range = feds_.find(iter->second.partitionName());
@@ -281,8 +281,8 @@ void SiStripConfigDb::clearFedDescriptions(std::string partition) {
   if (partition.empty()) {
     temporary_cache = FedDescriptions();
   } else {
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
+    auto iter = dbParams_.partitions().begin();
+    auto jter = dbParams_.partitions().end();
     for (; iter != jter; ++iter) {
       if (partition != iter->second.partitionName()) {
         FedDescriptionsRange range = feds_.find(iter->second.partitionName());
@@ -310,8 +310,8 @@ void SiStripConfigDb::clearFedDescriptions(std::string partition) {
       feds = feds_.emptyRange();
     }
   } else {
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
+    auto iter = dbParams_.partitions().begin();
+    auto jter = dbParams_.partitions().end();
     for (; iter != jter; ++iter) {
       if (partition == iter->second.partitionName()) {
         break;
@@ -321,8 +321,8 @@ void SiStripConfigDb::clearFedDescriptions(std::string partition) {
   }
 
   if (feds != feds_.emptyRange()) {
-    FedDescriptionsV::const_iterator ifed = feds.begin();
-    FedDescriptionsV::const_iterator jfed = feds.end();
+    auto ifed = feds.begin();
+    auto jfed = feds.end();
     for (; ifed != jfed; ++ifed) {
       if (*ifed) {
         delete *ifed;
@@ -364,8 +364,8 @@ void SiStripConfigDb::printFedDescriptions(std::string partition) {
 
       // Extract FED crates and ids
       std::map<uint16_t, vector<uint16_t> > feds;
-      FedDescriptionsV::const_iterator iter = iconn->second.begin();
-      FedDescriptionsV::const_iterator jter = iconn->second.end();
+      auto iter = iconn->second.begin();
+      auto jter = iconn->second.end();
       for (; iter != jter; ++iter) {
         if (*iter) {
           uint16_t key = (*iter)->getCrateNumber();
@@ -378,13 +378,13 @@ void SiStripConfigDb::printFedDescriptions(std::string partition) {
 
       // Sort contents
       std::map<uint16_t, std::vector<uint16_t> > tmp;
-      std::map<uint16_t, std::vector<uint16_t> >::const_iterator ii = feds.begin();
-      std::map<uint16_t, std::vector<uint16_t> >::const_iterator jj = feds.end();
+      auto ii = feds.begin();
+      auto jj = feds.end();
       for (; ii != jj; ++ii) {
         std::vector<uint16_t> temp = ii->second;
         std::sort(temp.begin(), temp.end());
-        std::vector<uint16_t>::const_iterator iii = temp.begin();
-        std::vector<uint16_t>::const_iterator jjj = temp.end();
+        auto iii = temp.begin();
+        auto jjj = temp.end();
         for (; iii != jjj; ++iii) {
           tmp[ii->first].push_back(*iii);
         }
@@ -393,16 +393,16 @@ void SiStripConfigDb::printFedDescriptions(std::string partition) {
       feds = tmp;
 
       // Print FED crates and ids
-      std::map<uint16_t, std::vector<uint16_t> >::const_iterator ifed = feds.begin();
-      std::map<uint16_t, std::vector<uint16_t> >::const_iterator jfed = feds.end();
+      auto ifed = feds.begin();
+      auto jfed = feds.end();
       for (; ifed != jfed; ++ifed) {
         ss << "  Found " << std::setw(2) << ifed->second.size() << " FED ids for crate number " << std::setw(2)
            << ifed->first << " : ";
         if (!ifed->second.empty()) {
           uint16_t first = ifed->second.front();
           uint16_t last = ifed->second.front();
-          std::vector<uint16_t>::const_iterator icrate = ifed->second.begin();
-          std::vector<uint16_t>::const_iterator jcrate = ifed->second.end();
+          auto icrate = ifed->second.begin();
+          auto jcrate = ifed->second.end();
           for (; icrate != jcrate; ++icrate) {
             if (icrate != ifed->second.begin()) {
               if (*icrate != last + 1) {
@@ -448,8 +448,8 @@ SiStripConfigDb::FedIdsRange SiStripConfigDb::getFedIds(std::string partition) {
     }
 
     if (!feds.empty()) {
-      FedDescriptionsV::const_iterator ifed = feds.begin();
-      FedDescriptionsV::const_iterator jfed = feds.end();
+      auto ifed = feds.begin();
+      auto jfed = feds.end();
       for (; ifed != jfed; ++ifed) {
         if (*ifed) {
           fedIds_.push_back((*ifed)->getFedId());

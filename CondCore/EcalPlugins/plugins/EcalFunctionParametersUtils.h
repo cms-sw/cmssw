@@ -4,7 +4,7 @@
 
 int countEmptyRows(std::vector<float>& vec) {
   int cnt = 0;
-  for (std::vector<float>::const_iterator it = vec.begin(); it != vec.end(); it++)
+  for (auto it = vec.begin(); it != vec.end(); it++)
     if ((*it) == 0.0f)
       cnt++;
 
@@ -34,7 +34,7 @@ void fillFunctionParamsValues(
     align->Fill(0.5, gridRows - i - 0.5, i + 1);
   }
 
-  for (std::vector<float>::const_iterator it = m_params.begin(); it != m_params.end(); it++) {
+  for (auto it = m_params.begin(); it != m_params.end(); it++) {
     if ((*it) == 0.0f)
       continue;
     align->Fill(column, row, *it);

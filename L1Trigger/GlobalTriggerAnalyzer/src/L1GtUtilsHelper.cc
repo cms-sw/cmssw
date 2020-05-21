@@ -88,8 +88,7 @@ void L1GtUtilsHelper::operator()(edm::BranchDescription const& branchDescription
       }
     } else {
       // no preferred input tag found yet, check now with the actual tag
-      for (std::vector<edm::InputTag>::const_iterator itPrefTag = preferredL1GtRecordInputTag.begin(),
-                                                      itPrefTagEnd = preferredL1GtRecordInputTag.end();
+      for (auto itPrefTag = preferredL1GtRecordInputTag.begin(), itPrefTagEnd = preferredL1GtRecordInputTag.end();
            itPrefTag != itPrefTagEnd;
            ++itPrefTag) {
         if (branchDescription.moduleLabel() == itPrefTag->label()) {
@@ -159,8 +158,8 @@ void L1GtUtilsHelper::operator()(edm::BranchDescription const& branchDescription
     } else {
       // no preferred input tag found yet, check now with the actual tag
 
-      for (std::vector<edm::InputTag>::const_iterator itPrefTag = preferredL1GtReadoutRecordInputTag.begin(),
-                                                      itPrefTagEnd = preferredL1GtReadoutRecordInputTag.end();
+      for (auto itPrefTag = preferredL1GtReadoutRecordInputTag.begin(),
+                itPrefTagEnd = preferredL1GtReadoutRecordInputTag.end();
            itPrefTag != itPrefTagEnd;
            ++itPrefTag) {
         if (branchDescription.moduleLabel() == itPrefTag->label()) {
@@ -230,8 +229,8 @@ void L1GtUtilsHelper::operator()(edm::BranchDescription const& branchDescription
     } else {
       // no preferred input tag found yet, check now with the actual tag
 
-      for (std::vector<edm::InputTag>::const_iterator itPrefTag = preferredL1GtTriggerMenuLiteInputTag.begin(),
-                                                      itPrefTagEnd = preferredL1GtTriggerMenuLiteInputTag.end();
+      for (auto itPrefTag = preferredL1GtTriggerMenuLiteInputTag.begin(),
+                itPrefTagEnd = preferredL1GtTriggerMenuLiteInputTag.end();
            itPrefTag != itPrefTagEnd;
            ++itPrefTag) {
         if (branchDescription.moduleLabel() == itPrefTag->label()) {

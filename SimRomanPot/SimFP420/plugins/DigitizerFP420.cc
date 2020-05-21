@@ -260,8 +260,8 @@ namespace cms {
     //============================================================================================================================================
     // new:   <------
     for (unsigned int i = 0; i < SimHitMap.size(); i++) {
-      vector<PSimHit>::const_iterator simHitIter = SimHitMap[i].begin();
-      vector<PSimHit>::const_iterator simHitIterEnd = SimHitMap[i].end();
+      auto simHitIter = SimHitMap[i].begin();
+      auto simHitIterEnd = SimHitMap[i].end();
       for (; simHitIter != simHitIterEnd; ++simHitIter) {
         const PSimHit ihit = *simHitIter;
         unsigned int unitID = ihit.detUnitId();
@@ -400,8 +400,8 @@ namespace cms {
               // checks)
               std::vector<HDigiFP420> collector;
               //  collector.clear();
-              DigiCollectionFP420::ContainerIterator sort_begin = outputRange.first;
-              DigiCollectionFP420::ContainerIterator sort_end = outputRange.second;
+              auto sort_begin = outputRange.first;
+              auto sort_end = outputRange.second;
               for (; sort_begin != sort_end; ++sort_begin) {
                 collector.push_back(*sort_begin);
               }  // for
@@ -414,8 +414,8 @@ namespace cms {
                           << std::endl;
                 std::cout << " ===" << std::endl;
               }
-              vector<HDigiFP420>::const_iterator simHitIter = collector.begin();
-              vector<HDigiFP420>::const_iterator simHitIterEnd = collector.end();
+              auto simHitIter = collector.begin();
+              auto simHitIterEnd = collector.end();
               for (; simHitIter != simHitIterEnd; ++simHitIter) {
                 const HDigiFP420 istrip = *simHitIter;
                 std::cout << " strip number=" << istrip.strip() << "  adc=" << istrip.adc() << std::endl;

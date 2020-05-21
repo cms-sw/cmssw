@@ -126,8 +126,8 @@ void DTTrigProd::produce(Event& iEvent, const EventSetup& iEventSetup) {
     SectCollPhiColl myPhiSegments;
     myPhiSegments = my_trig.SCPhTrigs();
 
-    SectCollPhiColl_iterator SCPCend = myPhiSegments.end();
-    for (SectCollPhiColl_iterator it = myPhiSegments.begin(); it != SCPCend; ++it) {
+    auto SCPCend = myPhiSegments.end();
+    for (auto it = myPhiSegments.begin(); it != SCPCend; ++it) {
       int step = (*it).step() - bx_offset;  // Shift correct BX to 0 (needed for DTTF data processing)
       int sc_sector = (*it).SCId().sector();
       if (my_DTTFnum == true)
@@ -147,8 +147,8 @@ void DTTrigProd::produce(Event& iEvent, const EventSetup& iEventSetup) {
     SectCollThetaColl myThetaSegments;
     myThetaSegments = my_trig.SCThTrigs();
 
-    SectCollThetaColl_iterator SCTCend = myThetaSegments.end();
-    for (SectCollThetaColl_iterator it = myThetaSegments.begin(); it != SCTCend; ++it) {
+    auto SCTCend = myThetaSegments.end();
+    for (auto it = myThetaSegments.begin(); it != SCTCend; ++it) {
       int pos[7], qual[7];
       for (int i = 0; i < 7; i++) {
         pos[i] = (*it).position(i);

@@ -42,7 +42,7 @@ namespace sim_act {
     // ---------- const member functions ---------------------
     void operator()(const T* iSignal) const {
       typedef typename std::vector<Observer<const T*>*>::const_iterator iterator;
-      for (iterator it = observers_.begin(); it != observers_.end(); ++it) {
+      for (auto it = observers_.begin(); it != observers_.end(); ++it) {
         (*it)->slotForUpdate(iSignal);
       }
     }

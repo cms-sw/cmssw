@@ -111,7 +111,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
       // There may be several SPs in event
       std::vector<const CSCSPEvent*> SPs = tfEvent.SPs_fast();
       // Cycle over all of them
-      for (std::vector<const CSCSPEvent*>::const_iterator spItr = SPs.begin(); spItr != SPs.end(); spItr++) {
+      for (auto spItr = SPs.begin(); spItr != SPs.end(); spItr++) {
         const CSCSPEvent* sp = *spItr;
 
         L1CSCSPStatusDigi status;  ///
@@ -189,7 +189,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
             }
 
           std::vector<CSCSP_MBblock> mbStubs = sp->record(tbin).mbStubs();
-          for (std::vector<CSCSP_MBblock>::const_iterator iter = mbStubs.begin(); iter != mbStubs.end(); iter++) {
+          for (auto iter = mbStubs.begin(); iter != mbStubs.end(); iter++) {
             int endcap, sector;
             if (slot2sector[sp->header().slot()]) {
               endcap = slot2sector[sp->header().slot()] / 7 + 1;
@@ -220,8 +220,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
 
           std::vector<CSCSP_SPblock> tracks = sp->record(tbin).tracks();
           unsigned int trkNumber = 0;
-          for (std::vector<CSCSP_SPblock>::const_iterator iter = tracks.begin(); iter != tracks.end();
-               iter++, trkNumber++) {
+          for (auto iter = tracks.begin(); iter != tracks.end(); iter++, trkNumber++) {
             L1CSCTrack track;
             if (slot2sector[sp->header().slot()]) {
               track.first.m_endcap = slot2sector[sp->header().slot()] / 7 + 1;
@@ -263,7 +262,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
             track.first.m_winner = iter->MS_id() & (1 << trkNumber);
 
             std::vector<CSCSP_MEblock> lcts = iter->LCTs();
-            for (std::vector<CSCSP_MEblock>::const_iterator lct = lcts.begin(); lct != lcts.end(); lct++) {
+            for (auto lct = lcts.begin(); lct != lcts.end(); lct++) {
               int station = (lct->spInput() > 6 ? (lct->spInput() - 1) / 3 : 1);
               int subsector = (lct->spInput() > 6 ? 0 : (lct->spInput() - 1) / 3 + 1);
               try {
@@ -295,7 +294,7 @@ void CSCTFUnpacker::produce(edm::Event& e, const edm::EventSetup& c) {
             }
 
             std::vector<CSCSP_MBblock> mbStubs = iter->dtStub();
-            for (std::vector<CSCSP_MBblock>::const_iterator iter = mbStubs.begin(); iter != mbStubs.end(); iter++) {
+            for (auto iter = mbStubs.begin(); iter != mbStubs.end(); iter++) {
               CSCDetId id = mapping->detId(track.first.m_endcap, 1, track.first.m_sector, iter->id(), 1, 0);
               track.second.insertDigi(id,
                                       CSCCorrelatedLCTDigi(iter->phi(),

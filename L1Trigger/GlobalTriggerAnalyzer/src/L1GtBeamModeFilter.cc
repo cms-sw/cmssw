@@ -50,9 +50,7 @@ L1GtBeamModeFilter::L1GtBeamModeFilter(const edm::ParameterSet& parSet)
                                    << "\nInput tag for L1 GT EVM record:        " << m_l1GtEvmReadoutRecordTag
                                    << "\nAllowed beam modes:" << std::endl;
 
-    for (std::vector<unsigned int>::const_iterator itMode = m_allowedBeamMode.begin();
-         itMode != m_allowedBeamMode.end();
-         ++itMode) {
+    for (auto itMode = m_allowedBeamMode.begin(); itMode != m_allowedBeamMode.end(); ++itMode) {
       LogTrace("L1GtBeamModeFilter") << "  " << (*itMode) << std::endl;
     }
 
@@ -135,8 +133,7 @@ bool L1GtBeamModeFilter::filter(edm::Event& iEvent, const edm::EventSetup& evSet
 
   LogDebug("L1GtBeamModeFilter") << "\nBeam mode: " << beamModeValue << std::endl;
 
-  for (std::vector<unsigned int>::const_iterator itMode = m_allowedBeamMode.begin(); itMode != m_allowedBeamMode.end();
-       ++itMode) {
+  for (auto itMode = m_allowedBeamMode.begin(); itMode != m_allowedBeamMode.end(); ++itMode) {
     if (beamModeValue == (*itMode)) {
       filterResult = true;
 

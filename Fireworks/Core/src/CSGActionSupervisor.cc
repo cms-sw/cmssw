@@ -20,7 +20,7 @@
 CSGActionSupervisor::CSGActionSupervisor() : m_tooltipDelay(3) {}
 
 CSGActionSupervisor::~CSGActionSupervisor() {
-  for (std::vector<CSGAction*>::iterator it = m_actionList.begin(), itEnd = m_actionList.end(); it != itEnd; ++it) {
+  for (auto it = m_actionList.begin(), itEnd = m_actionList.end(); it != itEnd; ++it) {
     delete *it;
   }
 }

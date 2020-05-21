@@ -119,9 +119,7 @@ public:
   const std::map<int, int>& getNPVsperBX() {
     npvsmap_.clear();
 
-    for (std::map<int, std::vector<BeamSpotFitPVData> >::const_iterator pvStore = bxMap_.begin();
-         pvStore != bxMap_.end();
-         ++pvStore) {
+    for (auto pvStore = bxMap_.begin(); pvStore != bxMap_.end(); ++pvStore) {
       npvsmap_[pvStore->first] = (pvStore->second).size();
     }
     return npvsmap_;

@@ -73,7 +73,7 @@ void SurveyInputTrackerFromDB::addSurveyInfo(Alignable* ali) {
 
   align::ErrorMatrix error;
 
-  SurveyInputTextReader::MapType::const_iterator it = uIdMap.find(std::make_pair(ali->id(), ali->alignableObjectId()));
+  auto it = uIdMap.find(std::make_pair(ali->id(), ali->alignableObjectId()));
 
   if (it != uIdMap.end()) {
     const align::Scalars& parameters = (it)->second;

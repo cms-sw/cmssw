@@ -36,7 +36,7 @@ reco::IsoDeposit EgammaTowerExtractor::deposit(const edm::Event &iEvent,
   iEvent.getByToken(caloTowerToken, towercollectionH);
 
   //Take the SC position
-  reco::SuperClusterRef sc = emObject.get<reco::SuperClusterRef>();
+  auto sc = emObject.get<reco::SuperClusterRef>();
   math::XYZPoint caloPosition = sc->position();
 
   Direction candDir(caloPosition.eta(), caloPosition.phi());
@@ -45,9 +45,7 @@ reco::IsoDeposit EgammaTowerExtractor::deposit(const edm::Event &iEvent,
   deposit.addCandEnergy(sc->energy() * sin(2 * atan(exp(-sc->eta()))));
 
   //loop over tracks
-  for (CaloTowerCollection::const_iterator trItr = towercollectionH->begin(), trEnd = towercollectionH->end();
-       trItr != trEnd;
-       ++trItr) {
+  for (auto trItr = towercollectionH->begin(), trEnd = towercollectionH->end(); trItr != trEnd; ++trItr) {
     double depEt = 0;
     //the hcal can be seperated into different depths
     //currently it is setup to check that the depth is valid in constructor

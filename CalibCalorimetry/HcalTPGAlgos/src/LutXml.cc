@@ -260,7 +260,7 @@ int LutXml::test_access(std::string filename) {
   edm::LogInfo("LutXml") << "HcalEmap contains " << _map.size() << " entries";
 
   int _counter = 0;
-  for (std::vector<HcalEmap::HcalEmapRow>::const_iterator row = _map.begin(); row != _map.end(); ++row) {
+  for (auto row = _map.begin(); row != _map.end(); ++row) {
     if (row->subdet == "HB") {
       HcalDetId det_id(HcalBarrel, row->ieta, row->iphi, row->idepth);
       uint32_t raw_id = det_id.rawId();

@@ -110,8 +110,8 @@ void BtlDigiHitsValidation::analyze(const edm::Event& iEvent, const edm::EventSe
     if (thedet == nullptr)
       throw cms::Exception("BtlDigiHitsValidation") << "GeographicalID: " << std::hex << geoId.rawId() << " ("
                                                     << detId.rawId() << ") is invalid!" << std::dec << std::endl;
-    const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
-    const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
+    const auto& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
+    const auto& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
     Local3DPoint local_point(0., 0., 0.);
     local_point = topo.pixelToModuleLocalPoint(local_point, detId.row(topo.nrows()), detId.column(topo.nrows()));

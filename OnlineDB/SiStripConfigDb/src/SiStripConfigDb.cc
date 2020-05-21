@@ -373,8 +373,8 @@ void SiStripConfigDb::usingDatabase() {
     std::vector<std::string> partitions = dbParams_.partitionNames(std::getenv(partition.c_str()));
     if (!partitions.empty()) {
       dbParams_.clearPartitions();
-      std::vector<std::string>::iterator ii = partitions.begin();
-      std::vector<std::string>::iterator jj = partitions.end();
+      auto ii = partitions.begin();
+      auto jj = partitions.end();
       for (; ii != jj; ++ii) {
         SiStripPartition partition(*ii);
         dbParams_.addPartition(partition);
@@ -396,8 +396,8 @@ void SiStripConfigDb::usingDatabase() {
   }
 
   // Check if should use current state, run number or versions
-  SiStripDbParams::SiStripPartitions::iterator ip = dbParams_.partitions().begin();
-  SiStripDbParams::SiStripPartitions::iterator jp = dbParams_.partitions().end();
+  auto ip = dbParams_.partitions().begin();
+  auto jp = dbParams_.partitions().end();
   for (; ip != jp; ++ip) {
     ip->second.update(this);
   }
@@ -498,8 +498,8 @@ void SiStripConfigDb::usingXmlFiles() {
   }
 
   // Iterate through partitions
-  SiStripDbParams::SiStripPartitions::const_iterator ip = dbParams_.partitions().begin();
-  SiStripDbParams::SiStripPartitions::const_iterator jp = dbParams_.partitions().end();
+  auto ip = dbParams_.partitions().begin();
+  auto jp = dbParams_.partitions().end();
   for (; ip != jp; ++ip) {
     // Input module.xml file
     if (ip->second.inputModuleXml().empty()) {
@@ -755,8 +755,8 @@ void SiStripConfigDb::runs(SiStripConfigDb::Runs& runs) const {
   all = df->getAllRuns();
 
   // Iterate through tkRunVector
-  tkRunVector::const_iterator ii = all.begin();
-  tkRunVector::const_iterator jj = all.end();
+  auto ii = all.begin();
+  auto jj = all.end();
   for (; ii != jj; ++ii) {
     // Check TkRun pointer
     if (*ii) {
@@ -832,7 +832,7 @@ void SiStripConfigDb::runs(const SiStripConfigDb::Runs& in,
 
   // Check partition name (if not empty string)
   if (!optional_partition.empty()) {
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partition(optional_partition);
+    auto iter = dbParams_.partition(optional_partition);
     if (iter == dbParams_.partitions().end()) {
       edm::LogWarning(mlConfigDb_) << "[SiStripPartition::" << __func__ << "]"
                                    << " Partition name not found!";
@@ -841,8 +841,8 @@ void SiStripConfigDb::runs(const SiStripConfigDb::Runs& in,
   }
 
   // Iterate through runs
-  Runs::const_iterator ii = in.begin();
-  Runs::const_iterator jj = in.end();
+  auto ii = in.begin();
+  auto jj = in.end();
   for (; ii != jj; ++ii) {
     // Check partition name
     if (ii->partition_ == optional_partition || optional_partition.empty()) {
@@ -852,8 +852,8 @@ void SiStripConfigDb::runs(const SiStripConfigDb::Runs& in,
         if (ii->number_) {
           bool found = false;
           if (out.find(ii->type_) != out.end()) {
-            Runs::const_iterator irun = out[ii->type_].begin();
-            Runs::const_iterator jrun = out[ii->type_].end();
+            auto irun = out[ii->type_].begin();
+            auto jrun = out[ii->type_].end();
             while (!found && irun != jrun) {
               if (irun->number_ == ii->number_) {
                 found = true;
@@ -895,8 +895,8 @@ void SiStripConfigDb::runs(const SiStripConfigDb::Runs& in,
   out.clear();
 
   // Iterate through runs
-  Runs::const_iterator ii = in.begin();
-  Runs::const_iterator jj = in.end();
+  auto ii = in.begin();
+  auto jj = in.end();
   for (; ii != jj; ++ii) {
     // Check partition name
     if (!ii->partition_.empty()) {
@@ -906,8 +906,8 @@ void SiStripConfigDb::runs(const SiStripConfigDb::Runs& in,
         if (ii->number_) {
           bool found = false;
           if (out.find(ii->partition_) != out.end()) {
-            Runs::const_iterator irun = out[ii->partition_].begin();
-            Runs::const_iterator jrun = out[ii->partition_].end();
+            auto irun = out[ii->partition_].begin();
+            auto jrun = out[ii->partition_].end();
             while (!found && irun != jrun) {
               if (irun->number_ == ii->number_) {
                 found = true;

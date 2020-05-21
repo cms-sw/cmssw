@@ -44,7 +44,7 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(const std::vector<SimTrack>
   int iPV = -1;
   //int partType1=0;
   //int partType2=0;
-  std::vector<SimTrack>::const_iterator iFirstSimTk = theSimTracks.begin();
+  auto iFirstSimTk = theSimTracks.begin();
   if (!(*iFirstSimTk).noVertex()) {
     iPV = (*iFirstSimTk).vertIndex();
 
@@ -76,7 +76,7 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(const std::vector<SimTrack>
 
   int npv = 0;
 
-  for (std::vector<SimTrack>::const_iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk) {
+  for (auto iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk) {
     if ((*iSimTk).noVertex())
       continue;
 
@@ -123,13 +123,13 @@ std::vector<PizeroMCTruth> PizeroMCTruthFinder::find(const std::vector<SimTrack>
   //  }
   //}
 
-  for (std::vector<SimTrack>::iterator iPizTk = pizeroTracks.begin(); iPizTk != pizeroTracks.end(); ++iPizTk) {
+  for (auto iPizTk = pizeroTracks.begin(); iPizTk != pizeroTracks.end(); ++iPizTk) {
     std::cout << " Looping on the primary pizero pt  " << sqrt((*iPizTk).momentum().perp2()) << " pizero track ID "
               << (*iPizTk).trackId() << std::endl;
 
     photonsFromPizero.clear();
     std::cout << " mcPhotons.size " << mcPhotons.size() << std::endl;
-    for (std::vector<PhotonMCTruth>::iterator iPho = mcPhotons.begin(); iPho != mcPhotons.end(); ++iPho) {
+    for (auto iPho = mcPhotons.begin(); iPho != mcPhotons.end(); ++iPho) {
       int phoVtxIndex = (*iPho).vertexInd();
       SimVertex phoVtx = theSimVertices[phoVtxIndex];
       unsigned int phoParentInd = phoVtx.parentIndex();

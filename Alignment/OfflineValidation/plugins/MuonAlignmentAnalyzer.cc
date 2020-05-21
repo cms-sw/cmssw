@@ -2052,7 +2052,7 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event &event, const edm::EventSet
           //If the state is valid
           if (innerTSOS.isValid()) {
             //Loop over Associated segments
-            for (RecHitVector::iterator rechit = my4DTrack.begin(); rechit != my4DTrack.end(); ++rechit) {
+            for (auto rechit = my4DTrack.begin(); rechit != my4DTrack.end(); ++rechit) {
               const GeomDet *geomDet = theTrackingGeometry->idToDet((*rechit)->geographicalId());
               //Otherwise the propagator could throw an exception
               const Plane *pDest = dynamic_cast<const Plane *>(&geomDet->surface());
@@ -2075,8 +2075,7 @@ void MuonAlignmentAnalyzer::analyze(const edm::Event &event, const edm::EventSet
                 int position = -1;
                 bool newDetector = true;
                 //Loop over the DetectorCollection to see if the detector is new and requires a new entry
-                for (std::vector<long>::iterator myIds = detectorCollection.begin(); myIds != detectorCollection.end();
-                     myIds++) {
+                for (auto myIds = detectorCollection.begin(); myIds != detectorCollection.end(); myIds++) {
                   ++position;
                   //If matches newDetector = false
                   if (*myIds == rawId) {
@@ -2498,19 +2497,16 @@ RecHitVector MuonAlignmentAnalyzer::doMatching(const reco::Track &staTrack,
         bool isNewChamber = true;
 
         //Loop over segments already included in the vector of segments in the actual track
-        for (std::vector<int>::iterator positionIt = positionDT.begin(); positionIt != positionDT.end(); positionIt++) {
+        for (auto positionIt = positionDT.begin(); positionIt != positionDT.end(); positionIt++) {
           //If this segment has been used before isNewChamber = false
           if (NumberOfDTSegment == *positionIt)
             isNewChamber = false;
         }
 
         //Loop over vectors of segments associated to previous tracks
-        for (std::vector<std::vector<int> >::iterator collect = indexCollectionDT->begin();
-             collect != indexCollectionDT->end();
-             ++collect) {
+        for (auto collect = indexCollectionDT->begin(); collect != indexCollectionDT->end(); ++collect) {
           //Loop over segments associated to a track
-          for (std::vector<int>::iterator positionIt = (*collect).begin(); positionIt != (*collect).end();
-               positionIt++) {
+          for (auto positionIt = (*collect).begin(); positionIt != (*collect).end(); positionIt++) {
             //If this segment was used in a previos track then isNewChamber = false
             if (NumberOfDTSegment == *positionIt)
               isNewChamber = false;
@@ -2542,19 +2538,15 @@ RecHitVector MuonAlignmentAnalyzer::doMatching(const reco::Track &staTrack,
         bool isNewChamber = true;
 
         //Loop over segments in the current track
-        for (std::vector<int>::iterator positionIt = positionCSC.begin(); positionIt != positionCSC.end();
-             positionIt++) {
+        for (auto positionIt = positionCSC.begin(); positionIt != positionCSC.end(); positionIt++) {
           //If this segment has been used then newchamber = false
           if (NumberOfCSCSegment == *positionIt)
             isNewChamber = false;
         }
         //Loop over vectors of segments in previous tracks
-        for (std::vector<std::vector<int> >::iterator collect = indexCollectionCSC->begin();
-             collect != indexCollectionCSC->end();
-             ++collect) {
+        for (auto collect = indexCollectionCSC->begin(); collect != indexCollectionCSC->end(); ++collect) {
           //Loop over segments in a track
-          for (std::vector<int>::iterator positionIt = (*collect).begin(); positionIt != (*collect).end();
-               positionIt++) {
+          for (auto positionIt = (*collect).begin(); positionIt != (*collect).end(); positionIt++) {
             //If the segment was used in a previous track isNewChamber = false
             if (NumberOfCSCSegment == *positionIt)
               isNewChamber = false;

@@ -10,7 +10,7 @@ EfficiencyLoader::EfficiencyLoader(const edm::ParameterSet &iConfig, edm::Consum
   std::sort(names_.begin(), names_.end());
 
   // get the InputTags
-  for (std::vector<std::string>::const_iterator it = names_.begin(), ed = names_.end(); it != ed; ++it) {
+  for (auto it = names_.begin(), ed = names_.end(); it != ed; ++it) {
     tokens_.push_back(iC.consumes<edm::ValueMap<pat::LookupTableRecord> >(iConfig.getParameter<edm::InputTag>(*it)));
   }
 

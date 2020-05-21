@@ -55,7 +55,7 @@ void AssociationVectorSelector<KeyRefProd, CVal, KeySelector, ValSelector>::prod
   size_t size = association->size();
   selected->reserve(size);
   selectedValues.reserve(size);
-  for (typename association_t::const_iterator i = association->begin(); i != association->end(); ++i) {
+  for (auto i = association->begin(); i != association->end(); ++i) {
     const typename association_t::key_type& obj = *i->first;
     if (selectKey_(obj) && selectVal_(i->second)) {
       typedef typename edm::clonehelper::CloneTrait<collection_t>::type clone_t;

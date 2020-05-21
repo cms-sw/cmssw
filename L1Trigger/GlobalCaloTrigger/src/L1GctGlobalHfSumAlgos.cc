@@ -51,12 +51,12 @@ L1GctGlobalHfSumAlgos::L1GctGlobalHfSumAlgos(const std::vector<L1GctWheelJetFpga
 }
 
 L1GctGlobalHfSumAlgos::~L1GctGlobalHfSumAlgos() {
-  std::map<L1GctHfEtSumsLut::hfLutType, const L1GctHfBitCountsLut*>::const_iterator bclut = m_bitCountLuts.begin();
+  auto bclut = m_bitCountLuts.begin();
   while (bclut != m_bitCountLuts.end()) {
     delete bclut->second;
     bclut++;
   }
-  std::map<L1GctHfEtSumsLut::hfLutType, const L1GctHfEtSumsLut*>::const_iterator eslut = m_etSumLuts.begin();
+  auto eslut = m_etSumLuts.begin();
   while (eslut != m_etSumLuts.end()) {
     delete eslut->second;
     eslut++;
@@ -142,7 +142,7 @@ void L1GctGlobalHfSumAlgos::process() {
 
 // Convert bit count value using LUT and store in the pipeline
 void L1GctGlobalHfSumAlgos::storeBitCount(L1GctHfEtSumsLut::hfLutType type, uint16_t value) {
-  std::map<L1GctHfEtSumsLut::hfLutType, const L1GctHfBitCountsLut*>::const_iterator bclut = m_bitCountLuts.find(type);
+  auto bclut = m_bitCountLuts.find(type);
   if (bclut != m_bitCountLuts.end()) {
     m_hfOutputSumsPipe[type].store((*bclut->second)[value], bxRel());
   }
@@ -150,7 +150,7 @@ void L1GctGlobalHfSumAlgos::storeBitCount(L1GctHfEtSumsLut::hfLutType type, uint
 
 // Convert et sum value using LUT and store in the pipeline
 void L1GctGlobalHfSumAlgos::storeEtSum(L1GctHfEtSumsLut::hfLutType type, uint16_t value) {
-  std::map<L1GctHfEtSumsLut::hfLutType, const L1GctHfEtSumsLut*>::const_iterator eslut = m_etSumLuts.find(type);
+  auto eslut = m_etSumLuts.find(type);
   if (eslut != m_etSumLuts.end()) {
     m_hfOutputSumsPipe[type].store((*eslut->second)[value], bxRel());
   }
@@ -159,7 +159,7 @@ void L1GctGlobalHfSumAlgos::storeEtSum(L1GctHfEtSumsLut::hfLutType type, uint16_
 /// Access to output quantities
 std::vector<uint16_t> L1GctGlobalHfSumAlgos::hfSumsOutput(const L1GctHfEtSumsLut::hfLutType type) const {
   std::vector<uint16_t> result(numOfBx());
-  std::map<L1GctHfEtSumsLut::hfLutType, Pipeline<uint16_t> >::const_iterator lut = m_hfOutputSumsPipe.find(type);
+  auto lut = m_hfOutputSumsPipe.find(type);
   if (lut != m_hfOutputSumsPipe.end()) {
     result = (lut->second).contents;
   }
@@ -242,7 +242,7 @@ void L1GctGlobalHfSumAlgos::setupLuts(const L1CaloEtScale* scale) {
 
 /// Get lut pointers
 const L1GctHfBitCountsLut* L1GctGlobalHfSumAlgos::getBCLut(const L1GctHfEtSumsLut::hfLutType type) const {
-  std::map<L1GctHfEtSumsLut::hfLutType, const L1GctHfBitCountsLut*>::const_iterator bclut = m_bitCountLuts.find(type);
+  auto bclut = m_bitCountLuts.find(type);
   if (bclut != m_bitCountLuts.end()) {
     return (bclut->second);
   } else {
@@ -251,7 +251,7 @@ const L1GctHfBitCountsLut* L1GctGlobalHfSumAlgos::getBCLut(const L1GctHfEtSumsLu
 }
 
 const L1GctHfEtSumsLut* L1GctGlobalHfSumAlgos::getESLut(const L1GctHfEtSumsLut::hfLutType type) const {
-  std::map<L1GctHfEtSumsLut::hfLutType, const L1GctHfEtSumsLut*>::const_iterator eslut = m_etSumLuts.find(type);
+  auto eslut = m_etSumLuts.find(type);
   if (eslut != m_etSumLuts.end()) {
     return (eslut->second);
   } else {

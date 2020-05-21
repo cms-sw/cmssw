@@ -25,7 +25,7 @@ void FlavorHistoryEvent::cache() {
   vector<helpers::FlavorHistoryEventHelper> classification;
 
   // get iterators to the history vector
-  const_iterator i = histories_.begin(), ibegin = histories_.begin(), iend = histories_.end();
+  auto i = histories_.begin(), ibegin = histories_.begin(), iend = histories_.end();
   // loop over the history vector and count the number of
   // partons of flavors "b" and "c" that have a matched genjet.
   for (; i != iend; ++i) {

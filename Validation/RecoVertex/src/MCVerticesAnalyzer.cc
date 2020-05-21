@@ -188,7 +188,7 @@ void MCVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
 
       const std::vector<float>& zpositions = pileupinfo->getPU_zpositions();
 
-      for (std::vector<float>::const_iterator zpos = zpositions.begin(); zpos != zpositions.end(); ++zpos) {
+      for (auto zpos = zpositions.begin(); zpos != zpositions.end(); ++zpos) {
         m_hpileupvtxz->Fill(*zpos, weight);
       }
     }

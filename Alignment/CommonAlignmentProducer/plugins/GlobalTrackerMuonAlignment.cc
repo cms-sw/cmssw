@@ -621,7 +621,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack(const edm::Event& iEvent, con
     std::cout << " ievBunch " << iEvent.bunchCrossing() << " runN " << (int)iEvent.run() << std::endl;
     std::cout << " N tracks s/amu gmu selmu " << tracks->size() << " " << muons->size() << " " << gmuons->size() << " "
               << smuons->size() << std::endl;
-    for (MuonCollection::const_iterator itMuon = smuons->begin(); itMuon != smuons->end(); ++itMuon) {
+    for (auto itMuon = smuons->begin(); itMuon != smuons->end(); ++itMuon) {
       std::cout << " is isolatValid Matches " << itMuon->isIsolationValid() << " " << itMuon->isMatchesValid()
                 << std::endl;
     }
@@ -675,9 +675,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack(const edm::Event& iEvent, con
     edm::ESHandle<Alignments> globalPositionRcd;
     iSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
     globalPositionRcd_ = &*globalPositionRcd;
-    for (std::vector<AlignTransform>::const_iterator i = globalPositionRcd_->m_align.begin();
-         i != globalPositionRcd_->m_align.end();
-         ++i) {
+    for (auto i = globalPositionRcd_->m_align.begin(); i != globalPositionRcd_->m_align.end(); ++i) {
       if (DetId(DetId::Tracker).rawId() == i->rawId())
         iteratorTrackerRcd = i;
       if (DetId(DetId::Muon).rawId() == i->rawId())
@@ -714,7 +712,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack(const edm::Event& iEvent, con
 
   // ................................................ selected/global muon
   //itMuon -->  Jim's globalMuon
-  for (MuonCollection::const_iterator itMuon = smuons->begin(); itMuon != smuons->end(); ++itMuon) {
+  for (auto itMuon = smuons->begin(); itMuon != smuons->end(); ++itMuon) {
     if (debug_) {
       std::cout << " mu gM is GM Mu SaM tM " << itMuon->isGlobalMuon() << " " << itMuon->isMuon() << " "
                 << itMuon->isStandAloneMuon() << " " << itMuon->isTrackerMuon() << " " << std::endl;
@@ -1300,7 +1298,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory(const edm::Event& iEvent
     std::cout << " ievBunch " << iEvent.bunchCrossing() << " runN " << (int)iEvent.run() << std::endl;
     std::cout << " N tracks s/amu gmu selmu " << tracks->size() << " " << muons->size() << " " << gmuons->size() << " "
               << smuons->size() << std::endl;
-    for (MuonCollection::const_iterator itMuon = smuons->begin(); itMuon != smuons->end(); ++itMuon) {
+    for (auto itMuon = smuons->begin(); itMuon != smuons->end(); ++itMuon) {
       std::cout << " is isolatValid Matches " << itMuon->isIsolationValid() << " " << itMuon->isMatchesValid()
                 << std::endl;
     }
@@ -1355,9 +1353,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory(const edm::Event& iEvent
     edm::ESHandle<Alignments> globalPositionRcd;
     iSetup.get<GlobalPositionRcd>().get(globalPositionRcd);
     globalPositionRcd_ = &*globalPositionRcd;
-    for (std::vector<AlignTransform>::const_iterator i = globalPositionRcd_->m_align.begin();
-         i != globalPositionRcd_->m_align.end();
-         ++i) {
+    for (auto i = globalPositionRcd_->m_align.begin(); i != globalPositionRcd_->m_align.end(); ++i) {
       if (DetId(DetId::Tracker).rawId() == i->rawId())
         iteratorTrackerRcd = i;
       if (DetId(DetId::Muon).rawId() == i->rawId())
@@ -1401,7 +1397,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory(const edm::Event& iEvent
       std::cout << " ............... DEFINE FITTER ..................." << std::endl;
     KFUpdator* theUpdator = new KFUpdator();
     //Chi2MeasurementEstimator* theEstimator = new Chi2MeasurementEstimator(30);
-    Chi2MeasurementEstimator* theEstimator = new Chi2MeasurementEstimator(100000, 100000);
+    auto* theEstimator = new Chi2MeasurementEstimator(100000, 100000);
     theFitter = new KFTrajectoryFitter(alongSmPr, *theUpdator, *theEstimator);
     theSmoother = new KFTrajectorySmoother(alongSmPr, *theUpdator, *theEstimator);
     theFitterOp = new KFTrajectoryFitter(oppositeSmPr, *theUpdator, *theEstimator);
@@ -1423,7 +1419,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory(const edm::Event& iEvent
 
   // ................................................ selected/global muon
   //itMuon -->  Jim's globalMuon
-  for (MuonCollection::const_iterator itMuon = smuons->begin(); itMuon != smuons->end(); ++itMuon) {
+  for (auto itMuon = smuons->begin(); itMuon != smuons->end(); ++itMuon) {
     if (debug_) {
       std::cout << " mu gM is GM Mu SaM tM " << itMuon->isGlobalMuon() << " " << itMuon->isMuon() << " "
                 << itMuon->isStandAloneMuon() << " " << itMuon->isTrackerMuon() << " " << std::endl;
@@ -3212,7 +3208,7 @@ void GlobalTrackerMuonAlignment::muonFitter(reco::TrackRef alongTr,
 void GlobalTrackerMuonAlignment::debugTrackHit(const std::string title, TransientTrack& alongTr) {
   std::cout << " ------- " << title << " --------" << std::endl;
   int nHit = 1;
-  for (trackingRecHit_iterator i = alongTr.recHitsBegin(); i != alongTr.recHitsEnd(); i++) {
+  for (auto i = alongTr.recHitsBegin(); i != alongTr.recHitsEnd(); i++) {
     std::cout << " Hit " << nHit++ << " DetId " << (*i)->geographicalId().det();
     if ((*i)->geographicalId().det() == DetId::Tracker)
       std::cout << " Tracker ";

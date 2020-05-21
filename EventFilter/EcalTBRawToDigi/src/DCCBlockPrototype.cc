@@ -192,7 +192,7 @@ std::pair<bool, std::string> DCCTBBlockPrototype::checkDataField(std::string nam
 }
 
 uint32_t DCCTBBlockPrototype::getDataField(std::string name) {
-  std::map<std::string, uint32_t>::iterator it = dataFields_.find(name);
+  auto it = dataFields_.find(name);
   if (it == dataFields_.end()) {
     throw ECALTBParserBlockException(std::string("\n field named : ") + name + std::string(" was not found in block ") +
                                      name_);

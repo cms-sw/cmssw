@@ -573,9 +573,7 @@ void PFAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   edm::Handle<std::vector<reco::GenParticle>> genParticlesHandle;
   iEvent.getByToken(genParticles_, genParticlesHandle);
-  for (std::vector<reco::GenParticle>::const_iterator it_p = genParticlesHandle->begin();
-       it_p != genParticlesHandle->end();
-       ++it_p) {
+  for (auto it_p = genParticlesHandle->begin(); it_p != genParticlesHandle->end(); ++it_p) {
     gen_eta_.push_back(it_p->eta());
     gen_phi_.push_back(it_p->phi());
     gen_pt_.push_back(it_p->pt());

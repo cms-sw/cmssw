@@ -112,8 +112,8 @@ int DTHVStatus::get(const DTWireId& id, int& flagA, int& flagC, int& flagS) cons
 
 int DTHVStatus::offChannelsNumber() const {
   int offNum = 0;
-  DTHVStatus::const_iterator iter = begin();
-  DTHVStatus::const_iterator iend = end();
+  auto iter = begin();
+  auto iend = end();
   while (iter != iend) {
     const std::pair<DTHVStatusId, DTHVStatusData>& entry = *iter++;
     DTHVStatusId hvId = entry.first;
@@ -129,8 +129,8 @@ int DTHVStatus::offChannelsNumber() const {
 
 int DTHVStatus::offChannelsNumber(const DTChamberId& id) const {
   int offNum = 0;
-  DTHVStatus::const_iterator iter = begin();
-  DTHVStatus::const_iterator iend = end();
+  auto iter = begin();
+  auto iend = end();
   while (iter != iend) {
     const std::pair<DTHVStatusId, DTHVStatusData>& entry = *iter++;
     DTHVStatusId hvId = entry.first;
@@ -152,8 +152,8 @@ int DTHVStatus::offChannelsNumber(const DTChamberId& id) const {
 
 int DTHVStatus::badChannelsNumber() const {
   int offNum = 0;
-  DTHVStatus::const_iterator iter = begin();
-  DTHVStatus::const_iterator iend = end();
+  auto iter = begin();
+  auto iend = end();
   while (iter != iend) {
     const std::pair<DTHVStatusId, DTHVStatusData>& entry = *iter++;
     DTHVStatusId hvId = entry.first;
@@ -166,8 +166,8 @@ int DTHVStatus::badChannelsNumber() const {
 
 int DTHVStatus::badChannelsNumber(const DTChamberId& id) const {
   int offNum = 0;
-  DTHVStatus::const_iterator iter = begin();
-  DTHVStatus::const_iterator iend = end();
+  auto iter = begin();
+  auto iend = end();
   while (iter != iend) {
     const std::pair<DTHVStatusId, DTHVStatusData>& entry = *iter++;
     DTHVStatusId hvId = entry.first;

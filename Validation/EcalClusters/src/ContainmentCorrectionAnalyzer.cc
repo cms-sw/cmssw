@@ -176,9 +176,7 @@ void ContainmentCorrectionAnalyzer::analyze(const Event &evt, const EventSetup &
       const reco::SuperCluster *nearSC = nullptr;
 
       double closestParticleDistance = 999;
-      for (reco::SuperClusterCollection::const_iterator aClus = BarrelSuperClusters->begin();
-           aClus != BarrelSuperClusters->end();
-           aClus++) {
+      for (auto aClus = BarrelSuperClusters->begin(); aClus != BarrelSuperClusters->end(); aClus++) {
         etaCurrent = aClus->position().eta();
         phiCurrent = aClus->position().phi();
         // etCurrent  = aClus->energy()/std::cosh(etaCurrent); // UNUSED
@@ -216,9 +214,7 @@ void ContainmentCorrectionAnalyzer::analyze(const Event &evt, const EventSetup &
       const reco::SuperCluster *nearSC = nullptr;
 
       double closestParticleDistance = 999;
-      for (reco::SuperClusterCollection::const_iterator aClus = EndcapSuperClusters->begin();
-           aClus != EndcapSuperClusters->end();
-           aClus++) {
+      for (auto aClus = EndcapSuperClusters->begin(); aClus != EndcapSuperClusters->end(); aClus++) {
         etaCurrent = aClus->position().eta();
         phiCurrent = aClus->position().phi();
         // etCurrent  =  aClus->energy()/std::cosh(etaCurrent);
@@ -348,7 +344,7 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
   int iPV = -1;
   int partType1 = 0;
   int partType2 = 0;
-  std::vector<SimTrack>::iterator iFirstSimTk = theSimTracks.begin();
+  auto iFirstSimTk = theSimTracks.begin();
   if (!(*iFirstSimTk).noVertex()) {
     iPV = (*iFirstSimTk).vertIndex();
     int vtxId = (*iFirstSimTk).vertIndex();
@@ -365,7 +361,7 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
   }
   int npv = 0;
   int iPho = 0;
-  for (std::vector<SimTrack>::iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk) {
+  for (auto iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk) {
     if ((*iSimTk).noVertex())
       continue;
     // int vertexId = (*iSimTk).vertIndex(); // UNUSED
@@ -405,9 +401,9 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
     int nConv = 0;
     int iConv = 0;
     iPho = 0;
-    for (std::vector<SimTrack *>::iterator iPhoTk = photonTracks.begin(); iPhoTk != photonTracks.end(); ++iPhoTk) {
+    for (auto iPhoTk = photonTracks.begin(); iPhoTk != photonTracks.end(); ++iPhoTk) {
       trkFromConversion.clear();
-      for (std::vector<SimTrack>::iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk) {
+      for (auto iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk) {
         if ((*iSimTk).noVertex())
           continue;
         if ((*iSimTk).vertIndex() == iPV)
@@ -419,7 +415,7 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
         int motherId = -1;
         if (vertex.parentIndex()) {
           unsigned motherGeantId = vertex.parentIndex();
-          std::map<unsigned, unsigned>::iterator association = geantToIndex_.find(motherGeantId);
+          auto association = geantToIndex_.find(motherGeantId);
           if (association != geantToIndex_.end())
             motherId = association->second;
           // int motherType = motherId == -1 ? 0 :

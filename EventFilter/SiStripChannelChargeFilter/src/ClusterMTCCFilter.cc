@@ -25,8 +25,7 @@ namespace cms {
     ModulesToBeExcluded = ps.getParameter<std::vector<unsigned>>("ModulesToBeExcluded");
     edm::LogInfo("ClusterMTCCFilter") << "Clusters from " << ModulesToBeExcluded.size()
                                       << " modules will be ignored in the filter:";
-    for (std::vector<uint32_t>::const_iterator imod = ModulesToBeExcluded.begin(); imod != ModulesToBeExcluded.end();
-         imod++) {
+    for (auto imod = ModulesToBeExcluded.begin(); imod != ModulesToBeExcluded.end(); imod++) {
       edm::LogInfo("ClusterMTCCFilter") << *imod;
     }
     //
@@ -55,8 +54,8 @@ namespace cms {
     unsigned int sum_of_cluster_charges = 0;
     clusters_in_subcomponents.clear();
     // first find all clusters that are over the threshold
-    for (edm::DetSetVector<SiStripCluster>::const_iterator it = h->begin(); it != h->end(); it++) {
-      for (vector<SiStripCluster>::const_iterator vit = (it->data).begin(); vit != (it->data).end(); vit++) {
+    for (auto it = h->begin(); it != h->end(); it++) {
+      for (auto vit = (it->data).begin(); vit != (it->data).end(); vit++) {
         // calculate sum of amplitudes
         unsigned int amplclus = 0;
         for (auto ia = vit->amplitudes().begin(); ia != vit->amplitudes().end(); ia++) {
@@ -67,9 +66,7 @@ namespace cms {
         DetId thedetId = DetId(it->detId());
         unsigned int generalized_layer = 0;
         bool exclude_this_detid = false;
-        for (std::vector<uint32_t>::const_iterator imod = ModulesToBeExcluded.begin();
-             imod != ModulesToBeExcluded.end();
-             imod++) {
+        for (auto imod = ModulesToBeExcluded.begin(); imod != ModulesToBeExcluded.end(); imod++) {
           if (*imod == thedetId.rawId())
             exclude_this_detid = true;  // found in exclusion list
         }
@@ -94,8 +91,7 @@ namespace cms {
               }
             }
             // fill clusters_in_subcomponents
-            map<unsigned int, vector<SiStripCluster>>::iterator layer_it =
-                clusters_in_subcomponents.find(generalized_layer);
+            auto layer_it = clusters_in_subcomponents.find(generalized_layer);
             if (layer_it == clusters_in_subcomponents
                                 .end()) {  // if layer not found yet, create DATA vector and generate map KEY + DATA
               vector<SiStripCluster> local_vector;

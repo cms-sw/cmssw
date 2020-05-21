@@ -46,11 +46,11 @@ void CSCGeometry::clear() {
 
 void CSCGeometry::deallocate() {
   // delete all the chambers (which will delete the layers)
-  for (ChamberContainer::const_iterator ich = theChambers.begin(); ich != theChambers.end(); ++ich)
+  for (auto ich = theChambers.begin(); ich != theChambers.end(); ++ich)
     delete (*ich);
 
   // delete specs
-  for (CSCSpecsContainer::const_iterator it = specsContainer.begin(); it != specsContainer.end(); ++it) {
+  for (auto it = specsContainer.begin(); it != specsContainer.end(); ++it) {
     delete (*it).second;  // they are never shared per chamber type so should be no possible double deletion.
   }
 }
@@ -89,7 +89,7 @@ const CSCGeometry::DetIdContainer& CSCGeometry::detIds() const { return theDetId
 const GeomDet* CSCGeometry::idToDetUnit(DetId id) const { return dynamic_cast<const GeomDet*>(idToDet(id)); }
 
 const GeomDet* CSCGeometry::idToDet(DetId id) const {
-  CSCDetMap::const_iterator i = theMap.find(id);
+  auto i = theMap.find(id);
   return (i != theMap.end()) ? i->second : nullptr;
 }
 
@@ -150,7 +150,7 @@ void CSCGeometry::queryModelling() const {
 
 const CSCChamberSpecs* CSCGeometry::findSpecs(int iChamberType) {
   const CSCChamberSpecs* aSpecs = nullptr;
-  CSCSpecsContainer::const_iterator it = specsContainer.find(iChamberType);
+  auto it = specsContainer.find(iChamberType);
   if (it != specsContainer.end())
     aSpecs = (*it).second;
   return aSpecs;

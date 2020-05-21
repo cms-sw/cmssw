@@ -144,7 +144,7 @@ void L1MuBMTQualPatternLut::print() const {
 
   int spold = 0;
 
-  LUT::const_iterator iter = m_lut.begin();
+  auto iter = m_lut.begin();
   while (iter != m_lut.end()) {
     int sp = (*iter).first.first;
     if (sp != spold) {
@@ -172,7 +172,7 @@ void L1MuBMTQualPatternLut::print() const {
 // get coarse eta value for a given sector processor [1-6] and address [1-22]
 //
 int L1MuBMTQualPatternLut::getCoarseEta(int sp, int adr) const {
-  LUT::const_iterator it = m_lut.find(make_pair(sp, adr));
+  auto it = m_lut.find(make_pair(sp, adr));
   if (it == m_lut.end()) {
     edm::LogError("L1MuBMTQualPatternLut")
         << "Error: L1MuBMTQualPatternLut: no coarse eta found for address " << adr << endl;
@@ -185,7 +185,7 @@ int L1MuBMTQualPatternLut::getCoarseEta(int sp, int adr) const {
 // get list of qualified patterns for a given sector processor [1-6] and address [1-22]
 //
 const vector<short>& L1MuBMTQualPatternLut::getQualifiedPatterns(int sp, int adr) const {
-  LUT::const_iterator it = m_lut.find(make_pair(sp, adr));
+  auto it = m_lut.find(make_pair(sp, adr));
   if (it == m_lut.end()) {
     edm::LogError("L1MuBMTQualPatternLut")
         << "Error: L1MuBMTQualPatternLut: no pattern list found for address " << adr << endl;

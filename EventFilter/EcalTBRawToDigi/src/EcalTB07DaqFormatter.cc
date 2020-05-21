@@ -100,9 +100,7 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData& fedData,
   std::vector<DCCTBEventBlock*>& dccEventBlocks = theParser_->dccEvents();
 
   // Access each DCCTB block
-  for (std::vector<DCCTBEventBlock*>::iterator itEventBlock = dccEventBlocks.begin();
-       itEventBlock != dccEventBlocks.end();
-       itEventBlock++) {
+  for (auto itEventBlock = dccEventBlocks.begin(); itEventBlock != dccEventBlocks.end(); itEventBlock++) {
     bool _displayParserMessages = false;
     if ((*itEventBlock)->eventHasErrors() && _displayParserMessages) {
       edm::LogWarning("EcalTB07RawToDigi") << "@SUB=EcalTB07DaqFormatter::interpretRawData"
@@ -158,8 +156,7 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData& fedData,
 
     std::vector<DCCTBTCCBlock*> tccBlocks = (*itEventBlock)->tccBlocks();
 
-    for (std::vector<DCCTBTCCBlock*>::iterator itTCCBlock = tccBlocks.begin(); itTCCBlock != tccBlocks.end();
-         itTCCBlock++) {
+    for (auto itTCCBlock = tccBlocks.begin(); itTCCBlock != tccBlocks.end(); itTCCBlock++) {
       std::vector<std::pair<int, bool> > TpSamples = (*itTCCBlock)->triggerSamples();
       // std::vector of 3 bits
       std::vector<int> TpFlags = (*itTCCBlock)->triggerFlags();
@@ -283,9 +280,7 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData& fedData,
     }
 
     // Access the Tower block
-    for (std::vector<DCCTBTowerBlock*>::iterator itTowerBlock = dccTowerBlocks.begin();
-         itTowerBlock != dccTowerBlocks.end();
-         itTowerBlock++) {
+    for (auto itTowerBlock = dccTowerBlocks.begin(); itTowerBlock != dccTowerBlocks.end(); itTowerBlock++) {
       tower = (*itTowerBlock)->towerID();
       // here is "correct" h2 map
       //if ( tower == 1  ) tower = 6;
@@ -354,8 +349,7 @@ void EcalTB07DaqFormatter::interpretRawData(const FEDRawData& fedData,
         short expCryInTower = 0;
 
         // Access the Xstal data
-        for (std::vector<DCCTBXtalBlock*>::iterator itXtalBlock = xtalDataBlocks.begin();
-             itXtalBlock != xtalDataBlocks.end();
+        for (auto itXtalBlock = xtalDataBlocks.begin(); itXtalBlock != xtalDataBlocks.end();
              itXtalBlock++) {  //loop on crys of a  tower
 
           strip = (*itXtalBlock)->stripID();
@@ -752,17 +746,13 @@ void EcalTB07DaqFormatter::DecodeMEM(DCCTBTowerBlock* towerblock,
   // otherwise, if any problem with ch_gain or ch_id: must not produce digis for the pertaining Pn
 
   if (!(memgaincollection.empty() && memchidcollection.empty())) {
-    for (EcalElectronicsIdCollection::const_iterator idItr = memgaincollection.begin();
-         idItr != memgaincollection.end();
-         ++idItr) {
+    for (auto idItr = memgaincollection.begin(); idItr != memgaincollection.end(); ++idItr) {
       int ch = (*idItr).channelId();
       ch = (ch - 1) / 5;
       pnIsOkInBlock[ch] = false;
     }
 
-    for (EcalElectronicsIdCollection::const_iterator idItr = memchidcollection.begin();
-         idItr != memchidcollection.end();
-         ++idItr) {
+    for (auto idItr = memchidcollection.begin(); idItr != memchidcollection.end(); ++idItr) {
       int ch = (*idItr).channelId();
       ch = (ch - 1) / 5;
       pnIsOkInBlock[ch] = false;

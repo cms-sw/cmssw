@@ -34,8 +34,8 @@ void PtAssignment::configure(PtAssignmentEngine* pt_assign_engine,
 void PtAssignment::process(EMTFTrackCollection& best_tracks) {
   using address_t = PtAssignmentEngine::address_t;
 
-  EMTFTrackCollection::iterator best_tracks_it = best_tracks.begin();
-  EMTFTrackCollection::iterator best_tracks_end = best_tracks.end();
+  auto best_tracks_it = best_tracks.begin();
+  auto best_tracks_end = best_tracks.end();
 
   for (; best_tracks_it != best_tracks_end; ++best_tracks_it) {
     EMTFTrack& track = *best_tracks_it;  // pass by reference

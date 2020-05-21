@@ -164,7 +164,7 @@ bool AlCaGammaJetSelector::select(const reco::PhotonCollection& photons, const r
   if (photons.empty())
     return false;
   bool ok(false);
-  for (reco::PFJetCollection::const_iterator itr = jets.begin(); itr != jets.end(); ++itr) {
+  for (auto itr = jets.begin(); itr != jets.end(); ++itr) {
     if (itr->pt() >= minPtJet_) {
       ok = true;
       break;
@@ -172,7 +172,7 @@ bool AlCaGammaJetSelector::select(const reco::PhotonCollection& photons, const r
   }
   if (!ok)
     return ok;
-  for (reco::PhotonCollection::const_iterator itr = photons.begin(); itr != photons.end(); ++itr) {
+  for (auto itr = photons.begin(); itr != photons.end(); ++itr) {
     if (itr->pt() >= minPtPhoton_)
       return ok;
   }

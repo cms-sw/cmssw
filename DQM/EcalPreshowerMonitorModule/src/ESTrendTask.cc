@@ -128,7 +128,7 @@ void ESTrendTask::analyze(const Event& e, const EventSetup& c) {
   vector<int> fiberStatus;
   Handle<ESRawDataCollection> dccs;
   if (e.getByToken(dccCollections_, dccs)) {
-    for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
+    for (auto dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
       ESDCCHeaderBlock dcc = (*dccItr);
 
       if (dcc.getDCCErrors() == 101)
@@ -165,7 +165,7 @@ void ESTrendTask::analyze(const Event& e, const EventSetup& c) {
 
   Handle<ESRecHitCollection> ESRecHit;
   if (e.getByToken(rechittoken_, ESRecHit)) {
-    for (ESRecHitCollection::const_iterator hitItr = ESRecHit->begin(); hitItr != ESRecHit->end(); ++hitItr) {
+    for (auto hitItr = ESRecHit->begin(); hitItr != ESRecHit->end(); ++hitItr) {
       ESDetId id = ESDetId(hitItr->id());
 
       zside = id.zside();

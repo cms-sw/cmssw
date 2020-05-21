@@ -235,7 +235,7 @@ namespace edm {
     typedef std::pair<Iter, Iter> IndexRange;
 
     IndexRange range = branchIDListHelper_->branchIDToIndexMap().equal_range(bid);
-    for (Iter it = range.first; it != range.second; ++it) {
+    for (auto it = range.first; it != range.second; ++it) {
       BranchListIndex blix = it->second.first;
       if (blix < branchListIndexToProcessIndex_.size()) {
         auto v = branchListIndexToProcessIndex_[blix];
@@ -433,7 +433,7 @@ namespace edm {
       throw Exception(errors::LogicError)
           << "EventPrincipal::getThinnedProduct, product has wrong type, not a ThinnedAssociation.\n";
     }
-    Wrapper<ThinnedAssociation> const* wrapper = static_cast<Wrapper<ThinnedAssociation> const*>(product);
+    auto const* wrapper = static_cast<Wrapper<ThinnedAssociation> const*>(product);
     return wrapper->product();
   }
 

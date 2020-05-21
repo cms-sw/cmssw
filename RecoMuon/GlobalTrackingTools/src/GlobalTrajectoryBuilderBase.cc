@@ -393,8 +393,8 @@ void GlobalTrajectoryBuilderBase::printHits(const ConstRecHitContainer& hits) co
 GlobalTrajectoryBuilderBase::RefitDirection GlobalTrajectoryBuilderBase::checkRecHitsOrdering(
     const TransientTrackingRecHit::ConstRecHitContainer& recHits) const {
   if (!recHits.empty()) {
-    ConstRecHitContainer::const_iterator frontHit = recHits.begin();
-    ConstRecHitContainer::const_iterator backHit = recHits.end() - 1;
+    auto frontHit = recHits.begin();
+    auto backHit = recHits.end() - 1;
     while (!(*frontHit)->isValid() && frontHit != backHit) {
       frontHit++;
     }
@@ -450,7 +450,7 @@ void GlobalTrajectoryBuilderBase::fixTEC(ConstRecHitContainer& all, double scl_x
   int nTEC(0);
   ConstRecHitContainer::iterator lone_tec;
 
-  for (ConstRecHitContainer::iterator i = all.begin(); i != all.end(); i++) {
+  for (auto i = all.begin(); i != all.end(); i++) {
     if (!(*i)->isValid())
       continue;
 
@@ -512,7 +512,7 @@ TransientTrackingRecHit::ConstRecHitContainer GlobalTrajectoryBuilderBase::getTr
 
   auto tkbuilder = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder.product());
   auto hitCloner = tkbuilder->cloner();
-  for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
+  for (auto hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if ((*hit)->isValid()) {
       DetId recoid = (*hit)->geographicalId();
       if (recoid.det() == DetId::Tracker) {

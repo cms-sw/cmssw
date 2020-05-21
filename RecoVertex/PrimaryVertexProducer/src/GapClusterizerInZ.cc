@@ -35,7 +35,7 @@ vector<vector<reco::TransientTrack> > GapClusterizerInZ::clusterize(const vector
   stable_sort(tks.begin(), tks.end(), recTrackLessZ);
 
   // init first cluster
-  vector<reco::TransientTrack>::const_iterator it = tks.begin();
+  auto it = tks.begin();
   vector<reco::TransientTrack> currentCluster;
   currentCluster.push_back(*it);
 

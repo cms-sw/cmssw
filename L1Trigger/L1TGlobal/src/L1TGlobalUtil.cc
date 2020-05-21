@@ -164,9 +164,7 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup, bool is
   //std::cout << "Using prescale column: " << m_PreScaleColumn << std::endl;
   const std::vector<int>& prescaleSet = (*m_prescaleFactorsAlgoTrig)[m_PreScaleColumn];
 
-  for (std::map<std::string, L1TUtmAlgorithm>::const_iterator itAlgo = m_algorithmMap->begin();
-       itAlgo != m_algorithmMap->end();
-       itAlgo++) {
+  for (auto itAlgo = m_algorithmMap->begin(); itAlgo != m_algorithmMap->end(); itAlgo++) {
     // Get the algorithm name
     std::string algName = itAlgo->first;
     int algBit = (itAlgo->second).getIndex();  //algoBitNumber();
@@ -178,7 +176,7 @@ void l1t::L1TGlobalUtil::retrieveL1Setup(const edm::EventSetup& evSetup, bool is
     LogDebug("l1t|Global") << "Number of bunch crossings stored: " << (*m_triggerMaskAlgoTrig).size() << endl;
 
     const std::map<int, std::vector<int> >* triggerAlgoMaskAlgoTrig = m_triggerMaskAlgoTrig;
-    std::map<int, std::vector<int> >::const_iterator it = triggerAlgoMaskAlgoTrig->begin();
+    auto it = triggerAlgoMaskAlgoTrig->begin();
 
     std::vector<int> maskedBxs;
     (m_masks[algBit]).first = algName;
@@ -220,7 +218,7 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent,
   //Make sure we have a valid AlgBlk
   if (m_uGtAlgBlk.isValid()) {
     // get the GlabalAlgBlk (Stupid find better way) of BX=0
-    std::vector<GlobalAlgBlk>::const_iterator algBlk = m_uGtAlgBlk->begin(0);
+    auto algBlk = m_uGtAlgBlk->begin(0);
     if (algBlk != m_uGtAlgBlk->end(0)) {
       if (!m_readPrescalesFromFile) {
         m_PreScaleColumn = static_cast<unsigned int>(algBlk->getPreScColumn());
@@ -246,9 +244,7 @@ void l1t::L1TGlobalUtil::retrieveL1Event(const edm::Event& iEvent,
 
       // Make a map of the trigger name and whether it passed various stages (initial,prescale,final)
       // Note: might be able to improve performance by not full remaking map with names each time
-      for (std::map<std::string, L1TUtmAlgorithm>::const_iterator itAlgo = m_algorithmMap->begin();
-           itAlgo != m_algorithmMap->end();
-           itAlgo++) {
+      for (auto itAlgo = m_algorithmMap->begin(); itAlgo != m_algorithmMap->end(); itAlgo++) {
         // Get the algorithm name
         std::string algName = itAlgo->first;
         int algBit = (itAlgo->second).getIndex();  //algoBitNumber();
@@ -454,7 +450,7 @@ void l1t::L1TGlobalUtil::resetMaskVectors() {
 }
 
 const bool l1t::L1TGlobalUtil::getAlgBitFromName(const std::string& algName, int& bit) const {
-  std::map<std::string, L1TUtmAlgorithm>::const_iterator itAlgo = m_algorithmMap->find(algName);
+  auto itAlgo = m_algorithmMap->find(algName);
   if (itAlgo != m_algorithmMap->end()) {
     bit = (itAlgo->second).getIndex();  //algoBitNumber();
     return true;

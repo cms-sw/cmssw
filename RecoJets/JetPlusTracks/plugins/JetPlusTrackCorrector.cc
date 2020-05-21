@@ -423,9 +423,9 @@ void JetPlusTrackCorrector::matchTracks(const JetTracks& jet_tracks,
 
       int itrack_belong = -1;
 
-      for (reco::VertexCollection::const_iterator iv = pvCollection->begin(); iv != pvCollection->end(); iv++) {
+      for (auto iv = pvCollection->begin(); iv != pvCollection->end(); iv++) {
         numpv++;
-        std::vector<reco::TrackBaseRef>::const_iterator rr = find((*iv).tracks_begin(), (*iv).tracks_end(), ttr1);
+        auto rr = find((*iv).tracks_begin(), (*iv).tracks_end(), ttr1);
         if (rr != (*iv).tracks_end()) {
           itrack_belong++;
           //          std::cout<<" Numpv "<<numpv<<std::endl;
@@ -1069,8 +1069,8 @@ bool JetPlusTrackCorrector::matchMuons(TrackRefs::const_iterator& itrk, const ed
     return false;
   }
 
-  RecoMuons::const_iterator imuon = muons->begin();
-  RecoMuons::const_iterator jmuon = muons->end();
+  auto imuon = muons->begin();
+  auto jmuon = muons->end();
   for (; imuon != jmuon; ++imuon) {
     if (imuon->innerTrack().isNull() || !muon::isGoodMuon(*imuon, muon::TMLastStationTight) ||
         imuon->innerTrack()->pt() < 3.0) {
@@ -1107,8 +1107,8 @@ bool JetPlusTrackCorrector::matchElectrons(TrackRefs::const_iterator& itrk,
   double deltaRMIN = 999.;
 
   uint32_t electron_index = 0;
-  RecoElectrons::const_iterator ielec = elecs->begin();
-  RecoElectrons::const_iterator jelec = elecs->end();
+  auto ielec = elecs->begin();
+  auto jelec = elecs->end();
   for (; ielec != jelec; ++ielec) {
     edm::Ref<RecoElectrons> electron_ref(elecs, electron_index);
     electron_index++;
@@ -1178,7 +1178,7 @@ void JetPlusTrackCorrector::rebuildJta(const reco::Jet& fJet,
       scalethis = dR2this * jetEtIn;
     tr++;
     int flag = 1;
-    for (JetBaseRefIterator ii = theJets.begin(); ii != theJets.end(); ii++) {
+    for (auto ii = theJets.begin(); ii != theJets.end(); ii++) {
       if (&(**ii) == &fJet) {
         continue;
       }
@@ -1429,8 +1429,8 @@ Map::Map(std::string input, bool verbose) : eta_(), pt_(), data_() {
 
   // Populate container
   data_.resize(eta_.size(), VDouble(pt_.size(), 0.));
-  std::vector<Element>::const_iterator idata = data.begin();
-  std::vector<Element>::const_iterator jdata = data.end();
+  auto idata = data.begin();
+  auto jdata = data.end();
   for (; idata != jdata; ++idata) {
     data_[idata->ieta_][idata->ipt_] = idata->val_;
   }
@@ -1581,11 +1581,11 @@ double Map::value(uint32_t eta_bin, uint32_t pt_bin) const {
 void Map::print(std::stringstream& ss) const {
   ss << " Number of bins in eta : " << data_.size() << std::endl
      << " Number of bins in pt  : " << (data_.empty() ? 0 : data_[0].size()) << std::endl;
-  VVDouble::const_iterator ieta = data_.begin();
-  VVDouble::const_iterator jeta = data_.end();
+  auto ieta = data_.begin();
+  auto jeta = data_.end();
   for (; ieta != jeta; ++ieta) {
-    VDouble::const_iterator ipt = ieta->begin();
-    VDouble::const_iterator jpt = ieta->end();
+    auto ipt = ieta->begin();
+    auto jpt = ieta->end();
     for (; ipt != jpt; ++ipt) {
       uint32_t eta_bin = static_cast<uint32_t>(ieta - data_.begin());
       uint32_t pt_bin = static_cast<uint32_t>(ipt - ieta->begin());

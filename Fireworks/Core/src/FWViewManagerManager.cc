@@ -62,9 +62,7 @@ void FWViewManagerManager::add(std::shared_ptr<FWViewManagerBase> iManager) {
   iManager->setChangeManager(m_changeManager);
   iManager->setColorManager(m_colorManager);
 
-  for (std::map<std::string, const FWEventItem*>::iterator it = m_typeToItems.begin(), itEnd = m_typeToItems.end();
-       it != itEnd;
-       ++it) {
+  for (auto it = m_typeToItems.begin(), itEnd = m_typeToItems.end(); it != itEnd; ++it) {
     iManager->newItem(it->second);
   }
 }
@@ -78,15 +76,13 @@ void FWViewManagerManager::registerEventItem(const FWEventItem* iItem) {
   iItem->goingToBeDestroyed_.connect(boost::bind(&FWViewManagerManager::removeEventItem, this, _1));
 
   //std::map<std::string, std::vector<std::string> >::iterator itFind = m_typeToBuilders.find(iItem->name());
-  for (std::vector<std::shared_ptr<FWViewManagerBase> >::iterator itVM = m_viewManagers.begin();
-       itVM != m_viewManagers.end();
-       ++itVM) {
+  for (auto itVM = m_viewManagers.begin(); itVM != m_viewManagers.end(); ++itVM) {
     (*itVM)->newItem(iItem);
   }
 }
 
 void FWViewManagerManager::removeEventItem(const FWEventItem* iItem) {
-  std::map<std::string, const FWEventItem*>::iterator itr = m_typeToItems.find(iItem->name());
+  auto itr = m_typeToItems.find(iItem->name());
   if (itr != m_typeToItems.end())
     m_typeToItems.erase(itr);
 }
@@ -96,9 +92,7 @@ void FWViewManagerManager::removeEventItem(const FWEventItem* iItem) {
 //
 FWTypeToRepresentations FWViewManagerManager::supportedTypesAndRepresentations() const {
   FWTypeToRepresentations returnValue;
-  for (std::vector<std::shared_ptr<FWViewManagerBase> >::const_iterator itVM = m_viewManagers.begin();
-       itVM != m_viewManagers.end();
-       ++itVM) {
+  for (auto itVM = m_viewManagers.begin(); itVM != m_viewManagers.end(); ++itVM) {
     FWTypeToRepresentations v = (*itVM)->supportedTypesAndRepresentations();
     returnValue.insert(v);
   }

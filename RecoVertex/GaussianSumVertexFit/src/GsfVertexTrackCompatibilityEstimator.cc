@@ -22,7 +22,7 @@ std::pair<bool, double> GsfVertexTrackCompatibilityEstimator::estimate(const Cac
                                                                        unsigned int hint) const {
   //checking if the track passed really belongs to the vertex
   std::vector<RefCountedVertexTrack> tracks = vertex.tracks();
-  std::vector<RefCountedVertexTrack>::iterator pos = find_if(tracks.begin(), tracks.end(), VertexTrackEqual<5>(tr));
+  auto pos = find_if(tracks.begin(), tracks.end(), VertexTrackEqual<5>(tr));
   if (pos != tracks.end()) {
     return estimateFittedTrack(vertex, *pos);
   } else {

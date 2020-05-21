@@ -52,7 +52,7 @@ bool HcalChannelId::operator<(const HcalChannelId& other) const {
 }
 
 std::map<HcalChannelId, HcalQIECaps>& HcalQIEManager::getQIETableFromFile(std::string _filename) {
-  std::map<HcalChannelId, HcalQIECaps>* result_sup = new std::map<HcalChannelId, HcalQIECaps>;
+  auto* result_sup = new std::map<HcalChannelId, HcalQIECaps>;
   std::map<HcalChannelId, HcalQIECaps>& result = (*result_sup);
 
   ifstream infile(_filename.c_str());
@@ -229,7 +229,7 @@ int HcalQIEManager::generateQieTable(std::string db_file, std::string old_file, 
   int badChannels = 0;
   std::cout << "old size: " << _old.size() << std::endl;
   std::cout << "new size: " << _new.size() << std::endl;
-  for (std::map<HcalChannelId, HcalQIECaps>::const_iterator line = _old.begin(); line != _old.end(); line++) {
+  for (auto line = _old.begin(); line != _old.end(); line++) {
     HcalQIECaps* the_caps;
     HcalChannelId theId = line->first;
     bool badchannel = false;

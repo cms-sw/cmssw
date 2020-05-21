@@ -173,7 +173,7 @@ void TagProbeFitTreeProducer::analyze(const edm::Event& iEvent, const edm::Event
   // get the list of (tag+probe) pairs, performing arbitration
   tnp::TagProbePairs pairs = tagProbePairMaker_.run(iEvent);
   // loop on them to fill the tree
-  for (tnp::TagProbePairs::const_iterator it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
+  for (auto it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
     // on mc, fill mc info (on non-mc, let it to 'true', the treeFiller will ignore it anyway
     bool mcTrue = false;
     float mcMass = 0.f;

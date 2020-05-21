@@ -193,7 +193,7 @@ void CSCALCTHeader::add(const std::vector<CSCALCTDigi> &digis) {
     if (theALCTs.empty()) {
       theALCTs.resize(header2007.lctBins * 2);
     }
-    for (std::vector<CSCALCTDigi>::const_iterator digi = digis.begin(); digi != digis.end(); ++digi) {
+    for (auto digi = digis.begin(); digi != digis.end(); ++digi) {
       int bx = digi->getBX();
       if (bx < (int)header2007.lctBins) {
         // 2 ALCTs per bx
@@ -263,7 +263,7 @@ void CSCALCTHeader::selfTest(int firmware) {
     std::vector<CSCALCTDigi> alcts = alctHeader.ALCTDigis();
     // pick out the valid ones
     std::vector<CSCALCTDigi> validALCTs;
-    for (std::vector<CSCALCTDigi>::const_iterator alctItr = alcts.begin(); alctItr != alcts.end(); ++alctItr) {
+    for (auto alctItr = alcts.begin(); alctItr != alcts.end(); ++alctItr) {
       if (alctItr->isValid()) {
         validALCTs.push_back(*alctItr);
       }

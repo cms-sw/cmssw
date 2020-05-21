@@ -208,7 +208,7 @@ std::string EcalFloatCondObjectContainerXMLTranslator::dumpXML(const EcalCondHea
   for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {  // loop on EB cells
 
     uint32_t rawid = EBDetId::unhashIndex(cellid);
-    EcalFloatCondObjectContainer::const_iterator value_ptr = record.find(rawid);
+    auto value_ptr = record.find(rawid);
     if (value_ptr == record.end())
       continue;  // cell absent from original record
 
@@ -224,7 +224,7 @@ std::string EcalFloatCondObjectContainerXMLTranslator::dumpXML(const EcalCondHea
       continue;
 
     uint32_t rawid = EEDetId::unhashIndex(cellid);
-    EcalFloatCondObjectContainer::const_iterator value_ptr = record.find(rawid);
+    auto value_ptr = record.find(rawid);
     if (value_ptr == record.end())
       continue;  // cell absent from original record
 

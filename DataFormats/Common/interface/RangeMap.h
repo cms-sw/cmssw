@@ -97,7 +97,7 @@ namespace edm {
     /// get a range of objects with specified identifier
     range get(ID id) const {
       const_iterator begin, end;
-      typename mapType::const_iterator i = map_.find(id);
+      auto i = map_.find(id);
       if (i != map_.end()) {
         begin = collection_.begin() + i->second.first;
         end = collection_.begin() + i->second.second;
@@ -109,7 +109,7 @@ namespace edm {
     /// insert an object range with specified identifier
     template <typename CI>
     void put(ID id, CI begin, CI end) {
-      typename mapType::const_iterator i = map_.find(id);
+      auto i = map_.find(id);
       if (i != map_.end()) {
         throw Exception(errors::LogicError, "trying to insert duplicate entry");
       }
@@ -165,7 +165,7 @@ namespace edm {
     void post_insert() {
       // sorts the container via ID
       C tmp;
-      for (typename mapType::iterator it = map_.begin(), itEnd = map_.end(); it != itEnd; it++) {
+      for (auto it = map_.begin(), itEnd = map_.end(); it != itEnd; it++) {
         range r = get((*it).first);
         //do cast to acknowledge that we may be going from a larger type to a smaller type but we are OK
         unsigned int begIt = static_cast<unsigned int>(tmp.size());

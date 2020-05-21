@@ -134,7 +134,7 @@ void BasicGenParticleValidation::analyze(const edm::Event& iEvent, const edm::Ev
 
   std::vector<const reco::GenParticle*> particles;
   particles.reserve(initSize);
-  for (reco::GenParticleCollection::const_iterator iter = genParticles->begin(); iter != genParticles->end(); ++iter) {
+  for (auto iter = genParticles->begin(); iter != genParticles->end(); ++iter) {
     if ((*iter).status() == 1) {
       particles.push_back(&*iter);
       if (verbosity_ > 0) {
@@ -220,7 +220,7 @@ void BasicGenParticleValidation::analyze(const edm::Event& iEvent, const edm::Ev
   std::vector<double> jetEta;
   jetEta.reserve(initSize);
 
-  for (reco::GenJetCollection::const_iterator iter = genJets->begin(); iter != genJets->end(); ++iter) {
+  for (auto iter = genJets->begin(); iter != genJets->end(); ++iter) {
     nJets++;
     double pt = (*iter).pt();
     totPt += pt;

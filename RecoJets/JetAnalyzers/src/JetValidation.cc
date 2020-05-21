@@ -195,12 +195,11 @@ void JetValidation::endJob() {
   /////////// Write Histograms in output ROOT file ////////
   if (m_file != nullptr) {
     m_file->cd();
-    for (std::map<TString, TH1*>::iterator hid = m_HistNames1D.begin(); hid != m_HistNames1D.end(); hid++)
+    for (auto hid = m_HistNames1D.begin(); hid != m_HistNames1D.end(); hid++)
       hid->second->Write();
-    for (std::map<TString, TH2*>::iterator hid = m_HistNames2D.begin(); hid != m_HistNames2D.end(); hid++)
+    for (auto hid = m_HistNames2D.begin(); hid != m_HistNames2D.end(); hid++)
       hid->second->Write();
-    for (std::map<TString, TProfile*>::iterator hid = m_HistNamesProfile.begin(); hid != m_HistNamesProfile.end();
-         hid++)
+    for (auto hid = m_HistNamesProfile.begin(); hid != m_HistNamesProfile.end(); hid++)
       hid->second->Write();
     delete m_file;
     m_file = nullptr;
@@ -208,7 +207,7 @@ void JetValidation::endJob() {
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 void JetValidation::FillHist1D(const TString& histName, const Double_t& value) {
-  std::map<TString, TH1*>::iterator hid = m_HistNames1D.find(histName);
+  auto hid = m_HistNames1D.find(histName);
   if (hid == m_HistNames1D.end())
     std::cout << "%fillHist -- Could not find histogram with name: " << histName << std::endl;
   else
@@ -216,7 +215,7 @@ void JetValidation::FillHist1D(const TString& histName, const Double_t& value) {
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 void JetValidation::FillHist2D(const TString& histName, const Double_t& valuex, const Double_t& valuey) {
-  std::map<TString, TH2*>::iterator hid = m_HistNames2D.find(histName);
+  auto hid = m_HistNames2D.find(histName);
   if (hid == m_HistNames2D.end())
     std::cout << "%fillHist -- Could not find histogram with name: " << histName << std::endl;
   else
@@ -224,7 +223,7 @@ void JetValidation::FillHist2D(const TString& histName, const Double_t& valuex, 
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 void JetValidation::FillHistProfile(const TString& histName, const Double_t& valuex, const Double_t& valuey) {
-  std::map<TString, TProfile*>::iterator hid = m_HistNamesProfile.find(histName);
+  auto hid = m_HistNamesProfile.find(histName);
   if (hid == m_HistNamesProfile.end())
     std::cout << "%fillHist -- Could not find histogram with name: " << histName << std::endl;
   else

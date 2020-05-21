@@ -25,7 +25,7 @@ namespace edm {
   Maker* Factory::findMaker(const MakeModuleParams& p) const {
     std::string modtype = p.pset_->getParameter<std::string>("@module_type");
     FDEBUG(1) << "Factory: module_type = " << modtype << std::endl;
-    MakerMap::iterator it = makers_.find(modtype);
+    auto it = makers_.find(modtype);
 
     if (it == makers_.end()) {
       std::unique_ptr<Maker> wm(MakerPluginFactory::get()->create(modtype));
@@ -63,7 +63,7 @@ namespace edm {
 
   std::shared_ptr<maker::ModuleHolder> Factory::makeReplacementModule(const edm::ParameterSet& p) const {
     std::string modtype = p.getParameter<std::string>("@module_type");
-    MakerMap::iterator it = makers_.find(modtype);
+    auto it = makers_.find(modtype);
     if (it != makers_.end()) {
       return it->second->makeReplacementModule(p);
     }

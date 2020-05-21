@@ -42,8 +42,8 @@ MuonBaseNumber MuonDDDNumbering::geoHistoryToBaseNumber(const DDGeoHistory &hist
 #endif
 
   //loop over all parents and check
-  DDGeoHistory::const_iterator cur = history.begin();
-  DDGeoHistory::const_iterator end = history.end();
+  auto cur = history.begin();
+  auto end = history.end();
   while (cur != end) {
     const DDLogicalPart &ddlp = cur->logicalPart();
     const int tag = getInt("CopyNoTag", ddlp) / theLevelPart;
@@ -86,7 +86,7 @@ MuonBaseNumber MuonDDDNumbering::geoHistoryToBaseNumber(const cms::ExpandedNodes
 int MuonDDDNumbering::getInt(const std::string &s, const DDLogicalPart &part) const {
   DDValue val(s);
   std::vector<const DDsvalues_type *> result = part.specifics();
-  std::vector<const DDsvalues_type *>::iterator it = result.begin();
+  auto it = result.begin();
   bool foundIt = false;
   for (; it != result.end(); ++it) {
     foundIt = DDfetch(*it, val);

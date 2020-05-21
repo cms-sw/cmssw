@@ -83,16 +83,14 @@ void L1TEventInfoClient::initialize() {
 
   int totalNrQualityTests = 0;
 
-  for (std::vector<edm::ParameterSet>::const_iterator itSystem = m_l1Systems.begin(); itSystem != m_l1Systems.end();
-       ++itSystem) {
+  for (auto itSystem = m_l1Systems.begin(); itSystem != m_l1Systems.end(); ++itSystem) {
     m_systemLabel.push_back(itSystem->getParameter<std::string>("SystemLabel"));
 
     m_systemLabelExt.push_back(itSystem->getParameter<std::string>("HwValLabel"));
 
     m_systemDisable.push_back(itSystem->getParameter<unsigned int>("SystemDisable"));
     // check the additional disable flag from m_disableL1Systems
-    for (std::vector<std::string>::const_iterator itSys = m_disableL1Systems.begin(); itSys != m_disableL1Systems.end();
-         ++itSys) {
+    for (auto itSys = m_disableL1Systems.begin(); itSys != m_disableL1Systems.end(); ++itSys) {
       if (*itSys == m_systemLabel[indexSys]) {
         m_systemDisable[indexSys] = 1;
       }
@@ -110,7 +108,7 @@ void L1TEventInfoClient::initialize() {
     std::vector<unsigned int> qtSumEnabled;
     qtSumEnabled.reserve(qtPerSystem);
 
-    for (std::vector<edm::ParameterSet>::const_iterator itQT = qTests.begin(); itQT != qTests.end(); ++itQT) {
+    for (auto itQT = qTests.begin(); itQT != qTests.end(); ++itQT) {
       totalNrQualityTests++;
 
       qtNames.push_back(itQT->getParameter<std::string>("QualityTestName"));
@@ -148,14 +146,12 @@ void L1TEventInfoClient::initialize() {
 
   int indexObj = 0;
 
-  for (std::vector<edm::ParameterSet>::const_iterator itObject = m_l1Objects.begin(); itObject != m_l1Objects.end();
-       ++itObject) {
+  for (auto itObject = m_l1Objects.begin(); itObject != m_l1Objects.end(); ++itObject) {
     m_objectLabel.push_back(itObject->getParameter<std::string>("ObjectLabel"));
 
     m_objectDisable.push_back(itObject->getParameter<unsigned int>("ObjectDisable"));
     // check the additional disable flag from m_disableL1Objects
-    for (std::vector<std::string>::const_iterator itObj = m_disableL1Objects.begin(); itObj != m_disableL1Objects.end();
-         ++itObj) {
+    for (auto itObj = m_disableL1Objects.begin(); itObj != m_disableL1Objects.end(); ++itObj) {
       if (*itObj == m_objectLabel[indexObj]) {
         m_objectDisable[indexObj] = 1;
       }
@@ -173,7 +169,7 @@ void L1TEventInfoClient::initialize() {
     std::vector<unsigned int> qtSumEnabled;
     qtSumEnabled.reserve(qtPerObject);
 
-    for (std::vector<edm::ParameterSet>::const_iterator itQT = qTests.begin(); itQT != qTests.end(); ++itQT) {
+    for (auto itQT = qTests.begin(); itQT != qTests.end(); ++itQT) {
       totalNrQualityTests++;
 
       qtNames.push_back(itQT->getParameter<std::string>("QualityTestName"));
@@ -283,9 +279,7 @@ void L1TEventInfoClient::dumpContentMonitorElements(DQMStore::IBooker& ibooker, 
             << "\n  Total number of quality tests: " << (m_meReportSummaryContent.size()) << "\n"
             << std::endl;
 
-  for (std::vector<MonitorElement*>::const_iterator itME = m_meReportSummaryContent.begin();
-       itME != m_meReportSummaryContent.end();
-       ++itME) {
+  for (auto itME = m_meReportSummaryContent.begin(); itME != m_meReportSummaryContent.end(); ++itME) {
     std::cout << std::setw(50) << (*itME)->getName() << " \t" << std::setw(25) << (*itME)->getFloatValue() << std::endl;
   }
 
@@ -322,8 +316,7 @@ void L1TEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter& ige
 
     const std::vector<std::string>& sysQtName = m_systemQualityTestName[iMon];
 
-    for (std::vector<std::string>::const_iterator itQtName = sysQtName.begin(); itQtName != sysQtName.end();
-         ++itQtName) {
+    for (auto itQtName = sysQtName.begin(); itQtName != sysQtName.end(); ++itQtName) {
       const std::string hStr = m_monitorDir + "_L1Sys_" + m_systemLabel[iMon] + "_" + (*itQtName);
 
       m_meReportSummaryContent.push_back(ibooker.bookFloat(hStr));
@@ -340,8 +333,7 @@ void L1TEventInfoClient::book(DQMStore::IBooker& ibooker, DQMStore::IGetter& ige
 
     const std::vector<std::string>& objQtName = m_objectQualityTestName[iMon];
 
-    for (std::vector<std::string>::const_iterator itQtName = objQtName.begin(); itQtName != objQtName.end();
-         ++itQtName) {
+    for (auto itQtName = objQtName.begin(); itQtName != objQtName.end(); ++itQtName) {
       const std::string hStr = m_monitorDir + "_L1Obj_" + m_objectLabel[iMon] + "_" + (*itQtName);
 
       m_meReportSummaryContent.push_back(ibooker.bookFloat(hStr));
@@ -385,15 +377,13 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker& ibooker, DQMStore::IGe
   // initialize summary content, summary sum and ReportSummaryContent float histograms
   // for all L1 systems and L1 objects
 
-  for (std::vector<int>::iterator it = m_summaryContent.begin(); it != m_summaryContent.end(); ++it) {
+  for (auto it = m_summaryContent.begin(); it != m_summaryContent.end(); ++it) {
     (*it) = dqm::qstatus::DISABLED;
   }
 
   m_summarySum = 0.;
 
-  for (std::vector<MonitorElement*>::iterator itME = m_meReportSummaryContent.begin();
-       itME != m_meReportSummaryContent.end();
-       ++itME) {
+  for (auto itME = m_meReportSummaryContent.begin(); itME != m_meReportSummaryContent.end(); ++itME) {
     (*itME)->Fill(0.);
   }
 
@@ -415,8 +405,7 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker& ibooker, DQMStore::IGe
     // pro system counter for quality tests
     int iSysQTest = 0;
 
-    for (std::vector<std::string>::const_iterator itQtName = sysQtName.begin(); itQtName != sysQtName.end();
-         ++itQtName) {
+    for (auto itQtName = sysQtName.begin(); itQtName != sysQtName.end(); ++itQtName) {
       // get results, status and message
 
       MonitorElement* qHist = igetter.get(sysQtHist[iSysQTest]);
@@ -515,8 +504,7 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker& ibooker, DQMStore::IGe
     // pro object counter for quality tests
     int iObjQTest = 0;
 
-    for (std::vector<std::string>::const_iterator itQtName = objQtName.begin(); itQtName != objQtName.end();
-         ++itQtName) {
+    for (auto itQtName = objQtName.begin(); itQtName != objQtName.end(); ++itQtName) {
       // get results, status and message
 
       MonitorElement* qHist = igetter.get(objQtHist[iObjQTest]);

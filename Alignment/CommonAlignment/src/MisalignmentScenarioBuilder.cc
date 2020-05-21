@@ -29,7 +29,7 @@ void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet& pSet
   // first create a map with one align::Alignables per type (=levelName)
   using AlignablesMap = std::map<std::string, align::Alignables>;
   AlignablesMap alisMap;
-  for (align::Alignables::const_iterator iA = alignables.begin(); iA != alignables.end(); ++iA) {
+  for (auto iA = alignables.begin(); iA != alignables.end(); ++iA) {
     const std::string& levelName = alignableObjectId_.idToString((*iA)->alignableObjectId());
     alisMap[levelName].push_back(*iA);  // either first entry of new level or add to an old one
   }
@@ -41,8 +41,8 @@ void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet& pSet
   // std::map seems to order alphabetically (TECEndcap,TIBHalfBarrel,TIDEndcap,TOBHalfBarrel).
   // Order matters due to random sequence. If scenarios are allowed to change
   // 'numerically', remove this comment and the lines marked with 'HACK'.
-  const AlignablesMap::iterator itTec = alisMap.find("TECEndcap");  // HACK
-  for (AlignablesMap::iterator it = alisMap.begin(); it != alisMap.end(); ++it) {
+  const auto itTec = alisMap.find("TECEndcap");  // HACK
+  for (auto it = alisMap.begin(); it != alisMap.end(); ++it) {
     if (it == itTec)
       continue;  // HACK
     this->decodeMovements_(pSet, it->second, it->first);
@@ -74,7 +74,7 @@ void MisalignmentScenarioBuilder::decodeMovements_(const edm::ParameterSet& pSet
 
   // Loop on alignables
   int iComponent = 0;  // physical numbering starts at 1...
-  for (align::Alignables::const_iterator iter = alignables.begin(); iter != alignables.end(); ++iter) {
+  for (auto iter = alignables.begin(); iter != alignables.end(); ++iter) {
     iComponent++;
 
     // Check for special parameters -> merge with global
@@ -114,8 +114,7 @@ void MisalignmentScenarioBuilder::mergeParameters_(edm::ParameterSet& localSet,
 
   // Loop on globalSet. Add to localSet all non-existing parameters
   std::vector<std::string> globalParameterNames = globalSet.getParameterNames();
-  for (std::vector<std::string>::iterator iter = globalParameterNames.begin(); iter != globalParameterNames.end();
-       iter++) {
+  for (auto iter = globalParameterNames.begin(); iter != globalParameterNames.end(); iter++) {
     if (globalSet.existsAs<edm::ParameterSet>(*iter)) {
       // This is a parameter set: check it
       edm::ParameterSet subLocalSet = this->getParameterSet_((*iter), localSet);
@@ -146,7 +145,7 @@ void MisalignmentScenarioBuilder::propagateParameters_(const edm::ParameterSet& 
 
   // Propagate some given parameters
   std::vector<std::string> parameterNames = pSet.getParameterNames();
-  for (std::vector<std::string>::iterator iter = parameterNames.begin(); iter != parameterNames.end(); ++iter) {
+  for (auto iter = parameterNames.begin(); iter != parameterNames.end(); ++iter) {
     if (theModifier.isPropagated(*iter)) {  // like 'distribution', 'scale', etc.
       LogDebug("PropagateParameters") << indent_ << " - adding parameter " << (*iter) << std::endl;
       subSet.copyFrom(pSet, (*iter));  // If existing, is not replaced.
@@ -156,7 +155,7 @@ void MisalignmentScenarioBuilder::propagateParameters_(const edm::ParameterSet& 
   // Propagate all tracked parameter sets
   std::vector<std::string> pSetNames;
   if (pSet.getParameterSetNames(pSetNames, true) > 0) {
-    for (std::vector<std::string>::const_iterator it = pSetNames.begin(); it != pSetNames.end(); ++it) {
+    for (auto it = pSetNames.begin(); it != pSetNames.end(); ++it) {
       const std::string rootName = this->rootName_(*it);
       const std::string globalRoot(this->rootName_(globalName));
       if (rootName.compare(0, rootName.length(), globalRoot) == 0) {
@@ -218,7 +217,7 @@ edm::ParameterSet MisalignmentScenarioBuilder::getParameterSet_(const std::strin
 
   // Get list of parameter set names and look for requested one
   std::vector<std::string> pNames = pSet.getParameterNames();
-  for (std::vector<std::string>::iterator iter = pNames.begin(); iter != pNames.end(); ++iter) {
+  for (auto iter = pNames.begin(); iter != pNames.end(); ++iter) {
     if (iter->find(levelName) != 0)
       continue;  // parameter not starting with levelName
 
@@ -279,7 +278,7 @@ bool MisalignmentScenarioBuilder::hasParameter_(const std::string& name, const e
 // Print parameter set. If showPsets is 'false', do not print PSets
 void MisalignmentScenarioBuilder::printParameters_(const edm::ParameterSet& pSet, const bool showPsets) const {
   std::vector<std::string> parameterNames = pSet.getParameterNames();
-  for (std::vector<std::string>::iterator iter = parameterNames.begin(); iter != parameterNames.end(); ++iter) {
+  for (auto iter = parameterNames.begin(); iter != parameterNames.end(); ++iter) {
     if (showPsets || !pSet.existsAs<edm::ParameterSet>(*iter)) {
       //       LogTrace("PrintParameters") << indent_ << "   " << (*iter) << " = "
       // 				  << pSet.retrieve( *iter ).toString() << std::endl;

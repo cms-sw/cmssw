@@ -75,7 +75,7 @@ bool SiPixelFedCablingMap::Key::operator<(const Key &other) const {
 SiPixelFedCablingMap::SiPixelFedCablingMap(const SiPixelFedCablingTree *cab) : theVersion(cab->version()) {
   // Never called
   std::vector<const PixelFEDCabling *> fedList = cab->fedList();
-  for (std::vector<const PixelFEDCabling *>::const_iterator ifed = fedList.begin(); ifed != fedList.end(); ifed++) {
+  for (auto ifed = fedList.begin(); ifed != fedList.end(); ifed++) {
     unsigned int fed = (**ifed).id();
     unsigned int numLink = (**ifed).numberOfLinks();
     for (unsigned int link = 1; link <= numLink; link++) {
@@ -102,7 +102,7 @@ SiPixelFedCablingMap::SiPixelFedCablingMap(const SiPixelFedCablingTree *cab) : t
 
 std::unique_ptr<SiPixelFedCablingTree> SiPixelFedCablingMap::cablingTree() const {
   std::unique_ptr<SiPixelFedCablingTree> tree(new SiPixelFedCablingTree(theVersion));
-  for (Map::const_iterator im = theMap.begin(); im != theMap.end(); im++) {
+  for (auto im = theMap.begin(); im != theMap.end(); im++) {
     const sipixelobjects::PixelROC &roc = im->second;
     unsigned int fedId = im->first.fed;
     unsigned int linkId = im->first.link;
@@ -113,7 +113,7 @@ std::unique_ptr<SiPixelFedCablingTree> SiPixelFedCablingMap::cablingTree() const
 
 std::vector<unsigned int> SiPixelFedCablingMap::fedIds() const {
   std::vector<unsigned int> result;
-  for (Map::const_iterator im = theMap.begin(); im != theMap.end(); im++) {
+  for (auto im = theMap.begin(); im != theMap.end(); im++) {
     unsigned int fedId = im->first.fed;
     if (find(result.begin(), result.end(), fedId) == result.end())
       result.push_back(fedId);
@@ -124,7 +124,7 @@ std::vector<unsigned int> SiPixelFedCablingMap::fedIds() const {
 const sipixelobjects::PixelROC *SiPixelFedCablingMap::findItem(const sipixelobjects::CablingPathToDetUnit &path) const {
   const PixelROC *roc = nullptr;
   Key key = {path.fed, path.link, path.roc};
-  Map::const_iterator inMap = theMap.find(key);
+  auto inMap = theMap.find(key);
   if (inMap != theMap.end())
     roc = &(inMap->second);
   return roc;

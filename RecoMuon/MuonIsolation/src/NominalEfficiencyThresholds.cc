@@ -96,7 +96,7 @@ NominalEfficiencyThresholds::NominalEfficiencyThresholds(const string &infile) {
 }
 
 void NominalEfficiencyThresholds::add(ThresholdLocation location, ThresholdConstituent threshold) {
-  MapType::iterator ploc = thresholds.find(location);
+  auto ploc = thresholds.find(location);
   if (ploc == thresholds.end()) {
     ThresholdConstituents mt;
     mt.insert(threshold);
@@ -122,7 +122,7 @@ void NominalEfficiencyThresholds::dump() {
 }
 
 float NominalEfficiencyThresholds::thresholdValueForEfficiency(ThresholdLocation location, float eff_thr) const {
-  MapType::const_iterator ploc = thresholds.find(location);
+  auto ploc = thresholds.find(location);
   if (ploc == thresholds.end()) {
     cout << "NominalEfficiencyThresholds: Problem:can't find location in the map :( " << location.eta << " "
          << location.cone << " " << eff_thr << endl;
@@ -131,7 +131,7 @@ float NominalEfficiencyThresholds::thresholdValueForEfficiency(ThresholdLocation
 
   const float epsilon = 1.e-6;
   EfficiencyBin eb = {eff_thr, eff_thr - epsilon};
-  ThresholdConstituents::const_iterator it = (*ploc).second.find(eb);
+  auto it = (*ploc).second.find(eb);
   if (it == (*ploc).second.end()) {
     cout << "NominalEfficiencyThresholds: Problem:can't find threshold in the map :(" << endl;
     return -1;

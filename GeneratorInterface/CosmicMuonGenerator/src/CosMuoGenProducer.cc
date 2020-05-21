@@ -160,35 +160,35 @@ void edm::CosMuoGenProducer::produce(Event& e, const edm::EventSetup& es) {
 
   auto fEvt = std::make_unique<HepMC::GenEvent>();
 
-  HepMC::GenVertex* Vtx_at = new HepMC::GenVertex(HepMC::FourVector(CosMuoGen->Vx_at,    //[mm]
-                                                                    CosMuoGen->Vy_at,    //[mm]
-                                                                    CosMuoGen->Vz_at,    //[mm]
-                                                                    CosMuoGen->T0_at));  //[mm]
+  auto* Vtx_at = new HepMC::GenVertex(HepMC::FourVector(CosMuoGen->Vx_at,    //[mm]
+                                                        CosMuoGen->Vy_at,    //[mm]
+                                                        CosMuoGen->Vz_at,    //[mm]
+                                                        CosMuoGen->T0_at));  //[mm]
   //cout << "CosMuoGenProducer.cc: Vy_at=" << CosMuoGen->Vy_at << endl;
   HepMC::FourVector p_at(CosMuoGen->Px_at, CosMuoGen->Py_at, CosMuoGen->Pz_at, CosMuoGen->E_at);
-  HepMC::GenParticle* Part_at = new HepMC::GenParticle(p_at, CosMuoGen->Id_at, 3);  //Comment mother particle in
+  auto* Part_at = new HepMC::GenParticle(p_at, CosMuoGen->Id_at, 3);  //Comment mother particle in
   Vtx_at->add_particle_in(Part_at);
 
   //loop here in case of multi muon events (else just one iteration)
   for (unsigned int i = 0; i < CosMuoGen->Id_sf.size(); ++i) {
     HepMC::FourVector p_sf(CosMuoGen->Px_sf[i], CosMuoGen->Py_sf[i], CosMuoGen->Pz_sf[i], CosMuoGen->E_sf[i]);
-    HepMC::GenParticle* Part_sf_in = new HepMC::GenParticle(p_sf, CosMuoGen->Id_sf[i], 3);  //Comment daughter particle
+    auto* Part_sf_in = new HepMC::GenParticle(p_sf, CosMuoGen->Id_sf[i], 3);  //Comment daughter particle
     Vtx_at->add_particle_out(Part_sf_in);
 
-    HepMC::GenVertex* Vtx_sf = new HepMC::GenVertex(
+    auto* Vtx_sf = new HepMC::GenVertex(
         HepMC::FourVector(CosMuoGen->Vx_sf[i], CosMuoGen->Vy_sf[i], CosMuoGen->Vz_sf[i], CosMuoGen->T0_sf[i]));  //[mm]
-    HepMC::GenParticle* Part_sf_out = new HepMC::GenParticle(p_sf, CosMuoGen->Id_sf[i], 3);  //Comment daughter particle
+    auto* Part_sf_out = new HepMC::GenParticle(p_sf, CosMuoGen->Id_sf[i], 3);  //Comment daughter particle
 
     Vtx_sf->add_particle_in(Part_sf_in);
     Vtx_sf->add_particle_out(Part_sf_out);
 
     fEvt->add_vertex(Vtx_sf);  //one per muon
 
-    HepMC::GenVertex* Vtx_ug = new HepMC::GenVertex(
+    auto* Vtx_ug = new HepMC::GenVertex(
         HepMC::FourVector(CosMuoGen->Vx_ug[i], CosMuoGen->Vy_ug[i], CosMuoGen->Vz_ug[i], CosMuoGen->T0_ug[i]));  //[mm]
 
     HepMC::FourVector p_ug(CosMuoGen->Px_ug[i], CosMuoGen->Py_ug[i], CosMuoGen->Pz_ug[i], CosMuoGen->E_ug[i]);
-    HepMC::GenParticle* Part_ug = new HepMC::GenParticle(p_ug, CosMuoGen->Id_ug[i], 1);  //Final state daughter particle
+    auto* Part_ug = new HepMC::GenParticle(p_ug, CosMuoGen->Id_ug[i], 1);  //Final state daughter particle
 
     Vtx_ug->add_particle_in(Part_sf_out);
     Vtx_ug->add_particle_out(Part_ug);

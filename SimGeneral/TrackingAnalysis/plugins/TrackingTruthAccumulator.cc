@@ -895,7 +895,7 @@ namespace  // Unnamed namespace for things only used in this file
       ::DecayChainVertex *pDecayVertex = decayVertexMapPair.second;
       int parentTrackIndex = vertexCollection[pDecayVertex->simVertexIndex].parentIndex();
       if (parentTrackIndex != -1) {
-        std::map<int, ::DecayChainTrack *>::iterator iParentTrackMapPair = trackIdToDecayTrack.find(parentTrackIndex);
+        auto iParentTrackMapPair = trackIdToDecayTrack.find(parentTrackIndex);
         if (iParentTrackMapPair == trackIdToDecayTrack.end()) {
           std::stringstream errorStream;
           errorStream << "TrackingTruthAccumulator: Something has gone wrong "

@@ -135,7 +135,7 @@ void EBHitResponse::findIntercalibConstant(const DetId& detId, double& icalconst
     edm::LogError("EBHitResponse") << "No intercal constant defined for EBHitResponse";
   } else {
     const EcalIntercalibConstantMCMap& icalMap(m_intercal->getMap());
-    EcalIntercalibConstantMCMap::const_iterator icalit(icalMap.find(detId));
+    auto icalit(icalMap.find(detId));
     if (icalit != icalMap.end()) {
       thisconst = *icalit;
       if (thisconst == 0.)

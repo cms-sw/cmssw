@@ -156,9 +156,7 @@ bool WPlusJetsEventSelector::operator()(edm::EventBase const& event, pat::strbit
       event.getByLabel(metTag_, metHandle);
 
       int nElectrons = 0;
-      for (std::vector<pat::Electron>::const_iterator electronBegin = electronHandle->begin(),
-                                                      electronEnd = electronHandle->end(),
-                                                      ielectron = electronBegin;
+      for (auto electronBegin = electronHandle->begin(), electronEnd = electronHandle->end(), ielectron = electronBegin;
            ielectron != electronEnd;
            ++ielectron) {
         ++nElectrons;
@@ -177,10 +175,7 @@ bool WPlusJetsEventSelector::operator()(edm::EventBase const& event, pat::strbit
         }
       }
 
-      for (std::vector<pat::Muon>::const_iterator muonBegin = muonHandle->begin(),
-                                                  muonEnd = muonHandle->end(),
-                                                  imuon = muonBegin;
-           imuon != muonEnd;
+      for (auto muonBegin = muonHandle->begin(), muonEnd = muonHandle->end(), imuon = muonBegin; imuon != muonEnd;
            ++imuon) {
         if (!imuon->isGlobalMuon())
           continue;
@@ -203,11 +198,7 @@ bool WPlusJetsEventSelector::operator()(edm::EventBase const& event, pat::strbit
       event.getByLabel(jetTag_, jetHandle);
       pat::strbitset ret1 = jetIdLoose_.getBitTemplate();
       pat::strbitset ret2 = pfjetIdLoose_.getBitTemplate();
-      for (std::vector<pat::Jet>::const_iterator jetBegin = jetHandle->begin(),
-                                                 jetEnd = jetHandle->end(),
-                                                 ijet = jetBegin;
-           ijet != jetEnd;
-           ++ijet) {
+      for (auto jetBegin = jetHandle->begin(), jetEnd = jetHandle->end(), ijet = jetBegin; ijet != jetEnd; ++ijet) {
         reco::ShallowClonePtrCandidate scaledJet(reco::ShallowClonePtrCandidate(
             edm::Ptr<pat::Jet>(jetHandle, ijet - jetBegin), ijet->charge(), ijet->p4() * jetScale_));
         bool passJetID = false;
@@ -221,9 +212,7 @@ bool WPlusJetsEventSelector::operator()(edm::EventBase const& event, pat::strbit
           if (muPlusJets_) {
             //Remove some jets
             bool indeltaR = false;
-            for (std::vector<reco::ShallowClonePtrCandidate>::const_iterator muonBegin = selectedMuons_.begin(),
-                                                                             muonEnd = selectedMuons_.end(),
-                                                                             imuon = muonBegin;
+            for (auto muonBegin = selectedMuons_.begin(), muonEnd = selectedMuons_.end(), imuon = muonBegin;
                  imuon != muonEnd;
                  ++imuon) {
               if (reco::deltaR(imuon->eta(), imuon->phi(), scaledJet.eta(), scaledJet.phi()) < muJetDR_) {
@@ -237,9 +226,9 @@ bool WPlusJetsEventSelector::operator()(edm::EventBase const& event, pat::strbit
           else {
             //Remove some jets
             bool indeltaR = false;
-            for (std::vector<reco::ShallowClonePtrCandidate>::const_iterator electronBegin = selectedElectrons_.begin(),
-                                                                             electronEnd = selectedElectrons_.end(),
-                                                                             ielectron = electronBegin;
+            for (auto electronBegin = selectedElectrons_.begin(),
+                      electronEnd = selectedElectrons_.end(),
+                      ielectron = electronBegin;
                  ielectron != electronEnd;
                  ++ielectron) {
               if (reco::deltaR(ielectron->eta(), ielectron->phi(), scaledJet.eta(), scaledJet.phi()) < eleJetDR_) {

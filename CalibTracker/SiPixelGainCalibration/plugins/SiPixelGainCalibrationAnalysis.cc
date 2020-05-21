@@ -126,9 +126,7 @@ void SiPixelGainCalibrationAnalysis::calibrationSetup(const edm::EventSetup &) {
 //------- summary printing method. Very verbose.
 void SiPixelGainCalibrationAnalysis::printSummary() {
   uint32_t detid = 0;
-  for (std::map<uint32_t, std::map<std::string, MonitorElement *> >::const_iterator idet = bookkeeper_.begin();
-       idet != bookkeeper_.end();
-       ++idet) {
+  for (auto idet = bookkeeper_.begin(); idet != bookkeeper_.end(); ++idet) {
     if (detid == idet->first)
       continue;  // only do things once per detid
     detid = idet->first;
@@ -143,9 +141,7 @@ void SiPixelGainCalibrationAnalysis::printSummary() {
       summarytext << "\t " << i << " \t" << gainvec[i] << " \t" << pedvec[i] << " \t" << chi2vec[i] << "\n";
     summarytext << "\t list of pixels with high chi2 (chi2> " << chi2Threshold_ << "): \n";
 
-    for (std::map<std::string, MonitorElement *>::const_iterator ipix = bookkeeper_pixels_[detid].begin();
-         ipix != bookkeeper_pixels_[detid].end();
-         ++ipix)
+    for (auto ipix = bookkeeper_pixels_[detid].begin(); ipix != bookkeeper_pixels_[detid].end(); ++ipix)
       summarytext << "\t " << ipix->first << "\n";
     edm::LogInfo("SiPixelGainCalibrationAnalysis") << summarytext.str() << std::endl;
   }
@@ -186,7 +182,7 @@ bool SiPixelGainCalibrationAnalysis::doFits(uint32_t detid, std::vector<SiPixelC
   float lowmeanval = 255;
   float highmeanval = 0;
   bool makehistopersistent = saveALLHistograms_;
-  std::vector<uint32_t>::const_iterator detidfinder = find(listofdetids_.begin(), listofdetids_.end(), detid);
+  auto detidfinder = find(listofdetids_.begin(), listofdetids_.end(), detid);
   if (detidfinder != listofdetids_.end())
     makehistopersistent = true;
   // first, fill the input arrays to the TLinearFitter.

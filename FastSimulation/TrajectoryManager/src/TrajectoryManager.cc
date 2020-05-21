@@ -475,7 +475,7 @@ void TrajectoryManager::updateWithDaughters(ParticlePropagator& PP,
     if (!daughters.empty()) {
       double distMin = 1E99;
       int theClosestChargedDaughterId = -1;
-      DaughterParticleIterator daughter = daughters.begin();
+      auto daughter = daughters.begin();
 
       int ivertex = mySimEvent->addSimVertex(daughter->vertex(), fsimi, FSimVertexType::DECAY_VERTEX);
 
@@ -549,7 +549,7 @@ void TrajectoryManager::createPSimHits(const TrackerLayer& layer,
 
   // And create the corresponding PSimHits
   std::map<double, PSimHit> theTrackHits;
-  for (std::vector<DetWithState>::const_iterator i = compat.begin(); i != compat.end(); i++) {
+  for (auto i = compat.begin(); i != compat.end(); i++) {
     // Correct Eloss for last 3 rings of TEC (thick sensors, 0.05 cm)
     // Disgusting fudge factor !
     makePSimHits(i->first, i->second, theHitMap, trackID, eloss, thickness, partID, tTopo);
@@ -576,7 +576,7 @@ void TrajectoryManager::makePSimHits(const GeomDet* det,
                                      const TrackerTopology* tTopo) {
   std::vector<const GeomDet*> comp = det->components();
   if (!comp.empty()) {
-    for (std::vector<const GeomDet*>::const_iterator i = comp.begin(); i != comp.end(); i++) {
+    for (auto i = comp.begin(); i != comp.end(); i++) {
       auto du = (*i);
       if (du->isLeaf())  // not even needed (or it should iterate if really not leaf)
         theHitMap.insert(theHitMap.end(), makeSinglePSimHit(*du, ts, tkID, el, thick, pID, tTopo));
@@ -784,8 +784,7 @@ void TrajectoryManager::initializeLayerMap() {
   const float zTolerance = 3.;
 
   LogDebug("FastTracking") << "Dump of TrackerInteractionGeometry cylinders:";
-  for (std::list<TrackerLayer>::const_iterator i = _theGeometry->cylinderBegin(); i != _theGeometry->cylinderEnd();
-       ++i) {
+  for (auto i = _theGeometry->cylinderBegin(); i != _theGeometry->cylinderEnd(); ++i) {
     const BoundCylinder* cyl = i->cylinder();
     const BoundDisk* disk = i->disk();
 
@@ -849,11 +848,11 @@ const DetLayer* TrajectoryManager::detLayer(const TrackerLayer& layer, float zpo
 }
 
 void TrajectoryManager::loadSimHits(edm::PSimHitContainer& c) const {
-  std::map<unsigned, std::map<double, PSimHit> >::const_iterator itrack = thePSimHits.begin();
-  std::map<unsigned, std::map<double, PSimHit> >::const_iterator itrackEnd = thePSimHits.end();
+  auto itrack = thePSimHits.begin();
+  auto itrackEnd = thePSimHits.end();
   for (; itrack != itrackEnd; ++itrack) {
-    std::map<double, PSimHit>::const_iterator it = (itrack->second).begin();
-    std::map<double, PSimHit>::const_iterator itEnd = (itrack->second).end();
+    auto it = (itrack->second).begin();
+    auto itEnd = (itrack->second).end();
     for (; it != itEnd; ++it) {
       /*
 	DetId theDetUnitId((it->second).detUnitId());

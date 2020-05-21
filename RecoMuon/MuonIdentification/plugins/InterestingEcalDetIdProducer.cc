@@ -39,7 +39,7 @@ void InterestingEcalDetIdProducer::produce(edm::Event& iEvent, const edm::EventS
 
   auto interestingDetIdCollection = std::make_unique<DetIdCollection>();
 
-  for (reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
+  for (auto muon = muons->begin(); muon != muons->end(); ++muon) {
     if (!muon->isEnergyValid())
       continue;
     if (muon->calEnergy().ecal_id.rawId() == 0)
@@ -47,7 +47,7 @@ void InterestingEcalDetIdProducer::produce(edm::Event& iEvent, const edm::EventS
     const CaloSubdetectorTopology* topology =
         caloTopology_->getSubdetectorTopology(DetId::Ecal, muon->calEnergy().ecal_id.subdetId());
     const std::vector<DetId>& ids = topology->getWindow(muon->calEnergy().ecal_id, 5, 5);
-    for (std::vector<DetId>::const_iterator id = ids.begin(); id != ids.end(); ++id)
+    for (auto id = ids.begin(); id != ids.end(); ++id)
       if (std::find(interestingDetIdCollection->begin(), interestingDetIdCollection->end(), *id) ==
           interestingDetIdCollection->end())
         interestingDetIdCollection->push_back(*id);

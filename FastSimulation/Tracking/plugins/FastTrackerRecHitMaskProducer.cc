@@ -102,7 +102,7 @@ void FastTrackerRecHitMaskProducer::produce(edm::Event& iEvent, const edm::Event
     for (auto hitIt = track.recHitsBegin(); hitIt != track.recHitsEnd(); ++hitIt) {
       if (!(*hitIt)->isValid())
         continue;
-      const FastTrackerRecHit& hit = static_cast<const FastTrackerRecHit&>(*(*hitIt));
+      const auto& hit = static_cast<const FastTrackerRecHit&>(*(*hitIt));
       // note: for matched hits nIds() returns 2, otherwise 1
       for (unsigned id_index = 0; id_index < hit.nIds(); id_index++) {
         (*collectedHits)[unsigned(hit.id(id_index))] = true;

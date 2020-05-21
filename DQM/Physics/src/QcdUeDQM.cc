@@ -678,7 +678,7 @@ void QcdUeDQM::analyze(const Event &iEvent, const EventSetup &iSetup) {
   // select good tracks
   if (fillVtxPlots(beamSpot.product(), vertexColl)) {
     fill1D(hNevts_, 1);
-    for (reco::TrackCollection::const_iterator Trk = tracks_sort.begin(); Trk != tracks_sort.end(); ++Trk) {
+    for (auto Trk = tracks_sort.begin(); Trk != tracks_sort.end(); ++Trk) {
       if (trackSelection(*Trk, beamSpot.product(), vtx1, vertexColl->size()))
         selected_.push_back(&*Trk);
     }
@@ -935,8 +935,7 @@ bool QcdUeDQM::fillVtxPlots(const reco::BeamSpot *bs, const edm::Handle<reco::Ve
   const reco::VertexCollection theVertices = *(vtxColl.product());
   bool goodVtx = false;
   fill1D(hNvertices_, theVertices.size());
-  for (reco::VertexCollection::const_iterator vertexIt = theVertices.begin(); vertexIt != theVertices.end();
-       ++vertexIt) {
+  for (auto vertexIt = theVertices.begin(); vertexIt != theVertices.end(); ++vertexIt) {
     fill1D(hVertex_z_, vertexIt->z());
     fill1D(hVertex_y_, vertexIt->y());
     fill1D(hVertex_x_, vertexIt->x());
@@ -975,7 +974,7 @@ void QcdUeDQM::fillpTMaxRelated(const std::vector<const reco::Track *> &track) {
 
 void QcdUeDQM::fillChargedJetSpectra(const edm::Handle<reco::TrackJetCollection> trackJets) {
   fill1D(hChargedJetMulti_, trackJets->size());
-  for (reco::TrackJetCollection::const_iterator f = trackJets->begin(); f != trackJets->end(); f++) {
+  for (auto f = trackJets->begin(); f != trackJets->end(); f++) {
     if (f != trackJets->begin())
       continue;
     fill1D(hLeadingChargedJet_pTSpectrum_, f->pt());

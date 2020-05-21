@@ -42,8 +42,7 @@ AlignableSurface AlignableDTStation::computeSurface() {
 AlignableDTStation::PositionType AlignableDTStation::computePosition() {
   float zz = 0.;
 
-  for (std::vector<AlignableDTChamber*>::iterator ilayer = theDTChambers.begin(); ilayer != theDTChambers.end();
-       ilayer++)
+  for (auto ilayer = theDTChambers.begin(); ilayer != theDTChambers.end(); ilayer++)
     zz += (*ilayer)->globalPosition().z();
 
   zz /= static_cast<float>(theDTChambers.size());
@@ -66,8 +65,6 @@ std::ostream& operator<<(std::ostream& os, const AlignableDTStation& b) {
 /// Recursive printout of whole DT Station structure
 void AlignableDTStation::dump(void) const {
   edm::LogInfo("AlignableDump") << (*this);
-  for (std::vector<AlignableDTChamber*>::const_iterator iChamber = theDTChambers.begin();
-       iChamber != theDTChambers.end();
-       iChamber++)
+  for (auto iChamber = theDTChambers.begin(); iChamber != theDTChambers.end(); iChamber++)
     edm::LogInfo("AlignableDump") << (**iChamber);
 }

@@ -143,7 +143,7 @@ CaloGeometryDBEP<CaloTowerGeometry, CaloGeometryDBWriter>::produceAligned(
 
   const auto& caloTopology = iRecord.get(additionalTokens_.topology);
 
-  CaloTowerGeometry* ctg = new CaloTowerGeometry(&caloTopology);
+  auto* ctg = new CaloTowerGeometry(&caloTopology);
 
   const unsigned int nTrParm(tvec.size() / ctg->numberOfCellsForCorners());
 

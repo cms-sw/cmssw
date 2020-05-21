@@ -142,7 +142,7 @@ void RPCConeBuilder::buildCones(RPCGeometry const* rpcGeom,
 
 void RPCConeBuilder::buildConnections(L1RPCConeDefinition const* l1RPCConeDefinition,
                                       RPCStripsRing::TIdToRindMap& ringsMap) {
-  RPCStripsRing::TIdToRindMap::iterator itRef = ringsMap.begin();
+  auto itRef = ringsMap.begin();
   for (; itRef != ringsMap.end(); ++itRef) {  // iterate over reference rings
 
     RPCStripsRing::TOtherConnStructVec ringsToConnect;
@@ -150,7 +150,7 @@ void RPCConeBuilder::buildConnections(L1RPCConeDefinition const* l1RPCConeDefini
     if (!itRef->second.isReferenceRing())
       continue;  // iterate over reference rings
 
-    RPCStripsRing::TIdToRindMap::iterator itOther = ringsMap.begin();
+    auto itOther = ringsMap.begin();
     for (; itOther != ringsMap.end(); ++itOther) {  // iterate over nonreference rings
 
       if (itOther->second.isReferenceRing())

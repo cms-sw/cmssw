@@ -74,9 +74,9 @@ namespace pat {
 
         if (selector_(*ijet) || selectedLoose) {
           // Copy over the calo towers
-          for (CaloTowerFwdPtrVector::const_iterator itowerBegin = ijet->caloTowersFwdPtr().begin(),
-                                                     itowerEnd = ijet->caloTowersFwdPtr().end(),
-                                                     itower = itowerBegin;
+          for (auto itowerBegin = ijet->caloTowersFwdPtr().begin(),
+                    itowerEnd = ijet->caloTowersFwdPtr().end(),
+                    itower = itowerBegin;
                itower != itowerEnd;
                ++itower) {
             // Add to global calo tower list
@@ -84,9 +84,9 @@ namespace pat {
           }
 
           // Copy over the pf candidates
-          for (reco::PFCandidateFwdPtrVector::const_iterator icandBegin = ijet->pfCandidatesFwdPtr().begin(),
-                                                             icandEnd = ijet->pfCandidatesFwdPtr().end(),
-                                                             icand = icandBegin;
+          for (auto icandBegin = ijet->pfCandidatesFwdPtr().begin(),
+                    icandEnd = ijet->pfCandidatesFwdPtr().end(),
+                    icand = icandBegin;
                icand != icandEnd;
                ++icand) {
             // Add to global pf candidate list
@@ -94,9 +94,9 @@ namespace pat {
           }
 
           // Copy the tag infos
-          for (TagInfoFwdPtrCollection::const_iterator iinfoBegin = ijet->tagInfosFwdPtr().begin(),
-                                                       iinfoEnd = ijet->tagInfosFwdPtr().end(),
-                                                       iinfo = iinfoBegin;
+          for (auto iinfoBegin = ijet->tagInfosFwdPtr().begin(),
+                    iinfoEnd = ijet->tagInfosFwdPtr().end(),
+                    iinfo = iinfoBegin;
                iinfo != iinfoEnd;
                ++iinfo) {
             // Add to global calo tower list
@@ -138,9 +138,9 @@ namespace pat {
           patJets->push_back(*ijet);
 
           // Copy over the calo towers
-          for (CaloTowerFwdPtrVector::const_iterator itowerBegin = ijet->caloTowersFwdPtr().begin(),
-                                                     itowerEnd = ijet->caloTowersFwdPtr().end(),
-                                                     itower = itowerBegin;
+          for (auto itowerBegin = ijet->caloTowersFwdPtr().begin(),
+                    itowerEnd = ijet->caloTowersFwdPtr().end(),
+                    itower = itowerBegin;
                itower != itowerEnd;
                ++itower) {
             // Update the "forward" bit of the FwdPtr to point at the new tower collection.
@@ -153,9 +153,9 @@ namespace pat {
           }
 
           // Copy over the pf candidates
-          for (reco::PFCandidateFwdPtrVector::const_iterator icandBegin = ijet->pfCandidatesFwdPtr().begin(),
-                                                             icandEnd = ijet->pfCandidatesFwdPtr().end(),
-                                                             icand = icandBegin;
+          for (auto icandBegin = ijet->pfCandidatesFwdPtr().begin(),
+                    icandEnd = ijet->pfCandidatesFwdPtr().end(),
+                    icand = icandBegin;
                icand != icandEnd;
                ++icand) {
             // Update the "forward" bit of the FwdPtr to point at the new tower collection.
@@ -168,9 +168,9 @@ namespace pat {
           }
 
           // Copy the tag infos
-          for (TagInfoFwdPtrCollection::const_iterator iinfoBegin = ijet->tagInfosFwdPtr().begin(),
-                                                       iinfoEnd = ijet->tagInfosFwdPtr().end(),
-                                                       iinfo = iinfoBegin;
+          for (auto iinfoBegin = ijet->tagInfosFwdPtr().begin(),
+                    iinfoEnd = ijet->tagInfosFwdPtr().end(),
+                    iinfo = iinfoBegin;
                iinfo != iinfoEnd;
                ++iinfo) {
             // Update the "forward" bit of the FwdPtr to point at the new tower collection.

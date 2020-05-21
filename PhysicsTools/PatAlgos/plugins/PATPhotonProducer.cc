@@ -103,7 +103,7 @@ PATPhotonProducer::PATPhotonProducer(const edm::ParameterSet &iConfig)
       // read the different photon ID names
       edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("photonIDSources");
       std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
-      for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
+      for (auto it = names.begin(), ed = names.end(); it != ed; ++it) {
         photIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
       }
     }
@@ -224,7 +224,7 @@ void PATPhotonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
   }
 
   // loop over photons
-  std::vector<Photon> *PATPhotons = new std::vector<Photon>();
+  auto *PATPhotons = new std::vector<Photon>();
   for (edm::View<reco::Photon>::const_iterator itPhoton = photons->begin(); itPhoton != photons->end(); itPhoton++) {
     // construct the Photon from the ref -> save ref to original object
     unsigned int idx = itPhoton - photons->begin();
@@ -286,7 +286,7 @@ void PATPhotonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
 
     unsigned nSelectedCells = selectedCells.size();
     for (unsigned icell = 0; icell < nSelectedCells; ++icell) {
-      EcalRecHitCollection::const_iterator it = recHits->find(selectedCells[icell]);
+      auto it = recHits->find(selectedCells[icell]);
       if (it != recHits->end()) {
         selectedRecHits.push_back(*it);
       }
@@ -318,10 +318,7 @@ void PATPhotonProducer::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
       isolator_.fill(*photons, idx, isolatorTmpStorage_);
       typedef pat::helper::MultiIsolator::IsolationValuePairs IsolationValuePairs;
       // better to loop backwards, so the vector is resized less times
-      for (IsolationValuePairs::const_reverse_iterator it = isolatorTmpStorage_.rbegin(),
-                                                       ed = isolatorTmpStorage_.rend();
-           it != ed;
-           ++it) {
+      for (auto it = isolatorTmpStorage_.rbegin(), ed = isolatorTmpStorage_.rend(); it != ed; ++it) {
         aPhoton.setIsolation(it->first, it->second);
       }
     }

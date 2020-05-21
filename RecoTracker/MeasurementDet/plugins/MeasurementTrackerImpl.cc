@@ -217,7 +217,7 @@ void MeasurementTrackerImpl::initPhase2OTMeasurementConditionSet(std::vector<TkP
 
 void MeasurementTrackerImpl::addDets(const TrackingGeometry::DetContainer& dets, bool subIsPixel, bool subIsOT) {
   //in phase2, we can have composed subDetector made by Pixel or Strip
-  for (TrackerGeometry::DetContainer::const_iterator gd = dets.begin(); gd != dets.end(); gd++) {
+  for (auto gd = dets.begin(); gd != dets.end(); gd++) {
     const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(*gd);
 
     //Pixel or Strip GeomDetUnit
@@ -366,7 +366,7 @@ void MeasurementTrackerImpl::initializeStripStatus(const BadStripCutsDet& badStr
       badStrips.clear();
       if (qualityFlags & BadStrips) {
         SiStripBadStrip::Range range = quality->getRange(detid);
-        for (SiStripBadStrip::ContainerIterator bit = range.first; bit != range.second; ++bit) {
+        for (auto bit = range.first; bit != range.second; ++bit) {
           badStrips.push_back(quality->decode(*bit));
         }
       }
@@ -396,7 +396,7 @@ void MeasurementTrackerImpl::initializePixelStatus(const SiPixelQuality* quality
   if ((quality != nullptr) && (qualityFlags != 0)) {
     edm::LogInfo("MeasurementTracker") << "qualityFlags = " << qualityFlags;
     unsigned int on = 0, tot = 0, badrocs = 0;
-    for (std::vector<TkPixelMeasurementDet>::iterator i = thePixelDets.begin(); i != thePixelDets.end(); i++) {
+    for (auto i = thePixelDets.begin(); i != thePixelDets.end(); i++) {
       uint32_t detid = ((*i).geomDet().geographicalId()).rawId();
       if (qualityFlags & BadModules) {
         bool isOn = quality->IsModuleUsable(detid);
@@ -426,7 +426,7 @@ void MeasurementTrackerImpl::initializePixelStatus(const SiPixelQuality* quality
       edm::LogInfo("MeasurementTracker PixelROCStatus") << " Total of bad ROCs: " << badrocs;
     }
   } else {
-    for (std::vector<TkPixelMeasurementDet>::iterator i = thePixelDets.begin(); i != thePixelDets.end(); i++) {
+    for (auto i = thePixelDets.begin(); i != thePixelDets.end(); i++) {
       (i)->setActive(true);  // module ON
     }
   }

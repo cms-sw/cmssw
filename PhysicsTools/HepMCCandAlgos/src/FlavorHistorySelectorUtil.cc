@@ -42,8 +42,7 @@ bool FlavorHistorySelectorUtil::select(unsigned int nb,
   }
 
   // Next check that the flavor source is one of the desired ones
-  vector<int>::const_iterator iflavorSource =
-      find(flavorSource_.begin(), flavorSource_.end(), static_cast<int>(flavorSource));
+  auto iflavorSource = find(flavorSource_.begin(), flavorSource_.end(), static_cast<int>(flavorSource));
   if (iflavorSource == flavorSource_.end()) {
     if (verbose_)
       cout << "Rejecting event, didn't find flavor source " << static_cast<int>(flavorSource) << endl;

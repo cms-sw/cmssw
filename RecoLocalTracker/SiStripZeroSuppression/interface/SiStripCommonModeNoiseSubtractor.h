@@ -27,7 +27,7 @@ protected:
 
 template <typename T>
 inline float SiStripCommonModeNoiseSubtractor::median(std::vector<T>& sample) {
-  typename std::vector<T>::iterator mid = sample.begin() + sample.size() / 2;
+  auto mid = sample.begin() + sample.size() / 2;
   std::nth_element(sample.begin(), mid, sample.end());
   if (sample.size() & 1)  //odd size
     return *mid;

@@ -375,8 +375,8 @@ void HcalHBHEMuonHighEtaAnalyzer::analyze(const edm::Event& iEvent, const edm::E
     return;
   }
 
-  reco::VertexCollection::const_iterator firstGoodVertex = vtx->end();
-  for (reco::VertexCollection::const_iterator it = vtx->begin(); it != vtx->end(); it++) {
+  auto firstGoodVertex = vtx->end();
+  for (auto it = vtx->begin(); it != vtx->end(); it++) {
     if (isGoodVertex(*it)) {
       if (firstGoodVertex == vtx->end())
         firstGoodVertex = it;
@@ -497,7 +497,7 @@ bool HcalHBHEMuonHighEtaAnalyzer::analyzeMuon(const edm::Event& iEvent, math::XY
   if (_Muon.isValid()) {
     int nTrack(0);
     std::vector<spr::propagatedTrackID> trkCaloDets;
-    for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
+    for (auto RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
       if (RecMuon->innerTrack().isNonnull()) {
         const reco::Track* pTrack = (RecMuon->innerTrack()).get();
         if (std::abs(pTrack->eta()) > etaMin_) {

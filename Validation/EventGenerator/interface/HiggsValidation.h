@@ -50,7 +50,7 @@ private:
     MonitoredDecays(const edm::ParameterSet &iConfig) {
       fillMap();
       std::vector<std::string> input = iConfig.getParameter<std::vector<std::string> >("monitorDecays");
-      for (std::vector<std::string>::const_iterator i = input.begin(); i != input.end(); ++i) {
+      for (auto i = input.begin(); i != input.end(); ++i) {
         fill(*i);
       }
     }
@@ -92,7 +92,7 @@ private:
       pid = abs(pid);
       if (pid == 14 || pid == 16)
         pid = 12;
-      for (std::map<std::string, int>::const_iterator i = namePidMap.begin(); i != namePidMap.end(); ++i) {
+      for (auto i = namePidMap.begin(); i != namePidMap.end(); ++i) {
         if (i->second == pid)
           return i->first;
       }
@@ -103,7 +103,7 @@ private:
 
     int isDecayParticle(int pid) {
       int idx = 0;
-      for (std::map<std::string, int>::const_iterator i = namePidMap.begin(); i != namePidMap.end(); ++i) {
+      for (auto i = namePidMap.begin(); i != namePidMap.end(); ++i) {
         if (i->second == pid)
           return idx;
         idx++;
@@ -113,7 +113,7 @@ private:
 
     std::string ConvertIndex(int index) {
       int idx = 0;
-      for (std::map<std::string, int>::const_iterator i = namePidMap.begin(); i != namePidMap.end(); ++i) {
+      for (auto i = namePidMap.begin(); i != namePidMap.end(); ++i) {
         if (idx == index)
           return i->first;
         idx++;
@@ -147,7 +147,7 @@ private:
       namePidMap["Z"] = 23;
       namePidMap["W"] = 24;
       nparticles_ = 0;
-      for (std::map<std::string, int>::const_iterator i = namePidMap.begin(); i != namePidMap.end(); ++i) {
+      for (auto i = namePidMap.begin(); i != namePidMap.end(); ++i) {
         nparticles_++;
       }
     }

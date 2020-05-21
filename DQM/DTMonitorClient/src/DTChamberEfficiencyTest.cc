@@ -52,8 +52,8 @@ void DTChamberEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     context.get<MuonGeometryRecord>().get(muonGeom);
 
     // Loop over all the chambers
-    vector<const DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
-    vector<const DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
+    auto ch_it = muonGeom->chambers().begin();
+    auto ch_end = muonGeom->chambers().end();
     for (; ch_it != ch_end; ++ch_it) {
       // histo booking
       bookHistos(ibooker, (*ch_it)->id());
@@ -78,8 +78,8 @@ void DTChamberEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   edm::LogVerbatim("DTDQM|DTMonitorClient|DTChamberEfficiencyTest")
       << "[DTChamberEfficiencyTest]: " << nLumiSegs << " updates";
 
-  vector<const DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
-  vector<const DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
+  auto ch_it = muonGeom->chambers().begin();
+  auto ch_end = muonGeom->chambers().end();
 
   edm::LogVerbatim("DTDQM|DTMonitorClient|DTChamberEfficiencyTest")
       << "[DTChamberEfficiencyTest]: ChamberEfficiency tests results";
@@ -142,13 +142,11 @@ void DTChamberEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   // ChamberEfficiency test on X axis
   string XEfficiencyCriterionName =
       parameters.getUntrackedParameter<string>("XEfficiencyTestName", "ChEfficiencyInRangeX");
-  for (map<string, MonitorElement*>::const_iterator hXEff = xEfficiencyHistos.begin(); hXEff != xEfficiencyHistos.end();
-       hXEff++) {
+  for (auto hXEff = xEfficiencyHistos.begin(); hXEff != xEfficiencyHistos.end(); hXEff++) {
     const QReport* theXEfficiencyQReport = (*hXEff).second->getQReport(XEfficiencyCriterionName);
     if (theXEfficiencyQReport) {
       vector<dqm::me_util::Channel> badChannels = theXEfficiencyQReport->getBadChannels();
-      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-           channel++) {
+      for (auto channel = badChannels.begin(); channel != badChannels.end(); channel++) {
         edm::LogError("DTDQM|DTMonitorClient|DTChamberEfficiencyTest")
             << "Chamber : " << (*hXEff).first << " Bad XChamberEfficiency channels: " << (*channel).getBin()
             << "  Contents : " << (*channel).getContents();
@@ -159,13 +157,11 @@ void DTChamberEfficiencyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   // ChamberEfficiency test on Y axis
   string YEfficiencyCriterionName =
       parameters.getUntrackedParameter<string>("YEfficiencyTestName", "ChEfficiencyInRangeY");
-  for (map<string, MonitorElement*>::const_iterator hYEff = yEfficiencyHistos.begin(); hYEff != yEfficiencyHistos.end();
-       hYEff++) {
+  for (auto hYEff = yEfficiencyHistos.begin(); hYEff != yEfficiencyHistos.end(); hYEff++) {
     const QReport* theYEfficiencyQReport = (*hYEff).second->getQReport(YEfficiencyCriterionName);
     if (theYEfficiencyQReport) {
       vector<dqm::me_util::Channel> badChannels = theYEfficiencyQReport->getBadChannels();
-      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-           channel++) {
+      for (auto channel = badChannels.begin(); channel != badChannels.end(); channel++) {
         edm::LogError("DTDQM|DTMonitorClient|DTChamberEfficiencyTest")
             << "Chamber : " << (*hYEff).first << " Bad YChamberEfficiency channels: " << (*channel).getBin()
             << "  Contents : " << (*channel).getContents();

@@ -159,7 +159,7 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
     // first check if the rechit is in the BAD channel list
     bool bad = false;
-    for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); channel++) {
+    for (auto channel = channels.begin(); channel != channels.end(); channel++) {
       if (channel->rawId() == genericID.rawId()) {
         // if the rechit is found in the list, set it bad
         bad = true;

@@ -328,9 +328,7 @@ namespace edm {
         triggerTreeCache_->SetEnablePrefetching(false);
         triggerTreeCache_->SetLearnEntries(0);
         triggerTreeCache_->SetEntryRange(entryNumber, tree_->GetEntries());
-        for (std::unordered_set<TBranch*>::const_iterator it = triggerSet_.begin(), itEnd = triggerSet_.end();
-             it != itEnd;
-             it++) {
+        for (auto it = triggerSet_.begin(), itEnd = triggerSet_.end(); it != itEnd; it++) {
           triggerTreeCache_->AddBranch(*it, kTRUE);
         }
         triggerTreeCache_->StopLearningPhase();

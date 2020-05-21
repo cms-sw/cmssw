@@ -51,7 +51,7 @@ protected:
 //_______________________________________________________________________
 inline double GBRForestD::GetResponse(const float *vector) const {
   double response = fInitialResponse;
-  for (std::vector<GBRTreeD>::const_iterator it = fTrees.begin(); it != fTrees.end(); ++it) {
+  for (auto it = fTrees.begin(); it != fTrees.end(); ++it) {
     int termidx = it->TerminalIndex(vector);
     response += it->GetResponse(termidx);
   }

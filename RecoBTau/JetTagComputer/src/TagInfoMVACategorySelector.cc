@@ -20,7 +20,7 @@ TagInfoMVACategorySelector::TagInfoMVACategorySelector(const edm::ParameterSet &
         << "No such tagging variable \"" << categoryVariable << "\"." << std::endl;
 
   categoryLabels = params.getParameter<std::vector<std::string> >("calibrationRecords");
-  for (std::vector<std::string>::iterator iter = categoryLabels.begin(); iter != categoryLabels.end(); iter++)
+  for (auto iter = categoryLabels.begin(); iter != categoryLabels.end(); iter++)
     if (*iter == " " || *iter == "-" || *iter == "*")
       *iter = "";
 }

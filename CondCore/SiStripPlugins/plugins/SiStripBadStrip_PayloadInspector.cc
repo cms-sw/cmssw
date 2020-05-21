@@ -77,8 +77,7 @@ namespace {
 
           for (const auto& d : detid) {
             SiStripBadStrip::Range range = payload->getRange(d);
-            for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second;
-                 ++badStrip) {
+            for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
               ss << "DetId=" << d << " Strip=" << payload->decode(*badStrip).firstStrip << ":"
                  << payload->decode(*badStrip).range << " flag=" << payload->decode(*badStrip).flag << std::endl;
             }
@@ -143,7 +142,7 @@ namespace {
       std::shared_ptr<SiStripBadStrip> payload = fetchPayload(std::get<1>(iov));
 
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::string titleMap = "Fraction of bad Strips per module (payload : " + std::get<1>(iov) + ")";
 
@@ -158,7 +157,7 @@ namespace {
 
       for (const auto& d : detid) {
         SiStripBadStrip::Range range = payload->getRange(d);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStripsPerDetId[d] += payload->decode(*badStrip).range;
           //ss << "DetId="<< d << " Strip=" << payload->decode(*badStrip).firstStrip <<":"<< payload->decode(*badStrip).range << " flag="<< payload->decode(*badStrip).flag << std::endl;
         }
@@ -197,7 +196,7 @@ namespace {
 
     float getFromPayload(SiStripBadStrip& payload) override {
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -207,7 +206,7 @@ namespace {
       for (const auto& d : detid) {
         SiStripBadStrip::Range range = payload.getRange(d);
         int badStrips(0);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStrips += payload.decode(*badStrip).range;
         }
         badStripsPerDetId[d] = badStrips;
@@ -240,7 +239,7 @@ namespace {
 
     float getFromPayload(SiStripBadStrip& payload) override {
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -250,7 +249,7 @@ namespace {
       for (const auto& d : detid) {
         SiStripBadStrip::Range range = payload.getRange(d);
         int badStrips(0);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStrips += payload.decode(*badStrip).range;
         }
         badStripsPerDetId[d] = badStrips;
@@ -286,7 +285,7 @@ namespace {
 
     float getFromPayload(SiStripBadStrip& payload) override {
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -296,7 +295,7 @@ namespace {
       for (const auto& d : detid) {
         SiStripBadStrip::Range range = payload.getRange(d);
         int badStrips(0);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStrips += payload.decode(*badStrip).range;
         }
         badStripsPerDetId[d] = badStrips;
@@ -332,7 +331,7 @@ namespace {
 
     float getFromPayload(SiStripBadStrip& payload) override {
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -342,7 +341,7 @@ namespace {
       for (const auto& d : detid) {
         SiStripBadStrip::Range range = payload.getRange(d);
         int badStrips(0);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStrips += payload.decode(*badStrip).range;
         }
         badStripsPerDetId[d] = badStrips;
@@ -378,7 +377,7 @@ namespace {
 
     float getFromPayload(SiStripBadStrip& payload) override {
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::vector<uint32_t> detid;
       payload.getDetIds(detid);
@@ -388,7 +387,7 @@ namespace {
       for (const auto& d : detid) {
         SiStripBadStrip::Range range = payload.getRange(d);
         int badStrips(0);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStrips += payload.decode(*badStrip).range;
         }
         badStripsPerDetId[d] = badStrips;
@@ -437,7 +436,7 @@ namespace {
       for (const auto& d : detid) {
         SiStripBadStrip::Range range = payload->getRange(d);
         int badStrips(0);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStrips += payload->decode(*badStrip).range;
         }
         totalBadStrips += badStrips;
@@ -583,7 +582,7 @@ namespace {
       for (const auto& d : detid) {
         SiStripBadStrip::Range range = last_payload->getRange(d);
         int badStrips(0);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStrips += last_payload->decode(*badStrip).range;
         }
         totalLastBadStrips += badStrips;
@@ -602,7 +601,7 @@ namespace {
       for (const auto& d : detid) {
         SiStripBadStrip::Range range = first_payload->getRange(d);
         int badStrips(0);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           badStrips += first_payload->decode(*badStrip).range;
         }
         totalFirstBadStrips += badStrips;
@@ -793,7 +792,7 @@ namespace {
       std::string firstIOVsince = std::to_string(std::get<0>(firstiov));
 
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::string titleMap =
           "#Delta fraction of bad Strips per module (IOV:" + lastIOVsince + " - IOV:" + firstIOVsince + ")";
@@ -810,7 +809,7 @@ namespace {
 
       for (const auto& d : detid1) {
         SiStripBadStrip::Range range = last_payload->getRange(d);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           LastFractionPerDetId[d] += last_payload->decode(*badStrip).range;
         }
         // normalize to the number of strips per module
@@ -824,7 +823,7 @@ namespace {
 
       for (const auto& d : detid2) {
         SiStripBadStrip::Range range = first_payload->getRange(d);
-        for (std::vector<unsigned int>::const_iterator badStrip = range.first; badStrip != range.second; ++badStrip) {
+        for (auto badStrip = range.first; badStrip != range.second; ++badStrip) {
           FirstFractionPerDetId[d] += first_payload->decode(*badStrip).range;
         }
         // normalize to the number of strips per module

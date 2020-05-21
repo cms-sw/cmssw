@@ -153,7 +153,7 @@ namespace fwlite {
     edm::TypeID type(iInfo);
     internal::DataKey key(type, iModuleLabel, iProductInstanceLabel, iProcessLabel);
 
-    KeyToDataMap::iterator itFind = data_.find(key);
+    auto itFind = data_.find(key);
     if (itFind == data_.end()) {
       //see if such a branch actually exists
       std::string const sep("_");
@@ -171,8 +171,7 @@ namespace fwlite {
         std::string const* lastLabel = nullptr;
         //have to search in reverse order since newest are on the bottom
         const edm::ProcessHistory& h = DataGetterHelper::history();
-        for (edm::ProcessHistory::const_reverse_iterator iproc = h.rbegin(), eproc = h.rend(); iproc != eproc;
-             ++iproc) {
+        for (auto iproc = h.rbegin(), eproc = h.rend(); iproc != eproc; ++iproc) {
           lastLabel = &(iproc->processName());
           branch = findBranch(tree_, name, iproc->processName());
           if (nullptr != branch) {
@@ -343,7 +342,7 @@ namespace fwlite {
   edm::WrapperBase const* DataGetterHelper::getByProductID(edm::ProductID const& iID, Long_t eventEntry) const {
     typedef std::pair<edm::ProductID, edm::BranchListIndex> IDPair;
     IDPair theID = std::make_pair(iID, branchMap_->branchListIndexes()[iID.processIndex() - 1]);
-    std::map<IDPair, std::shared_ptr<internal::Data> >::const_iterator itFound = idToData_.find(theID);
+    auto itFound = idToData_.find(theID);
 
     if (itFound == idToData_.end()) {
       edm::BranchDescription const& bDesc = branchMap_->productToBranch(iID);
@@ -531,8 +530,7 @@ namespace fwlite {
       throw edm::Exception(edm::errors::LogicError)
           << "DataGetterHelper::getThinnedAssociation, product has wrong type, not a ThinnedAssociation.\n";
     }
-    edm::Wrapper<edm::ThinnedAssociation> const* wrapper =
-        static_cast<edm::Wrapper<edm::ThinnedAssociation> const*>(wrapperBase);
+    auto const* wrapper = static_cast<edm::Wrapper<edm::ThinnedAssociation> const*>(wrapperBase);
 
     edm::ThinnedAssociation const* thinnedAssociation = wrapper->product();
     return thinnedAssociation;

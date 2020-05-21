@@ -104,7 +104,7 @@ SiPixelQualityHistory::SiPixelQualityHistory(const edm::ParameterSet& iConfig)
 
   edm::Service<TFileService> tfserv;
 
-  for (std::vector<edm::ParameterSet>::const_iterator ps = m_monitoredspq.begin(); ps != m_monitoredspq.end(); ++ps) {
+  for (auto ps = m_monitoredspq.begin(); ps != m_monitoredspq.end(); ++ps) {
     std::string name = ps->getParameter<std::string>("name");
 
     if (m_run)
@@ -131,7 +131,7 @@ SiPixelQualityHistory::~SiPixelQualityHistory() {
 void SiPixelQualityHistory::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   //  edm::LogInfo("EventProcessing") << "event being processed";
 
-  for (std::vector<edm::ParameterSet>::const_iterator ps = m_monitoredspq.begin(); ps != m_monitoredspq.end(); ++ps) {
+  for (auto ps = m_monitoredspq.begin(); ps != m_monitoredspq.end(); ++ps) {
     std::string name = ps->getParameter<std::string>("name");
     std::string label = ps->getParameter<std::string>("spqLabel");
 
@@ -148,7 +148,7 @@ void SiPixelQualityHistory::analyze(const edm::Event& iEvent, const edm::EventSe
 
       LogDebug("BadComponents") << bads.size() << " bad components found";
 
-      for (std::vector<SiPixelQuality::disabledModuleType>::const_iterator bc = bads.begin(); bc != bads.end(); ++bc) {
+      for (auto bc = bads.begin(); bc != bads.end(); ++bc) {
         if (m_mode == Module) {
           if (spq->IsModuleBad(bc->DetID))
             ++nbad;
@@ -172,7 +172,7 @@ void SiPixelQualityHistory::beginRun(const edm::Run& iRun, const edm::EventSetup
 
   // loop on all the SiPixelQuality objects to be monitored
 
-  for (std::vector<edm::ParameterSet>::const_iterator ps = m_monitoredspq.begin(); ps != m_monitoredspq.end(); ++ps) {
+  for (auto ps = m_monitoredspq.begin(); ps != m_monitoredspq.end(); ++ps) {
     std::string name = ps->getParameter<std::string>("name");
     std::string label = ps->getParameter<std::string>("spqLabel");
 
@@ -198,8 +198,7 @@ void SiPixelQualityHistory::beginRun(const edm::Run& iRun, const edm::EventSetup
 
         LogDebug("BadComponents") << bads.size() << " bad components found";
 
-        for (std::vector<SiPixelQuality::disabledModuleType>::const_iterator bc = bads.begin(); bc != bads.end();
-             ++bc) {
+        for (auto bc = bads.begin(); bc != bads.end(); ++bc) {
           if (m_mode == Module) {
             if (spq->IsModuleBad(bc->DetID))
               ++nbad;

@@ -83,8 +83,8 @@ void CherenkovAnalysis::analyze(const edm::Event &iEvent, const edm::EventSetup 
   double totalEnergy = 0;
 
   // Loop on all hits and calculate total energy loss
-  edm::PCaloHitContainer::const_iterator it = pCaloHits.product()->begin();
-  edm::PCaloHitContainer::const_iterator itend = pCaloHits.product()->end();
+  auto it = pCaloHits.product()->begin();
+  auto itend = pCaloHits.product()->end();
   for (; it != itend; ++it) {
     totalEnergy += (*it).energy();
     hTimeStructure_->Fill((*it).time(),

@@ -10,7 +10,7 @@ namespace hcaldqm {
       if (_etype != fHcalElectronicsMap) {
         if (_etype == fD2EHashMap) {
           std::vector<HcalElectronicsId> eids = emap->allElectronicsIdPrecision();
-          for (std::vector<HcalElectronicsId>::const_iterator it = eids.begin(); it != eids.end(); ++it) {
+          for (auto it = eids.begin(); it != eids.end(); ++it) {
             HcalGenericDetId did = HcalGenericDetId(_emap->lookup(*it));
             EMapType::iterator dit = _ids.find(did.rawId());
             if (dit != _ids.end())
@@ -23,7 +23,7 @@ namespace hcaldqm {
         } else if (_etype == fT2EHashMap) {
           //	HcalTrigTowerDetId -> HcalElectronicsId
           std::vector<HcalTrigTowerDetId> tids = emap->allTriggerId();
-          for (std::vector<HcalTrigTowerDetId>::const_iterator it = tids.begin(); it != tids.end(); ++it) {
+          for (auto it = tids.begin(); it != tids.end(); ++it) {
             HcalElectronicsId eid = _emap->lookupTrigger(*it);
             uint32_t hash = it->rawId();
             EMapType::iterator eit = _ids.find(hash);
@@ -35,7 +35,7 @@ namespace hcaldqm {
         } else if (_etype == fE2DHashMap) {
           //	HcalElectronicId -> HcalDetId hash map
           std::vector<HcalElectronicsId> eids = emap->allElectronicsIdPrecision();
-          for (std::vector<HcalElectronicsId>::const_iterator it = eids.begin(); it != eids.end(); ++it) {
+          for (auto it = eids.begin(); it != eids.end(); ++it) {
             HcalGenericDetId did = HcalGenericDetId(_emap->lookup(*it));
             uint32_t hash = it->rawId();
             EMapType::iterator eit = _ids.find(hash);
@@ -48,7 +48,7 @@ namespace hcaldqm {
         } else if (_etype == fE2THashMap) {
           //	HcalElectronicId -> HcalDetId hash map
           std::vector<HcalElectronicsId> eids = emap->allElectronicsIdTrigger();
-          for (std::vector<HcalElectronicsId>::const_iterator it = eids.begin(); it != eids.end(); ++it) {
+          for (auto it = eids.begin(); it != eids.end(); ++it) {
             HcalTrigTowerDetId tid = HcalTrigTowerDetId(_emap->lookupTrigger(*it));
             EMapType::iterator eit = _ids.find(it->rawId());
             if (eit != _ids.end())
@@ -74,7 +74,7 @@ namespace hcaldqm {
       if (_etype != fHcalElectronicsMap) {
         if (_etype == fD2EHashMap) {
           std::vector<HcalElectronicsId> eids = emap->allElectronicsIdPrecision();
-          for (std::vector<HcalElectronicsId>::const_iterator it = eids.begin(); it != eids.end(); ++it) {
+          for (auto it = eids.begin(); it != eids.end(); ++it) {
             HcalGenericDetId did = HcalGenericDetId(_emap->lookup(*it));
             if (filter.filter(*it))
               continue;
@@ -86,7 +86,7 @@ namespace hcaldqm {
           }
         } else if (_etype == fT2EHashMap) {
           std::vector<HcalElectronicsId> eids = emap->allElectronicsIdTrigger();
-          for (std::vector<HcalElectronicsId>::const_iterator it = eids.begin(); it != eids.end(); ++it) {
+          for (auto it = eids.begin(); it != eids.end(); ++it) {
             if (filter.filter(*it))
               continue;
             HcalTrigTowerDetId tid = emap->lookupTrigger(*it);
@@ -94,7 +94,7 @@ namespace hcaldqm {
           }
         } else if (_etype == fE2DHashMap) {
           std::vector<HcalElectronicsId> eids = emap->allElectronicsIdPrecision();
-          for (std::vector<HcalElectronicsId>::const_iterator it = eids.begin(); it != eids.end(); ++it) {
+          for (auto it = eids.begin(); it != eids.end(); ++it) {
             HcalGenericDetId did = HcalGenericDetId(_emap->lookup(*it));
             uint32_t hash = hashfunctions::hash_EChannel(*it);
             if (filter.filter(*it))
@@ -108,7 +108,7 @@ namespace hcaldqm {
           }
         } else if (_etype == fE2THashMap) {
           std::vector<HcalElectronicsId> eids = emap->allElectronicsIdTrigger();
-          for (std::vector<HcalElectronicsId>::const_iterator it = eids.begin(); it != eids.end(); ++it) {
+          for (auto it = eids.begin(); it != eids.end(); ++it) {
             if (filter.filter(*it))
               continue;
             HcalTrigTowerDetId tid = emap->lookupTrigger(*it);

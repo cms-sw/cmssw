@@ -22,7 +22,7 @@ void MeasurementTiltmeter::calculateSimulatedValue(ALIbool firstTime) {
     printStartCalculateSimulatedValue(this);  // important for Examples/FakeMeas
 
   //--------- Check there is only one OptO of type 'tiltmeter'
-  std::vector<OpticalObject*>::const_iterator vocite = OptOList().begin();
+  auto vocite = OptOList().begin();
   if (OptOList().size() != 1 || (*vocite)->type() == "distancemeter") {
     std::cerr << "!!! ERROR in MeasurementTiltmeter: " << name()
               << " There should only be one object of type 'tiltmeter' " << std::endl;

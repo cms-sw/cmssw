@@ -178,7 +178,7 @@ void FEConfigLUTGroupDat::writeArrayDB(const std::map<EcalLogicID, FEConfigLUTGr
   const FEConfigLUTGroupDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, FEConfigLUTGroupDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
+  for (auto p = data->begin(); p != data->end(); ++p) {
     dataitem = &(p->second);
     int x = dataitem->getLUTGroupId();
 

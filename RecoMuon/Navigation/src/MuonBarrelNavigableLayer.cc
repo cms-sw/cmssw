@@ -99,19 +99,19 @@ std::vector<const DetLayer*> MuonBarrelNavigableLayer::compatibleLayers(const Fr
 }
 
 void MuonBarrelNavigableLayer::pushResult(std::vector<const DetLayer*>& result, const MapB& map) const {
-  for (MapBI i = map.begin(); i != map.end(); i++)
+  for (auto i = map.begin(); i != map.end(); i++)
     result.push_back((*i).first);
 }
 
 void MuonBarrelNavigableLayer::pushResult(std::vector<const DetLayer*>& result, const MapE& map) const {
-  for (MapEI i = map.begin(); i != map.end(); i++)
+  for (auto i = map.begin(); i != map.end(); i++)
     result.push_back((*i).first);
 }
 
 void MuonBarrelNavigableLayer::pushResult(std::vector<const DetLayer*>& result,
                                           const MapB& map,
                                           const FreeTrajectoryState& fts) const {
-  for (MapBI i = map.begin(); i != map.end(); i++)
+  for (auto i = map.begin(); i != map.end(); i++)
     if ((*i).second.isInside(fts.position().eta()))
       result.push_back((*i).first);
 }
@@ -119,7 +119,7 @@ void MuonBarrelNavigableLayer::pushResult(std::vector<const DetLayer*>& result,
 void MuonBarrelNavigableLayer::pushResult(std::vector<const DetLayer*>& result,
                                           const MapE& map,
                                           const FreeTrajectoryState& fts) const {
-  for (MapEI i = map.begin(); i != map.end(); i++)
+  for (auto i = map.begin(); i != map.end(); i++)
     if ((*i).second.isInside(fts.position().eta()))
       result.push_back((*i).first);
 }
@@ -128,7 +128,7 @@ void MuonBarrelNavigableLayer::pushCompatibleResult(std::vector<const DetLayer*>
                                                     const MapB& map,
                                                     const FreeTrajectoryState& fts) const {
   MuonEtaRange range = trackingRange(fts);
-  for (MapBI i = map.begin(); i != map.end(); i++)
+  for (auto i = map.begin(); i != map.end(); i++)
     if ((*i).second.isCompatible(range))
       result.push_back((*i).first);
 }
@@ -137,7 +137,7 @@ void MuonBarrelNavigableLayer::pushCompatibleResult(std::vector<const DetLayer*>
                                                     const MapE& map,
                                                     const FreeTrajectoryState& fts) const {
   MuonEtaRange range = trackingRange(fts);
-  for (MapEI i = map.begin(); i != map.end(); i++)
+  for (auto i = map.begin(); i != map.end(); i++)
     if ((*i).second.isCompatible(range))
       result.push_back((*i).first);
 }

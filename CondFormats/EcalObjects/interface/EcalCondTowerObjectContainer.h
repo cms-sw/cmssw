@@ -49,7 +49,7 @@ public:
   inline const_iterator find(uint32_t rawId) const {
     DetId id(rawId);
     if (id.subdetId() == EcalBarrel || id.subdetId() == EcalTriggerTower) {
-      const_iterator it = eb_.find(rawId);
+      auto it = eb_.find(rawId);
       if (it != eb_.end()) {
         return it;
       } else {

@@ -153,7 +153,7 @@ void HiSpikeCleaner::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
     const reco::CaloClusterPtr seed = aClus->seed();
     DetId id = lazyTool.getMaximum(*seed).first;
     const EcalRecHitCollection& rechits = *pRecHitsB;
-    EcalRecHitCollection::const_iterator it = rechits.find(id);
+    auto it = rechits.find(id);
 
     if (it != rechits.end()) {
       ecalSevLvlAlgoHndl->severityLevel(id, rechits);

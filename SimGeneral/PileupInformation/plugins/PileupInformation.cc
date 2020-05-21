@@ -206,9 +206,9 @@ void PileupInformation::produce(edm::Event& event, const edm::EventSetup& setup)
   //  bool flag_new = false;
 
   std::vector<int>::iterator BXIter;
-  std::vector<int>::iterator InteractionsIter = Interactions_Xing.begin();
-  std::vector<float>::iterator TInteractionsIter = TrueInteractions_Xing.begin();
-  std::vector<std::vector<edm::EventID> >::iterator TEventInfoIter = eventInfoList_Xing.begin();
+  auto InteractionsIter = Interactions_Xing.begin();
+  auto TInteractionsIter = TrueInteractions_Xing.begin();
+  auto TEventInfoIter = eventInfoList_Xing.begin();
 
   std::vector<std::vector<float> >::iterator zPosIter;
   std::vector<std::vector<float> >::iterator tPosIter;
@@ -258,7 +258,7 @@ void PileupInformation::produce(edm::Event& event, const edm::EventSetup& setup)
 
       // next loop over tracks to get information
 
-      for (TrackingParticleCollection::const_iterator iTrack = iTrackTest; iTrack != mergedPH->end(); ++iTrack) {
+      for (auto iTrack = iTrackTest; iTrack != mergedPH->end(); ++iTrack) {
         bool FoundTrk = false;
 
         float zpos = 0.;

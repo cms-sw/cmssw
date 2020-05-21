@@ -63,14 +63,14 @@ void EcalFenixStripFormatEE::setParameters(uint32_t id,
                                            const EcalTPGSlidingWindow *&slWin,
                                            const EcalTPGStripStatus *stripStatus) {
   const EcalTPGSlidingWindowMap &slwinmap = slWin->getMap();
-  EcalTPGSlidingWindowMapIterator it = slwinmap.find(id);
+  auto it = slwinmap.find(id);
   if (it != slwinmap.end())
     shift_ = (*it).second;
   else
     edm::LogWarning("EcalTPG") << " could not find EcalTPGSlidingWindowMap entry for " << id;
 
   const EcalTPGStripStatusMap &statusMap = stripStatus->getMap();
-  EcalTPGStripStatusMapIterator sit = statusMap.find(id);
+  auto sit = statusMap.find(id);
   if (sit != statusMap.end()) {
     stripStatus_ = (*sit).second;
   } else {

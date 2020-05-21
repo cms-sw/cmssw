@@ -27,7 +27,7 @@ FTFPCMS_INCLXX_EMM::FTFPCMS_INCLXX_EMM(const edm::ParameterSet& p) : PhysicsList
     RegisterPhysics(new CMSEmStandardPhysicsLPM(ver));
 
     // Synchroton Radiation & GN Physics
-    G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);
+    auto* gn = new G4EmExtraPhysics(ver);
     RegisterPhysics(gn);
   }
 
@@ -51,7 +51,7 @@ FTFPCMS_INCLXX_EMM::FTFPCMS_INCLXX_EMM(const edm::ParameterSet& p) : PhysicsList
 
     // Neutron tracking cut
     if (tracking) {
-      G4NeutronTrackingCut* ncut = new G4NeutronTrackingCut(ver);
+      auto* ncut = new G4NeutronTrackingCut(ver);
       ncut->SetTimeLimit(timeLimit);
       RegisterPhysics(ncut);
     }

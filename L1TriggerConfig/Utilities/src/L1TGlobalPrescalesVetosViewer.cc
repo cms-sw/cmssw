@@ -110,8 +110,7 @@ void L1TGlobalPrescalesVetosViewer::analyze(const edm::Event& iEvent, const edm:
   }
 
   size_t len_bxmask_map_ = 0;
-  for (std::map<int, std::vector<int> >::const_iterator it = (ptr->bxmask_map_).begin(); it != (ptr->bxmask_map_).end();
-       it++) {
+  for (auto it = (ptr->bxmask_map_).begin(); it != (ptr->bxmask_map_).end(); it++) {
     len_bxmask_map_ += it->second.size();
     if (bxmask_map_verbosity == 1) {
       int masks[it->second.size()];
@@ -132,8 +131,7 @@ void L1TGlobalPrescalesVetosViewer::analyze(const edm::Event& iEvent, const edm:
   }
   int bxmask_map_[len_bxmask_map_];
   size_t pos = 0;
-  for (std::map<int, std::vector<int> >::const_iterator it = (ptr->bxmask_map_).begin(); it != (ptr->bxmask_map_).end();
-       it++) {
+  for (auto it = (ptr->bxmask_map_).begin(); it != (ptr->bxmask_map_).end(); it++) {
     for (size_t i = 0; i < it->second.size(); i++, pos++)
       bxmask_map_[pos] = it->second[i];
   }

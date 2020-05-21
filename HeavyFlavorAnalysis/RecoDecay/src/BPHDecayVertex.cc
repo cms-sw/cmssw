@@ -129,8 +129,8 @@ const vector<const reco::Track*>& BPHDecayVertex::tracks() const {
 const reco::Track* BPHDecayVertex::getTrack(const reco::Candidate* cand) const {
   if (oldTracks)
     tTracks();
-  map<const reco::Candidate*, const reco::Track*>::const_iterator iter = tkMap.find(cand);
-  map<const reco::Candidate*, const reco::Track*>::const_iterator iend = tkMap.end();
+  auto iter = tkMap.find(cand);
+  auto iend = tkMap.end();
   return (iter != iend ? iter->second : nullptr);
 }
 
@@ -143,8 +143,8 @@ const vector<reco::TransientTrack>& BPHDecayVertex::transientTracks() const {
 reco::TransientTrack* BPHDecayVertex::getTransientTrack(const reco::Candidate* cand) const {
   if (oldTracks)
     tTracks();
-  map<const reco::Candidate*, reco::TransientTrack*>::const_iterator iter = ttMap.find(cand);
-  map<const reco::Candidate*, reco::TransientTrack*>::const_iterator iend = ttMap.end();
+  auto iter = ttMap.find(cand);
+  auto iend = ttMap.end();
   return (iter != iend ? iter->second : nullptr);
 }
 
@@ -153,7 +153,7 @@ const edm::EventSetup* BPHDecayVertex::getEventSetup() const { return evSetup; }
 
 const string& BPHDecayVertex::getTrackSearchList(const reco::Candidate* cand) const {
   static string dum = "";
-  map<const reco::Candidate*, string>::const_iterator iter = searchMap.find(cand);
+  auto iter = searchMap.find(cand);
   if (iter != searchMap.end())
     return iter->second;
   return dum;
@@ -199,7 +199,7 @@ void BPHDecayVertex::tTracks() const {
       continue;
     const reco::Track* tp;
     const char* searchList = "cfhp";
-    map<const reco::Candidate*, string>::const_iterator iter = searchMap.find(rp);
+    auto iter = searchMap.find(rp);
     if (iter != searchMap.end())
       searchList = iter->second.c_str();
     tp = BPHTrackReference::getTrack(*originalReco(rp), searchList);

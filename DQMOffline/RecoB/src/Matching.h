@@ -18,9 +18,9 @@ namespace btag {
     Matching(const V1 &v1, const V2 &v2, Separation separation)
         : matrix(v1.size(), v2.size()), matched1(v1.size(), false), matched2(v2.size(), false) {
       index_type i = 0;
-      for (typename V1::const_iterator iter1 = v1.begin(); iter1 != v1.end(); ++iter1, ++i) {
+      for (auto iter1 = v1.begin(); iter1 != v1.end(); ++iter1, ++i) {
         index_type j = 0;
-        for (typename V2::const_iterator iter2 = v2.begin(); iter2 != v2.end(); ++iter2, ++j)
+        for (auto iter2 = v2.begin(); iter2 != v2.end(); ++iter2, ++j)
           matrix(i, j) = separation(*iter1, *iter2);
       }
     }
@@ -66,7 +66,7 @@ namespace btag {
 
       std::vector<Match> result;
       result.reserve(std::min(matrix.rows(), matrix.cols()));
-      for (typename std::vector<index_type>::const_iterator iter = matches.begin(); iter != matches.end(); ++iter) {
+      for (auto iter = matches.begin(); iter != matches.end(); ++iter) {
         index_type row = matrix.row(*iter);
         index_type col = matrix.col(*iter);
         if (matched1[row] || matched2[col])

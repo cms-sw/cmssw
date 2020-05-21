@@ -82,7 +82,7 @@ void HSCPHLTFilter::endJob() {}
 bool HSCPHLTFilter::isDuplicate(unsigned int Run, unsigned int Event) {
   char tmp[255];
   sprintf(tmp, "%i_%i", Run, Event);
-  std::map<std::string, bool>::iterator it = DuplicateMap.find(std::string(tmp));
+  auto it = DuplicateMap.find(std::string(tmp));
   if (it == DuplicateMap.end()) {
     DuplicateMap[std::string(tmp)] = true;
     return false;

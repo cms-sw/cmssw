@@ -116,7 +116,7 @@ void HTTTopJetProducer::runAlgorithm(edm::Event& iEvent, const edm::EventSetup& 
 
   fastjet::HEPTopTaggerV2& HEPTagger = *fjHEPTopTagger_;
 
-  vector<fastjet::PseudoJet>::iterator jetIt = centralJets.begin(), centralJetsEnd = centralJets.end();
+  auto jetIt = centralJets.begin(), centralJetsEnd = centralJets.end();
   if (verbose_)
     cout << "Loop over jets" << endl;
   for (; jetIt != centralJetsEnd; ++jetIt) {
@@ -151,7 +151,7 @@ void HTTTopJetProducer::addHTTTopJetTagInfoCollection(edm::Event& iEvent,
     edm::Ref<reco::BasicJetCollection> ref(oh, ij);
     edm::RefToBase<reco::Jet> rtb(ref);
 
-    fastjet::HEPTopTaggerV2Structure* s = (fastjet::HEPTopTaggerV2Structure*)fjJets_[ij].structure_non_const_ptr();
+    auto* s = (fastjet::HEPTopTaggerV2Structure*)fjJets_[ij].structure_non_const_ptr();
 
     properties.fjMass = s->fj_mass();
     properties.fjPt = s->fj_pt();

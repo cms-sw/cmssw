@@ -5,7 +5,7 @@ using namespace edm;
 using namespace std;
 
 const reco::TrackBaseRef toTrackRef(const edm::Ptr<reco::Candidate> &cnd) {
-  const reco::PFCandidate *pfcand = dynamic_cast<const reco::PFCandidate *>(cnd.get());
+  const auto *pfcand = dynamic_cast<const reco::PFCandidate *>(cnd.get());
 
   if ((std::abs(pfcand->pdgId()) == 11 || pfcand->pdgId() == 22) && pfcand->gsfTrackRef().isNonnull() &&
       pfcand->gsfTrackRef().isAvailable())
@@ -238,7 +238,7 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event &iEvent, const ed
   // -----------------------
 
   // -------- Loop Over Jets ----------
-  for (pat::JetCollection::const_iterator jet = patJetsColl->begin(); jet != patJetsColl->end(); ++jet) {
+  for (auto jet = patJetsColl->begin(); jet != patJetsColl->end(); ++jet) {
     if (jet->pt() < minJetPt_ || std::fabs(jet->eta()) > maxJetEta_)
       continue;
 

@@ -199,7 +199,7 @@ void TCMETAlgo::initialize_MET_with_PFClusters(edm::Event& event) {
 
   edm::Handle<reco::PFClusterCollection> clustersECAL;
   event.getByToken(clustersECALToken_, clustersECAL);
-  for (reco::PFClusterCollection::const_iterator it = clustersECAL->begin(); it != clustersECAL->end(); it++) {
+  for (auto it = clustersECAL->begin(); it != clustersECAL->end(); it++) {
     const math::XYZPoint& cluster_pos = it->position();
     double et = it->energy() / cosh(cluster_pos.eta());
     pfcmet_x -= et * cos(cluster_pos.phi());
@@ -209,7 +209,7 @@ void TCMETAlgo::initialize_MET_with_PFClusters(edm::Event& event) {
 
   edm::Handle<reco::PFClusterCollection> clustersHCAL;
   event.getByToken(clustersHCALToken_, clustersHCAL);
-  for (reco::PFClusterCollection::const_iterator it = clustersHCAL->begin(); it != clustersHCAL->end(); it++) {
+  for (auto it = clustersHCAL->begin(); it != clustersHCAL->end(); it++) {
     if (it->layer() == PFLayer::HCAL_BARREL2)
       continue;  //skip HO
 
@@ -222,7 +222,7 @@ void TCMETAlgo::initialize_MET_with_PFClusters(edm::Event& event) {
 
   edm::Handle<reco::PFClusterCollection> clustersHF;
   event.getByToken(clustersHFToken_, clustersHF);
-  for (reco::PFClusterCollection::const_iterator it = clustersHF->begin(); it != clustersHF->end(); it++) {
+  for (auto it = clustersHF->begin(); it != clustersHF->end(); it++) {
     const math::XYZPoint& cluster_pos = it->position();
     double et = it->energy() / cosh(cluster_pos.eta());
     pfcmet_x -= et * cos(cluster_pos.phi());
@@ -457,9 +457,7 @@ bool TCMETAlgo::closeToElectron(const reco::TrackRef track) {
   float trk_phi = track->phi();
   LorentzVector tk_p4(track->px(), track->py(), track->pz(), track->p());
 
-  for (reco::GsfElectronCollection::const_iterator electron_it = electronHandle_->begin();
-       electron_it != electronHandle_->end();
-       ++electron_it) {
+  for (auto electron_it = electronHandle_->begin(); electron_it != electronHandle_->end(); ++electron_it) {
     if (electron_it->hadronicOverEm() > hOverECut_)
       continue;
 
@@ -545,7 +543,7 @@ int TCMETAlgo::nLayers(const reco::TrackRef track) { return track->hitPattern().
 
 //____________________________________________________________________________||
 bool TCMETAlgo::isMuon(const reco::TrackRef& trackRef) {
-  for (reco::MuonCollection::const_iterator muon_it = muonHandle_->begin(); muon_it != muonHandle_->end(); ++muon_it) {
+  for (auto muon_it = muonHandle_->begin(); muon_it != muonHandle_->end(); ++muon_it) {
     reco::TrackRef mu_track = muon_it->innerTrack();
     unsigned int idxMuon = mu_track.isNonnull() ? mu_track.key() : 99999;
     if (idxMuon == trackRef.key())
@@ -556,9 +554,7 @@ bool TCMETAlgo::isMuon(const reco::TrackRef& trackRef) {
 
 //____________________________________________________________________________||
 bool TCMETAlgo::isElectron(const reco::TrackRef& trackRef) {
-  for (reco::GsfElectronCollection::const_iterator electron_it = electronHandle_->begin();
-       electron_it != electronHandle_->end();
-       ++electron_it) {
+  for (auto electron_it = electronHandle_->begin(); electron_it != electronHandle_->end(); ++electron_it) {
     reco::TrackRef el_track = electron_it->closestCtfTrackRef();
 
     unsigned int ele_idx = el_track.isNonnull() ? el_track.key() : 99999;

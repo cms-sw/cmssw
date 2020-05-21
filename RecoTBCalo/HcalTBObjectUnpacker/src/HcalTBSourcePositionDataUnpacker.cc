@@ -29,7 +29,7 @@ namespace hcaltb {
       throw cms::Exception("Missing Data") << "No data in the source position data block";
     }
 
-    const struct xdaqSourcePositionDataFormat *sp = (const struct xdaqSourcePositionDataFormat *)(raw.data());
+    const auto *sp = (const struct xdaqSourcePositionDataFormat *)(raw.data());
 
     if (raw.size() < sizeof(xdaqSourcePositionDataFormat)) {
       throw cms::Exception("DataFormatError", "Fragment too small");

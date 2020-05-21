@@ -143,7 +143,7 @@ void MonLed1Dat::writeArrayDB(const std::map<EcalLogicID, MonLed1Dat>* data, Mon
   const MonLed1Dat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, MonLed1Dat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
+  for (auto p = data->begin(); p != data->end(); ++p) {
     channel = &(p->first);
     int logicID = channel->getLogicID();
     if (!logicID) {

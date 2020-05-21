@@ -8,7 +8,7 @@ const std::string::value_type AlCaRecoTriggerBits::delimeter_ = ';';  // separat
 //_____________________________________________________________________
 std::string AlCaRecoTriggerBits::compose(const std::vector<std::string> &paths) const {
   std::string mergedPaths;
-  for (std::vector<std::string>::const_iterator iPath = paths.begin(); iPath != paths.end(); ++iPath) {
+  for (auto iPath = paths.begin(); iPath != paths.end(); ++iPath) {
     if (iPath != paths.begin())
       mergedPaths += delimeter_;
     if (iPath->find(delimeter_) != std::string::npos) {

@@ -105,7 +105,7 @@ void FWElectronProxyBuilder::buildViewType(const reco::GsfElectron& electron,
                                            FWViewType::EType type,
                                            const FWViewContext*) {
   TEveElementList* tracks = requestCommon();
-  TEveElement::List_i trkIt = tracks->BeginChildren();
+  auto trkIt = tracks->BeginChildren();
   std::advance(trkIt, iIndex);
   setupAddElement(*trkIt, &oItemHolder);
 
@@ -149,7 +149,7 @@ void FWElectronGlimpseProxyBuilder::build(const reco::GsfElectron& iData,
                                           unsigned int iIndex,
                                           TEveElement& oItemHolder,
                                           const FWViewContext*) {
-  TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("", "");
+  auto* marker = new TEveScalableStraightLineSet("", "");
   marker->SetLineWidth(2);
   fireworks::addStraightLineSegment(marker, &iData, 1.0);
   setupAddElement(marker, &oItemHolder);

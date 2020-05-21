@@ -17,7 +17,7 @@ NjettinessAdder::NjettinessAdder(const edm::ParameterSet& iConfig)
   if (!srcWeights.label().empty())
     input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights);
 
-  for (std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n) {
+  for (auto n = Njets_.begin(); n != Njets_.end(); ++n) {
     std::ostringstream tauN_str;
     tauN_str << "tau" << *n;
 
@@ -116,7 +116,7 @@ void NjettinessAdder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (!input_weights_token_.isUninitialized())
     weightsHandle_ = &iEvent.get(input_weights_token_);
 
-  for (std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n) {
+  for (auto n = Njets_.begin(); n != Njets_.end(); ++n) {
     std::ostringstream tauN_str;
     tauN_str << "tau" << *n;
 

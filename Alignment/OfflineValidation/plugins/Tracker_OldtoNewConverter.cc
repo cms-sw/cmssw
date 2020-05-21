@@ -130,7 +130,7 @@ void Tracker_OldtoNewConverter::beginJob() {
   uint32_t iter = 0;
   for (uint32_t i = 0; i < nEntries; ++i) {
     m_inputTree->GetEntry(i);
-    std::map<uint32_t, uint32_t>::const_iterator it = theMap.find(rawid_i);
+    auto it = theMap.find(rawid_i);
 
     if (it == theMap.end()) {
       edm::LogInfo("ERROR") << "Error: couldn't find rawId: " << rawid_i;

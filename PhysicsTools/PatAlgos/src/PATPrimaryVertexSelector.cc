@@ -22,7 +22,7 @@ void PATPrimaryVertexSelector::select(const edm::Handle<collection>& handle,
   const math::XYZPoint beamSpot(0., 0., 0.);
   unsigned int multiplicity;
   double ptSum;
-  for (collection::const_iterator iv = handle->begin(); iv != handle->end(); ++iv) {
+  for (auto iv = handle->begin(); iv != handle->end(); ++iv) {
     math::XYZVector displacement(iv->position() - beamSpot);
     if (iv->normalizedChi2() < chi2Cut_ && fabs(displacement.z()) < dzCut_ && displacement.perp2() < dr2Cut_) {
       getVertexVariables(*iv, multiplicity, ptSum);
@@ -48,7 +48,7 @@ void PATPrimaryVertexSelector::getVertexVariables(const reco::Vertex& vertex,
                                                   double& ptSum) const {
   multiplicity = 0;
   ptSum = 0.;
-  for (reco::Vertex::trackRef_iterator it = vertex.tracks_begin(); it != vertex.tracks_end(); ++it) {
+  for (auto it = vertex.tracks_begin(); it != vertex.tracks_end(); ++it) {
     if (fabs((**it).eta()) < trackEtaCut_) {
       ++multiplicity;
       ptSum += (**it).pt();

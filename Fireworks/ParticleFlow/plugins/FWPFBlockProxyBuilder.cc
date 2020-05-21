@@ -8,7 +8,7 @@ void FWPFBlockProxyBuilder::scaleProduct(TEveElementList *parent, FWViewType::ET
 
   if (viewType == FWViewType::kRhoPhiPF ||
       viewType == FWViewType::kRhoZ) { /* Handle the rhophi and rhoz cluster scaling */
-    for (Lines_t::iterator i = m_clusters.begin(); i != m_clusters.end(); ++i) {
+    for (auto i = m_clusters.begin(); i != m_clusters.end(); ++i) {
       if (vc == (*i).m_vc) {
         float value = caloScale->getPlotEt() ? (*i).m_et : (*i).m_energy;
         (*i).m_ls->SetScale(caloScale->getScaleFactor3D() * value);
@@ -18,9 +18,9 @@ void FWPFBlockProxyBuilder::scaleProduct(TEveElementList *parent, FWViewType::ET
     }
   } /* Handle cluster scaling in lego view(s) */
   else if (viewType == FWViewType::kLego || viewType == FWViewType::kLegoPFECAL) {  // Loop products
-    for (TEveElement::List_i i = parent->BeginChildren(); i != parent->EndChildren(); ++i) {
+    for (auto i = parent->BeginChildren(); i != parent->EndChildren(); ++i) {
       if ((*i)->HasChildren()) {  // Loop elements of block
-        for (TEveElement::List_i j = (*i)->BeginChildren(); j != (*i)->EndChildren(); ++j) {
+        for (auto j = (*i)->BeginChildren(); j != (*i)->EndChildren(); ++j) {
           if (strcmp((*j)->GetElementName(), "BlockCluster") == 0) {
             FWLegoCandidate *cluster = dynamic_cast<FWLegoCandidate *>(*j);
             cluster->updateScale(vc, context());
@@ -119,7 +119,7 @@ void FWPFBlockProxyBuilder::setupClusterElement(const reco::PFBlockElement &bloc
   }
   if (viewType == FWViewType::kRhoPhiPF) {
     const FWDisplayProperties &dp = item()->defaultDisplayProperties();
-    FWPFClusterRPZUtils *clusterUtils = new FWPFClusterRPZUtils();
+    auto *clusterUtils = new FWPFClusterRPZUtils();
     TEveScalableStraightLineSet *rpCluster = clusterUtils->buildRhoPhiClusterLineSet(cluster, vc, energy, et, r);
     rpCluster->SetLineColor(dp.color());
     m_clusters.push_back(ScalableLines(rpCluster, et, energy, vc));
@@ -127,7 +127,7 @@ void FWPFBlockProxyBuilder::setupClusterElement(const reco::PFBlockElement &bloc
     delete clusterUtils;
   } else if (viewType == FWViewType::kRhoZ) {
     const FWDisplayProperties &dp = item()->defaultDisplayProperties();
-    FWPFClusterRPZUtils *clusterUtils = new FWPFClusterRPZUtils();
+    auto *clusterUtils = new FWPFClusterRPZUtils();
     TEveScalableStraightLineSet *rzCluster = clusterUtils->buildRhoZClusterLineSet(
         cluster, vc, context().caloTransAngle(), energy, et, r, context().caloZ1());
     rzCluster->SetLineColor(dp.color());

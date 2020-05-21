@@ -64,9 +64,7 @@ void DTPreCalibrationTask::analyze(const edm::Event &event, const edm::EventSetu
   // LOOP OVER ALL THE DIGIS OF THE EVENT
   DTDigiCollection::DigiRangeIterator dtLayerId_It;
   for (dtLayerId_It = dtdigis->begin(); dtLayerId_It != dtdigis->end(); ++dtLayerId_It) {
-    for (DTDigiCollection::const_iterator digiIt = ((*dtLayerId_It).second).first;
-         digiIt != ((*dtLayerId_It).second).second;
-         ++digiIt) {
+    for (auto digiIt = ((*dtLayerId_It).second).first; digiIt != ((*dtLayerId_It).second).second; ++digiIt) {
       // Fill the Time Boxes
       int tdcTime = (*digiIt).countsTDC();
       TimeBoxes[make_pair((*dtLayerId_It).first.superlayerId().chamberId().wheel(),

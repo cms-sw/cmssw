@@ -31,7 +31,7 @@ const double FastLineRecognition::sigma0 = 66E-3 / sqrt(12.);
 void FastLineRecognition::Cluster::add(const Point *p1, const Point *p2, double a, double b, double w) {
   // which points to be added to contents?
   bool add1 = true, add2 = true;
-  for (vector<const Point *>::const_iterator it = contents.begin(); it != contents.end() && (add1 || add2); ++it) {
+  for (auto it = contents.begin(); it != contents.end() && (add1 || add2); ++it) {
     if ((*it)->hit == p1->hit)
       add1 = false;
 
@@ -66,7 +66,7 @@ FastLineRecognition::~FastLineRecognition() {}
 
 FastLineRecognition::GeomData FastLineRecognition::getGeomData(unsigned int id) {
   // result already buffered?
-  map<unsigned int, GeomData>::iterator it = geometryMap.find(id);
+  auto it = geometryMap.find(id);
   if (it != geometryMap.end())
     return it->second;
 
@@ -143,8 +143,8 @@ void FastLineRecognition::getPatterns(const DetSetVector<TotemRPRecHit> &input,
 #endif
 
     // remove points belonging to the recognized line
-    for (vector<const Point *>::iterator hit = c.contents.begin(); hit != c.contents.end(); ++hit) {
-      for (vector<Point>::iterator dit = points.begin(); dit != points.end(); ++dit) {
+    for (auto hit = c.contents.begin(); hit != c.contents.end(); ++hit) {
+      for (auto dit = points.begin(); dit != points.end(); ++dit) {
         //printf("\t\t1: %.2f, %p vs. 2: %.2f, %p\n", (*hit)->z, (*hit)->hit, dit->z, dit->hit);
         if ((*hit)->hit == dit->hit) {
           dit->usable = false;
@@ -184,11 +184,11 @@ bool FastLineRecognition::getOneLine(const vector<FastLineRecognition::Point> &p
   vector<Cluster> clusters;
 
   // go through all the combinations of measured points
-  for (vector<Point>::const_iterator it1 = points.begin(); it1 != points.end(); ++it1) {
+  for (auto it1 = points.begin(); it1 != points.end(); ++it1) {
     if (!it1->usable)
       continue;
 
-    for (vector<Point>::const_iterator it2 = it1; it2 != points.end(); ++it2) {
+    for (auto it2 = it1; it2 != points.end(); ++it2) {
       if (!it2->usable)
         continue;
 
@@ -269,7 +269,7 @@ bool FastLineRecognition::getOneLine(const vector<FastLineRecognition::Point> &p
   double mw = -1.;
   for (unsigned int k = 0; k < clusters.size(); k++) {
     double w = 0;
-    for (vector<const Point *>::iterator it = clusters[k].contents.begin(); it != clusters[k].contents.end(); ++it)
+    for (auto it = clusters[k].contents.begin(); it != clusters[k].contents.end(); ++it)
       w += (*it)->w;
     clusters[k].weight = w;
 

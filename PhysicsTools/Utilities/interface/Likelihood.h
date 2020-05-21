@@ -27,7 +27,7 @@ namespace fit {
     double operator()() const { return log(); }
     double log() const {
       double l = -(*yield_)();
-      for (typename Sample::const_iterator i = sample_.begin(); i != sample_.end(); ++i) {
+      for (auto i = sample_.begin(); i != sample_.end(); ++i) {
         double p = Evaluator::evaluate(*pdf_, *i);
         l += std::log(p);
       }

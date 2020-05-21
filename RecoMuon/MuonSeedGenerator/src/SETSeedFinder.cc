@@ -133,7 +133,7 @@ void SETSeedFinder::limitCombinatorics(std::vector<MuonRecHitContainer>& MuonRec
   int iCycle = 0;
   while (nAllCombinations > float(maximumNumberOfCombinations)) {
     ++iCycle;
-    std::vector<double>::iterator maxEl_it = max_element(sizeOfLayer.begin(), sizeOfLayer.end());
+    auto maxEl_it = max_element(sizeOfLayer.begin(), sizeOfLayer.end());
     int maxEl = maxEl_it - sizeOfLayer.begin();
     nAllCombinations /= MuonRecHitContainer_perLayer.at(maxEl).size();
     //std::cout<<" iCycle = "<<iCycle<<" nAllCombinations = "<<nAllCombinations<<std::endl;

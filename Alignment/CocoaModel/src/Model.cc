@@ -1187,8 +1187,7 @@ void Model::deleteOptO(OpticalObject* opto) {
   /*  map< ALIstring, OpticalObject*, std::less<ALIstring> >::iterator msoite =
 find( theOptOList.begin(), theOptOList.end(),
 map< ALIstring, OpticalObject*, std::less<ALIstring> >::value_type( opto->name(), opto) );*/
-  std::vector<OpticalObject*>::iterator dvoite =
-      find(theOptOList.begin(), theOptOList.end(), std::vector<OpticalObject*>::value_type(opto));
+  auto dvoite = find(theOptOList.begin(), theOptOList.end(), std::vector<OpticalObject*>::value_type(opto));
   //-  std::cout << (*dvoite) << "DELETE OPTO " << opto <<"WW" << (*dvoite)->name() << std::endl;
   theOptOList.erase(dvoite);
   delete opto;
@@ -1279,7 +1278,7 @@ ALIdouble Model::getParamFittedSigmaVectorItem(const ALIuint position) {
               << std::endl;
     exit(3);
   }
-  std::vector<ALIdouble>::const_iterator vdcite = theParamFittedSigmaVector.begin() + position;
+  auto vdcite = theParamFittedSigmaVector.begin() + position;
   return (*vdcite);
 }
 

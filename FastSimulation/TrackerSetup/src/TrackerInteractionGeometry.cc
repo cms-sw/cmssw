@@ -926,7 +926,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
   double zin, rin;
   double zout, rout;
   unsigned nCyl = 0;
-  std::list<TrackerLayer>::const_iterator cyliterOut = cylinderBegin();
+  auto cyliterOut = cylinderBegin();
   // Inner cylinder dimensions
   if (cyliterOut->forward()) {
     zin = cyliterOut->disk()->position().z();

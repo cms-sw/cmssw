@@ -41,7 +41,7 @@ inline void ThreeThresholdAlgorithm::clusterizeDetUnit_(const digiDetSet& digis,
     edm::LogWarning("ThreeThresholdAlgorithm") << " id " << digis.detId() << " not usable???" << std::endl;
 #endif
 
-  typename digiDetSet::const_iterator scan(digis.begin()), end(digis.end());
+  auto scan(digis.begin()), end(digis.end());
 
   SiStripApvShotCleaner ApvCleaner;
   if (RemoveApvShots) {

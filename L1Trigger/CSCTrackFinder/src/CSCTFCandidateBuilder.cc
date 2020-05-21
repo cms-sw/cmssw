@@ -7,7 +7,7 @@ void CSCTFCandidateBuilder::buildCandidates(const L1CSCTrackCollection* trks,
   std::vector<L1MuRegionalCand> result;
   CSCTriggerContainer<csc::L1Track> stripped_tracks;
 
-  L1CSCTrackCollection::const_iterator tmp_trk = trks->begin();
+  auto tmp_trk = trks->begin();
 
   for (; tmp_trk != trks->end(); tmp_trk++) {
     stripped_tracks.push_back(tmp_trk->first);

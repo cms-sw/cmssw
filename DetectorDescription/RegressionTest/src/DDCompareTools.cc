@@ -69,10 +69,10 @@ bool DDCompareCPV(const DDCompactView& lhs, const DDCompactView& rhs, const DDCo
   using Graph = DDCompactView::Graph;
   using adjl_iterator = Graph::const_adj_iterator;
 
-  adjl_iterator git1 = g1.begin();
-  adjl_iterator gend1 = g1.end();
-  adjl_iterator git2 = g2.begin();
-  adjl_iterator gend2 = g2.end();
+  auto git1 = g1.begin();
+  auto gend1 = g1.end();
+  auto git2 = g2.begin();
+  auto gend2 = g2.end();
 
   Graph::index_type i = 0;
 

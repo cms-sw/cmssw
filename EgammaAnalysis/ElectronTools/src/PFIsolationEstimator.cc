@@ -650,11 +650,11 @@ reco::VertexRef PFIsolationEstimator::chargedHadronVertex(edm::Handle<reco::Vert
 
   const reco::VertexCollection& vertices = *(verticesColl.product());
 
-  for (reco::VertexCollection::const_iterator iv = vertices.begin(); iv != vertices.end(); ++iv, ++index) {
+  for (auto iv = vertices.begin(); iv != vertices.end(); ++iv, ++index) {
     const reco::Vertex& vtx = *iv;
 
     // loop on tracks in vertices
-    for (reco::Vertex::trackRef_iterator iTrack = vtx.tracks_begin(); iTrack != vtx.tracks_end(); ++iTrack) {
+    for (auto iTrack = vtx.tracks_begin(); iTrack != vtx.tracks_end(); ++iTrack) {
       const reco::TrackBaseRef& baseRef = *iTrack;
 
       // one of the tracks in the vertex is the same as
@@ -684,7 +684,7 @@ reco::VertexRef PFIsolationEstimator::chargedHadronVertex(edm::Handle<reco::Vert
     double ztrack = pfcand.vertex().z();
     bool foundVertex = false;
     index = 0;
-    for (reco::VertexCollection::const_iterator iv = vertices.begin(); iv != vertices.end(); ++iv, ++index) {
+    for (auto iv = vertices.begin(); iv != vertices.end(); ++iv, ++index) {
       double dz = std::abs(ztrack - iv->z());
       if (dz < dzmin) {
         dzmin = dz;
@@ -704,7 +704,7 @@ int PFIsolationEstimator::matchPFObject(const reco::Photon* photon, const reco::
   Int_t iMatch = -1;
 
   int i = 0;
-  for (reco::PFCandidateCollection::const_iterator iPF = Candidates->begin(); iPF != Candidates->end(); iPF++) {
+  for (auto iPF = Candidates->begin(); iPF != Candidates->end(); iPF++) {
     const reco::PFCandidate& pfParticle = (*iPF);
     //    if((((pfParticle.pdgId()==22 && pfParticle.mva_nothing_gamma()>0.01) || TMath::Abs(pfParticle.pdgId())==11) )){
     if ((((pfParticle.pdgId() == 22) || TMath::Abs(pfParticle.pdgId()) == 11))) {
@@ -743,7 +743,7 @@ int PFIsolationEstimator::matchPFObject(const reco::GsfElectron* electron,
   Int_t iMatch = -1;
 
   int i = 0;
-  for (reco::PFCandidateCollection::const_iterator iPF = Candidates->begin(); iPF != Candidates->end(); iPF++) {
+  for (auto iPF = Candidates->begin(); iPF != Candidates->end(); iPF++) {
     const reco::PFCandidate& pfParticle = (*iPF);
     //    if((((pfParticle.pdgId()==22 && pfParticle.mva_nothing_gamma()>0.01) || TMath::Abs(pfParticle.pdgId())==11) )){
     if ((((pfParticle.pdgId() == 22) || TMath::Abs(pfParticle.pdgId()) == 11))) {
@@ -757,7 +757,7 @@ int PFIsolationEstimator::matchPFObject(const reco::GsfElectron* electron,
   if (iMatch == -1) {
     i = 0;
     float fPt = -1;
-    for (reco::PFCandidateCollection::const_iterator iPF = Candidates->begin(); iPF != Candidates->end(); iPF++) {
+    for (auto iPF = Candidates->begin(); iPF != Candidates->end(); iPF++) {
       const reco::PFCandidate& pfParticle = (*iPF);
       if ((((pfParticle.pdgId() == 22) || TMath::Abs(pfParticle.pdgId()) == 11))) {
         if (pfParticle.pt() > fPt) {

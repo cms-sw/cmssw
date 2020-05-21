@@ -88,7 +88,7 @@ const DetLayer* MTDDetLayerGeometry::idToLayer(const DetId& id) const {
   } else
     throw cms::Exception("InvalidSubdetId") << detId.subdetId();
 
-  std::map<DetId, const DetLayer*>::const_iterator layer = detLayersMap.find(idout);
+  auto layer = detLayersMap.find(idout);
   if (layer == detLayersMap.end())
     return nullptr;
   return layer->second;

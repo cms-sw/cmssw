@@ -187,7 +187,7 @@ void EfficiencyAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
       const reco::VertexCollection& vertexCollection = *(vertex.product());
       int vertex_number = vertexCollection.size();
 
-      reco::VertexCollection::const_iterator v = vertexCollection.begin();
+      auto v = vertexCollection.begin();
       for (; v != vertexCollection.end(); ++v) {
         double vertex_chi2 = v->normalizedChi2();
         double vertex_ndof = v->ndof();

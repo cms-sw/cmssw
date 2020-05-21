@@ -228,23 +228,18 @@ TransientTrackingRecHit::ConstRecHitContainer MuonShowerInformationFiller::hitsF
   if (segments.size() == 1)
     return allhitscorrelated;
 
-  for (MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator iseg = segments.begin() + 1;
-       iseg != segments.end();
-       ++iseg) {
+  for (auto iseg = segments.begin() + 1; iseg != segments.end(); ++iseg) {
     TransientTrackingRecHit::ConstRecHitPointer muonRecHit((*iseg));
     TransientTrackingRecHit::ConstRecHitContainer hits1 =
         MuonTransientTrackingRecHitBreaker::breakInSubRecHits(muonRecHit, 2);
 
-    for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator ihit1 = hits1.begin(); ihit1 != hits1.end();
-         ++ihit1) {
+    for (auto ihit1 = hits1.begin(); ihit1 != hits1.end(); ++ihit1) {
       bool usedbefore = false;
       //unused      DetId thisID = (*ihit1)->geographicalId();
       //LocalPoint lp1dinsegHit = (*ihit1)->localPosition();
       GlobalPoint gp1dinsegHit = (*ihit1)->globalPosition();
 
-      for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator ihit2 = allhitscorrelated.begin();
-           ihit2 != allhitscorrelated.end();
-           ++ihit2) {
+      for (auto ihit2 = allhitscorrelated.begin(); ihit2 != allhitscorrelated.end(); ++ihit2) {
         //unused        DetId thisID2 = (*ihit2)->geographicalId();
         //LocalPoint lp1dinsegHit2 = (*ihit2)->localPosition();
         GlobalPoint gp1dinsegHit2 = (*ihit2)->globalPosition();
@@ -275,9 +270,7 @@ TransientTrackingRecHit::ConstRecHitContainer MuonShowerInformationFiller::findT
 
   stable_sort(muonRecHits.begin(), muonRecHits.end(), AbsLessDTheta(refpoint));
 
-  for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator ihit = muonRecHits.begin();
-       ihit != muonRecHits.end() - 1;
-       ++ihit) {
+  for (auto ihit = muonRecHits.begin(); ihit != muonRecHits.end() - 1; ++ihit) {
     if (fabs((*(ihit + 1))->globalPosition().theta() - (*ihit)->globalPosition().theta()) < step) {
       result.push_back(*ihit);
     } else {
@@ -298,11 +291,10 @@ MuonTransientTrackingRecHit::MuonRecHitContainer MuonShowerInformationFiller::fi
 
   stable_sort(muonRecHits.begin(), muonRecHits.end(), LessPerp());
 
-  MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator seedhit =
-      min_element(muonRecHits.begin(), muonRecHits.end(), LessPerp());
+  auto seedhit = min_element(muonRecHits.begin(), muonRecHits.end(), LessPerp());
 
-  MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator ihigh = seedhit;
-  MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator ilow = seedhit;
+  auto ihigh = seedhit;
+  auto ilow = seedhit;
 
   float step = 0.1;
   while (ihigh != muonRecHits.end() - 1 &&
@@ -354,10 +346,10 @@ vector<const GeomDet*> MuonShowerInformationFiller::getCompatibleDets(const reco
 
   vector<const GeomDet*> tempDT;
 
-  for (vector<GlobalPoint>::const_iterator ipos = allCrossingPoints.begin(); ipos != allCrossingPoints.end(); ++ipos) {
+  for (auto ipos = allCrossingPoints.begin(); ipos != allCrossingPoints.end(); ++ipos) {
     tempDT = dtPositionToDets(*ipos);
-    vector<const GeomDet*>::const_iterator begin = tempDT.begin();
-    vector<const GeomDet*>::const_iterator end = tempDT.end();
+    auto begin = tempDT.begin();
+    auto end = tempDT.end();
 
     for (; begin != end; ++begin) {
       total.push_back(*begin);
@@ -377,10 +369,10 @@ vector<const GeomDet*> MuonShowerInformationFiller::getCompatibleDets(const reco
   stable_sort(allCrossingPoints.begin(), allCrossingPoints.end(), LessMag(innerPos));
 
   vector<const GeomDet*> tempCSC;
-  for (vector<GlobalPoint>::const_iterator ipos = allCrossingPoints.begin(); ipos != allCrossingPoints.end(); ++ipos) {
+  for (auto ipos = allCrossingPoints.begin(); ipos != allCrossingPoints.end(); ++ipos) {
     tempCSC = cscPositionToDets(*ipos);
-    vector<const GeomDet*>::const_iterator begin = tempCSC.begin();
-    vector<const GeomDet*>::const_iterator end = tempCSC.end();
+    auto begin = tempCSC.begin();
+    auto end = tempCSC.end();
 
     for (; begin != end; ++begin) {
       total.push_back(*begin);
@@ -558,7 +550,7 @@ vector<const GeomDet*> MuonShowerInformationFiller::dtPositionToDets(const Globa
   if (minwheel > 2 || maxwheel < -2)
     return result;
 
-  for (vector<int>::const_iterator isector = sectors.begin(); isector != sectors.end(); ++isector) {
+  for (auto isector = sectors.begin(); isector != sectors.end(); ++isector) {
     for (int iwheel = minwheel; iwheel != maxwheel + 1; ++iwheel) {
       DTChamberId chamberid(iwheel, station, (*isector));
       result.push_back(theService->trackingGeometry()->idToDet(chamberid));
@@ -668,7 +660,7 @@ vector<const GeomDet*> MuonShowerInformationFiller::cscPositionToDets(const Glob
   int minlayer = 1;
   int maxlayer = 6;
 
-  for (vector<int>::const_iterator isector = sectors.begin(); isector != sectors.end(); ++isector) {
+  for (auto isector = sectors.begin(); isector != sectors.end(); ++isector) {
     for (int ilayer = minlayer; ilayer != maxlayer + 1; ++ilayer) {
       CSCDetId cscid(endcap, station, ring, (*isector), ilayer);
       result.push_back(theService->trackingGeometry()->idToDet(cscid));
@@ -704,7 +696,7 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
   bool dtOverlapToCheck = false;
   bool cscOverlapToCheck = false;
 
-  for (vector<const GeomDet*>::const_iterator igd = compatibleLayers.begin(); igd != compatibleLayers.end(); igd++) {
+  for (auto igd = compatibleLayers.begin(); igd != compatibleLayers.end(); igd++) {
     // get det id
     DetId geoId = (*igd)->geographicalId();
 
@@ -722,8 +714,8 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
       // get rechits from segments per station
       TransientTrackingRecHit::ConstRecHitContainer muonCorrelatedHitsTmp =
           hitsFromSegments(*igd, theDT4DRecSegments, theCSCSegments);
-      TransientTrackingRecHit::ConstRecHitContainer::const_iterator hits_begin = muonCorrelatedHitsTmp.begin();
-      TransientTrackingRecHit::ConstRecHitContainer::const_iterator hits_end = muonCorrelatedHitsTmp.end();
+      auto hits_begin = muonCorrelatedHitsTmp.begin();
+      auto hits_end = muonCorrelatedHitsTmp.end();
 
       for (; hits_begin != hits_end; ++hits_begin) {
         muonCorrelatedHits.at(station - 1).push_back(*hits_begin);
@@ -742,8 +734,7 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
           DTRecHitCollection::range dRecHits = theDTRecHits->get(lid);
           for (DTRecHitCollection::const_iterator rechit = dRecHits.first; rechit != dRecHits.second; ++rechit) {
             vector<const TrackingRecHit*> subrechits = (*rechit).recHits();
-            for (vector<const TrackingRecHit*>::iterator irechit = subrechits.begin(); irechit != subrechits.end();
-                 ++irechit) {
+            for (auto irechit = subrechits.begin(); irechit != subrechits.end(); ++irechit) {
               muonRecHits.at(station - 1).push_back(MuonTransientTrackingRecHit::specificBuild((&**igd), &**irechit));
             }
           }
@@ -758,8 +749,8 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
       //get rechits from segments by station
       TransientTrackingRecHit::ConstRecHitContainer muonCorrelatedHitsTmp =
           hitsFromSegments(*igd, theDT4DRecSegments, theCSCSegments);
-      TransientTrackingRecHit::ConstRecHitContainer::const_iterator hits_begin = muonCorrelatedHitsTmp.begin();
-      TransientTrackingRecHit::ConstRecHitContainer::const_iterator hits_end = muonCorrelatedHitsTmp.end();
+      auto hits_begin = muonCorrelatedHitsTmp.begin();
+      auto hits_end = muonCorrelatedHitsTmp.end();
 
       for (; hits_begin != hits_end; ++hits_begin) {
         muonCorrelatedHits.at(station - 1).push_back(*hits_begin);
@@ -908,9 +899,7 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
     //for theta
     if (!muonCorrelatedHits.at(stat).empty()) {
       float dthetamax = 0;
-      for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator iseed = muonCorrelatedHits.at(stat).begin();
-           iseed != muonCorrelatedHits.at(stat).end();
-           ++iseed) {
+      for (auto iseed = muonCorrelatedHits.at(stat).begin(); iseed != muonCorrelatedHits.at(stat).end(); ++iseed) {
         if (!(*iseed)->isValid())
           continue;
         GlobalPoint refpoint = (*iseed)->globalPosition();  //starting from the one with smallest value of phi

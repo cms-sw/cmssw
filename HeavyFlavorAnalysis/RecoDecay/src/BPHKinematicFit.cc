@@ -313,14 +313,14 @@ const math::XYZTLorentzVector& BPHKinematicFit::p4() const {
 
 /// retrieve particle mass sigma
 double BPHKinematicFit::getMassSigma(const reco::Candidate* cand) const {
-  map<const reco::Candidate*, double>::const_iterator iter = dMSig.find(cand);
+  auto iter = dMSig.find(cand);
   return (iter != dMSig.end() ? iter->second : -1);
 }
 
 /// retrieve independent fit flag
 bool BPHKinematicFit::getIndependentFit(const std::string& name) const {
   const BPHRecoCandidate* comp = getComp(name).get();
-  map<const BPHRecoCandidate*, FlyingParticle>::const_iterator iter = cKinP.find(comp);
+  auto iter = cKinP.find(comp);
   return (iter != cKinP.end() ? iter->second.flag : false);
 }
 
@@ -514,9 +514,9 @@ const BPHKinematicFit* BPHKinematicFit::splitKP(const string& name,
   nfull[0] = name;
   nfull[1] = "*";
   vector<RefCountedKinematicParticle> kPart = kinParticles(nfull);
-  vector<RefCountedKinematicParticle>::const_iterator iter = kPart.begin();
-  vector<RefCountedKinematicParticle>::const_iterator imid = iter + ns;
-  vector<RefCountedKinematicParticle>::const_iterator iend = kPart.end();
+  auto iter = kPart.begin();
+  auto imid = iter + ns;
+  auto iend = kPart.end();
   kComp->insert(kComp->end(), iter, imid);
   kTail->insert(kTail->end(), imid, iend);
   return comp;

@@ -478,10 +478,10 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
     _filter_FEDHF.initialize(filter::fPreserver, hcaldqm::hashfunctions::fFED, vFEDHF);
 
     //	push the rawIds of each fed into the vector...
-    for (std::vector<int>::const_iterator it = vFEDsVME.begin(); it != vFEDsVME.end(); ++it)
+    for (auto it = vFEDsVME.begin(); it != vFEDsVME.end(); ++it)
       _vhashFEDs.push_back(
           HcalElectronicsId(constants::FIBERCH_MIN, FIBER_VME_MIN, SPIGOT_MIN, (*it) - FED_VME_MIN).rawId());
-    for (std::vector<int>::const_iterator it = vFEDsuTCA.begin(); it != vFEDsuTCA.end(); ++it) {
+    for (auto it = vFEDsuTCA.begin(); it != vFEDsuTCA.end(); ++it) {
       std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
       _vhashFEDs.push_back(HcalElectronicsId(cspair.first, cspair.second, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
     }
@@ -762,7 +762,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
     // ONLY WAY TO DO THAT AUTOMATICALLY AND W/O HARDCODING 1728
     // or ANY OTHER VALUES LIKE 2592, 2192
     std::vector<HcalGenericDetId> gids = _emap->allPrecisionId();
-    for (std::vector<HcalGenericDetId>::const_iterator it = gids.begin(); it != gids.end(); ++it) {
+    for (auto it = gids.begin(); it != gids.end(); ++it) {
       if (!it->isHcalDetId())
         continue;
       HcalDetId did(it->rawId());
@@ -771,7 +771,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
         if (cs.isBitSet(HcalChannelStatus::HcalCellMask) || cs.isBitSet(HcalChannelStatus::HcalCellDead))
           continue;
       }
-      HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(did));
+      auto eid = HcalElectronicsId(_ehashmap.lookup(did));
       _xNChsNominal.get(eid)++;  // he will know the nominal #channels per FED
     }
   }
@@ -837,8 +837,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
   if (_ptype == fOnline &&
       lumiCache->EvtCntLS == 1) {  // Reset the bin for _cCapid_BadvsFEDvsLSmod60 at the beginning of each new LS
-    for (std::vector<uint32_t>::const_iterator it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
-      HcalElectronicsId eid = HcalElectronicsId(*it);
+    for (auto it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
+      auto eid = HcalElectronicsId(*it);
       _cCapid_BadvsFEDvsLSmod60.setBinContent(eid, _currentLS % 50, 0);
     }
   }
@@ -1071,7 +1071,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps) : DQTask(ps) {
   rawidValid = 0;
 
   //	HO collection
-  for (HODigiCollection::const_iterator it = c_ho->begin(); it != c_ho->end(); ++it) {
+  for (auto it = c_ho->begin(); it != c_ho->end(); ++it) {
     //	Explicit check on the DetIds present in the Collection
     HcalDetId const& did = it->id();
     if (did.subdet() != HcalOuter) {
@@ -1443,11 +1443,11 @@ std::shared_ptr<hcaldqm::Cache> DigiTask::globalBeginLuminosityBlock(edm::Lumino
   }
 
   if (_ptype != fOffline) {  // hidefed2crate
-    for (std::vector<uint32_t>::const_iterator it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
+    for (auto it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
       hcaldqm::flag::Flag fSum("DIGI");
-      HcalElectronicsId eid = HcalElectronicsId(*it);
+      auto eid = HcalElectronicsId(*it);
 
-      std::vector<uint32_t>::const_iterator cit = std::find(_vcdaqEids.begin(), _vcdaqEids.end(), *it);
+      auto cit = std::find(_vcdaqEids.begin(), _vcdaqEids.end(), *it);
       if (cit == _vcdaqEids.end()) {
         //	not @cDAQ
         for (uint32_t iflag = 0; iflag < _vflags.size(); iflag++)
@@ -1521,7 +1521,7 @@ std::shared_ptr<hcaldqm::Cache> DigiTask::globalBeginLuminosityBlock(edm::Lumino
       }
 
       int iflag = 0;
-      for (std::vector<hcaldqm::flag::Flag>::iterator ft = _vflags.begin(); ft != _vflags.end(); ++ft) {
+      for (auto ft = _vflags.begin(); ft != _vflags.end(); ++ft) {
         _cSummaryvsLS_FED.setBinContent(eid, _currentLS, iflag, int(ft->_state));
         fSum += (*ft);
         iflag++;

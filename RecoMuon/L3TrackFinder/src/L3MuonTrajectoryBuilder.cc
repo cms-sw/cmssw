@@ -135,7 +135,7 @@ MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const Tr
   LogDebug(category) << "turn tkMatchedTracks into MuonCandidates";
   CandidateContainer tkTrajs;
   tkTrajs.reserve(trackerTracks.size());
-  for (std::vector<TrackCand>::const_iterator tkt = trackerTracks.begin(); tkt != trackerTracks.end(); tkt++) {
+  for (auto tkt = trackerTracks.begin(); tkt != trackerTracks.end(); tkt++) {
     if ((*tkt).first != nullptr && (*tkt).first->isValid()) {
       tkTrajs.emplace_back(std::make_unique<MuonCandidate>(
           nullptr, staCand.second, (*tkt).second, std::make_unique<Trajectory>(*(*tkt).first)));
@@ -156,7 +156,7 @@ MuonCandidate::CandidateContainer L3MuonTrajectoryBuilder::trajectories(const Tr
   if (staCandIn.first == nullptr)
     delete staCand.first;
 
-  for (std::vector<TrackCand>::const_iterator is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
+  for (auto is = regionalTkTracks.begin(); is != regionalTkTracks.end(); ++is) {
     delete (*is).first;
   }
 
@@ -189,8 +189,7 @@ std::vector<L3MuonTrajectoryBuilder::TrackCand> L3MuonTrajectoryBuilder::makeTkC
       canUseL3MTS = a != nullptr;
     }
     if (canUseL3MTS) {
-      edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef =
-          tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
+      auto l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
       // May still need provenance here, so using trackref:
       reco::TrackRef staTrack = l3seedRef->l2Track();
       if (staTrack == (staCand.second)) {

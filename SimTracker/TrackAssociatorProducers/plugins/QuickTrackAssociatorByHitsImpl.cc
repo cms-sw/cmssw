@@ -380,7 +380,7 @@ std::vector<std::pair<edm::Ref<TrackingParticleCollection>, double> > QuickTrack
   std::vector<OmniClusterRef> oClusters = track_associator::hitsToClusterRefs(begin, end);
 
   std::map<TrackingParticleRef, double> lmap;
-  for (std::vector<OmniClusterRef>::const_iterator it = oClusters.begin(); it != oClusters.end(); ++it) {
+  for (auto it = oClusters.begin(); it != oClusters.end(); ++it) {
     auto range = clusterToTPMap.equal_range(*it);
     const double weight = it->isPixel() ? pixelHitWeight_ : 1.0;
     if (range.first != range.second) {
@@ -451,9 +451,7 @@ QuickTrackAssociatorByHitsImpl::getAllSimTrackIdentifiers(const TrackerHitAssoci
                                 : 1.0;
 
       // Loop over each identifier, and add it to the return value only if it's not already in there
-      for (std::vector<SimTrackIdentifiers>::const_iterator iIdentifier = simTrackIdentifiers.begin();
-           iIdentifier != simTrackIdentifiers.end();
-           ++iIdentifier) {
+      for (auto iIdentifier = simTrackIdentifiers.begin(); iIdentifier != simTrackIdentifiers.end(); ++iIdentifier) {
         std::vector<std::pair<SimTrackIdentifiers, double> >::iterator iIdentifierCountPair;
         for (auto iIdentifierCountPair = returnValue.begin(); iIdentifierCountPair != returnValue.end();
              ++iIdentifierCountPair) {
@@ -476,8 +474,7 @@ QuickTrackAssociatorByHitsImpl::getAllSimTrackIdentifiers(const TrackerHitAssoci
 bool QuickTrackAssociatorByHitsImpl::trackingParticleContainsIdentifier(const TrackingParticle* pTrackingParticle,
                                                                         const SimTrackIdentifiers& identifier) const {
   // Loop over all of the g4 tracks in the tracking particle
-  for (std::vector<SimTrack>::const_iterator iSimTrack = pTrackingParticle->g4Track_begin();
-       iSimTrack != pTrackingParticle->g4Track_end();
+  for (auto iSimTrack = pTrackingParticle->g4Track_begin(); iSimTrack != pTrackingParticle->g4Track_end();
        ++iSimTrack) {
     // And see if the sim track identifiers match
     if (iSimTrack->eventId() == identifier.second && iSimTrack->trackId() == identifier.first) {
@@ -513,8 +510,7 @@ double QuickTrackAssociatorByHitsImpl::getDoubleCount(const TrackerHitAssociator
     SimTrackIdsDC.clear();
     hitAssociator.associateHitId(*(track_associator::getHitFromIter(iHit)), SimTrackIdsDC);
     if (SimTrackIdsDC.size() > 1) {
-      for (TrackingParticle::g4t_iterator g4T = associatedTrackingParticle->g4Track_begin();
-           g4T != associatedTrackingParticle->g4Track_end();
+      for (auto g4T = associatedTrackingParticle->g4Track_begin(); g4T != associatedTrackingParticle->g4Track_end();
            ++g4T) {
         if (find(SimTrackIdsDC.begin(),
                  SimTrackIdsDC.end(),
@@ -562,7 +558,7 @@ double QuickTrackAssociatorByHitsImpl::getDoubleCount(const ClusterTPAssociation
   for (iter iHit = startIterator; iHit != endIterator; iHit++) {
     std::vector<OmniClusterRef> oClusters =
         track_associator::hitsToClusterRefs(iHit, iHit + 1);  //only for the cluster being checked
-    for (std::vector<OmniClusterRef>::const_iterator it = oClusters.begin(); it != oClusters.end(); ++it) {
+    for (auto it = oClusters.begin(); it != oClusters.end(); ++it) {
       int idcount = 0;
 
       auto range = clusterToTPList.equal_range(*it);
@@ -796,7 +792,7 @@ double QuickTrackAssociatorByHitsImpl::weightedNumberOfTrackClusters(iter begin,
     LogTrace("QuickTrackAssociatorByHitsImpl") << "  weight: " << weight;
     std::vector<OmniClusterRef> oClusters =
         track_associator::hitsToClusterRefs(iRecHit, iRecHit + 1);  //only for the cluster being checked
-    for (std::vector<OmniClusterRef>::const_iterator it = oClusters.begin(); it != oClusters.end(); ++it) {
+    for (auto it = oClusters.begin(); it != oClusters.end(); ++it) {
       weightedClusters += weight;
     }
   }

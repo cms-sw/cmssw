@@ -123,8 +123,7 @@ void TtFullHadKinFitProducer::produce(edm::Event& event, const edm::EventSetup& 
   std::unique_ptr<std::vector<int> > pStatus(new std::vector<int>);
 
   unsigned int iComb = 0;
-  for (std::list<TtFullHadKinFitter::KinFitResult>::const_iterator res = fitResults.begin(); res != fitResults.end();
-       ++res) {
+  for (auto res = fitResults.begin(); res != fitResults.end(); ++res) {
     if (maxNComb_ >= 1 && iComb == (unsigned int)maxNComb_) {
       break;
     }

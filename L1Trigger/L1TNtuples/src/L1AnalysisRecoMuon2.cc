@@ -22,8 +22,7 @@ void L1Analysis::L1AnalysisRecoMuon2::SetMuon(const edm::Event& event,
                                               unsigned maxMuon) {
   recoMuon_.nMuons = 0;
 
-  for (reco::MuonCollection::const_iterator it = muons->begin(); it != muons->end() && recoMuon_.nMuons < maxMuon;
-       ++it) {
+  for (auto it = muons->begin(); it != muons->end() && recoMuon_.nMuons < maxMuon; ++it) {
     recoMuon_.e.push_back(it->energy());
     recoMuon_.pt.push_back(it->pt());
     recoMuon_.et.push_back(it->et());

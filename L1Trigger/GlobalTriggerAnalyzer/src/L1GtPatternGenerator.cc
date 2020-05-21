@@ -106,7 +106,7 @@ static void extractRecordData(const edm::Event& iEvent,
   edm::EventNumber_t eventNr = iEvent.id().event();
 
   // Then loop over collection and add each event to the map.
-  for (typename std::vector<TRecord>::const_iterator it = handle->begin(); it != handle->end(); ++it) {
+  for (auto it = handle->begin(); it != handle->end(); ++it) {
     int bx = it->bx();
     L1GtPatternLine& line = allPatterns.getLine(eventNr, bx);
     uint32_t value = ((*it).*rawFunctionPtr)();
@@ -170,7 +170,7 @@ void L1GtPatternGenerator::extractGlobalTriggerData(const edm::Event& iEvent, L1
 
   // for each FDL word...
   const std::vector<L1GtFdlWord>& fdlWords = handle->gtFdlVector();
-  for (std::vector<L1GtFdlWord>::const_iterator it = fdlWords.begin(); it != fdlWords.end(); ++it) {
+  for (auto it = fdlWords.begin(); it != fdlWords.end(); ++it) {
     // extract relevant data
     int bx = it->bxInEvent();
 
@@ -190,7 +190,7 @@ void L1GtPatternGenerator::extractGlobalTriggerData(const edm::Event& iEvent, L1
  */
 void L1GtPatternGenerator::packHfRecords(const std::string& resultName, L1GtPatternMap& allPatterns) {
   // iterate over each pattern line
-  for (L1GtPatternMap::LineMap::iterator it = allPatterns.begin(); it != allPatterns.end(); ++it) {
+  for (auto it = allPatterns.begin(); it != allPatterns.end(); ++it) {
     // Get the HF bit counts and ring sums
     uint32_t counts = it->second.get("hfBitCounts1");
     uint32_t sums = it->second.get("hfRingEtSums1");

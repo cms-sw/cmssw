@@ -46,7 +46,7 @@ void AnalysisTasksAnalyzerJEC::analyze(const edm::EventBase& event) {
   event.getByLabel(Jets_, Jets);
 
   // loop Jet collection and fill histograms
-  for (std::vector<Jet>::const_iterator jet_it = Jets->begin(); jet_it != Jets->end(); ++jet_it) {
+  for (auto jet_it = Jets->begin(); jet_it != Jets->end(); ++jet_it) {
     ///// You can get some help if you switch help to True in your config file
     if (help_ == true) {
       if (jetInEvents_ == 0) {

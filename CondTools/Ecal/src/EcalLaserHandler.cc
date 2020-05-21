@@ -91,11 +91,11 @@ bool popcon::EcalLaserHandler::checkAPDPNs(const EcalLaserAPDPNRatios::EcalLaser
 
 void popcon::EcalLaserHandler::dumpBarrelPayload(EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap const &laserMap) {
   int c = 0;
-  EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap::const_iterator i = laserMap.barrelItems().begin();
-  EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap::const_iterator e = laserMap.barrelItems().end();
+  auto i = laserMap.barrelItems().begin();
+  auto e = laserMap.barrelItems().end();
   EBDetId eb;
   try {
-    EcalCondDBInterface *econn = new EcalCondDBInterface(m_sid, m_user, m_pass);
+    auto *econn = new EcalCondDBInterface(m_sid, m_user, m_pass);
     while (i != e) {
       if (c % 1000 == 0) {
         std::cout << std::setw(5) << c << ": " << eb.unhashIndex(c) << " "
@@ -122,11 +122,11 @@ void popcon::EcalLaserHandler::dumpBarrelPayload(EcalLaserAPDPNRatios::EcalLaser
 
 void popcon::EcalLaserHandler::dumpEndcapPayload(EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap const &laserMap) {
   int c = 0;
-  EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap::const_iterator i = laserMap.endcapItems().begin();
-  EcalLaserAPDPNRatios::EcalLaserAPDPNRatiosMap::const_iterator e = laserMap.endcapItems().end();
+  auto i = laserMap.endcapItems().begin();
+  auto e = laserMap.endcapItems().end();
   EEDetId ee;
   try {
-    EcalCondDBInterface *econn = new EcalCondDBInterface(m_sid, m_user, m_pass);
+    auto *econn = new EcalCondDBInterface(m_sid, m_user, m_pass);
     while (i != e) {
       if (c % 1000 == 0) {
         std::cout << std::setw(5) << c << ": " << ee.unhashIndex(c) << " "
@@ -214,8 +214,8 @@ void popcon::EcalLaserHandler::getNewObjects() {
   std::vector<EcalLogicID> crystals_EE =
       econn->getEcalLogicIDSetOrdered("EE_crystal_number", -1, 1, 1, 100, 1, 100, "EE_crystal_number", 4);
 
-  std::vector<EcalLogicID>::const_iterator ieb = crystals_EB.begin();
-  std::vector<EcalLogicID>::const_iterator eeb = crystals_EB.end();
+  auto ieb = crystals_EB.begin();
+  auto eeb = crystals_EB.end();
 
   std::cout << "Got list of " << crystals_EB.size() << " crystals in EB" << std::endl;
   std::cout << "Got list of " << crystals_EE.size() << " crystals in EE" << std::endl;
@@ -236,8 +236,8 @@ void popcon::EcalLaserHandler::getNewObjects() {
 
   // do the same for EE
 
-  std::vector<EcalLogicID>::const_iterator iee = crystals_EE.begin();
-  std::vector<EcalLogicID>::const_iterator eee = crystals_EE.end();
+  auto iee = crystals_EE.begin();
+  auto eee = crystals_EE.end();
 
   count = 0;
   while (iee != eee) {
@@ -302,17 +302,17 @@ void popcon::EcalLaserHandler::getNewObjects() {
   // sice must be equal to the number of different SEQ_ID's found
   std::cout << "Data organized into " << d.size() << " sequences" << std::endl;
   // iterate over sequences
-  std::map<int, std::map<int, LMFSextuple> >::const_iterator iseq = d.begin();
-  std::map<int, std::map<int, LMFSextuple> >::const_iterator eseq = d.end();
+  auto iseq = d.begin();
+  auto eseq = d.end();
   std::cout << "===== Looping on Sequences" << std::endl;
   while (iseq != eseq) {
     std::cout << "==== SEQ_ID: " << iseq->first << " contains " << iseq->second.size() << " crystals" << std::endl
               << std::flush;
     // iterate over crystals, but skip those sequences with wrong number of crystals
     if (iseq->second.size() == (61200 + 14648)) {
-      std::map<int, LMFSextuple>::const_iterator is = iseq->second.begin();
-      std::map<int, LMFSextuple>::const_iterator es = iseq->second.end();
-      EcalLaserAPDPNRatios *apdpns_popcon = new EcalLaserAPDPNRatios();
+      auto is = iseq->second.begin();
+      auto es = iseq->second.end();
+      auto *apdpns_popcon = new EcalLaserAPDPNRatios();
       Time_t t_last = 18446744073709551615ULL;
       while (is != es) {
         EcalLaserAPDPNRatios::EcalLaserAPDPNpair apdpnpair_temp;

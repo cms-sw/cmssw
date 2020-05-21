@@ -280,8 +280,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   int i = 0;
   int yy = 0;
   int yyy = 0;
-  for (std::vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(); it != trajCollectionHandle->end();
-       it++) {
+  for (auto it = trajCollectionHandle->begin(); it != trajCollectionHandle->end(); it++) {
     LogTrace("TestTrackHits") << "\n*****************new trajectory********************";
     double tchi2 = 0;
 
@@ -325,14 +324,14 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     LogTrace("TestTrackHits") << "a tp is associated with fraction=" << tP.begin()->second;
     //LogTrace("TestTrackHits") << "last tp is associated with fraction=" << (tP.end()-1)->second;
     std::vector<unsigned int> tpids;
-    for (TrackingParticle::g4t_iterator g4T = tp->g4Track_begin(); g4T != tp->g4Track_end(); ++g4T) {
+    for (auto g4T = tp->g4Track_begin(); g4T != tp->g4Track_end(); ++g4T) {
       LogTrace("TestTrackHits") << "tp id=" << g4T->trackId();
       tpids.push_back(g4T->trackId());
     }
 
     //LogTrace("TestTrackHits") << "Analyzing hits of track number " << ++yyy << " good track number " << ++yy;
     int pp = 0;
-    for (std::vector<TrajectoryMeasurement>::iterator tm = tmColl.begin(); tm != tmColl.end(); ++tm) {
+    for (auto tm = tmColl.begin(); tm != tmColl.end(); ++tm) {
       tchi2 += tm->estimate();
 
       LogTrace("TestTrackHits") << "+++++++++++++++++new hit+++++++++++++++++";
@@ -367,7 +366,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       std::vector<unsigned int> trackIds;
       energyLossS.clear();
       energyLossM.clear();
-      for (std::vector<PSimHit>::const_iterator m = assSimHits.begin(); m < assSimHits.end(); m++) {
+      for (auto m = assSimHits.begin(); m < assSimHits.end(); m++) {
         unsigned int tId = m->trackId();
         if (find(trackIds.begin(), trackIds.end(), tId) == trackIds.end())
           trackIds.push_back(tId);
@@ -495,7 +494,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
           if (idc == trackIds.size()) {
             shared = false;
           }
-          for (std::vector<PSimHit>::const_iterator m = assSimHits.begin() + 1; m < assSimHits.end(); m++) {
+          for (auto m = assSimHits.begin() + 1; m < assSimHits.end(); m++) {
             if ((m->processType() != 7 && m->processType() != 8 && m->processType() != 9) &&
                 abs(m->particleType()) != 11) {
               ioniOnly = false;
@@ -531,7 +530,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
             }
           }
 
-          for (std::vector<PSimHit>::const_iterator m = assSimHits.begin(); m < assSimHits.end(); m++) {
+          for (auto m = assSimHits.begin(); m < assSimHits.end(); m++) {
             unsigned int tId = m->trackId();
             LogVerbatim("TestTrackHits") << "component with id=" << tId << " eLoss=" << m->energyLoss()
                                          << " pType=" << m->processType();
@@ -598,7 +597,7 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         std::pair<LocalPoint, LocalVector> closestPair;
         const StripGeomDetUnit* stripDet = (StripGeomDetUnit*)((const GluedGeomDet*)(rhit)->det())->stereoDet();
         const BoundPlane& plane = (rhit)->det()->surface();
-        for (std::vector<PSimHit>::const_iterator m = assSimHits.begin(); m < assSimHits.end(); m++) {
+        for (auto m = assSimHits.begin(); m < assSimHits.end(); m++) {
           //project simhit;
           std::pair<LocalPoint, LocalVector> hitPair = projectHit((*m), stripDet, plane);
           distx = fabs(rechitmatchedx - hitPair.first.x());

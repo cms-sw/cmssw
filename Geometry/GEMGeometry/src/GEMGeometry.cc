@@ -23,7 +23,7 @@ const GEMGeometry::DetIdContainer& GEMGeometry::detIds() const { return theDetId
 const GeomDet* GEMGeometry::idToDetUnit(DetId id) const { return dynamic_cast<const GeomDet*>(idToDet(id)); }
 
 const GeomDet* GEMGeometry::idToDet(DetId id) const {
-  mapIdToDet::const_iterator i = theMap.find(GEMDetId(id).rawId());
+  auto i = theMap.find(GEMDetId(id).rawId());
   return (i != theMap.end()) ? i->second : nullptr;
 }
 

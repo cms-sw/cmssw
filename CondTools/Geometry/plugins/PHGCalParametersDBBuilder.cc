@@ -58,7 +58,7 @@ void PHGCalParametersDBBuilder::fillDescriptions(edm::ConfigurationDescriptions&
 }
 
 void PHGCalParametersDBBuilder::beginRun(const edm::Run&, edm::EventSetup const& es) {
-  PHGCalParameters* phgp = new PHGCalParameters;
+  auto* phgp = new PHGCalParameters;
   edm::Service<cond::service::PoolDBOutputService> mydbservice;
   if (!mydbservice.isAvailable()) {
     edm::LogError("PHGCalParametersDBBuilder") << "PoolDBOutputService unavailable";

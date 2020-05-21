@@ -108,8 +108,8 @@ void BackgroundHandler::setParameters(double* Start,
                                       const std::vector<double>& parBgr,
                                       const std::vector<int>& parBgrOrder,
                                       const int muonType) {
-  std::vector<double>::const_iterator parBgrIt = parBgr.begin();
-  std::vector<int>::const_iterator parBgrOrderIt = parBgrOrder.begin();
+  auto parBgrIt = parBgr.begin();
+  auto parBgrOrderIt = parBgrOrder.begin();
   // Set the parameters for the regions only if this is not a rescaling
   for (int iReg = 0; iReg < 3; ++iReg) {
     int shift = parNumsRegions_[iReg];
@@ -202,7 +202,7 @@ void BackgroundHandler::rescale(
   unsigned int iRegion = 0;
   for (auto const& backgroundWindow : backgroundWindow_) {
     // Iterator pointing to the first parameter of this background function in the full set of parameters
-    std::vector<double>::const_iterator parBgrIt = (parBgr.begin() + parNumsRegions_[iRegion]);
+    auto parBgrIt = (parBgr.begin() + parNumsRegions_[iRegion]);
     TF1* backgroundFunctionForIntegral = backgroundWindow.backgroundFunction()->functionForIntegral(parBgrIt);
     // WARNING: this expects the background fraction parameter to be parBgr[0] for all the background functions.
     double kOld = *parBgrIt;

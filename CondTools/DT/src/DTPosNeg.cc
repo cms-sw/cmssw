@@ -52,8 +52,8 @@ DTPosNegCompare::operator()( const DTCCBId& idl,
 void DTPosNeg::dump() {
   if (initRequest)
     fillMap();
-  std::map<int, int>::const_iterator iter = geomMap.begin();
-  std::map<int, int>::const_iterator iend = geomMap.end();
+  auto iter = geomMap.begin();
+  auto iend = geomMap.end();
   while (iter != iend) {
     const std::pair<int, int>& entry = *iter++;
     int cha = entry.first;
@@ -377,8 +377,8 @@ void DTPosNeg::decode(int code, int& p, int& t) {
 int DTPosNeg::getData(int whe, int sec, int sta) {
   if (initRequest)
     fillMap();
-  std::map<int, int>::const_iterator iter = geomMap.find(idCode(whe, sec, sta));
-  std::map<int, int>::const_iterator iend = geomMap.end();
+  auto iter = geomMap.find(idCode(whe, sec, sta));
+  auto iend = geomMap.end();
   if (iter == iend)
     return 999999;
   return iter->second;

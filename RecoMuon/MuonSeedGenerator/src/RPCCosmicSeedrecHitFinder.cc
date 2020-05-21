@@ -17,8 +17,8 @@ MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator find(
     MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator firstIter,
     MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator lastIter,
     const MuonTransientTrackingRecHit::MuonRecHitPointer& recHitRef) {
-  MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator index = lastIter;
-  for (MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator iter = firstIter; iter != lastIter; iter++)
+  auto index = lastIter;
+  for (auto iter = firstIter; iter != lastIter; iter++)
     if ((*iter) == recHitRef)
       index = iter;
   return index;
@@ -70,7 +70,7 @@ void RPCCosmicSeedrecHitFinder::setEdge(const edm::EventSetup& iSetup) {
 
   // Find all chamber in RB1in and collect their surface
   const std::vector<DetId> AllRPCId = rpcGeometry->detIds();
-  for (std::vector<DetId>::const_iterator it = AllRPCId.begin(); it != AllRPCId.end(); it++) {
+  for (auto it = AllRPCId.begin(); it != AllRPCId.end(); it++) {
     RPCDetId RPCId(it->rawId());
     int Region = RPCId.region();
     int Station = RPCId.station();
@@ -146,7 +146,7 @@ void RPCCosmicSeedrecHitFinder::fillrecHits() {
 int RPCCosmicSeedrecHitFinder::LayerComponent() {
   bool isBarrel = false;
   bool isEndcap = false;
-  for (std::vector<unsigned int>::const_iterator it = LayersinRPC.begin(); it != LayersinRPC.end(); it++) {
+  for (auto it = LayersinRPC.begin(); it != LayersinRPC.end(); it++) {
     if ((*it) < BarrelLayerNumber)
       isBarrel = true;
     if ((*it) >= BarrelLayerNumber && (*it) < (BarrelLayerNumber + EachEndcapLayerNumber * 2))
@@ -165,7 +165,7 @@ bool RPCCosmicSeedrecHitFinder::complete(const GlobalVector& lastSegment, const 
   bool isrecHitsfound = false;
 
   for (unsigned int i = 0; i < RPCLayerNumber; i++)
-    for (MuonRecHitContainer::const_iterator it = AllrecHits[i].begin(); it != AllrecHits[i].end(); it++) {
+    for (auto it = AllrecHits[i].begin(); it != AllrecHits[i].end(); it++) {
       cout << "Finding recHits from " << i << " th layer" << endl;
       // information for recHits
       GlobalPoint currentPosition = (*it)->globalPosition();
@@ -190,7 +190,7 @@ bool RPCCosmicSeedrecHitFinder::complete(const GlobalVector& lastSegment, const 
       bool Clustercheck = false;
       if (ClusterSet.empty())
         Clustercheck = true;
-      for (std::vector<int>::const_iterator CluIter = ClusterSet.begin(); CluIter != ClusterSet.end(); CluIter++)
+      for (auto CluIter = ClusterSet.begin(); CluIter != ClusterSet.end(); CluIter++)
         if (ClusterSize == (*CluIter))
           Clustercheck = true;
       if (Clustercheck != true)
@@ -254,7 +254,7 @@ bool RPCCosmicSeedrecHitFinder::complete(const GlobalVector& lastSegment, const 
         // if could not find next recHit in the search path, and have enough recHits already, that is the candidate
         bool findNext = complete(currentSegment, *it);
         if (findNext == false && therecHits.size() > 3) {
-          for (ConstMuonRecHitContainer::const_iterator iter = therecHits.begin(); iter != therecHits.end(); iter++)
+          for (auto iter = therecHits.begin(); iter != therecHits.end(); iter++)
             cout << "Find recHit in seed candidate : " << (*iter)->globalPosition().x() << ", "
                  << (*iter)->globalPosition().y() << ", " << (*iter)->globalPosition().z() << endl;
           checkandfill();
@@ -269,8 +269,8 @@ bool RPCCosmicSeedrecHitFinder::complete(const GlobalVector& lastSegment, const 
 
 bool RPCCosmicSeedrecHitFinder::isouterLayer(const MuonRecHitPointer& recHitRef) {
   bool isinsideLayers = false;
-  for (std::vector<unsigned int>::const_iterator it = LayersinRPC.begin(); it != LayersinRPC.end(); it++) {
-    MuonRecHitContainer::const_iterator index = find(AllrecHits[*it].begin(), AllrecHits[*it].end(), recHitRef);
+  for (auto it = LayersinRPC.begin(); it != LayersinRPC.end(); it++) {
+    auto index = find(AllrecHits[*it].begin(), AllrecHits[*it].end(), recHitRef);
     if (index != AllrecHits[*it].end())
       isinsideLayers = true;
   }

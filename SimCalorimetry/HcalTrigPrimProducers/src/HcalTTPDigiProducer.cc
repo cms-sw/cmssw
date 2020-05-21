@@ -132,8 +132,7 @@ void HcalTTPDigiProducer::produce(edm::Event& e, const edm::EventSetup& eventSet
     for (int j = 0; j < 5; j++)
       trigInputs[j * 8 + i] = 0;
   }
-  for (HFDigiCollection::const_iterator theDigi = hfDigiCollection->begin(); theDigi != hfDigiCollection->end();
-       theDigi++) {
+  for (auto theDigi = hfDigiCollection->begin(); theDigi != hfDigiCollection->end(); theDigi++) {
     HcalDetId id = HcalDetId(theDigi->id());
     if (isMasked(id))
       continue;

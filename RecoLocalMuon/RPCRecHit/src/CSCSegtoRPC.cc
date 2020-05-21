@@ -127,8 +127,7 @@ CSCSegtoRPC::CSCSegtoRPC(const CSCSegmentCollection* allCSCSegments,
 
             if (debug)
               std::cout << "CSC \t \t Loop over all the rolls asociated to this CSC" << std::endl;
-            for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin(); iteraRoll != rollsForThisCSC.end();
-                 iteraRoll++) {
+            for (auto iteraRoll = rollsForThisCSC.begin(); iteraRoll != rollsForThisCSC.end(); iteraRoll++) {
               const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
               RPCDetId rpcId = rollasociated->id();
 
@@ -196,8 +195,7 @@ CSCSegtoRPC::CSCSegtoRPC(const CSCSegmentCollection* allCSCSegments,
               float Y = Yo + dy * D / dz;
               float Z = D;
 
-              const TrapezoidalStripTopology* top_ =
-                  dynamic_cast<const TrapezoidalStripTopology*>(&(rollasociated->topology()));
+              const auto* top_ = dynamic_cast<const TrapezoidalStripTopology*>(&(rollasociated->topology()));
               LocalPoint xmin = top_->localPosition(0.);
               if (debug)
                 std::cout << "CSC \t \t \t xmin of this  Roll " << xmin << "cm" << std::endl;

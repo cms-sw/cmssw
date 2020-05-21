@@ -187,7 +187,7 @@ void MuonDTDigis::analyze(const Event &event, const EventSetup &eventSetup) {
   num_musimhits = 0;
   DTWireIdMap wireMap;
 
-  for (vector<PSimHit>::const_iterator hit = simHits->begin(); hit != simHits->end(); hit++) {
+  for (auto hit = simHits->begin(); hit != simHits->end(); hit++) {
     // Create the id of the wire, the simHits in the DT known also the wireId
     DTWireId wireId(hit->detUnitId());
     //   cout << " PSimHits wire id " << wireId << " part type " <<
@@ -288,7 +288,7 @@ void MuonDTDigis::analyze(const Event &event, const EventSetup &eventSetup) {
       int mu = 0;
       float theta = 0;
 
-      for (vector<const PSimHit *>::iterator hit = wireMap[wireId].begin(); hit != wireMap[wireId].end(); hit++)
+      for (auto hit = wireMap[wireId].begin(); hit != wireMap[wireId].end(); hit++)
         if (abs((*hit)->particleType()) == 13) {
           theta = atan((*hit)->momentumAtEntry().x() / (-(*hit)->momentumAtEntry().z())) * 180 / M_PI;
           //	  cout<<"momentum x: "<<(*hit)->momentumAtEntry().x()<<endl

@@ -72,12 +72,12 @@ public:
 
           if (EBDetId::validDetId(neighbourIeta, neighbourIphi)) {
             const EBDetId detid = EBDetId(neighbourIeta, neighbourIphi, EBDetId::ETAPHIMODE);
-            EcalChannelStatus::const_iterator chit = ecalStatus->find(detid);
+            auto chit = ecalStatus->find(detid);
             int status = (chit != ecalStatus->end()) ? chit->getStatusCode() & 0x1F : -1;
 
             if (status > 0) {
               bool present = false;
-              for (std::vector<int>::const_iterator s = stati.begin(); s != stati.end(); ++s) {
+              for (auto s = stati.begin(); s != stati.end(); ++s) {
                 if (*s == status) {
                   present = true;
                   break;
@@ -106,12 +106,12 @@ public:
 
           if (EEDetId::validDetId(neighbourIx, neighbourIy, hitIz)) {
             const EEDetId detid = EEDetId(neighbourIx, neighbourIy, hitIz, EEDetId::XYMODE);
-            EcalChannelStatus::const_iterator chit = ecalStatus->find(detid);
+            auto chit = ecalStatus->find(detid);
             int status = (chit != ecalStatus->end()) ? chit->getStatusCode() & 0x1F : -1;
 
             if (status > 0) {
               bool present = false;
-              for (std::vector<int>::const_iterator s = stati.begin(); s != stati.end(); ++s) {
+              for (auto s = stati.begin(); s != stati.end(); ++s) {
                 if (*s == status) {
                   present = true;
                   break;
@@ -226,7 +226,7 @@ private:
   }
 
   CdOrientation goBackOneCell(CdOrientation currDirection, EcalDetId prev, CaloNavigator<EcalDetId>* theEcalNav) const {
-    std::map<CdOrientation, CdOrientation>::iterator oIt = oppositeDirs.find(currDirection);
+    auto oIt = oppositeDirs.find(currDirection);
     CdOrientation oppDirection = none;
     if (oIt != oppositeDirs.end()) {
       oppDirection = oIt->second;
@@ -242,7 +242,7 @@ private:
     std::map<CdOrientation, CdOrientation> turnMap = nextDirs;
     if (reverseOrientation)
       turnMap = prevDirs;
-    std::map<CdOrientation, CdOrientation>::iterator nIt = turnMap.find(currDirection);
+    auto nIt = turnMap.find(currDirection);
     CdOrientation nextDirection = none;
     if (nIt != turnMap.end())
       nextDirection = (*nIt).second;
@@ -256,7 +256,7 @@ private:
     std::map<CdOrientation, CdOrientation> turnMap = prevDirs;
     if (reverseOrientation)
       turnMap = nextDirs;
-    std::map<CdOrientation, CdOrientation>::iterator nIt = turnMap.find(currDirection);
+    auto nIt = turnMap.find(currDirection);
     CdOrientation nextDirection = none;
     if (nIt != turnMap.end())
       nextDirection = (*nIt).second;
@@ -370,7 +370,7 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::boundaryRecHits(
     next = makeStepInDirection(currDirection, theEcalNav.get());
     theEcalNav->setHome(current);
     theEcalNav->home();
-    EcalChannelStatus::const_iterator chit = ecalStatus->find(next);
+    auto chit = ecalStatus->find(next);
     int status = (chit != ecalStatus->end()) ? chit->getStatusCode() & 0x1F : -1;
     if (status > 0) {
       stati.push_back(status);
@@ -400,12 +400,12 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::boundaryRecHits(
       next = makeStepInDirection(currDirection, theEcalNav.get());
       theEcalNav->setHome(current);
       theEcalNav->home();
-      EcalChannelStatus::const_iterator chit = ecalStatus->find(next);
+      auto chit = ecalStatus->find(next);
       status = (chit != ecalStatus->end()) ? chit->getStatusCode() & 0x1F : -1;
       if (status > 0) {
         // New dead cell found: update status std::vector of dead channels
         bool present = false;
-        for (std::vector<int>::const_iterator s = stati.begin(); s != stati.end(); ++s) {
+        for (auto s = stati.begin(); s != stati.end(); ++s) {
           if (*s == status) {
             present = true;
             break;
@@ -491,7 +491,7 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::boundaryRecHits(
     edm::LogInfo("EcalBoundaryInfoCalculator") << "boundary ET: " << boundaryET;
     edm::LogInfo("EcalBoundaryInfoCalculator") << "no of cells contributing to boundary energy: " << beCellCounter;
     edm::LogInfo("EcalBoundaryInfoCalculator") << "Channel stati: ";
-    for (std::vector<int>::iterator it = stati.begin(); it != stati.end(); ++it) {
+    for (auto it = stati.begin(); it != stati.end(); ++it) {
       edm::LogInfo("EcalBoundaryInfoCalculator") << *it << " ";
     }
     edm::LogInfo("EcalBoundaryInfoCalculator");
@@ -591,7 +591,7 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::gapRecHits(const edm:
       next = makeStepInDirection(currDirection, theEcalNav.get());
       theEcalNav->setHome(current);
       theEcalNav->home();
-      EcalChannelStatus::const_iterator chit = ecalStatus->find(next);
+      auto chit = ecalStatus->find(next);
       status = (chit != ecalStatus->end()) ? chit->getStatusCode() & 0x1F : -1;
       if (status > 0) {
         // Find dead cell along border -> end of cluster
@@ -670,7 +670,7 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::gapRecHits(const edm:
         next = makeStepInDirection(currDirection, theEcalNav.get());
         theEcalNav->setHome(current);
         theEcalNav->home();
-        EcalChannelStatus::const_iterator chit = ecalStatus->find(next);
+        auto chit = ecalStatus->find(next);
         status = (chit != ecalStatus->end()) ? chit->getStatusCode() & 0x1F : -1;
         if (status > 0) {
           // Find dead cell along border -> end of cluster

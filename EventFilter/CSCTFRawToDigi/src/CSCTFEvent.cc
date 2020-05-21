@@ -16,7 +16,7 @@ unsigned int CSCTFEvent::unpack(const unsigned short *buf, unsigned int length) 
   unsigned long coruptions = 0;
 
   // Combine 64-bit ddu word for simlicity and efficiency
-  const unsigned long long *dduWord = reinterpret_cast<const unsigned long long *>(buf);
+  const auto *dduWord = reinterpret_cast<const unsigned long long *>(buf);
   unsigned long long word_1 = 0, word_2 = 0;
   // 'length' counts ddu words now
   length /= sizeof(unsigned long long) / sizeof(unsigned short);

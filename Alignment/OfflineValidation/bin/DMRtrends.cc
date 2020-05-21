@@ -870,7 +870,7 @@ void PlotDMRTrends(vector<int> IOVlist,
         }
         TCanvas *c = new TCanvas("dummy", "", 2000, 800);
 
-        vector<Color_t>::iterator colour = colours.begin();
+        auto colour = colours.begin();
 
         TMultiGraph *mg = new TMultiGraph(structure, structure);
         THStack *mh = new THStack(structure, structure);

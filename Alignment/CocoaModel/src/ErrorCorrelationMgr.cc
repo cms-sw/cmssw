@@ -71,9 +71,9 @@ void ErrorCorrelationMgr::readFromReportFile(const ALIstring& filename) {
       std::pair<ALIstring, ALIstring> entry2 = (*missite).second;
 
       // build an ErrorCorrelation or update it if it exists
-      std::vector<ErrorCorrelation*>::iterator itecorr = findErrorCorrelation(entry1, entry2);
+      auto itecorr = findErrorCorrelation(entry1, entry2);
       if (itecorr == theCorrs.end()) {
-        ErrorCorrelation* corr = new ErrorCorrelation(entry1, entry2, ALIUtils::getFloat(wl[3]));
+        auto* corr = new ErrorCorrelation(entry1, entry2, ALIUtils::getFloat(wl[3]));
         if (ALIUtils::debug >= 4) {
           std::cout << " ErrorCorrelationMgr: correlation created " << entry1.first << " " << entry1.second << "  "
                     << entry2.first << " " << entry2.second << "  " << wl[3] << std::endl;

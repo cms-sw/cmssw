@@ -36,8 +36,7 @@ BTagPerformanceHarvester::BTagPerformanceHarvester(const edm::ParameterSet& pSet
   if (ptRanges.size() <= 1)
     ptRanges = {pSet.getParameter<double>("ptRecJetMin"), pSet.getParameter<double>("ptRecJetMax")};
 
-  for (vector<edm::ParameterSet>::const_iterator iModule = moduleConfig.begin(); iModule != moduleConfig.end();
-       ++iModule) {
+  for (auto iModule = moduleConfig.begin(); iModule != moduleConfig.end(); ++iModule) {
     const string& dataFormatType = iModule->exists("type") ? iModule->getParameter<string>("type") : "JetTag";
     if (dataFormatType == "JetTag") {
       const InputTag& moduleLabel = iModule->getParameter<InputTag>("label");
@@ -104,8 +103,7 @@ void BTagPerformanceHarvester::dqmEndJob(DQMStore::IBooker& ibook, DQMStore::IGe
   int iTag = -1;
   int iTagCorr = -1;
   int iInfoTag = -1;
-  for (vector<edm::ParameterSet>::const_iterator iModule = moduleConfig.begin(); iModule != moduleConfig.end();
-       ++iModule) {
+  for (auto iModule = moduleConfig.begin(); iModule != moduleConfig.end(); ++iModule) {
     const string& dataFormatType = iModule->exists("type") ? iModule->getParameter<string>("type") : "JetTag";
     const bool& doCTagPlots = iModule->exists("doCTagPlots") ? iModule->getParameter<bool>("doCTagPlots") : false;
 

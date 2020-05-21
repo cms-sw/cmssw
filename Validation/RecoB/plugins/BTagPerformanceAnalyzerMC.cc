@@ -80,8 +80,7 @@ BTagPerformanceAnalyzerMC::BTagPerformanceAnalyzerMC(const edm::ParameterSet &pS
   jecMCToken = consumes<JetCorrector>(pSet.getParameter<edm::InputTag>("JECsourceMC"));
   jecDataToken = mayConsume<JetCorrector>(pSet.getParameter<edm::InputTag>("JECsourceData"));
 
-  for (vector<edm::ParameterSet>::const_iterator iModule = moduleConfig.begin(); iModule != moduleConfig.end();
-       ++iModule) {
+  for (auto iModule = moduleConfig.begin(); iModule != moduleConfig.end(); ++iModule) {
     const string &dataFormatType = iModule->exists("type") ? iModule->getParameter<string>("type") : "JetTag";
     if (dataFormatType == "JetTag") {
       const InputTag &moduleLabel = iModule->getParameter<InputTag>("label");
@@ -139,8 +138,7 @@ void BTagPerformanceAnalyzerMC::bookHistograms(DQMStore::IBooker &ibook,
   int iTag = -1;
   int iTagCorr = -1;
   int iInfoTag = -1;
-  for (vector<edm::ParameterSet>::const_iterator iModule = moduleConfig.begin(); iModule != moduleConfig.end();
-       ++iModule) {
+  for (auto iModule = moduleConfig.begin(); iModule != moduleConfig.end(); ++iModule) {
     const string &dataFormatType = iModule->exists("type") ? iModule->getParameter<string>("type") : "JetTag";
     if (dataFormatType == "JetTag") {
       iTag++;
@@ -274,7 +272,7 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event &iEvent, const edm::Eve
   if (!useOldFlavourTool) {
     edm::Handle<JetFlavourInfoMatchingCollection> jetMC;
     iEvent.getByToken(jetToken, jetMC);
-    for (JetFlavourInfoMatchingCollection::const_iterator iter = jetMC->begin(); iter != jetMC->end(); ++iter) {
+    for (auto iter = jetMC->begin(); iter != jetMC->end(); ++iter) {
       unsigned int fl = std::abs(iter->second.getPartonFlavour());
       flavours.insert(std::make_pair(iter->first, fl));
       const GenParticleRefVector &lep = iter->second.getLeptons();
@@ -292,7 +290,7 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event &iEvent, const edm::Eve
   } else {
     edm::Handle<JetFlavourMatchingCollection> jetMC;
     iEvent.getByToken(caloJetToken, jetMC);
-    for (JetFlavourMatchingCollection::const_iterator iter = jetMC->begin(); iter != jetMC->end(); ++iter) {
+    for (auto iter = jetMC->begin(); iter != jetMC->end(); ++iter) {
       unsigned int fl = std::abs(iter->second.getFlavour());
       flavours.insert(std::make_pair(iter->first, fl));
       const reco::JetFlavour::Leptons &lep = iter->second.getLeptons();
@@ -330,7 +328,7 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event &iEvent, const edm::Eve
     LogDebug("Info") << "Found " << tagColl.size() << " B candidates in collection " << jetTagInputTags[iJetLabel];
 
     int plotterSize = binJetTagPlotters[iJetLabel].size();
-    for (JetTagCollection::const_iterator tagI = tagColl.begin(); tagI != tagColl.end(); ++tagI) {
+    for (auto tagI = tagColl.begin(); tagI != tagColl.end(); ++tagI) {
       // Identify parton associated to jet.
 
       /// needed for lepton specific plots
@@ -379,7 +377,7 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event &iEvent, const edm::Eve
     const reco::JetTagCollection &tagColl2 = *(tagHandle2.product());
 
     int plotterSize = binTagCorrelationPlotters[iJetLabel].size();
-    for (JetTagCollection::const_iterator tagI = tagColl1.begin(); tagI != tagColl1.end(); ++tagI) {
+    for (auto tagI = tagColl1.begin(); tagI != tagColl1.end(); ++tagI) {
       if (flavours[tagI->first] == 5 &&
           ((electronPlots && !leptons[tagI->first].electron) || (muonPlots && !leptons[tagI->first].muon) ||
            (tauPlots && !leptons[tagI->first].tau)))
@@ -521,7 +519,7 @@ bool BTagPerformanceAnalyzerMC::getJetWithFlavour(const edm::Event &iEvent,
     jetCorrector.setCorrector(corrector);
     if (recProdId != refProdId) {
       edm::RefToBaseVector<Jet> refJets;
-      for (FlavourMap::const_iterator iter = flavours.begin(); iter != flavours.end(); ++iter)
+      for (auto iter = flavours.begin(); iter != flavours.end(); ++iter)
         refJets.push_back(iter->first);
       const edm::RefToBaseProd<Jet> recJetsProd(edm::makeRefToBaseProdFrom(jetRef, iEvent));
       edm::RefToBaseVector<Jet> recJets;

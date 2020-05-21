@@ -42,12 +42,11 @@ void MuonLinksProducerForHLT::produce(edm::StreamID, edm::Event& iEvent, const e
   edm::Handle<reco::TrackCollection> incTracks;
   iEvent.getByToken(trackToken_, incTracks);
 
-  for (reco::MuonTrackLinksCollection::const_iterator link = links->begin(); link != links->end(); ++link) {
+  for (auto link = links->begin(); link != links->end(); ++link) {
     bool found = false;
     unsigned int trackIndex = 0;
     unsigned int muonTrackHits = link->trackerTrack()->extra()->recHitsSize();
-    for (reco::TrackCollection::const_iterator track = incTracks->begin(); track != incTracks->end();
-         ++track, ++trackIndex) {
+    for (auto track = incTracks->begin(); track != incTracks->end(); ++track, ++trackIndex) {
       if (track->pt() < ptMin)
         continue;
       if (track->p() < pMin)

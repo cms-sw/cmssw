@@ -211,11 +211,9 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt, const edm::EventSetup
   // This is should be optimized (SA, 20110621)
 
   // loop on original clean BC collection and see if the BC is missing from the new one
-  for (reco::BasicClusterCollection::const_iterator bc = pCleanBC->begin(); bc != pCleanBC->end(); ++bc) {
+  for (auto bc = pCleanBC->begin(); bc != pCleanBC->end(); ++bc) {
     bool foundTheSame = false;
-    for (reco::BasicClusterCollection::const_iterator cleanonly_bc = basicClusters.begin();
-         cleanonly_bc != basicClusters.end();
-         ++cleanonly_bc) {
+    for (auto cleanonly_bc = basicClusters.begin(); cleanonly_bc != basicClusters.end(); ++cleanonly_bc) {
       const std::vector<std::pair<DetId, float> >& chits = bc->hitsAndFractions();
       int chitsSize = chits.size();
 

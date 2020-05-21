@@ -101,18 +101,15 @@ namespace edm {
 
   void fillDescriptionFromPSet(ParameterSet const& pset, ParameterSetDescription& desc) {
     ParameterSet::table const& entries = pset.tbl();
-    for (ParameterSet::table::const_iterator entry = entries.begin(), endEntries = entries.end(); entry != endEntries;
-         ++entry) {
-      std::map<edm::ParameterTypes, FillDescriptionFromParameter>::iterator iter =
-          findTheRightFunction().find(static_cast<edm::ParameterTypes>(entry->second.typeCode()));
+    for (auto entry = entries.begin(), endEntries = entries.end(); entry != endEntries; ++entry) {
+      auto iter = findTheRightFunction().find(static_cast<edm::ParameterTypes>(entry->second.typeCode()));
       if (iter != findTheRightFunction().end()) {
         iter->second(pset, entry->first, entry->second.isTracked(), desc);
       }
     }
 
     ParameterSet::psettable const& pset_entries = pset.psetTable();
-    for (ParameterSet::psettable::const_iterator pset_entry = pset_entries.begin(), endEntries = pset_entries.end();
-         pset_entry != endEntries;
+    for (auto pset_entry = pset_entries.begin(), endEntries = pset_entries.end(); pset_entry != endEntries;
          ++pset_entry) {
       edm::ParameterSet nestedPset;
       if (pset_entry->second.isTracked()) {
@@ -130,8 +127,7 @@ namespace edm {
     }
 
     ParameterSet::vpsettable const& vpset_entries = pset.vpsetTable();
-    for (ParameterSet::vpsettable::const_iterator vpset_entry = vpset_entries.begin(), endEntries = vpset_entries.end();
-         vpset_entry != endEntries;
+    for (auto vpset_entry = vpset_entries.begin(), endEntries = vpset_entries.end(); vpset_entry != endEntries;
          ++vpset_entry) {
       std::vector<edm::ParameterSet> nestedVPset;
       if (vpset_entry->second.isTracked()) {

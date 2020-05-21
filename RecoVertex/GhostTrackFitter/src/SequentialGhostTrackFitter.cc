@@ -48,7 +48,7 @@ GhostTrackPrediction SequentialGhostTrackFitter::fit(const GhostTrackFitter::Pre
     ndof = 0.;  // prior gives us an initial ndof
     chi2 = 0.;
 
-    for (std::vector<GhostTrackState>::const_iterator state = states.begin(); state != states.end(); ++state) {
+    for (auto state = states.begin(); state != states.end(); ++state) {
       if (state->isValid() && state->weight() > weightThreshold)
         pred = updater.update(pred, *state, ndof, chi2);
     }

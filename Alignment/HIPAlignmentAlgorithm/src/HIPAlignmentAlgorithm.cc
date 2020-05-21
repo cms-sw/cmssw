@@ -197,9 +197,7 @@ void HIPAlignmentAlgorithm::initialize(const edm::EventSetup& setup,
     // APE parameters, clear if necessary
     theAPEParameters.clear();
     if (theApplyAPE) {
-      for (std::vector<edm::ParameterSet>::const_iterator setiter = theAPEParameterSet.begin();
-           setiter != theAPEParameterSet.end();
-           ++setiter) {
+      for (auto setiter = theAPEParameterSet.begin(); setiter != theAPEParameterSet.end(); ++setiter) {
         align::Alignables alignables;
 
         selector.clear();
@@ -219,7 +217,7 @@ void HIPAlignmentAlgorithm::initialize(const edm::EventSetup& setup,
         if (apeSPar.size() != 3 || apeRPar.size() != 3)
           throw cms::Exception("BadConfig") << "apeSPar and apeRPar must have 3 values each" << std::endl;
 
-        for (std::vector<double>::const_iterator i = apeRPar.begin(); i != apeRPar.end(); ++i)
+        for (auto i = apeRPar.begin(); i != apeRPar.end(); ++i)
           apeSPar.push_back(*i);
 
         if (function == std::string("linear"))
@@ -239,9 +237,7 @@ void HIPAlignmentAlgorithm::initialize(const edm::EventSetup& setup,
     // Relative error per component instead of overall relative error
     theAlignableSpecifics.clear();
     if (theApplyCutsPerComponent) {
-      for (std::vector<edm::ParameterSet>::const_iterator setiter = theCutsPerComponent.begin();
-           setiter != theCutsPerComponent.end();
-           ++setiter) {
+      for (auto setiter = theCutsPerComponent.begin(); setiter != theCutsPerComponent.end(); ++setiter) {
         align::Alignables alignables;
 
         selector.clear();
@@ -307,7 +303,7 @@ void HIPAlignmentAlgorithm::startNewLoop(void) {
   for (const auto& it : theAlignables) {
     AlignmentParameters* ap = it->alignmentParameters();
     int npar = ap->numSelected();
-    HIPUserVariables* userpar = new HIPUserVariables(npar);
+    auto* userpar = new HIPUserVariables(npar);
     ap->setUserVariables(userpar);
   }
 
@@ -377,7 +373,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup) {
     for (unsigned int i = 0; i < nAlignable; ++i) {
       const Alignable* ali = theAlignables[i];
       AlignmentParameters* ap = ali->alignmentParameters();
-      HIPUserVariables* uservar = dynamic_cast<HIPUserVariables*>(ap->userVariables());
+      auto* uservar = dynamic_cast<HIPUserVariables*>(ap->userVariables());
       int nhit = uservar->nhit;
 
       // get position
@@ -552,7 +548,7 @@ bool HIPAlignmentAlgorithm::processHit1D(const AlignableDetOrUnitPtr& alidet,
 
   // get Alignment Parameters
   AlignmentParameters* params = ali->alignmentParameters();
-  HIPUserVariables* uservar = dynamic_cast<HIPUserVariables*>(params->userVariables());
+  auto* uservar = dynamic_cast<HIPUserVariables*>(params->userVariables());
   uservar->datatype = theDataGroup;
   // get derivatives
   AlgebraicMatrix derivs2D = params->selectedDerivatives(tsos, alidet);
@@ -663,7 +659,7 @@ bool HIPAlignmentAlgorithm::processHit2D(const AlignableDetOrUnitPtr& alidet,
 
   // get Alignment Parameters
   AlignmentParameters* params = ali->alignmentParameters();
-  HIPUserVariables* uservar = dynamic_cast<HIPUserVariables*>(params->userVariables());
+  auto* uservar = dynamic_cast<HIPUserVariables*>(params->userVariables());
   uservar->datatype = theDataGroup;
   // get derivatives
   AlgebraicMatrix derivs2D = params->selectedDerivatives(tsos, alidet);
@@ -744,7 +740,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo& e
 
   // loop over tracks
   const ConstTrajTrackPairCollection& tracks = eventInfo.trajTrackPairs();
-  for (ConstTrajTrackPairCollection::const_iterator it = tracks.begin(); it != tracks.end(); ++it) {
+  for (auto it = tracks.begin(); it != tracks.end(); ++it) {
     const Trajectory* traj = (*it).first;
     const reco::Track* track = (*it).second;
 
@@ -807,7 +803,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo& e
 
     // loop over measurements
     std::vector<TrajectoryMeasurement> measurements = traj->measurements();
-    for (std::vector<TrajectoryMeasurement>::iterator im = measurements.begin(); im != measurements.end(); ++im) {
+    for (auto im = measurements.begin(); im != measurements.end(); ++im) {
       TrajectoryMeasurement meas = *im;
 
       // const TransientTrackingRecHit* ttrhit = &(*meas.recHit());
@@ -888,8 +884,8 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo& e
     // get concatenated alignment parameters for list of alignables
     CompositeAlignmentParameters aap = theAlignmentParameterStore->selectParameters(alidetvec);
 
-    std::vector<TrajectoryStateOnSurface>::const_iterator itsos = tsosvec.begin();
-    std::vector<const TransientTrackingRecHit*>::const_iterator ihit = hitvec.begin();
+    auto itsos = tsosvec.begin();
+    auto ihit = hitvec.begin();
 
     // loop over vectors(hit,tsos)
     while (itsos != tsosvec.end()) {
@@ -1172,7 +1168,7 @@ void HIPAlignmentAlgorithm::fillAlignablesMonitor(const edm::EventSetup& iSetup)
     // consider only those parameters classified as 'valid'
     if (dap->isValid()) {
       // get number of hits from user variable
-      HIPUserVariables* uservar = dynamic_cast<HIPUserVariables*>(dap->userVariables());
+      auto* uservar = dynamic_cast<HIPUserVariables*>(dap->userVariables());
       m2_Nhit = uservar->nhit;
       m2_datatype = uservar->datatype;
 
@@ -1239,7 +1235,7 @@ bool HIPAlignmentAlgorithm::calcParameters(Alignable* ali, int setDet, double st
   AlignmentParameters* par = ali->alignmentParameters();
   const HIPAlignableSpecificParameters* alispecifics = findAlignableSpecs(ali);
   // access user variables
-  HIPUserVariables* uservar = dynamic_cast<HIPUserVariables*>(par->userVariables());
+  auto* uservar = dynamic_cast<HIPUserVariables*>(par->userVariables());
   int nhit = uservar->nhit;
   // The following variable is needed for the extended 1D/2D hit fix using
   // matrix shrinkage and expansion
@@ -1362,12 +1358,11 @@ void HIPAlignmentAlgorithm::collector(void) {
                                    << theIteration;
         continue;
       }
-      std::vector<AlignmentUserVariables*>::const_iterator iuvar =
-          uvarvec.begin();  // This vector should have 1-to-1 correspondence with the alignables vector
+      auto iuvar = uvarvec.begin();  // This vector should have 1-to-1 correspondence with the alignables vector
       for (const auto& ali : theAlignables) {
         // No need for the user variables already attached to the alignables
         // Just count from what you read.
-        HIPUserVariables* uvar = dynamic_cast<HIPUserVariables*>(*iuvar);
+        auto* uvar = dynamic_cast<HIPUserVariables*>(*iuvar);
         if (uvar != nullptr) {
           int alijobdtype = uvar->datatype;
           pawt_t alijobnhits = uvar->nhit;
@@ -1413,12 +1408,12 @@ void HIPAlignmentAlgorithm::collector(void) {
 
     // add
     std::vector<AlignmentUserVariables*> uvarvecadd;
-    std::vector<AlignmentUserVariables*>::const_iterator iuvarnew = uvarvec.begin();
+    auto iuvarnew = uvarvec.begin();
     for (const auto& ali : theAlignables) {
       AlignmentParameters* ap = ali->alignmentParameters();
 
-      HIPUserVariables* uvarold = dynamic_cast<HIPUserVariables*>(ap->userVariables());
-      HIPUserVariables* uvarnew = dynamic_cast<HIPUserVariables*>(*iuvarnew);
+      auto* uvarold = dynamic_cast<HIPUserVariables*>(ap->userVariables());
+      auto* uvarnew = dynamic_cast<HIPUserVariables*>(*iuvarnew);
 
       HIPUserVariables* uvar = uvarold->clone();
       uvar->datatype =
@@ -1548,9 +1543,7 @@ void HIPAlignmentAlgorithm::collectMonitorTrees(const std::vector<std::string>& 
 //-----------------------------------------------------------------------------------
 HIPAlignableSpecificParameters* HIPAlignmentAlgorithm::findAlignableSpecs(const Alignable* ali) {
   if (ali != nullptr) {
-    for (std::vector<HIPAlignableSpecificParameters>::iterator it = theAlignableSpecifics.begin();
-         it != theAlignableSpecifics.end();
-         it++) {
+    for (auto it = theAlignableSpecifics.begin(); it != theAlignableSpecifics.end(); it++) {
       if (it->matchAlignable(ali))
         return &(*it);
     }

@@ -72,7 +72,7 @@ void L1TUtmTriggerMenuDumper::beginRun(Run const& run, EventSetup const& iSetup)
   bool hasPrecision = false;
   std::map<std::string, unsigned int> precisions;
   getPrecisions(precisions, scaleMap);
-  for (std::map<std::string, unsigned int>::const_iterator cit = precisions.begin(); cit != precisions.end(); cit++) {
+  for (auto cit = precisions.begin(); cit != precisions.end(); cit++) {
     std::cout << cit->first << " = " << cit->second << "\n";
     hasPrecision = true;
   }
@@ -127,7 +127,7 @@ void L1TUtmTriggerMenuDumper::beginRun(Run const& run, EventSetup const& iSetup)
     }
   }
 
-  for (std::map<std::string, esAlgorithm>::const_iterator cit = algoMap.begin(); cit != algoMap.end(); cit++) {
+  for (auto cit = algoMap.begin(); cit != algoMap.end(); cit++) {
     const esAlgorithm& algo = cit->second;
     std::cout << "algo name = " << algo.getName() << "\n";
     std::cout << "algo exp. = " << algo.getExpression() << "\n";

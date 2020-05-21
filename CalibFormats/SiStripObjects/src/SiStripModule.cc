@@ -322,7 +322,7 @@ SiStripModule::FedChannel SiStripModule::fedCh(const uint16_t &apv_pair) const {
                                   << " Unexpected number of APV pairs: " << nApvPairs();
     }
 
-    FedCabling::const_iterator ipair = cabling_.find(lld_ch);
+    auto ipair = cabling_.find(lld_ch);
     if (ipair != cabling_.end()) {
       return (*ipair).second;
     } else {
@@ -353,7 +353,7 @@ bool SiStripModule::fedCh(const uint16_t &apv_address, const FedChannel &fed_ch)
   // Search for entry in std::map
   //@@ use FedKey as key instead of lld chan? what about "duplicates"?
   //@@ always append to std::map? then can have >3 entries. useful for debug?
-  FedCabling::iterator ipair = cabling_.find(lld_ch);
+  auto ipair = cabling_.find(lld_ch);
   if (ipair == cabling_.end()) {
     cabling_[lld_ch] = fed_ch;
   } else {
@@ -374,7 +374,7 @@ void SiStripModule::print(std::stringstream &ss) const {
   if (apvs.empty()) {
     ss << "NONE!";
   }
-  std::vector<uint16_t>::const_iterator iapv = apvs.begin();
+  auto iapv = apvs.begin();
   for (; iapv != apvs.end(); ++iapv) {
     ss << *iapv << ", ";
   }
@@ -386,7 +386,7 @@ void SiStripModule::print(std::stringstream &ss) const {
 
   FedCabling channels = fedChannels();
   ss << " ApvPairNum/FedCrate/FedSlot/FedId/FedCh : ";
-  FedCabling::const_iterator ichan = channels.begin();
+  auto ichan = channels.begin();
   for (; ichan != channels.end(); ++ichan) {
     ss << ichan->first << "/" << ichan->second.fedCrate_ << "/" << ichan->second.fedSlot_ << "/" << ichan->second.fedId_
        << "/" << ichan->second.fedCh_ << ", ";
@@ -409,7 +409,7 @@ void SiStripModule::terse(std::stringstream &ss) const {
   if (apvs.empty()) {
     ss << "NONE!";
   }
-  std::vector<uint16_t>::const_iterator iapv = apvs.begin();
+  auto iapv = apvs.begin();
   for (; iapv != apvs.end(); ++iapv) {
     ss << *iapv << ", ";
   }
@@ -421,7 +421,7 @@ void SiStripModule::terse(std::stringstream &ss) const {
 
   FedCabling channels = fedChannels();
   ss << " ApvPairNum/FedCrate/FedSlot/FedId/FedCh : ";
-  FedCabling::const_iterator ichan = channels.begin();
+  auto ichan = channels.begin();
   for (; ichan != channels.end(); ++ichan) {
     ss << ichan->first << "/" << ichan->second.fedCrate_ << "/" << ichan->second.fedSlot_ << "/" << ichan->second.fedId_
        << "/" << ichan->second.fedCh_ << ", ";

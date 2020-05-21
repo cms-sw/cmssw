@@ -95,7 +95,7 @@ static void createWatchers(const edm::ParameterSet& iP,
 
   vector<ParameterSet> watchers = iP.getParameter<vector<ParameterSet> >("Watchers");
 
-  for (vector<ParameterSet>::iterator itWatcher = watchers.begin(); itWatcher != watchers.end(); ++itWatcher) {
+  for (auto itWatcher = watchers.begin(); itWatcher != watchers.end(); ++itWatcher) {
     std::shared_ptr<SimWatcherMakerBase> maker(
         SimWatcherFactory::get()->create(itWatcher->getParameter<std::string>("type")));
     if (maker.get() == nullptr) {

@@ -324,7 +324,7 @@ void PatBTagCommonHistos::Set(std::string flavor) {
 // ------------              after setting histograms                --------------------
 // ------------  This function is needed to save histogram errors -----------------------
 void PatBTagCommonHistos::Sumw2() {
-  for (std::map<std::string, TH1D*>::const_iterator ih = histocontainer_.begin(); ih != histocontainer_.end(); ++ih) {
+  for (auto ih = histocontainer_.begin(); ih != histocontainer_.end(); ++ih) {
     TH1D* htemp = (TH1D*)ih->second;
     htemp->Sumw2();
   }

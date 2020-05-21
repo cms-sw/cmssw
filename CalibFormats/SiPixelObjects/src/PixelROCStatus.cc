@@ -20,7 +20,7 @@ PixelROCStatus::PixelROCStatus() : bits_(0) {}
 
 //======================================================================================
 PixelROCStatus::PixelROCStatus(const std::set<ROCstatus>& stat) {
-  std::set<ROCstatus>::const_iterator i = stat.begin();
+  auto i = stat.begin();
 
   for (; i != stat.end(); ++i) {
     set(*i);

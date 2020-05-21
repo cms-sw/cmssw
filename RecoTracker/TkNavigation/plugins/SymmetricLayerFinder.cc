@@ -10,14 +10,13 @@
 using namespace std;
 
 SymmetricLayerFinder::SymmetricLayerFinder(const FDLC& flc) {
-  ConstFDLI middle =
-      find_if(flc.begin(), flc.end(), [](const GeometricSearchDet* a) { return a->position().z() >= 0.0; });
+  auto middle = find_if(flc.begin(), flc.end(), [](const GeometricSearchDet* a) { return a->position().z() >= 0.0; });
 
   FDLC leftLayers = FDLC(flc.begin(), middle);
   FDLC rightLayers = FDLC(middle, flc.end());
   vector<PairType> foundPairs;
 
-  for (FDLI i = leftLayers.begin(); i != leftLayers.end(); i++) {
+  for (auto i = leftLayers.begin(); i != leftLayers.end(); i++) {
     const ForwardDetLayer* partner = mirrorPartner(*i, rightLayers);
     //if ( partner == 0) throw DetLogicError("Assymmetric forward layers in Tracker");
     if (partner == nullptr)
@@ -27,7 +26,7 @@ SymmetricLayerFinder::SymmetricLayerFinder(const FDLC& flc) {
   }
 
   // fill the map
-  for (vector<PairType>::iterator ipair = foundPairs.begin(); ipair != foundPairs.end(); ipair++) {
+  for (auto ipair = foundPairs.begin(); ipair != foundPairs.end(); ipair++) {
     theForwardMap[ipair->first] = ipair->second;
     theForwardMap[ipair->second] = ipair->first;
   }
@@ -42,7 +41,7 @@ const ForwardDetLayer* SymmetricLayerFinder::mirrorPartner(const ForwardDetLayer
     return std::abs(zdiff) < 2.f && std::abs(rdiff) < 1.f;  // units are cm
   };
 
-  ConstFDLI result = find_if(rightLayers.begin(), rightLayers.end(), mirrorImage);
+  auto result = find_if(rightLayers.begin(), rightLayers.end(), mirrorImage);
   if (result == rightLayers.end())
     return nullptr;
   else
@@ -51,7 +50,7 @@ const ForwardDetLayer* SymmetricLayerFinder::mirrorPartner(const ForwardDetLayer
 
 SymmetricLayerFinder::FDLC SymmetricLayerFinder::mirror(const FDLC& input) {
   FDLC result;
-  for (ConstFDLI i = input.begin(); i != input.end(); i++) {
+  for (auto i = input.begin(); i != input.end(); i++) {
     result.push_back(mirror(*i));
   }
   return result;

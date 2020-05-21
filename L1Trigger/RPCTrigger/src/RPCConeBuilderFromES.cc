@@ -72,7 +72,7 @@ L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollect
       std::pair<L1RPCConeBuilder::TStripConVec::const_iterator, L1RPCConeBuilder::TStripConVec::const_iterator> itPair =
           coneBuilder->getConVec(rawId, digiIt->strip());
 
-      L1RPCConeBuilder::TStripConVec::const_iterator it = itPair.first;
+      auto it = itPair.first;
       // Iterate over uncompressed connections, convert digis to logHits
       for (; it != itPair.second; ++it) {
         //std::cout << " Not empty!" << std::endl;
@@ -91,7 +91,7 @@ L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollect
       }
       */
 
-      L1RPCConeBuilder::TCompressedConVec::const_iterator itComp = compressedConnPair.first;
+      auto itComp = compressedConnPair.first;
       for (; itComp != compressedConnPair.second; ++itComp) {
         if (hwConfig->isActive(itComp->m_tower, itComp->m_PAC)) {
           int logstrip = itComp->getLogStrip(digiIt->strip(), coneDef->getLPSizeVec());
@@ -114,7 +114,7 @@ L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollect
   }
 
   // check if we dont have any preferable uncompressed loghits
-  std::vector<RPCLogHit>::iterator itLHitUncomp = logHitsFromUncomp.begin();
+  auto itLHitUncomp = logHitsFromUncomp.begin();
   std::vector<RPCLogHit>::iterator itLHitComp;
 
   // overwrite uncompressed with those coming from compressed

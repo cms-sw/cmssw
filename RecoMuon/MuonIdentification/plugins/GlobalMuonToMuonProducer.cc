@@ -37,7 +37,7 @@ void GlobalMuonToMuonProducer::printTrackRecHits(const reco::Track& track,
   LogTrace(metname) << "Valid RecHits: " << track.found() << " invalid RecHits: " << track.lost();
 
   int i = 0;
-  for (trackingRecHit_iterator recHit = track.recHitsBegin(); recHit != track.recHitsEnd(); ++recHit)
+  for (auto recHit = track.recHitsBegin(); recHit != track.recHitsEnd(); ++recHit)
     if ((*recHit)->isValid()) {
       const GeomDet* geomDet = trackingGeometry->idToDet((*recHit)->geographicalId());
       double r = geomDet->surface().position().perp();
@@ -66,8 +66,7 @@ void GlobalMuonToMuonProducer::produce(edm::StreamID, edm::Event& event, const e
   edm::ESHandle<GlobalTrackingGeometry> trackingGeometry;
   eventSetup.get<GlobalTrackingGeometryRecord>().get(trackingGeometry);
 
-  for (reco::MuonTrackLinksCollection::const_iterator links = linksCollection->begin(); links != linksCollection->end();
-       ++links) {
+  for (auto links = linksCollection->begin(); links != linksCollection->end(); ++links) {
     // some temporary print-out
     LogTrace(metname) << "trackerTrack";
     printTrackRecHits(*(links->trackerTrack()), trackingGeometry);

@@ -101,7 +101,7 @@ void Pythia6Gun::attachPy6DecaysToGenEvent() {
       HepMC::GenParticle* parentPart = fEvt->barcode_to_particle(parent);
       parentPart->set_status(2);  // reset status, to mark that it's decayed
 
-      HepMC::GenVertex* DecVtx = new HepMC::GenVertex(
+      auto* DecVtx = new HepMC::GenVertex(
           HepMC::FourVector(pyjets.v[0][iprt], pyjets.v[1][iprt], pyjets.v[2][iprt], pyjets.v[3][iprt]));
       DecVtx->add_particle_in(parentPart);  // this will cleanup end_vertex if exists,
                                             // and replace with the new one
@@ -119,8 +119,7 @@ void Pythia6Gun::attachPy6DecaysToGenEvent() {
       } else if (pyjets.k[0][iprt] >= 31 && pyjets.k[0][iprt] <= 100) {
         dstatus = pyjets.k[0][iprt];
       }
-      HepMC::GenParticle* daughter =
-          new HepMC::GenParticle(pmom, HepPID::translatePythiatoPDT(pyjets.k[1][iprt]), dstatus);
+      auto* daughter = new HepMC::GenParticle(pmom, HepPID::translatePythiatoPDT(pyjets.k[1][iprt]), dstatus);
       daughter->suggest_barcode(iprt + 1);
       DecVtx->add_particle_out(daughter);
       // give particle barcode as well !
@@ -143,8 +142,7 @@ void Pythia6Gun::attachPy6DecaysToGenEvent() {
         } else if (pyjets.k[0][iprt1] >= 31 && pyjets.k[0][iprt1] <= 100) {
           dstatus = pyjets.k[0][iprt1];
         }
-        HepMC::GenParticle* daughterN =
-            new HepMC::GenParticle(pmomN, HepPID::translatePythiatoPDT(pyjets.k[1][iprt1]), dstatus);
+        auto* daughterN = new HepMC::GenParticle(pmomN, HepPID::translatePythiatoPDT(pyjets.k[1][iprt1]), dstatus);
         daughterN->suggest_barcode(iprt1 + 1);
         DecVtx->add_particle_out(daughterN);
       }
@@ -222,7 +220,7 @@ HepMC::GenParticle* Pythia6Gun::addAntiParticle(int& ip, int& particleID, double
   double py = pyjets.p[1][ip - 1];  // pt*sin(phi) ;
   double pz = pyjets.p[2][ip - 1];  // mom*cos(the) ;
   HepMC::FourVector ap(px, py, pz, ee);
-  HepMC::GenParticle* APart = new HepMC::GenParticle(ap, particleID2, 1);
+  auto* APart = new HepMC::GenParticle(ap, particleID2, 1);
   APart->suggest_barcode(ip);
 
   return APart;

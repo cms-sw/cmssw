@@ -383,7 +383,7 @@ void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 
     if (!tC1->empty()) {
       unsigned int iC = 0;
-      for (reco::TrackCollection::const_iterator track = tC1->begin(); track != tC1->end(); track++) {
+      for (auto track = tC1->begin(); track != tC1->end(); track++) {
         i++;
         trackCollNum[i] = j;
         trackQuals[i] = track->qualityMask();
@@ -456,7 +456,7 @@ void TrackListMerger::produce(edm::Event& e, const edm::EventSetup& es) {
 
     rh1[i].reserve(validHits);
     auto compById = [](IHit const& h1, IHit const& h2) { return h1.first < h2.first; };
-    for (trackingRecHit_iterator it = track->recHitsBegin(); it != track->recHitsEnd(); ++it) {
+    for (auto it = track->recHitsBegin(); it != track->recHitsEnd(); ++it) {
       const TrackingRecHit* hit = (*it);
       unsigned int id = hit->rawId();
       if (hit->geographicalId().subdetId() > 2)

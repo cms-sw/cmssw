@@ -31,7 +31,7 @@ void MeasurementSensor2D::calculateSimulatedValue(ALIbool firstTime) {
   int isec = 0;  //security variable to check OptOList().size()
 
   //---------- Loop list of OptO that take part in measurement
-  std::vector<OpticalObject*>::const_iterator vocite = OptOList().begin();
+  auto vocite = OptOList().begin();
   //-  if( ALIUtils::debug >= 5) std::cout  << "OptOList size" <<OptOList().size() << std::endl;
 
   //----- Check that first object is 'laser' or 'source'

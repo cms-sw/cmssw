@@ -204,19 +204,19 @@ namespace edm {
       // Use these lists to prepare a map to use in tracking suppression
 
       // Do suppressDebug first and suppressError last to get proper order
-      for (vString::const_iterator it = suppressDebug.begin(); it != suppressDebug.end(); ++it) {
+      for (auto it = suppressDebug.begin(); it != suppressDebug.end(); ++it) {
         suppression_levels_[*it] = ELseverityLevel::ELsev_success;
       }
 
-      for (vString::const_iterator it = suppressInfo.begin(); it != suppressInfo.end(); ++it) {
+      for (auto it = suppressInfo.begin(); it != suppressInfo.end(); ++it) {
         suppression_levels_[*it] = ELseverityLevel::ELsev_info;
       }
 
-      for (vString::const_iterator it = suppressWarning.begin(); it != suppressWarning.end(); ++it) {
+      for (auto it = suppressWarning.begin(); it != suppressWarning.end(); ++it) {
         suppression_levels_[*it] = ELseverityLevel::ELsev_warning;
       }
 
-      for (vString::const_iterator it = suppressError.begin();  // change log 20
+      for (auto it = suppressError.begin();  // change log 20
            it != suppressError.end();
            ++it) {
         suppression_levels_[*it] = ELseverityLevel::ELsev_error;
@@ -234,7 +234,7 @@ namespace edm {
       }
 
       // if ( debugModules.empty()) anyDebugEnabled_ = true; // wrong; change log 11
-      for (vString::const_iterator it = debugModules.begin(); it != debugModules.end(); ++it) {
+      for (auto it = debugModules.begin(); it != debugModules.end(); ++it) {
         if (*it == "*") {
           everyDebugEnabled_ = true;
         } else {
@@ -488,8 +488,7 @@ namespace edm {
       } else {
         messageDrop->debugEnabled = debugEnabledModules_.count(state);  // change log 8
       }
-      std::map<const std::string, ELseverityLevel>::const_iterator it =
-          suppression_levels_.find(state);  // change log 8
+      auto it = suppression_levels_.find(state);  // change log 8
       if (it != suppression_levels_.end()) {
         messageDrop->debugEnabled = messageDrop->debugEnabled && (it->second < ELseverityLevel::ELsev_success);
         messageDrop->infoEnabled = (it->second < ELseverityLevel::ELsev_info);
@@ -842,7 +841,7 @@ namespace edm {
 
     void MessageLogger::SummarizeInJobReport() {
       if (fjrSummaryRequested_) {
-        std::map<std::string, double>* smp = new std::map<std::string, double>();
+        auto* smp = new std::map<std::string, double>();
         MessageLoggerQ::MLqJRS(smp);
         Service<JobReport> reportSvc;
         reportSvc->reportMessageInfo(*smp);

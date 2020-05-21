@@ -53,7 +53,7 @@ void FastTSGFromIOHit::trackerSeeds(const TrackCand& staMuon,
   }
 
   // cast the tracking region
-  const RectangularEtaPhiTrackingRegion& regionRef = dynamic_cast<const RectangularEtaPhiTrackingRegion&>(region);
+  const auto& regionRef = dynamic_cast<const RectangularEtaPhiTrackingRegion&>(region);
 
   // select and store seeds
   std::set<unsigned> simTrackIds;
@@ -61,7 +61,7 @@ void FastTSGFromIOHit::trackerSeeds(const TrackCand& staMuon,
     for (const auto& seed : *seeds) {
       // Find the simtrack corresponding to the seed
       TrajectorySeed::range recHitRange = seed.recHits();
-      const FastTrackerRecHit* firstRecHit = (const FastTrackerRecHit*)(&(*(recHitRange.first)));
+      const auto* firstRecHit = (const FastTrackerRecHit*)(&(*(recHitRange.first)));
       int simTrackId = firstRecHit->simTrackId(0);
       const SimTrack& simTrack = (*simTracks)[simTrackId];
 

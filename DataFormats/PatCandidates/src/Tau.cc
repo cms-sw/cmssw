@@ -93,7 +93,7 @@ void Tau::initFromBaseTau(const reco::BaseTau& aTau) {
   if (pfTau != nullptr) {
     // If PFTau is made from PackedCandidates, directly fill slimmed version
     // without PFSpecific
-    const pat::PackedCandidate* pc = dynamic_cast<const pat::PackedCandidate*>(pfTau->leadChargedHadrCand().get());
+    const auto* pc = dynamic_cast<const pat::PackedCandidate*>(pfTau->leadChargedHadrCand().get());
     if (pc != nullptr) {
       for (const auto& ptr : pfTau->signalChargedHadrCands())
         signalChargedHadrCandPtrs_.push_back(ptr);
@@ -217,14 +217,14 @@ const reco::GenJet* Tau::genJet() const { return (!genJet_.empty() ? &genJet_.fr
 
 // method to retrieve a tau ID (or throw)
 float Tau::tauID(const std::string& name) const {
-  for (std::vector<IdPair>::const_iterator it = tauIDs_.begin(), ed = tauIDs_.end(); it != ed; ++it) {
+  for (auto it = tauIDs_.begin(), ed = tauIDs_.end(); it != ed; ++it) {
     if (it->first == name)
       return it->second;
   }
   cms::Exception ex("Key not found");
   ex << "pat::Tau: the ID " << name << " can't be found in this pat::Tau.\n";
   ex << "The available IDs are: ";
-  for (std::vector<IdPair>::const_iterator it = tauIDs_.begin(), ed = tauIDs_.end(); it != ed; ++it) {
+  for (auto it = tauIDs_.begin(), ed = tauIDs_.end(); it != ed; ++it) {
     ex << "'" << it->first << "' ";
   }
   ex << ".\n";
@@ -232,7 +232,7 @@ float Tau::tauID(const std::string& name) const {
 }
 // check if an ID is there
 bool Tau::isTauIDAvailable(const std::string& name) const {
-  for (std::vector<IdPair>::const_iterator it = tauIDs_.begin(), ed = tauIDs_.end(); it != ed; ++it) {
+  for (auto it = tauIDs_.begin(), ed = tauIDs_.end(); it != ed; ++it) {
     if (it->first == name)
       return true;
   }
@@ -444,7 +444,7 @@ reco::PFRecoTauChargedHadronRef Tau::leadTauChargedHadronCandidate() const {
 }
 
 const reco::PFCandidatePtr convertToPFCandidatePtr(const reco::CandidatePtr& ptr) {
-  const reco::PFCandidate* pf_cand = dynamic_cast<const reco::PFCandidate*>(&*ptr);
+  const auto* pf_cand = dynamic_cast<const reco::PFCandidate*>(&*ptr);
   if (pf_cand)
     return edm::Ptr<reco::PFCandidate>(ptr);
   return reco::PFCandidatePtr();
@@ -723,8 +723,7 @@ void Tau::initializeJEC(unsigned int level, unsigned int set) {
 
 /// return true if this jet carries the jet correction factors of a different set, for systematic studies
 int Tau::jecSet(const std::string& set) const {
-  for (std::vector<pat::TauJetCorrFactors>::const_iterator corrFactor = jec_.begin(); corrFactor != jec_.end();
-       ++corrFactor) {
+  for (auto corrFactor = jec_.begin(); corrFactor != jec_.end(); ++corrFactor) {
     if (corrFactor->jecSet() == set)
       return corrFactor - jec_.begin();
   }
@@ -734,8 +733,7 @@ int Tau::jecSet(const std::string& set) const {
 /// all available label-names of all sets of jet energy corrections
 const std::vector<std::string> Tau::availableJECSets() const {
   std::vector<std::string> sets;
-  for (std::vector<pat::TauJetCorrFactors>::const_iterator corrFactor = jec_.begin(); corrFactor != jec_.end();
-       ++corrFactor) {
+  for (auto corrFactor = jec_.begin(); corrFactor != jec_.end(); ++corrFactor) {
     sets.push_back(corrFactor->jecSet());
   }
   return sets;

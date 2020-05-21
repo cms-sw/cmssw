@@ -190,7 +190,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
 
   auto tkbuilder = static_cast<TkTransientTrackingRecHitBuilder const*>(theTrackerRecHitBuilder.product());
 
-  for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit)
+  for (auto hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit)
     if ((*hit)->isValid()) {
       if ((*hit)->geographicalId().det() == DetId::Tracker)
         allRecHitsTemp.push_back((**hit).cloneForFit(*tkbuilder->geometry()->idToDet((**hit).geographicalId())));
@@ -311,7 +311,7 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
   float coneSize = 20.0;
 
   // loop through all muon hits and calculate the maximum # of hits in each chamber
-  for (ConstRecHitContainer::const_iterator imrh = all.begin(); imrh != all.end(); imrh++) {
+  for (auto imrh = all.begin(); imrh != all.end(); imrh++) {
     if ((*imrh != nullptr) && !(*imrh)->isValid())
       continue;
 
@@ -331,12 +331,10 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
 
       if ((*imrh)->dimension() > 1) {
         std::vector<const TrackingRecHit*> hits2d = (*imrh)->recHits();
-        for (std::vector<const TrackingRecHit*>::const_iterator hit2d = hits2d.begin(); hit2d != hits2d.end();
-             hit2d++) {
+        for (auto hit2d = hits2d.begin(); hit2d != hits2d.end(); hit2d++) {
           if ((*hit2d)->dimension() > 1) {
             std::vector<const TrackingRecHit*> hits1d = (*hit2d)->recHits();
-            for (std::vector<const TrackingRecHit*>::const_iterator hit1d = hits1d.begin(); hit1d != hits1d.end();
-                 hit1d++) {
+            for (auto hit1d = hits1d.begin(); hit1d != hits1d.end(); hit1d++) {
               DetId id1 = (*hit1d)->geographicalId();
               DTLayerId lid(id1.rawId());
               // Get the 1d DT RechHits from this layer
@@ -388,8 +386,7 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
 
       if ((*imrh)->recHits().size() > 1) {
         std::vector<const TrackingRecHit*> hits2d = (*imrh)->recHits();
-        for (std::vector<const TrackingRecHit*>::const_iterator hit2d = hits2d.begin(); hit2d != hits2d.end();
-             hit2d++) {
+        for (auto hit2d = hits2d.begin(); hit2d != hits2d.end(); hit2d++) {
           DetId id1 = (*hit2d)->geographicalId();
           CSCDetId lid(id1.rawId());
 
@@ -426,8 +423,7 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
 
       if ((*imrh)->recHits().size() > 1) {
         std::vector<const TrackingRecHit*> hits2d = (*imrh)->recHits();
-        for (std::vector<const TrackingRecHit*>::const_iterator hit2d = hits2d.begin(); hit2d != hits2d.end();
-             hit2d++) {
+        for (auto hit2d = hits2d.begin(); hit2d != hits2d.end(); hit2d++) {
           DetId id1 = (*hit2d)->geographicalId();
           GEMDetId lid(id1.rawId());
 
@@ -464,8 +460,7 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
 
       if ((*imrh)->recHits().size() > 1) {
         std::vector<const TrackingRecHit*> hits2d = (*imrh)->recHits();
-        for (std::vector<const TrackingRecHit*>::const_iterator hit2d = hits2d.begin(); hit2d != hits2d.end();
-             hit2d++) {
+        for (auto hit2d = hits2d.begin(); hit2d != hits2d.end(); hit2d++) {
           DetId id1 = (*hit2d)->geographicalId();
           ME0DetId lid(id1.rawId());
 
@@ -502,7 +497,7 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
       continue;
     }
 
-    map<DetId, int>::iterator imap = hitMap.find(chamberId);
+    auto imap = hitMap.find(chamberId);
     if (imap != hitMap.end()) {
       if (detRecHits > imap->second)
         imap->second = detRecHits;
@@ -511,7 +506,7 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
 
   }  // end of loop over muon rechits
 
-  for (map<DetId, int>::iterator imap = hitMap.begin(); imap != hitMap.end(); imap++)
+  for (auto imap = hitMap.begin(); imap != hitMap.end(); imap++)
     LogTrace(theCategory) << " Station " << imap->first.rawId() << ": " << imap->second << endl;
 
   LogTrace(theCategory) << "CheckMuonHits: " << all.size();
@@ -534,7 +529,7 @@ void GlobalMuonRefitter::getFirstHits(const reco::Track& muon,
 
   int station_to_keep = 999;
   vector<int> stations;
-  for (ConstRecHitContainer::const_iterator ihit = all.begin(); ihit != all.end(); ++ihit) {
+  for (auto ihit = all.begin(); ihit != all.end(); ++ihit) {
     int station = 0;
     bool use_it = true;
     DetId id = (*ihit)->geographicalId();
@@ -594,8 +589,7 @@ GlobalMuonRefitter::ConstRecHitContainer GlobalMuonRefitter::selectMuonHits(cons
   vector<TrajectoryMeasurement> muonMeasurements = traj.measurements();
 
   // loop through all muon hits and skip hits with bad chi2 in chambers with high occupancy
-  for (std::vector<TrajectoryMeasurement>::const_iterator im = muonMeasurements.begin(); im != muonMeasurements.end();
-       im++) {
+  for (auto im = muonMeasurements.begin(); im != muonMeasurements.end(); im++) {
     if (!(*im).recHit()->isValid())
       continue;
     if ((*im).recHit()->det()->geographicalId().det() != DetId::Muon) {
@@ -603,7 +597,7 @@ GlobalMuonRefitter::ConstRecHitContainer GlobalMuonRefitter::selectMuonHits(cons
       muonRecHits.push_back((*im).recHit());
       continue;
     }
-    const MuonTransientTrackingRecHit* immrh = dynamic_cast<const MuonTransientTrackingRecHit*>((*im).recHit().get());
+    const auto* immrh = dynamic_cast<const MuonTransientTrackingRecHit*>((*im).recHit().get());
 
     DetId id = immrh->geographicalId();
     DetId chamberId;
@@ -650,7 +644,7 @@ GlobalMuonRefitter::ConstRecHitContainer GlobalMuonRefitter::selectMuonHits(cons
     double chi2ndf = (*im).estimate() / (*im).recHit()->dimension();
 
     bool keep = true;
-    map<DetId, int>::const_iterator imap = hitMap.find(chamberId);
+    auto imap = hitMap.find(chamberId);
     if (imap != hitMap.end())
       if (imap->second > threshold)
         keep = false;
@@ -673,7 +667,7 @@ GlobalMuonRefitter::ConstRecHitContainer GlobalMuonRefitter::selectMuonHits(cons
 //
 void GlobalMuonRefitter::printHits(const ConstRecHitContainer& hits) const {
   LogTrace(theCategory) << "Used RecHits: " << hits.size();
-  for (ConstRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++) {
+  for (auto ir = hits.begin(); ir != hits.end(); ir++) {
     if (!(*ir)->isValid()) {
       LogTrace(theCategory) << "invalid RecHit";
       continue;
@@ -695,8 +689,8 @@ void GlobalMuonRefitter::printHits(const ConstRecHitContainer& hits) const {
 GlobalMuonRefitter::RefitDirection GlobalMuonRefitter::checkRecHitsOrdering(
     const TransientTrackingRecHit::ConstRecHitContainer& recHits) const {
   if (!recHits.empty()) {
-    ConstRecHitContainer::const_iterator frontHit = recHits.begin();
-    ConstRecHitContainer::const_iterator backHit = recHits.end() - 1;
+    auto frontHit = recHits.begin();
+    auto backHit = recHits.end() - 1;
     while (!(*frontHit)->isValid() && frontHit != backHit) {
       frontHit++;
     }
@@ -811,9 +805,7 @@ vector<Trajectory> GlobalMuonRefitter::transform(
                           << (propDir_first == propDir_last ? "agree" : "disagree");
 
     int y_count = 0;
-    for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator it = recHitsForReFit.begin();
-         it != recHitsForReFit.end();
-         ++it) {
+    for (auto it = recHitsForReFit.begin(); it != recHitsForReFit.end(); ++it) {
       if ((*it)->globalPosition().y() > 0)
         ++y_count;
       else
@@ -883,7 +875,7 @@ vector<Trajectory> GlobalMuonRefitter::transform(
 GlobalMuonRefitter::ConstRecHitContainer GlobalMuonRefitter::getRidOfSelectStationHits(
     const ConstRecHitContainer& hits, const TrackerTopology* tTopo) const {
   ConstRecHitContainer results;
-  ConstRecHitContainer::const_iterator it = hits.begin();
+  auto it = hits.begin();
   for (; it != hits.end(); it++) {
     DetId id = (*it)->geographicalId();
 

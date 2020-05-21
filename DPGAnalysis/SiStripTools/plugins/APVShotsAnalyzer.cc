@@ -299,7 +299,7 @@ void APVShotsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   APVShotFinder apvsf(*digis, _zs);
   const std::vector<APVShot>& shots = apvsf.getShots();
 
-  for (std::vector<APVShot>::const_iterator shot = shots.begin(); shot != shots.end(); ++shot) {
+  for (auto shot = shots.begin(); shot != shots.end(); ++shot) {
     if (shot->isGenuine()) {
       //get the fedid from the detid
 

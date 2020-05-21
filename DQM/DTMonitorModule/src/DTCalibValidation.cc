@@ -133,7 +133,7 @@ map<DTWireId, vector<DTRecHit1D> > DTCalibValidation::map1DRecHitsPerWire(const 
        ++segment) {
     vector<DTRecHit1D> component1DHits = (*segment).specificRecHits();
     // Loop over all component 1D hits
-    for (vector<DTRecHit1D>::const_iterator hit = component1DHits.begin(); hit != component1DHits.end(); ++hit) {
+    for (auto hit = component1DHits.begin(); hit != component1DHits.end(); ++hit) {
       ret[(*hit).wireId()].push_back(*hit);
     }
   }
@@ -150,12 +150,11 @@ map<DTWireId, std::vector<DTRecHit1D> > DTCalibValidation::map1DRecHitsPerWire(
     // Get component 2D segments
     vector<const TrackingRecHit*> segment2Ds = (*segment).recHits();
     // Loop over 2D segments:
-    for (vector<const TrackingRecHit*>::const_iterator segment2D = segment2Ds.begin(); segment2D != segment2Ds.end();
-         ++segment2D) {
+    for (auto segment2D = segment2Ds.begin(); segment2D != segment2Ds.end(); ++segment2D) {
       // Get 1D component rechits
       vector<const TrackingRecHit*> hits = (*segment2D)->recHits();
       // Loop over them
-      for (vector<const TrackingRecHit*>::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
+      for (auto hit = hits.begin(); hit != hits.end(); ++hit) {
         const DTRecHit1D* hit1D = dynamic_cast<const DTRecHit1D*>(*hit);
         ret[hit1D->wireId()].push_back(*hit1D);
       }
@@ -174,7 +173,7 @@ const type* DTCalibValidation::findBestRecHit(const DTLayer* layer,
   float res = 99999;
   const type* theBestRecHit = nullptr;
   // Loop over RecHits within the cell
-  for (typename vector<type>::const_iterator recHit = recHits.begin(); recHit != recHits.end(); ++recHit) {
+  for (auto recHit = recHits.begin(); recHit != recHits.end(); ++recHit) {
     float distTmp = recHitDistFromWire(*recHit, layer);
     if (fabs(distTmp - segmDist) < res) {
       res = fabs(distTmp - segmDist);
@@ -286,8 +285,7 @@ void DTCalibValidation::compute(const DTGeometry* dtGeom,
   if (computeResidual) {
     ++rightSegment;
     // Loop over 1D RecHit inside 4D segment
-    for (vector<DTRecHit1D>::const_iterator recHit1D = recHits1D_S3.begin(); recHit1D != recHits1D_S3.end();
-         ++recHit1D) {
+    for (auto recHit1D = recHits1D_S3.begin(); recHit1D != recHits1D_S3.end(); ++recHit1D) {
       const DTWireId wireId = (*recHit1D).wireId();
 
       // Get the layer and the wire position
@@ -380,11 +378,11 @@ void DTCalibValidation::bookHistograms(DQMStore::IBooker& ibooker,
   DTSuperLayerId slId;
 
   // Loop over all the chambers
-  vector<const DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
-  vector<const DTChamber*>::const_iterator ch_end = dtGeom->chambers().end();
+  auto ch_it = dtGeom->chambers().begin();
+  auto ch_end = dtGeom->chambers().end();
   for (; ch_it != ch_end; ++ch_it) {
-    vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin();
-    vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end();
+    auto sl_it = (*ch_it)->superLayers().begin();
+    auto sl_end = (*ch_it)->superLayers().end();
     // Loop over the SLs
     for (; sl_it != sl_end; ++sl_it) {
       slId = (*sl_it)->id();

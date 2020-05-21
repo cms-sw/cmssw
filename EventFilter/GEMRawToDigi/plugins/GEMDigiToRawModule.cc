@@ -94,7 +94,7 @@ void GEMDigiToRawModule::produce(edm::StreamID iID, edm::Event& iEvent, edm::Eve
             uint64_t msData = 0;  ///<channels from 65to128
 
             GEMDigiCollection::Range range = gemDigis->get(gemId);
-            for (GEMDigiCollection::const_iterator digiIt = range.first; digiIt != range.second; ++digiIt) {
+            for (auto digiIt = range.first; digiIt != range.second; ++digiIt) {
               const GEMDigi& digi = (*digiIt);
               if (digi.bx() != bc - GEMeMap::amcBX_)
                 continue;

@@ -36,8 +36,8 @@ void AngleCalculation::process(emtf::zone_array<EMTFTrackCollection>& zone_track
   for (int izone = 0; izone < emtf::NUM_ZONES; ++izone) {
     EMTFTrackCollection& tracks = zone_tracks.at(izone);  // pass by reference
 
-    EMTFTrackCollection::iterator tracks_it = tracks.begin();
-    EMTFTrackCollection::iterator tracks_end = tracks.end();
+    auto tracks_it = tracks.begin();
+    auto tracks_end = tracks.end();
 
     // Calculate deltas
     for (; tracks_it != tracks_end; ++tracks_it) {

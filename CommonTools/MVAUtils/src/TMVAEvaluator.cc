@@ -21,13 +21,13 @@ void TMVAEvaluator::initialize(const std::string& options,
   mMethod = method;
 
   // add input variables
-  for (std::vector<std::string>::const_iterator it = variables.begin(); it != variables.end(); ++it) {
+  for (auto it = variables.begin(); it != variables.end(); ++it) {
     mVariables.insert(std::make_pair(*it, std::make_pair(it - variables.begin(), 0.)));
     mReader->AddVariable(it->c_str(), &(mVariables.at(*it).second));
   }
 
   // add spectator variables
-  for (std::vector<std::string>::const_iterator it = spectators.begin(); it != spectators.end(); ++it) {
+  for (auto it = spectators.begin(); it != spectators.end(); ++it) {
     mSpectators.insert(std::make_pair(*it, std::make_pair(it - spectators.begin(), 0.)));
     mReader->AddSpectator(it->c_str(), &(mSpectators.at(*it).second));
   }
@@ -53,11 +53,11 @@ void TMVAEvaluator::initializeGBRForest(const GBRForest* gbrForest,
                                         const std::vector<std::string>& spectators,
                                         bool useAdaBoost) {
   // add input variables
-  for (std::vector<std::string>::const_iterator it = variables.begin(); it != variables.end(); ++it)
+  for (auto it = variables.begin(); it != variables.end(); ++it)
     mVariables.insert(std::make_pair(*it, std::make_pair(it - variables.begin(), 0.)));
 
   // add spectator variables
-  for (std::vector<std::string>::const_iterator it = spectators.begin(); it != spectators.end(); ++it)
+  for (auto it = spectators.begin(); it != spectators.end(); ++it)
     mSpectators.insert(std::make_pair(*it, std::make_pair(it - spectators.begin(), 0.)));
 
   // do not take ownership if getting GBRForest from an external source

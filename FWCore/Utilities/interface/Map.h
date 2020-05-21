@@ -37,7 +37,7 @@ namespace edm {
   // Note that the return is by value, so if the element is found, it is copied.
   template <typename Key, typename Value>
   inline Value findOrDefault(std::map<Key, Value> const& m, Key const& k) {
-    typename std::map<Key, Value>::const_iterator it = m.find(k);
+    auto it = m.find(k);
     return (it == m.end() ? Value() : it->second);
   }
 

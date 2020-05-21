@@ -93,7 +93,7 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon,
   if (theUpdateStateFlag) {  //use updated states
     std::vector<TrajectoryMeasurement> alltm;
 
-    for (std::vector<const DetLayer*>::const_iterator inl = nls.begin(); inl != nls.end(); inl++, ndesLayer++) {
+    for (auto inl = nls.begin(); inl != nls.end(); inl++, ndesLayer++) {
       if ((*inl == nullptr))
         break;
       //         if ( (inl != nls.end()-1 ) && ( (*inl)->subDetector() == GeomDetEnumerators::TEC ) && ( (*(inl+1))->subDetector() == GeomDetEnumerators::TOB ) ) continue;
@@ -115,7 +115,7 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon,
         alltm.erase(alltm.begin() + 5, alltm.end());
 
       int i = 0;
-      for (std::vector<TrajectoryMeasurement>::const_iterator itm = alltm.begin(); itm != alltm.end(); itm++, i++) {
+      for (auto itm = alltm.begin(); itm != alltm.end(); itm++, i++) {
         TrajectoryStateOnSurface updatedTSOS = updator()->update(itm->predictedState(), *(itm->recHit()));
         if (updatedTSOS.isValid() && passSelection(updatedTSOS)) {
           edm::OwnVector<TrackingRecHit> container;
@@ -131,7 +131,7 @@ void TSGFromPropagation::trackerSeeds(const TrackCand& staMuon,
 
   if (!theUpdateStateFlag || usePredictedState) {  //use predicted states
     LogTrace(theCategory) << "use predicted state: ";
-    for (std::vector<const DetLayer*>::const_iterator inl = nls.begin(); inl != nls.end(); inl++) {
+    for (auto inl = nls.begin(); inl != nls.end(); inl++) {
       if (!result.empty() || *inl == nullptr) {
         break;
       }
@@ -284,7 +284,7 @@ TrajectorySeed TSGFromPropagation::createSeed(const TrajectoryStateOnSurface& ts
 }
 
 void TSGFromPropagation::validMeasurements(std::vector<TrajectoryMeasurement>& tms) const {
-  std::vector<TrajectoryMeasurement>::iterator tmsend = std::remove_if(tms.begin(), tms.end(), isInvalid());
+  auto tmsend = std::remove_if(tms.begin(), tms.end(), isInvalid());
   tms.erase(tmsend, tms.end());
   return;
 }
@@ -297,8 +297,7 @@ std::vector<TrajectoryMeasurement> TSGFromPropagation::findMeasurements(
   if (compatDets.empty())
     return result;
 
-  for (std::vector<DetLayer::DetWithState>::const_iterator idws = compatDets.begin(); idws != compatDets.end();
-       ++idws) {
+  for (auto idws = compatDets.begin(); idws != compatDets.end(); ++idws) {
     if (idws->second.isValid() && (idws->first)) {
       std::vector<TrajectoryMeasurement> tmptm =
           theMeasTrackerEvent->idToDet(idws->first->geographicalId())

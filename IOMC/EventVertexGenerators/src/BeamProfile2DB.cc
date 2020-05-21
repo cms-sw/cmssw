@@ -87,7 +87,7 @@ void BeamProfile2DB::beginJob() {}
 // ------------ method called once each job just after ending the event loop  ------------
 void BeamProfile2DB::endJob() {
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
-  SimBeamSpotObjects* beam = new SimBeamSpotObjects();
+  auto* beam = new SimBeamSpotObjects();
 
   beam->read(config_);
 

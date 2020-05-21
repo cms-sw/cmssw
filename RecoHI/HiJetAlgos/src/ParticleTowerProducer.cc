@@ -93,7 +93,7 @@ void ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<reco::PFCandidateCollection> inputsHandle;
   iEvent.getByToken(src_, inputsHandle);
 
-  for (reco::PFCandidateCollection::const_iterator ci = inputsHandle->begin(); ci != inputsHandle->end(); ++ci) {
+  for (auto ci = inputsHandle->begin(); ci != inputsHandle->end(); ++ci) {
     const reco::PFCandidate& particle = *ci;
 
     // put a cutoff if you want
@@ -147,7 +147,7 @@ void ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   auto prod = std::make_unique<CaloTowerCollection>();
 
-  for (std::map<DetId, double>::const_iterator iter = towers_.begin(); iter != towers_.end(); ++iter) {
+  for (auto iter = towers_.begin(); iter != towers_.end(); ++iter) {
     HcalDetId id = HcalDetId(iter->first);
     CaloTowerDetId newTowerId(id.ieta(), id.iphi());
     double et = iter->second;
@@ -259,7 +259,7 @@ void ParticleTowerProducer::endJob() {}
 void ParticleTowerProducer::resetTowers(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::vector<DetId> alldid = geo_->getValidDetIds();
 
-  for (std::vector<DetId>::const_iterator did = alldid.begin(); did != alldid.end(); did++) {
+  for (auto did = alldid.begin(); did != alldid.end(); did++) {
     if ((*did).det() == DetId::Hcal) {
       HcalDetId hid = HcalDetId(*did);
       if (hid.depth() == 1) {
@@ -300,7 +300,7 @@ DetId ParticleTowerProducer::getNearestTower(const reco::PFCandidate& in) const 
 
   //int nclosetowers=0;
 
-  for (std::vector<DetId>::const_iterator did = alldid.begin(); did != alldid.end(); did++) {
+  for (auto did = alldid.begin(); did != alldid.end(); did++) {
     if ((*did).det() == DetId::Hcal) {
       HcalDetId hid(*did);
 
@@ -375,7 +375,7 @@ DetId ParticleTowerProducer::getNearestTower(double eta, double phi) const {
 
   //int nclosetowers=0;
 
-  for (std::vector<DetId>::const_iterator did = alldid.begin(); did != alldid.end(); did++) {
+  for (auto did = alldid.begin(); did != alldid.end(); did++) {
     if ((*did).det() == DetId::Hcal) {
       HcalDetId hid(*did);
 

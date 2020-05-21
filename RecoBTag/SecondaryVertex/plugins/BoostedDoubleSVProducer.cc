@@ -162,9 +162,7 @@ void BoostedDoubleSVProducer::produce(edm::Event& iEvent, const edm::EventSetup&
   auto tagInfos = std::make_unique<std::vector<reco::BoostedDoubleSVTagInfo>>();
 
   // loop over TagInfos
-  for (std::vector<reco::CandSecondaryVertexTagInfo>::const_iterator iterTI = svTagInfos->begin();
-       iterTI != svTagInfos->end();
-       ++iterTI) {
+  for (auto iterTI = svTagInfos->begin(); iterTI != svTagInfos->end(); ++iterTI) {
     // get TagInfos
     const reco::CandIPTagInfo& ipTagInfo = *(iterTI->trackIPTagInfoRef().get());
     const reco::CandSecondaryVertexTagInfo& svTagInfo = *(iterTI);
@@ -550,7 +548,7 @@ void BoostedDoubleSVProducer::produce(edm::Event& iEvent, const edm::EventSetup&
     reco::Candidate::LorentzVector SV_p4_0, SV_p4_1;
     double vtxMass = 0.;
 
-    for (std::map<double, size_t>::iterator iVtx = VTXmap.begin(); iVtx != VTXmap.end(); ++iVtx) {
+    for (auto iVtx = VTXmap.begin(); iVtx != VTXmap.end(); ++iVtx) {
       ++cont;
       const reco::VertexCompositePtrCandidate& vertex = svTagInfo.secondaryVertex(iVtx->second);
       if (cont == 1) {
@@ -730,7 +728,7 @@ void BoostedDoubleSVProducer::setTracksPVBase(const reco::TrackRef& trackRef,
 
   const reco::Vertex& vtx = *(vertexRef);
   // loop over tracks in vertices
-  for (IT it = vtx.tracks_begin(); it != vtx.tracks_end(); ++it) {
+  for (auto it = vtx.tracks_begin(); it != vtx.tracks_end(); ++it) {
     const reco::TrackBaseRef& baseRef = *it;
     // one of the tracks in the vertex is the same as the track considered in the function
     if (baseRef == trackBaseRef) {
@@ -745,7 +743,7 @@ void BoostedDoubleSVProducer::setTracksPV(const reco::CandidatePtr& trackRef,
                                           float& PVweight) const {
   PVweight = 0.;
 
-  const pat::PackedCandidate* pcand = dynamic_cast<const pat::PackedCandidate*>(trackRef.get());
+  const auto* pcand = dynamic_cast<const pat::PackedCandidate*>(trackRef.get());
 
   if (pcand)  // MiniAOD case
   {
@@ -753,7 +751,7 @@ void BoostedDoubleSVProducer::setTracksPV(const reco::CandidatePtr& trackRef,
       PVweight = 1.;
     }
   } else {
-    const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(trackRef.get());
+    const auto* pfcand = dynamic_cast<const reco::PFCandidate*>(trackRef.get());
 
     setTracksPVBase(pfcand->trackRef(), vertexRef, PVweight);
   }
@@ -765,7 +763,7 @@ void BoostedDoubleSVProducer::etaRelToTauAxis(const reco::VertexCompositePtrCand
   math::XYZVector direction(tauAxis.px(), tauAxis.py(), tauAxis.pz());
   const std::vector<reco::CandidatePtr>& tracks = vertex.daughterPtrVector();
 
-  for (std::vector<reco::CandidatePtr>::const_iterator track = tracks.begin(); track != tracks.end(); ++track)
+  for (auto track = tracks.begin(); track != tracks.end(); ++track)
     tau_trackEtaRel.push_back(std::abs(reco::btau::etaRel(direction.Unit(), (*track)->momentum())));
 }
 

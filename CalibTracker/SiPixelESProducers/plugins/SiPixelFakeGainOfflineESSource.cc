@@ -45,12 +45,12 @@ std::unique_ptr<SiPixelGainCalibrationOffline> SiPixelFakeGainOfflineESSource::p
   using namespace edm::es;
   unsigned int nmodules = 0;
   uint32_t nchannels = 0;
-  SiPixelGainCalibrationOffline* obj = new SiPixelGainCalibrationOffline(25., 30., 2., 3.);
+  auto* obj = new SiPixelGainCalibrationOffline(25., 30., 2., 3.);
   SiPixelDetInfoFileReader reader(fp_.fullPath());
   const std::vector<uint32_t>& DetIds = reader.getAllDetIds();
 
   // Loop over detectors
-  for (std::vector<uint32_t>::const_iterator detit = DetIds.begin(); detit != DetIds.end(); detit++) {
+  for (auto detit = DetIds.begin(); detit != DetIds.end(); detit++) {
     nmodules++;
     std::vector<char> theSiPixelGainCalibrationOffline;
     const std::pair<int, int>& detUnitDimensions = reader.getDetUnitDimensions(*detit);

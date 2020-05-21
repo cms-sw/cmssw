@@ -69,7 +69,7 @@ public:
                       const double peToAEndcap,
                       const bool timeDependent = false)
       : EcalBaseSignalGenerator(), theEvent(nullptr), theEventPrincipal(nullptr), theInputTag(inputTag), tok_(t) {
-    EcalMGPAGainRatio* defaultRatios = new EcalMGPAGainRatio();
+    auto* defaultRatios = new EcalMGPAGainRatio();
     theDefaultGains[2] = defaultRatios->gain6Over1();
     theDefaultGains[1] = theDefaultGains[2] * (defaultRatios->gain12Over6());
     m_EBs25notCont = EBs25notCont;

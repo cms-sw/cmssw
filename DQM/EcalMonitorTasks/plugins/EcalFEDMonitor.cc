@@ -112,8 +112,8 @@ void EcalFEDMonitorTemp<SUBDET>::analyze(edm::Event const& _evt, edm::EventSetup
   edm::Handle<EcalElectronicsIdCollection> eleHndl;
 
   if ((SUBDET == EcalBarrel || SUBDET < 0) && _evt.getByToken(ebGainErrorsToken_, ebHndl)) {
-    EBDetIdCollection::const_iterator ebEnd(ebHndl->end());
-    for (EBDetIdCollection::const_iterator ebItr(ebHndl->begin()); ebItr != ebEnd; ++ebItr) {
+    auto ebEnd(ebHndl->end());
+    for (auto ebItr(ebHndl->begin()); ebItr != ebEnd; ++ebItr) {
       unsigned iDCC(ecaldqm::dccId(*ebItr) - 1);
 
       double normalization(ecaldqm::nCrystals(iDCC + 1));
@@ -124,8 +124,8 @@ void EcalFEDMonitorTemp<SUBDET>::analyze(edm::Event const& _evt, edm::EventSetup
     }
   }
   if ((SUBDET == EcalEndcap || SUBDET < 0) && _evt.getByToken(eeGainErrorsToken_, eeHndl)) {
-    EEDetIdCollection::const_iterator eeEnd(eeHndl->end());
-    for (EEDetIdCollection::const_iterator eeItr(eeHndl->begin()); eeItr != eeEnd; ++eeItr) {
+    auto eeEnd(eeHndl->end());
+    for (auto eeItr(eeHndl->begin()); eeItr != eeEnd; ++eeItr) {
       unsigned iDCC(ecaldqm::dccId(*eeItr) - 1);
 
       double normalization(ecaldqm::nCrystals(iDCC + 1));
@@ -137,8 +137,8 @@ void EcalFEDMonitorTemp<SUBDET>::analyze(edm::Event const& _evt, edm::EventSetup
   }
 
   if ((SUBDET == EcalBarrel || SUBDET < 0) && _evt.getByToken(ebChIdErrorsToken_, ebHndl)) {
-    EBDetIdCollection::const_iterator ebEnd(ebHndl->end());
-    for (EBDetIdCollection::const_iterator ebItr(ebHndl->begin()); ebItr != ebEnd; ++ebItr) {
+    auto ebEnd(ebHndl->end());
+    for (auto ebItr(ebHndl->begin()); ebItr != ebEnd; ++ebItr) {
       unsigned iDCC(ecaldqm::dccId(*ebItr) - 1);
 
       double normalization(ecaldqm::nCrystals(iDCC + 1));
@@ -149,8 +149,8 @@ void EcalFEDMonitorTemp<SUBDET>::analyze(edm::Event const& _evt, edm::EventSetup
     }
   }
   if ((SUBDET == EcalEndcap || SUBDET < 0) && _evt.getByToken(eeChIdErrorsToken_, eeHndl)) {
-    EEDetIdCollection::const_iterator eeEnd(eeHndl->end());
-    for (EEDetIdCollection::const_iterator eeItr(eeHndl->begin()); eeItr != eeEnd; ++eeItr) {
+    auto eeEnd(eeHndl->end());
+    for (auto eeItr(eeHndl->begin()); eeItr != eeEnd; ++eeItr) {
       unsigned iDCC(ecaldqm::dccId(*eeItr) - 1);
 
       double normalization(ecaldqm::nCrystals(iDCC + 1));
@@ -162,8 +162,8 @@ void EcalFEDMonitorTemp<SUBDET>::analyze(edm::Event const& _evt, edm::EventSetup
   }
 
   if ((SUBDET == EcalBarrel || SUBDET < 0) && _evt.getByToken(ebGainSwitchErrorsToken_, ebHndl)) {
-    EBDetIdCollection::const_iterator ebEnd(ebHndl->end());
-    for (EBDetIdCollection::const_iterator ebItr(ebHndl->begin()); ebItr != ebEnd; ++ebItr) {
+    auto ebEnd(ebHndl->end());
+    for (auto ebItr(ebHndl->begin()); ebItr != ebEnd; ++ebItr) {
       unsigned iDCC(ecaldqm::dccId(*ebItr) - 1);
 
       double normalization(ecaldqm::nCrystals(iDCC + 1));
@@ -174,8 +174,8 @@ void EcalFEDMonitorTemp<SUBDET>::analyze(edm::Event const& _evt, edm::EventSetup
     }
   }
   if ((SUBDET == EcalEndcap || SUBDET < 0) && _evt.getByToken(eeGainSwitchErrorsToken_, eeHndl)) {
-    EEDetIdCollection::const_iterator eeEnd(eeHndl->end());
-    for (EEDetIdCollection::const_iterator eeItr(eeHndl->begin()); eeItr != eeEnd; ++eeItr) {
+    auto eeEnd(eeHndl->end());
+    for (auto eeItr(eeHndl->begin()); eeItr != eeEnd; ++eeItr) {
       unsigned iDCC(ecaldqm::dccId(*eeItr) - 1);
 
       double normalization(ecaldqm::nCrystals(iDCC + 1));
@@ -187,8 +187,8 @@ void EcalFEDMonitorTemp<SUBDET>::analyze(edm::Event const& _evt, edm::EventSetup
   }
 
   if (_evt.getByToken(towerIdErrorsToken_, eleHndl)) {
-    EcalElectronicsIdCollection::const_iterator eleEnd(eleHndl->end());
-    for (EcalElectronicsIdCollection::const_iterator eleItr(eleHndl->begin()); eleItr != eleEnd; ++eleItr) {
+    auto eleEnd(eleHndl->end());
+    for (auto eleItr(eleHndl->begin()); eleItr != eleEnd; ++eleItr) {
       unsigned iDCC(eleItr->dccId() - 1);
 
       unsigned nonfatal(-1);
@@ -208,8 +208,8 @@ void EcalFEDMonitorTemp<SUBDET>::analyze(edm::Event const& _evt, edm::EventSetup
   }
 
   if (_evt.getByToken(blockSizeErrorsToken_, eleHndl)) {
-    EcalElectronicsIdCollection::const_iterator eleEnd(eleHndl->end());
-    for (EcalElectronicsIdCollection::const_iterator eleItr(eleHndl->begin()); eleItr != eleEnd; ++eleItr) {
+    auto eleEnd(eleHndl->end());
+    for (auto eleItr(eleHndl->begin()); eleItr != eleEnd; ++eleItr) {
       unsigned iDCC(eleItr->dccId() - 1);
 
       unsigned nonfatal(-1);

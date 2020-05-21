@@ -99,7 +99,7 @@ TEveElement* FWRPZViewGeometry::makeCaloOutlineRhoZ() {
 
   float ri = m_context.caloZ2() * tan(2 * atan(exp(-m_context.caloMaxEta())));
 
-  TEveStraightLineSet* el = new TEveStraightLineSet("TrackerRhoZoutline");
+  auto* el = new TEveStraightLineSet("TrackerRhoZoutline");
   el->SetPickable(kFALSE);
   addToCompound(el, kFWTrackerBarrelColorIndex, false);
 
@@ -116,7 +116,7 @@ TEveElement* FWRPZViewGeometry::makeCaloOutlineRhoZ() {
 }
 
 TEveElement* FWRPZViewGeometry::makeCaloOutlineRhoPhi() {
-  TEveStraightLineSet* el = new TEveStraightLineSet("TrackerRhoPhi");
+  auto* el = new TEveStraightLineSet("TrackerRhoPhi");
   addToCompound(el, kFWTrackerBarrelColorIndex, false);
 
   el->SetLineColor(m_context.colorManager()->geomColor(kFWTrackerBarrelColorIndex));
@@ -184,7 +184,7 @@ TEveElement* FWRPZViewGeometry::makeMuonGeometryRhoZ(void) {
         for (Int_t iSector = 1; iSector <= 4; ++iSector) {
           DTChamberId id(iWheel, iStation, iSector);
           unsigned int rawid = id.rawId();
-          FWGeometry::IdToInfoItr det = m_geom->find(rawid);
+          auto det = m_geom->find(rawid);
           if (det == m_geom->mapEnd())
             return container;
           estimateProjectionSizeDT(*det, min_rho, max_rho, min_z, max_z);
@@ -224,7 +224,7 @@ TEveElement* FWRPZViewGeometry::makeMuonGeometryRhoZ(void) {
       ids.push_back(CSCDetId(endcap, 1, 3, 10, 0));  // ring 3 down
       ids.push_back(CSCDetId(endcap, 1, 3, 28, 0));  // ring 3 down
     }
-    for (std::vector<CSCDetId>::iterator i = ids.begin(); i != ids.end(); ++i) {
+    for (auto i = ids.begin(); i != ids.end(); ++i) {
       unsigned int rawid = i->rawId();
       TEveGeoShape* shape = m_geom->getEveShape(rawid);
       if (!shape)
@@ -368,7 +368,7 @@ void FWRPZViewGeometry::showPixelBarrel(bool show) {
     m_pixelBarrelElements = new TEveElementList("PixelBarrel");
     AddElement(m_pixelBarrelElements);
     std::vector<unsigned int> ids = m_geom->getMatchedIds(FWGeometry::Tracker, FWGeometry::PixelBarrel);
-    for (std::vector<unsigned int>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
+    for (auto id = ids.begin(); id != ids.end(); ++id) {
       TEveGeoShape* shape = m_geom->getEveShape(*id);
       if (!shape)
         return;
@@ -390,7 +390,7 @@ void FWRPZViewGeometry::showPixelEndcap(bool show) {
     m_pixelEndcapElements = new TEveElementList("PixelEndcap");
 
     std::vector<unsigned int> ids = m_geom->getMatchedIds(FWGeometry::Tracker, FWGeometry::PixelEndcap);
-    for (std::vector<unsigned int>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
+    for (auto id = ids.begin(); id != ids.end(); ++id) {
       TEveGeoShape* shape = m_geom->getEveShape(*id);
       if (!shape)
         return;
@@ -414,7 +414,7 @@ void FWRPZViewGeometry::showTrackerBarrel(bool show) {
     m_trackerBarrelElements = new TEveElementList("TrackerBarrel");
 
     std::vector<unsigned int> ids = m_geom->getMatchedIds(FWGeometry::Tracker, FWGeometry::TIB);
-    for (std::vector<unsigned int>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
+    for (auto id = ids.begin(); id != ids.end(); ++id) {
       TEveGeoShape* shape = m_geom->getEveShape(*id);
       if (!shape)
         return;
@@ -422,7 +422,7 @@ void FWRPZViewGeometry::showTrackerBarrel(bool show) {
       m_trackerBarrelElements->AddElement(shape);
     }
     ids = m_geom->getMatchedIds(FWGeometry::Tracker, FWGeometry::TOB);
-    for (std::vector<unsigned int>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
+    for (auto id = ids.begin(); id != ids.end(); ++id) {
       TEveGeoShape* shape = m_geom->getEveShape(*id);
       if (!shape)
         return;
@@ -446,7 +446,7 @@ void FWRPZViewGeometry::showTrackerEndcap(bool show) {
     m_trackerEndcapElements = new TEveElementList("TrackerEndcap");
 
     std::vector<unsigned int> ids = m_geom->getMatchedIds(FWGeometry::Tracker, FWGeometry::TID);
-    for (std::vector<unsigned int>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
+    for (auto id = ids.begin(); id != ids.end(); ++id) {
       TEveGeoShape* shape = m_geom->getEveShape(*id);
       addToCompound(shape, kFWTrackerEndcapColorIndex);
 
@@ -455,7 +455,7 @@ void FWRPZViewGeometry::showTrackerEndcap(bool show) {
       m_trackerEndcapElements->AddElement(shape);
     }
     ids = m_geom->getMatchedIds(FWGeometry::Tracker, FWGeometry::TEC);
-    for (std::vector<unsigned int>::const_iterator id = ids.begin(); id != ids.end(); ++id) {
+    for (auto id = ids.begin(); id != ids.end(); ++id) {
       TEveGeoShape* shape = m_geom->getEveShape(*id);
       shape->SetTitle(Form("TrackerEndcap %d", *id));
       if (!shape)
@@ -509,7 +509,7 @@ void FWRPZViewGeometry::showRpcEndcap(bool show) {
       }
     }
 
-    for (std::vector<RPCDetId>::iterator i = ids.begin(); i != ids.end(); ++i) {
+    for (auto i = ids.begin(); i != ids.end(); ++i) {
       TEveGeoShape* shape = m_geom->getEveShape(i->rawId());
       if (!shape)
         return;

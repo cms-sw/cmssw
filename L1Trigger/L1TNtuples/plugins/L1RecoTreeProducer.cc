@@ -95,9 +95,7 @@ void L1RecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(vtxToken_, vertices);
 
   if (vertices.isValid()) {
-    for (reco::VertexCollection::const_iterator it = vertices->begin();
-         it != vertices->end() && vtxData_->nVtx < maxVtx_;
-         ++it) {
+    for (auto it = vertices->begin(); it != vertices->end() && vtxData_->nVtx < maxVtx_; ++it) {
       if (!it->isFake()) {
         vtxData_->NDoF.push_back(it->ndof());
         vtxData_->Z.push_back(it->z());

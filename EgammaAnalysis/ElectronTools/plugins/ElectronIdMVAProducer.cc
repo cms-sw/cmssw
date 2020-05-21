@@ -146,8 +146,7 @@ bool ElectronIdMVAProducer::filter(edm::Event& iEvent, const edm::EventSetup& iS
   std::vector<float> values;
   values.reserve(egCollection->size());
 
-  for (reco::GsfElectronCollection::const_iterator egIter = egCandidates.begin(); egIter != egCandidates.end();
-       ++egIter) {
+  for (auto egIter = egCandidates.begin(); egIter != egCandidates.end(); ++egIter) {
     double mvaVal = -999999;
     if (!NoIP_) {
       mvaVal = mvaID_->mvaValue(*egIter, *pv, thebuilder, lazyTools, verbose_);

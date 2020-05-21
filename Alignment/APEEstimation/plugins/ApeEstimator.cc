@@ -519,10 +519,8 @@ bool ApeEstimator::checkModulePositions(const float id, const std::vector<double
 
 void ApeEstimator::statistics(const TrackerSectorStruct& allSectors, const int nModules) const {
   bool commonModules(false);
-  for (std::map<unsigned int, TrackerSectorStruct>::const_iterator i_sector = m_tkSector_.begin();
-       i_sector != m_tkSector_.end();
-       ++i_sector) {
-    std::map<unsigned int, TrackerSectorStruct>::const_iterator i_sector2(i_sector);
+  for (auto i_sector = m_tkSector_.begin(); i_sector != m_tkSector_.end(); ++i_sector) {
+    auto i_sector2(i_sector);
     for (++i_sector2; i_sector2 != m_tkSector_.end(); ++i_sector2) {
       unsigned int nCommonModules(0);
       for (auto const& i_module : (*i_sector).second.v_rawId) {
@@ -591,9 +589,8 @@ void ApeEstimator::residualErrorBinning() {
 
 void ApeEstimator::bookSectorHistsForAnalyzerMode() {
   std::vector<unsigned int> v_errHists(parameterSet_.getParameter<std::vector<unsigned int> >("vErrHists"));
-  for (std::vector<unsigned int>::iterator i_errHists = v_errHists.begin(); i_errHists != v_errHists.end();
-       ++i_errHists) {
-    for (std::vector<unsigned int>::iterator i_errHists2 = i_errHists; i_errHists2 != v_errHists.end();) {
+  for (auto i_errHists = v_errHists.begin(); i_errHists != v_errHists.end(); ++i_errHists) {
+    for (auto i_errHists2 = i_errHists; i_errHists2 != v_errHists.end();) {
       ++i_errHists2;
       if (*i_errHists == *i_errHists2) {
         edm::LogError("BookSectorHists") << "Value of vErrHists in config exists twice: " << *i_errHists
@@ -1068,9 +1065,8 @@ void ApeEstimator::bookSectorHistsForAnalyzerMode() {
 
 void ApeEstimator::bookSectorHistsForApeCalculation() {
   std::vector<unsigned int> v_errHists(parameterSet_.getParameter<std::vector<unsigned int> >("vErrHists"));
-  for (std::vector<unsigned int>::iterator i_errHists = v_errHists.begin(); i_errHists != v_errHists.end();
-       ++i_errHists) {
-    for (std::vector<unsigned int>::iterator i_errHists2 = i_errHists; i_errHists2 != v_errHists.end();) {
+  for (auto i_errHists = v_errHists.begin(); i_errHists != v_errHists.end(); ++i_errHists) {
+    for (auto i_errHists2 = i_errHists; i_errHists2 != v_errHists.end();) {
       ++i_errHists2;
       if (*i_errHists == *i_errHists2) {
         edm::LogError("BookSectorHists") << "Value of vErrHists in config exists twice: " << *i_errHists
@@ -1421,7 +1417,7 @@ TrackStruct::HitParameterStruct ApeEstimator::fillHitVariables(const TrajectoryM
       hitParams.hitState = TrackStruct::invalid;
       return hitParams;
     }
-    const PixelGeomDetUnit* pixelDet = (const PixelGeomDetUnit*)(&detUnit);
+    const auto* pixelDet = (const PixelGeomDetUnit*)(&detUnit);
     const LocalError& lape = pixelDet->localAlignmentError();
     if (lape.valid()) {
       errorWithoutAPE = LocalError(errHitApe.xx() - lape.xx(), errHitApe.xy() - lape.xy(), errHitApe.yy() - lape.yy());
@@ -1432,7 +1428,7 @@ TrackStruct::HitParameterStruct ApeEstimator::fillHitVariables(const TrajectoryM
       hitParams.hitState = TrackStruct::invalid;
       return hitParams;
     }
-    const StripGeomDetUnit* stripDet = (const StripGeomDetUnit*)(&detUnit);
+    const auto* stripDet = (const StripGeomDetUnit*)(&detUnit);
     const LocalError& lape = stripDet->localAlignmentError();
     if (lape.valid()) {
       errorWithoutAPE = LocalError(errHitApe.xx() - lape.xx(), errHitApe.xy() - lape.xy(), errHitApe.yy() - lape.yy());
@@ -1623,7 +1619,7 @@ TrackStruct::HitParameterStruct ApeEstimator::fillHitVariables(const TrajectoryM
 
     siStripClusterInfo_.setCluster(stripCluster, rawId);
 
-    const std::vector<uint8_t>::const_iterator stripChargeL(siStripClusterInfo_.stripCharges().begin());
+    const auto stripChargeL(siStripClusterInfo_.stripCharges().begin());
     const std::vector<uint8_t>::const_iterator stripChargeR(--(siStripClusterInfo_.stripCharges().end()));
     const std::pair<uint16_t, uint16_t> stripChargeLR = std::make_pair(*stripChargeL, *stripChargeR);
 
@@ -1664,7 +1660,7 @@ TrackStruct::HitParameterStruct ApeEstimator::fillHitVariables(const TrajectoryM
     edm::ESHandle<SiStripLorentzAngle> lorentzAngleHandle;
     iSetup.get<SiStripLorentzAngleDepRcd>().get(lorentzAngleHandle);  //MODIFIED BY LOIC QUERTENMONT
 
-    const StripGeomDetUnit* stripDet = (const StripGeomDetUnit*)(&detUnit);
+    const auto* stripDet = (const StripGeomDetUnit*)(&detUnit);
     const MagneticField* magField(magFieldHandle.product());
     LocalVector bField = (stripDet->surface()).toLocal(magField->inTesla(stripDet->surface().position()));
     const SiStripLorentzAngle* lorentzAngle(lorentzAngleHandle.product());
@@ -1756,7 +1752,7 @@ ApeEstimator::StatePositionAndError2 ApeEstimator::positionAndError2(const Local
 
     if (!dynamic_cast<const RadialStripTopology*>(&detUnit.type().topology()))
       return vPE2;
-    const RadialStripTopology& topol = dynamic_cast<const RadialStripTopology&>(detUnit.type().topology());
+    const auto& topol = dynamic_cast<const RadialStripTopology&>(detUnit.type().topology());
 
     MeasurementError measError = topol.measurementError(localPoint, localError);
     if (measError.uu() < 0. || measError.vv() < 0.) {
@@ -1878,9 +1874,7 @@ void ApeEstimator::hitSelection() {
     if (!i_hitSelection.second.empty()) {
       int entry(1);
       double intervalBegin(999.);
-      for (std::vector<double>::iterator i_hitInterval = i_hitSelection.second.begin();
-           i_hitInterval != i_hitSelection.second.end();
-           ++entry) {
+      for (auto i_hitInterval = i_hitSelection.second.begin(); i_hitInterval != i_hitSelection.second.end(); ++entry) {
         if (entry % 2 == 1) {
           intervalBegin = *i_hitInterval;
           ++i_hitInterval;
@@ -1908,9 +1902,7 @@ void ApeEstimator::hitSelection() {
     if (!i_hitSelection.second.empty()) {
       int entry(1);
       unsigned int intervalBegin(999);
-      for (std::vector<unsigned int>::iterator i_hitInterval = i_hitSelection.second.begin();
-           i_hitInterval != i_hitSelection.second.end();
-           ++entry) {
+      for (auto i_hitInterval = i_hitSelection.second.begin(); i_hitInterval != i_hitSelection.second.end(); ++entry) {
         if (entry % 2 == 1) {
           intervalBegin = *i_hitInterval;
           ++i_hitInterval;
@@ -2569,7 +2561,7 @@ bool ApeEstimator::isHit2D(const TrackingRecHit& hit) const {
         else if (dynamic_cast<const SiStripMatchedRecHit2D*>(&hit))
           return true;  // matched is 2D
         else if (dynamic_cast<const ProjectedSiStripRecHit2D*>(&hit)) {
-          const ProjectedSiStripRecHit2D* pH = static_cast<const ProjectedSiStripRecHit2D*>(&hit);
+          const auto* pH = static_cast<const ProjectedSiStripRecHit2D*>(&hit);
           return (this->isHit2D(pH->originalHit()));  // depends on original...
         } else {
           edm::LogError("UnkownType") << "@SUB=AlignmentTrackSelector::isHit2D"
@@ -2640,7 +2632,7 @@ void ApeEstimator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
     const std::vector<TrajectoryMeasurement> v_meas = (*traj).measurements();
 
     //Loop over Hits
-    for (std::vector<TrajectoryMeasurement>::const_iterator i_meas = v_meas.begin(); i_meas != v_meas.end(); ++i_meas) {
+    for (auto i_meas = v_meas.begin(); i_meas != v_meas.end(); ++i_meas) {
       TrackStruct::HitParameterStruct hitParams = this->fillHitVariables(*i_meas, iSetup);
       if (this->hitSelected(hitParams))
         trackStruct.v_hitParams.push_back(hitParams);

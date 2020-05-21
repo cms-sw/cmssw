@@ -66,7 +66,7 @@ MuRingForwardDoubleLayer* MuonCSCDetLayerGeometryBuilder::buildLayer(int endcap,
 
   vector<const ForwardDetRing*> frontRings, backRings;
 
-  for (vector<int>::iterator ring = rings.begin(); ring != rings.end(); ring++) {
+  for (auto ring = rings.begin(); ring != rings.end(); ring++) {
     vector<const GeomDet*> frontGeomDets, backGeomDets;
     for (int chamber = CSCDetId::minChamberId(); chamber <= CSCDetId::maxChamberId(); chamber++) {
       CSCDetId detId(endcap, station, (*ring), chamber, 0);

@@ -79,7 +79,7 @@ void SiPixelClusterModule::book(const edm::ParameterSet &iConfig,
   // Get collection name and instantiate Histo Id builder
   edm::InputTag src = iConfig.getParameter<edm::InputTag>("src");
   if (type == 0) {
-    SiPixelHistogramId *theHistogramId = new SiPixelHistogramId(src.label());
+    auto *theHistogramId = new SiPixelHistogramId(src.label());
     // Number of clusters
     hid = theHistogramId->setHistoId("nclusters", id_);
     meNClusters_ = iBooker.book1D(hid, "Number of Clusters", 8, 0., 8.);
@@ -585,7 +585,7 @@ int SiPixelClusterModule::fill(const edmNew::DetSetVector<SiPixelCluster> &input
       int minPixelCol = di->minPixelCol();    // min y index
       int maxPixelCol = di->maxPixelCol();    // max y index
 
-      const PixelGeomDetUnit *theGeomDet = dynamic_cast<const PixelGeomDetUnit *>(tracker->idToDet(DetId(id_)));
+      const auto *theGeomDet = dynamic_cast<const PixelGeomDetUnit *>(tracker->idToDet(DetId(id_)));
 
       const PixelTopology *topol = &(theGeomDet->specificTopology());
       LocalPoint clustlp = topol->localPosition(MeasurementPoint(x, y));

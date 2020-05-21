@@ -234,7 +234,7 @@ bool DTSegmentUpdator::fit(DTSegmentCand* seg, bool allow3par, const bool fitdeb
   lfit.reserve(8);
   dist.reserve(8);
 
-  for (DTSegmentCand::AssPointCont::const_iterator iter = seg->hits().begin(); iter != seg->hits().end(); ++iter) {
+  for (auto iter = seg->hits().begin(); iter != seg->hits().end(); ++iter) {
     LocalPoint pos = (*iter).first->localPosition((*iter).second);
     float xwire =
         (((*iter).first)->localPosition(DTEnums::Left).x() + ((*iter).first)->localPosition(DTEnums::Right).x()) / 2.;
@@ -300,7 +300,7 @@ void DTSegmentUpdator::fit(DTRecSegment2D* seg, bool allow3par, bool block3par) 
   //    allow3par = 0;
 
   vector<DTRecHit1D> hits = seg->specificRecHits();
-  for (vector<DTRecHit1D>::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
+  for (auto hit = hits.begin(); hit != hits.end(); ++hit) {
     // I have to get the hits position (the hit is in the layer rf) in SL frame...
     GlobalPoint glbPos = (theGeom->layer(hit->wireId().layerId()))->toGlobal(hit->localPosition());
     LocalPoint pos = (theGeom->idToDet(seg->geographicalId()))->toLocal(glbPos);
@@ -420,7 +420,7 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg, GlobalPoint& gpos, Global
   vector<DTRecHit1D> toBeUpdatedRecHits = seg->specificRecHits();
   vector<DTRecHit1D> updatedRecHits;
 
-  for (vector<DTRecHit1D>::iterator hit = toBeUpdatedRecHits.begin(); hit != toBeUpdatedRecHits.end(); ++hit) {
+  for (auto hit = toBeUpdatedRecHits.begin(); hit != toBeUpdatedRecHits.end(); ++hit) {
     const DTLayer* layer = theGeom->layer(hit->wireId().layerId());
 
     LocalPoint segPos = layer->toLocal(gpos);
@@ -499,7 +499,7 @@ void DTSegmentUpdator::rejectBadHits(DTChamberRecSegment2D* phiSeg) const {
   if (N < 3)
     return;
 
-  for (vector<DTRecHit1D>::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
+  for (auto hit = hits.begin(); hit != hits.end(); ++hit) {
     // I have to get the hits position (the hit is in the layer rf) in SL frame...
     GlobalPoint glbPos = (theGeom->layer(hit->wireId().layerId()))->toGlobal(hit->localPosition());
     LocalPoint pos = (theGeom->idToDet(phiSeg->geographicalId()))->toLocal(glbPos);
@@ -562,7 +562,7 @@ void DTSegmentUpdator::rejectBadHits(DTChamberRecSegment2D* phiSeg) const {
 
   // Perform bad hit rejecting -- update hits
   vector<DTRecHit1D> updatedRecHits;
-  for (vector<DTRecHit1D>::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
+  for (auto hit = hits.begin(); hit != hits.end(); ++hit) {
     float normResidual = mean_residual > 0 ? std::abs(residuals[i]) / mean_residual : 0;
     ++i;
     if (normResidual < 1.5) {
@@ -589,7 +589,7 @@ void DTSegmentUpdator::rejectBadHits(DTChamberRecSegment2D* phiSeg) const {
     cout << " Check the update action: " << endl;
 
     vector<DTRecHit1D> hits_upd = phiSeg->specificRecHits();
-    for (vector<DTRecHit1D>::const_iterator hit = hits_upd.begin(); hit != hits_upd.end(); ++hit) {
+    for (auto hit = hits_upd.begin(); hit != hits_upd.end(); ++hit) {
       // I have to get the hits position (the hit is in the layer rf) in SL frame...
       GlobalPoint glbPos = (theGeom->layer(hit->wireId().layerId()))->toGlobal(hit->localPosition());
       LocalPoint pos = (theGeom->idToDet(phiSeg->geographicalId()))->toLocal(glbPos);
@@ -631,7 +631,7 @@ void DTSegmentUpdator::calculateT0corr(DTRecSegment2D* seg) const {
   DTWireId wireId;
   int nptfit = 0;
 
-  for (vector<DTRecHit1D>::const_iterator hit = hits.begin(); hit != hits.end(); ++hit) {
+  for (auto hit = hits.begin(); hit != hits.end(); ++hit) {
     // I have to get the hits position (the hit is in the layer rf) in SL frame...
     GlobalPoint glbPos = (theGeom->layer(hit->wireId().layerId()))->toGlobal(hit->localPosition());
     LocalPoint pos = (theGeom->idToDet(seg->geographicalId()))->toLocal(glbPos);

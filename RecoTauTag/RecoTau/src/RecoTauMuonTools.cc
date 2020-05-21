@@ -48,9 +48,7 @@ namespace reco {
                       std::vector<int>& numMatchesCSC,
                       std::vector<int>& numMatchesRPC) {
       const std::vector<reco::MuonChamberMatch>& muonSegments = muon.matches();
-      for (std::vector<reco::MuonChamberMatch>::const_iterator muonSegment = muonSegments.begin();
-           muonSegment != muonSegments.end();
-           ++muonSegment) {
+      for (auto muonSegment = muonSegments.begin(); muonSegment != muonSegments.end(); ++muonSegment) {
         if (muonSegment->segmentMatches.empty())
           continue;
         int muonDetector = muonSegment->detector();

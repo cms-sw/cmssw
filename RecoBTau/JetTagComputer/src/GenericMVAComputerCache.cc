@@ -22,8 +22,8 @@ GenericMVAComputerCache::GenericMVAComputerCache(const std::vector<std::string> 
       initialized(false),
       empty(true),
       errorUpdatingLabel() {
-  std::vector<IndividualComputer>::iterator computer = computers.begin();
-  for (std::vector<std::string>::const_iterator iter = labels.begin(); iter != labels.end(); iter++) {
+  auto computer = computers.begin();
+  for (auto iter = labels.begin(); iter != labels.end(); iter++) {
     computer->label = *iter;
     computer->cacheId = MVAComputer::CacheId();
     computer++;
@@ -58,7 +58,7 @@ bool GenericMVAComputerCache::update(const MVAComputerContainer *calib) {
   empty = true;
 
   bool changed = false;
-  for (std::vector<IndividualComputer>::iterator iter = computers.begin(); iter != computers.end(); iter++) {
+  for (auto iter = computers.begin(); iter != computers.end(); iter++) {
     // empty labels means we don't want a computer
     if (iter->label.empty())
       continue;

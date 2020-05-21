@@ -302,8 +302,8 @@ public:
     ConfigurableHisto::book(dir);
 
     if (!subHistoMap_.empty()) {
-      SubHistoMap::iterator i = subHistoMap_.begin();
-      SubHistoMap::iterator i_end = subHistoMap_.end();
+      auto i = subHistoMap_.begin();
+      auto i_end = subHistoMap_.end();
       for (; i != i_end; ++i) {
         for (unsigned int h = 0; h != i->second.size(); ++h) {
           i->second[h]->book(dir);
@@ -331,8 +331,8 @@ public:
     ConfigurableHisto::fill(e);
 
     if (!subHistoMap_.empty()) {
-      SubHistoMap::iterator i = subHistoMap_.begin();
-      SubHistoMap::iterator i_end = subHistoMap_.end();
+      auto i = subHistoMap_.begin();
+      auto i_end = subHistoMap_.end();
       for (; i != i_end; ++i) {
         const Splitter* splitter = i->first;
         if (!splitter)
@@ -370,8 +370,8 @@ public:
   void complete() {
     if (!subHistoMap_.empty()) {
       //fill up the stacks
-      SubHistoMap::iterator i = subHistoMap_.begin();
-      SubHistoMap::iterator i_end = subHistoMap_.end();
+      auto i = subHistoMap_.begin();
+      auto i_end = subHistoMap_.end();
       for (; i != i_end; ++i) {
         for (unsigned int h = 0; h != i->second.size(); h++) {
           //	  if (i->second[h]->h()->Integral==0) continue;// do not add empty histograms. NO, because it will be tough to merge two THStack
@@ -391,8 +391,8 @@ private:
   SplittingConfigurableHisto(const SplittingConfigurableHisto& master) : ConfigurableHisto(master) {
     splitter_ = master.splitter_;
     if (!master.subHistoMap_.empty()) {
-      SubHistoMap::const_iterator i = master.subHistoMap_.begin();
-      SubHistoMap::const_iterator i_end = master.subHistoMap_.end();
+      auto i = master.subHistoMap_.begin();
+      auto i_end = master.subHistoMap_.end();
       for (; i != i_end; ++i) {
         const std::vector<ConfigurableHisto*>& masterHistos = i->second;
         std::vector<ConfigurableHisto*>& clonedHistos = subHistoMap_[i->first];

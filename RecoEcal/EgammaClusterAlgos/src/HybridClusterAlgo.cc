@@ -123,8 +123,7 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection* recColl,
           }
 
           int severityFlag = sevLv->severityLevel(it->id(), *recHits_);
-          std::vector<int>::const_iterator sit =
-              std::find(v_severitylevel_.begin(), v_severitylevel_.end(), severityFlag);
+          auto sit = std::find(v_severitylevel_.begin(), v_severitylevel_.end(), severityFlag);
           LogTrace("EcalClusters") << "found flag: " << severityFlag;
 
           if (sit != v_severitylevel_.end()) {
@@ -183,7 +182,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
     DetId itID = it->id();
 
     // make sure the current seed has not been used/will not be used in the future:
-    std::set<DetId>::iterator seed_in_rechits_it = useddetids.find(itID);
+    auto seed_in_rechits_it = useddetids.find(itID);
 
     if (seed_in_rechits_it != useddetids.end())
       continue;
@@ -532,7 +531,7 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigatorHT& navigator, std::vect
 
   //Ready?  Get the starting cell.
   DetId center = navigator.pos();
-  EcalRecHitCollection::const_iterator center_it = recHits_->find(center);
+  auto center_it = recHits_->find(center);
 
   if (center_it != recHits_->end()) {
     EcalRecHit SeedHit = *center_it;
@@ -543,7 +542,7 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigatorHT& navigator, std::vect
   }
   //One step upwards in Ieta:
   DetId ieta1 = navigator.west();
-  EcalRecHitCollection::const_iterator eta1_it = recHits_->find(ieta1);
+  auto eta1_it = recHits_->find(ieta1);
   if (eta1_it != recHits_->end()) {
     EcalRecHit UpEta = *eta1_it;
     if (useddetids.find(ieta1) == useddetids.end() && excludedCrys_.find(ieta1) == excludedCrys_.end()) {
@@ -557,7 +556,7 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigatorHT& navigator, std::vect
 
   //One step downwards in Ieta:
   DetId ieta2 = navigator.east();
-  EcalRecHitCollection::const_iterator eta2_it = recHits_->find(ieta2);
+  auto eta2_it = recHits_->find(ieta2);
   if (eta2_it != recHits_->end()) {
     EcalRecHit DownEta = *eta2_it;
     if (useddetids.find(ieta2) == useddetids.end() && excludedCrys_.find(ieta2) == excludedCrys_.end()) {
@@ -577,7 +576,7 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigatorHT& navigator, std::vect
   //we're still on the DownEta cell.
   if (ieta2 != DetId(0)) {
     DetId ieta3 = navigator.east();  //Take another step downward.
-    EcalRecHitCollection::const_iterator eta3_it = recHits_->find(ieta3);
+    auto eta3_it = recHits_->find(ieta3);
     if (eta3_it != recHits_->end()) {
       EcalRecHit DownEta2 = *eta3_it;
       if (useddetids.find(ieta3) == useddetids.end() && excludedCrys_.find(ieta3) == excludedCrys_.end()) {
@@ -591,7 +590,7 @@ double HybridClusterAlgo::makeDomino(EcalBarrelNavigatorHT& navigator, std::vect
   navigator.west();  //Now you're on eta1_it
   if (ieta1 != DetId(0)) {
     DetId ieta4 = navigator.west();  //Take another step upward.
-    EcalRecHitCollection::const_iterator eta4_it = recHits_->find(ieta4);
+    auto eta4_it = recHits_->find(ieta4);
     if (eta4_it != recHits_->end()) {
       EcalRecHit UpEta2 = *eta4_it;
       if (useddetids.find(ieta4) == useddetids.end() && excludedCrys_.find(ieta4) == excludedCrys_.end()) {

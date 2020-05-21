@@ -125,8 +125,7 @@ void lumi::NormDML::normById(const coral::ISchema& schema,
     std::vector<std::string> correctorParams;
     parseLumiCorrector(correctorStr, correctorParams);
     result[since].corrfunc = *(correctorParams.begin());
-    for (std::vector<std::string>::iterator corrIt = correctorParams.begin() + 1; corrIt != correctorParams.end();
-         corrIt++) {
+    for (auto corrIt = correctorParams.begin() + 1; corrIt != correctorParams.end(); corrIt++) {
       std::string paramName = boost::to_upper_copy(*corrIt);
       if (paramName == std::string("AFTERGLOW")) {
         const std::string afterglowStr = row["AFTERGLOW"].data<std::string>();

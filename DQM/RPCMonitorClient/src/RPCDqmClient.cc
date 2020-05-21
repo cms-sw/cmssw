@@ -60,7 +60,7 @@ void RPCDqmClient::beginJob() {
   edm::LogVerbatim("rpcdqmclient") << "[RPCDqmClient]: Begin Job";
 
   //Do whatever the begin jobs of all client modules do
-  for (std::vector<RPCClient*>::iterator it = clientModules_.begin(); it != clientModules_.end(); it++) {
+  for (auto it = clientModules_.begin(); it != clientModules_.end(); it++) {
     (*it)->beginJob(globalFolder_);
   }
 }
@@ -80,7 +80,7 @@ void RPCDqmClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     this->getRPCdetId(c);
 
     //...book summary histograms
-    for (std::vector<RPCClient*>::iterator it = clientModules_.begin(); it != clientModules_.end(); it++) {
+    for (auto it = clientModules_.begin(); it != clientModules_.end(); it++) {
       (*it)->myBooker(ibooker);
     }
   }
@@ -108,7 +108,7 @@ void RPCDqmClient::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     }
 
     edm::LogVerbatim("rpcdqmclient") << "[RPCDqmClient]: Client operations";
-    for (std::vector<RPCClient*>::iterator it = clientModules_.begin(); it != clientModules_.end(); it++) {
+    for (auto it = clientModules_.begin(); it != clientModules_.end(); it++) {
       (*it)->clientOperation();
     }
   }  //end of online operations
@@ -134,7 +134,7 @@ void RPCDqmClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& iget
   }
 
   edm::LogVerbatim("rpcdqmclient") << "[RPCDqmClient]: Client operations";
-  for (std::vector<RPCClient*>::iterator it = clientModules_.begin(); it != clientModules_.end(); it++) {
+  for (auto it = clientModules_.begin(); it != clientModules_.end(); it++) {
     (*it)->clientOperation();
   }
 }
@@ -144,7 +144,7 @@ void RPCDqmClient::getMonitorElements(DQMStore::IGetter& igetter) {
   std::vector<RPCDetId> myDetIds;
 
   //dbe_->setCurrentFolder(prefixDir_);
-  RPCBookFolderStructure* folderStr = new RPCBookFolderStructure();
+  auto* folderStr = new RPCBookFolderStructure();
   MonitorElement* myMe = nullptr;
   std::string rollName = "";
 

@@ -37,7 +37,7 @@ G4LogicalVolume *DDG4Builder::convertLV(const DDLogicalPart &part) {
     G4Material *g4m = convertMaterial(part.material());
     result = new G4LogicalVolume(g4s, g4m, part.name().name());
     map_.insert(result, part);
-    DDG4Dispatchable *disp = new DDG4Dispatchable(&part, result);
+    auto *disp = new DDG4Dispatchable(&part, result);
     theVectorOfDDG4Dispatchables_->push_back(disp);
     LogDebug("SimG4CoreGeometry") << "DDG4Builder::convertLV(): new G4LogicalVolume " << part.name().name()
                                   << "\nDDG4Builder: newEvent: dd=" << part.ddname() << " g4=" << result->GetName()
@@ -104,8 +104,8 @@ G4LogicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog) {
   using Graph = DDCompactView::Graph;
   const auto &gra = compactView_->graph();
   using adjl_iterator = Graph::const_adj_iterator;
-  adjl_iterator git = gra.begin();
-  adjl_iterator gend = gra.end();
+  auto git = gra.begin();
+  auto gend = gra.end();
 
   Graph::index_type i = 0;
   for (; git != gend; ++git) {
@@ -123,8 +123,8 @@ G4LogicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog) {
     ++i;
     if (!git->empty()) {
       // ask for children of ddLP
-      Graph::edge_list::const_iterator cit = git->begin();
-      Graph::edge_list::const_iterator cend = git->end();
+      auto cit = git->begin();
+      auto cend = git->end();
       for (; cit != cend; ++cit) {
         // fetch specific data
         const DDLogicalPart &ddcurLP = gra.nodeData(cit->first);
@@ -168,13 +168,13 @@ G4LogicalVolume *DDG4Builder::BuildGeometry(SensitiveDetectorCatalog &catalog) {
 
   // Looking for in the G4ReflectionFactory secretly created reflected
   // G4LogicalVolumes
-  std::map<DDLogicalPart, G4LogicalVolume *>::const_iterator ddg4_it = logs_.begin();
+  auto ddg4_it = logs_.begin();
   for (; ddg4_it != logs_.end(); ++ddg4_it) {
     G4LogicalVolume *reflLogicalVolume = refFact->GetReflectedLV(ddg4_it->second);
     if (reflLogicalVolume) {
       DDLogicalPart ddlv = ddg4_it->first;
       map_.insert(reflLogicalVolume, ddlv);
-      DDG4Dispatchable *disp = new DDG4Dispatchable(&(ddg4_it->first), reflLogicalVolume);
+      auto *disp = new DDG4Dispatchable(&(ddg4_it->first), reflLogicalVolume);
       theVectorOfDDG4Dispatchables_->push_back(disp);
       edm::LogVerbatim("SimG4CoreGeometry")
           << "DDG4Builder: dd=" << ddlv.ddname() << " g4=" << reflLogicalVolume->GetName();

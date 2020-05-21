@@ -32,8 +32,7 @@ BTagPerformanceAnalyzerOnData::BTagPerformanceAnalyzerOnData(const edm::Paramete
   if (ptRanges.size() <= 1)
     ptRanges = {pSet.getParameter<double>("ptRecJetMin"), pSet.getParameter<double>("ptRecJetMax")};
 
-  for (vector<edm::ParameterSet>::const_iterator iModule = moduleConfig.begin(); iModule != moduleConfig.end();
-       ++iModule) {
+  for (auto iModule = moduleConfig.begin(); iModule != moduleConfig.end(); ++iModule) {
     const string& dataFormatType = iModule->exists("type") ? iModule->getParameter<string>("type") : "JetTag";
     if (dataFormatType == "JetTag") {
       const InputTag& moduleLabel = iModule->getParameter<InputTag>("label");
@@ -88,8 +87,7 @@ void BTagPerformanceAnalyzerOnData::bookHistograms(DQMStore::IBooker& ibook,
   int iTag = -1;
   int iTagCorr = -1;
   int iInfoTag = -1;
-  for (vector<edm::ParameterSet>::const_iterator iModule = moduleConfig.begin(); iModule != moduleConfig.end();
-       ++iModule) {
+  for (auto iModule = moduleConfig.begin(); iModule != moduleConfig.end(); ++iModule) {
     const string& dataFormatType = iModule->exists("type") ? iModule->getParameter<string>("type") : "JetTag";
     if (dataFormatType == "JetTag") {
       iTag++;
@@ -256,7 +254,7 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
     LogDebug("Info") << "Found " << tagColl.size() << " B candidates in collection " << jetTagInputTags[iJetLabel];
 
     int plotterSize = binJetTagPlotters[iJetLabel].size();
-    for (JetTagCollection::const_iterator tagI = tagColl.begin(); tagI != tagColl.end(); ++tagI) {
+    for (auto tagI = tagColl.begin(); tagI != tagColl.end(); ++tagI) {
       //JEC
       double jec = 1.0;
       if (doJEC && corrector) {
@@ -291,7 +289,7 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
     const reco::JetTagCollection& tagColl2 = *(tagHandle2.product());
 
     int plotterSize = binTagCorrelationPlotters[iJetLabel].size();
-    for (JetTagCollection::const_iterator tagI = tagColl1.begin(); tagI != tagColl1.end(); ++tagI) {
+    for (auto tagI = tagColl1.begin(); tagI != tagColl1.end(); ++tagI) {
       //JEC
       double jec = 1.0;
       if (doJEC && corrector) {

@@ -36,7 +36,7 @@ std::vector<TrajectorySeed*> SeedFromGenericPairOrTriplet::seed(const SeedingHit
       if (seed)
         seeds.push_back(seed);
     } else {
-      for (std::vector<int>::const_iterator iCh = theCharges.begin(); iCh != theCharges.end(); iCh++) {
+      for (auto iCh = theCharges.begin(); iCh != theCharges.end(); iCh++) {
         TrajectorySeed* seed = seedFromTriplet(hits, dir, seedDir, iSetup, *iCh);
         if (seed)
           seeds.push_back(seed);
@@ -49,7 +49,7 @@ std::vector<TrajectorySeed*> SeedFromGenericPairOrTriplet::seed(const SeedingHit
       if (seed)
         seeds.push_back(seed);
     } else {
-      for (std::vector<int>::const_iterator iCh = theCharges.begin(); iCh != theCharges.end(); iCh++) {
+      for (auto iCh = theCharges.begin(); iCh != theCharges.end(); iCh++) {
         TrajectorySeed* seed = seedFromPair(hits, dir, seedDir, *iCh);
         if (seed)
           seeds.push_back(seed);

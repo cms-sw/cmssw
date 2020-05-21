@@ -70,7 +70,7 @@ namespace clangcms {
             const CXXRecordDecl *RD = QT->getAsCXXRecordDecl();
             std::string rname = RD->getQualifiedNameAsString();
             os << rname << " ";
-            const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD);
+            const auto *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD);
             for (unsigned J = 0, F = SD->getTemplateArgs().size(); J != F; ++J) {
               SD->getTemplateArgs().data()[J].print(Policy, os);
               os << ", ";
@@ -87,12 +87,12 @@ namespace clangcms {
         QualType QT = (*CE->arg_begin())->getType();
         const CXXRecordDecl *RD = QT->getAsCXXRecordDecl();
         os << "getManyByType , ";
-        const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD);
+        const auto *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD);
         const TemplateArgument TA = SD->getTemplateArgs().data()[0];
         const QualType AQT = TA.getAsType();
         const CXXRecordDecl *SRD = AQT->getAsCXXRecordDecl();
         os << SRD->getQualifiedNameAsString() << " ";
-        const ClassTemplateSpecializationDecl *SVD = dyn_cast<ClassTemplateSpecializationDecl>(SRD);
+        const auto *SVD = dyn_cast<ClassTemplateSpecializationDecl>(SRD);
         for (unsigned J = 0, F = SVD->getTemplateArgs().size(); J != F; ++J) {
           SVD->getTemplateArgs().data()[J].print(Policy, os);
           os << ", ";

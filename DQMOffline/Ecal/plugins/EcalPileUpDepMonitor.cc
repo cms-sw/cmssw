@@ -312,8 +312,7 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e, const edm::EventSetup &)
   //--------- Fill Isolation -----------------
 
   if (electronCollection_h.isValid()) {
-    for (reco::GsfElectronCollection::const_iterator recoElectron = electronCollection_h->begin();
-         recoElectron != electronCollection_h->end();
+    for (auto recoElectron = electronCollection_h->begin(); recoElectron != electronCollection_h->end();
          recoElectron++) {
       double IsoEcal = recoElectron->dr03EcalRecHitSumEt();  /// recoElectron->et()
       emIso_PV->Fill(PVCollection_h->size(), IsoEcal);
@@ -324,9 +323,7 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e, const edm::EventSetup &)
   // fill super clusters EE
   scEE_PV->Fill(PVCollection_h->size(), superClusters_EE_h->size());
 
-  for (reco::SuperClusterCollection::const_iterator itSC = superClusters_EE_h->begin();
-       itSC != superClusters_EE_h->end();
-       ++itSC) {
+  for (auto itSC = superClusters_EE_h->begin(); itSC != superClusters_EE_h->end(); ++itSC) {
     double scEE_Et = itSC->energy() * sin(2. * atan(exp(-itSC->position().eta())));
     //    double scEE_E=itSC->energy();
 
@@ -367,9 +364,7 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e, const edm::EventSetup &)
   }
   scEB_PV->Fill(PVCollection_h->size(), superClusters_EB_h->size());
 
-  for (reco::SuperClusterCollection::const_iterator itSC = superClusters_EB_h->begin();
-       itSC != superClusters_EB_h->end();
-       ++itSC) {
+  for (auto itSC = superClusters_EB_h->begin(); itSC != superClusters_EB_h->end(); ++itSC) {
     double scEB_Et = itSC->energy() * sin(2. * atan(exp(-itSC->position().eta())));  // super cluster transverse energy
     //    double scEB_E= itSC->energy(); // super cluster energy
 
@@ -402,7 +397,7 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e, const edm::EventSetup &)
   //-------------------Compute scalar sum of reconstructed hit Et
   double RecHitEt_EB = 0;
 
-  for (EcalRecHitCollection::const_iterator itr = RecHitsEB->begin(); itr != RecHitsEB->end(); ++itr) {
+  for (auto itr = RecHitsEB->begin(); itr != RecHitsEB->end(); ++itr) {
     // RecHitEt_EB +=itr->energy();
 
     GlobalPoint const &position = geom->getGeometry(itr->detid())->getPosition();
@@ -415,7 +410,7 @@ void EcalPileUpDepMonitor::analyze(const edm::Event &e, const edm::EventSetup &)
   //-------------------Compute scalar sum of reconstructed hit Et
   double RecHitEt_EE = 0;
 
-  for (EcalRecHitCollection::const_iterator itr = RecHitsEE->begin(); itr != RecHitsEE->end(); ++itr) {
+  for (auto itr = RecHitsEE->begin(); itr != RecHitsEE->end(); ++itr) {
     GlobalPoint const &position = geom->getGeometry(itr->detid())->getPosition();
     RecHitEt_EE += itr->energy() * sin(position.theta());
   }  // EB Rec Hit

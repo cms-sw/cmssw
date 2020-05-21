@@ -70,7 +70,7 @@ std::unique_ptr<Propagator> SteppingHelixPropagatorESProducer::produce(const Tra
   // if useMagVolumes == true and an alternate VBF field is not specified with setVBFPointer_,
   // Force "useInTeslaFromMagField=true" for a B=0 VBF map.
   if (useMagVolumes == true && !useInTeslaFromMagField && !setVBFPointer_ && magfield.nominalValue() == 0) {
-    const VolumeBasedMagneticField* vbfCPtr = dynamic_cast<const VolumeBasedMagneticField*>(&magfield);
+    const auto* vbfCPtr = dynamic_cast<const VolumeBasedMagneticField*>(&magfield);
     if (vbfCPtr == nullptr) {
       edm::LogWarning("SteppingHelixPropagator")
           << "Config specifies useMagVolumes==True but no VBF field available: SHP has no access to yoke material "
@@ -87,7 +87,7 @@ std::unique_ptr<Propagator> SteppingHelixPropagatorESProducer::produce(const Tra
 
   if (setVBFPointer_) {
     auto const& vbfField = iRecord.get(vbMagToken_);
-    const VolumeBasedMagneticField* vbfCPtr = dynamic_cast<const VolumeBasedMagneticField*>(&vbfField);
+    const auto* vbfCPtr = dynamic_cast<const VolumeBasedMagneticField*>(&vbfField);
     shProp->setVBFPointer(vbfCPtr);
   }
 

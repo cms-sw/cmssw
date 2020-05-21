@@ -72,8 +72,7 @@ void ShiftedPFCandidateProducerForPFMVAMEt::produce(edm::Event& evt, const edm::
 
   auto shiftedPFCandidates = std::make_unique<reco::PFCandidateCollection>();
 
-  for (reco::PFCandidateCollection::const_iterator originalPFCandidate = originalPFCandidates->begin();
-       originalPFCandidate != originalPFCandidates->end();
+  for (auto originalPFCandidate = originalPFCandidates->begin(); originalPFCandidate != originalPFCandidates->end();
        ++originalPFCandidate) {
     double shift = 0.;
     bool applyShift = false;
@@ -81,7 +80,7 @@ void ShiftedPFCandidateProducerForPFMVAMEt::produce(edm::Event& evt, const edm::
     prevMatch = -1;
     cnt = 0;
 
-    for (std::vector<objectEntryType>::const_iterator object = objects_.begin(); object != objects_.end(); ++object) {
+    for (auto object = objects_.begin(); object != objects_.end(); ++object) {
       if (!object->isValidMatch_)
         continue;
       if (match[cnt])

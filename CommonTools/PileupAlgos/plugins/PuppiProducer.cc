@@ -74,8 +74,8 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   const reco::VertexCollection* pvCol = hVertexProduct.product();
 
   int npv = 0;
-  const reco::VertexCollection::const_iterator vtxEnd = pvCol->end();
-  for (reco::VertexCollection::const_iterator vtxIter = pvCol->begin(); vtxEnd != vtxIter; ++vtxIter) {
+  const auto vtxEnd = pvCol->end();
+  for (auto vtxIter = pvCol->begin(); vtxEnd != vtxIter; ++vtxIter) {
     if (!vtxIter->isFake() && vtxIter->ndof() >= fVtxNdofCut && std::abs(vtxIter->z()) <= fVtxZCut)
       npv++;
   }
@@ -100,9 +100,9 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       int pVtxId = -9999;
       bool lFirst = true;
       bool isLepton = ((std::abs(pReco.pdgId) == 11) || (std::abs(pReco.pdgId) == 13));
-      const pat::PackedCandidate* lPack = dynamic_cast<const pat::PackedCandidate*>(&aPF);
+      const auto* lPack = dynamic_cast<const pat::PackedCandidate*>(&aPF);
       if (lPack == nullptr) {
-        const reco::PFCandidate* pPF = dynamic_cast<const reco::PFCandidate*>(&aPF);
+        const auto* pPF = dynamic_cast<const reco::PFCandidate*>(&aPF);
         double curdz = 9999;
         int closestVtxForUnassociateds = -9999;
         const reco::TrackRef aTrackRef = pPF->trackRef();
@@ -221,7 +221,7 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     //Use the existing weights
     int lPackCtr = 0;
     for (auto const& aPF : *pfCol) {
-      const pat::PackedCandidate* lPack = dynamic_cast<const pat::PackedCandidate*>(&aPF);
+      const auto* lPack = dynamic_cast<const pat::PackedCandidate*>(&aPF);
       float curpupweight = -1.;
       if (lPack == nullptr) {
         // throw error
@@ -272,13 +272,13 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     std::unique_ptr<reco::PFCandidate> pfCand;
 
     if (fUseExistingWeights || fClonePackedCands) {
-      const pat::PackedCandidate* cand = dynamic_cast<const pat::PackedCandidate*>(&aCand);
+      const auto* cand = dynamic_cast<const pat::PackedCandidate*>(&aCand);
       if (!cand)
         throw edm::Exception(edm::errors::LogicError, "PuppiProducer: inputs are not PackedCandidates");
       pCand.reset(new pat::PackedCandidate(*cand));
     } else {
       auto id = dummySinceTranslateIsNotStatic.translatePdgIdToType(aCand.pdgId());
-      const reco::PFCandidate* cand = dynamic_cast<const reco::PFCandidate*>(&aCand);
+      const auto* cand = dynamic_cast<const reco::PFCandidate*>(&aCand);
       pfCand.reset(new reco::PFCandidate(cand ? *cand : reco::PFCandidate(aCand.charge(), aCand.p4(), id)));
     }
 

@@ -54,22 +54,20 @@ void FWPFTauProxyBuilder::buildViewType(const FWEventItem* iItem,
   if (pfTaus == nullptr)
     return;
 
-  for (reco::PFTauCollection::const_iterator it = pfTaus->begin(), itEnd = pfTaus->end(); it != itEnd; ++it) {
+  for (auto it = pfTaus->begin(), itEnd = pfTaus->end(); it != itEnd; ++it) {
     TEveCompound* comp = createCompound();
     if (viewType == FWViewType::kLego) {
       fireworks::addCircle((*it).eta(), (*it).phi(), 0.5, 20, comp, this);
     } else {
       // prepare phi-list and theta range
       try {
-        const reco::PFTauTagInfo* tauTagInfo = dynamic_cast<const reco::PFTauTagInfo*>((*it).pfTauTagInfoRef().get());
+        const auto* tauTagInfo = dynamic_cast<const reco::PFTauTagInfo*>((*it).pfTauTagInfoRef().get());
         const reco::Jet* jet = tauTagInfo->pfjetRef().get();
         m_minTheta = 100;
         m_maxTheta = -100;
         std::vector<double> phis;
         std::vector<const reco::Candidate*> candidates = jet->getJetConstituentsQuick();
-        for (std::vector<const reco::Candidate*>::const_iterator candidate = candidates.begin(),
-                                                                 candidateEnd = candidates.end();
-             candidate != candidateEnd;
+        for (auto candidate = candidates.begin(), candidateEnd = candidates.end(); candidate != candidateEnd;
              ++candidate) {
           double itheta = (*candidate)->theta();
           if (itheta > m_maxTheta)

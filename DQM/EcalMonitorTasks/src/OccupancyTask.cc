@@ -35,7 +35,7 @@ namespace ecaldqm {
   void OccupancyTask::runOnRawData(EcalRawDataCollection const& _dcchs) {
     MESet& meDCC(MEs_.at("DCC"));
 
-    for (EcalRawDataCollection::const_iterator dcchItr(_dcchs.begin()); dcchItr != _dcchs.end(); ++dcchItr)
+    for (auto dcchItr(_dcchs.begin()); dcchItr != _dcchs.end(); ++dcchItr)
       meDCC.fill(dcchItr->id());
   }
 

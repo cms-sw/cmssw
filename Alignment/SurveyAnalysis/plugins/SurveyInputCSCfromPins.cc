@@ -166,7 +166,7 @@ void SurveyInputCSCfromPins::analyze(const edm::Event &, const edm::EventSetup &
     iSetup.get<MuonGeometryRecord>().get(cscGeometry);
 
     AlignableMuon *theAlignableMuon = new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
-    AlignableNavigator *theAlignableNavigator = new AlignableNavigator(theAlignableMuon);
+    auto *theAlignableNavigator = new AlignableNavigator(theAlignableMuon);
 
     const auto &theEndcaps = theAlignableMuon->CSCEndcaps();
 
@@ -293,8 +293,8 @@ void SurveyInputCSCfromPins::analyze(const edm::Event &, const edm::EventSetup &
 
 void SurveyInputCSCfromPins::fillAllRecords(Alignable *ali) {
   if (ali->survey() == nullptr) {
-    AlignableCSCChamber *ali_AlignableCSCChamber = dynamic_cast<AlignableCSCChamber *>(ali);
-    AlignableCSCStation *ali_AlignableCSCStation = dynamic_cast<AlignableCSCStation *>(ali);
+    auto *ali_AlignableCSCChamber = dynamic_cast<AlignableCSCChamber *>(ali);
+    auto *ali_AlignableCSCStation = dynamic_cast<AlignableCSCStation *>(ali);
 
     if (ali_AlignableCSCChamber != nullptr) {
       CSCDetId detid(ali->geomDetId());

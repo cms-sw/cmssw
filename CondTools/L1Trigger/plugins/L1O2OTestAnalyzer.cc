@@ -106,8 +106,8 @@ void L1O2OTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
     std::cout << "Found " << pList.tscKeyToTokenMap().size() << " TSC keys:" << std::endl;
 
-    L1TriggerKeyList::KeyToToken::const_iterator iTSCKey = pList.tscKeyToTokenMap().begin();
-    L1TriggerKeyList::KeyToToken::const_iterator eTSCKey = pList.tscKeyToTokenMap().end();
+    auto iTSCKey = pList.tscKeyToTokenMap().begin();
+    auto eTSCKey = pList.tscKeyToTokenMap().end();
     for (; iTSCKey != eTSCKey; ++iTSCKey) {
       std::cout << iTSCKey->first;
       if (m_printPayloadTokens) {
@@ -117,14 +117,14 @@ void L1O2OTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
     std::cout << std::endl;
 
-    L1TriggerKeyList::RecordToKeyToToken::const_iterator iRec = pList.recordTypeToKeyToTokenMap().begin();
-    L1TriggerKeyList::RecordToKeyToToken::const_iterator eRec = pList.recordTypeToKeyToTokenMap().end();
+    auto iRec = pList.recordTypeToKeyToTokenMap().begin();
+    auto eRec = pList.recordTypeToKeyToTokenMap().end();
     for (; iRec != eRec; ++iRec) {
       const L1TriggerKeyList::KeyToToken& keyTokenMap = iRec->second;
       std::cout << "For record@type " << iRec->first << ", found " << keyTokenMap.size() << " keys:" << std::endl;
 
-      L1TriggerKeyList::KeyToToken::const_iterator iKey = keyTokenMap.begin();
-      L1TriggerKeyList::KeyToToken::const_iterator eKey = keyTokenMap.end();
+      auto iKey = keyTokenMap.begin();
+      auto eKey = keyTokenMap.end();
       for (; iKey != eKey; ++iKey) {
         std::cout << iKey->first;
         if (m_printPayloadTokens) {
@@ -156,8 +156,8 @@ void L1O2OTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
       std::cout << "Object keys:" << std::endl;
       const L1TriggerKey::RecordToKey& recKeyMap = pKey->recordToKeyMap();
-      L1TriggerKey::RecordToKey::const_iterator iRec = recKeyMap.begin();
-      L1TriggerKey::RecordToKey::const_iterator eRec = recKeyMap.end();
+      auto iRec = recKeyMap.begin();
+      auto eRec = recKeyMap.end();
       for (; iRec != eRec; ++iRec) {
         std::cout << iRec->first << " " << iRec->second << std::endl;
       }
@@ -186,8 +186,8 @@ void L1O2OTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
     std::cout << std::endl << "Run Settings keys:" << std::endl;
 
-    std::vector<std::string>::const_iterator iRec = m_recordsToPrint.begin();
-    std::vector<std::string>::const_iterator iEnd = m_recordsToPrint.end();
+    auto iRec = m_recordsToPrint.begin();
+    auto iEnd = m_recordsToPrint.end();
     for (; iRec != iEnd; ++iRec) {
       std::string payloadToken = writer.payloadToken(*iRec, iEvent.id().run());
       std::string key;

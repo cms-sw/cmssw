@@ -67,8 +67,7 @@ bool HiggsToZZ4LeptonsPreFilter::filter(edm::Event& event, const edm::EventSetup
     int nElec = 0;
     int nMuon = 0;
 
-    for (GenParticleCollection::const_iterator mcIter = genParticles->begin(); mcIter != genParticles->end();
-         ++mcIter) {
+    for (auto mcIter = genParticles->begin(); mcIter != genParticles->end(); ++mcIter) {
       // Muons:
       if (mcIter->pdgId() == 13 || mcIter->pdgId() == -13) {
         // Mother is a Z

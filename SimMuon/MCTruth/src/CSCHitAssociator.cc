@@ -34,7 +34,7 @@ std::vector<CSCHitAssociator::SimHitIdpr> CSCHitAssociator::associateCSCHitId(co
   int nchannels = cscrechit->nStrips();
   const CSCLayerGeometry *laygeom = cscgeom->layer(cscrechit->cscDetId())->geometry();
 
-  DigiSimLinks::const_iterator layerLinks = theDigiSimLinks->find(detId);
+  auto layerLinks = theDigiSimLinks->find(detId);
 
   if (layerLinks != theDigiSimLinks->end()) {
     for (int idigi = 0; idigi < nchannels; ++idigi) {
@@ -42,7 +42,7 @@ std::vector<CSCHitAssociator::SimHitIdpr> CSCHitAssociator::associateCSCHitId(co
       int istrip = cscrechit->channels(idigi);
       int channel = laygeom->channel(istrip);
 
-      for (LayerLinks::const_iterator link = layerLinks->begin(); link != layerLinks->end(); ++link) {
+      for (auto link = layerLinks->begin(); link != layerLinks->end(); ++link) {
         int ch = static_cast<int>(link->channel());
         if (ch == channel) {
           SimHitIdpr currentId(link->SimTrackId(), link->eventId());
@@ -70,7 +70,7 @@ std::vector<CSCHitAssociator::SimHitIdpr> CSCHitAssociator::associateHitId(const
     int nchannels = cscrechit->nStrips();
     const CSCLayerGeometry *laygeom = cscgeom->layer(cscrechit->cscDetId())->geometry();
 
-    DigiSimLinks::const_iterator layerLinks = theDigiSimLinks->find(detId);
+    auto layerLinks = theDigiSimLinks->find(detId);
 
     if (layerLinks != theDigiSimLinks->end()) {
       for (int idigi = 0; idigi < nchannels; ++idigi) {
@@ -78,7 +78,7 @@ std::vector<CSCHitAssociator::SimHitIdpr> CSCHitAssociator::associateHitId(const
         int istrip = cscrechit->channels(idigi);
         int channel = laygeom->channel(istrip);
 
-        for (LayerLinks::const_iterator link = layerLinks->begin(); link != layerLinks->end(); ++link) {
+        for (auto link = layerLinks->begin(); link != layerLinks->end(); ++link) {
           int ch = static_cast<int>(link->channel());
           if (ch == channel) {
             SimHitIdpr currentId(link->SimTrackId(), link->eventId());

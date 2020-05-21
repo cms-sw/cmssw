@@ -17,7 +17,7 @@ void FWPFPatJetLegoProxyBuilder<T>::build(const T& iData,
 
   typedef std::vector<reco::PFCandidatePtr>::const_iterator IC;
 
-  for (IC ic = consts.begin(); ic != consts.end(); ++ic) {
+  for (auto ic = consts.begin(); ic != consts.end(); ++ic) {
     const reco::PFCandidatePtr pfCandPtr = *ic;
 
     FWLegoCandidate* candidate = new FWLegoCandidate(vc,
@@ -41,10 +41,10 @@ void FWPFPatJetLegoProxyBuilder<T>::scaleProduct(TEveElementList* parent,
                                                  FWViewType::EType type,
                                                  const FWViewContext* vc) {
   // loop items in product
-  for (TEveElement::List_i i = parent->BeginChildren(); i != parent->EndChildren(); ++i) {
+  for (auto i = parent->BeginChildren(); i != parent->EndChildren(); ++i) {
     if ((*i)->HasChildren()) {
       // loop elements for the reco::PFJet item
-      for (TEveElement::List_i j = (*i)->BeginChildren(); j != (*i)->EndChildren(); ++j) {
+      for (auto j = (*i)->BeginChildren(); j != (*i)->EndChildren(); ++j) {
         FWLegoCandidate* cand = dynamic_cast<FWLegoCandidate*>(*j);
         cand->updateScale(vc, FWProxyBuilderBase::context());
       }
@@ -60,7 +60,7 @@ void FWPFPatJetLegoProxyBuilder<T>::localModelChanges(const FWModelId& iId,
                                                       const FWViewContext* vc) {
   // line set marker is not same color as line, have to fix it here
   if ((parent)->HasChildren()) {
-    for (TEveElement::List_i j = parent->BeginChildren(); j != parent->EndChildren(); ++j) {
+    for (auto j = parent->BeginChildren(); j != parent->EndChildren(); ++j) {
       FWLegoCandidate* cand = dynamic_cast<FWLegoCandidate*>(*j);
       cand->SetMarkerColor(FWProxyBuilderBase::item()->modelInfo(iId.index()).displayProperties().color());
       cand->ElementChanged();

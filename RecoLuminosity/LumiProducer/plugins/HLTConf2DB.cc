@@ -47,7 +47,7 @@ namespace lumi {
     std::string runsessiontable("RUNSESSION_PARAMETER");
     //
     //must login as cms_hlt_r
-    coral::ConnectionService* svc = new coral::ConnectionService;
+    auto* svc = new coral::ConnectionService;
     lumi::DBConfig dbconf(*svc);
     if (!m_authpath.empty()) {
       dbconf.setAuthentication(m_authpath);
@@ -167,8 +167,8 @@ namespace lumi {
     srcsession->transaction().commit();
     delete srcsession;
     std::vector<std::pair<std::string, std::string> >::const_iterator mIt;
-    std::vector<std::pair<std::string, std::string> >::const_iterator mBeg = hlt2l1map.begin();
-    std::vector<std::pair<std::string, std::string> >::const_iterator mEnd = hlt2l1map.end();
+    auto mBeg = hlt2l1map.begin();
+    auto mEnd = hlt2l1map.end();
 
     coral::ISessionProxy* destsession = svc->connect(m_dest, coral::Update);
     try {

@@ -36,7 +36,7 @@ void RPCStripNoisesRcdRead::analyze(const edm::Event& evt, const edm::EventSetup
   }
 
   int i = 1;
-  for (std::vector<RPCStripNoises::NoiseItem>::iterator it = vnoise.begin(); it != vnoise.end(); ++it) {
+  for (auto it = vnoise.begin(); it != vnoise.end(); ++it) {
     if (i % 96 == 0)
       std::cout << "DetId:  " << it->dpid << "  " << it->time << "  " << std::endl;
     std::cout << "                                    Noise Value: " << (it->noise) << "  " << (it->eff) << std::endl;

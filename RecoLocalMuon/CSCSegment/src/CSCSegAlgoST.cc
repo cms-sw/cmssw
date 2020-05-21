@@ -126,9 +126,7 @@ std::vector<CSCSegment> CSCSegAlgoST::run(const CSCChamber* aChamber, const Cham
       rechits_clusters = clusterHits(theChamber, rechits);
     }
     // loop over the found clusters:
-    for (std::vector<ChamberHitContainer>::iterator sub_rechits = rechits_clusters.begin();
-         sub_rechits != rechits_clusters.end();
-         ++sub_rechits) {
+    for (auto sub_rechits = rechits_clusters.begin(); sub_rechits != rechits_clusters.end(); ++sub_rechits) {
       // clear the buffer for the subset of segments:
       segments_temp.clear();
       // build the subset of segments:
@@ -189,7 +187,7 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
   int hit_nr_worst = -1;
   //int hit_nr_2ndworst = -1;
 
-  for (std::vector<CSCSegment>::iterator it = segments.begin(); it != segments.end(); ++it) {
+  for (auto it = segments.begin(); it != segments.end(); ++it) {
     // do nothing for nhit <= minHitPerSegment
     if ((*it).nRecHits() <= minHitsPerSegment)
       continue;
@@ -220,7 +218,7 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
         hit_nr_worst = -1;
         //hit_nr_2ndworst = -1;
 
-        for (std::vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); ++iRH) {
+        for (auto iRH = theseRecHits.begin(); iRH != theseRecHits.end(); ++iRH) {
           //mark "worst" hit:
 
           //float z_at_target ;
@@ -1743,9 +1741,9 @@ void CSCSegAlgoST::findDuplicates(std::vector<CSCSegment>& segments) {
   // if a segment shares all the rechits with another segment it is a duplicate (even if
   // it has less rechits)
 
-  for (std::vector<CSCSegment>::iterator it = segments.begin(); it != segments.end(); ++it) {
+  for (auto it = segments.begin(); it != segments.end(); ++it) {
     std::vector<CSCSegment*> duplicateSegments;
-    for (std::vector<CSCSegment>::iterator it2 = segments.begin(); it2 != segments.end(); ++it2) {
+    for (auto it2 = segments.begin(); it2 != segments.end(); ++it2) {
       //
       bool allShared = true;
       if (it != it2) {

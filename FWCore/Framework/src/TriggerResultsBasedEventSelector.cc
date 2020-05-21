@@ -174,8 +174,7 @@ namespace edm {
       // The label will be empty if and only if this is a SubProcess
       // SubProcess's do not appear on any end path
       if (!iLabel.empty()) {
-        std::map<std::string, std::vector<std::pair<std::string, int> > >::const_iterator iter =
-            outputModulePathPositions.find(iLabel);
+        auto iter = outputModulePathPositions.find(iLabel);
         assert(iter != outputModulePathPositions.end());
         for (auto const& item : iter->second) {
           endPaths.push_back(item.first);

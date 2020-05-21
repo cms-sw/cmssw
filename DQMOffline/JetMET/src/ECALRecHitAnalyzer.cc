@@ -205,7 +205,7 @@ void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup) {
   const CaloSubdetectorGeometry* EBgeom = cG.getSubdetectorGeometry(DetId::Ecal, 1);
   int n = 0;
   std::vector<DetId> EBids = EBgeom->getValidDetIds(DetId::Ecal, 1);
-  for (std::vector<DetId>::iterator i = EBids.begin(); i != EBids.end(); i++) {
+  for (auto i = EBids.begin(); i != EBids.end(); i++) {
     n++;
     auto cell = EBgeom->getGeometry(*i);
     //GlobalPoint p = cell->getPosition();
@@ -228,7 +228,7 @@ void ECALRecHitAnalyzer::FillGeometry(const edm::EventSetup& iSetup) {
   const CaloSubdetectorGeometry* EEgeom = cG.getSubdetectorGeometry(DetId::Ecal, 2);
   n = 0;
   std::vector<DetId> EEids = EEgeom->getValidDetIds(DetId::Ecal, 2);
-  for (std::vector<DetId>::iterator i = EEids.begin(); i != EEids.end(); i++) {
+  for (auto i = EEids.begin(); i != EEids.end(); i++) {
     n++;
     auto cell = EEgeom->getGeometry(*i);
     //GlobalPoint p = cell->getPosition();

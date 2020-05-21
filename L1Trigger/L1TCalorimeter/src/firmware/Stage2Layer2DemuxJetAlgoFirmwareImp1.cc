@@ -31,8 +31,8 @@ void l1t::Stage2Layer2DemuxJetAlgoFirmwareImp1::processEvent(const std::vector<l
   outputJets = inputJets;
 
   // Sort the jets by pT
-  std::vector<l1t::Jet>::iterator start(outputJets.begin());
-  std::vector<l1t::Jet>::iterator end(outputJets.end());
+  auto start(outputJets.begin());
+  auto end(outputJets.end());
 
   //  for (auto& jet: outputJets){
   //    std::cout << "MP : " << jet.hwPt() << ", " << jet.hwEta() << ", " << jet.hwPhi() << ", " << CaloTools::towerEta(jet.hwEta()) << ", " << CaloTools::towerPhi(jet.hwEta(),jet.hwPhi()) << std::endl;

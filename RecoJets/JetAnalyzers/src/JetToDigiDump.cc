@@ -117,7 +117,7 @@ void JetToDigiDump::analyze(const Event& evt, const EventSetup& es) {
     cout << "   *********************************************************" << endl;
   jetInd = 0;
   if (Dump >= 1)
-    for (CaloJetCollection::const_iterator jet = caloJets->begin(); jet != caloJets->end(); ++jet) {
+    for (auto jet = caloJets->begin(); jet != caloJets->end(); ++jet) {
       //2_1_?    std::vector <CaloTowerPtr> towers = jet->getCaloConstituents ();
       //2_0_7"
       std::vector<CaloTowerPtr> towers = jet->getCaloConstituents();
@@ -131,8 +131,7 @@ void JetToDigiDump::analyze(const Event& evt, const EventSetup& es) {
       float sumTowerE = 0.0;
       if (Dump >= 2)
         for (int i = 0; i < nConstituents; i++) {
-          CaloTowerCollection::const_iterator theTower =
-              caloTowers->find(towers[i]->id());  //Find the tower from its CaloTowerDetID
+          auto theTower = caloTowers->find(towers[i]->id());  //Find the tower from its CaloTowerDetID
           if (theTower == caloTowers->end()) {
             cerr << "Bug? Can't find the tower" << endl;
             return;
@@ -157,9 +156,9 @@ void JetToDigiDump::analyze(const Event& evt, const EventSetup& es) {
                 HcalDetId HcalID = RecHitDetID;
                 HcalSubdetector HcalNum = HcalID.subdet();
                 if (HcalNum == HcalBarrel) {
-                  HBHERecHitCollection::const_iterator theRecHit = HBHERecHits->find(HcalID);
+                  auto theRecHit = HBHERecHits->find(HcalID);
                   sumRecHitE += theRecHit->energy();
-                  HBHEDigiCollection::const_iterator theDigis = HBHEDigis->find(HcalID);
+                  auto theDigis = HBHEDigis->find(HcalID);
                   cout << "         RecHit: " << j << ": HB, ieta=" << HcalID.ieta() << ", iphi=" << HcalID.iphi()
                        << ", depth=" << HcalID.depth() << ", energy=" << theRecHit->energy()
                        << ", time=" << theRecHit->time() << ", All Digis=" << theDigis->size()
@@ -190,13 +189,13 @@ void JetToDigiDump::analyze(const Event& evt, const EventSetup& es) {
                   if (Dump >= 4)
                     cout << "            ......................................" << endl;
                 } else if (HcalNum == HcalEndcap) {
-                  HBHERecHitCollection::const_iterator theRecHit = HBHERecHits->find(HcalID);
+                  auto theRecHit = HBHERecHits->find(HcalID);
                   if ((abs(HcalID.ieta()) == 28 || abs(HcalID.ieta()) == 29) && HcalID.depth() == 3) {
                     sumRecHitE += theRecHit->energy() / 2;  //Depth 3 split over tower 28 & 29
                   } else {
                     sumRecHitE += theRecHit->energy();
                   }
-                  HBHEDigiCollection::const_iterator theDigis = HBHEDigis->find(HcalID);
+                  auto theDigis = HBHEDigis->find(HcalID);
                   cout << "         RecHit: " << j << ": HE, ieta=" << HcalID.ieta() << ", iphi=" << HcalID.iphi()
                        << ", depth=" << HcalID.depth() << ", energy=" << theRecHit->energy()
                        << ", time=" << theRecHit->time() << ", All Digis=" << theDigis->size()
@@ -222,9 +221,9 @@ void JetToDigiDump::analyze(const Event& evt, const EventSetup& es) {
                   if (Dump >= 4)
                     cout << "            ......................................" << endl;
                 } else if (HcalNum == HcalOuter) {
-                  HORecHitCollection::const_iterator theRecHit = HORecHits->find(HcalID);
+                  auto theRecHit = HORecHits->find(HcalID);
                   sumRecHitE += theRecHit->energy();
-                  HODigiCollection::const_iterator theDigis = HODigis->find(HcalID);
+                  auto theDigis = HODigis->find(HcalID);
                   cout << "         RecHit: " << j << ": HO, ieta=" << HcalID.ieta() << ", iphi=" << HcalID.iphi()
                        << ", depth=" << HcalID.depth() << ", energy=" << theRecHit->energy()
                        << ", time=" << theRecHit->time() << ", All Digis=" << theDigis->size()
@@ -250,9 +249,9 @@ void JetToDigiDump::analyze(const Event& evt, const EventSetup& es) {
                   if (Dump >= 4)
                     cout << "            ......................................" << endl;
                 } else if (HcalNum == HcalForward) {
-                  HFRecHitCollection::const_iterator theRecHit = HFRecHits->find(HcalID);
+                  auto theRecHit = HFRecHits->find(HcalID);
                   sumRecHitE += theRecHit->energy();
-                  HFDigiCollection::const_iterator theDigis = HFDigis->find(HcalID);
+                  auto theDigis = HFDigis->find(HcalID);
                   cout << "         RecHit: " << j << ": HF, ieta=" << HcalID.ieta() << ", iphi=" << HcalID.iphi()
                        << ", depth=" << HcalID.depth() << ", energy=" << theRecHit->energy()
                        << ", time=" << theRecHit->time() << ", All Digis=" << theDigis->size()
@@ -283,7 +282,7 @@ void JetToDigiDump::analyze(const Event& evt, const EventSetup& es) {
                 int EcalNum = RecHitDetID.subdetId();
                 if (EcalNum == 1) {
                   EBDetId EcalID = RecHitDetID;
-                  EBRecHitCollection::const_iterator theRecHit = EBRecHits->find(EcalID);
+                  auto theRecHit = EBRecHits->find(EcalID);
                   EBDigiCollection::const_iterator theDigis = EBDigis->find(EcalID);
                   sumRecHitE += theRecHit->energy();
                   cout << "         RecHit " << j << ": EB, ieta=" << EcalID.ieta() << ", iphi=" << EcalID.iphi()
@@ -302,7 +301,7 @@ void JetToDigiDump::analyze(const Event& evt, const EventSetup& es) {
                     cout << "            ......................................" << endl;
                 } else if (EcalNum == 2) {
                   EEDetId EcalID = RecHitDetID;
-                  EERecHitCollection::const_iterator theRecHit = EERecHits->find(EcalID);
+                  auto theRecHit = EERecHits->find(EcalID);
                   EEDigiCollection::const_iterator theDigis = EEDigis->find(EcalID);
                   sumRecHitE += theRecHit->energy();
                   cout << "         RecHit " << j << ": EE, ix=" << EcalID.ix() << ", iy=" << EcalID.iy()

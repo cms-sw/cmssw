@@ -374,8 +374,7 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent,
 
   if (m_muonCollectionTag.label().empty())  // use trajectories
   {
-    for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin(); trajtrack != trajtracks.end();
-         ++trajtrack) {
+    for (auto trajtrack = trajtracks.begin(); trajtrack != trajtracks.end(); ++trajtrack) {
       const Trajectory *traj = (*trajtrack).first;
       const reco::Track *track = (*trajtrack).second;
 
@@ -389,7 +388,7 @@ void AlignmentMonitorSegmentDifferences::event(const edm::Event &iEvent,
     edm::Handle<reco::MuonCollection> muons;
     iEvent.getByLabel(m_muonCollectionTag, muons);
 
-    for (reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
+    for (auto muon = muons->begin(); muon != muons->end(); ++muon) {
       if (!(muon->isTrackerMuon() && muon->innerTrack().isNonnull()))
         continue;
 
@@ -423,7 +422,7 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
   if (fabs(mrft.getTrack()->pz()) > 0.01)
     qoverpz = mrft.getTrack()->charge() / fabs(mrft.getTrack()->pz());
 
-  for (std::vector<DetId>::const_iterator chamberId = chamberIds.begin(); chamberId != chamberIds.end(); ++chamberId) {
+  for (auto chamberId = chamberIds.begin(); chamberId != chamberIds.end(); ++chamberId) {
     if (chamberId->det() != DetId::Muon)
       continue;
 
@@ -434,7 +433,7 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
 
       if (dt13 != nullptr && dt13->numHits() >= m_minDT13Hits) {
         DTChamberId thisid(chamberId->rawId());
-        for (std::vector<DetId>::const_iterator otherId = chamberIds.begin(); otherId != chamberIds.end(); ++otherId) {
+        for (auto otherId = chamberIds.begin(); otherId != chamberIds.end(); ++otherId) {
           if (otherId->det() == DetId::Muon && otherId->subdetId() == MuonSubdetId::DT) {
             DTChamberId thatid(otherId->rawId());
             if (thisid.rawId() != thatid.rawId() && thisid.wheel() == thatid.wheel() &&
@@ -511,7 +510,7 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
       // z-direction
       if (dt2 != nullptr && dt2->numHits() >= m_minDT2Hits && (dt2->chi2() / double(dt2->ndof())) < 2.0) {
         DTChamberId thisid(chamberId->rawId());
-        for (std::vector<DetId>::const_iterator otherId = chamberIds.begin(); otherId != chamberIds.end(); ++otherId) {
+        for (auto otherId = chamberIds.begin(); otherId != chamberIds.end(); ++otherId) {
           if (otherId->det() == DetId::Muon && otherId->subdetId() == MuonSubdetId::DT) {
             DTChamberId thatid(otherId->rawId());
             if (thisid.rawId() != thatid.rawId() && thisid.wheel() == thatid.wheel() &&
@@ -550,7 +549,7 @@ void AlignmentMonitorSegmentDifferences::processMuonResidualsFromTrack(MuonResid
       MuonChamberResidual *csc = mrft.chamberResidual(*chamberId, MuonChamberResidual::kCSC);
       if (csc->numHits() >= m_minCSCHits) {
         CSCDetId thisid(chamberId->rawId());
-        for (std::vector<DetId>::const_iterator otherId = chamberIds.begin(); otherId != chamberIds.end(); ++otherId) {
+        for (auto otherId = chamberIds.begin(); otherId != chamberIds.end(); ++otherId) {
           if (otherId->det() == DetId::Muon && otherId->subdetId() == MuonSubdetId::CSC) {
             CSCDetId thatid(otherId->rawId());
             if (thisid.rawId() != thatid.rawId() && thisid.endcap() == thatid.endcap()) {

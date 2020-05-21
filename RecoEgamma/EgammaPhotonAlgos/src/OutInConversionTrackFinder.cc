@@ -79,7 +79,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
 
   int goodSeed = 0;
   std::vector<Trajectory> theTmpTrajectories;
-  for (TrajectorySeedCollection::const_iterator iSeed = outInSeeds.begin(); iSeed != outInSeeds.end(); iSeed++) {
+  for (auto iSeed = outInSeeds.begin(); iSeed != outInSeeds.end(); iSeed++) {
     theTmpTrajectories.clear();
 
     if (!theSeedCleaner_ || theSeedCleaner_->good(&(*iSeed))) {
@@ -104,8 +104,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
 
       theTrajectoryCleaner_->clean(theTmpTrajectories);
 
-      for (std::vector<Trajectory>::const_iterator it = theTmpTrajectories.begin(); it != theTmpTrajectories.end();
-           it++) {
+      for (auto it = theTmpTrajectories.begin(); it != theTmpTrajectories.end(); it++) {
         if (it->isValid()) {
           rawResult.push_back(*it);
           if (theSeedCleaner_)
@@ -124,7 +123,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   std::vector<Trajectory> unsmoothedResult;
   theTrajectoryCleaner_->clean(rawResult);
 
-  for (std::vector<Trajectory>::const_iterator itraw = rawResult.begin(); itraw != rawResult.end(); itraw++) {
+  for (auto itraw = rawResult.begin(); itraw != rawResult.end(); itraw++) {
     if ((*itraw).isValid()) {
       tmpO.push_back(*itraw);
       LogDebug("OutInConversionTrackFinder") << " rawResult num hits " << (*itraw).foundHits() << "\n";
@@ -161,7 +160,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  tmpO size " << tmpO.size()
                                          << " after clearing "
                                          << "\n";
-  for (std::vector<Trajectory>::const_iterator it = unsmoothedResult.begin(); it != unsmoothedResult.end(); it++) {
+  for (auto it = unsmoothedResult.begin(); it != unsmoothedResult.end(); it++) {
     if (!it->isValid())
       continue;
 
@@ -181,7 +180,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder  tmpO size " << tmpO.size() << " after filling "
                                          << "\n";
   if (!tmpO.empty()) {
-    std::vector<Trajectory>::iterator it = tmpO.begin();
+    auto it = tmpO.begin();
 
     // only send out the two best tracks
     result.push_back(*it);
@@ -195,7 +194,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
 
   // Convert to TrackCandidates and fill in the output_p
   Traj2TrackHits t2t(theCkfTrajectoryBuilder_->hitBuilder(), true);
-  for (std::vector<Trajectory>::const_iterator it = result.begin(); it != result.end(); it++) {
+  for (auto it = result.begin(); it != result.end(); it++) {
     edm::OwnVector<TrackingRecHit> recHits;
     if (it->direction() == alongMomentum)
       LogDebug("OutInConversionTrackFinder") << "OutInConv along momentum... " << std::endl;

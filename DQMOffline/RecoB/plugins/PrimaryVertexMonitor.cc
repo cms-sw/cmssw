@@ -363,7 +363,7 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
     vertexPlots(recVtxs->front(), beamSpot, 1);
     pvTracksPlots(recVtxs->front());
 
-    for (reco::VertexCollection::const_iterator v = recVtxs->begin() + 1; v != recVtxs->end(); ++v)
+    for (auto v = recVtxs->begin() + 1; v != recVtxs->end(); ++v)
       vertexPlots(*v, beamSpot, 0);
   }
 
@@ -396,7 +396,7 @@ void PrimaryVertexMonitor::pvTracksPlots(const Vertex& v) {
   float sumPT = 0.;
   const int cmToUm = 10000;
 
-  for (reco::Vertex::trackRef_iterator t = v.tracks_begin(); t != v.tracks_end(); t++) {
+  for (auto t = v.tracks_begin(); t != v.tracks_end(); t++) {
     bool isHighPurity = (**t).quality(reco::TrackBase::highPurity);
     if (!isHighPurity)
       continue;
@@ -458,7 +458,7 @@ void PrimaryVertexMonitor::vertexPlots(const Vertex& v, const BeamSpot& beamSpot
 
   if (v.isValid() && !v.isFake()) {
     float weight = 0;
-    for (reco::Vertex::trackRef_iterator t = v.tracks_begin(); t != v.tracks_end(); t++)
+    for (auto t = v.tracks_begin(); t != v.tracks_end(); t++)
       weight += v.trackWeight(*t);
     trksWeight[i]->Fill(weight);
     nbtksinvtx[i]->Fill(v.tracksSize());

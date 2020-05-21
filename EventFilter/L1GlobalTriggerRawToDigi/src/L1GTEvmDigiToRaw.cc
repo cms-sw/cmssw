@@ -100,7 +100,7 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
   gtRecordMap.reserve(boardMapsSize);
 
   for (int iPos = 0; iPos < boardMapsSize; ++iPos) {
-    for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
+    for (auto itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
       if (itBoard->gtPositionEvmRecord() == iPos) {
         gtRecordMap.push_back(*itBoard);
         break;
@@ -172,7 +172,7 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
   unsigned int headerSize = 8;
   gtDataSize += headerSize;
 
-  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
+  for (auto itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
     if (itBoard->gtBoardType() == GTFE) {
       gtDataSize += gtfeBlock.getSize();
       continue;
@@ -268,7 +268,7 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
 
   // loop over other blocks in the raw record, if they are active
 
-  for (CItBoardMaps itBoard = gtRecordMap.begin(); itBoard != gtRecordMap.end(); ++itBoard) {
+  for (auto itBoard = gtRecordMap.begin(); itBoard != gtRecordMap.end(); ++itBoard) {
     if (itBoard->gtBoardType() == GTFE) {
       packGTFE(evSetup, ptrGt, gtfeBlock, activeBoardsGt);
 

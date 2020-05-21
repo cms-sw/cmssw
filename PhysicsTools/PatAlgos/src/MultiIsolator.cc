@@ -44,8 +44,7 @@ MultiIsolator::MultiIsolator(const edm::ParameterSet &conf, edm::ConsumesCollect
       throw cms::Exception("Configuration") << "MultiIsolator: you can specify at most 5 user isolation collections.\n";
     }
     uint32_t bit = Flags::Isolation::User1;
-    for (std::vector<edm::ParameterSet>::const_iterator it = psets.begin(), ed = psets.end(); it != ed;
-         ++it, bit <<= 1) {
+    for (auto it = psets.begin(), ed = psets.end(); it != ed; ++it, bit <<= 1) {
       addIsolator(*it, iC, cuts, bit, pat::IsolationKeys(pat::UserBaseIso + (it - psets.begin())));
     }
   }

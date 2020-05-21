@@ -53,8 +53,8 @@ RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(
   ROOT::Math::SMatrix<double, 3, 7, ROOT::Math::MatRepStd<double, 3, 7> > vtxTrackCov;
   AlgebraicMatrix77 nCovariance;
 
-  std::vector<RefCountedKinematicParticle>::const_iterator i = initialParticles.begin();
-  std::vector<KinematicState>::const_iterator iStates = finalStates.begin();
+  auto i = initialParticles.begin();
+  auto iStates = finalStates.begin();
   std::vector<RefCountedKinematicParticle> rParticles;
   int n = 0;
   for (; i != initialParticles.end() && iStates != finalStates.end(); ++i, ++iStates) {
@@ -131,7 +131,7 @@ RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(
   resTree->addParticle(fVertex, vtx, virtualParticle);
 
   //adding final state
-  for (std::vector<RefCountedKinematicParticle>::const_iterator il = particles.begin(); il != particles.end(); il++) {
+  for (auto il = particles.begin(); il != particles.end(); il++) {
     if ((*il)->previousParticle()->correspondingTree() != nullptr) {
       KinematicTree* tree = (*il)->previousParticle()->correspondingTree();
       tree->movePointerToTheTop();
@@ -161,7 +161,7 @@ AlgebraicMatrix ConstrainedTreeBuilder::covarianceMatrix(const std::vector<RefCo
   jac(2, 2) = 1;
   jac(3, 3) = 1;
   int i_int = 0;
-  for (std::vector<RefCountedKinematicParticle>::const_iterator i = rPart.begin(); i != rPart.end(); i++) {
+  for (auto i = rPart.begin(); i != rPart.end(); i++) {
     //vertex position related components of the matrix
     double a_i = -(*i)->currentState().particleCharge() *
                  (*i)->magneticField()->inInverseGeV((*i)->currentState().globalPosition()).z();
@@ -231,7 +231,7 @@ AlgebraicMatrix ConstrainedTreeBuilder::covarianceMatrix(const std::vector<RefCo
   int il_int = 0;
   double energy_global =
       sqrt(newPar(3) * newPar(3) + newPar(4) * newPar(4) + newPar(5) * newPar(5) + newPar(6) * newPar(6));
-  for (std::vector<RefCountedKinematicParticle>::const_iterator rs = rPart.begin(); rs != rPart.end(); rs++) {
+  for (auto rs = rPart.begin(); rs != rPart.end(); rs++) {
     //jacobian components:
     AlgebraicMatrix jc_el(4, 4, 0);
     jc_el(1, 1) = 1.;

@@ -140,7 +140,7 @@ void RPCPointVsRecHit::analyze(const edm::Event &event, const edm::EventSetup &e
       const double newDx = fabs(recX - refX);
 
       // Associate RefHit to RecHit
-      RecToRecHitMap::const_iterator prevRefToReco = refToRecHitMap.find(refHitIter);
+      auto prevRefToReco = refToRecHitMap.find(refHitIter);
       if (prevRefToReco == refToRecHitMap.end()) {
         refToRecHitMap.insert(std::make_pair(refHitIter, recHitIter));
       } else {
@@ -155,7 +155,7 @@ void RPCPointVsRecHit::analyze(const edm::Event &event, const edm::EventSetup &e
 
   // Now we have refHit-recHit mapping
   // So we can fill up relavant histograms
-  for (RecToRecHitMap::const_iterator match = refToRecHitMap.begin(); match != refToRecHitMap.end(); ++match) {
+  for (auto match = refToRecHitMap.begin(); match != refToRecHitMap.end(); ++match) {
     RecHitIter refHitIter = match->first;
     RecHitIter recHitIter = match->second;
 

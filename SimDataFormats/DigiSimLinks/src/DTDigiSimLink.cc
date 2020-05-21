@@ -25,7 +25,7 @@ DTDigiSimLink::ChannelType DTDigiSimLink::channel() const {
   ChannelPacking result;
   result.wi = theWire;
   result.num = theDigiNumber;
-  DTDigiSimLink::ChannelType* p_result = reinterpret_cast<DTDigiSimLink::ChannelType*>(&result);
+  auto* p_result = reinterpret_cast<DTDigiSimLink::ChannelType*>(&result);
   return *p_result;
 }
 

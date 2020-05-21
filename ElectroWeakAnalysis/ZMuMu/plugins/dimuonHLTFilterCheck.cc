@@ -156,13 +156,13 @@ void dimuonHLTFilterCheck::analyze(const Event& event, const EventSetup& setup) 
       const unsigned int n_TriggerResults(triggerResults.product()->size());
       for (unsigned int itrig(0); itrig < n_TriggerResults; ++itrig) {
         if (triggerResults.product()->accept(itrig)) {
-          map<string, int>::iterator iterMuHLT = dimuonHLT_triggers.find(triggerNames.triggerName(itrig));
+          auto iterMuHLT = dimuonHLT_triggers.find(triggerNames.triggerName(itrig));
           if (iterMuHLT != dimuonHLT_triggers.end()) {
             cout << "ecco la chiave Mu HLT " << (*iterMuHLT).second << endl;
             if (triggerResults.product()->state(itrig) == 1)
               trgMask[(*iterMuHLT).second] = true;
           }  // end if key found
-          map<string, int>::iterator iterjetHLT = jetHLT_triggers.find(triggerNames.triggerName(itrig));
+          auto iterjetHLT = jetHLT_triggers.find(triggerNames.triggerName(itrig));
           if (iterjetHLT != jetHLT_triggers.end()) {
             cout << "ecco la chiave jet HLT " << (*iterjetHLT).second << endl;
           }  // end if key found

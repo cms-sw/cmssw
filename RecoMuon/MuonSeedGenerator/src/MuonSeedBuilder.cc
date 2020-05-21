@@ -204,7 +204,7 @@ int MuonSeedBuilder::build(edm::Event& event, const edm::EventSetup& eventSetup,
 
   // Loop over all possible MB1 segment to form seeds:
   int index = -1;
-  for (SegmentContainer::iterator it = DTlist1.begin(); it != DTlist1.end(); ++it) {
+  for (auto it = DTlist1.begin(); it != DTlist1.end(); ++it) {
     index++;
 
     if (usedDTlist1[index] == true)
@@ -332,7 +332,7 @@ int MuonSeedBuilder::build(edm::Event& event, const edm::EventSetup& eventSetup,
 
   // Loop over all possible MB2 segment to form seeds:
   index = -1;
-  for (SegmentContainer::iterator it = DTlist2.begin(); it != DTlist2.end(); ++it) {
+  for (auto it = DTlist2.begin(); it != DTlist2.end(); ++it) {
     index++;
 
     if (usedDTlist2[index] == true)
@@ -455,7 +455,7 @@ int MuonSeedBuilder::build(edm::Event& event, const edm::EventSetup& eventSetup,
 
   // Loop over all possible MB3 segment to form seeds:
   index = -1;
-  for (SegmentContainer::iterator it = DTlist3.begin(); it != DTlist3.end(); ++it) {
+  for (auto it = DTlist3.begin(); it != DTlist3.end(); ++it) {
     index++;
 
     if (usedDTlist3[index] == true)
@@ -580,7 +580,7 @@ int MuonSeedBuilder::build(edm::Event& event, const edm::EventSetup& eventSetup,
   // Loop over all possible ME11 segment to form seeds:
   index = -1;
 
-  for (SegmentContainer::iterator it = CSClist0B.begin(); it != CSClist0B.end(); ++it) {
+  for (auto it = CSClist0B.begin(); it != CSClist0B.end(); ++it) {
     index++;
 
     if (usedCSClist0B[index] == true)
@@ -668,7 +668,7 @@ int MuonSeedBuilder::build(edm::Event& event, const edm::EventSetup& eventSetup,
 
   // Loop over all possible ME1/2 ME1/3 segment to form seeds:
   index = -1;
-  for (SegmentContainer::iterator it = CSClist1B.begin(); it != CSClist1B.end(); ++it) {
+  for (auto it = CSClist1B.begin(); it != CSClist1B.end(); ++it) {
     index++;
 
     if (usedCSClist1B[index] == true)
@@ -746,7 +746,7 @@ int MuonSeedBuilder::build(edm::Event& event, const edm::EventSetup& eventSetup,
 
   // Loop over all possible ME2 segment to form seeds:
   index = -1;
-  for (SegmentContainer::iterator it = CSClist2B.begin(); it != CSClist2B.end(); ++it) {
+  for (auto it = CSClist2B.begin(); it != CSClist2B.end(); ++it) {
     index++;
 
     if (usedCSClist2B[index] == true)
@@ -820,7 +820,7 @@ int MuonSeedBuilder::build(edm::Event& event, const edm::EventSetup& eventSetup,
 
   // Loop over all possible ME3 segment to form seeds:
   index = -1;
-  for (SegmentContainer::iterator it = CSClist3B.begin(); it != CSClist3B.end(); ++it) {
+  for (auto it = CSClist3B.begin(); it != CSClist3B.end(); ++it) {
     index++;
 
     if (usedCSClist3B[index] == true)
@@ -893,7 +893,7 @@ int MuonSeedBuilder::build(edm::Event& event, const edm::EventSetup& eventSetup,
 
   // Loop over all possible ME11 segment to form seeds:
   index = -1;
-  for (SegmentContainer::iterator it = CSClist0F.begin(); it != CSClist0F.end(); ++it) {
+  for (auto it = CSClist0F.begin(); it != CSClist0F.end(); ++it) {
     index++;
 
     if (usedCSClist0F[index] == true)
@@ -980,7 +980,7 @@ int MuonSeedBuilder::build(edm::Event& event, const edm::EventSetup& eventSetup,
 
   // Loop over all possible ME1/2 ME1/3 segment to form seeds:
   index = -1;
-  for (SegmentContainer::iterator it = CSClist1F.begin(); it != CSClist1F.end(); ++it) {
+  for (auto it = CSClist1F.begin(); it != CSClist1F.end(); ++it) {
     index++;
 
     if (usedCSClist1F[index] == true)
@@ -1059,7 +1059,7 @@ int MuonSeedBuilder::build(edm::Event& event, const edm::EventSetup& eventSetup,
 
   // Loop over all possible ME2 segment to form seeds:
   index = -1;
-  for (SegmentContainer::iterator it = CSClist2F.begin(); it != CSClist2F.end(); ++it) {
+  for (auto it = CSClist2F.begin(); it != CSClist2F.end(); ++it) {
     index++;
 
     if (usedCSClist2F[index] == true)
@@ -1134,7 +1134,7 @@ int MuonSeedBuilder::build(edm::Event& event, const edm::EventSetup& eventSetup,
 
   // Loop over all possible ME3 segment to form seeds:
   index = -1;
-  for (SegmentContainer::iterator it = CSClist3F.begin(); it != CSClist3F.end(); ++it) {
+  for (auto it = CSClist3F.begin(); it != CSClist3F.end(); ++it) {
     index++;
 
     if (usedCSClist3F[index] == true)
@@ -1308,7 +1308,7 @@ bool MuonSeedBuilder::foundMatchingSegment(int type,
   if (type == 1)
     best_nhits = minCSCHitsPerSegment;
   // Loop over segments in other station (layer) and find candidate match
-  for (SegmentContainer::iterator it = segs.begin(); it != segs.end(); ++it) {
+  for (auto it = segs.begin(); it != segs.end(); ++it) {
     index++;
 
     // Not to get confused:  eta_last is from the previous layer.
@@ -1366,7 +1366,7 @@ bool MuonSeedBuilder::foundMatchingSegment(int type,
 
   // Add best matching segment to protoTrack:
   index = -1;
-  for (SegmentContainer::iterator it = segs.begin(); it != segs.end(); ++it) {
+  for (auto it = segs.begin(); it != segs.end(); ++it) {
     index++;
     if (index != best_match)
       continue;
@@ -1392,7 +1392,7 @@ bool MuonSeedBuilder::IdentifyShowering(SegmentContainer& segs,
   std::vector<int> badtag;
   int index = -1;
   double aveEta = 0.0;
-  for (SegmentContainer::iterator it = segs.begin(); it != segs.end(); ++it) {
+  for (auto it = segs.begin(); it != segs.end(); ++it) {
     index++;
     GlobalPoint gp = (*it)->globalPosition();
     double dh = gp.eta() - eta_last;
@@ -1443,7 +1443,7 @@ bool MuonSeedBuilder::IdentifyShowering(SegmentContainer& segs,
   // if showering, flag all segments in order to skip this layer for pt estimation except 1st layer
   //std::cout<<" from Showering "<<std::endl;
   if (showering && !is1stLayer) {
-    for (std::vector<int>::iterator it = badtag.begin(); it != badtag.end(); ++it) {
+    for (auto it = badtag.begin(); it != badtag.end(); ++it) {
       usedSeg[*it] = true;
       if ((*it) != theOrigin)
         continue;

@@ -266,7 +266,7 @@ void ZdcTestAnalysis::update(const EndOfEvent* evt) {
   int theZDCHCid = G4SDManager::GetSDMpointer()->GetCollectionID("ZDCHITS");
   std::cout << " - theZDCHCid = " << theZDCHCid;
 
-  CaloG4HitCollection* theZDCHC = (CaloG4HitCollection*)allHC->GetHC(theZDCHCid);
+  auto* theZDCHC = (CaloG4HitCollection*)allHC->GetHC(theZDCHCid);
   std::cout << " - theZDCHC = " << theZDCHC << std::endl;
 
   if (!theZdcNumScheme) {
@@ -337,8 +337,7 @@ void ZdcTestAnalysis::update(const EndOfEvent* evt) {
         zdceventntuple->Fill(zdceventarray);
       }
 
-      for (std::map<int, float, std::less<int> >::iterator is = energyInFibers.begin(); is != energyInFibers.end();
-           is++) {
+      for (auto is = energyInFibers.begin(); is != energyInFibers.end(); is++) {
         ETot = (*is).second;
         SEnergy += ETot;
       }

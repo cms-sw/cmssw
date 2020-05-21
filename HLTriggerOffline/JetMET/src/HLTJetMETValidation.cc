@@ -306,7 +306,7 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent, const edm::EventSetu
   if (pfJets.isValid()) {
     // Loop over the PFJets and fill some histograms
     int jetInd = 0;
-    for (PFJetCollection::const_iterator pf = pfJets->begin(); pf != pfJets->end(); ++pf) {
+    for (auto pf = pfJets->begin(); pf != pfJets->end(); ++pf) {
       // std::cout << "PF JET #" << jetInd << std::endl << pf->print() <<
       // std::endl;
       if (jetInd == 0) {
@@ -355,7 +355,7 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent, const edm::EventSetu
   if (genJets.isValid()) {
     // Loop over the GenJets and fill some histograms
     int jetInd = 0;
-    for (GenJetCollection::const_iterator gen = genJets->begin(); gen != genJets->end(); ++gen) {
+    for (auto gen = genJets->begin(); gen != genJets->end(); ++gen) {
       if (jetInd == 0) {
         genJetPt = gen->pt();
         genJetEta = gen->eta();
@@ -401,7 +401,7 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent, const edm::EventSetu
   if (recmet.isValid()) {
     typedef CaloMETCollection::const_iterator cmiter;
     // std::cout << "Size of MET collection" <<  recmet.size() << std::endl;
-    for (cmiter i = recmet->begin(); i != recmet->end(); i++) {
+    for (auto i = recmet->begin(); i != recmet->end(); i++) {
       calMet = i->pt();
       for (size_t it = 0; it < hltTrgMet.size(); it++) {
         _meHLTMET[it]->Fill(calMet);
@@ -425,7 +425,7 @@ void HLTJetMETValidation::analyze(const edm::Event &iEvent, const edm::EventSetu
   double genMet = -1;
   if (genmet.isValid()) {
     typedef GenMETCollection::const_iterator cmiter;
-    for (cmiter i = genmet->begin(); i != genmet->end(); i++) {
+    for (auto i = genmet->begin(); i != genmet->end(); i++) {
       genMet = i->pt();
       for (size_t it = 0; it < hltTrgMet.size(); it++) {
         _meGenMET[it]->Fill(genMet);

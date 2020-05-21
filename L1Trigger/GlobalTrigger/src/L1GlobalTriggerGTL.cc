@@ -255,9 +255,7 @@ void L1GlobalTriggerGTL::run(edm::Event &iEvent,
 
   int iChip = -1;
 
-  for (std::vector<ConditionMap>::const_iterator itCondOnChip = conditionMap.begin();
-       itCondOnChip != conditionMap.end();
-       itCondOnChip++) {
+  for (auto itCondOnChip = conditionMap.begin(); itCondOnChip != conditionMap.end(); itCondOnChip++) {
     iChip++;
 
     // L1GtAlgorithmEvaluation::ConditionEvaluationMap cMapResults;
@@ -265,11 +263,11 @@ void L1GlobalTriggerGTL::run(edm::Event &iEvent,
     // cMapResults((*itCondOnChip).size()); // hash map
     L1GtAlgorithmEvaluation::ConditionEvaluationMap &cMapResults = m_conditionResultMaps[iChip];
 
-    for (CItCond itCond = itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
+    for (auto itCond = itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
       // evaluate condition
       switch ((itCond->second)->condCategory()) {
         case CondMuon: {
-          L1GtMuonCondition *muCondition = new L1GtMuonCondition(itCond->second, this, nrL1Mu, ifMuEtaNumberBits);
+          auto *muCondition = new L1GtMuonCondition(itCond->second, this, nrL1Mu, ifMuEtaNumberBits);
 
           muCondition->setVerbosity(m_verbosity);
           muCondition->setGtCorrParDeltaPhiNrBins((m_gtEtaPhiConversions->gtObjectNrBinsPhi(Mu)) / 2 + 1);
@@ -288,7 +286,7 @@ void L1GlobalTriggerGTL::run(edm::Event &iEvent,
 
         } break;
         case CondCalo: {
-          L1GtCaloCondition *caloCondition = new L1GtCaloCondition(
+          auto *caloCondition = new L1GtCaloCondition(
               itCond->second, ptrGtPSB, nrL1NoIsoEG, nrL1IsoEG, nrL1CenJet, nrL1ForJet, nrL1TauJet, ifCaloEtaNumberBits);
 
           caloCondition->setVerbosity(m_verbosity);
@@ -308,7 +306,7 @@ void L1GlobalTriggerGTL::run(edm::Event &iEvent,
 
         } break;
         case CondEnergySum: {
-          L1GtEnergySumCondition *eSumCondition = new L1GtEnergySumCondition(itCond->second, ptrGtPSB);
+          auto *eSumCondition = new L1GtEnergySumCondition(itCond->second, ptrGtPSB);
 
           eSumCondition->setVerbosity(m_verbosity);
           eSumCondition->evaluateConditionStoreResult();
@@ -325,7 +323,7 @@ void L1GlobalTriggerGTL::run(edm::Event &iEvent,
 
         } break;
         case CondJetCounts: {
-          L1GtJetCountsCondition *jcCondition = new L1GtJetCountsCondition(itCond->second, ptrGtPSB, nrL1JetCounts);
+          auto *jcCondition = new L1GtJetCountsCondition(itCond->second, ptrGtPSB, nrL1JetCounts);
 
           jcCondition->setVerbosity(m_verbosity);
           jcCondition->evaluateConditionStoreResult();
@@ -343,7 +341,7 @@ void L1GlobalTriggerGTL::run(edm::Event &iEvent,
 
         } break;
         case CondHfBitCounts: {
-          L1GtHfBitCountsCondition *bcCondition = new L1GtHfBitCountsCondition(itCond->second, ptrGtPSB);
+          auto *bcCondition = new L1GtHfBitCountsCondition(itCond->second, ptrGtPSB);
 
           bcCondition->setVerbosity(m_verbosity);
           bcCondition->evaluateConditionStoreResult();
@@ -361,7 +359,7 @@ void L1GlobalTriggerGTL::run(edm::Event &iEvent,
 
         } break;
         case CondHfRingEtSums: {
-          L1GtHfRingEtSumsCondition *etCondition = new L1GtHfRingEtSumsCondition(itCond->second, ptrGtPSB);
+          auto *etCondition = new L1GtHfRingEtSumsCondition(itCond->second, ptrGtPSB);
 
           etCondition->setVerbosity(m_verbosity);
           etCondition->evaluateConditionStoreResult();
@@ -386,7 +384,7 @@ void L1GlobalTriggerGTL::run(edm::Event &iEvent,
           //    castorCondResult = castorData->conditionResult(itCond->first);
           //}
 
-          L1GtCastorCondition *castorCondition = new L1GtCastorCondition(itCond->second, castorCondResult);
+          auto *castorCondition = new L1GtCastorCondition(itCond->second, castorCondResult);
 
           castorCondition->setVerbosity(m_verbosity);
           castorCondition->evaluateConditionStoreResult();
@@ -408,7 +406,7 @@ void L1GlobalTriggerGTL::run(edm::Event &iEvent,
 
           // FIXME need a solution to read BPTX with real value
 
-          L1GtBptxCondition *bptxCondition = new L1GtBptxCondition(itCond->second, bptxCondResult);
+          auto *bptxCondition = new L1GtBptxCondition(itCond->second, bptxCondResult);
 
           bptxCondition->setVerbosity(m_verbosity);
           bptxCondition->evaluateConditionStoreResult();
@@ -430,7 +428,7 @@ void L1GlobalTriggerGTL::run(edm::Event &iEvent,
 
           // FIXME need a solution to read External with real value
 
-          L1GtExternalCondition *externalCondition = new L1GtExternalCondition(itCond->second, externalCondResult);
+          auto *externalCondition = new L1GtExternalCondition(itCond->second, externalCondResult);
 
           externalCondition->setVerbosity(m_verbosity);
           externalCondition->evaluateConditionStoreResult();
@@ -449,7 +447,7 @@ void L1GlobalTriggerGTL::run(edm::Event &iEvent,
         } break;
         case CondCorrelation: {
           // get first the sub-conditions
-          const L1GtCorrelationTemplate *corrTemplate = static_cast<const L1GtCorrelationTemplate *>(itCond->second);
+          const auto *corrTemplate = static_cast<const L1GtCorrelationTemplate *>(itCond->second);
           const L1GtConditionCategory cond0Categ = corrTemplate->cond0Category();
           const L1GtConditionCategory cond1Categ = corrTemplate->cond1Category();
           const int cond0Ind = corrTemplate->cond0Index();
@@ -547,16 +545,16 @@ void L1GlobalTriggerGTL::run(edm::Event &iEvent,
             } break;
           }
 
-          L1GtCorrelationCondition *correlationCond = new L1GtCorrelationCondition(itCond->second,
-                                                                                   cond0Condition,
-                                                                                   cond1Condition,
-                                                                                   cond0NrL1Objects,
-                                                                                   cond1NrL1Objects,
-                                                                                   cond0EtaBits,
-                                                                                   cond1EtaBits,
-                                                                                   this,
-                                                                                   ptrGtPSB,
-                                                                                   m_gtEtaPhiConversions);
+          auto *correlationCond = new L1GtCorrelationCondition(itCond->second,
+                                                               cond0Condition,
+                                                               cond1Condition,
+                                                               cond0NrL1Objects,
+                                                               cond1NrL1Objects,
+                                                               cond0EtaBits,
+                                                               cond1EtaBits,
+                                                               this,
+                                                               ptrGtPSB,
+                                                               m_gtEtaPhiConversions);
 
           correlationCond->setVerbosity(m_verbosity);
           correlationCond->evaluateConditionStoreResult();
@@ -592,7 +590,7 @@ void L1GlobalTriggerGTL::run(edm::Event &iEvent,
   if (produceL1GtObjectMapRecord && (iBxInEvent == 0))
     objMapVec.reserve(numberPhysTriggers);
 
-  for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
+  for (auto itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
     L1GtAlgorithmEvaluation gtAlg(itAlgo->second);
     gtAlg.evaluateAlgorithm((itAlgo->second).algoChipNumber(), m_conditionResultMaps);
 
@@ -643,10 +641,7 @@ void L1GlobalTriggerGTL::run(edm::Event &iEvent,
   // then loop over conditions in the map
   // delete the conditions created with new, zero pointer, do not clear map,
   // keep the vector as is...
-  for (std::vector<L1GtAlgorithmEvaluation::ConditionEvaluationMap>::iterator itCondOnChip =
-           m_conditionResultMaps.begin();
-       itCondOnChip != m_conditionResultMaps.end();
-       itCondOnChip++) {
+  for (auto itCondOnChip = m_conditionResultMaps.begin(); itCondOnChip != m_conditionResultMaps.end(); itCondOnChip++) {
     for (L1GtAlgorithmEvaluation::ItEvalMap itCond = itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
       delete itCond->second;
       itCond->second = nullptr;
@@ -669,7 +664,7 @@ void L1GlobalTriggerGTL::printGmtData(const int iBxInEvent) const {
   int nrL1Mu = m_candL1Mu->size();
   LogTrace("L1GlobalTrigger") << "Number of GMT muons = " << nrL1Mu << "\n" << std::endl;
 
-  for (std::vector<const L1MuGMTCand *>::const_iterator iter = m_candL1Mu->begin(); iter != m_candL1Mu->end(); iter++) {
+  for (auto iter = m_candL1Mu->begin(); iter != m_candL1Mu->end(); iter++) {
     LogTrace("L1GlobalTrigger") << *(*iter) << std::endl;
   }
 

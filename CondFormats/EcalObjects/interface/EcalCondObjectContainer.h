@@ -54,7 +54,7 @@ public:
     DetId id(rawId);
     switch (id.subdetId()) {
       case EcalBarrel: {
-        const_iterator it = eb_.find(rawId);
+        auto it = eb_.find(rawId);
         if (it != eb_.end()) {
           return it;
         } else {

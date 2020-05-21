@@ -54,7 +54,7 @@ namespace hcaldqm {
     if (auto runInfoRec = es.tryToGet<RunInfoRcd>()) {
       const RunInfo &runInfo = es.getData(runInfoToken_);
       std::vector<int> vfeds = runInfo.m_fed_in;
-      for (std::vector<int>::const_iterator it = vfeds.begin(); it != vfeds.end(); ++it) {
+      for (auto it = vfeds.begin(); it != vfeds.end(); ++it) {
         if (*it >= constants::FED_VME_MIN && *it <= FED_VME_MAX)
           _vcdaqEids.push_back(
               HcalElectronicsId(constants::FIBERCH_MIN, constants::FIBER_VME_MIN, SPIGOT_MIN, (*it) - FED_VME_MIN)
@@ -113,7 +113,7 @@ namespace hcaldqm {
     d->xQuality.reset();
     const HcalChannelQuality &cq = es.getData(hcalChannelQualityToken_);
     std::vector<DetId> detids = cq.getAllChannels();
-    for (std::vector<DetId>::const_iterator it = detids.begin(); it != detids.end(); ++it) {
+    for (auto it = detids.begin(); it != detids.end(); ++it) {
       //	if unknown skip
       if (HcalGenericDetId(*it).genericSubdet() == HcalGenericDetId::HcalGenUnknown)
         continue;

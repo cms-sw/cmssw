@@ -131,7 +131,7 @@ bool PixelClusterShapeSeedComparitor::compatibleHit(const TrackingRecHit &hit, c
       return true;
     const std::type_info &tid = typeid(*&hit);
     if (tid == typeid(SiStripMatchedRecHit2D)) {
-      const SiStripMatchedRecHit2D *matchedHit = dynamic_cast<const SiStripMatchedRecHit2D *>(&hit);
+      const auto *matchedHit = dynamic_cast<const SiStripMatchedRecHit2D *>(&hit);
       assert(matchedHit != nullptr);
       return (filterHandle_->isCompatible(DetId(matchedHit->monoId()), matchedHit->monoCluster(), direction) &&
               filterHandle_->isCompatible(DetId(matchedHit->stereoId()), matchedHit->stereoCluster(), direction));
@@ -140,7 +140,7 @@ bool PixelClusterShapeSeedComparitor::compatibleHit(const TrackingRecHit &hit, c
       assert(recHit != nullptr);
       return filterHandle_->isCompatible(*recHit, direction);
     } else if (tid == typeid(ProjectedSiStripRecHit2D)) {
-      const ProjectedSiStripRecHit2D *precHit = dynamic_cast<const ProjectedSiStripRecHit2D *>(&hit);
+      const auto *precHit = dynamic_cast<const ProjectedSiStripRecHit2D *>(&hit);
       assert(precHit != nullptr);
       return filterHandle_->isCompatible(precHit->originalHit(), direction);
     } else {

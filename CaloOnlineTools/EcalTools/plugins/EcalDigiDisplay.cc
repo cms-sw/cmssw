@@ -66,8 +66,7 @@ EcalDigiDisplay::EcalDigiDisplay(const edm::ParameterSet& ps) {
       //EB id is given and convert to FED id
       requestedFeds_.clear();
       fedMap = new EcalFedMap();
-      for (std::vector<std::string>::const_iterator ebItr = requestedEbs_.begin(); ebItr != requestedEbs_.end();
-           ++ebItr) {
+      for (auto ebItr = requestedEbs_.begin(); ebItr != requestedEbs_.end(); ++ebItr) {
         requestedFeds_.push_back(fedMap->getFedFromSlice(*ebItr));
       }
       delete fedMap;
@@ -258,7 +257,7 @@ void EcalDigiDisplay::readEBDigis(edm::Handle<EBDigiCollection> digis, int Mode)
     EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(detId);
 
     int FEDid = elecId.dccId() + 600;
-    std::vector<int>::iterator fedIter = find(requestedFeds_.begin(), requestedFeds_.end(), FEDid);
+    auto fedIter = find(requestedFeds_.begin(), requestedFeds_.end(), FEDid);
     if (fedIter == requestedFeds_.end())
       continue;
 
@@ -318,7 +317,7 @@ void EcalDigiDisplay::readEEDigis(edm::Handle<EEDigiCollection> digis, int Mode)
     EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(detId);
 
     int FEDid = elecId.dccId() + 600;
-    std::vector<int>::iterator fedIter = find(requestedFeds_.begin(), requestedFeds_.end(), FEDid);
+    auto fedIter = find(requestedFeds_.begin(), requestedFeds_.end(), FEDid);
     if (fedIter == requestedFeds_.end())
       continue;
 
@@ -354,11 +353,11 @@ void EcalDigiDisplay::readPNDigis(edm::Handle<EcalPnDiodeDigiCollection> PNs, in
   int pnDigiCounter = 0;
 
   //Loop over PN digis
-  for (EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin(); pnItr != PNs->end(); ++pnItr) {
-    EcalPnDiodeDetId pnDetId = EcalPnDiodeDetId((*pnItr).id());
+  for (auto pnItr = PNs->begin(); pnItr != PNs->end(); ++pnItr) {
+    auto pnDetId = EcalPnDiodeDetId((*pnItr).id());
     //Make sure that we look at the requested place
     int FEDid = pnDetId.iDCCId() + 600;
-    std::vector<int>::iterator fedIter = find(requestedFeds_.begin(), requestedFeds_.end(), FEDid);
+    auto fedIter = find(requestedFeds_.begin(), requestedFeds_.end(), FEDid);
     if (fedIter == requestedFeds_.end())
       continue;
     int pnNum = (*pnItr).id().iPnId();

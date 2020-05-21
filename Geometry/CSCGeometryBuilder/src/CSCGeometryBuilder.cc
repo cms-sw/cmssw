@@ -224,7 +224,7 @@ void CSCGeometryBuilder::buildChamber(CSCGeometry& theGeometry,         // the g
     // hChamberThickness and fpar[2] should be the same - but using the above value at least shows
     // how chamber structure works
 
-    TrapezoidalPlaneBounds* bounds = new TrapezoidalPlaneBounds(fpar[0], fpar[1], fpar[3], hChamberThickness);
+    auto* bounds = new TrapezoidalPlaneBounds(fpar[0], fpar[1], fpar[3], hChamberThickness);
 
     // Centre of chamber in z is specified in DDD
     Surface::PositionType aVec(gtran[0], gtran[1], gtran[2]);
@@ -274,7 +274,7 @@ void CSCGeometryBuilder::buildChamber(CSCGeometry& theGeometry,         // the g
         Surface::PositionType layerPosition(gtran[0], gtran[1], zlayer);
         std::array<const float, 4> const& dims = geom->parameters();  // returns hb, ht, d, a
         // dims[2] = layerThickness/2.; // half-thickness required and note it is 3rd value in vector
-        TrapezoidalPlaneBounds* bounds = new TrapezoidalPlaneBounds(dims[0], dims[1], dims[3], layerThickness / 2.);
+        auto* bounds = new TrapezoidalPlaneBounds(dims[0], dims[1], dims[3], layerThickness / 2.);
         Plane::PlanePointer plane = Plane::build(layerPosition, chamberRotation, bounds);
 
         CSCLayer* layer = new CSCLayer(plane, layerId, chamber, geom);

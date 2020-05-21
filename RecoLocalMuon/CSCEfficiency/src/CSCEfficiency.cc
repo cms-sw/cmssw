@@ -120,7 +120,7 @@ bool CSCEfficiency::filter(edm::Event &event, const edm::EventSetup &eventSetup)
   if (isIPdata) {
     if (printalot)
       std::cout << " muons.size() = " << muons->size() << std::endl;
-    for (reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
+    for (auto muon = muons->begin(); muon != muons->end(); ++muon) {
       DataFlow->Fill(31.);
       if (printalot) {
         std::cout << "  iMuon = " << muon - muons->begin() << " charge = " << muon->charge() << " p = " << muon->p()
@@ -740,8 +740,8 @@ void CSCEfficiency::fillLCT_info(edm::Handle<CSCALCTDigiCollection> &alcts,
   for (CSCCLCTDigiCollection::DigiRangeIterator j = clcts->begin(); j != clcts->end(); j++) {
     ++nSize;
     const CSCDetId &id = (*j).first;
-    std::vector<CSCCLCTDigi>::const_iterator digiIt = (*j).second.first;
-    std::vector<CSCCLCTDigi>::const_iterator last = (*j).second.second;
+    auto digiIt = (*j).second.first;
+    auto last = (*j).second.second;
     for (; digiIt != last; ++digiIt) {
       // Valid digi in the chamber (or in neighbouring chamber)
       if ((*digiIt).isValid()) {
@@ -753,8 +753,8 @@ void CSCEfficiency::fillLCT_info(edm::Handle<CSCALCTDigiCollection> &alcts,
   //---- CorrLCTDigis
   for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator j = correlatedlcts->begin(); j != correlatedlcts->end(); j++) {
     const CSCDetId &id = (*j).first;
-    std::vector<CSCCorrelatedLCTDigi>::const_iterator digiIt = (*j).second.first;
-    std::vector<CSCCorrelatedLCTDigi>::const_iterator last = (*j).second.second;
+    auto digiIt = (*j).second.first;
+    auto last = (*j).second.second;
     for (; digiIt != last; ++digiIt) {
       // Valid digi in the chamber (or in neighbouring chamber)
       if ((*digiIt).isValid()) {
@@ -771,8 +771,8 @@ void CSCEfficiency::fillWG_info(edm::Handle<CSCWireDigiCollection> &wires, edm::
     const CSCLayer *layer_p = cscGeom->layer(id);
     const CSCLayerGeometry *layerGeom = layer_p->geometry();
     //
-    std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
+    auto digiItr = (*j).second.first;
+    auto last = (*j).second.second;
     //
     for (; digiItr != last; ++digiItr) {
       std::pair<int, float> WG_pos(digiItr->getWireGroup(), layerGeom->yOfWireGroup(digiItr->getWireGroup()));
@@ -795,8 +795,8 @@ void CSCEfficiency::fillStrips_info(edm::Handle<CSCStripDigiCollection> &strips)
   for (CSCStripDigiCollection::DigiRangeIterator j = strips->begin(); j != strips->end(); j++) {
     CSCDetId id = (CSCDetId)(*j).first;
     int largestADCValue = -1;
-    std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
+    auto digiItr = (*j).second.first;
+    auto last = (*j).second.second;
     for (; digiItr != last; ++digiItr) {
       int maxADC = largestADCValue;
       int myStrip = digiItr->getStrip();
@@ -934,7 +934,7 @@ void CSCEfficiency::fillRechitsSegments_info(edm::Handle<CSCRecHit2DCollection> 
     }
     //---- Find which of the rechits in the chamber is in the segment
     int layerRH = 0;
-    for (vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
+    for (auto iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
       ++layerRH;
       CSCDetId idRH = (CSCDetId)(*iRH).cscDetId();
       if (printalot) {

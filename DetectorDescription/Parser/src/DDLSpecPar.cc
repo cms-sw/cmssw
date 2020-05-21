@@ -123,7 +123,7 @@ void DDLSpecPar::processElement(const std::string& name, const std::string& nmsp
   for (i = 0; i < myParameter->size(); ++i) {
     const DDXMLAttribute& atts = myParameter->getAttributeSet(i);
     std::vector<DDValuePair> vvp;
-    vvvpType::iterator itv = vvvp.find((atts.find("name")->second));
+    auto itv = vvvp.find((atts.find("name")->second));
     if (itv != vvvp.end())
       vvp = itv->second.second;
     double tval = 0.0;
@@ -153,7 +153,7 @@ void DDLSpecPar::processElement(const std::string& name, const std::string& nmsp
   for (i = 0; i < myString->size(); ++i) {
     const DDXMLAttribute& atts = myString->getAttributeSet(i);
     std::vector<DDValuePair> vvp;
-    vvvpType::iterator itv = vvvp.find(atts.find("name")->second);
+    auto itv = vvvp.find(atts.find("name")->second);
     if (itv != vvvp.end())
       vvp = itv->second.second;
 
@@ -166,7 +166,7 @@ void DDLSpecPar::processElement(const std::string& name, const std::string& nmsp
   for (i = 0; i < myNumeric->size(); ++i) {
     const DDXMLAttribute& atts = myNumeric->getAttributeSet(i);
     std::vector<DDValuePair> vvp;
-    vvvpType::iterator itv = vvvp.find(atts.find("name")->second);
+    auto itv = vvvp.find(atts.find("name")->second);
     if (itv != vvvp.end())
       vvp = itv->second.second;
     double tval = myRegistry_->evaluator().eval(ns, atts.find("value")->second);
@@ -176,7 +176,7 @@ void DDLSpecPar::processElement(const std::string& name, const std::string& nmsp
   }
 
   svt.reserve(vvvp.size());
-  for (vvvpType::const_iterator it = vvvp.begin(); it != vvvp.end(); ++it) {
+  for (auto it = vvvp.begin(); it != vvvp.end(); ++it) {
     DDValue val(it->first, it->second.second);
     bool isEvaluated = it->second.first;
     val.setEvalState(isEvaluated);

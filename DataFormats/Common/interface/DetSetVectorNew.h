@@ -510,7 +510,7 @@ namespace edmNew {
 
     // remove last entry (usually only if empty...)
     void pop_back(id_type iid) {
-      const_IdIter p = findItem(iid);
+      auto p = findItem(iid);
       if (p == m_ids.end())
         return;  //bha!
       // sanity checks...  (shall we throw or assert?)
@@ -524,7 +524,7 @@ namespace edmNew {
   private:
     Item& addItem(id_type iid, size_type isize) {
       Item it(iid, size_type(m_data.size()), isize);
-      IdIter p = std::lower_bound(m_ids.begin(), m_ids.end(), it);
+      auto p = std::lower_bound(m_ids.begin(), m_ids.end(), it);
       if (p != m_ids.end() && !(it < *p))
         dstvdetails::errorIdExists(iid);
       return *m_ids.insert(p, std::move(it));
@@ -536,7 +536,7 @@ namespace edmNew {
     bool exists(id_type i) const { return findItem(i) != m_ids.end(); }
 
     bool isValid(id_type i) const {
-      const_IdIter p = findItem(i);
+      auto p = findItem(i);
       return p != m_ids.end() && (*p).isValid();
     }
 
@@ -549,7 +549,7 @@ namespace edmNew {
     */
 
     DetSet operator[](id_type i) const {
-      const_IdIter p = findItem(i);
+      auto p = findItem(i);
       if (p == m_ids.end())
         dstvdetails::throw_range(i);
       return DetSet(*this, *p, true);
@@ -558,7 +558,7 @@ namespace edmNew {
     // slow interface
     //    const_iterator find(id_type i, bool update=true) const {
     const_iterator find(id_type i, bool update = false) const {
-      const_IdIter p = findItem(i);
+      auto p = findItem(i);
       return (p == m_ids.end()) ? end() : boost::make_transform_iterator(p, IterHelp(*this, update));
     }
 
@@ -649,9 +649,7 @@ namespace edmNew {
 
     m_ids.reserve(iDets.size());
     det_id_type sanityCheck = 0;
-    for (std::vector<det_id_type>::const_iterator itDetId = iDets.begin(), itDetIdEnd = iDets.end();
-         itDetId != itDetIdEnd;
-         ++itDetId) {
+    for (auto itDetId = iDets.begin(), itDetIdEnd = iDets.end(); itDetId != itDetIdEnd; ++itDetId) {
       assert(sanityCheck < *itDetId && "vector of det_id_type was not ordered");
       sanityCheck = *itDetId;
       m_ids.push_back(*itDetId);

@@ -145,7 +145,7 @@ void PFDisplacedVertexFinder::findSeedsFromCandidate(const PFDisplacedVertexCand
 
   IDVS idvc_current;
 
-  for (PFDisplacedVertexCandidate::DistMap::const_iterator imap = r2Map.begin(); imap != r2Map.end(); imap++) {
+  for (auto imap = r2Map.begin(); imap != r2Map.end(); imap++) {
     unsigned ie1 = (*imap).second.first;
     unsigned ie2 = (*imap).second.second;
 
@@ -700,7 +700,7 @@ std::ostream& operator<<(std::ostream& out, const PFDisplacedVertexFinder& a) {
 
     int i = -1;
 
-    for (PFDisplacedVertexFinder::IDV idv = displacedVertices_->begin(); idv != displacedVertices_->end(); idv++) {
+    for (auto idv = displacedVertices_->begin(); idv != displacedVertices_->end(); idv++) {
       i++;
       out << i << " ";
       idv->Dump();

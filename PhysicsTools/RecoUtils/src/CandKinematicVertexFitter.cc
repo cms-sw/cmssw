@@ -52,9 +52,9 @@ void CandKinematicVertexFitter::set(VertexCompositeCandidate &c) const {
       Candidate::Point vtx(vertex->position());
       c.setVertex(vtx);
       vector<RefCountedKinematicParticle> treeParticles = tree_->daughterParticles();
-      vector<RefCountedKinematicParticle>::const_iterator particleIt = treeParticles.begin();
-      vector<Candidate *>::const_iterator daughterIt = daughters.begin(), daughtersEnd = daughters.end();
-      vector<RecoCandidate::TrackType>::const_iterator trackTypeIt = trackTypes.begin();
+      auto particleIt = treeParticles.begin();
+      auto daughterIt = daughters.begin(), daughtersEnd = daughters.end();
+      auto trackTypeIt = trackTypes.begin();
       Candidate::LorentzVector mp4(0, 0, 0, 0);
       for (; daughterIt != daughtersEnd; ++particleIt, ++daughterIt, ++trackTypeIt) {
         Candidate &daughter = **daughterIt;
@@ -122,7 +122,7 @@ void CandKinematicVertexFitter::fill(vector<RefCountedKinematicParticle> &partic
     //check for a daughter which itself is a composite
     if (d->numberOfDaughters() > 0) {
       //try to cast to VertexCompositeCandiate
-      VertexCompositeCandidate *vtxDau = dynamic_cast<VertexCompositeCandidate *>(d);
+      auto *vtxDau = dynamic_cast<VertexCompositeCandidate *>(d);
       if (vtxDau != nullptr && vtxDau->vertexChi2() > 0) {
         // if VertexCompositeCandidate refit vtxDau via the set method
         (*this).set(*vtxDau);
@@ -152,7 +152,7 @@ void CandKinematicVertexFitter::fill(vector<RefCountedKinematicParticle> &partic
     } else {
       //get track, make KinematicParticle and add to particles so it can be fit
       TrackRef trk = d->get<TrackRef>();
-      RecoCandidate::TrackType type = d->get<RecoCandidate::TrackType>();
+      auto type = d->get<RecoCandidate::TrackType>();
       if (!trk.isNull()) {
         TransientTrack trTrk(trk, bField_);
         float chi2 = 0, ndof = 0;

@@ -165,7 +165,7 @@ void MonPNLed1Dat::writeArrayDB(const std::map<EcalLogicID, MonPNLed1Dat>* data,
   const MonPNLed1Dat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, MonPNLed1Dat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
+  for (auto p = data->begin(); p != data->end(); ++p) {
     channel = &(p->first);
     int logicID = channel->getLogicID();
     if (!logicID) {

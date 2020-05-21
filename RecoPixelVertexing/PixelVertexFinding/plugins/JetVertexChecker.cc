@@ -124,9 +124,7 @@ bool JetVertexChecker::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   float calopt = 0;
   float trkpt = 0;
   //limit to first two jets
-  for (reco::JetTracksAssociationCollection::const_iterator it = jetTracksAssociation->begin(),
-                                                            et = jetTracksAssociation->end();
-       it != et && i < m_maxNjets;
+  for (auto it = jetTracksAssociation->begin(), et = jetTracksAssociation->end(); it != et && i < m_maxNjets;
        it++, i++) {
     if (std::abs(it->first->eta()) < m_maxETA) {
       reco::TrackRefVector tracks = it->second;

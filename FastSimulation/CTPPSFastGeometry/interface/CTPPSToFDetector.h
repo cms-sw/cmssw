@@ -27,7 +27,7 @@ public:
   int get_CellId(int idx) {
     if (idx >= (int)theToFInfo.size())
       return 0;
-    std::map<int, std::vector<double> >::const_iterator it = theToFInfo.begin();
+    auto it = theToFInfo.begin();
     std::advance(it, idx);
     return it->first;
   }

@@ -57,7 +57,7 @@ namespace reco {
       utilsNew::CandMatcher<GenParticleCollection> match(maps);
       auto matchMap = std::make_unique<GenParticleMatch>(match.ref());
       int size = cands->size();
-      vector<int>::const_iterator begin = pdgId_.begin(), end = pdgId_.end();
+      auto begin = pdgId_.begin(), end = pdgId_.end();
       if (size != 0) {
         GenParticleMatch::Filler filler(*matchMap);
         vector<int> indices(size);

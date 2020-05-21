@@ -121,8 +121,7 @@ void TevMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
     MuonTrackLoader::TrajectoryContainer trajectories;
     reco::TrackRef::key_type trackIndex = 0;
     int glbCounter = 0;
-    for (reco::TrackCollection::const_iterator track = glbTracks->begin(); track != glbTracks->end();
-         track++, ++trackIndex) {
+    for (auto track = glbTracks->begin(); track != glbTracks->end(); track++, ++trackIndex) {
       reco::TrackRef glbRef(glbMuons, trackIndex);
 
       vector<Trajectory> refitted = theRefitter->refit(*track, theRefitIndex[ww], tTopo);

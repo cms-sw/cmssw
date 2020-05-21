@@ -58,7 +58,7 @@ namespace lumi {
   unsigned long long TRGWBM2DB::retrieveData(unsigned int runnumber) {
     std::string runnumberstr = int2str(runnumber, 6);
     //query source GT database
-    coral::ConnectionService* svc = new coral::ConnectionService;
+    auto* svc = new coral::ConnectionService;
     lumi::DBConfig dbconf(*svc);
     if (!m_authpath.empty()) {
       dbconf.setAuthentication(m_authpath);
@@ -436,7 +436,7 @@ namespace lumi {
     //reprocess Algo name result filling unallocated trigger bit with string "False"
     //
     for (size_t algoidx = 0; algoidx < lumi::N_TRGALGOBIT; ++algoidx) {
-      std::map<unsigned int, std::string>::iterator pos = triggernamemap.find(algoidx);
+      auto pos = triggernamemap.find(algoidx);
       if (pos != triggernamemap.end()) {
         algonames.push_back(pos->second);
       } else {
@@ -474,8 +474,8 @@ namespace lumi {
     lumitpc.setCppTypeForSqlType("unsigned long long", "NUMBER(20)");
 
     TriggerDeadCountResult::const_iterator deadIt;
-    TriggerDeadCountResult::const_iterator deadBeg = deadtimeresult.begin();
-    TriggerDeadCountResult::const_iterator deadEnd = deadtimeresult.end();
+    auto deadBeg = deadtimeresult.begin();
+    auto deadEnd = deadtimeresult.end();
 
     unsigned int totalcmsls = deadtimeresult.size();
     std::cout << "inserting totalcmsls " << totalcmsls << std::endl;
@@ -494,14 +494,14 @@ namespace lumi {
         BITCOUNT& algoinbits = algocount[trglscount];
         BITCOUNT& techinbits = techcount[trglscount];
         BITCOUNT::const_iterator algoBitIt;
-        BITCOUNT::const_iterator algoBitBeg = algoinbits.begin();
-        BITCOUNT::const_iterator algoBitEnd = algoinbits.end();
+        auto algoBitBeg = algoinbits.begin();
+        auto algoBitEnd = algoinbits.end();
         for (algoBitIt = algoBitBeg; algoBitIt != algoBitEnd; ++algoBitIt, ++trgID) {
           bitvec.push_back(trgID);
         }
         BITCOUNT::const_iterator techBitIt;
-        BITCOUNT::const_iterator techBitBeg = techinbits.begin();
-        BITCOUNT::const_iterator techBitEnd = techinbits.end();
+        auto techBitBeg = techinbits.begin();
+        auto techBitEnd = techinbits.end();
         for (techBitIt = techBitBeg; techBitIt != techBitEnd; ++techBitIt, ++trgID) {
           bitvec.push_back(trgID);
         }
@@ -518,13 +518,13 @@ namespace lumi {
       trgData.extend<unsigned long long>("DEADTIME");
       trgData.extend<unsigned int>("PRESCALE");
 
-      unsigned long long& trg_id = trgData["TRG_ID"].data<unsigned long long>();
+      auto& trg_id = trgData["TRG_ID"].data<unsigned long long>();
       unsigned int& trgrunnum = trgData["RUNNUM"].data<unsigned int>();
       unsigned int& cmslsnum = trgData["CMSLSNUM"].data<unsigned int>();
       unsigned int& bitnum = trgData["BITNUM"].data<unsigned int>();
       std::string& bitname = trgData["BITNAME"].data<std::string>();
       unsigned int& count = trgData["TRGCOUNT"].data<unsigned int>();
-      unsigned long long& deadtime = trgData["DEADTIME"].data<unsigned long long>();
+      auto& deadtime = trgData["DEADTIME"].data<unsigned long long>();
       unsigned int& prescale = trgData["PRESCALE"].data<unsigned int>();
 
       trglscount = 0;
@@ -536,8 +536,8 @@ namespace lumi {
         BITCOUNT& techinbits = techcount[trglscount];
         unsigned int trgbitcount = 0;
         BITCOUNT::const_iterator algoBitIt;
-        BITCOUNT::const_iterator algoBitBeg = algoinbits.begin();
-        BITCOUNT::const_iterator algoBitEnd = algoinbits.end();
+        auto algoBitBeg = algoinbits.begin();
+        auto algoBitEnd = algoinbits.end();
         if (!lumisession->transaction().isActive()) {
           lumisession->transaction().start(false);
           coral::ITable& trgtable = lumisession->nominalSchema().tableHandle(LumiNames::trgTableName());
@@ -568,8 +568,8 @@ namespace lumi {
           //std::cout<<"tot "<<tot<<std::endl;
         }
         BITCOUNT::const_iterator techBitIt;
-        BITCOUNT::const_iterator techBitBeg = techinbits.begin();
-        BITCOUNT::const_iterator techBitEnd = techinbits.end();
+        auto techBitBeg = techinbits.begin();
+        auto techBitEnd = techinbits.end();
         for (techBitIt = techBitBeg; techBitIt != techBitEnd; ++techBitIt, ++trgbitcount) {
           trg_id = idallocationtable[trglscount].at(trgbitcount);
           deadtime = *deadIt;

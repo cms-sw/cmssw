@@ -172,7 +172,7 @@ bool AlCaHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetup)
       edm::LogInfo("HEMuon") << "AlCaHEMuonFilter::Muon Handle " << _Muon.isValid() << std::endl;
 #endif
       if (_Muon.isValid()) {
-        for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
+        for (auto RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
 #ifdef DebugLog
           edm::LogInfo("HEMuon") << "AlCaHEMuonFilter::Muon:Track " << RecMuon->track().isNonnull() << " innerTrack "
                                  << RecMuon->innerTrack().isNonnull() << " outerTrack "

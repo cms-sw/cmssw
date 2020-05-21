@@ -268,8 +268,7 @@ void SimG4HGCalValidation::update(const G4Step* aStep) {
       // Right type of SD
       if (type >= 0) {
         //Get the 32-bit index of the hit cell
-        const G4TouchableHistory* touchable =
-            static_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
+        const auto* touchable = static_cast<const G4TouchableHistory*>(aStep->GetPreStepPoint()->GetTouchable());
         unsigned int index(0);
         int layer(0);
         G4ThreeVector hitPoint = aStep->GetPreStepPoint()->GetPosition();

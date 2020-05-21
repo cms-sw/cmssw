@@ -105,7 +105,7 @@ void PhysicsPerformanceDBWriterTFormula_fromfile_WPandPL::beginJob() {
   // read the variables
   //
 
-  PerformanceWorkingPoint* wp = new PerformanceWorkingPoint(cut, tagger);
+  auto* wp = new PerformanceWorkingPoint(cut, tagger);
   PerformancePayloadFromBinnedTFormula* btagpl = nullptr;
 
   std::vector<PhysicsTFormulaPayload> v_ppl;

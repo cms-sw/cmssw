@@ -38,7 +38,7 @@ namespace edm {
         ProducerBase::TypeLabelList const& plist = prod_->typeLabelList();
 
         if (lastSize_ != plist.size()) {
-          ProducerBase::TypeLabelList::const_iterator pStart = plist.begin();
+          auto pStart = plist.begin();
           advance(pStart, lastSize_);
           ProductRegistryHelper::addToRegistry(pStart, plist.end(), mdesc_, *reg_, prod_);
           lastSize_ = plist.size();

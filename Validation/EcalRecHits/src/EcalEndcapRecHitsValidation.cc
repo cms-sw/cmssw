@@ -125,9 +125,7 @@ void EcalEndcapRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
 
   // ----------------------
   // loop over UncalibRecHits
-  for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EEUncalibRecHit->begin();
-       uncalibRecHit != EEUncalibRecHit->end();
-       ++uncalibRecHit) {
+  for (auto uncalibRecHit = EEUncalibRecHit->begin(); uncalibRecHit != EEUncalibRecHit->end(); ++uncalibRecHit) {
     EEDetId EEid = EEDetId(uncalibRecHit->id());
 
     int mySide = EEid.zside();
@@ -193,7 +191,7 @@ void EcalEndcapRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
 
       // ratio uncalibratedRecHit amplitude + ped / max energy digi
       const EcalPedestals *myped = ecalPeds.product();
-      EcalPedestalsMap::const_iterator it = myped->getMap().find(EEid);
+      auto it = myped->getMap().find(EEid);
       if (it != myped->getMap().end()) {
         if (eMax > (*it).mean_x1 + 5 * (*it).rms_x1 && eMax != 0) {  // only real signal RecHit
 

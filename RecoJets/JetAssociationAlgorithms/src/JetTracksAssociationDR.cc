@@ -17,8 +17,8 @@ JetTracksAssociationDR::~JetTracksAssociationDR() { ; }
 void JetTracksAssociationDR::associateTracksToJets(Association* fAssociation,
                                                    const JetRefs& fJets,
                                                    const TrackRefs& fTracks) {
-  JetRefs::const_iterator ii = fJets.begin();
-  JetRefs::const_iterator jj = fJets.end();
+  auto ii = fJets.begin();
+  auto jj = fJets.end();
   for (; ii != jj; ++ii) {
     reco::TrackRefVector associated;
     associateTracksToJet(associated, **ii, fTracks);

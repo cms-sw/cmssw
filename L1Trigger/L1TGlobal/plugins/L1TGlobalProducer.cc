@@ -388,7 +388,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
       iEvent.getByToken(m_algoblkInputToken, m_uGtAlgBlk);
 
       if (m_uGtAlgBlk.isValid() && !m_uGtAlgBlk->isEmpty(0)) {
-        std::vector<GlobalAlgBlk>::const_iterator algBlk = m_uGtAlgBlk->begin(0);
+        auto algBlk = m_uGtAlgBlk->begin(0);
         m_prescaleSet = static_cast<unsigned int>(algBlk->getPreScColumn());
       } else {
         m_prescaleSet = 1;
@@ -618,7 +618,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
     const std::vector<GlobalObjectMap> objMapVec = gtObjectMapRecord->gtObjectMap();
 
-    for (std::vector<GlobalObjectMap>::const_iterator it = objMapVec.begin(); it != objMapVec.end(); ++it) {
+    for (auto it = objMapVec.begin(); it != objMapVec.end(); ++it) {
       (*it).print(myCoutStream);
     }
 

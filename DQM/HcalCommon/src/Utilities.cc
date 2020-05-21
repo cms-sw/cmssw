@@ -52,8 +52,8 @@ namespace hcaldqm {
     std::vector<int> getCrateList(HcalElectronicsMap const *emap) {
       std::vector<int> vCrates;
       std::vector<HcalElectronicsId> vids = emap->allElectronicsIdPrecision();
-      for (std::vector<HcalElectronicsId>::const_iterator it = vids.begin(); it != vids.end(); ++it) {
-        HcalElectronicsId eid = HcalElectronicsId(it->rawId());
+      for (auto it = vids.begin(); it != vids.end(); ++it) {
+        auto eid = HcalElectronicsId(it->rawId());
         int crate = eid.crateId();
         if (std::find(vCrates.begin(), vCrates.end(), crate) == vCrates.end()) {
           vCrates.push_back(crate);
@@ -66,8 +66,8 @@ namespace hcaldqm {
     std::map<int, uint32_t> getCrateHashMap(HcalElectronicsMap const *emap) {
       std::map<int, uint32_t> crateHashMap;
       std::vector<HcalElectronicsId> vids = emap->allElectronicsIdPrecision();
-      for (std::vector<HcalElectronicsId>::const_iterator it = vids.begin(); it != vids.end(); ++it) {
-        HcalElectronicsId eid = HcalElectronicsId(it->rawId());
+      for (auto it = vids.begin(); it != vids.end(); ++it) {
+        auto eid = HcalElectronicsId(it->rawId());
         int this_crate = eid.crateId();
         uint32_t this_hash =
             (eid.isVMEid()
@@ -83,10 +83,10 @@ namespace hcaldqm {
     std::vector<int> getFEDList(HcalElectronicsMap const *emap) {
       std::vector<int> vfeds;
       std::vector<HcalElectronicsId> vids = emap->allElectronicsIdPrecision();
-      for (std::vector<HcalElectronicsId>::const_iterator it = vids.begin(); it != vids.end(); ++it) {
+      for (auto it = vids.begin(); it != vids.end(); ++it) {
         int fed = it->isVMEid() ? it->dccid() + FED_VME_MIN : crate2fed(it->crateId(), it->slot());
         uint32_t n = 0;
-        for (std::vector<int>::const_iterator jt = vfeds.begin(); jt != vfeds.end(); ++jt)
+        for (auto jt = vfeds.begin(); jt != vfeds.end(); ++jt)
           if (fed == *jt)
             break;
           else
@@ -101,12 +101,12 @@ namespace hcaldqm {
     std::vector<int> getFEDVMEList(HcalElectronicsMap const *emap) {
       std::vector<int> vfeds;
       std::vector<HcalElectronicsId> vids = emap->allElectronicsIdPrecision();
-      for (std::vector<HcalElectronicsId>::const_iterator it = vids.begin(); it != vids.end(); ++it) {
+      for (auto it = vids.begin(); it != vids.end(); ++it) {
         if (!it->isVMEid())
           continue;
         int fed = it->isVMEid() ? it->dccid() + FED_VME_MIN : crate2fed(it->crateId(), it->slot());
         uint32_t n = 0;
-        for (std::vector<int>::const_iterator jt = vfeds.begin(); jt != vfeds.end(); ++jt)
+        for (auto jt = vfeds.begin(); jt != vfeds.end(); ++jt)
           if (fed == *jt)
             break;
           else
@@ -121,12 +121,12 @@ namespace hcaldqm {
     std::vector<int> getFEDuTCAList(HcalElectronicsMap const *emap) {
       std::vector<int> vfeds;
       std::vector<HcalElectronicsId> vids = emap->allElectronicsIdPrecision();
-      for (std::vector<HcalElectronicsId>::const_iterator it = vids.begin(); it != vids.end(); ++it) {
+      for (auto it = vids.begin(); it != vids.end(); ++it) {
         if (it->isVMEid())
           continue;
         int fed = it->isVMEid() ? it->dccid() + FED_VME_MIN : crate2fed(it->crateId(), it->slot());
         uint32_t n = 0;
-        for (std::vector<int>::const_iterator jt = vfeds.begin(); jt != vfeds.end(); ++jt)
+        for (auto jt = vfeds.begin(); jt != vfeds.end(); ++jt)
           if (fed == *jt)
             break;
           else

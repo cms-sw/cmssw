@@ -67,7 +67,7 @@ void MultiParticleInConeGunProducer::produce(Event& e, const EventSetup& es) {
   // 1st, primary vertex
   //
   //HepMC::GenVertex* Vtx = new HepMC::GenVertex(CLHEP::HepLorentzVector(0.,0.,0.));
-  HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
+  auto* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
 
   // loop over particles
   //
@@ -88,7 +88,7 @@ void MultiParticleInConeGunProducer::produce(Event& e, const EventSetup& es) {
     double energy = sqrt(energy2);
 
     HepMC::FourVector p(px, py, pz, energy);
-    HepMC::GenParticle* Part = new HepMC::GenParticle(p, PartID, 1);
+    auto* Part = new HepMC::GenParticle(p, PartID, 1);
     Part->suggest_barcode(barcode);
     barcode++;
     Vtx->add_particle_out(Part);
@@ -159,7 +159,7 @@ void MultiParticleInConeGunProducer::produce(Event& e, const EventSetup& es) {
         double pzIc = momIc * cos(thetaIc);
 
         HepMC::FourVector pIc(pxIc, pyIc, pzIc, energyIc);
-        HepMC::GenParticle* PartIc = new HepMC::GenParticle(pIc, PartIDIc, 1);
+        auto* PartIc = new HepMC::GenParticle(pIc, PartIDIc, 1);
         PartIc->suggest_barcode(barcode);
         barcode++;
         Vtx->add_particle_out(PartIc);

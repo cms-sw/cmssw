@@ -211,9 +211,7 @@ void L1Muon2RecoTreeProducer::analyze(const edm::Event &iEvent, const edm::Event
   double METx = 0.;
   double METy = 0.;
 
-  for (reco::PFMETCollection::const_iterator imet = metLabel_->begin();
-       imet != metLabel_->end() && (unsigned)counter_met < 1;
-       imet++) {
+  for (auto imet = metLabel_->begin(); imet != metLabel_->end() && (unsigned)counter_met < 1; imet++) {
     METx = imet->px();
     METy = imet->py();
   }
@@ -224,9 +222,7 @@ void L1Muon2RecoTreeProducer::analyze(const edm::Event &iEvent, const edm::Event
   }
 
   int counter_mu = 0;
-  for (reco::MuonCollection::const_iterator imu = recoMuons->begin();
-       imu != recoMuons->end() && (unsigned)counter_mu < maxMuon_;
-       imu++) {
+  for (auto imu = recoMuons->begin(); imu != recoMuons->end() && (unsigned)counter_mu < maxMuon_; imu++) {
     //---------------------------------------------------------------------
     // TRIGGER MATCHING:
     // if specified the reconstructed muons are matched to a trigger

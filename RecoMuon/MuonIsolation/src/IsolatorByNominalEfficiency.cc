@@ -45,7 +45,7 @@ IsolatorByNominalEfficiency::~IsolatorByNominalEfficiency() { delete thresholds;
 
 IsolatorByNominalEfficiency::mapNomEff_Cone IsolatorByNominalEfficiency::cones(const vector<string>& usrVec) {
   mapNomEff_Cone result;
-  for (vector<string>::const_iterator is = usrVec.begin(); is != usrVec.end(); is++) {
+  for (auto is = usrVec.begin(); is != usrVec.end(); is++) {
     char* evp = nullptr;
     int cone = strtol((*is).c_str(), &evp, 10);
     float effic = strtod(evp + 1, &evp);
@@ -125,9 +125,9 @@ double IsolatorByNominalEfficiency::weightedSum(const DepositContainer& deposits
 
   assert(deposits.size() == theWeights.size());
 
-  vector<double>::const_iterator w = theWeights.begin();
-  vector<double>::const_iterator dThresh = theDepThresholds.begin();
-  for (DepositContainer::const_iterator dep = deposits.begin(); dep != deposits.end(); dep++) {
+  auto w = theWeights.begin();
+  auto dThresh = theDepThresholds.begin();
+  for (auto dep = deposits.begin(); dep != deposits.end(); dep++) {
     if (dep->vetos != nullptr) {
       sumDep += dep->dep->depositAndCountWithin(dRcone, *dep->vetos, *dThresh).first * (*w);
     } else {
@@ -145,7 +145,7 @@ Cuts IsolatorByNominalEfficiency::cuts(float nominalEfficiency) const {
   vector<double> etaBounds = thresholds->bins();
   vector<double> coneSizes;
   vector<double> cutvalues;
-  for (vector<double>::const_iterator it = etaBounds.begin(), itEnd = etaBounds.end(); it < itEnd; ++it) {
+  for (auto it = etaBounds.begin(), itEnd = etaBounds.end(); it < itEnd; ++it) {
     float eta = (*it);
     int icone = bestConeForEfficiencyIndex(nominalEfficiency);
     coneSizes.push_back(theConesInfo.size(icone));

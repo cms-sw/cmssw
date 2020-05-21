@@ -71,7 +71,7 @@ namespace pat {
           : failSilently_(iConfig.getUntrackedParameter<bool>("failSilently", false)),
             src_(consumes<Collection>(iConfig.getParameter<edm::InputTag>("collection"))),
             inputs_(iConfig.getParameter<std::vector<edm::InputTag> >("associations")) {
-        for (std::vector<edm::InputTag>::const_iterator it = inputs_.begin(), ed = inputs_.end(); it != ed; ++it) {
+        for (auto it = inputs_.begin(), ed = inputs_.end(); it != ed; ++it) {
           adaptors_.push_back(Adaptor(*it, iConfig, consumesCollector()));
           produces<Map>(adaptors_.back().label());
         }
@@ -98,7 +98,7 @@ namespace pat {
       std::vector<value_type> ret;
       ret.reserve(handle->size());
 
-      for (typename std::vector<Adaptor>::iterator it = adaptors_.begin(), ed = adaptors_.end(); it != ed; ++it) {
+      for (auto it = adaptors_.begin(), ed = adaptors_.end(); it != ed; ++it) {
         ret.clear();
         if (it->run(iEvent, *handle, ret)) {
           auto map = std::make_unique<Map>();

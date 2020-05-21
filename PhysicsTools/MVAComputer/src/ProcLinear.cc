@@ -52,7 +52,7 @@ namespace {  // anonymous
   void ProcLinear::eval(ValueIterator iter, unsigned int n) const {
     double sum = offset;
 
-    for (std::vector<double>::const_iterator coeff = coeffs.begin(); coeff != coeffs.end(); coeff++, ++iter) {
+    for (auto coeff = coeffs.begin(); coeff != coeffs.end(); coeff++, ++iter) {
       if (iter.empty()) {
         iter();
         return;
@@ -66,7 +66,7 @@ namespace {  // anonymous
   std::vector<double> ProcLinear::deriv(ValueIterator iter, unsigned int n) const {
     std::vector<double> result;
 
-    for (std::vector<double>::const_iterator coeff = coeffs.begin(); coeff != coeffs.end(); coeff++, ++iter) {
+    for (auto coeff = coeffs.begin(); coeff != coeffs.end(); coeff++, ++iter) {
       if (!iter.empty())
         result.push_back(*coeff);
     }

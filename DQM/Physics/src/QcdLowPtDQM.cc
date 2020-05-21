@@ -1063,9 +1063,7 @@ void QcdLowPtDQM::fillPixels(const Event &iEvent, const edm::EventSetup &iSetup)
   const TrackerTopology *const tTopo = tTopoHandle.product();
 
   const SiPixelRecHitCollection *hits = hRecHits.product();
-  for (SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(), end = hits->data().end();
-       hit != end;
-       ++hit) {
+  for (auto hit = hits->data().begin(), end = hits->data().end(); hit != end; ++hit) {
     if (!hit->isValid())
       continue;
 
@@ -1078,13 +1076,13 @@ void QcdLowPtDQM::fillPixels(const Event &iEvent, const edm::EventSetup &iSetup)
     if (id.subdetId() != int(PixelSubdetector::PixelBarrel))
       continue;
 
-    const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit *>(tgeo_->idToDet(id));
+    const auto *pgdu = static_cast<const PixelGeomDetUnit *>(tgeo_->idToDet(id));
 
     if (usePixelQ_) {
       const PixelTopology *pixTopo = &(pgdu->specificTopology());
       vector<SiPixelCluster::Pixel> pixels(hit->cluster()->pixels());
       bool pixelOnEdge = false;
-      for (std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin(); pixel != pixels.end(); ++pixel) {
+      for (auto pixel = pixels.begin(); pixel != pixels.end(); ++pixel) {
         int pixelX = pixel->x;
         int pixelY = pixel->y;
         if (pixTopo->isItEdgePixelInX(pixelX) || pixTopo->isItEdgePixelInY(pixelY)) {
@@ -1149,7 +1147,7 @@ void QcdLowPtDQM::fillPixelClusterInfos(const Event &iEvent, int which) {
     const reco::VertexCollection *vertices = hVertexCollection.product();
     if (!vertices || vertices->empty())
       return;
-    reco::VertexCollection::const_iterator vertex = vertices->begin();
+    auto vertex = vertices->begin();
     vz = vertex->z();
   } else {  // calculate vertex from clusters
     std::vector<Pixel> allp(bpix1_);

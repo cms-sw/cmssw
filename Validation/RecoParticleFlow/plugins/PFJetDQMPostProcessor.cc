@@ -114,7 +114,7 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
       stitle = genjetDir + "genjet_pt" + "_eta" + seta(etaBins[ieta]);
       //std::cout << ieta << " " << stitle << std::endl;
 
-      std::vector<std::string>::const_iterator it = std::find(sME_genjets.begin(), sME_genjets.end(), stitle);
+      auto it = std::find(sME_genjets.begin(), sME_genjets.end(), stitle);
       if (it == sME_genjets.end())
         continue;
       me = iget_.get(stitle);
@@ -147,7 +147,7 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
 
       for (unsigned int ipt = 0; ipt < ptBins.size() - 1; ++ipt) {
         stitle = jetResponseDir[idir] + "reso_dist_" + spt(ptBins[ipt], ptBins[ipt + 1]) + "_eta" + seta(etaBins[ieta]);
-        std::vector<std::string>::const_iterator it = std::find(sME_response.begin(), sME_response.end(), stitle);
+        auto it = std::find(sME_response.begin(), sME_response.end(), stitle);
         if (it == sME_response.end())
           continue;
         me = iget_.get(stitle);
@@ -204,11 +204,11 @@ void PFJetDQMPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGett
     // Checks
     //
     if (debug) {
-      for (std::vector<MonitorElement*>::const_iterator i = vME_presponse.begin(); i != vME_presponse.end(); ++i)
+      for (auto i = vME_presponse.begin(); i != vME_presponse.end(); ++i)
         (*i)->getTH1F()->Print();
-      for (std::vector<MonitorElement*>::const_iterator i = vME_preso.begin(); i != vME_preso.end(); ++i)
+      for (auto i = vME_preso.begin(); i != vME_preso.end(); ++i)
         (*i)->getTH1F()->Print();
-      for (std::vector<MonitorElement*>::const_iterator i = vME_preso_rms.begin(); i != vME_preso_rms.end(); ++i)
+      for (auto i = vME_preso_rms.begin(); i != vME_preso_rms.end(); ++i)
         (*i)->getTH1F()->Print();
     }
   }

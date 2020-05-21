@@ -125,7 +125,7 @@ void CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSe
   edm::Ref<std::vector<Trajectory>>::key_type trajCounter = 0;
   edm::Ref<reco::TrackCollection>::key_type trackCounter = 0;
 
-  for (reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); ++track) {
+  for (auto track = tracks->begin(); track != tracks->end(); ++track) {
     trackCounter++;
 
     // now we'll actually put hits on the new trajectory
@@ -168,8 +168,8 @@ void CSCOverlapsTrackPreparation::produce(edm::Event& iEvent, const edm::EventSe
       Trajectory trajectory(trajectorySeed, alongMomentum);
 
       edm::OwnVector<TrackingRecHit>::const_iterator clonedHit = clonedHits.begin();
-      std::vector<TrajectoryMeasurement::ConstRecHitPointer>::const_iterator transHitPtr = transHits.begin();
-      std::vector<TrajectoryStateOnSurface>::const_iterator TSOS = TSOSes.begin();
+      auto transHitPtr = transHits.begin();
+      auto TSOS = TSOSes.begin();
       for (; clonedHit != clonedHits.end(); ++clonedHit, ++transHitPtr, ++TSOS) {
         trajectory.push(TrajectoryMeasurement(*TSOS, *TSOS, *TSOS, (*transHitPtr)));
       }

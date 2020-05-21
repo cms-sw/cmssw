@@ -40,7 +40,7 @@ void CosmicMuonUtilities::reverseDirection(TrajectoryStateOnSurface& tsos, const
 string CosmicMuonUtilities::print(const MuonTransientTrackingRecHit::ConstMuonRecHitContainer& hits) const {
   stringstream output;
 
-  for (ConstMuonRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++) {
+  for (auto ir = hits.begin(); ir != hits.end(); ir++) {
     if (!(*ir)->isValid()) {
       output << "invalid RecHit" << endl;
       continue;
@@ -60,7 +60,7 @@ string CosmicMuonUtilities::print(const MuonTransientTrackingRecHit::ConstMuonRe
 string CosmicMuonUtilities::print(const MuonTransientTrackingRecHit::MuonRecHitContainer& hits) const {
   stringstream output;
 
-  for (MuonRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++) {
+  for (auto ir = hits.begin(); ir != hits.end(); ir++) {
     if (!(*ir)->isValid()) {
       output << "invalid RecHit" << endl;
       continue;
@@ -80,7 +80,7 @@ string CosmicMuonUtilities::print(const MuonTransientTrackingRecHit::MuonRecHitC
 string CosmicMuonUtilities::print(const TransientTrackingRecHit::ConstRecHitContainer& hits) const {
   stringstream output;
 
-  for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++) {
+  for (auto ir = hits.begin(); ir != hits.end(); ir++) {
     if (!(*ir)->isValid()) {
       output << "invalid RecHit" << endl;
       continue;
@@ -103,8 +103,8 @@ bool CosmicMuonUtilities::isTraversing(const Trajectory& t) const {
   if (hits.empty())
     return false;
 
-  ConstRecHitContainer::const_iterator frontHit = hits.begin();
-  ConstRecHitContainer::const_iterator backHit = hits.end() - 1;
+  auto frontHit = hits.begin();
+  auto backHit = hits.end() - 1;
 
   // find first valid hit at both ends of the trajectory
   while (!(*frontHit)->isValid() && frontHit != backHit) {

@@ -86,7 +86,7 @@ void PropagateToMuon::init(const edm::EventSetup &iSetup) {
 FreeTrajectoryState PropagateToMuon::startingState(const reco::Candidate &reco) const {
   FreeTrajectoryState ret;
   if (whichTrack_ != None) {
-    const reco::RecoCandidate *rc = dynamic_cast<const reco::RecoCandidate *>(&reco);
+    const auto *rc = dynamic_cast<const reco::RecoCandidate *>(&reco);
     if (rc == nullptr)
       throw cms::Exception("Invalid Data") << "Input object is not a RecoCandidate.\n";
     reco::TrackRef tk;

@@ -58,13 +58,12 @@ void ShiftedPFCandidateProducerByMatchedObject::produce(edm::Event& evt, const e
 
   auto shiftedPFCandidates = std::make_unique<reco::PFCandidateCollection>();
 
-  for (reco::PFCandidateCollection::const_iterator originalPFCandidate = originalPFCandidates->begin();
-       originalPFCandidate != originalPFCandidates->end();
+  for (auto originalPFCandidate = originalPFCandidates->begin(); originalPFCandidate != originalPFCandidates->end();
        ++originalPFCandidate) {
     double shift = 0.;
     bool applyShift = false;
     double dR2bestMatch_PFCandidate = dRDefault;
-    for (std::vector<objectEntryType>::const_iterator object = objects_.begin(); object != objects_.end(); ++object) {
+    for (auto object = objects_.begin(); object != objects_.end(); ++object) {
       if (!object->isValidMatch_)
         continue;
       double dR2 = deltaR2(originalPFCandidate->p4(), object->unshiftedObjectP4_);

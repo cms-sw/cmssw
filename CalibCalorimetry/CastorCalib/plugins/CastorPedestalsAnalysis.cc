@@ -20,9 +20,9 @@ CastorPedestalsAnalysis::CastorPedestalsAnalysis(const edm::ParameterSet& ps)
 
 CastorPedestalsAnalysis::~CastorPedestalsAnalysis() {
   CastorPedestals* rawPedsItem = new CastorPedestals(true);
-  CastorPedestalWidths* rawWidthsItem = new CastorPedestalWidths(true);
+  auto* rawWidthsItem = new CastorPedestalWidths(true);
   CastorPedestals* rawPedsItemfc = new CastorPedestals(false);
-  CastorPedestalWidths* rawWidthsItemfc = new CastorPedestalWidths(false);
+  auto* rawWidthsItemfc = new CastorPedestalWidths(false);
 
   //Calculate pedestal constants
   std::cout << "Calculating Pedestal constants...\n";
@@ -294,7 +294,7 @@ void CastorPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup
     iSetup.get<CastorElectronicsMapRcd>().get(refEMap);
     const CastorElectronicsMap* myRefEMap = refEMap.product();
     std::vector<HcalGenericDetId> listEMap = myRefEMap->allPrecisionId();
-    for (std::vector<HcalGenericDetId>::const_iterator it = listEMap.begin(); it != listEMap.end(); ++it) {
+    for (auto it = listEMap.begin(); it != listEMap.end(); ++it) {
       HcalGenericDetId mygenid(it->rawId());
       if (mygenid.isHcalCastorDetId()) {
         NewPedBunch a;
@@ -322,7 +322,7 @@ void CastorPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup
 
   std::vector<NewPedBunch>::iterator bunch_it;
 
-  for (CastorDigiCollection::const_iterator j = castor->begin(); j != castor->end(); ++j) {
+  for (auto j = castor->begin(); j != castor->end(); ++j) {
     const CastorDataFrame digi = (const CastorDataFrame)(*j);
     for (bunch_it = Bunches.begin(); bunch_it != Bunches.end(); ++bunch_it)
       if (bunch_it->detid.rawId() == digi.id().rawId())

@@ -27,7 +27,7 @@ public:
 
   T result(double* proba) const {
     std::pair<T, double> m(T(), -1.);
-    for (typename std::map<T, double>::const_iterator it = votes_.begin(); it != votes_.end(); ++it) {
+    for (auto it = votes_.begin(); it != votes_.end(); ++it) {
       if (it->second > m.second) {
         m = *it;
       }

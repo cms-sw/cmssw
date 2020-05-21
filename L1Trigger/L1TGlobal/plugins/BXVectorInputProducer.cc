@@ -213,7 +213,7 @@ namespace l1t {
     // Make sure that you can get input EG
     Handle<BXVector<l1t::EGamma>> inputEgammas;
     if (iEvent.getByToken(egToken, inputEgammas)) {
-      for (std::vector<l1t::EGamma>::const_iterator eg = inputEgammas->begin(bx); eg != inputEgammas->end(bx); ++eg) {
+      for (auto eg = inputEgammas->begin(bx); eg != inputEgammas->end(bx); ++eg) {
         if (eg->hwPt() > egEtThreshold_ && egammaVec.size() < maxNumEGCands_) {
           egammaVec.push_back((*eg));
         }
@@ -225,7 +225,7 @@ namespace l1t {
     // Make sure that you can get input Muons
     Handle<BXVector<l1t::Muon>> inputMuons;
     if (iEvent.getByToken(muToken, inputMuons)) {
-      for (std::vector<l1t::Muon>::const_iterator mu = inputMuons->begin(bx); mu != inputMuons->end(bx); ++mu) {
+      for (auto mu = inputMuons->begin(bx); mu != inputMuons->end(bx); ++mu) {
         if (mu->hwPt() > muEtThreshold_ && muonVec.size() < maxNumMuCands_) {
           muonVec.push_back((*mu));
         }
@@ -237,7 +237,7 @@ namespace l1t {
     // Make sure that you can get input Tau
     Handle<BXVector<l1t::Tau>> inputTaus;
     if (iEvent.getByToken(tauToken, inputTaus)) {
-      for (std::vector<l1t::Tau>::const_iterator tau = inputTaus->begin(bx); tau != inputTaus->end(bx); ++tau) {
+      for (auto tau = inputTaus->begin(bx); tau != inputTaus->end(bx); ++tau) {
         if (tau->hwPt() > tauEtThreshold_ && tauVec.size() < maxNumTauCands_) {
           tauVec.push_back((*tau));
         }
@@ -249,7 +249,7 @@ namespace l1t {
     // Make sure that you can get input jet
     Handle<BXVector<l1t::Jet>> inputJets;
     if (iEvent.getByToken(jetToken, inputJets)) {
-      for (std::vector<l1t::Jet>::const_iterator jet = inputJets->begin(bx); jet != inputJets->end(bx); ++jet) {
+      for (auto jet = inputJets->begin(bx); jet != inputJets->end(bx); ++jet) {
         if (jet->hwPt() > jetEtThreshold_ && jetVec.size() < maxNumJetCands_) {
           jetVec.push_back((*jet));
         }
@@ -261,8 +261,7 @@ namespace l1t {
     // Make sure that you can get input etsum
     Handle<BXVector<l1t::EtSum>> inputEtsums;
     if (iEvent.getByToken(etsumToken, inputEtsums)) {
-      for (std::vector<l1t::EtSum>::const_iterator etsum = inputEtsums->begin(bx); etsum != inputEtsums->end(bx);
-           ++etsum) {
+      for (auto etsum = inputEtsums->begin(bx); etsum != inputEtsums->end(bx); ++etsum) {
         etsumVec.push_back((*etsum));
       }
     } else {

@@ -130,7 +130,7 @@ AlignmentUserVariables *MillePedeVariablesIORoot::readOne(Alignable *ali, int &i
     return nullptr;
   }
 
-  MillePedeVariables *mpVar = new MillePedeVariables(myNumPar, myLabel, myName);
+  auto *mpVar = new MillePedeVariables(myNumPar, myLabel, myName);
   for (unsigned int iPar = 0; iPar < myNumPar; ++iPar) {
     mpVar->isValid()[iPar] = myIsValid[iPar];
     mpVar->diffBefore()[iPar] = myDiffBefore[iPar];

@@ -77,7 +77,7 @@ void ClusterShapeAlgo::Calculate_TopEnergy(const reco::BasicCluster& passedClust
 
   for (auto const& posCurrent : clusterDetIds) {
     if ((posCurrent.first != DetId(0)) && (hits->find(posCurrent.first) != hits->end())) {
-      EcalRecHitCollection::const_iterator itt = hits->find(posCurrent.first);
+      auto itt = hits->find(posCurrent.first);
       testEcalRecHit = *itt;
 
       if (testEcalRecHit.energy() * posCurrent.second > eMax) {
@@ -101,7 +101,7 @@ void ClusterShapeAlgo::Calculate_2ndEnergy(const reco::BasicCluster& passedClust
 
   for (auto const& posCurrent : clusterDetIds) {
     if ((posCurrent.first != DetId(0)) && (hits->find(posCurrent.first) != hits->end())) {
-      EcalRecHitCollection::const_iterator itt = hits->find(posCurrent.first);
+      auto itt = hits->find(posCurrent.first);
       testEcalRecHit = *itt;
 
       if (testEcalRecHit.energy() * posCurrent.second > e2nd && testEcalRecHit.id() != eMaxId_) {
@@ -125,7 +125,7 @@ void ClusterShapeAlgo::Create_Map(const EcalRecHitCollection* hits, const CaloSu
       posCurrent.offsetBy(-2 + x, -2 + y);
 
       if ((*posCurrent != DetId(0)) && (hits->find(*posCurrent) != hits->end())) {
-        EcalRecHitCollection::const_iterator itt = hits->find(*posCurrent);
+        auto itt = hits->find(*posCurrent);
         tempEcalRecHit = *itt;
         energyMap_[y][x] = std::make_pair(tempEcalRecHit.id(), tempEcalRecHit.energy());
       } else
@@ -414,7 +414,7 @@ void ClusterShapeAlgo::Calculate_BarrelBasketEnergyFraction(const reco::BasicClu
 
   std::map<int, double> indexedBasketEnergy;
   const std::vector<std::pair<DetId, float> >& clusterDetIds = passedCluster.hitsAndFractions();
-  const EcalBarrelGeometry* subDetGeometry = dynamic_cast<const EcalBarrelGeometry*>(geometry);
+  const auto* subDetGeometry = dynamic_cast<const EcalBarrelGeometry*>(geometry);
 
   for (auto const& posCurrent : clusterDetIds) {
     int basketIndex = 999;
@@ -450,9 +450,7 @@ void ClusterShapeAlgo::Calculate_BarrelBasketEnergyFraction(const reco::BasicClu
   }
 
   std::vector<double> energyFraction;
-  for (std::map<int, double>::iterator posCurrent = indexedBasketEnergy.begin();
-       posCurrent != indexedBasketEnergy.end();
-       posCurrent++) {
+  for (auto posCurrent = indexedBasketEnergy.begin(); posCurrent != indexedBasketEnergy.end(); posCurrent++) {
     energyFraction.push_back(indexedBasketEnergy[posCurrent->first] / passedCluster.energy());
   }
 
@@ -639,7 +637,7 @@ void ClusterShapeAlgo::Calculate_EnergyDepTopology(const reco::BasicCluster& pas
   EcalRecHit testEcalRecHit;
   // loop over crystals
   for (auto const& posCurrent : clusterDetIds) {
-    EcalRecHitCollection::const_iterator itt = hits->find(posCurrent.first);
+    auto itt = hits->find(posCurrent.first);
     testEcalRecHit = *itt;
 
     if ((posCurrent.first != DetId(0)) && (hits->find(posCurrent.first) != hits->end())) {

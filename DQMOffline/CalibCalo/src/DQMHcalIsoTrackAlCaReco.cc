@@ -141,9 +141,7 @@ void DQMHcalIsoTrackAlCaReco::analyze(const edm::Event &iEvent, const edm::Event
 
   // general distributions
   if (recoIsoTracks.isValid()) {
-    for (reco::HcalIsolatedTrackCandidateCollection::const_iterator itr = recoIsoTracks->begin();
-         itr != recoIsoTracks->end();
-         itr++) {
+    for (auto itr = recoIsoTracks->begin(); itr != recoIsoTracks->end(); itr++) {
       hMaxP_->Fill(itr->maxP());
       hEnEcal_->Fill(itr->energyEcal());
       std::pair<int, int> etaphi = itr->towerIndex();

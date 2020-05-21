@@ -192,7 +192,7 @@ namespace cms {
       unsigned int detid = DSViter->detId();
       DetId detIdObject(detid);
       const GeomDetUnit* genericDet = geom.idToDetUnit(detIdObject);
-      const PixelGeomDetUnit* pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
+      const auto* pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
       assert(pixDet);
       SiPixelRecHitCollectionNew::FastFiller recHitsOnDetUnit(output, detid);
 

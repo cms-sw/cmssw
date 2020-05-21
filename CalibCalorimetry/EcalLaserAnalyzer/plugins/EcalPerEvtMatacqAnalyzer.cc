@@ -108,8 +108,7 @@ void EcalPerEvtMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetu
   // Decode Basic DCCHeader Information
   // ====================================
 
-  for (EcalRawDataCollection::const_iterator headerItr = DCCHeader->begin(); headerItr != DCCHeader->end();
-       ++headerItr) {
+  for (auto headerItr = DCCHeader->begin(); headerItr != DCCHeader->end(); ++headerItr) {
     event = headerItr->getLV1();
     EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings();
 
@@ -151,8 +150,7 @@ void EcalPerEvtMatacqAnalyzer::analyze(const edm::Event& e, const edm::EventSetu
   int iCh = 0;
   double max = 0;
 
-  for (EcalMatacqDigiCollection::const_iterator it = matacqDigi->begin(); it != matacqDigi->end();
-       ++it) {  // Loop on matacq channel
+  for (auto it = matacqDigi->begin(); it != matacqDigi->end(); ++it) {  // Loop on matacq channel
 
     //
     const EcalMatacqDigi& digis = *it;

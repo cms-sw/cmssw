@@ -202,7 +202,7 @@ vector<BPHRecoConstCandPtr> BPHX3872ToJPsiPiPiBuilder::build() {
   for (iPair = 0; iPair < nPair; ++iPair) {
     const PionPair* pp = pionPairs[iPair];
     for (iJPsi = 0; iJPsi < nJPsi; ++iJPsi) {
-      BPHRecoCandidate* x3872 = new BPHRecoCandidate(evSetup);
+      auto* x3872 = new BPHRecoCandidate(evSetup);
       BPHRecoCandidatePtr xPtr(x3872);
       x3872->add(jPsiName, jPsi[iJPsi]);
       x3872->add(pionPosName, pp->posPion, BPHParticleMasses::pionMass, BPHParticleMasses::pionMSigma);

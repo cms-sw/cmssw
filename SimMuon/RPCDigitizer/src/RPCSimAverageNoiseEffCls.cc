@@ -149,7 +149,7 @@ int RPCSimAverageNoiseEffCls::getClSize(float posX, CLHEP::HepRandomEngine* engi
     sum_clsize = clsMap[5];
   }
 
-  for (vector<double>::iterator iter = sum_clsize.begin(); iter != sum_clsize.end(); ++iter) {
+  for (auto iter = sum_clsize.begin(); iter != sum_clsize.end(); ++iter) {
     cnt++;
     if (func > (*iter)) {
       min = cnt;
@@ -174,7 +174,7 @@ void RPCSimAverageNoiseEffCls::simulate(const RPCRoll* roll,
 
   const Topology& topology = roll->specs()->topology();
 
-  for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin(); _hit != rpcHits.end(); ++_hit) {
+  for (auto _hit = rpcHits.begin(); _hit != rpcHits.end(); ++_hit) {
     if (!eledig && _hit->particleType() == 11)
       continue;
     // Here I hould check if the RPC are up side down;
@@ -227,7 +227,7 @@ void RPCSimAverageNoiseEffCls::simulate(const RPCRoll* roll,
         }
       }
 
-      for (std::vector<int>::iterator i = cls.begin(); i != cls.end(); i++) {
+      for (auto i = cls.begin(); i != cls.end(); i++) {
         // Check the timing of the adjacent strip
         if (*i != centralStrip) {
           if (CLHEP::RandFlat::shoot(engine) < veff[*i - 1]) {
@@ -259,13 +259,13 @@ void RPCSimAverageNoiseEffCls::simulateNoise(const RPCRoll* roll, CLHEP::HepRand
   double area = 0.0;
 
   if (rpcId.region() == 0) {
-    const RectangularStripTopology* top_ = dynamic_cast<const RectangularStripTopology*>(&(roll->topology()));
+    const auto* top_ = dynamic_cast<const RectangularStripTopology*>(&(roll->topology()));
     float xmin = (top_->localPosition(0.)).x();
     float xmax = (top_->localPosition((float)roll->nstrips())).x();
     float striplength = (top_->stripLength());
     area = striplength * (xmax - xmin);
   } else {
-    const TrapezoidalStripTopology* top_ = dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology()));
+    const auto* top_ = dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology()));
     float xmin = (top_->localPosition(0.)).x();
     float xmax = (top_->localPosition((float)roll->nstrips())).x();
     float striplength = (top_->stripLength());

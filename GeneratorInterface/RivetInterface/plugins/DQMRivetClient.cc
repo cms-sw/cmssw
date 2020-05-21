@@ -35,7 +35,7 @@ DQMRivetClient::DQMRivetClient(const ParameterSet& pset) {
 
   // Parse Normalization commands
   vstring normCmds = pset.getUntrackedParameter<vstring>("normalizationToIntegral", vstring());
-  for (vstring::const_iterator normCmd = normCmds.begin(); normCmd != normCmds.end(); ++normCmd) {
+  for (auto normCmd = normCmds.begin(); normCmd != normCmds.end(); ++normCmd) {
     if (normCmd->empty())
       continue;
     boost::tokenizer<elsc> tokens(*normCmd, commonEscapes);
@@ -60,7 +60,7 @@ DQMRivetClient::DQMRivetClient(const ParameterSet& pset) {
   }
 
   VPSet normSets = pset.getUntrackedParameter<VPSet>("normalizationToIntegralSets", VPSet());
-  for (VPSet::const_iterator normSet = normSets.begin(); normSet != normSets.end(); ++normSet) {
+  for (auto normSet = normSets.begin(); normSet != normSets.end(); ++normSet) {
     NormOption opt;
     opt.name = normSet->getUntrackedParameter<string>("name");
     opt.normHistName = normSet->getUntrackedParameter<string>("normalizedTo", opt.name);
@@ -70,7 +70,7 @@ DQMRivetClient::DQMRivetClient(const ParameterSet& pset) {
 
   //normalize to lumi
   vstring lumiCmds = pset.getUntrackedParameter<vstring>("normalizationToLumi", vstring());
-  for (vstring::const_iterator lumiCmd = lumiCmds.begin(); lumiCmd != lumiCmds.end(); ++lumiCmd) {
+  for (auto lumiCmd = lumiCmds.begin(); lumiCmd != lumiCmds.end(); ++lumiCmd) {
     if (lumiCmd->empty())
       continue;
     boost::tokenizer<elsc> tokens(*lumiCmd, commonEscapes);
@@ -99,7 +99,7 @@ DQMRivetClient::DQMRivetClient(const ParameterSet& pset) {
 
   //multiply by a number
   vstring scaleCmds = pset.getUntrackedParameter<vstring>("scaleBy", vstring());
-  for (vstring::const_iterator scaleCmd = scaleCmds.begin(); scaleCmd != scaleCmds.end(); ++scaleCmd) {
+  for (auto scaleCmd = scaleCmds.begin(); scaleCmd != scaleCmds.end(); ++scaleCmd) {
     if (scaleCmd->empty())
       continue;
     boost::tokenizer<elsc> tokens(*scaleCmd, commonEscapes);
@@ -148,7 +148,7 @@ void DQMRivetClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
   // Process wildcard in the sub-directory
   set<string> subDirSet;
 
-  for (vstring::const_iterator iSubDir = subDirs_.begin(); iSubDir != subDirs_.end(); ++iSubDir) {
+  for (auto iSubDir = subDirs_.begin(); iSubDir != subDirs_.end(); ++iSubDir) {
     string subDir = *iSubDir;
 
     if (subDir[subDir.size() - 1] == '/')
@@ -157,27 +157,23 @@ void DQMRivetClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
     subDirSet.insert(subDir);
   }
 
-  for (set<string>::const_iterator iSubDir = subDirSet.begin(); iSubDir != subDirSet.end(); ++iSubDir) {
+  for (auto iSubDir = subDirSet.begin(); iSubDir != subDirSet.end(); ++iSubDir) {
     const string& dirName = *iSubDir;
-    for (vector<NormOption>::const_iterator normOption = normOptions_.begin(); normOption != normOptions_.end();
-         ++normOption) {
+    for (auto normOption = normOptions_.begin(); normOption != normOptions_.end(); ++normOption) {
       normalizeToIntegral(dirName, normOption->name, normOption->normHistName);
     }
   }
 
-  for (set<string>::const_iterator iSubDir = subDirSet.begin(); iSubDir != subDirSet.end(); ++iSubDir) {
+  for (auto iSubDir = subDirSet.begin(); iSubDir != subDirSet.end(); ++iSubDir) {
     const string& dirName = *iSubDir;
-    for (vector<LumiOption>::const_iterator lumiOption = lumiOptions_.begin(); lumiOption != lumiOptions_.end();
-         ++lumiOption) {
+    for (auto lumiOption = lumiOptions_.begin(); lumiOption != lumiOptions_.end(); ++lumiOption) {
       normalizeToLumi(dirName, lumiOption->name, lumiOption->normHistName, lumiOption->xsection);
     }
   }
 
-  for (set<string>::const_iterator iSubDir = subDirSet.begin(); iSubDir != subDirSet.end(); ++iSubDir) {
+  for (auto iSubDir = subDirSet.begin(); iSubDir != subDirSet.end(); ++iSubDir) {
     const string& dirName = *iSubDir;
-    for (vector<ScaleFactorOption>::const_iterator scaleOption = scaleOptions_.begin();
-         scaleOption != scaleOptions_.end();
-         ++scaleOption) {
+    for (auto scaleOption = scaleOptions_.begin(); scaleOption != scaleOptions_.end(); ++scaleOption) {
       scaleByFactor(dirName, scaleOption->name, scaleOption->scale);
     }
   }

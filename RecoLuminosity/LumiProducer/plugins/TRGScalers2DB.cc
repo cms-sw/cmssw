@@ -112,7 +112,7 @@ namespace lumi {
   unsigned long long TRGScalers2DB::retrieveData(unsigned int runnumber) {
     std::string runnumberstr = int2str(runnumber, 6);
     //query source GT database
-    coral::ConnectionService* svc = new coral::ConnectionService;
+    auto* svc = new coral::ConnectionService;
     lumi::DBConfig dbconf(*svc);
     if (!m_authpath.empty()) {
       dbconf.setAuthentication(m_authpath);
@@ -362,8 +362,8 @@ namespace lumi {
     std::map<int, std::vector<unsigned int> > algoprescMap;
     std::map<int, std::vector<unsigned int> > techprescMap;
     std::vector<int>::iterator prescidxIt;
-    std::vector<int>::iterator prescidxItBeg = prescidx.begin();
-    std::vector<int>::iterator prescidxItEnd = prescidx.end();
+    auto prescidxItBeg = prescidx.begin();
+    auto prescidxItEnd = prescidx.end();
     for (prescidxIt = prescidxItBeg; prescidxIt != prescidxItEnd; ++prescidxIt) {
       std::vector<unsigned int> algopres;
       algopres.reserve(lumi::N_TRGALGOBIT);
@@ -499,8 +499,8 @@ namespace lumi {
     // {prescale_index:[pres]}
     //
     std::vector<int>::iterator presIt;
-    std::vector<int>::iterator presItBeg = prescidx.begin();
-    std::vector<int>::iterator presItEnd = prescidx.end();
+    auto presItBeg = prescidx.begin();
+    auto presItEnd = prescidx.end();
     for (presIt = presItBeg; presIt != presItEnd; ++presIt) {
       coral::IQuery* QueryAlgoPresc = gtschemaHandle.newQuery();
       QueryAlgoPresc->addToTableList(runprescalgoviewname);
@@ -569,8 +569,8 @@ namespace lumi {
     delete trgsession;
 
     std::map<unsigned int, int>::iterator lsprescmapIt;
-    std::map<unsigned int, int>::iterator lsprescmapItBeg = lsprescmap.begin();
-    std::map<unsigned int, int>::iterator lsprescmapItEnd = lsprescmap.end();
+    auto lsprescmapItBeg = lsprescmap.begin();
+    auto lsprescmapItEnd = lsprescmap.end();
     for (lsprescmapIt = lsprescmapItBeg; lsprescmapIt != lsprescmapItEnd; ++lsprescmapIt) {
       unsigned int ls = lsprescmapIt->first;
       int preidx = lsprescmapIt->second;
@@ -583,7 +583,7 @@ namespace lumi {
     //reprocess Algo name result filling unallocated trigger bit with string "False"
     //
     for (size_t algoidx = 0; algoidx < lumi::N_TRGALGOBIT; ++algoidx) {
-      std::map<unsigned int, std::string>::iterator pos = triggernamemap.find(algoidx);
+      auto pos = triggernamemap.find(algoidx);
       if (pos != triggernamemap.end()) {
         algonames.push_back(pos->second);
       } else {
@@ -617,8 +617,8 @@ namespace lumi {
           << deadtimeresult.size() << " " << deadfracresult.size() << " " << algocount.size() << " " << techcount.size()
           << " " << algoprescale.size() << " " << techprescale.size() << std::endl;
       TRGScalers2DB::TriggerDeadCountResult::iterator dIt;
-      TRGScalers2DB::TriggerDeadCountResult::iterator dBeg = deadtimeresult.begin();
-      TRGScalers2DB::TriggerDeadCountResult::iterator dEnd = deadtimeresult.end();
+      auto dBeg = deadtimeresult.begin();
+      auto dEnd = deadtimeresult.end();
       unsigned int dcnt = 0;
       for (dIt = dBeg; dIt != dEnd; ++dIt) {
         try {
@@ -738,14 +738,14 @@ namespace lumi {
       const BITCOUNT& algoinbits = algocounts[trglscount];
       const BITCOUNT& techinbits = techcounts[trglscount];
       BITCOUNT::const_iterator algoBitIt;
-      BITCOUNT::const_iterator algoBitBeg = algoinbits.begin();
-      BITCOUNT::const_iterator algoBitEnd = algoinbits.end();
+      auto algoBitBeg = algoinbits.begin();
+      auto algoBitEnd = algoinbits.end();
       for (algoBitIt = algoBitBeg; algoBitIt != algoBitEnd; ++algoBitIt, ++trgID) {
         bitvec.push_back(trgID);
       }
       BITCOUNT::const_iterator techBitIt;
-      BITCOUNT::const_iterator techBitBeg = techinbits.begin();
-      BITCOUNT::const_iterator techBitEnd = techinbits.end();
+      auto techBitBeg = techinbits.begin();
+      auto techBitEnd = techinbits.end();
       for (techBitIt = techBitBeg; techBitIt != techBitEnd; ++techBitIt, ++trgID) {
         bitvec.push_back(trgID);
       }
@@ -763,13 +763,13 @@ namespace lumi {
     trgData.extend<float>("DEADFRAC");
     trgData.extend<unsigned int>("PRESCALE");
 
-    unsigned long long& trg_id = trgData["TRG_ID"].data<unsigned long long>();
+    auto& trg_id = trgData["TRG_ID"].data<unsigned long long>();
     unsigned int& trgrunnum = trgData["RUNNUM"].data<unsigned int>();
     unsigned int& cmslsnum = trgData["CMSLSNUM"].data<unsigned int>();
     unsigned int& bitnum = trgData["BITNUM"].data<unsigned int>();
     std::string& bitname = trgData["BITNAME"].data<std::string>();
     unsigned int& count = trgData["TRGCOUNT"].data<unsigned int>();
-    unsigned long long& deadtime = trgData["DEADTIME"].data<unsigned long long>();
+    auto& deadtime = trgData["DEADTIME"].data<unsigned long long>();
     float& deadfrac = trgData["DEADFRAC"].data<float>();
     unsigned int& prescale = trgData["PRESCALE"].data<unsigned int>();
 
@@ -783,8 +783,8 @@ namespace lumi {
       const BITCOUNT& techinbits = techcounts[trglscount];
       unsigned int trgbitcount = 0;
       BITCOUNT::const_iterator algoBitIt;
-      BITCOUNT::const_iterator algoBitBeg = algoinbits.begin();
-      BITCOUNT::const_iterator algoBitEnd = algoinbits.end();
+      auto algoBitBeg = algoinbits.begin();
+      auto algoBitEnd = algoinbits.end();
       if (!lumisession->transaction().isActive()) {
         lumisession->transaction().start(false);
         coral::ITable& trgtable = lumisession->nominalSchema().tableHandle(LumiNames::trgTableName());
@@ -809,8 +809,8 @@ namespace lumi {
         trgInserter->processNextIteration();
       }
       BITCOUNT::const_iterator techBitIt;
-      BITCOUNT::const_iterator techBitBeg = techinbits.begin();
-      BITCOUNT::const_iterator techBitEnd = techinbits.end();
+      auto techBitBeg = techinbits.begin();
+      auto techBitEnd = techinbits.end();
       for (techBitIt = techBitBeg; techBitIt != techBitEnd; ++techBitIt, ++trgbitcount) {
         trg_id = idallocationtable[trglscount].at(trgbitcount);
         deadtime = *deadIt;
@@ -868,10 +868,10 @@ namespace lumi {
     lstrgData.extend<coral::Blob>("PRESCALEBLOB");
     lstrgData.extend<coral::Blob>("TRGCOUNTBLOB");
 
-    unsigned long long& data_id = lstrgData["DATA_ID"].data<unsigned long long>();
+    auto& data_id = lstrgData["DATA_ID"].data<unsigned long long>();
     unsigned int& trgrunnum = lstrgData["RUNNUM"].data<unsigned int>();
     unsigned int& cmslsnum = lstrgData["CMSLSNUM"].data<unsigned int>();
-    unsigned long long& deadtime = lstrgData["DEADTIMECOUNT"].data<unsigned long long>();
+    auto& deadtime = lstrgData["DEADTIMECOUNT"].data<unsigned long long>();
     unsigned int& bitzerocount = lstrgData["BITZEROCOUNT"].data<unsigned int>();
     unsigned int& bitzeroprescale = lstrgData["BITZEROPRESCALE"].data<unsigned int>();
     float& deadfrac = lstrgData["DEADFRAC"].data<float>();
@@ -891,8 +891,8 @@ namespace lumi {
     trgrundata.runnumber = irunnumber;
     std::string bitnames;
     TriggerNameResult_Algo::iterator bitnameIt;
-    TriggerNameResult_Algo::iterator bitnameItBeg = algonames.begin();
-    TriggerNameResult_Algo::iterator bitnameItEnd = algonames.end();
+    auto bitnameItBeg = algonames.begin();
+    auto bitnameItEnd = algonames.end();
     for (bitnameIt = bitnameItBeg; bitnameIt != bitnameItEnd; ++bitnameIt) {
       if (bitnameIt != bitnameItBeg) {
         bitnames += std::string(",");
@@ -900,8 +900,8 @@ namespace lumi {
       bitnames += *bitnameIt;
     }
     TriggerNameResult_Tech::iterator techbitnameIt;
-    TriggerNameResult_Tech::iterator techbitnameItBeg = technames.begin();
-    TriggerNameResult_Tech::iterator techbitnameItEnd = technames.end();
+    auto techbitnameItBeg = technames.begin();
+    auto techbitnameItEnd = technames.end();
     for (techbitnameIt = techbitnameItBeg; techbitnameIt != techbitnameItEnd; ++techbitnameIt) {
       bitnames += std::string(",");
       bitnames += *techbitnameIt;

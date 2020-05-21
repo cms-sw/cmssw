@@ -648,7 +648,7 @@ void SiPixelDigitizerAlgorithm::PixelEfficiencies::init_from_db(
       if (rocId != 0) {
         rocId--;
         unsigned int rawid = db_factor.first & (~rocMask);
-        const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(geom->idToDet(rawid));
+        const auto* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(geom->idToDet(rawid));
         PixelTopology const* topology = &(theGeomDet->specificTopology());
         const int nPixelsInROC = topology->rowsperroc() * topology->colsperroc();
         const int nBigPixelsInROC = 2 * topology->rowsperroc() + topology->colsperroc() - 2;
@@ -790,7 +790,7 @@ void SiPixelDigitizerAlgorithm::accumulateSimHits(std::vector<PSimHit>::const_it
 
   uint32_t detId = pixdet->geographicalId().rawId();
   size_t simHitGlobalIndex = inputBeginGlobalIndex;  // This needs to stored to create the digi-sim link later
-  for (std::vector<PSimHit>::const_iterator ssbegin = inputBegin; ssbegin != inputEnd; ++ssbegin, ++simHitGlobalIndex) {
+  for (auto ssbegin = inputBegin; ssbegin != inputEnd; ++ssbegin, ++simHitGlobalIndex) {
     // skip hits not in this detector.
     if ((*ssbegin).detUnitId() != detId) {
       continue;
@@ -840,7 +840,7 @@ void SiPixelDigitizerAlgorithm::calculateInstlumiFactor(PileupMixingContent* puI
 
     int pui = 0, p = 0;
     std::vector<int>::const_iterator pu;
-    std::vector<int>::const_iterator pu0 = bunchCrossing.end();
+    auto pu0 = bunchCrossing.end();
 
     for (pu = bunchCrossing.begin(); pu != bunchCrossing.end(); ++pu) {
       if (*pu == 0) {
@@ -910,7 +910,7 @@ std::unique_ptr<PixelFEDChannelCollection> SiPixelDigitizerAlgorithm::chooseScen
 
   int pui = 0, p = 0;
   std::vector<int>::const_iterator pu;
-  std::vector<int>::const_iterator pu0 = bunchCrossing.end();
+  auto pu0 = bunchCrossing.end();
 
   for (pu = bunchCrossing.begin(); pu != bunchCrossing.end(); ++pu) {
     if (*pu == 0) {
@@ -954,7 +954,7 @@ std::unique_ptr<PixelFEDChannelCollection> SiPixelDigitizerAlgorithm::chooseScen
 
     int pui = 0, p = 0;
     std::vector<int>::const_iterator pu;
-    std::vector<int>::const_iterator pu0 = bunchCrossing.end();
+    auto pu0 = bunchCrossing.end();
 
     for (pu = bunchCrossing.begin(); pu != bunchCrossing.end(); ++pu) {
       if (*pu == 0) {
@@ -1374,7 +1374,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
   // Assign signals to readout channels and store sorted by channel number
 
   // Iterate over collection points on the collection plane
-  for (std::vector<SignalPoint>::const_iterator i = collection_points.begin(); i != collection_points.end(); ++i) {
+  for (auto i = collection_points.begin(); i != collection_points.end(); ++i) {
     float CloudCenterX = i->position().x();  // Charge position in x
     float CloudCenterY = i->position().y();  //                 in y
     float SigmaX = i->sigma_x();             // Charge spread in x
@@ -1540,7 +1540,7 @@ void SiPixelDigitizerAlgorithm::induce_signal(std::vector<PSimHit>::const_iterat
     }
   }
   if (!reweighted) {
-    for (hit_map_type::const_iterator im = hit_signal.begin(); im != hit_signal.end(); ++im) {
+    for (auto im = hit_signal.begin(); im != hit_signal.end(); ++im) {
       int chan = (*im).first;
       theSignal[chan] += (makeDigiSimLinks_ ? Amplitude((*im).second, &hit, hitIndex, tofBin, (*im).second)
                                             : Amplitude((*im).second, (*im).second));
@@ -1575,7 +1575,7 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
 
   // Loop over hit pixels
 
-  signalMaps::const_iterator it = _signal.find(detID);
+  auto it = _signal.find(detID);
   if (it == _signal.end()) {
     return;
   }
@@ -1586,7 +1586,7 @@ void SiPixelDigitizerAlgorithm::make_digis(float thePixelThresholdInE,
   using TrackEventId = std::pair<decltype(SimTrack().trackId()), decltype(EncodedEventId().rawId())>;
   std::map<TrackEventId, float> simi;  // re-used
 
-  for (signal_map_const_iterator i = theSignal.begin(); i != theSignal.end(); ++i) {
+  for (auto i = theSignal.begin(); i != theSignal.end(); ++i) {
     float signalInElectrons = (*i).second;  // signal in electrons
 
     // Do the miss calibration for calibration studies only.
@@ -1666,7 +1666,7 @@ void SiPixelDigitizerAlgorithm::add_noise(const PixelGeomDetUnit* pixdet,
   // First add noise to hit pixels
   float theSmearedChargeRMS = 0.0;
 
-  for (signal_map_iterator i = theSignal.begin(); i != theSignal.end(); i++) {
+  for (auto i = theSignal.begin(); i != theSignal.end(); i++) {
     if (addChargeVCALSmearing) {
       if ((*i).second < 3000) {
         theSmearedChargeRMS = 543.6 - (*i).second * 0.093;
@@ -1892,7 +1892,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
 
   // Find out the number of columns and rocs hits
   // Loop over hit pixels, amplitude in electrons, channel = coded row,col
-  for (signal_map_const_iterator i = theSignal.begin(); i != theSignal.end(); ++i) {
+  for (auto i = theSignal.begin(); i != theSignal.end(); ++i) {
     int chan = i->first;
     std::pair<int, int> ip = PixelDigi::channelToPixel(chan);
     int row = ip.first;   // X in row
@@ -1946,7 +1946,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency(const PixelEfficiencies& eff,
 
   // Now loop again over pixels to kill some of them.
   // Loop over hit pixels, amplitude in electrons, channel = coded row,col
-  for (signal_map_iterator i = theSignal.begin(); i != theSignal.end(); ++i) {
+  for (auto i = theSignal.begin(); i != theSignal.end(); ++i) {
     //    int chan = i->first;
     std::pair<int, int> ip = PixelDigi::channelToPixel(i->first);  //get pixel pos
     int row = ip.first;                                            // X in row
@@ -2200,7 +2200,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency_db(uint32_t detID) {
   signal_map_type& theSignal = _signal[detID];
 
   // Loop over hit pixels, amplitude in electrons, channel = coded row,col
-  for (signal_map_iterator i = theSignal.begin(); i != theSignal.end(); ++i) {
+  for (auto i = theSignal.begin(); i != theSignal.end(); ++i) {
     //    int chan = i->first;
     std::pair<int, int> ip = PixelDigi::channelToPixel(i->first);  //get pixel pos
     int row = ip.first;                                            // X in row
@@ -2219,7 +2219,7 @@ void SiPixelDigitizerAlgorithm::pixel_inefficiency_db(uint32_t detID) {
 void SiPixelDigitizerAlgorithm::module_killing_conf(uint32_t detID) {
   bool isbad = false;
 
-  Parameters::const_iterator itDeadModules = DeadModules.begin();
+  auto itDeadModules = DeadModules.begin();
 
   int detid = detID;
   for (; itDeadModules != DeadModules.end(); ++itDeadModules) {
@@ -2238,12 +2238,12 @@ void SiPixelDigitizerAlgorithm::module_killing_conf(uint32_t detID) {
   std::string Module = itDeadModules->getParameter<std::string>("Module");
 
   if (Module == "whole") {
-    for (signal_map_iterator i = theSignal.begin(); i != theSignal.end(); ++i) {
+    for (auto i = theSignal.begin(); i != theSignal.end(); ++i) {
       i->second.set(0.);  // reset amplitude
     }
   }
 
-  for (signal_map_iterator i = theSignal.begin(); i != theSignal.end(); ++i) {
+  for (auto i = theSignal.begin(); i != theSignal.end(); ++i) {
     std::pair<int, int> ip = PixelDigi::channelToPixel(i->first);  //get pixel pos
 
     if (Module == "tbmA" && ip.first >= 80 && ip.first <= 159) {
@@ -2281,7 +2281,7 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
   //std::cout<<"Hit in: "<< detID <<" errorType "<< badmodule.errorType<<" BadRocs="<<std::hex<<SiPixelBadModule_->getBadRocs(detID)<<dec<<" "<<std::endl;
   if (badmodule.errorType == 0) {  // this is a whole dead module.
 
-    for (signal_map_iterator i = theSignal.begin(); i != theSignal.end(); ++i) {
+    for (auto i = theSignal.begin(); i != theSignal.end(); ++i) {
       i->second.set(0.);  // reset amplitude
     }
   } else {  // all other module types: half-modules and single ROCs.
@@ -2292,7 +2292,7 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
       if (SiPixelBadModule_->IsRocBad(detID, j) == true) {
         std::vector<CablingPathToDetUnit> path = map_.product()->pathToDetUnit(detID);
         typedef std::vector<CablingPathToDetUnit>::const_iterator IT;
-        for (IT it = path.begin(); it != path.end(); ++it) {
+        for (auto it = path.begin(); it != path.end(); ++it) {
           const PixelROC* myroc = map_.product()->findItem(*it);
           if (myroc->idInDetUnit() == j) {
             LocalPixel::RocRowCol local = {39, 25};  //corresponding to center of ROC row, col
@@ -2304,10 +2304,10 @@ void SiPixelDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
       }
     }  // end of getBadRocPositions
 
-    for (signal_map_iterator i = theSignal.begin(); i != theSignal.end(); ++i) {
+    for (auto i = theSignal.begin(); i != theSignal.end(); ++i) {
       std::pair<int, int> ip = PixelDigi::channelToPixel(i->first);  //get pixel pos
 
-      for (std::vector<GlobalPixel>::const_iterator it = badrocpositions.begin(); it != badrocpositions.end(); ++it) {
+      for (auto it = badrocpositions.begin(); it != badrocpositions.end(); ++it) {
         if (it->row >= 80 && ip.first >= 80) {
           if ((std::abs(ip.second - it->col) < 26)) {
             i->second.set(0.);
@@ -2348,7 +2348,7 @@ bool SiPixelDigitizerAlgorithm::hitSignalReweight(const PSimHit& hit,
   signal_map_type hitSignal;
   LocalVector direction = hit.exitPoint() - hit.entryPoint();
 
-  for (std::map<int, float, std::less<int> >::const_iterator im = hit_signal.begin(); im != hit_signal.end(); ++im) {
+  for (auto im = hit_signal.begin(); im != hit_signal.end(); ++im) {
     int chan = (*im).first;
     std::pair<int, int> pixelWithCharge = PixelDigi::channelToPixel(chan);
     //std::cout << "PixelHit - x: " << pixelWithCharge.first << " y: " << pixelWithCharge.second << "  With Charge:  " << (*im).second <<  std::endl;

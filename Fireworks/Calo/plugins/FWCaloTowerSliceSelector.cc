@@ -29,7 +29,7 @@ void FWCaloTowerSliceSelector::getItemEntryEtaPhi(int itemIdx, float& eta, float
   const CaloTowerCollection* towers = nullptr;
   m_item->get(towers);
   assert(nullptr != towers);
-  CaloTowerCollection::const_iterator tower = towers->begin();
+  auto tower = towers->begin();
   std::advance(tower, itemIdx);
 
   eta = tower->eta();

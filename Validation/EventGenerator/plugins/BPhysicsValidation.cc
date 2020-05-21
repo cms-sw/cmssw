@@ -38,7 +38,7 @@ void BPhysicsValidation::bookHistograms(DQMStore::IBooker& i, edm::Run const&, e
 void BPhysicsValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<reco::GenParticleCollection> genParticles;
   iEvent.getByToken(genparticleCollectionToken_, genParticles);
-  for (reco::GenParticleCollection::const_iterator iter = genParticles->begin(); iter != genParticles->end(); ++iter) {
+  for (auto iter = genParticles->begin(); iter != genParticles->end(); ++iter) {
     if (abs(iter->pdgId()) == abs(particle.PDGID())) {
       Nobj->Fill(0.5, 1.0);
       particle.Fill(&(*iter), 1.0);
@@ -50,7 +50,7 @@ void BPhysicsValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 void BPhysicsValidation::FillDaughters(const reco::GenParticle* p) {
   int mpdgid = p->pdgId();
   for (unsigned int i = 0; i < p->numberOfDaughters(); i++) {
-    const reco::GenParticle* dau = static_cast<const reco::GenParticle*>(p->daughter(i));
+    const auto* dau = static_cast<const reco::GenParticle*>(p->daughter(i));
     int pdgid = dau->pdgId();
     for (unsigned int i = 0; i < daughters.size(); i++) {
       if (abs(mpdgid) != abs(daughters[i].PDGID()) && daughters[i].PDGID() == pdgid)

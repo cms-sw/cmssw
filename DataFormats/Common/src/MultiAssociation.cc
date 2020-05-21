@@ -8,7 +8,7 @@ using edm::helper::IndexRangeAssociation;
 
 IndexRangeAssociation::range IndexRangeAssociation::get(const ProductID &id, unsigned int key) const {
   typedef IndexRangeAssociation::id_offset_vector::const_iterator iter;
-  iter pos = std::lower_bound(id_offsets_.begin(), id_offsets_.end(), id, IDComparator());
+  auto pos = std::lower_bound(id_offsets_.begin(), id_offsets_.end(), id, IDComparator());
   if ((pos == id_offsets_.end()) || (pos->first != id)) {
     throw cms::Exception("Bad Key") << "Product ID " << id << " not found in this IndexRangeAssociation\n";
   }
@@ -18,7 +18,7 @@ IndexRangeAssociation::range IndexRangeAssociation::get(const ProductID &id, uns
                                        << " of this key collection within IndexRangeAssociation\n";
   }
   // === End check
-  offset_vector::const_iterator offs = ref_offsets_.begin() + pos->second + key;
+  auto offs = ref_offsets_.begin() + pos->second + key;
   if (offs >= ref_offsets_.end() - 1) {
     throw cms::Exception("Bad Offset") << "Key " << key << " goes beyond bounds " << ref_offsets_.size() - 1
                                        << " of this IndexRangeAssociation\n";
@@ -28,7 +28,7 @@ IndexRangeAssociation::range IndexRangeAssociation::get(const ProductID &id, uns
 
 bool IndexRangeAssociation::contains(ProductID id) const {
   typedef IndexRangeAssociation::id_offset_vector::const_iterator iter;
-  iter pos = std::lower_bound(id_offsets_.begin(), id_offsets_.end(), id, IDComparator());
+  auto pos = std::lower_bound(id_offsets_.begin(), id_offsets_.end(), id, IDComparator());
   return (pos != id_offsets_.end()) && (pos->first == id);
 }
 
@@ -51,7 +51,7 @@ IndexRangeAssociation::FastFiller::FastFiller(IndexRangeAssociation &assoc, Prod
 
   // Look if the key is there, or find the right place to insert it
   typedef IndexRangeAssociation::id_offset_vector::iterator iter;
-  iter pos =
+  auto pos =
       std::lower_bound(assoc_.id_offsets_.begin(), assoc_.id_offsets_.end(), id, IndexRangeAssociation::IDComparator());
 
   // Check for duplicate ProductID
@@ -76,8 +76,8 @@ IndexRangeAssociation::FastFiller::~FastFiller() {
   typedef IndexRangeAssociation::offset_vector::iterator IT;
   //std::cout << "Fixupping [" << start_ << ", " << end_ << "]" << std::endl;
   //for(IT i = assoc_.ref_offsets_.begin() + start_; i <= assoc_.ref_offsets_.begin() + end_; ++i) { std::cout << "  - " << *i << std::endl; }
-  IT top = assoc_.ref_offsets_.begin() + start_;
-  IT it = assoc_.ref_offsets_.begin() + end_;
+  auto top = assoc_.ref_offsets_.begin() + start_;
+  auto it = assoc_.ref_offsets_.begin() + end_;
   int offset = *it;
   for (--it; it >= top; --it) {
     if (*it == -1) {

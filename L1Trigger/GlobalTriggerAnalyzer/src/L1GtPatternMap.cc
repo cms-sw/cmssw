@@ -29,7 +29,7 @@ L1GtPatternMap::LineMap::iterator L1GtPatternMap::begin() { return m_lines.begin
 L1GtPatternMap::LineMap::iterator L1GtPatternMap::end() { return m_lines.end(); }
 
 void L1GtPatternMap::print(std::ostream& out) const {
-  for (LineMap::const_iterator it = m_lines.begin(); it != m_lines.end(); ++it) {
+  for (auto it = m_lines.begin(); it != m_lines.end(); ++it) {
     out << "Event no: " << it->first.first << std::endl
         << "Bx no   : " << it->first.second << std::endl
         << "Patterns: ";

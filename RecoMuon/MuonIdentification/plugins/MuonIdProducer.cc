@@ -1021,7 +1021,7 @@ void MuonIdProducer::arbitrateMuons(reco::MuonCollection* muons, reco::CaloMuonC
   reco::Muon::ArbitrationType arbitration = reco::Muon::SegmentAndTrackArbitration;
   // arbitrate TrackerMuons
   // if a muon was exclusively TrackerMuon check if it can be a calo muon
-  for (reco::MuonCollection::iterator muon = muons->begin(); muon != muons->end();) {
+  for (auto muon = muons->begin(); muon != muons->end();) {
     if (muon->isTrackerMuon()) {
       if (muon->numberOfMatches(arbitration) < minNumberOfMatches_) {
         // TrackerMuon failed arbitration

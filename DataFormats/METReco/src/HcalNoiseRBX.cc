@@ -23,9 +23,9 @@ int HcalNoiseRBX::idnumber(void) const { return idnumber_; }
 const std::vector<HcalNoiseHPD> HcalNoiseRBX::HPDs(void) const { return hpds_; }
 
 std::vector<HcalNoiseHPD>::const_iterator HcalNoiseRBX::maxHPD(double threshold) const {
-  std::vector<HcalNoiseHPD>::const_iterator maxit = hpds_.end();
+  auto maxit = hpds_.end();
   double maxenergy = -99999999.;
-  for (std::vector<HcalNoiseHPD>::const_iterator it = hpds_.begin(); it != hpds_.end(); ++it) {
+  for (auto it = hpds_.begin(); it != hpds_.end(); ++it) {
     double tempenergy = it->recHitEnergy();
     if (tempenergy > maxenergy) {
       maxenergy = tempenergy;
@@ -125,7 +125,7 @@ double HcalNoiseRBX::caloTowerHadE(void) const {
   double h = 0;
   towerset_t twrs;
   uniqueTowers(twrs);
-  for (towerset_t::const_iterator it = twrs.begin(); it != twrs.end(); ++it) {
+  for (auto it = twrs.begin(); it != twrs.end(); ++it) {
     h += it->hadEnergy();
   }
   return h;
@@ -135,7 +135,7 @@ double HcalNoiseRBX::caloTowerEmE(void) const {
   double e = 0;
   towerset_t twrs;
   uniqueTowers(twrs);
-  for (towerset_t::const_iterator it = twrs.begin(); it != twrs.end(); ++it) {
+  for (auto it = twrs.begin(); it != twrs.end(); ++it) {
     e += it->emEnergy();
   }
   return e;
@@ -145,7 +145,7 @@ double HcalNoiseRBX::caloTowerTotalE(void) const {
   double e = 0;
   towerset_t twrs;
   uniqueTowers(twrs);
-  for (towerset_t::const_iterator it = twrs.begin(); it != twrs.end(); ++it) {
+  for (auto it = twrs.begin(); it != twrs.end(); ++it) {
     e += it->hadEnergy() + it->emEnergy();
   }
   return e;
@@ -155,7 +155,7 @@ double HcalNoiseRBX::caloTowerEmFraction(void) const {
   double e = 0, h = 0;
   towerset_t twrs;
   uniqueTowers(twrs);
-  for (towerset_t::const_iterator it = twrs.begin(); it != twrs.end(); ++it) {
+  for (auto it = twrs.begin(); it != twrs.end(); ++it) {
     h += it->hadEnergy();
     e += it->emEnergy();
   }
@@ -164,7 +164,7 @@ double HcalNoiseRBX::caloTowerEmFraction(void) const {
 
 void HcalNoiseRBX::uniqueTowers(towerset_t& twrs_) const {
   twrs_.clear();
-  for (std::vector<HcalNoiseHPD>::const_iterator it1 = hpds_.begin(); it1 != hpds_.end(); ++it1) {
+  for (auto it1 = hpds_.begin(); it1 != hpds_.end(); ++it1) {
     edm::RefVector<CaloTowerCollection> twrsref = it1->caloTowers();
     for (edm::RefVector<CaloTowerCollection>::const_iterator it2 = twrsref.begin(); it2 != twrsref.end(); ++it2) {
       CaloTower twr = **it2;

@@ -270,7 +270,7 @@ void HcalRaddamMuon::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   bspot = (bmspot.isValid()) ? bmspot->position() : math::XYZPoint(0, 0, 0);
 
   if (_Muon.isValid()) {
-    for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
+    for (auto RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
       muon_is_good.push_back(RecMuon->isPFMuon());
       muon_global.push_back(RecMuon->isGlobalMuon());
       muon_tracker.push_back(RecMuon->isTrackerMuon());

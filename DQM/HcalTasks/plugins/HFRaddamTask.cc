@@ -74,7 +74,7 @@ HFRaddamTask::HFRaddamTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
 /* virtual */ void HFRaddamTask::bookHistograms(DQMStore::IBooker& ib, edm::Run const& r, edm::EventSetup const& es) {
   //	Initialize all the Single Containers
-  for (std::vector<HcalDetId>::const_iterator it = _vDetIds.begin(); it != _vDetIds.end(); ++it) {
+  for (auto it = _vDetIds.begin(); it != _vDetIds.end(); ++it) {
     _vcShape.push_back(ContainerSingle1D(_name,
                                          "Shape",
                                          new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fTiming_TS),
@@ -94,7 +94,7 @@ HFRaddamTask::HFRaddamTask(edm::ParameterSet const& ps) : DQTask(ps) {
   if (!e.getByToken(_tokHF, chf))
     _logger.dqmthrow("Collection HFDigiCollection isn't avalaible" + _tagHF.label() + " " + _tagHF.instance());
 
-  for (HFDigiCollection::const_iterator it = chf->begin(); it != chf->end(); ++it) {
+  for (auto it = chf->begin(); it != chf->end(); ++it) {
     const HFDataFrame digi = (const HFDataFrame)(*it);
     for (unsigned int i = 0; i < _vDetIds.size(); i++)
       if (digi.id() == _vDetIds[i]) {

@@ -73,8 +73,7 @@ namespace {
     reco::TrackRef getLeadTrack(const reco::PFTau& tau) const { return tau.leadPFChargedHadrCand()->trackRef(); }
     double getTrackPtSum(const reco::PFTau& tau) const {
       double trackPtSum = 0.;
-      for (std::vector<CandidatePtr>::const_iterator signalTrack = tau.signalChargedHadrCands().begin();
-           signalTrack != tau.signalChargedHadrCands().end();
+      for (auto signalTrack = tau.signalChargedHadrCands().begin(); signalTrack != tau.signalChargedHadrCands().end();
            ++signalTrack) {
         trackPtSum += (*signalTrack)->pt();
       }
@@ -186,8 +185,7 @@ namespace {
                            double dR,
                            const GlobalPoint& eventVertexPosition) {
     double ecalEnergySum = 0.;
-    for (EcalRecHitCollection::const_iterator ecalRecHit = ecalRecHits.begin(); ecalRecHit != ecalRecHits.end();
-         ++ecalRecHit) {
+    for (auto ecalRecHit = ecalRecHits.begin(); ecalRecHit != ecalRecHits.end(); ++ecalRecHit) {
       auto cellGeometry = detGeometry->getGeometry(ecalRecHit->detid());
 
       if (!cellGeometry) {
@@ -231,8 +229,7 @@ namespace {
                            double dR,
                            const GlobalPoint& eventVertexPosition) {
     double hcalEnergySum = 0.;
-    for (HBHERecHitCollection::const_iterator hcalRecHit = hcalRecHits.begin(); hcalRecHit != hcalRecHits.end();
-         ++hcalRecHit) {
+    for (auto hcalRecHit = hcalRecHits.begin(); hcalRecHit != hcalRecHits.end(); ++hcalRecHit) {
       const GlobalPoint cellPosition = hcGeometry->getPosition(hcalRecHit->detid());
 
       //--- CV: speed up computation by requiring eta-phi distance

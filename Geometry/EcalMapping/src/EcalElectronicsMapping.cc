@@ -1138,7 +1138,7 @@ int EcalElectronicsMapping::getLMNumber(const DetId& id) const {
   if (subdet == EcalBarrel) {
     const EBDetId ebdetid = EBDetId(id);
     int dccid = DCCid(ebdetid);
-    std::map<int, int>::const_iterator it = LaserMonitoringMap_EB.find(dccid);
+    auto it = LaserMonitoringMap_EB.find(dccid);
     if (it != LaserMonitoringMap_EB.end()) {
       int ilm = it->second;
       int iETA = ebdetid.ietaSM();
@@ -1155,7 +1155,7 @@ int EcalElectronicsMapping::getLMNumber(const DetId& id) const {
     EcalElectronicsId elid = getElectronicsId(id);
     int dccid = elid.dccId();
     EEDetId eedetid = EEDetId(id);
-    std::map<int, int>::const_iterator it = LaserMonitoringMap_EE.find(dccid);
+    auto it = LaserMonitoringMap_EE.find(dccid);
     if (it != LaserMonitoringMap_EB.end()) {
       int ilm = it->second;
       if (dccid == 8) {

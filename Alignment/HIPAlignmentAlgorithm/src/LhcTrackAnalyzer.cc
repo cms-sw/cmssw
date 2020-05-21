@@ -98,8 +98,7 @@ void LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   iEvent.getByLabel(TrackCollectionTag_, trackCollectionHandle);
   Handle<VertexCollection> vertexCollectionHandle;
   iEvent.getByLabel(PVtxCollectionTag_, vertexCollectionHandle);
-  for (VertexCollection::const_iterator vtx = vertexCollectionHandle->begin(); vtx != vertexCollectionHandle->end();
-       ++vtx) {
+  for (auto vtx = vertexCollectionHandle->begin(); vtx != vertexCollectionHandle->end(); ++vtx) {
     if (vtx == vertexCollectionHandle->begin()) {
       if (vtx->isFake())
         goodvtx_ = false;
@@ -120,8 +119,7 @@ void LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     cout << "LhcTrackAnalyzer::analyze() looping over " << trackCollectionHandle->size() << "tracks." << endl;
 
   // unsigned int i = 0;
-  for (TrackCollection::const_iterator track = trackCollectionHandle->begin(); track != trackCollectionHandle->end();
-       ++track) {
+  for (auto track = trackCollectionHandle->begin(); track != trackCollectionHandle->end(); ++track) {
     if (nTracks_ >= nMaxtracks_) {
       std::cout << " LhcTrackAnalyzer::analyze() : Warning - Run " << run_ << " Event " << event_
                 << "\tNumber of tracks: " << trackCollectionHandle->size() << " , greater than " << nMaxtracks_

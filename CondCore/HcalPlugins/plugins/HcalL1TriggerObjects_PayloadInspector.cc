@@ -45,7 +45,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<HcalL1TriggerObjects> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        HcalL1TriggerObjectContainer* objContainer = new HcalL1TriggerObjectContainer(payload, std::get<0>(iov));
+        auto* objContainer = new HcalL1TriggerObjectContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasAll()->SaveAs(ImageName.c_str());
         return true;
@@ -72,8 +72,8 @@ namespace {
       std::shared_ptr<HcalL1TriggerObjects> payload2 = fetchPayload(std::get<1>(iov2));
 
       if (payload1.get() && payload2.get()) {
-        HcalL1TriggerObjectContainer* objContainer1 = new HcalL1TriggerObjectContainer(payload1, std::get<0>(iov1));
-        HcalL1TriggerObjectContainer* objContainer2 = new HcalL1TriggerObjectContainer(payload2, std::get<0>(iov2));
+        auto* objContainer1 = new HcalL1TriggerObjectContainer(payload1, std::get<0>(iov1));
+        auto* objContainer2 = new HcalL1TriggerObjectContainer(payload2, std::get<0>(iov2));
 
         objContainer2->Divide(objContainer1);
 
@@ -99,7 +99,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<HcalL1TriggerObjects> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        HcalL1TriggerObjectContainer* objContainer = new HcalL1TriggerObjectContainer(payload, std::get<0>(iov));
+        auto* objContainer = new HcalL1TriggerObjectContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
         return true;
@@ -126,8 +126,8 @@ namespace {
       std::shared_ptr<HcalL1TriggerObjects> payload2 = fetchPayload(std::get<1>(iov2));
 
       if (payload1.get() && payload2.get()) {
-        HcalL1TriggerObjectContainer* objContainer1 = new HcalL1TriggerObjectContainer(payload1, std::get<0>(iov1));
-        HcalL1TriggerObjectContainer* objContainer2 = new HcalL1TriggerObjectContainer(payload2, std::get<0>(iov2));
+        auto* objContainer1 = new HcalL1TriggerObjectContainer(payload1, std::get<0>(iov1));
+        auto* objContainer2 = new HcalL1TriggerObjectContainer(payload2, std::get<0>(iov2));
 
         objContainer2->Divide(objContainer1);
 
@@ -153,7 +153,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<HcalL1TriggerObjects> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        HcalL1TriggerObjectContainer* objContainer = new HcalL1TriggerObjectContainer(payload, std::get<0>(iov));
+        auto* objContainer = new HcalL1TriggerObjectContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
         return true;
@@ -180,8 +180,8 @@ namespace {
       std::shared_ptr<HcalL1TriggerObjects> payload2 = fetchPayload(std::get<1>(iov2));
 
       if (payload1.get() && payload2.get()) {
-        HcalL1TriggerObjectContainer* objContainer1 = new HcalL1TriggerObjectContainer(payload1, std::get<0>(iov1));
-        HcalL1TriggerObjectContainer* objContainer2 = new HcalL1TriggerObjectContainer(payload2, std::get<0>(iov2));
+        auto* objContainer1 = new HcalL1TriggerObjectContainer(payload1, std::get<0>(iov1));
+        auto* objContainer2 = new HcalL1TriggerObjectContainer(payload2, std::get<0>(iov2));
 
         objContainer2->Divide(objContainer1);
 

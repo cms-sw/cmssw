@@ -62,7 +62,7 @@ double TrackAndECALLinker::testLink(const reco::PFBlockElement* elem1, const rec
     const double ecaleta = ecalreppos.Eta();
 
     // Check if the link Track/Ecal exist
-    reco::PFMultilinksType::const_iterator mlit = multilinks.begin();
+    auto mlit = multilinks.begin();
     for (; mlit != multilinks.end(); ++mlit)
       if ((mlit->first == ecalphi) && (mlit->second == ecaleta))
         break;

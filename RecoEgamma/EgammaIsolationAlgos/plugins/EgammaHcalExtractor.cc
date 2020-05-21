@@ -53,7 +53,7 @@ reco::IsoDeposit EgammaHcalExtractor::deposit(const edm::Event& iEvent,
   CaloDualConeSelector<HBHERecHit> coneSel(intRadius_, extRadius_, caloGeom, DetId::Hcal);
 
   //Take the SC position
-  reco::SuperClusterRef sc = emObject.get<reco::SuperClusterRef>();
+  auto sc = emObject.get<reco::SuperClusterRef>();
   math::XYZPoint caloPosition = sc->position();
   GlobalPoint point(caloPosition.x(), caloPosition.y(), caloPosition.z());
   // needed: coneSel.select(eta,phi,hits) is not the same!

@@ -83,8 +83,8 @@ void DTTriggerEfficiencyTask::bookHistograms(DQMStore::IBooker& ibooker,
 
   nevents = 0;
   for (int wh = -2; wh <= 2; ++wh) {
-    vector<string>::const_iterator tagIt = processTags.begin();
-    vector<string>::const_iterator tagEnd = processTags.end();
+    auto tagIt = processTags.begin();
+    auto tagEnd = processTags.end();
     for (; tagIt != tagEnd; ++tagIt) {
       bookWheelHistos(ibooker, wh, (*tagIt), "Task");
       if (detailedPlots) {
@@ -113,8 +113,8 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
   e.getByToken(tm_Token_, l1DTTPGPh);
   vector<L1MuDTChambPhDigi> const* phTrigs = l1DTTPGPh->getContainer();
   //empty from dttfDigis, needs emulator working?
-  vector<L1MuDTChambPhDigi>::const_iterator iph = phTrigs->begin();
-  vector<L1MuDTChambPhDigi>::const_iterator iphe = phTrigs->end();
+  auto iph = phTrigs->begin();
+  auto iphe = phTrigs->end();
   for (; iph != iphe; ++iph) {
     int phwheel = iph->whNum();
     int phsec = iph->scNum() + 1;  // DTTF numbering [0:11] -> DT numbering [1:12]
@@ -199,8 +199,8 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
     map<string, MonitorElement*>& innerWhME = wheelHistos[wheel];
 
     if (fabs(xdir) < phiAccRange && nHitsPhi >= nMinHitsPhi) {
-      vector<string>::const_iterator tagIt = processTags.begin();
-      vector<string>::const_iterator tagEnd = processTags.end();
+      auto tagIt = processTags.begin();
+      auto tagEnd = processTags.end();
       for (; tagIt != tagEnd; ++tagIt) {
         int qual = phBestTM.find(dtChId) != phBestTM.end() ? phBestTM[dtChId]->code() : -1;
         innerWhME.find((*tagIt) + "_TrigEffDenum")->second->Fill(scsector, station);
@@ -229,12 +229,12 @@ bool DTTriggerEfficiencyTask::hasRPCTriggers(const edm::Event& e) {
   e.getByToken(gmt_Token_, gmtrc);
 
   std::vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
-  std::vector<L1MuGMTReadoutRecord>::const_iterator igmtrr = gmt_records.begin();
-  std::vector<L1MuGMTReadoutRecord>::const_iterator egmtrr = gmt_records.end();
+  auto igmtrr = gmt_records.begin();
+  auto egmtrr = gmt_records.end();
   for (; igmtrr != egmtrr; igmtrr++) {
     std::vector<L1MuGMTExtendedCand> candsGMT = igmtrr->getGMTCands();
-    std::vector<L1MuGMTExtendedCand>::const_iterator candGMTIt = candsGMT.begin();
-    std::vector<L1MuGMTExtendedCand>::const_iterator candGMTEnd = candsGMT.end();
+    auto candGMTIt = candsGMT.begin();
+    auto candGMTEnd = candsGMT.end();
 
     for (; candGMTIt != candGMTEnd; ++candGMTIt) {
       if (!candGMTIt->empty()) {

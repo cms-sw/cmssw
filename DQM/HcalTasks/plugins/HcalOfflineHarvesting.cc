@@ -97,7 +97,7 @@ HcalOfflineHarvesting::HcalOfflineHarvesting(edm::ParameterSet const& ps)
       _reportSummaryMap->setBinLabel(i + 1, name, 1);
     }
     //	y axis lables
-    for (std::map<std::string, int>::const_iterator it = datatiers.begin(); it != datatiers.end(); ++it) {
+    for (auto it = datatiers.begin(); it != datatiers.end(); ++it) {
       std::string name = it->first;
       int value = it->second;
       _reportSummaryMap->setBinLabel(value + 1, name, 2);

@@ -261,7 +261,7 @@ void SUSY_HLT_VBF_Mu::analyze(edm::Event const &e, edm::EventSetup const &eSetup
   // Matching the muon
   int indexOfMatchedMuon = -1;
   int offlineCounter = 0;
-  for (reco::MuonCollection::const_iterator muon = MuonCollection->begin(); muon != MuonCollection->end(); ++muon) {
+  for (auto muon = MuonCollection->begin(); muon != MuonCollection->end(); ++muon) {
     for (size_t off_i = 0; off_i < ptMuon.size(); ++off_i) {
       if (reco::deltaR(muon->eta(), muon->phi(), etaMuon[off_i], phiMuon[off_i]) < 0.5) {
         indexOfMatchedMuon = offlineCounter;
@@ -273,8 +273,7 @@ void SUSY_HLT_VBF_Mu::analyze(edm::Event const &e, edm::EventSetup const &eSetup
 
   float pfHT = 0.0;
 
-  for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end();
-       ++i_pfjet) {
+  for (auto i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end(); ++i_pfjet) {
     if (i_pfjet->pt() < ptThrJet_)
       continue;
     if (fabs(i_pfjet->eta()) > etaThrJet_)

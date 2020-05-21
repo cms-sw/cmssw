@@ -65,7 +65,7 @@ namespace sistrip {
 
   void MeasureLA::summarize_module_muH_byLayer(const LA_Filler_Fitter& laff) {
     for (int m = LA_Filler_Fitter::FIRST_METHOD; m <= LA_Filler_Fitter::LAST_METHOD; m <<= 1) {
-      const LA_Filler_Fitter::Method method = (LA_Filler_Fitter::Method)m;
+      const auto method = (LA_Filler_Fitter::Method)m;
       for (auto& result : LA_Filler_Fitter::module_results(book, method)) {
         calibrate(calibration_key(result.first, method), result.second);
         std::string label =
@@ -89,7 +89,7 @@ namespace sistrip {
     for (auto const& p : reports) {
       const GRANULARITY gran = (GRANULARITY)p.getParameter<int32_t>("Granularity");
       const std::string name = p.getParameter<std::string>("ReportName");
-      const LA_Filler_Fitter::Method method = (LA_Filler_Fitter::Method)p.getParameter<int32_t>("Method");
+      const auto method = (LA_Filler_Fitter::Method)p.getParameter<int32_t>("Method");
 
       write_report_plots(name, method, gran);
       switch (gran) {
@@ -153,7 +153,7 @@ namespace sistrip {
 
   void MeasureLA::store_calibrations() {
     for (auto const& p : calibrations) {
-      LA_Filler_Fitter::Method method = (LA_Filler_Fitter::Method)p.getParameter<int32_t>("Method");
+      auto method = (LA_Filler_Fitter::Method)p.getParameter<int32_t>("Method");
       std::vector<double> slopes(p.getParameter<std::vector<double> >("Slopes"));
       assert(slopes.size() == 14);
       std::vector<double> offsets(p.getParameter<std::vector<double> >("Offsets"));

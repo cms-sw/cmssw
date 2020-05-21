@@ -4,7 +4,7 @@
 SiPixelDynamicInefficiency::SiPixelDynamicInefficiency() { theInstLumiScaleFactor_ = -9999; }
 
 bool SiPixelDynamicInefficiency::putPixelGeomFactor(const uint32_t& detid, double& value) {
-  std::map<unsigned int, double>::const_iterator id = m_PixelGeomFactors.find(detid);
+  auto id = m_PixelGeomFactors.find(detid);
   if (id != m_PixelGeomFactors.end()) {
     edm::LogError("SiPixelDynamicInefficiency") << "SiPixelDynamicInefficiency PixelGeomFactor for DetID " << detid
                                                 << " is already stored. Skippig this put" << std::endl;
@@ -15,7 +15,7 @@ bool SiPixelDynamicInefficiency::putPixelGeomFactor(const uint32_t& detid, doubl
 }
 
 double SiPixelDynamicInefficiency::getPixelGeomFactor(const uint32_t& detid) const {
-  std::map<unsigned int, double>::const_iterator id = m_PixelGeomFactors.find(detid);
+  auto id = m_PixelGeomFactors.find(detid);
   if (id != m_PixelGeomFactors.end())
     return id->second;
   else {
@@ -26,7 +26,7 @@ double SiPixelDynamicInefficiency::getPixelGeomFactor(const uint32_t& detid) con
 }
 
 bool SiPixelDynamicInefficiency::putColGeomFactor(const uint32_t& detid, double& value) {
-  std::map<unsigned int, double>::const_iterator id = m_ColGeomFactors.find(detid);
+  auto id = m_ColGeomFactors.find(detid);
   if (id != m_ColGeomFactors.end()) {
     edm::LogError("SiPixelDynamicInefficiency") << "SiPixelDynamicInefficiency ColGeomFactor for DetID " << detid
                                                 << " is already stored. Skippig this put" << std::endl;
@@ -37,7 +37,7 @@ bool SiPixelDynamicInefficiency::putColGeomFactor(const uint32_t& detid, double&
 }
 
 double SiPixelDynamicInefficiency::getColGeomFactor(const uint32_t& detid) const {
-  std::map<unsigned int, double>::const_iterator id = m_ColGeomFactors.find(detid);
+  auto id = m_ColGeomFactors.find(detid);
   if (id != m_ColGeomFactors.end())
     return id->second;
   else {
@@ -48,7 +48,7 @@ double SiPixelDynamicInefficiency::getColGeomFactor(const uint32_t& detid) const
 }
 
 bool SiPixelDynamicInefficiency::putChipGeomFactor(const uint32_t& detid, double& value) {
-  std::map<unsigned int, double>::const_iterator id = m_ChipGeomFactors.find(detid);
+  auto id = m_ChipGeomFactors.find(detid);
   if (id != m_ChipGeomFactors.end()) {
     edm::LogError("SiPixelDynamicInefficiency") << "SiPixelDynamicInefficiency ChipGeomFactor for DetID " << detid
                                                 << " is already stored. Skippig this put" << std::endl;
@@ -59,7 +59,7 @@ bool SiPixelDynamicInefficiency::putChipGeomFactor(const uint32_t& detid, double
 }
 
 double SiPixelDynamicInefficiency::getChipGeomFactor(const uint32_t& detid) const {
-  std::map<unsigned int, double>::const_iterator id = m_ChipGeomFactors.find(detid);
+  auto id = m_ChipGeomFactors.find(detid);
   if (id != m_ChipGeomFactors.end())
     return id->second;
   else {
@@ -70,7 +70,7 @@ double SiPixelDynamicInefficiency::getChipGeomFactor(const uint32_t& detid) cons
 }
 
 bool SiPixelDynamicInefficiency::putPUFactor(const uint32_t& detid, std::vector<double>& v_value) {
-  std::map<unsigned int, std::vector<double> >::const_iterator id = m_PUFactors.find(detid);
+  auto id = m_PUFactors.find(detid);
   if (id != m_PUFactors.end()) {
     edm::LogError("SiPixelDynamicInefficiency") << "SiPixelDynamicInefficiency PUFactor for DetID " << detid
                                                 << " is already stored. Skippig this put" << std::endl;
@@ -81,7 +81,7 @@ bool SiPixelDynamicInefficiency::putPUFactor(const uint32_t& detid, std::vector<
 }
 
 std::vector<double> SiPixelDynamicInefficiency::getPUFactor(const uint32_t& detid) const {
-  std::map<unsigned int, std::vector<double> >::const_iterator id = m_PUFactors.find(detid);
+  auto id = m_PUFactors.find(detid);
   if (id != m_PUFactors.end())
     return id->second;
   else {

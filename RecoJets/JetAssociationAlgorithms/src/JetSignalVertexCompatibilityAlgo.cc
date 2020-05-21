@@ -47,7 +47,7 @@ double JetSignalVertexCompatibilityAlgo::trackVertexCompat(const Vertex &vtx, co
 }
 
 const TransientTrack &JetSignalVertexCompatibilityAlgo::convert(const TrackBaseRef &track) const {
-  TransientTrackMap::iterator pos = trackMap.lower_bound(track);
+  auto pos = trackMap.lower_bound(track);
   if (pos != trackMap.end() && pos->first == track)
     return pos->second;
 

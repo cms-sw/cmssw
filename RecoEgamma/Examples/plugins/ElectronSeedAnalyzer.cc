@@ -207,13 +207,13 @@ void ElectronSeedAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &i
   int is = 0;
 
   float mass = .000511;  // electron propagation
-  PropagatorWithMaterial *prop1stLayer = new PropagatorWithMaterial(oppositeToMomentum, mass, &(*theMagField));
-  PropagatorWithMaterial *prop2ndLayer = new PropagatorWithMaterial(alongMomentum, mass, &(*theMagField));
+  auto *prop1stLayer = new PropagatorWithMaterial(oppositeToMomentum, mass, &(*theMagField));
+  auto *prop2ndLayer = new PropagatorWithMaterial(alongMomentum, mass, &(*theMagField));
 
   float dphi1 = 0., dphi2 = 0., drz1 = 0., drz2 = 0.;
   float phi1 = 0., phi2 = 0., rz1 = 0., rz2 = 0.;
 
-  for (ElectronSeedCollection::const_iterator MyS = (*elSeeds).begin(); MyS != (*elSeeds).end(); ++MyS) {
+  for (auto MyS = (*elSeeds).begin(); MyS != (*elSeeds).end(); ++MyS) {
     LogDebug("") << "\nSeed nr " << is << ": ";
     range r = (*MyS).recHits();
     LogDebug("") << " Number of RecHits= " << (*MyS).nHits();
@@ -251,7 +251,7 @@ void ElectronSeedAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &i
     edm::RefToBase<CaloCluster> caloCluster = (*MyS).caloCluster();
     if (caloCluster.isNull())
       continue;
-    edm::Ref<SuperClusterCollection> theClus = caloCluster.castTo<SuperClusterRef>();
+    auto theClus = caloCluster.castTo<SuperClusterRef>();
     LogDebug("") << " ElectronSeed superCluster energy: " << theClus->energy() << ", position: " << theClus->position();
     LogDebug("") << " ElectronSeed outermost state Pt: " << t.globalMomentum().perp();
     LogDebug("") << " ElectronSeed supercluster Et: "
@@ -450,8 +450,7 @@ void ElectronSeedAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &i
 
           // find best matched seed
           reco::ElectronSeed bestElectronSeed;
-          for (ElectronSeedCollection::const_iterator gsfIter = (*elSeeds).begin(); gsfIter != (*elSeeds).end();
-               ++gsfIter) {
+          for (auto gsfIter = (*elSeeds).begin(); gsfIter != (*elSeeds).end(); ++gsfIter) {
             range r = gsfIter->recHits();
             const GeomDet *det = nullptr;
             for (TrackingRecHitCollection::const_iterator rhits = r.first; rhits != r.second; rhits++)
@@ -499,8 +498,7 @@ void ElectronSeedAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &i
           seedOkRatio = 999999.;
 
           // find best matched seed
-          for (ElectronSeedCollection::const_iterator gsfIter = (*elSeeds).begin(); gsfIter != (*elSeeds).end();
-               ++gsfIter) {
+          for (auto gsfIter = (*elSeeds).begin(); gsfIter != (*elSeeds).end(); ++gsfIter) {
             range r = gsfIter->recHits();
             const GeomDet *det = nullptr;
             for (TrackingRecHitCollection::const_iterator rhits = r.first; rhits != r.second; rhits++)
@@ -543,8 +541,7 @@ void ElectronSeedAnalyzer::analyze(const edm::Event &e, const edm::EventSetup &i
           seedOkRatio = 999999.;
 
           // find best matched seed
-          for (ElectronSeedCollection::const_iterator gsfIter = (*elSeeds).begin(); gsfIter != (*elSeeds).end();
-               ++gsfIter) {
+          for (auto gsfIter = (*elSeeds).begin(); gsfIter != (*elSeeds).end(); ++gsfIter) {
             range r = gsfIter->recHits();
             const GeomDet *det = nullptr;
             for (TrackingRecHitCollection::const_iterator rhits = r.first; rhits != r.second; rhits++)

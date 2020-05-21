@@ -79,7 +79,7 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(const std::vector<
   //making initial vector of parameters and initial particle-related covariance
   int nSt = 0;
   std::vector<KinematicState> inStates;
-  for (std::vector<RefCountedKinematicParticle>::const_iterator i = particles.begin(); i != particles.end(); i++) {
+  for (auto i = particles.begin(); i != particles.end(); i++) {
     KinematicState state = (*i)->stateAtPoint(linPoint);
     if (!state.isValid()) {
       LogDebug("KinematicConstrainedVertexFitter") << "State is invalid at point: " << linPoint << std::endl;
@@ -157,9 +157,7 @@ RefCountedKinematicTree KinematicConstrainedVertexFitter::fit(const std::vector<
         maxDelta = delta;
     }
 
-    for (std::vector<KinematicState>::const_iterator itold = lStates.begin(), itnew = newStates.begin();
-         itnew != newStates.end();
-         ++itold, ++itnew) {
+    for (auto itold = lStates.begin(), itnew = newStates.begin(); itnew != newStates.end(); ++itold, ++itnew) {
       for (int i = 0; i < 7; ++i) {
         double deltapar = itnew->kinematicParameters()(i) - itold->kinematicParameters()(i);
         double delta = deltapar * deltapar / itnew->kinematicParametersError().matrix()(i, i);

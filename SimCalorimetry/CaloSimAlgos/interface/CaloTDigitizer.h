@@ -74,7 +74,7 @@ public:
 
   void add(const std::vector<PCaloHit> &hits, int bunchCrossing, CLHEP::HepRandomEngine *engine) {
     if (theHitResponse->withinBunchRange(bunchCrossing)) {
-      for (std::vector<PCaloHit>::const_iterator it = hits.begin(), itEnd = hits.end(); it != itEnd; ++it) {
+      for (auto it = hits.begin(), itEnd = hits.end(); it != itEnd; ++it) {
         theHitResponse->add(*it, engine);
       }
     }
@@ -108,7 +108,7 @@ public:
     }
 
     // make a raw digi for evey cell
-    for (std::vector<DetId>::const_iterator idItr = theDetIds->begin(); idItr != theDetIds->end(); ++idItr) {
+    for (auto idItr = theDetIds->begin(); idItr != theDetIds->end(); ++idItr) {
       CaloSamples *analogSignal = theHitResponse->findSignal(*idItr);
       if (analogSignal && debugCS_)
         csColl_.push_back(*analogSignal);
@@ -136,9 +136,7 @@ public:
     // noise signals need to be in units of photoelectrons.  Fractional is OK
     theNoiseSignalGenerator->fillEvent(engine);
     theNoiseSignalGenerator->getNoiseSignals(noiseSignals);
-    for (std::vector<CaloSamples>::const_iterator signalItr = noiseSignals.begin(), signalEnd = noiseSignals.end();
-         signalItr != signalEnd;
-         ++signalItr) {
+    for (auto signalItr = noiseSignals.begin(), signalEnd = noiseSignals.end(); signalItr != signalEnd; ++signalItr) {
       theHitResponse->add(*signalItr);
     }
   }

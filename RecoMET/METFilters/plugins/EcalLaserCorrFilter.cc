@@ -75,7 +75,7 @@ bool EcalLaserCorrFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::E
   bool goodCalib = true;
 
   // check EE RecHits
-  for (EcalRecHitCollection::const_iterator eerh = eeRHs->begin(); eerh != eeRHs->end(); ++eerh) {
+  for (auto eerh = eeRHs->begin(); eerh != eeRHs->end(); ++eerh) {
     EcalRecHit hit = (*eerh);
     EEDetId eeDet = hit.id();
     double energy = eerh->energy();
@@ -101,7 +101,7 @@ bool EcalLaserCorrFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::E
   }
 
   // check EB RecHits
-  for (EcalRecHitCollection::const_iterator ebrh = ebRHs->begin(); ebrh != ebRHs->end(); ++ebrh) {
+  for (auto ebrh = ebRHs->begin(); ebrh != ebRHs->end(); ++ebrh) {
     EcalRecHit hit = (*ebrh);
     EBDetId ebDet = hit.id();
     double energy = ebrh->energy();

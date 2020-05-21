@@ -91,7 +91,7 @@ double EcalDeadChannelRecoveryBDTG<EBDetId>::recover(
         isCrack = true;
     }
     if (!cell.null()) {
-      EcalRecHitCollection::const_iterator goS_it = hit_collection.find(cell);
+      auto goS_it = hit_collection.find(cell);
       if (goS_it != hit_collection.end() && cell != id) {
         if (goS_it->energy() < single8Cut) {
           *acceptFlag = false;

@@ -31,7 +31,7 @@ TrajectoryAtInvalidHit::TrajectoryAtInvalidHit(const TrajectoryMeasurement& tm,
   }
   theHit = tm.recHit();
   iidd = theHit->geographicalId().rawId();
-  StripSubdetector strip = StripSubdetector(iidd);
+  auto strip = StripSubdetector(iidd);
   unsigned int subid = strip.subdetId();
   // xB and yB are for absolute borders on the trajectories included in the study, sigmaX sigmaY are
   // significance cuts on the distance from the detector surface
@@ -158,7 +158,7 @@ bool TrajectoryAtInvalidHit::withinAcceptance() const { return acceptance; }
 bool TrajectoryAtInvalidHit::validHit() const { return hasValidHit; }
 
 bool TrajectoryAtInvalidHit::isDoubleSided(unsigned int iidd, const TrackerTopology* tTopo) const {
-  StripSubdetector strip = StripSubdetector(iidd);
+  auto strip = StripSubdetector(iidd);
   unsigned int subid = strip.subdetId();
   unsigned int layer = 0;
   if (subid == StripSubdetector::TIB) {

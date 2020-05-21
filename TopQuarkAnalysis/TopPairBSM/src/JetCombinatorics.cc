@@ -324,7 +324,7 @@ void JetCombinatorics::FourJetsCombinations(const std::vector<TLorentzVector>& j
 Combo JetCombinatorics::GetCombination(int n) {
   int j = 0;
   Combo a;
-  for (std::map<Combo, int, minChi2>::const_iterator ite = allCombos_.begin(); ite != allCombos_.end(); ++ite) {
+  for (auto ite = allCombos_.begin(); ite != allCombos_.end(); ++ite) {
     if (j == n)
       a = ite->first;
     j++;
@@ -336,8 +336,7 @@ Combo JetCombinatorics::GetCombination(int n) {
 Combo JetCombinatorics::GetCombinationSumEt(int n) {
   int j = 0;
   Combo a;
-  for (std::map<Combo, int, maxSumEt>::const_iterator ite = allCombosSumEt_.begin(); ite != allCombosSumEt_.end();
-       ++ite) {
+  for (auto ite = allCombosSumEt_.begin(); ite != allCombosSumEt_.end(); ++ite) {
     if (j == n)
       a = ite->first;
     j++;

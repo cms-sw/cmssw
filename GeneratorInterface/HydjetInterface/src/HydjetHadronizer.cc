@@ -157,13 +157,13 @@ HepMC::GenParticle* HydjetHadronizer::build_hyjet(int index, int barcode) {
   double x = x0 * cosphi0_ - y0 * sinphi0_;
   double y = y0 * cosphi0_ + x0 * sinphi0_;
 
-  HepMC::GenParticle* p = new HepMC::GenParticle(HepMC::FourVector(x,                      // px
-                                                                   y,                      // py
-                                                                   hyjets.phj[2][index],   // pz
-                                                                   hyjets.phj[3][index]),  // E
-                                                 hyjets.khj[1][index],                     // id
-                                                 convertStatus(hyjets.khj[0][index]        // status
-                                                               ));
+  auto* p = new HepMC::GenParticle(HepMC::FourVector(x,                      // px
+                                                     y,                      // py
+                                                     hyjets.phj[2][index],   // pz
+                                                     hyjets.phj[3][index]),  // E
+                                   hyjets.khj[1][index],                     // id
+                                   convertStatus(hyjets.khj[0][index]        // status
+                                                 ));
 
   p->suggest_barcode(barcode);
   return p;
@@ -180,7 +180,7 @@ HepMC::GenVertex* HydjetHadronizer::build_hyjet_vertex(int i, int id) {
   double z = hyjets.vhj[2][i];
   double t = hyjets.vhj[4][i];
 
-  HepMC::GenVertex* vertex = new HepMC::GenVertex(HepMC::FourVector(x, y, z, t), id);
+  auto* vertex = new HepMC::GenVertex(HepMC::FourVector(x, y, z, t), id);
   return vertex;
 }
 

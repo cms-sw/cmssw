@@ -134,7 +134,7 @@ void ProduceIsolationMap::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   std::vector<HSCPIsolation> IsolationInfoColl(tkTracks->size());
 
   int TkIndex = 0;
-  for (TrackCollection::const_iterator itTrack = tkTracks->begin(); itTrack != tkTracks->end(); ++itTrack, TkIndex++) {
+  for (auto itTrack = tkTracks->begin(); itTrack != tkTracks->end(); ++itTrack, TkIndex++) {
     TrackDetMatchInfo info =
         trackAssociator_.associate(iEvent, iSetup, *itTrack, parameters_, TrackDetectorAssociator::InsideOut);
 
@@ -150,7 +150,7 @@ void ProduceIsolationMap::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     double SumPt = 0;
     double Count = 0;
     double CountHighPt = 0;
-    for (TrackCollection::const_iterator itTrack2 = TKHandle->begin(); itTrack2 != TKHandle->end(); ++itTrack2) {
+    for (auto itTrack2 = TKHandle->begin(); itTrack2 != TKHandle->end(); ++itTrack2) {
       if (fabs(itTrack->pt() - itTrack2->pt()) < 0.1 && fabs(itTrack->eta() - itTrack2->eta()) < 0.05)
         continue;
       float dR = deltaR(itTrack->momentum(), itTrack2->momentum());

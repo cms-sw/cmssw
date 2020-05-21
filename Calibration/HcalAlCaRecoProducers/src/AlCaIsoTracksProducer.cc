@@ -406,8 +406,7 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& i
 
       if (!isotk->empty()) {
         int ntrin(0), ntrout(0);
-        for (reco::HcalIsolatedTrackCandidateCollection::const_iterator itr = isotk->begin(); itr != isotk->end();
-             ++itr) {
+        for (auto itr = isotk->begin(); itr != isotk->end(); ++itr) {
           if (itr->p() > pTrackLow_ && itr->p() < pTrackHigh_)
             ntrin++;
           else
@@ -422,24 +421,19 @@ void AlCaIsoTracksProducer::produce(edm::Event& iEvent, edm::EventSetup const& i
             selectEvent = true;
         }
         if (selectEvent) {
-          for (reco::HcalIsolatedTrackCandidateCollection::const_iterator itr = isotk->begin(); itr != isotk->end();
-               ++itr)
+          for (auto itr = isotk->begin(); itr != isotk->end(); ++itr)
             outputHcalIsoTrackColl->push_back(*itr);
 
-          for (reco::VertexCollection::const_iterator vtx = recVtxs->begin(); vtx != recVtxs->end(); ++vtx)
+          for (auto vtx = recVtxs->begin(); vtx != recVtxs->end(); ++vtx)
             outputVColl->push_back(*vtx);
 
-          for (edm::SortedCollection<EcalRecHit>::const_iterator ehit = barrelRecHitsHandle->begin();
-               ehit != barrelRecHitsHandle->end();
-               ++ehit)
+          for (auto ehit = barrelRecHitsHandle->begin(); ehit != barrelRecHitsHandle->end(); ++ehit)
             outputEBColl->push_back(*ehit);
 
-          for (edm::SortedCollection<EcalRecHit>::const_iterator ehit = endcapRecHitsHandle->begin();
-               ehit != endcapRecHitsHandle->end();
-               ++ehit)
+          for (auto ehit = endcapRecHitsHandle->begin(); ehit != endcapRecHitsHandle->end(); ++ehit)
             outputEEColl->push_back(*ehit);
 
-          for (std::vector<HBHERecHit>::const_iterator hhit = hbhe->begin(); hhit != hbhe->end(); ++hhit)
+          for (auto hhit = hbhe->begin(); hhit != hbhe->end(); ++hhit)
             outputHBHEColl->push_back(*hhit);
           ++nGood_;
         }
@@ -493,7 +487,7 @@ reco::HcalIsolatedTrackCandidateCollection* AlCaIsoTracksProducer::select(
     double ptL1,
     double etaL1,
     double phiL1) {
-  reco::HcalIsolatedTrackCandidateCollection* trackCollection = new reco::HcalIsolatedTrackCandidateCollection;
+  auto* trackCollection = new reco::HcalIsolatedTrackCandidateCollection;
   bool ok(false);
 
   // Find a good HLT trigger
@@ -563,8 +557,7 @@ reco::HcalIsolatedTrackCandidateCollection* AlCaIsoTracksProducer::select(
         newCandidate.SetEtaPhiHcal(
             (trkDetItr->pointHCAL).eta(), (trkDetItr->pointHCAL).phi(), detId.ieta(), detId.iphi());
         int indx(0);
-        for (reco::TrackCollection::const_iterator trkItr1 = trkCollection->begin(); trkItr1 != trkCollection->end();
-             ++trkItr1, ++indx) {
+        for (auto trkItr1 = trkCollection->begin(); trkItr1 != trkCollection->end(); ++trkItr1, ++indx) {
           const reco::Track* pTrack1 = &(*trkItr1);
           if (pTrack1 == pTrack) {
             reco::TrackRef tRef = reco::TrackRef(trkCollection, indx);

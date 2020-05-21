@@ -240,7 +240,7 @@ void PFCandConnector::analyseNuclearWPrim(PFCandidateCollection& pfCand,
   if (momentumPrim.E() < momentumSec.E()) {
     LogTrace("PFCandConnector|analyseNuclearWPrim")
         << "Size of 0 calo Energy secondary candidates" << candidatesWithoutCalo.size() << endl;
-    for (map<double, math::XYZTLorentzVectorD>::iterator iter = candidatesWithoutCalo.begin();
+    for (auto iter = candidatesWithoutCalo.begin();
          iter != candidatesWithoutCalo.end() && momentumPrim.E() < momentumSec.E();
          iter++)
       if (momentumSec.E() > iter->second.E() + 0.1) {
@@ -257,7 +257,7 @@ void PFCandConnector::analyseNuclearWPrim(PFCandidateCollection& pfCand,
     LogTrace("PFCandConnector|analyseNuclearWPrim")
         << "0 Calo Energy rejected but still not sufficient. Size of not enough calo Energy secondary candidates"
         << candidatesWithTrackExcess.size() << endl;
-    for (map<double, math::XYZTLorentzVectorD>::iterator iter = candidatesWithTrackExcess.begin();
+    for (auto iter = candidatesWithTrackExcess.begin();
          iter != candidatesWithTrackExcess.end() && momentumPrim.E() < momentumSec.E();
          iter++)
       if (momentumSec.E() > iter->second.E() + 0.1)

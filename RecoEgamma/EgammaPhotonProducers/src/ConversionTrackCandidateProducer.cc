@@ -320,7 +320,7 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
       continue;
 
     const reco::CaloCluster* pClus = &(*aClus);
-    const reco::SuperCluster* sc = dynamic_cast<const reco::SuperCluster*>(pClus);
+    const auto* sc = dynamic_cast<const reco::SuperCluster*>(pClus);
     double scEt = sc->energy() / cosh(sc->eta());
     const CaloTowerCollection* hcalTowersColl = hcalTowersHandle.product();
     EgammaTowerIsolation towerIso(hOverEConeSize_, 0., 0., -1, hcalTowersColl);
@@ -366,12 +366,12 @@ void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
     //   std::cout  << "ConversionTrackCandidateProducer  theOutInTracks.size() " << theOutInTracks.size() << " theInOutTracks.size() " << theInOutTracks.size() <<  " Event pointer to out in track size barrel " << outInTrackCandidates.size() << " in out track size " << inOutTrackCandidates.size() <<   "\n";
 
     //////////// Fill vectors of Ref to SC to be used for the Track-SC association
-    for (std::vector<Trajectory>::const_iterator it = theOutInTracks.begin(); it != theOutInTracks.end(); ++it) {
+    for (auto it = theOutInTracks.begin(); it != theOutInTracks.end(); ++it) {
       caloPtrVecOutIn_.push_back(aClus);
       //     std::cout  << "ConversionTrackCandidateProducer Barrel OutIn Tracks Number of hits " << (*it).foundHits() << "\n";
     }
 
-    for (std::vector<Trajectory>::const_iterator it = theInOutTracks.begin(); it != theInOutTracks.end(); ++it) {
+    for (auto it = theInOutTracks.begin(); it != theInOutTracks.end(); ++it) {
       caloPtrVecInOut_.push_back(aClus);
       //     std::cout  << "ConversionTrackCandidateProducer Barrel InOut Tracks Number of hits " << (*it).foundHits() << "\n";
     }

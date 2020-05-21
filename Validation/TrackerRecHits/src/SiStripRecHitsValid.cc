@@ -210,7 +210,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     totrechitrphi += theDetSet.size();
 
     std::string label = hidmanager.getSubdetid(myid, tTopo, true);
-    std::map<std::string, LayerMEs>::iterator iLayerME = LayerMEsMap.find(label);
+    auto iLayerME = LayerMEsMap.find(label);
     std::pair<std::string, int32_t> det_lay_pair = fold_organ.GetSubDetAndLayer(myid, tTopo, true);
 
     totnumrechitrphi[det_lay_pair.first] = totnumrechitrphi[det_lay_pair.first] + theDetSet.size();
@@ -228,7 +228,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
         fillME(iLayerME->second.meResolxrphi, rechitpro.resolxx);
         fillME(iLayerME->second.meNsimHitrphi, rechitpro.NsimHit);
         if (rechitpro.NsimHit > 0) {
-          std::map<std::string, SubDetMEs>::iterator iSubDetME = SubDetMEsMap.find(det_lay_pair.first);
+          auto iSubDetME = SubDetMEsMap.find(det_lay_pair.first);
           fillME(iSubDetME->second.meBunchrphi, rechitpro.bunch);
           if (rechitpro.bunch == 0)
             fillME(iSubDetME->second.meEventrphi, rechitpro.event);
@@ -250,7 +250,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     totrechitstereo += theDetSet.size();
 
     std::string label = hidmanager.getSubdetid(myid, tTopo, true);
-    std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME = StereoAndMatchedMEsMap.find(label);
+    auto iStereoAndMatchedME = StereoAndMatchedMEsMap.find(label);
     std::pair<std::string, int32_t> det_lay_pair = fold_organ.GetSubDetAndLayer(myid, tTopo, true);
 
     totnumrechitstereo[det_lay_pair.first] = totnumrechitstereo[det_lay_pair.first] + theDetSet.size();
@@ -268,7 +268,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
         fillME(iStereoAndMatchedME->second.meResolxStereo, sqrt(rechitpro.resolxx));
         fillME(iStereoAndMatchedME->second.meNsimHitStereo, rechitpro.NsimHit);
         if (rechitpro.NsimHit > 0) {
-          std::map<std::string, SubDetMEs>::iterator iSubDetME = SubDetMEsMap.find(det_lay_pair.first);
+          auto iSubDetME = SubDetMEsMap.find(det_lay_pair.first);
           fillME(iSubDetME->second.meBunchStereo, rechitpro.bunch);
           if (rechitpro.bunch == 0)
             fillME(iSubDetME->second.meEventStereo, rechitpro.event);
@@ -290,7 +290,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     totrechitmatched += theDetSet.size();
 
     std::string label = hidmanager.getSubdetid(myid, tTopo, true);
-    std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME = StereoAndMatchedMEsMap.find(label);
+    auto iStereoAndMatchedME = StereoAndMatchedMEsMap.find(label);
     std::pair<std::string, int32_t> det_lay_pair = fold_organ.GetSubDetAndLayer(myid, tTopo, true);
 
     totnumrechitmatched[det_lay_pair.first] = totnumrechitmatched[det_lay_pair.first] + theDetSet.size();
@@ -307,7 +307,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
         fillME(iStereoAndMatchedME->second.meResolyMatched, sqrt(rechitpro.resolyy));
         fillME(iStereoAndMatchedME->second.meNsimHitMatched, rechitpro.NsimHit);
         if (rechitpro.NsimHit > 0) {
-          std::map<std::string, SubDetMEs>::iterator iSubDetME = SubDetMEsMap.find(det_lay_pair.first);
+          auto iSubDetME = SubDetMEsMap.find(det_lay_pair.first);
           fillME(iSubDetME->second.meBunchMatched, rechitpro.bunch);
           if (rechitpro.bunch == 0)
             fillME(iSubDetME->second.meEventMatched, rechitpro.event);
@@ -322,8 +322,8 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   }  //End of loops over detectors
 
   //now fill the cumulative histograms of the hits
-  for (std::vector<std::string>::iterator iSubdet = SubDetList_.begin(); iSubdet != SubDetList_.end(); ++iSubdet) {
-    std::map<std::string, SubDetMEs>::iterator iSubDetME = SubDetMEsMap.find((*iSubdet));
+  for (auto iSubdet = SubDetList_.begin(); iSubdet != SubDetList_.end(); ++iSubdet) {
+    auto iSubDetME = SubDetMEsMap.find((*iSubdet));
     fillME(iSubDetME->second.meNumrphi, totnumrechitrphi[(*iSubdet)]);
     fillME(iSubDetME->second.meNumStereo, totnumrechitstereo[(*iSubdet)]);
     fillME(iSubDetME->second.meNumMatched, totnumrechitmatched[(*iSubdet)]);
@@ -467,7 +467,7 @@ void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const re
   PSimHit const* closest = nullptr;
   std::pair<LocalPoint, LocalVector> closestPair;
 
-  const StripGeomDetUnit* partnerstripdet = static_cast<const StripGeomDetUnit*>(gluedDet->stereoDet());
+  const auto* partnerstripdet = static_cast<const StripGeomDetUnit*>(gluedDet->stereoDet());
   std::pair<LocalPoint, LocalVector> hitPair;
 
   for (auto const& m : matched) {

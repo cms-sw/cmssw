@@ -129,7 +129,7 @@ namespace cms {
       std::cout << "=======    CaloTowerPtr DONE   ==  " << std::endl;
     }
 
-    for (std::vector<CaloTowerPtr>::const_iterator icalot = calotwrs.begin(); icalot != calotwrs.end(); icalot++) {
+    for (auto icalot = calotwrs.begin(); icalot != calotwrs.end(); icalot++) {
       ncalotowers++;
 
       double deta = (*jet).eta() - (*icalot)->eta();

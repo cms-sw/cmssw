@@ -74,8 +74,8 @@ HLTDTActivityFilter::HLTDTActivityFilter(const edm::ParameterSet& iConfig) : HLT
 
   activeSecs_.reset();
   vector<int> aSectors = iConfig.getParameter<vector<int> >("activeSectors");
-  vector<int>::const_iterator iSec = aSectors.begin();
-  vector<int>::const_iterator eSec = aSectors.end();
+  auto iSec = aSectors.begin();
+  auto eSec = aSectors.end();
   for (; iSec != eSec; ++iSec)
     if ((*iSec) > 0 && (*iSec < 15))
       activeSecs_.set((*iSec));
@@ -213,13 +213,13 @@ bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent,
     iEvent.getByToken(inputRPCToken_, gmtrc);
 
     std::vector<L1MuGMTReadoutRecord> gmtrr = gmtrc->getRecords();
-    std::vector<L1MuGMTReadoutRecord>::const_iterator recIt = gmtrr.begin();
-    std::vector<L1MuGMTReadoutRecord>::const_iterator recEnd = gmtrr.end();
+    auto recIt = gmtrr.begin();
+    auto recEnd = gmtrr.end();
 
     for (; recIt != recEnd; ++recIt) {
       std::vector<L1MuRegionalCand> rpcCands = (*recIt).getBrlRPCCands();
-      std::vector<L1MuRegionalCand>::const_iterator candIt = rpcCands.begin();
-      std::vector<L1MuRegionalCand>::const_iterator candEnd = rpcCands.end();
+      auto candIt = rpcCands.begin();
+      auto candEnd = rpcCands.end();
 
       for (; candIt != candEnd; ++candIt) {
         if (candIt->empty())
@@ -238,8 +238,8 @@ bool HLTDTActivityFilter::hltFilter(edm::Event& iEvent,
   }
 
   int nActCh = 0;
-  activityMap::const_iterator actMapIt = actMap.begin();
-  activityMap::const_iterator actMapEnd = actMap.end();
+  auto actMapIt = actMap.begin();
+  auto actMapEnd = actMap.end();
 
   for (; actMapIt != actMapEnd; ++actMapIt)
     hasActivity((*actMapIt).second) && nActCh++;

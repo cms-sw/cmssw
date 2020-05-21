@@ -62,7 +62,7 @@ namespace ecaldqm {
     double maxE[2] = {-1., -1};
     int subdet(isBarrel ? EcalBarrel : EcalEndcap);
 
-    for (EcalRecHitCollection::const_iterator hitItr(_hits.begin()); hitItr != _hits.end(); ++hitItr) {
+    for (auto hitItr(_hits.begin()); hitItr != _hits.end(); ++hitItr) {
       meRecoFlag.fill(subdet, hitItr->recoFlag());
       float energy(hitItr->energy());
 
@@ -119,7 +119,7 @@ namespace ecaldqm {
 
     int subdet(_collections == kEBReducedRecHit ? EcalBarrel : EcalEndcap);
 
-    for (EcalRecHitCollection::const_iterator hitItr(_hits.begin()); hitItr != _hits.end(); ++hitItr)
+    for (auto hitItr(_hits.begin()); hitItr != _hits.end(); ++hitItr)
       meRecoFlag.fill(subdet, hitItr->recoFlag());
   }
 
@@ -145,7 +145,7 @@ namespace ecaldqm {
           continue;
         if (!isBarrel && haf[iH].first.subdetId() != EcalEndcap)
           continue;
-        EcalRecHitCollection::const_iterator hItr(hitCol->find(haf[iH].first));
+        auto hItr(hitCol->find(haf[iH].first));
         if (hItr == hitCol->end())
           continue;
         meRecoFlag.fill(subdet, hItr->recoFlag());

@@ -153,7 +153,7 @@ void SiPixelClusterProducer::run(const T& input,
   int numberOfClusters = 0;
 
   // Iterate on detector units
-  typename T::const_iterator DSViter = input.begin();
+  auto DSViter = input.begin();
   for (; DSViter != input.end(); DSViter++) {
     ++numberOfDetUnits;
 
@@ -169,7 +169,7 @@ void SiPixelClusterProducer::run(const T& input,
     // In the future the geometry service will be replaced with
     // a ES service.
     const GeomDetUnit* geoUnit = geom->idToDetUnit(detIdObject);
-    const PixelGeomDetUnit* pixDet = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
+    const auto* pixDet = dynamic_cast<const PixelGeomDetUnit*>(geoUnit);
     if (!pixDet) {
       // Fatal error!  TO DO: throw an exception!
       assert(0);

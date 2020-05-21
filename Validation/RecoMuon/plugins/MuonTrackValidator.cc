@@ -376,8 +376,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 
     // PileupSummaryInfo is contained only in collision events
     event.getByToken(pileupinfo_Token, puinfoH);
-    for (std::vector<PileupSummaryInfo>::const_iterator puInfoIt = puinfoH->begin(); puInfoIt != puinfoH->end();
-         ++puInfoIt) {
+    for (auto puInfoIt = puinfoH->begin(); puInfoIt != puinfoH->end(); ++puInfoIt) {
       if (puInfoIt->getBunchCrossing() == 0) {
         PU_NumInteractions = puInfoIt->getPU_NumInteractions();
         break;
@@ -482,7 +481,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
         double quality = 0.;
 
         TrackingParticleRef tpr(TPCollectionHeff, i);
-        TrackingParticle* tp = const_cast<TrackingParticle*>(tpr.get());
+        auto* tp = const_cast<TrackingParticle*>(tpr.get());
 
         TrackingParticle::Vector momentumTP;
         TrackingParticle::Point vertexTP;
@@ -775,7 +774,7 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
         }
 
         // Fill other histos
-        TrackingParticle* tpp = const_cast<TrackingParticle*>(tpr.get());
+        auto* tpp = const_cast<TrackingParticle*>(tpr.get());
         // TrackingParticle parameters at point of closest approach to the beamline
         TrackingParticle::Vector momentumTP;
         TrackingParticle::Point vertexTP;

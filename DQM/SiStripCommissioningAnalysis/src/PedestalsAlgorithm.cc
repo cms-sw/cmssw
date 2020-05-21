@@ -45,7 +45,7 @@ void PedestalsAlgorithm::extract(const std::vector<TH1*>& histos) {
   }
 
   // Extract histograms
-  std::vector<TH1*>::const_iterator ihis = histos.begin();
+  auto ihis = histos.begin();
   for (; ihis != histos.end(); ihis++) {
     // Check for NULL pointer
     if (!(*ihis)) {
@@ -63,14 +63,14 @@ void PedestalsAlgorithm::extract(const std::vector<TH1*>& histos) {
     if (title.extraInfo().find(sistrip::extrainfo::pedsAndRawNoise_) != std::string::npos) {
       hPeds_.first = *ihis;
       hPeds_.second = (*ihis)->GetName();
-      PedestalsAnalysis* a = dynamic_cast<PedestalsAnalysis*>(const_cast<CommissioningAnalysis*>(anal()));
+      auto* a = dynamic_cast<PedestalsAnalysis*>(const_cast<CommissioningAnalysis*>(anal()));
       if (a) {
         a->legacy_ = true;
       }
     } else if (title.extraInfo().find(sistrip::extrainfo::pedsAndCmSubNoise_) != std::string::npos) {
       hNoise_.first = *ihis;
       hNoise_.second = (*ihis)->GetName();
-      PedestalsAnalysis* a = dynamic_cast<PedestalsAnalysis*>(const_cast<CommissioningAnalysis*>(anal()));
+      auto* a = dynamic_cast<PedestalsAnalysis*>(const_cast<CommissioningAnalysis*>(anal()));
       if (a) {
         a->legacy_ = true;
       }
@@ -97,8 +97,8 @@ void PedestalsAlgorithm::analyse() {
     return;
   }
 
-  CommissioningAnalysis* tmp = const_cast<CommissioningAnalysis*>(anal());
-  PedestalsAnalysis* anal = dynamic_cast<PedestalsAnalysis*>(tmp);
+  auto* tmp = const_cast<CommissioningAnalysis*>(anal());
+  auto* anal = dynamic_cast<PedestalsAnalysis*>(tmp);
   if (!anal) {
     edm::LogWarning(mlCommissioning_) << "[PedestalsAlgorithm::" << __func__ << "]"
                                       << " NULL pointer to derived Analysis object!";

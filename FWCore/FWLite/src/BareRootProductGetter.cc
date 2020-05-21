@@ -103,7 +103,7 @@ edm::WrapperBase const* BareRootProductGetter::getIt(edm::ProductID const& pid) 
 
 edm::WrapperBase const* BareRootProductGetter::getIt(edm::BranchID const& branchID, Long_t eventEntry) const {
   Buffer* buffer = nullptr;
-  IdToBuffers::iterator itBuffer = idToBuffers_.find(branchID);
+  auto itBuffer = idToBuffers_.find(branchID);
 
   // std::cout << "Buffers" << std::endl;
   if (itBuffer == idToBuffers_.end()) {
@@ -131,7 +131,7 @@ edm::WrapperBase const* BareRootProductGetter::getIt(edm::BranchID const& branch
     void* address = buffer->class_->New();
 
     static TClass const* edproductTClass = TClass::GetClass(typeid(edm::WrapperBase));
-    edm::WrapperBase const* prod =
+    auto const* prod =
         static_cast<edm::WrapperBase const*>(buffer->class_->DynamicCast(edproductTClass, address, true));
 
     if (nullptr == prod) {
@@ -302,8 +302,7 @@ BareRootProductGetter::Buffer* BareRootProductGetter::createNewBuffer(edm::Branc
   void* address = rootClassType->New();
 
   static TClass const* edproductTClass = TClass::GetClass(typeid(edm::WrapperBase));
-  edm::WrapperBase const* prod =
-      static_cast<edm::WrapperBase const*>(rootClassType->DynamicCast(edproductTClass, address, true));
+  auto const* prod = static_cast<edm::WrapperBase const*>(rootClassType->DynamicCast(edproductTClass, address, true));
   if (nullptr == prod) {
     throw cms::Exception("FailedConversion") << "failed to convert a '" << fullName << "' to a edm::WrapperBase."
                                              << "Please contact developers since something is very wrong.";
@@ -333,8 +332,7 @@ edm::ThinnedAssociation const* BareRootProductGetter::getThinnedAssociation(edm:
     throw edm::Exception(edm::errors::LogicError)
         << "BareRootProductGetter::getThinnedAssociation, product has wrong type, not a ThinnedAssociation.\n";
   }
-  edm::Wrapper<edm::ThinnedAssociation> const* wrapper =
-      static_cast<edm::Wrapper<edm::ThinnedAssociation> const*>(wrapperBase);
+  auto const* wrapper = static_cast<edm::Wrapper<edm::ThinnedAssociation> const*>(wrapperBase);
 
   edm::ThinnedAssociation const* thinnedAssociation = wrapper->product();
   return thinnedAssociation;

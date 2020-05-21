@@ -21,7 +21,7 @@ void AlignPCLThresholds::setNRecords(const int &Nrecords) { m_nrecords = Nrecord
 
 //****************************************************************************//
 AlignPCLThreshold AlignPCLThresholds::getAlignPCLThreshold(const std::string &AlignableId) const {
-  threshold_map::const_iterator it = m_thresholds.find(AlignableId);
+  auto it = m_thresholds.find(AlignableId);
 
   if (it != m_thresholds.end()) {
     return it->second;

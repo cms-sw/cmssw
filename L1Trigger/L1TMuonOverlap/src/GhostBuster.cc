@@ -15,9 +15,9 @@ std::vector<AlgoMuon> GhostBuster::select(std::vector<AlgoMuon> refHitCands, int
   // where goodness definied in < operator of AlgoMuon
   std::sort(refHitCands.rbegin(), refHitCands.rend());
 
-  for (std::vector<AlgoMuon>::iterator it1 = refHitCands.begin(); it1 != refHitCands.end(); ++it1) {
+  for (auto it1 = refHitCands.begin(); it1 != refHitCands.end(); ++it1) {
     bool isGhost = false;
-    for (std::vector<AlgoMuon>::iterator it2 = refHitCleanCands.begin(); it2 != refHitCleanCands.end(); ++it2) {
+    for (auto it2 = refHitCleanCands.begin(); it2 != refHitCleanCands.end(); ++it2) {
       //do not accept candidates with similar phi (any charge combination)
       //veto window 5deg(=half of logic cone)=5/360*5760=80"logic strips"
       //veto window 5 degree in GMT scale is 5/360*576=8 units

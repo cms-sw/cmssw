@@ -300,9 +300,7 @@ std::unique_ptr<SiStripNoises> SiStripNoisesFromDBMiscalibrator::getNewObject_wi
 
   std::vector<uint32_t> missingDetIds;
 
-  for (std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = DetInfos.begin();
-       it != DetInfos.end();
-       it++) {
+  for (auto it = DetInfos.begin(); it != DetInfos.end(); it++) {
     //Generate Noise for det detid
     bool isMissing(false);
     SiStripNoises::InputVector theSiStripVector;

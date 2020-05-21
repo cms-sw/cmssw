@@ -65,7 +65,7 @@ bool GenHTFilter::filter(edm::StreamID, edm::Event& evt, const edm::EventSetup& 
 
   //Loop over all jets in Event and calculate genHT
   double genHT = 0.0;
-  for (std::vector<reco::GenJet>::const_iterator it = generatedJets->begin(); it != generatedJets->end(); ++it) {
+  for (auto it = generatedJets->begin(); it != generatedJets->end(); ++it) {
     const reco::GenJet& gjet = *it;
 
     //Add GenJet pt to genHT if GenJet complies with given HT definition

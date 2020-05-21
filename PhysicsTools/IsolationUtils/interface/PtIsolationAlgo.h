@@ -25,7 +25,7 @@ double PtIsolationAlgo<T, C>::operator()(const T &cand, const C &elements) const
   double candVz = cand.vz();
   double candEta = cand.eta();
   double candPhi = cand.phi();
-  for (typename C::const_iterator elem = elements.begin(); elem != elements.end(); ++elem) {
+  for (auto elem = elements.begin(); elem != elements.end(); ++elem) {
     double elemPt = elem->pt();
     if (elemPt < ptMin_)
       continue;

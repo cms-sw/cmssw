@@ -53,8 +53,7 @@ void MuScleFitPlotter::fillGen(const reco::GenParticleCollection& genParticles, 
 
   int mothersFound[] = {0, 0, 0, 0, 0, 0};
 
-  for (reco::GenParticleCollection::const_iterator mcIter = genParticles.begin(); mcIter != genParticles.end();
-       ++mcIter) {
+  for (auto mcIter = genParticles.begin(); mcIter != genParticles.end(); ++mcIter) {
     int status = mcIter->status();
     int pdgId = std::abs(mcIter->pdgId());
     //Check if it's a resonance
@@ -246,7 +245,7 @@ void MuScleFitPlotter::fillSim(edm::Handle<edm::SimTrackContainer> simTracks) {
   std::vector<SimTrack> simMuons;
 
   //Loop on simulated tracks
-  for (edm::SimTrackContainer::const_iterator simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
+  for (auto simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
     // Select the muons from all the simulated tracks
     if (std::abs((*simTrack).type()) == 13) {
       simMuons.push_back(*simTrack);
@@ -257,8 +256,8 @@ void MuScleFitPlotter::fillSim(edm::Handle<edm::SimTrackContainer> simTracks) {
 
   // Recombine all the possible Z from simulated muons
   if (simMuons.size() >= 2) {
-    for (std::vector<SimTrack>::const_iterator imu = simMuons.begin(); imu != simMuons.end(); ++imu) {
-      for (std::vector<SimTrack>::const_iterator imu2 = imu + 1; imu2 != simMuons.end(); ++imu2) {
+    for (auto imu = simMuons.begin(); imu != simMuons.end(); ++imu) {
+      for (auto imu2 = imu + 1; imu2 != simMuons.end(); ++imu2) {
         if (imu == imu2)
           continue;
 
@@ -317,10 +316,10 @@ void MuScleFitPlotter::fillGenSim(edm::Handle<edm::HepMCProduct> evtMC, edm::Han
 
 /// Used when running on the root tree containing preselected muon pairs
 void MuScleFitPlotter::fillRec(std::vector<MuScleFitMuon>& muons) {
-  for (std::vector<MuScleFitMuon>::const_iterator mu1 = muons.begin(); mu1 != muons.end(); mu1++) {
+  for (auto mu1 = muons.begin(); mu1 != muons.end(); mu1++) {
     mapHisto["hRecMu"]->Fill(mu1->p4());
     mapHisto["hRecMuVSEta"]->Fill(mu1->p4());
-    for (std::vector<MuScleFitMuon>::const_iterator mu2 = muons.begin(); mu2 != muons.end(); mu2++) {
+    for (auto mu2 = muons.begin(); mu2 != muons.end(); mu2++) {
       if (mu1->charge() < 0 || mu2->charge() > 0)
         continue;
       reco::Particle::LorentzVector Res(mu1->p4() + mu2->p4());
@@ -333,8 +332,7 @@ void MuScleFitPlotter::fillRec(std::vector<MuScleFitMuon>& muons) {
 /// Used when running on the root tree containing preselected muon pairs
 void MuScleFitPlotter::fillTreeRec(
     const std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> >& savedPairs) {
-  std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> >::const_iterator muonPair =
-      savedPairs.begin();
+  auto muonPair = savedPairs.begin();
   for (; muonPair != savedPairs.end(); ++muonPair) {
     mapHisto["hRecMu"]->Fill(muonPair->first);
     mapHisto["hRecMuVSEta"]->Fill(muonPair->first);
@@ -353,8 +351,7 @@ void MuScleFitPlotter::fillTreeRec(
  */
 void MuScleFitPlotter::fillTreeGen(
     const std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> >& genPairs) {
-  std::vector<std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> >::const_iterator genPair =
-      genPairs.begin();
+  auto genPair = genPairs.begin();
   for (; genPair != genPairs.end(); ++genPair) {
     reco::Particle::LorentzVector genRes(genPair->first + genPair->second);
     mapHisto["hGenResZ"]->Fill(genRes);
@@ -416,7 +413,7 @@ void MuScleFitPlotter::fillHistoMap() {
 // -----------------
 void MuScleFitPlotter::writeHistoMap() {
   outputFile->cd();
-  for (std::map<std::string, Histograms*>::const_iterator histo = mapHisto.begin(); histo != mapHisto.end(); histo++) {
+  for (auto histo = mapHisto.begin(); histo != mapHisto.end(); histo++) {
     (*histo).second->Write();
   }
 }

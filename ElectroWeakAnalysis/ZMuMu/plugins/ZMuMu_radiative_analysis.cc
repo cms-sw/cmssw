@@ -440,7 +440,7 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
       CandidateBaseRef dau0 = zMuTkCand.daughter(0)->masterClone();
       CandidateBaseRef dau1 = zMuTkCand.daughter(1)->masterClone();
       const pat::Muon& mu0 = dynamic_cast<const pat::Muon&>(*dau0);  //cast in patMuon
-      const pat::GenericParticle& mu1 = dynamic_cast<const pat::GenericParticle&>(*dau1);
+      const auto& mu1 = dynamic_cast<const pat::GenericParticle&>(*dau1);
 
       double zmass = zMuTkCand.mass();
       double pt0 = mu0.pt();

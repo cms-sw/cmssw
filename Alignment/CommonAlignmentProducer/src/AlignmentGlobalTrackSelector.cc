@@ -99,7 +99,7 @@ AlignmentGlobalTrackSelector::Tracks AlignmentGlobalTrackSelector::findMuons(con
   iEvent.getByToken(theMuonToken, muons);
 
   if (muons.isValid()) {
-    for (reco::MuonCollection::const_iterator itMuon = muons->begin(); itMuon != muons->end(); ++itMuon) {
+    for (auto itMuon = muons->begin(); itMuon != muons->end(); ++itMuon) {
       const reco::Track* muonTrack = (*itMuon).get<reco::TrackRef>().get();
       if (!muonTrack) {
         LogDebug("Alignment") << "@SUB=AlignmentGlobalTrackSelector::findMuons"
@@ -131,9 +131,9 @@ AlignmentGlobalTrackSelector::Tracks AlignmentGlobalTrackSelector::checkIsolatio
   iEvent.getByToken(theJetIsoToken, jets);
 
   if (jets.isValid()) {
-    for (Tracks::const_iterator it = cands.begin(); it != cands.end(); ++it) {
+    for (auto it = cands.begin(); it != cands.end(); ++it) {
       bool isolated = true;
-      for (reco::CaloJetCollection::const_iterator itJet = jets->begin(); itJet != jets->end(); ++itJet)
+      for (auto itJet = jets->begin(); itJet != jets->end(); ++itJet)
         isolated &= !((*itJet).pt() > theMaxJetPt && deltaR(*(*it), (*itJet)) < theMinJetDeltaR);
 
       if (isolated)
@@ -162,7 +162,7 @@ AlignmentGlobalTrackSelector::Tracks AlignmentGlobalTrackSelector::checkJetCount
 
   if (jets.isValid()) {
     int jetCount = 0;
-    for (reco::CaloJetCollection::const_iterator itJet = jets->begin(); itJet != jets->end(); ++itJet) {
+    for (auto itJet = jets->begin(); itJet != jets->end(); ++itJet) {
       if ((*itJet).pt() > theMinJetPt)
         jetCount++;
     }
@@ -184,7 +184,7 @@ AlignmentGlobalTrackSelector::Tracks AlignmentGlobalTrackSelector::checkJetCount
 AlignmentGlobalTrackSelector::Tracks AlignmentGlobalTrackSelector::matchTracks(const Tracks& src,
                                                                                const Tracks& comp) const {
   Tracks result;
-  for (Tracks::const_iterator itComp = comp.begin(); itComp != comp.end(); ++itComp) {
+  for (auto itComp = comp.begin(); itComp != comp.end(); ++itComp) {
     int match = -1;
     double min = theMaxTrackDeltaR;
     for (unsigned int i = 0; i < src.size(); i++) {
@@ -204,7 +204,7 @@ AlignmentGlobalTrackSelector::Tracks AlignmentGlobalTrackSelector::matchTracks(c
 void AlignmentGlobalTrackSelector::printTracks(const Tracks& col) const {
   int count = 0;
   LogDebug("Alignment") << ">......................................";
-  for (Tracks::const_iterator it = col.begin(); it < col.end(); ++it, ++count) {
+  for (auto it = col.begin(); it < col.end(); ++it, ++count) {
     LogDebug("Alignment") << ">  Track No. " << count << ": p = (" << (*it)->px() << "," << (*it)->py() << ","
                           << (*it)->pz() << ")\n"
                           << ">                        pT = " << (*it)->pt() << " eta = " << (*it)->eta()

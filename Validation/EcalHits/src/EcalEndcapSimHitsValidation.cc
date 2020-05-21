@@ -151,7 +151,7 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event &e, const edm::EventS
   uint32_t nEEzpHits = 0;
   uint32_t nEEzmHits = 0;
 
-  for (std::vector<PCaloHit>::iterator isim = theEECaloHits.begin(); isim != theEECaloHits.end(); ++isim) {
+  for (auto isim = theEECaloHits.begin(); isim != theEECaloHits.end(); ++isim) {
     if (isim->time() > 500.) {
       continue;
     }
@@ -194,9 +194,9 @@ void EcalEndcapSimHitsValidation::analyze(const edm::Event &e, const edm::EventS
   meEEzpCrystals_->Fill(eemapzp.size());
   meEEzmCrystals_->Fill(eemapzm.size());
 
-  for (std::map<uint32_t, float, std::less<uint32_t>>::iterator it = eemap.begin(); it != eemap.end(); ++it)
+  for (auto it = eemap.begin(); it != eemap.end(); ++it)
     meEEcrystalEnergy_->Fill((*it).second);
-  for (std::map<uint32_t, float, std::less<uint32_t>>::iterator it = eemap.begin(); it != eemap.end(); ++it)
+  for (auto it = eemap.begin(); it != eemap.end(); ++it)
     meEEcrystalEnergy2_->Fill((*it).second);
 
   meEEzpHits_->Fill(nEEzpHits);

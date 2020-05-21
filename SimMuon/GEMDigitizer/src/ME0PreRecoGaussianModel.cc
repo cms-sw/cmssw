@@ -129,7 +129,7 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
   if (me0Id.region() == 0) {
     throw cms::Exception("Geometry") << "Asking TrapezoidalStripTopology from a ME0 will fail";
   }  // not sure we really need this
-  const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
+  const auto* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
 
   auto& parameters(roll->specs()->parameters());
   double bottomLength(parameters[0]);
@@ -334,7 +334,7 @@ void ME0PreRecoGaussianModel::simulateNoise(const ME0EtaPartition* roll, CLHEP::
 }
 
 double ME0PreRecoGaussianModel::correctSigmaU(const ME0EtaPartition* roll, double y) {
-  const TrapezoidalStripTopology* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
+  const auto* top_(dynamic_cast<const TrapezoidalStripTopology*>(&(roll->topology())));
   auto& parameters(roll->specs()->parameters());
   double height(parameters[2]);        // height     = height from Center of Roll
   double rollRadius = top_->radius();  // rollRadius = Radius at Center of Roll

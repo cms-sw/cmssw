@@ -24,8 +24,8 @@ public:
     ownTheTree_ = false;
     edm::ParameterSet variablePSet = iConfig.getParameter<edm::ParameterSet>("variablesPSet");
     if (variablePSet.getParameter<bool>("allVariables")) {
-      VariableHelper::iterator v = edm::Service<VariableHelperService>()->get().begin();
-      VariableHelper::iterator v_end = edm::Service<VariableHelperService>()->get().end();
+      auto v = edm::Service<VariableHelperService>()->get().begin();
+      auto v_end = edm::Service<VariableHelperService>()->get().end();
       for (; v != v_end; ++v) {
         leaves_[v->second->name()] = v->second;
       }
@@ -55,8 +55,8 @@ public:
       nLeaves = leaves_.size();
       // make arrays of pointer to the actual values
       dataHolder_ = new double[nLeaves];
-      iterator i = leaves_.begin();
-      iterator i_end = leaves_.end();
+      auto i = leaves_.begin();
+      auto i_end = leaves_.end();
       edm::Service<TFileService> fs;
       if (ownTheTree_) {
         ownTheTree_ = true;
@@ -81,8 +81,8 @@ public:
       }
     } else {
       //loop the leaves registered
-      iterator i = leaves_.begin();
-      iterator i_end = leaves_.end();
+      auto i = leaves_.begin();
+      auto i_end = leaves_.end();
       for (; i != i_end; ++i) {
         nLeaves++;
         std::string lName(i->first);
@@ -96,8 +96,8 @@ public:
   void fill(edm::Event& iEvent) override {
     if (useTFileService_) {
       //fill the data holder
-      iterator i = leaves_.begin();
-      iterator i_end = leaves_.end();
+      auto i = leaves_.begin();
+      auto i_end = leaves_.end();
       uint iInDataHolder = 0;
       for (; i != i_end; ++i, ++iInDataHolder) {
         dataHolder_[iInDataHolder] = (*i->second)(iEvent);
@@ -108,8 +108,8 @@ public:
       }
     } else {
       //other leaves
-      iterator i = leaves_.begin();
-      iterator i_end = leaves_.end();
+      auto i = leaves_.begin();
+      auto i_end = leaves_.end();
       for (; i != i_end; ++i) {
         auto leafValue = std::make_unique<double>((*i->second)(iEvent));
         std::string lName(i->first);

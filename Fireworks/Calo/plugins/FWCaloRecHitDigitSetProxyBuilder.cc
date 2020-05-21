@@ -115,7 +115,7 @@ void FWCaloRecHitDigitSetProxyBuilder::scaleProduct(TEveElementList* parent,
     if (corners == nullptr)
       continue;
 
-    FWDigitSetProxyBuilder::BFreeBox_t* b = (FWDigitSetProxyBuilder::BFreeBox_t*)boxSet->GetPlex()->Atom(index);
+    auto* b = (FWDigitSetProxyBuilder::BFreeBox_t*)boxSet->GetPlex()->Atom(index);
 
     viewContextBoxScale(corners, hit->energy() * scale, vc->getEnergyScale()->getPlotEt(), scaledCorners, hit);
     memcpy(b->fVertices, &scaledCorners[0], sizeof(b->fVertices));

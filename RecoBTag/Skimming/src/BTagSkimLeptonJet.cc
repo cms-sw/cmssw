@@ -113,10 +113,10 @@ bool BTagSkimLeptonJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   // Jet cuts
   int nJet = 0;
-  for (CaloJetCollection::const_iterator ajet = TheCaloJets.begin(); ajet != TheCaloJets.end(); ++ajet) {
+  for (auto ajet = TheCaloJets.begin(); ajet != TheCaloJets.end(); ++ajet) {
     if ((fabs(ajet->eta()) < MaxCaloJetEta_) && (ajet->pt() > MinCaloJetPt_)) {
       if (LeptonType_ == "muon") {
-        for (MuonCollection::const_iterator amuon = TheMuons.begin(); amuon != TheMuons.end(); ++amuon) {
+        for (auto amuon = TheMuons.begin(); amuon != TheMuons.end(); ++amuon) {
           // select good muon
           if ((amuon->pt() > MinLeptonPt_) && (fabs(amuon->eta()) < MaxLeptonEta_)) {
             double deltar = ROOT::Math::VectorUtil::DeltaR(ajet->p4().Vect(), amuon->momentum());
@@ -135,8 +135,7 @@ bool BTagSkimLeptonJet::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
       }
 
       if (LeptonType_ == "electron") {
-        for (GsfElectronCollection::const_iterator anelectron = TheElectrons.begin(); anelectron != TheElectrons.end();
-             anelectron++) {
+        for (auto anelectron = TheElectrons.begin(); anelectron != TheElectrons.end(); anelectron++) {
           if ((anelectron->pt() > MinLeptonPt_) && (fabs(anelectron->eta()) < MaxLeptonEta_)) {
             double deltar = ROOT::Math::VectorUtil::DeltaR(ajet->p4().Vect(), anelectron->momentum());
 

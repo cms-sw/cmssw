@@ -83,12 +83,12 @@ std::pair<std::vector<Cluster1D<T> >, std::vector<const T*> > OutermostClusteriz
   Cluster1D tmp = v[0];
   Cluster1DMerger<T> merger(*theEstimator);
   // merge the inner half to the primary cluster
-  for (typename std::vector<Cluster1D>::const_iterator i = v.begin() + 1; i != v.begin() + sze; ++i) {
+  for (auto i = v.begin() + 1; i != v.begin() + sze; ++i) {
     tmp = merger(tmp, *i);
   }
   sols.push_back(tmp);
   tmp = v[sze];
-  for (typename std::vector<Cluster1D>::const_iterator i = v.begin() + sze + 1; i != v.end(); ++i) {
+  for (auto i = v.begin() + sze + 1; i != v.end(); ++i) {
     tmp = merger(tmp, *i);
   }
   sols.push_back(tmp);

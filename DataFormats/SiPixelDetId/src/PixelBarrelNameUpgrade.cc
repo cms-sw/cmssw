@@ -365,7 +365,7 @@ PixelModuleName::ModuleType PixelBarrelNameUpgrade::moduleType() const {
 
 bool PixelBarrelNameUpgrade::operator==(const PixelModuleName& o) const {
   if (o.isBarrel()) {
-    const PixelBarrelNameUpgrade* other = dynamic_cast<const PixelBarrelNameUpgrade*>(&o);
+    const auto* other = dynamic_cast<const PixelBarrelNameUpgrade*>(&o);
     return (other && thePart == other->thePart && theLayer == other->theLayer && theModule == other->theModule &&
             theLadder == other->theLadder);
   } else

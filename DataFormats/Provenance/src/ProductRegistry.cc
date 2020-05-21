@@ -127,7 +127,7 @@ namespace edm {
     assert(!productDesc.produced());
     throwIfFrozen();
     BranchKey k = BranchKey(productDesc);
-    ProductList::iterator iter = productList_.find(k);
+    auto iter = productList_.find(k);
     if (iter == productList_.end()) {
       productList_.insert(std::make_pair(k, productDesc));
     } else {
@@ -138,7 +138,7 @@ namespace edm {
 
   bool ProductRegistry::anyProducts(BranchType brType) const {
     throwIfNotFrozen();
-    for (ProductList::const_iterator it = productList_.begin(), itEnd = productList_.end(); it != itEnd; ++it) {
+    for (auto it = productList_.begin(), itEnd = productList_.end(); it != itEnd; ++it) {
       if (it->second.branchType() == brType) {
         return true;
       }
@@ -264,10 +264,10 @@ namespace edm {
                                      BranchDescription::MatchMode branchesMustMatch) {
     std::ostringstream differences;
 
-    ProductRegistry::ProductList::iterator j = productList_.begin();
-    ProductRegistry::ProductList::iterator s = productList_.end();
-    ProductRegistry::ProductList::const_iterator i = other.productList().begin();
-    ProductRegistry::ProductList::const_iterator e = other.productList().end();
+    auto j = productList_.begin();
+    auto s = productList_.end();
+    auto i = other.productList().begin();
+    auto e = other.productList().end();
 
     // Loop over entries in the main product registry.
     while (j != s || i != e) {
@@ -562,7 +562,7 @@ namespace edm {
   }
 
   ProductResolverIndex ProductRegistry::indexFrom(BranchID const& iID) const {
-    std::map<BranchID, ProductResolverIndex>::const_iterator itFind = transient_.branchIDToIndex_.find(iID);
+    auto itFind = transient_.branchIDToIndex_.find(iID);
     if (itFind == transient_.branchIDToIndex_.end()) {
       return ProductResolverIndexInvalid;
     }

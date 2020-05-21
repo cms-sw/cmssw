@@ -233,8 +233,7 @@ void EmDQM::dqmBeginRun(edm::Run const &iRun, edm::EventSetup const &iSetup) {
           std::string moduleLabel;
 
           // loop over filtermodules of current trigger path
-          for (std::vector<std::string>::iterator filter = filterModules.begin(); filter != filterModules.end();
-               ++filter) {
+          for (auto filter = filterModules.begin(); filter != filterModules.end(); ++filter) {
             std::string moduleType = hltConfig_.modulePSet(*filter).getParameter<std::string>("@module_type");
             moduleLabel = hltConfig_.modulePSet(*filter).getParameter<std::string>("@module_label");
 
@@ -354,7 +353,7 @@ void EmDQM::dqmBeginRun(edm::Run const &iRun, edm::EventSetup const &iSetup) {
     ////////////////////////////////////////////////////////////
     // loop over all the trigger path parameter sets
     ////////////////////////////////////////////////////////////
-    for (std::vector<edm::ParameterSet>::iterator psetIt = paramSets.begin(); psetIt != paramSets.end(); ++psetIt) {
+    for (auto psetIt = paramSets.begin(); psetIt != paramSets.end(); ++psetIt) {
       hltCollectionLabelsFoundPerPath.push_back(hltCollectionLabelsFound);
       hltCollectionLabelsMissedPerPath.push_back(hltCollectionLabelsMissed);
     }
@@ -377,7 +376,7 @@ void EmDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm
   ////////////////////////////////////////////////////////////
   // loop over all the trigger path parameter sets
   ////////////////////////////////////////////////////////////
-  for (std::vector<edm::ParameterSet>::iterator psetIt = paramSets.begin(); psetIt != paramSets.end(); ++psetIt) {
+  for (auto psetIt = paramSets.begin(); psetIt != paramSets.end(); ++psetIt) {
     SetVarsFromPSet(psetIt);
 
     iBooker.setCurrentFolder(dirname_);
@@ -733,8 +732,7 @@ bool EmDQM::checkRecoParticlesRequirement(const edm::Event &event) {
 void EmDQM::analyze(const edm::Event &event, const edm::EventSetup &setup) {
   // loop over all the trigger path parameter sets
   unsigned int vPos = 0;
-  for (std::vector<edm::ParameterSet>::iterator psetIt = paramSets.begin(); psetIt != paramSets.end();
-       ++psetIt, ++vPos) {
+  for (auto psetIt = paramSets.begin(); psetIt != paramSets.end(); ++psetIt, ++vPos) {
     SetVarsFromPSet(psetIt);
     // get the set forthe current path
     hltCollectionLabelsFound = hltCollectionLabelsFoundPerPath.at(vPos);
@@ -1078,8 +1076,7 @@ void HistoFiller<T>::fillHistos(edm::Handle<trigger::TriggerEventWithRefs> &trig
 void EmDQM::dqmEndRun(edm::Run const &iRun, edm::EventSetup const &iSetup) {
   // loop over all the trigger path parameter sets
   unsigned int vPos = 0;
-  for (std::vector<edm::ParameterSet>::iterator psetIt = paramSets.begin(); psetIt != paramSets.end();
-       ++psetIt, ++vPos) {
+  for (auto psetIt = paramSets.begin(); psetIt != paramSets.end(); ++psetIt, ++vPos) {
     SetVarsFromPSet(psetIt);
 
     // print information about hltCollectionLabels which were not found
@@ -1661,8 +1658,7 @@ void EmDQM::SetVarsFromPSet(std::vector<edm::ParameterSet>::iterator psetIt) {
   nCandCuts.clear();
 
   int i = 0;
-  for (std::vector<edm::ParameterSet>::iterator filterconf = filters.begin(); filterconf != filters.end();
-       filterconf++) {
+  for (auto filterconf = filters.begin(); filterconf != filters.end(); filterconf++) {
     theHLTCollectionLabels.push_back(filterconf->getParameter<edm::InputTag>("HLTCollectionLabels"));
     theHLTOutputTypes.push_back(filterconf->getParameter<int>("theHLTOutputTypes"));
     // Grab the human-readable name, if it is not specified, use the Collection

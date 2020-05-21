@@ -188,13 +188,12 @@ void WriteCTPPSPixGainCalibrations::getHistos() {
 }
 
 void WriteCTPPSPixGainCalibrations::fillDB() {
-  CTPPSPixelGainCalibrations* gainCalibsTest = new CTPPSPixelGainCalibrations();
-  CTPPSPixelGainCalibrations* gainCalibsTest1 = new CTPPSPixelGainCalibrations();
+  auto* gainCalibsTest = new CTPPSPixelGainCalibrations();
+  auto* gainCalibsTest1 = new CTPPSPixelGainCalibrations();
 
   //  std::cout<<"Here! "<<std::endl;
 
-  for (std::map<uint32_t, std::vector<int> >::iterator it = detidROCsPresent.begin(); it != detidROCsPresent.end();
-       ++it) {
+  for (auto it = detidROCsPresent.begin(); it != detidROCsPresent.end(); ++it) {
     uint32_t tempdetid = it->first;
     std::vector<int> rocs = it->second;
     unsigned int nrocs = rocs.size();

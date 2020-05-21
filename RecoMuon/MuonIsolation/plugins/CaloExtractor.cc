@@ -49,10 +49,10 @@ void CaloExtractor::fillVetos(const edm::Event& event,
   double bz = bField->inInverseGeV(GlobalPoint(0., 0., 0.)).z();
 
   TrackCollection::const_iterator mu;
-  TrackCollection::const_iterator muEnd(muons.end());
+  auto muEnd(muons.end());
 
   CaloTowerCollection::const_iterator cal;
-  CaloTowerCollection::const_iterator calEnd(towers->end());
+  auto calEnd(towers->end());
 
   for (mu = muons.begin(); mu != muEnd; ++mu) {
     for (cal = towers->begin(); cal != calEnd; ++cal) {
@@ -106,7 +106,7 @@ IsoDeposit CaloExtractor::deposit(const Event& event, const EventSetup& eventSet
   double bz = bField->inInverseGeV(GlobalPoint(0., 0., 0.)).z();
 
   CaloTowerCollection::const_iterator cal;
-  CaloTowerCollection::const_iterator calEnd(towers->end());
+  auto calEnd(towers->end());
   for (cal = towers->begin(); cal != calEnd; ++cal) {
     //! make this abit faster
     double dEta = fabs(muon.eta() - cal->eta());

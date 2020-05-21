@@ -59,7 +59,7 @@ int main(int argc, char* argv[]) {
   MiscalibReaderFromXMLEcalEndcap endcapreader(EEscalibMap);
   if (!endcapfile.empty())
     endcapreader.parseXMLMiscalibFile(endcapfile);
-  EcalIntercalibConstants* EEconstants = new EcalIntercalibConstants(EEscalibMap.get());
+  auto* EEconstants = new EcalIntercalibConstants(EEscalibMap.get());
   const EcalIntercalibConstantMap& iEEscalibMap = EEconstants->getMap();  //MF prende i vecchi coeff
 
   //PG get the recalibration files for EB and EE
@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
   MiscalibReaderFromXMLEcalEndcap calibEndcapreader(EEcalibMap);
   if (!calibEndcapfile.empty())
     calibEndcapreader.parseXMLMiscalibFile(calibEndcapfile);
-  EcalIntercalibConstants* EECconstants = new EcalIntercalibConstants(EEcalibMap.get());
+  auto* EECconstants = new EcalIntercalibConstants(EEcalibMap.get());
   const EcalIntercalibConstantMap& iEEcalibMap = EECconstants->getMap();  //MF prende i vecchi coeff
 
   //PG fill the histograms

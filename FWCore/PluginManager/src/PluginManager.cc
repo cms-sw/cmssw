@@ -70,7 +70,7 @@ namespace edmplugin {
     // When building a single big executable the plugins are already registered in the
     // PluginFactoryManager, we therefore only need to populate the categoryToInfos_ map
     // with the relevant information.
-    for (PluginFactoryManager::const_iterator i = pfm->begin(), e = pfm->end(); i != e; ++i) {
+    for (auto i = pfm->begin(), e = pfm->end(); i != e; ++i) {
       categoryToInfos_[(*i)->category()] = (*i)->available();
     }
 
@@ -79,8 +79,7 @@ namespace edmplugin {
     // in that order
     bool foundAtLeastOneCacheFile = false;
     std::set<std::string> alreadySeen;
-    for (SearchPath::const_iterator itPath = searchPath_.begin(), itEnd = searchPath_.end(); itPath != itEnd;
-         ++itPath) {
+    for (auto itPath = searchPath_.begin(), itEnd = searchPath_.end(); itPath != itEnd; ++itPath) {
       //take care of the case where the same path is passed in multiple times
       if (alreadySeen.find(*itPath) != alreadySeen.end()) {
         continue;
@@ -158,7 +157,7 @@ namespace edmplugin {
                                                              bool& ioThrowIfFailElseSucceedStatus) {
     const bool throwIfFail = ioThrowIfFailElseSucceedStatus;
     ioThrowIfFailElseSucceedStatus = true;
-    CategoryToInfos::iterator itFound = categoryToInfos_.find(iCategory);
+    auto itFound = categoryToInfos_.find(iCategory);
     if (itFound == categoryToInfos_.end()) {
       if (throwIfFail) {
         throw cms::Exception("PluginNotFound") << "Unable to find plugin '" << iPlugin << "' because the category '"

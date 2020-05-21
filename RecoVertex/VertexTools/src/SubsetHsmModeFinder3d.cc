@@ -23,8 +23,8 @@ GlobalPoint SubsetHsmModeFinder3d::operator()(const std::vector<PointAndDistance
   std::vector<PointAndDistance> sorted_values(values.size());
   partial_sort_copy(values.begin(), values.end(), sorted_values.begin(), sorted_values.end(), compareByDistance());
 
-  std::vector<PointAndDistance>::iterator end = sorted_values.end();
-  std::vector<PointAndDistance>::iterator begin = sorted_values.begin();
+  auto end = sorted_values.end();
+  auto begin = sorted_values.begin();
 
   float dmax = 0.004;  // 40 microns, as a first try.
 

@@ -42,7 +42,7 @@ void SiPixelDetInfoFileWriter::beginRun(const edm::Run &run, const edm::EventSet
     int nPixelDets = 0;
 
     for (const auto &it : pDD->detUnits()) {
-      const PixelGeomDetUnit *mit = dynamic_cast<PixelGeomDetUnit const *>(it);
+      const auto *mit = dynamic_cast<PixelGeomDetUnit const *>(it);
 
       if (mit != nullptr) {
         nPixelDets++;

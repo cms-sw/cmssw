@@ -55,7 +55,7 @@ namespace {
           std::stringstream ss;
           ss << "Summary of strips configuration object:" << std::endl;
 
-          SiStripConfObject::parMap::const_iterator it = payload->parameters.begin();
+          auto it = payload->parameters.begin();
           for (; it != payload->parameters.end(); ++it) {
             ss << "parameter name = " << it->first << " value = " << it->second << std::endl;
           }
@@ -117,7 +117,7 @@ namespace {
         latex.SetTextFont(42);
         latex.SetTextColor(kBlack);
 
-        SiStripConfObject::parMap::const_iterator it = payload->parameters.begin();
+        auto it = payload->parameters.begin();
         unsigned int count = 0;
         for (; it != payload->parameters.end(); ++it) {
           count++;
@@ -147,7 +147,7 @@ namespace {
         canvas.SetTopMargin(0.05);
         canvas.Modified();
 
-        SiStripConfObject::parMap::const_iterator it = payload->parameters.begin();
+        auto it = payload->parameters.begin();
 
         unsigned int count = 0;
         for (; it != payload->parameters.end(); ++it) {

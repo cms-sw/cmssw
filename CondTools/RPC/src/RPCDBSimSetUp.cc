@@ -135,18 +135,18 @@ RPCDBSimSetUp::RPCDBSimSetUp(const edm::ParameterSet& ps) {
 }
 
 std::vector<float> RPCDBSimSetUp::getNoise(uint32_t id) {
-  map<uint32_t, std::vector<float> >::iterator iter = _mapDetIdNoise.find(id);
+  auto iter = _mapDetIdNoise.find(id);
   return (iter->second);
 }
 
 std::vector<float> RPCDBSimSetUp::getEff(uint32_t id) {
-  map<uint32_t, std::vector<float> >::iterator iter = _mapDetIdEff.find(id);
+  auto iter = _mapDetIdEff.find(id);
   return iter->second;
 }
 
 float RPCDBSimSetUp::getTime(uint32_t id) {
   RPCDetId rpcid(id);
-  std::map<RPCDetId, float>::iterator iter = _bxmap.find(rpcid);
+  auto iter = _bxmap.find(rpcid);
   return iter->second;
 }
 

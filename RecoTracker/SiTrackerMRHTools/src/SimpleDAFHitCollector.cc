@@ -43,8 +43,7 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
   //groups hits on a sensor by sensor with same Id of previous TM
   //we have to sort the TrajectoryMeasurements in the opposite way in the fitting direction
   vector<TrajectoryMeasurement> result;
-  for (vector<TrajectoryMeasurement>::const_reverse_iterator itrajmeas = meas.rbegin(); itrajmeas < meas.rend();
-       itrajmeas++, hitcounter++) {
+  for (auto itrajmeas = meas.rbegin(); itrajmeas < meas.rend(); itrajmeas++, hitcounter++) {
     DetId id = itrajmeas->recHit()->geographicalId();
     MeasurementDetWithData measDet = theMTE->idToDet(id);
     tracking::TempMeasurements tmps;
@@ -137,7 +136,7 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
   if (result.size() > 2) {
     int hitcounter = 0;
     //check if the vector result has more than 3 valid hits
-    for (vector<TrajectoryMeasurement>::const_iterator iimeas = result.begin(); iimeas != result.end(); ++iimeas) {
+    for (auto iimeas = result.begin(); iimeas != result.end(); ++iimeas) {
       if (iimeas->recHit()->isValid())
         hitcounter++;
     }

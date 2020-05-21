@@ -70,18 +70,18 @@ int main(int argc, char *argv[]) {
   Int_t split = 1;
   Int_t bsize = 64000;
   TTree *outTree = new TTree("CastorCherenkovPhotons", "Cherenkov Photons");
-  CastorShowerLibraryInfo *emInfo_out = new CastorShowerLibraryInfo();
-  CastorShowerEvent *emShower = new CastorShowerEvent();
-  CastorShowerLibraryInfo *hadInfo_out = new CastorShowerLibraryInfo();
-  CastorShowerEvent *hadShower = new CastorShowerEvent();
+  auto *emInfo_out = new CastorShowerLibraryInfo();
+  auto *emShower = new CastorShowerEvent();
+  auto *hadInfo_out = new CastorShowerLibraryInfo();
+  auto *hadShower = new CastorShowerEvent();
   outTree->Branch("emShowerLibInfo.", "CastorShowerLibraryInfo", &emInfo_out, bsize, split);
   outTree->Branch("emParticles.", "CastorShowerEvent", &emShower, bsize, split);
   outTree->Branch("hadShowerLibInfo.", "CastorShowerLibraryInfo", &hadInfo_out, bsize, split);
   outTree->Branch("hadParticles.", "CastorShowerEvent", &hadShower, bsize, split);
 
   // rebuild info branch
-  CastorShowerLibraryInfo *emInfo = new CastorShowerLibraryInfo();
-  CastorShowerLibraryInfo *hadInfo = new CastorShowerLibraryInfo();
+  auto *emInfo = new CastorShowerLibraryInfo();
+  auto *hadInfo = new CastorShowerLibraryInfo();
   // Check for the TBranch holding EventInfo in "Events" TTree
   std::vector<double> ebin_em;
   std::vector<double> etabin_em;

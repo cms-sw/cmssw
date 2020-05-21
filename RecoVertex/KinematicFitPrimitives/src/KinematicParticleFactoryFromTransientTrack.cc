@@ -69,7 +69,7 @@ RefCountedKinematicParticle KinematicParticleFactoryFromTransientTrack::particle
   KinematicParticle* prp = &(*previousParticle);
   // FIXME
   //  if(previousParticle.isValid()){
-  TransientTrackKinematicParticle* pr = dynamic_cast<TransientTrackKinematicParticle*>(prp);
+  auto* pr = dynamic_cast<TransientTrackKinematicParticle*>(prp);
   if (pr == nullptr) {
     throw VertexException(
         "KinematicParticleFactoryFromTransientTrack::Previous particle passed is not TransientTrack based!");

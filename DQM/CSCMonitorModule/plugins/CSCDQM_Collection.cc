@@ -92,7 +92,7 @@ namespace cscdqm {
               std::string id(XMLString::transcode(el->getAttribute(XMLString::transcode(XML_BOOK_DEFINITION_REF))));
 
               CoHistoProps d = definitions[id];
-              for (CoHistoProps::iterator it = d.begin(); it != d.end(); it++) {
+              for (auto it = d.begin(); it != d.end(); it++) {
                 hp[it->first] = it->second;
               }
             }
@@ -109,7 +109,7 @@ namespace cscdqm {
             LOG_DEBUG << "[Collection::load] loading " << prefix << "::" << name
                       << " XML_BOOK_ONDEMAND = " << hp[XML_BOOK_ONDEMAND];
 
-            CoHistoMap::iterator it = collection.find(prefix);
+            auto it = collection.find(prefix);
             if (it == collection.end()) {
               CoHisto h;
               h[name] = hp;
@@ -128,7 +128,7 @@ namespace cscdqm {
       throw Exception(message);
     }
 
-    for (CoHistoMap::const_iterator i = collection.begin(); i != collection.end(); i++) {
+    for (auto i = collection.begin(); i != collection.end(); i++) {
       LOG_INFO << i->second.size() << " " << i->first << " histograms defined";
     }
   }
@@ -178,7 +178,7 @@ namespace cscdqm {
    * @return true if parameter found and filled, false - otherwise
    */
   const bool Collection::checkHistoValue(const CoHistoProps& h, const std::string& name, std::string& value) {
-    CoHistoProps::const_iterator i = h.find(name);
+    auto i = h.find(name);
     if (i == h.end()) {
       return false;
     }
@@ -194,7 +194,7 @@ namespace cscdqm {
    * @return true if parameter found and filled, false - otherwise
    */
   const bool Collection::checkHistoValue(const CoHistoProps& h, const std::string& name, int& value) {
-    CoHistoProps::const_iterator i = h.find(name);
+    auto i = h.find(name);
     if (i == h.end()) {
       return false;
     }
@@ -213,7 +213,7 @@ namespace cscdqm {
    * @return true if parameter found and filled, false - otherwise
    */
   const bool Collection::checkHistoValue(const CoHistoProps& h, const std::string name, double& value) {
-    CoHistoProps::const_iterator i = h.find(name);
+    auto i = h.find(name);
     if (i == h.end()) {
       return false;
     }
@@ -303,10 +303,10 @@ namespace cscdqm {
    * @return 
    */
   void Collection::bookEMUHistos() const {
-    CoHistoMap::const_iterator i = collection.find("EMU");
+    auto i = collection.find("EMU");
     if (i != collection.end()) {
       const CoHisto hs = i->second;
-      for (CoHisto::const_iterator j = hs.begin(); j != hs.end(); j++) {
+      for (auto j = hs.begin(); j != hs.end(); j++) {
         std::string s = "";
         if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
           HistoId hid = 0;
@@ -325,10 +325,10 @@ namespace cscdqm {
    * @return 
    */
   void Collection::bookFEDHistos(const HwId fedId) const {
-    CoHistoMap::const_iterator i = collection.find("FED");
+    auto i = collection.find("FED");
     if (i != collection.end()) {
       const CoHisto hs = i->second;
-      for (CoHisto::const_iterator j = hs.begin(); j != hs.end(); j++) {
+      for (auto j = hs.begin(); j != hs.end(); j++) {
         std::string s = "";
         if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
           HistoId hid = 0;
@@ -347,10 +347,10 @@ namespace cscdqm {
    * @return 
    */
   void Collection::bookDDUHistos(const HwId dduId) const {
-    CoHistoMap::const_iterator i = collection.find("DDU");
+    auto i = collection.find("DDU");
     if (i != collection.end()) {
       const CoHisto hs = i->second;
-      for (CoHisto::const_iterator j = hs.begin(); j != hs.end(); j++) {
+      for (auto j = hs.begin(); j != hs.end(); j++) {
         std::string s = "";
         if (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_FALSE) {
           HistoId hid = 0;
@@ -370,10 +370,10 @@ namespace cscdqm {
    * @return 
    */
   void Collection::bookCSCHistos(const HwId crateId, const HwId dmbId) const {
-    CoHistoMap::const_iterator i = collection.find("CSC");
+    auto i = collection.find("CSC");
     if (i != collection.end()) {
       const CoHisto hs = i->second;
-      for (CoHisto::const_iterator j = hs.begin(); j != hs.end(); j++) {
+      for (auto j = hs.begin(); j != hs.end(); j++) {
         std::string s = "";
         HistoId hid = 0;
         if (HistoDef::getHistoIdByName(j->first, hid)) {
@@ -404,9 +404,9 @@ namespace cscdqm {
    * @return 
    */
   void Collection::bookCSCHistos(const HistoId hid, const HwId crateId, const HwId dmbId, const HwId addId) const {
-    CoHistoMap::const_iterator i = collection.find("CSC");
+    auto i = collection.find("CSC");
     if (i != collection.end()) {
-      CoHisto::const_iterator j = i->second.find(h::names[hid]);
+      auto j = i->second.find(h::names[hid]);
       if (j != i->second.end()) {
         CSCHistoDef hdef(hid, crateId, dmbId, addId);
         book(hdef, j->second, config->getFOLDER_CSC());
@@ -553,7 +553,7 @@ namespace cscdqm {
         std::map<int, std::string> labels;
         ParseAxisLabels(s, labels);
         th->GetXaxis()->SetNoAlphanumeric();  // For ROOT6 to prevent getting zero means values
-        for (std::map<int, std::string>::iterator l_itr = labels.begin(); l_itr != labels.end(); ++l_itr) {
+        for (auto l_itr = labels.begin(); l_itr != labels.end(); ++l_itr) {
           th->GetXaxis()->SetBinLabel(l_itr->first, l_itr->second.c_str());
         }
       }
@@ -561,7 +561,7 @@ namespace cscdqm {
         std::map<int, std::string> labels;
         ParseAxisLabels(s, labels);
         th->GetYaxis()->SetNoAlphanumeric();  // For ROOT6 to prevent getting zero means values
-        for (std::map<int, std::string>::iterator l_itr = labels.begin(); l_itr != labels.end(); ++l_itr) {
+        for (auto l_itr = labels.begin(); l_itr != labels.end(); ++l_itr) {
           th->GetYaxis()->SetBinLabel(l_itr->first, l_itr->second.c_str());
         }
       }
@@ -623,10 +623,10 @@ namespace cscdqm {
    * @return true if this histogram is on demand, false - otherwise
    */
   const bool Collection::isOnDemand(const HistoName& name) const {
-    CoHistoMap::const_iterator i = collection.find("CSC");
+    auto i = collection.find("CSC");
     if (i != collection.end()) {
       CoHisto hs = i->second;
-      CoHisto::const_iterator j = hs.find(name);
+      auto j = hs.find(name);
       if (j != hs.end()) {
         std::string s;
         return (getHistoValue(j->second, XML_BOOK_ONDEMAND, s, XML_BOOK_ONDEMAND_FALSE) == XML_BOOK_ONDEMAND_TRUE);
@@ -641,11 +641,11 @@ namespace cscdqm {
   */
   void Collection::printCollection() const {
     std::ostringstream buffer;
-    for (CoHistoMap::const_iterator hdmi = collection.begin(); hdmi != collection.end(); hdmi++) {
+    for (auto hdmi = collection.begin(); hdmi != collection.end(); hdmi++) {
       buffer << hdmi->first << " [" << std::endl;
-      for (CoHisto::const_iterator hdi = hdmi->second.begin(); hdi != hdmi->second.end(); hdi++) {
+      for (auto hdi = hdmi->second.begin(); hdi != hdmi->second.end(); hdi++) {
         buffer << "   " << hdi->first << " [" << std::endl;
-        for (CoHistoProps::const_iterator hi = hdi->second.begin(); hi != hdi->second.end(); hi++) {
+        for (auto hi = hdi->second.begin(); hi != hdi->second.end(); hi++) {
           buffer << "     " << hi->first << " = " << hi->second << std::endl;
         }
         buffer << "   ]" << std::endl;

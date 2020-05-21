@@ -51,7 +51,7 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet&
 
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters toPut = iConfig.getParameter<Parameters>("toPut");
-  for (Parameters::iterator itToPut = toPut.begin(); itToPut != toPut.end(); ++itToPut)
+  for (auto itToPut = toPut.begin(); itToPut != toPut.end(); ++itToPut)
     fillRecord(*itToPut, timetypestr);
 
   iAR.watchPostEndJob(this, &cond::service::PoolDBOutputService::postEndJob);
@@ -389,7 +389,7 @@ cond::service::PoolDBOutputService::Record& cond::service::PoolDBOutputService::
   //if (!m_dbstarted)
   //  this->initDB();
   //cond::persistency::TransactionScope scope(m_session.transaction());
-  std::map<std::string, Record>::iterator it = m_records.find(recordName);
+  auto it = m_records.find(recordName);
   if (it == m_records.end()) {
     cond::throwException("The record \"" + recordName + "\" has not been registered.",
                          "PoolDBOutputService::lookUpRecord");
@@ -404,7 +404,7 @@ cond::service::PoolDBOutputService::Record& cond::service::PoolDBOutputService::
 }
 
 cond::UserLogInfo& cond::service::PoolDBOutputService::lookUpUserLogInfo(const std::string& recordName) {
-  std::map<std::string, cond::UserLogInfo>::iterator it = m_logheaders.find(recordName);
+  auto it = m_logheaders.find(recordName);
   if (it == m_logheaders.end())
     throw cond::Exception("Log db was not set for record " + recordName +
                           " from PoolDBOutputService::lookUpUserLogInfo");

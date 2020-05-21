@@ -105,7 +105,7 @@ TransientTrackingRecHit::ConstRecHitContainer TrackTransformerForGlobalCosmicMuo
   TransientTrackingRecHit::ConstRecHitContainer tkHits;
   TransientTrackingRecHit::ConstRecHitContainer staHits;
 
-  for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
+  for (auto hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if ((*hit)->isValid()) {
       if ((*hit)->geographicalId().det() == DetId::Tracker && TrackerKeep((*hit)->geographicalId())) {
         tkHits.push_back(theTrackerRecHitBuilder->build(&**hit));
@@ -132,7 +132,7 @@ TransientTrackingRecHit::ConstRecHitContainer TrackTransformerForGlobalCosmicMuo
 */
   copy(staHits.begin(), staHits.end(), back_inserter(tkHits));
 
-  for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator hit = tkHits.begin(); hit != tkHits.end(); ++hit) {
+  for (auto hit = tkHits.begin(); hit != tkHits.end(); ++hit) {
     DetId hitId = (*hit)->geographicalId();
     GlobalPoint glbpoint = trackingGeometry()->idToDet(hitId)->position();
 

@@ -272,9 +272,9 @@ void EcalSimHitsValidProducer::update(const EndOfEvent *evt) {
   int EEHCid = G4SDManager::GetSDMpointer()->GetCollectionID("EcalHitsEE");
   int SEHCid = G4SDManager::GetSDMpointer()->GetCollectionID("EcalHitsES");
 
-  CaloG4HitCollection *theEBHC = (CaloG4HitCollection *)allHC->GetHC(EBHCid);
-  CaloG4HitCollection *theEEHC = (CaloG4HitCollection *)allHC->GetHC(EEHCid);
-  CaloG4HitCollection *theSEHC = (CaloG4HitCollection *)allHC->GetHC(SEHCid);
+  auto *theEBHC = (CaloG4HitCollection *)allHC->GetHC(EBHCid);
+  auto *theEEHC = (CaloG4HitCollection *)allHC->GetHC(EEHCid);
+  auto *theSEHC = (CaloG4HitCollection *)allHC->GetHC(SEHCid);
 
   nHitsInEE = theEEHC->entries();
   nHitsInEB = theEBHC->entries();

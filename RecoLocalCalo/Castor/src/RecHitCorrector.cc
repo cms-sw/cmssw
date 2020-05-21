@@ -99,7 +99,7 @@ void RecHitCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   edm::ESHandle<CastorChannelQuality> p;
   iSetup.get<CastorChannelQualityRcd>().get(p);
-  CastorChannelQuality* myqual = new CastorChannelQuality(*p.product());
+  auto* myqual = new CastorChannelQuality(*p.product());
 
   if (!rechits.isValid())
     edm::LogWarning("CastorRecHitCorrector") << "No valid CastorRecHitCollection found, please check the InputLabel...";

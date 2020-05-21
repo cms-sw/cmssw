@@ -91,7 +91,7 @@ void AlignmentMonitorTemplate::event(const edm::Event& iEvent,
   TrajectoryStateCombiner tsoscomb;
 
   // This is a procedure that loops over tracks/hits, calculates residuals, and fills the appropriate histogram.
-  for (ConstTrajTrackPairCollection::const_iterator it = tracks.begin(); it != tracks.end(); ++it) {
+  for (auto it = tracks.begin(); it != tracks.end(); ++it) {
     const Trajectory* traj = it->first;
     //      const reco::Track* track = it->second;
     // If your tracks are refit using the producer in RecoTracker, you'll get updated reco::Track objects with
@@ -100,7 +100,7 @@ void AlignmentMonitorTemplate::event(const edm::Event& iEvent,
     // We're working on that.  I'll try to remember to change this comment when the update is ready.
 
     std::vector<TrajectoryMeasurement> measurements = traj->measurements();
-    for (std::vector<TrajectoryMeasurement>::const_iterator im = measurements.begin(); im != measurements.end(); ++im) {
+    for (auto im = measurements.begin(); im != measurements.end(); ++im) {
       const TrajectoryMeasurement meas = *im;
       const TransientTrackingRecHit* hit = &(*meas.recHit());
       const DetId id = hit->geographicalId();
@@ -114,7 +114,7 @@ void AlignmentMonitorTemplate::event(const edm::Event& iEvent,
         // The "alignable = alignable->mother()" part ascends the alignable tree, because hits are on the lowest-level
         // while our histograms may be associated with higher-level Alignables.
         Alignable* alignable = pNavigator()->alignableFromDetId(id);
-        std::map<Alignable*, TH1F*>::const_iterator search = m_residuals.find(alignable);
+        auto search = m_residuals.find(alignable);
         while (search == m_residuals.end() && (alignable = alignable->mother()))
           search = m_residuals.find(alignable);
 

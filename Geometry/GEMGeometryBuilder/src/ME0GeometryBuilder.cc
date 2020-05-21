@@ -324,7 +324,7 @@ ME0EtaPartition* ME0GeometryBuilder::buildEtaPartition(DDFilteredView& fv, ME0De
   bool isOdd = false;  // detId.chamber()%2;
   ME0BoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(b, B, L, t), isOdd));
   std::string name = fv.logicalPart().name().name();
-  ME0EtaPartitionSpecs* e_p_specs = new ME0EtaPartitionSpecs(GeomDetEnumerators::ME0, name, pars);
+  auto* e_p_specs = new ME0EtaPartitionSpecs(GeomDetEnumerators::ME0, name, pars);
 
   ME0EtaPartition* etaPartition = new ME0EtaPartition(detId, surf, e_p_specs);
   return etaPartition;
@@ -479,7 +479,7 @@ ME0EtaPartition* ME0GeometryBuilder::buildEtaPartition(cms::DDFilteredView& fv, 
 
   std::string_view name = fv.name();
 
-  ME0EtaPartitionSpecs* e_p_specs = new ME0EtaPartitionSpecs(GeomDetEnumerators::ME0, std::string(name), pars);
+  auto* e_p_specs = new ME0EtaPartitionSpecs(GeomDetEnumerators::ME0, std::string(name), pars);
 
   ME0EtaPartition* etaPartition = new ME0EtaPartition(detId, surf, e_p_specs);
 

@@ -51,7 +51,7 @@ void MuonShowerInformationProducer::produce(edm::Event& iEvent, const edm::Event
   std::vector<reco::MuonShower> showerInfoValues;
   showerInfoValues.reserve(muons->size());
 
-  for (reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
+  for (auto muon = muons->begin(); muon != muons->end(); ++muon) {
     // if (!muon->isGlobalMuon() && !muon->isStandAloneMuon()) continue;
     showerInfoValues.push_back(showerFiller_->fillShowerInformation(*muon, iEvent, iSetup));
   }

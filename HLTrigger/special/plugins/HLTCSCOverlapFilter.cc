@@ -67,7 +67,7 @@ bool HLTCSCOverlapFilter::hltFilter(edm::Event& iEvent,
     int chamber_id = CSCDetId(id.endcap(), id.station(), id.ring(), id.chamber(), 0).rawId();
 
     if ((m_ring1 && (id.ring() == 1 || id.ring() == 4)) || (m_ring2 && id.ring() == 2)) {
-      std::map<int, std::vector<const CSCRecHit2D*> >::const_iterator chamber_iter = chamber_tohit.find(chamber_id);
+      auto chamber_iter = chamber_tohit.find(chamber_id);
       if (chamber_iter == chamber_tohit.end()) {
         std::vector<const CSCRecHit2D*> newlist;
         newlist.push_back(&hit);
@@ -78,9 +78,7 @@ bool HLTCSCOverlapFilter::hltFilter(edm::Event& iEvent,
 
   bool keep = false;
   unsigned int minHitsSquared = m_minHits * m_minHits;
-  for (std::map<int, std::vector<const CSCRecHit2D*> >::const_iterator chamber_iter = chamber_tohit.begin();
-       chamber_iter != chamber_tohit.end();
-       ++chamber_iter) {
+  for (auto chamber_iter = chamber_tohit.begin(); chamber_iter != chamber_tohit.end(); ++chamber_iter) {
     if (m_fillHists) {
       m_nhitsNoWindowCut->Fill(chamber_iter->second.size());
     }
@@ -98,7 +96,7 @@ bool HLTCSCOverlapFilter::hltFilter(edm::Event& iEvent,
 
       int next_id = CSCDetId(chamber_id.endcap(), chamber_id.station(), chamber_id.ring(), next, 0).rawId();
 
-      std::map<int, std::vector<const CSCRecHit2D*> >::const_iterator chamber_next = chamber_tohit.find(next_id);
+      auto chamber_next = chamber_tohit.find(next_id);
       if (chamber_next != chamber_tohit.end() && chamber_next->second.size() >= m_minHits) {
         if (!got_cscGeometry) {
           iSetup.get<MuonGeometryRecord>().get(cscGeometry);

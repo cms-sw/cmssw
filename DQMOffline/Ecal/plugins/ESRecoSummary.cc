@@ -83,8 +83,7 @@ void ESRecoSummary::analyze(const edm::Event &ev, const edm::EventSetup &) {
 
   float maxRecHitEnergyES = -999.;
 
-  for (ESRecHitCollection::const_iterator esItr = thePreShowerRecHits->begin(); esItr != thePreShowerRecHits->end();
-       ++esItr) {
+  for (auto esItr = thePreShowerRecHits->begin(); esItr != thePreShowerRecHits->end(); ++esItr) {
     h_recHits_ES_time->Fill(esItr->time());
     if (esItr->energy() > maxRecHitEnergyES)
       maxRecHitEnergyES = esItr->energy();
@@ -112,9 +111,7 @@ void ESRecoSummary::analyze(const edm::Event &ev, const edm::EventSetup &) {
   }
 
   // loop over all super clusters
-  for (reco::SuperClusterCollection::const_iterator itSC = theEndcapSuperClusters->begin();
-       itSC != theEndcapSuperClusters->end();
-       ++itSC) {
+  for (auto itSC = theEndcapSuperClusters->begin(); itSC != theEndcapSuperClusters->end(); ++itSC) {
     if (fabs(itSC->eta()) < 1.65 || fabs(itSC->eta()) > 2.6)
       continue;
 
@@ -126,9 +123,7 @@ void ESRecoSummary::analyze(const edm::Event &ev, const edm::EventSetup &) {
          ecalBasicCluster++) {
       const reco::CaloClusterPtr ecalBasicClusterPtr = *(ecalBasicCluster);
 
-      for (reco::PreshowerClusterCollection::const_iterator iESClus = ESclustersX->begin();
-           iESClus != ESclustersX->end();
-           ++iESClus) {
+      for (auto iESClus = ESclustersX->begin(); iESClus != ESclustersX->end(); ++iESClus) {
         const reco::CaloClusterPtr preshBasicCluster = iESClus->basicCluster();
         const reco::PreshowerCluster *esCluster = &*iESClus;
         if (preshBasicCluster == ecalBasicClusterPtr) {
@@ -136,9 +131,7 @@ void ESRecoSummary::analyze(const edm::Event &ev, const edm::EventSetup &) {
         }
       }  // end of x loop
 
-      for (reco::PreshowerClusterCollection::const_iterator iESClus = ESclustersY->begin();
-           iESClus != ESclustersY->end();
-           ++iESClus) {
+      for (auto iESClus = ESclustersY->begin(); iESClus != ESclustersY->end(); ++iESClus) {
         const reco::CaloClusterPtr preshBasicCluster = iESClus->basicCluster();
         const reco::PreshowerCluster *esCluster = &*iESClus;
         if (preshBasicCluster == ecalBasicClusterPtr) {

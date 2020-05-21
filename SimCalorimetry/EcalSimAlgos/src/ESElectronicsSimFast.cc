@@ -30,8 +30,8 @@ void ESElectronicsSimFast::analogToDigital(CLHEP::HepRandomEngine* engine,
   df.setSize(cs.size());
 
   const DetId id(cs.id());
-  ESPedestals::const_iterator it_ped(m_peds->find(id));
-  ESIntercalibConstantMap::const_iterator it_mip(isNoise ? m_mips->getMap().end() : m_mips->getMap().find(id));
+  auto it_ped(m_peds->find(id));
+  auto it_mip(isNoise ? m_mips->getMap().end() : m_mips->getMap().find(id));
 
   const double baseline((double)it_ped->getMean());
   const double sigma(isNoise ? 0. : (double)it_ped->getRms());

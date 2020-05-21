@@ -20,14 +20,13 @@ TauJetCorrFactorsProducer::TauJetCorrFactorsProducer(const edm::ParameterSet& cf
       levels_(cfg.getParameter<std::vector<std::string> >("levels")) {
   typedef std::vector<edm::ParameterSet> vParameterSet;
   vParameterSet parameters = cfg.getParameter<vParameterSet>("parameters");
-  for (vParameterSet::const_iterator param = parameters.begin(); param != parameters.end(); ++param) {
+  for (auto param = parameters.begin(); param != parameters.end(); ++param) {
     payloadMappingType payloadMapping;
 
     payloadMapping.payload_ = param->getParameter<std::string>("payload");
 
     vstring decayModes_string = param->getParameter<vstring>("decayModes");
-    for (vstring::const_iterator decayMode = decayModes_string.begin(); decayMode != decayModes_string.end();
-         ++decayMode) {
+    for (auto decayMode = decayModes_string.begin(); decayMode != decayModes_string.end(); ++decayMode) {
       if ((*decayMode) == "*") {
         defaultPayload_ = payloadMapping.payload_;
       } else {
@@ -45,7 +44,7 @@ TauJetCorrFactorsProducer::TauJetCorrFactorsProducer(const edm::ParameterSet& cf
 std::vector<JetCorrectorParameters> TauJetCorrFactorsProducer::params(
     const JetCorrectorParametersCollection& jecParameters, const std::vector<std::string>& levels) const {
   std::vector<JetCorrectorParameters> retVal;
-  for (std::vector<std::string>::const_iterator corrLevel = levels.begin(); corrLevel != levels.end(); ++corrLevel) {
+  for (auto corrLevel = levels.begin(); corrLevel != levels.end(); ++corrLevel) {
     const JetCorrectorParameters& jecParameter_level = jecParameters[*corrLevel];
     retVal.push_back(jecParameter_level);
   }
@@ -87,11 +86,8 @@ void TauJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& 
     std::string payload = defaultPayload_;
     if (dynamic_cast<const reco::PFTau*>(&(*tauJet))) {
       const reco::PFTau* pfTauJet = dynamic_cast<const reco::PFTau*>(&(*tauJet));
-      for (std::vector<payloadMappingType>::const_iterator payloadMapping = payloadMappings_.begin();
-           payloadMapping != payloadMappings_.end();
-           ++payloadMapping) {
-        for (vint::const_iterator decayMode = payloadMapping->decayModes_.begin();
-             decayMode != payloadMapping->decayModes_.end();
+      for (auto payloadMapping = payloadMappings_.begin(); payloadMapping != payloadMappings_.end(); ++payloadMapping) {
+        for (auto decayMode = payloadMapping->decayModes_.begin(); decayMode != payloadMapping->decayModes_.end();
              ++decayMode) {
           if (pfTauJet->decayMode() == (*decayMode))
             payload = payloadMapping->payload_;

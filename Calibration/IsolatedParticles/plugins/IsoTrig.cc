@@ -609,7 +609,7 @@ void IsoTrig::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     edm::Handle<reco::TrackCollection> iPixCol;
     iEvent.getByToken(tok_pixtks_[iPix], iPixCol);
     if (iPixCol.isValid()) {
-      for (reco::TrackCollection::const_iterator pit = iPixCol->begin(); pit != iPixCol->end(); pit++) {
+      for (auto pit = iPixCol->begin(); pit != iPixCol->end(); pit++) {
         if (iPix == 0)
           pixelTrackRefsHB_.push_back(reco::TrackRef(iPixCol, pit - iPixCol->begin()));
         pixelTrackRefsHE_.push_back(reco::TrackRef(iPixCol, pit - iPixCol->begin()));
@@ -1387,7 +1387,7 @@ void IsoTrig::studyTiming(const edm::Event &theEvent) {
       reco::VertexCollection::const_iterator vitSel;
       double minDZ = 100;
       bool vtxMatch;
-      for (reco::VertexCollection::const_iterator vit = pVertHE->begin(); vit != pVertHE->end(); vit++) {
+      for (auto vit = pVertHE->begin(); vit != pVertHE->end(); vit++) {
         if (fabs(pixelTrackRefsHE_[iS]->dz(vit->position())) < minDZ) {
           minDZ = fabs(pixelTrackRefsHE_[iS]->dz(vit->position()));
           vitSel = vit;
@@ -1406,7 +1406,7 @@ void IsoTrig::studyTiming(const edm::Event &theEvent) {
       reco::VertexCollection::const_iterator vitSel;
       double minDZ = 100;
       bool vtxMatch(false);
-      for (reco::VertexCollection::const_iterator vit = pVertHB->begin(); vit != pVertHB->end(); vit++) {
+      for (auto vit = pVertHB->begin(); vit != pVertHB->end(); vit++) {
         if (fabs(pixelTrackRefsHB_[iS]->dz(vit->position())) < minDZ) {
           minDZ = fabs(pixelTrackRefsHB_[iS]->dz(vit->position()));
           vitSel = vit;
@@ -1630,7 +1630,7 @@ void IsoTrig::studyTrigger(edm::Handle<reco::TrackCollection> &trkCollection,
       edm::LogVerbatim("IsoTrack") << "Now Matching L3 track with reco: L3 Track (eta, phi) " << vec_[2][k].eta() << ":"
                                    << vec_[2][k].phi() << " L2 Track " << mindRvec.eta() << ":" << mindRvec.phi()
                                    << " dR " << mindR;
-    reco::TrackCollection::const_iterator goodTk = trkCollection->end();
+    auto goodTk = trkCollection->end();
     if (trkCollection.isValid()) {
       double mindP(9999.9);
       reco::TrackCollection::const_iterator trkItr;
@@ -1694,19 +1694,17 @@ void IsoTrig::studyIsolation(edm::Handle<reco::TrackCollection> &trkCollection,
     std::vector<spr::propagatedTrackDirection>::const_iterator trkDetItr;
     if ((verbosity_ / 1000) % 10 > 1) {
       edm::LogVerbatim("IsoTrack") << "n of barrelRecHitsHandle " << barrelRecHitsHandle_->size();
-      for (EcalRecHitCollection::const_iterator hit = barrelRecHitsHandle_->begin(); hit != barrelRecHitsHandle_->end();
-           ++hit) {
+      for (auto hit = barrelRecHitsHandle_->begin(); hit != barrelRecHitsHandle_->end(); ++hit) {
         edm::LogVerbatim("IsoTrack") << "hit : detid(ieta,iphi) " << (EBDetId)(hit->id()) << " time " << hit->time()
                                      << " energy " << hit->energy();
       }
       edm::LogVerbatim("IsoTrack") << "n of endcapRecHitsHandle " << endcapRecHitsHandle_->size();
-      for (EcalRecHitCollection::const_iterator hit = endcapRecHitsHandle_->begin(); hit != endcapRecHitsHandle_->end();
-           ++hit) {
+      for (auto hit = endcapRecHitsHandle_->begin(); hit != endcapRecHitsHandle_->end(); ++hit) {
         edm::LogVerbatim("IsoTrack") << "hit : detid(ieta,iphi) " << (EEDetId)(hit->id()) << " time " << hit->time()
                                      << " energy " << hit->energy();
       }
       edm::LogVerbatim("IsoTrack") << "n of hbhe " << hbhe_->size();
-      for (HBHERecHitCollection::const_iterator hit = hbhe_->begin(); hit != hbhe_->end(); ++hit) {
+      for (auto hit = hbhe_->begin(); hit != hbhe_->end(); ++hit) {
         edm::LogVerbatim("IsoTrack") << "hit : detid(ieta,iphi) " << hit->id() << " time " << hit->time() << " energy "
                                      << hit->energy();
       }

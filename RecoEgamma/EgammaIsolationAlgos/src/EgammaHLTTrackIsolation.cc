@@ -82,7 +82,7 @@ std::pair<int, float> EgammaHLTTrackIsolation::findIsoTracks(
   int ntrack = 0;
   float ptSum = 0.;
 
-  for (reco::TrackCollection::const_iterator trItr = isoTracks->begin(); trItr != isoTracks->end(); ++trItr) {
+  for (auto trItr = isoTracks->begin(); trItr != isoTracks->end(); ++trItr) {
     GlobalPoint ivtx(trItr->vertex().x(), trItr->vertex().y(), trItr->vertex().z());
     reco::Track::Vector ip = trItr->momentum();
     GlobalVector imom(ip.x(), ip.y(), ip.z());
@@ -158,7 +158,7 @@ std::pair<int, float> EgammaHLTTrackIsolation::findIsoTracksWithoutEle(GlobalVec
   // std::cout << "allEle.size() = " << allEle->size() << std::endl;
 
   // Store ALL electrons eta and phi
-  for (reco::ElectronCollection::const_iterator iElectron = allEle->begin(); iElectron != allEle->end(); iElectron++) {
+  for (auto iElectron = allEle->begin(); iElectron != allEle->end(); iElectron++) {
     iele++;
     reco::TrackRef anothereletrackref = iElectron->track();
     etaele.push_back(anothereletrackref->momentum().eta());
@@ -166,7 +166,7 @@ std::pair<int, float> EgammaHLTTrackIsolation::findIsoTracksWithoutEle(GlobalVec
     // std::cout << "Electron " << iele << ": phi = " << anothereletrackref->momentum().phi() << ", eta = " << anothereletrackref->momentum().eta() << std::endl;
   }
 
-  for (reco::TrackCollection::const_iterator trItr = isoTracks->begin(); trItr != isoTracks->end(); ++trItr) {
+  for (auto trItr = isoTracks->begin(); trItr != isoTracks->end(); ++trItr) {
     GlobalPoint ivtx(trItr->vertex().x(), trItr->vertex().y(), trItr->vertex().z());
     reco::Track::Vector ip = trItr->momentum();
     GlobalVector imom(ip.x(), ip.y(), ip.z());

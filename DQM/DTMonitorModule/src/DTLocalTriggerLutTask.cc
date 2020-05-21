@@ -146,8 +146,8 @@ void DTLocalTriggerLutTask::bookHistograms(DQMStore::IBooker& ibooker,
                                            edm::EventSetup const& context) {
   LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerLutTask") << "[DTLocalTriggerLutTask]: bookHistograms" << endl;
 
-  std::vector<const DTChamber*>::const_iterator chambIt = muonGeom->chambers().begin();
-  std::vector<const DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
+  auto chambIt = muonGeom->chambers().begin();
+  auto chambEnd = muonGeom->chambers().end();
 
   for (; chambIt != chambEnd; ++chambIt)
     bookHistos(ibooker, (*chambIt)->id());
@@ -159,12 +159,12 @@ void DTLocalTriggerLutTask::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 
   if (nLumis % parameters.getUntrackedParameter<int>("ResetCycle") == 0) {
     LogTrace("DTDQM|DTMonitorModule|DTLocalTriggerLutTask") << "[DTLocalTriggerLutTask]: Cleaning histos" << endl;
-    map<uint32_t, map<string, MonitorElement*> >::const_iterator chambIt = chHistos.begin();
-    map<uint32_t, map<string, MonitorElement*> >::const_iterator chambEnd = chHistos.end();
+    auto chambIt = chHistos.begin();
+    auto chambEnd = chHistos.end();
 
     for (; chambIt != chambEnd; ++chambIt) {
-      map<string, MonitorElement*>::const_iterator histoIt = chambIt->second.begin();
-      map<string, MonitorElement*>::const_iterator histoEnd = chambIt->second.end();
+      auto histoIt = chambIt->second.begin();
+      auto histoEnd = chambIt->second.end();
       for (; histoIt != histoEnd; ++histoIt) {
         histoIt->second->Reset();
       }
@@ -215,8 +215,8 @@ void DTLocalTriggerLutTask::analyze(const edm::Event& e, const edm::EventSetup& 
       best4DSegments.push_back(tmpBest);
   }
 
-  vector<const DTRecSegment4D*>::const_iterator bestTrackIt = best4DSegments.begin();
-  vector<const DTRecSegment4D*>::const_iterator bestTrackEnd = best4DSegments.end();
+  auto bestTrackIt = best4DSegments.begin();
+  auto bestTrackEnd = best4DSegments.end();
 
   for (; bestTrackIt != bestTrackEnd; ++bestTrackIt) {
     if ((*bestTrackIt)->hasPhi()) {
@@ -281,8 +281,8 @@ void DTLocalTriggerLutTask::searchTMBestIn(std::vector<L1MuDTChambPhDigi> const*
       for (int sec = 0; sec <= 12; ++sec)
         trigQualBestIn[wh][st][sec] = -1;
 
-  vector<L1MuDTChambPhDigi>::const_iterator trigIt = trigs->begin();
-  vector<L1MuDTChambPhDigi>::const_iterator trigEnd = trigs->end();
+  auto trigIt = trigs->begin();
+  auto trigEnd = trigs->end();
   for (; trigIt != trigEnd; ++trigIt) {
     int wh = trigIt->whNum();
     int sec = trigIt->scNum() + 1;  // DTTF -> DT sector range transform
@@ -307,8 +307,8 @@ void DTLocalTriggerLutTask::searchTMBestOut(std::vector<L1MuDTChambPhDigi> const
       for (int sec = 0; sec <= 12; ++sec)
         trigQualBestOut[wh][st][sec] = -1;
 
-  vector<L1MuDTChambPhDigi>::const_iterator trigIt = trigs->begin();
-  vector<L1MuDTChambPhDigi>::const_iterator trigEnd = trigs->end();
+  auto trigIt = trigs->begin();
+  auto trigEnd = trigs->end();
   for (; trigIt != trigEnd; ++trigIt) {
     int wh = trigIt->whNum();
     int sec = trigIt->scNum() + 1;  // DTTF -> DT sector range transform

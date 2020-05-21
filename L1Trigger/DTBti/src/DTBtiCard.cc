@@ -100,7 +100,7 @@ void DTBtiCard::setConfig(const DTConfigManager* conf) {
 void DTBtiCard::localClear() {
   // Clear the maps
   for (int i = 0; i < 3; i++) {
-    for (BTI_iter p = _btimap[i].begin(); p != _btimap[i].end(); p++) {
+    for (auto p = _btimap[i].begin(); p != _btimap[i].end(); p++) {
       delete (*p).second;
     }
     _btimap[i].clear();
@@ -414,7 +414,7 @@ DTBtiChip* DTBtiCard::activeGetBTI(int sl, int n) {
     return bti;
   }
 
-  BTI_iter pbti = _btimap[sl - 1].find(n);
+  auto pbti = _btimap[sl - 1].find(n);
   if (pbti != _btimap[sl - 1].end()) {
     bti = (*pbti).second;
   } else {
@@ -431,7 +431,7 @@ DTBtiChip* DTBtiCard::getBTI(int sl, int n) const {
     std::cout << " 0 returned!" << std::endl;
     return nullptr;
   }
-  BTI_const_iter pbti = _btimap[sl - 1].find(n);
+  auto pbti = _btimap[sl - 1].find(n);
   if (pbti == _btimap[sl - 1].end()) {
     return nullptr;
   }
@@ -451,7 +451,7 @@ std::vector<DTBtiChip*> DTBtiCard::btiList(int sl) {
     return blist;
   }
 
-  for (BTI_const_iter p = _btimap[sl - 1].begin(); p != _btimap[sl - 1].end(); p++) {
+  for (auto p = _btimap[sl - 1].begin(); p != _btimap[sl - 1].end(); p++) {
     blist.push_back((*p).second);
   }
   return blist;
@@ -636,7 +636,7 @@ DTBtiCard::localDirection(const DTTrigData* tr) const {
 
 DTConfigBti* DTBtiCard::config_bti(DTBtiId& btiid) const {
   //loop on map to find bti
-  ConfBtiMap::const_iterator biter = _conf_bti_map.find(btiid);
+  auto biter = _conf_bti_map.find(btiid);
   if (biter == _conf_bti_map.end()) {
     std::cout << "DTBtiCard::config_bti : BTI (" << btiid.wheel() << "," << btiid.sector() << "," << btiid.station()
               << "," << btiid.superlayer() << "," << btiid.bti() << ") not found, return 0" << std::endl;

@@ -46,12 +46,12 @@ void HcalPedestalWidthsCheck::analyze(const edm::Event& ev, const edm::EventSetu
   // go through list of valid channels from reference, look up if pedestals exist for update
   // push back into new vector the corresponding updated pedestals,
   // or if it doesn't exist, the reference
-  HcalPedestalWidths* resultPeds = new HcalPedestalWidths(myRefPeds->topo(), myRefPeds->isADC());
+  auto* resultPeds = new HcalPedestalWidths(myRefPeds->topo(), myRefPeds->isADC());
   std::vector<DetId> listRefChan = myRefPeds->getAllChannels();
   std::vector<DetId>::iterator cell;
 
   if (validateflag) {
-    for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++) {
+    for (auto it = listRefChan.begin(); it != listRefChan.end(); it++) {
       DetId mydetid = *it;
       cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
       if (cell == listNewChan.end())  // not present in new list, take old pedestals
@@ -77,7 +77,7 @@ void HcalPedestalWidthsCheck::analyze(const edm::Event& ev, const edm::EventSetu
   }
 
   if (epsilon != 0) {
-    for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++) {
+    for (auto it = listRefChan.begin(); it != listRefChan.end(); it++) {
       DetId mydetid = *it;
       cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
       if (cell == listNewChan.end())  // not present in new list, take old pedestals
@@ -102,7 +102,7 @@ void HcalPedestalWidthsCheck::analyze(const edm::Event& ev, const edm::EventSetu
     std::cout << "These are identical" << std::endl;
   }
   if (outfile != "null") {
-    for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++) {
+    for (auto it = listRefChan.begin(); it != listRefChan.end(); it++) {
       DetId mydetid = *it;
       cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
       if (cell == listNewChan.end())  // not present in new list, take old pedestals
@@ -120,7 +120,7 @@ void HcalPedestalWidthsCheck::analyze(const edm::Event& ev, const edm::EventSetu
       }
     }
 
-    for (std::vector<DetId>::iterator it = listNewChan.begin(); it != listNewChan.end(); it++)  // fix 25.02.08
+    for (auto it = listNewChan.begin(); it != listNewChan.end(); it++)  // fix 25.02.08
     {
       DetId mydetid = *it;
       const HcalPedestalWidth* mywidth = myNewPeds->getValues(mydetid);
@@ -138,7 +138,7 @@ void HcalPedestalWidthsCheck::analyze(const edm::Event& ev, const edm::EventSetu
     // get the e-map list of channels
     std::vector<HcalGenericDetId> listEMap = myRefEMap->allPrecisionId();
     // look up if emap channels are all present in pedestals, if not then cerr
-    for (std::vector<HcalGenericDetId>::const_iterator it = listEMap.begin(); it != listEMap.end(); it++) {
+    for (auto it = listEMap.begin(); it != listEMap.end(); it++) {
       DetId mydetid = DetId(it->rawId());
       if (std::find(listResult.begin(), listResult.end(), mydetid) == listResult.end()) {
         std::cout << "Conditions not found for DetId = " << HcalGenericDetId(it->rawId()) << std::endl;

@@ -70,7 +70,7 @@ namespace DDI {
     lpv_sizetype lpv_i = 0;
     std::vector<DDPartSelection> result;
     for (; lpv_i < lpv_sz; ++lpv_i) {
-      std::vector<DDPartSelection>::const_iterator ps_it = selv.begin();
+      auto ps_it = selv.begin();
       for (; ps_it != selv.end(); ++ps_it) {
         result.emplace_back(*ps_it);
       }
@@ -145,8 +145,8 @@ namespace DDI {
     }
     const DDPartSelection& ps = partSelections_[0];
 
-    DDPartSelection::const_iterator it = ps.begin();
-    DDPartSelection::const_iterator ed = ps.end();
+    auto it = ps.begin();
+    auto ed = ps.end();
     if ((it != ed) && (it->selectionType_ != ddanyposp)) {
       edm::LogError("Specific") << " >> part-selector must start with //Name[no] ! << " << std::endl;
       return std::make_pair(false, e);

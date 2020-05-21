@@ -214,7 +214,7 @@ void CastorDigiMonitor::processEvent(edm::Event const &event,
   }
 
   float Ecell[14][16]{};
-  for (CastorDigiCollection::const_iterator j = castorDigis.begin(); j != castorDigis.end(); j++) {
+  for (auto j = castorDigis.begin(); j != castorDigis.end(); j++) {
     const CastorDataFrame digi = (const CastorDataFrame)(*j);
 
     int module = digi.id().module() - 1;
@@ -412,7 +412,7 @@ void CastorDigiMonitor::getDbData(const edm::EventSetup &iSetup) {
   N_GoodChannels = 224 - channels.size();
   if (fVerbosity > 0)
     LogPrint("CastorDigiMonitor") << "CastorDigiMonitor::getDBData: QualityRcdSize=" << channels.size();
-  for (std::vector<DetId>::iterator ch = channels.begin(); ch != channels.end(); ch++) {
+  for (auto ch = channels.begin(); ch != channels.end(); ch++) {
     const CastorChannelStatus *quality = dbChQuality->getValues(*ch);
     int value = quality->getValue();
     int rawId = quality->rawId();

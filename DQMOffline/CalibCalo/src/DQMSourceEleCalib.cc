@@ -91,7 +91,7 @@ void DQMSourceEleCalib::analyze(const Event &iEvent, const EventSetup &iSetup) {
   if (pElectrons.isValid()) {
     ElectronsNumber_->Fill(pElectrons->size() + 0.1);
     numberOfElectrons = pElectrons->size();
-    for (reco::GsfElectronCollection::const_iterator eleIt = pElectrons->begin(); eleIt != pElectrons->end(); ++eleIt) {
+    for (auto eleIt = pElectrons->begin(); eleIt != pElectrons->end(); ++eleIt) {
       ESCoP_->Fill(eleIt->eSuperClusterOverP());
       numberOfAssociatedHits += eleIt->superCluster()->size();
       DetId Max = findMaxHit(eleIt->superCluster()->hitsAndFractions(), rhEB.product(), rhEE.product());
@@ -144,7 +144,7 @@ DetId DQMSourceEleCalib::findMaxHit(const std::vector<std::pair<DetId, float>> &
                                     const EcalRecHitCollection *EEhits) {
   double currEnergy = 0.;
   DetId maxHit;
-  for (std::vector<std::pair<DetId, float>>::const_iterator idsIt = v1.begin(); idsIt != v1.end(); ++idsIt) {
+  for (auto idsIt = v1.begin(); idsIt != v1.end(); ++idsIt) {
     if (idsIt->first.subdetId() == EcalBarrel) {
       EcalRecHitCollection::const_iterator itrechit;
       itrechit = EBhits->find((*idsIt).first);
@@ -176,7 +176,7 @@ DetId DQMSourceEleCalib::findMaxHit(const std::vector<std::pair<DetId, float>> &
 }
 
 void DQMSourceEleCalib::fillAroundBarrel(const EcalRecHitCollection *recHits, int eta, int phi) {
-  for (EcalRecHitCollection::const_iterator elem = recHits->begin(); elem != recHits->end(); ++elem) {
+  for (auto elem = recHits->begin(); elem != recHits->end(); ++elem) {
     EBDetId elementId = elem->id();
     LocalOccupancyEB_->Fill(elementId.ieta() - eta, elementId.iphi() - phi, elem->energy());
   }
@@ -186,7 +186,7 @@ void DQMSourceEleCalib::fillAroundBarrel(const EcalRecHitCollection *recHits, in
 // ----------------------------------------------------------------
 
 void DQMSourceEleCalib::fillAroundEndcap(const EcalRecHitCollection *recHits, int ics, int ips) {
-  for (EcalRecHitCollection::const_iterator elem = recHits->begin(); elem != recHits->end(); ++elem) {
+  for (auto elem = recHits->begin(); elem != recHits->end(); ++elem) {
     EEDetId elementId = elem->id();
     LocalOccupancyEE_->Fill(elementId.ix() - ics, elementId.iy() - ips, elem->energy());
   }

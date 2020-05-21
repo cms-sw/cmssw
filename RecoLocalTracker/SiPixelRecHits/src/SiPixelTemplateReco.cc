@@ -287,7 +287,7 @@ int SiPixelTemplateReco::PixelTempReco1D(int id,
 
     //First see if the cluster ends are redefined and that we have only one dead pixel per column
 
-    std::vector<std::pair<int, int> >::const_iterator zeroIter = zeropix.begin(), zeroEnd = zeropix.end();
+    auto zeroIter = zeropix.begin(), zeroEnd = zeropix.end();
     for (; zeroIter != zeroEnd; ++zeroIter) {
       i = zeroIter->second;
       if (i < 0 || i > TYSIZE - 1) {

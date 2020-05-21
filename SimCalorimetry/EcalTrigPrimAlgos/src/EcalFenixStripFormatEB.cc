@@ -46,7 +46,7 @@ void EcalFenixStripFormatEB::process(std::vector<int> &sFGVBout,
 
 void EcalFenixStripFormatEB::setParameters(uint32_t &id, const EcalTPGSlidingWindow *&slWin) {
   const EcalTPGSlidingWindowMap &slwinmap = slWin->getMap();
-  EcalTPGSlidingWindowMapIterator it = slwinmap.find(id);
+  auto it = slwinmap.find(id);
   if (it != slwinmap.end())
     shift_ = (*it).second;
   else

@@ -172,8 +172,7 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent,
     unsigned int maxI = mucands->size();
     for (unsigned int i = 0; i != maxI; ++i) {
       const TrackRef& tk = (*mucands)[i].track();
-      edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef =
-          tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
+      auto l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
       TrackRef staTrack = l3seedRef->l2Track();
       LogDebug("HLTMuonL3PreFilter") << "L2 from: " << iEvent.getProvenance(staTrack.id()).moduleLabel()
                                      << " index: " << staTrack.key();

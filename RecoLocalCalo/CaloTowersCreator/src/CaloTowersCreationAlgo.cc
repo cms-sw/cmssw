@@ -372,22 +372,22 @@ void CaloTowersCreationAlgo::begin() {
 }
 
 void CaloTowersCreationAlgo::process(const HBHERecHitCollection& hbhe) {
-  for (HBHERecHitCollection::const_iterator hbheItr = hbhe.begin(); hbheItr != hbhe.end(); ++hbheItr)
+  for (auto hbheItr = hbhe.begin(); hbheItr != hbhe.end(); ++hbheItr)
     assignHitHcal(&(*hbheItr));
 }
 
 void CaloTowersCreationAlgo::process(const HORecHitCollection& ho) {
-  for (HORecHitCollection::const_iterator hoItr = ho.begin(); hoItr != ho.end(); ++hoItr)
+  for (auto hoItr = ho.begin(); hoItr != ho.end(); ++hoItr)
     assignHitHcal(&(*hoItr));
 }
 
 void CaloTowersCreationAlgo::process(const HFRecHitCollection& hf) {
-  for (HFRecHitCollection::const_iterator hfItr = hf.begin(); hfItr != hf.end(); ++hfItr)
+  for (auto hfItr = hf.begin(); hfItr != hf.end(); ++hfItr)
     assignHitHcal(&(*hfItr));
 }
 
 void CaloTowersCreationAlgo::process(const EcalRecHitCollection& ec) {
-  for (EcalRecHitCollection::const_iterator ecItr = ec.begin(); ecItr != ec.end(); ++ecItr)
+  for (auto ecItr = ec.begin(); ecItr != ec.end(); ++ecItr)
     assignHitEcal(&(*ecItr));
 }
 
@@ -396,7 +396,7 @@ void CaloTowersCreationAlgo::process(const EcalRecHitCollection& ec) {
 // "rescale was replaced by "rescaleTowers"
 //
 void CaloTowersCreationAlgo::process(const CaloTowerCollection& ctc) {
-  for (CaloTowerCollection::const_iterator ctcItr = ctc.begin(); ctcItr != ctc.end(); ++ctcItr) {
+  for (auto ctcItr = ctc.begin(); ctcItr != ctc.end(); ++ctcItr) {
     rescale(&(*ctcItr));
   }
 }
@@ -424,7 +424,7 @@ void CaloTowersCreationAlgo::finish(CaloTowerCollection& result) {
 }
 
 void CaloTowersCreationAlgo::rescaleTowers(const CaloTowerCollection& ctc, CaloTowerCollection& ctcResult) {
-  for (CaloTowerCollection::const_iterator ctcItr = ctc.begin(); ctcItr != ctc.end(); ++ctcItr) {
+  for (auto ctcItr = ctc.begin(); ctcItr != ctc.end(); ++ctcItr) {
     CaloTowerDetId twrId = ctcItr->id();
     double newE_em = ctcItr->emEnergy();
     double newE_had = ctcItr->hadEnergy();
@@ -943,7 +943,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
     E_em = 0;
     std::vector<std::pair<DetId, float> > metaContains_noecal;
 
-    for (std::vector<std::pair<DetId, float> >::iterator i = metaContains.begin(); i != metaContains.end(); ++i)
+    for (auto i = metaContains.begin(); i != metaContains.end(); ++i)
       if (i->first.det() != DetId::Ecal)
         metaContains_noecal.push_back(*i);
     metaContains.swap(metaContains_noecal);
@@ -958,7 +958,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
     E_outer = 0;
     std::vector<std::pair<DetId, float> > metaContains_nohcal;
 
-    for (std::vector<std::pair<DetId, float> >::iterator i = metaContains.begin(); i != metaContains.end(); ++i)
+    for (auto i = metaContains.begin(); i != metaContains.end(); ++i)
       if (i->first.det() != DetId::Hcal)
         metaContains_nohcal.push_back(*i);
     metaContains.swap(metaContains_nohcal);
@@ -1148,7 +1148,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
   unsigned int numProbEcalChan = mt.numProbEcalCells;
 
   // now add dead/off/... channels not used in RecHit reconstruction for HCAL
-  HcalDropChMap::iterator dropChItr = hcalDropChMap.find(id);
+  auto dropChItr = hcalDropChMap.find(id);
   if (dropChItr != hcalDropChMap.end())
     numBadHcalChan += dropChItr->second.first;
 
@@ -1213,7 +1213,7 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
 
   std::vector<DetId> contains;
   contains.reserve(metaContains.size());
-  for (std::vector<std::pair<DetId, float> >::iterator i = metaContains.begin(); i != metaContains.end(); ++i) {
+  for (auto i = metaContains.begin(); i != metaContains.end(); ++i) {
     contains.push_back(i->first);
 
     if (maxCellE < i->second) {
@@ -1432,7 +1432,7 @@ GlobalPoint CaloTowersCreationAlgo::hadShwrPos(const std::vector<std::pair<DetId
 
   int nConst = 0;
 
-  std::vector<std::pair<DetId, float> >::const_iterator mc_it = metaContains.begin();
+  auto mc_it = metaContains.begin();
   for (; mc_it != metaContains.end(); ++mc_it) {
     if (mc_it->first.det() != DetId::Hcal)
       continue;
@@ -1576,7 +1576,7 @@ GlobalPoint CaloTowersCreationAlgo::emShwrPos(const std::vector<std::pair<DetId,
 
   double eSum = 0;
 
-  std::vector<std::pair<DetId, float> >::const_iterator mc_it = metaContains.begin();
+  auto mc_it = metaContains.begin();
   for (; mc_it != metaContains.end(); ++mc_it) {
     if (mc_it->first.det() != DetId::Ecal)
       continue;
@@ -1606,7 +1606,7 @@ GlobalPoint CaloTowersCreationAlgo::emShwrLogWeightPos(const std::vector<std::pa
   double sumEmE = 0;  // add crystals with E/E_EM > 1.5%
   double crystalThresh = 0.015 * emE;
 
-  std::vector<std::pair<DetId, float> >::const_iterator mc_it = metaContains.begin();
+  auto mc_it = metaContains.begin();
   for (; mc_it != metaContains.end(); ++mc_it) {
     if (mc_it->second < 0)
       continue;
@@ -1656,7 +1656,7 @@ void CaloTowersCreationAlgo::makeHcalDropChMap() {
 #ifdef EDM_ML_DEBUG
   std::cout << "DropChMap with " << allChanInStatusCont.size() << " channels" << std::endl;
 #endif
-  for (std::vector<DetId>::iterator it = allChanInStatusCont.begin(); it != allChanInStatusCont.end(); ++it) {
+  for (auto it = allChanInStatusCont.begin(); it != allChanInStatusCont.end(); ++it) {
     const uint32_t dbStatusFlag = theHcalChStatus->getValues(*it)->getValue();
     if (theHcalSevLvlComputer->dropChannel(dbStatusFlag)) {
       DetId id = theHcalTopology->mergedDepthDetId(HcalDetId(*it));
@@ -1722,14 +1722,14 @@ void CaloTowersCreationAlgo::makeEcalBadChs() {
     // get all possible constituents of the tower
     std::vector<DetId> allConstituents = theTowerConstituentsMap->constituentsOf(id);
 
-    for (std::vector<DetId>::iterator ac_it = allConstituents.begin(); ac_it != allConstituents.end(); ++ac_it) {
+    for (auto ac_it = allConstituents.begin(); ac_it != allConstituents.end(); ++ac_it) {
       if (ac_it->det() != DetId::Ecal)
         continue;
 
       auto thisEcalSevLvl = theEcalSevLvlAlgo->severityLevel(*ac_it);
 
       // check if the Ecal severity is ok to keep
-      std::vector<int>::const_iterator sevit =
+      auto sevit =
           std::find(theEcalSeveritiesToBeExcluded.begin(), theEcalSeveritiesToBeExcluded.end(), thisEcalSevLvl);
       if (sevit != theEcalSeveritiesToBeExcluded.end()) {
         ++numBadEcalChan;
@@ -1835,8 +1835,7 @@ std::tuple<unsigned int, bool> CaloTowersCreationAlgo::ecalChanStatusForCaloTowe
 
   // check if the severity is compatible with our configuration
   // This applies to the "default" tower cleaning
-  std::vector<int>::const_iterator sevit =
-      std::find(theEcalSeveritiesToBeExcluded.begin(), theEcalSeveritiesToBeExcluded.end(), severityLevel);
+  auto sevit = std::find(theEcalSeveritiesToBeExcluded.begin(), theEcalSeveritiesToBeExcluded.end(), severityLevel);
   bool accepted = (sevit == theEcalSeveritiesToBeExcluded.end());
 
   // For use with hits that were rejected in the regular reconstruction:

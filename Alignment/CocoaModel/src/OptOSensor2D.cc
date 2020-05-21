@@ -187,7 +187,7 @@ void OptOSensor2D::fastTraversesLightRay(LightRay& lightray) {
     //-    std::vector< ALIdouble >::const_iterator eevolite = static_cast<std::vector< ALIdouble >::iterator>( ExtraEntryValueOriginalList().begin() );
     std::vector<ALIdouble> eevil = ExtraEntryValueOriginalList();
     //-    std::vector< ALIdouble >::const_iterator eevolite = ( ExtraEntryValueOriginalList().begin() );
-    std::vector<ALIdouble>::iterator eevolite = eevil.begin();
+    auto eevolite = eevil.begin();
 
     *(eevolite + entryNo) = deviX;
     if (verbose >= 3)

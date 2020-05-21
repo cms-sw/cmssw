@@ -54,7 +54,7 @@ TECLayer::TECLayer(vector<const TECPetal*>& innerPetals, vector<const TECPetal*>
   theComps.assign(theFrontComps.begin(), theFrontComps.end());
   theComps.insert(theComps.end(), theBackComps.begin(), theBackComps.end());
 
-  for (vector<const GeometricSearchDet*>::const_iterator it = theComps.begin(); it != theComps.end(); it++) {
+  for (auto it = theComps.begin(); it != theComps.end(); it++) {
     theBasicComps.insert(theBasicComps.end(), (**it).basicComponents().begin(), (**it).basicComponents().end());
   }
 

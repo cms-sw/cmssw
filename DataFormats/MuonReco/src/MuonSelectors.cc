@@ -22,7 +22,7 @@ namespace muon {
   }
 
   reco::Muon::Selector selectorFromString(const std::string& label) {
-    reco::Muon::Selector value = (reco::Muon::Selector)-1;
+    auto value = (reco::Muon::Selector)-1;
     bool found = false;
     for (int i = 0; selectorStringToEnumMap[i].label && (!found); ++i)
       if (!strcmp(label.c_str(), selectorStringToEnumMap[i].label)) {
@@ -560,18 +560,14 @@ bool muon::isGoodMuon(const reco::Muon& muon,
       return true;
 
     int nMatch = 0;
-    for (std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch = muon.matches().begin();
-         chamberMatch != muon.matches().end();
-         ++chamberMatch) {
+    for (auto chamberMatch = muon.matches().begin(); chamberMatch != muon.matches().end(); ++chamberMatch) {
       if (chamberMatch->detector() != 3)
         continue;
 
       const double trkX = chamberMatch->x;
       const double errX = chamberMatch->xErr;
 
-      for (std::vector<reco::MuonRPCHitMatch>::const_iterator rpcMatch = chamberMatch->rpcMatches.begin();
-           rpcMatch != chamberMatch->rpcMatches.end();
-           ++rpcMatch) {
+      for (auto rpcMatch = chamberMatch->rpcMatches.begin(); rpcMatch != chamberMatch->rpcMatches.end(); ++rpcMatch) {
         const double rpcX = rpcMatch->x;
 
         const double dX = fabs(rpcX - trkX);
@@ -808,12 +804,8 @@ bool muon::overlap(
   unsigned int nMatches1 = muon1.numberOfMatches(reco::Muon::SegmentAndTrackArbitration);
   unsigned int nMatches2 = muon2.numberOfMatches(reco::Muon::SegmentAndTrackArbitration);
   unsigned int betterMuon = (muon1.pt() > muon2.pt() ? 1 : 2);
-  for (std::vector<reco::MuonChamberMatch>::const_iterator chamber1 = muon1.matches().begin();
-       chamber1 != muon1.matches().end();
-       ++chamber1)
-    for (std::vector<reco::MuonChamberMatch>::const_iterator chamber2 = muon2.matches().begin();
-         chamber2 != muon2.matches().end();
-         ++chamber2) {
+  for (auto chamber1 = muon1.matches().begin(); chamber1 != muon1.matches().end(); ++chamber1)
+    for (auto chamber2 = muon2.matches().begin(); chamber2 != muon2.matches().end(); ++chamber2) {
       // if ( (chamber1->segmentMatches.empty() || chamber2->segmentMatches.empty()) ) continue;
 
       // handle case where both muons have information about the same chamber
@@ -991,24 +983,19 @@ int muon::sharedSegments(const reco::Muon& mu, const reco::Muon& mu2, unsigned i
   int ret = 0;
 
   // Will do with a stupid double loop, since creating and filling a map is probably _more_ inefficient for a single lookup.
-  for (std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch = mu.matches().begin();
-       chamberMatch != mu.matches().end();
-       ++chamberMatch) {
+  for (auto chamberMatch = mu.matches().begin(); chamberMatch != mu.matches().end(); ++chamberMatch) {
     if (chamberMatch->segmentMatches.empty())
       continue;
-    for (std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch2 = mu2.matches().begin();
-         chamberMatch2 != mu2.matches().end();
-         ++chamberMatch2) {
+    for (auto chamberMatch2 = mu2.matches().begin(); chamberMatch2 != mu2.matches().end(); ++chamberMatch2) {
       if (chamberMatch2->segmentMatches.empty())
         continue;
       if (chamberMatch2->id() != chamberMatch->id())
         continue;
-      for (std::vector<reco::MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
-           segmentMatch != chamberMatch->segmentMatches.end();
+      for (auto segmentMatch = chamberMatch->segmentMatches.begin(); segmentMatch != chamberMatch->segmentMatches.end();
            ++segmentMatch) {
         if (!segmentMatch->isMask(segmentArbitrationMask))
           continue;
-        for (std::vector<reco::MuonSegmentMatch>::const_iterator segmentMatch2 = chamberMatch2->segmentMatches.begin();
+        for (auto segmentMatch2 = chamberMatch2->segmentMatches.begin();
              segmentMatch2 != chamberMatch2->segmentMatches.end();
              ++segmentMatch2) {
           if (!segmentMatch2->isMask(segmentArbitrationMask))

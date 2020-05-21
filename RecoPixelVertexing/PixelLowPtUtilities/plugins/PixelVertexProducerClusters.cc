@@ -40,7 +40,7 @@ namespace {
     int n = 0;
     chi = 0.;
 
-    for (vector<VertexHit>::const_iterator hit = hits.begin(); hit != hits.end(); hit++) {
+    for (auto hit = hits.begin(); hit != hits.end(); hit++) {
       // Predicted cluster width in y direction
       float p = 2 * fabs(hit->z - z0) / hit->r + 0.5;  // FIXME
 
@@ -86,19 +86,17 @@ void PixelVertexProducerClusters::produce(edm::StreamID, edm::Event& ev, const e
   if (!thePixelHits->empty()) {
     vector<VertexHit> hits;
 
-    for (SiPixelRecHitCollection::DataContainer::const_iterator recHit = thePixelHits->data().begin(),
-                                                                recHitEnd = thePixelHits->data().end();
-         recHit != recHitEnd;
+    for (auto recHit = thePixelHits->data().begin(), recHitEnd = thePixelHits->data().end(); recHit != recHitEnd;
          ++recHit) {
       if (recHit->isValid()) {
         //      if(!(recHit->isOnEdge() || recHit->hasBadPixels()))
         DetId id = recHit->geographicalId();
-        const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>(theTracker->idToDetUnit(id));
+        const auto* pgdu = dynamic_cast<const PixelGeomDetUnit*>(theTracker->idToDetUnit(id));
         const PixelTopology* theTopol = (&(pgdu->specificTopology()));
         vector<SiPixelCluster::Pixel> pixels = recHit->cluster()->pixels();
 
         bool pixelOnEdge = false;
-        for (vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin(); pixel != pixels.end(); pixel++) {
+        for (auto pixel = pixels.begin(); pixel != pixels.end(); pixel++) {
           int pos_x = (int)pixel->x;
           int pos_y = (int)pixel->y;
 

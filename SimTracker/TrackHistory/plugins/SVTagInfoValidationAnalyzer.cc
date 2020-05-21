@@ -528,8 +528,7 @@ void SVTagInfoValidationAnalyzer::fillRecoToSim(std::string const &prefix,
   math::XYZTLorentzVector sum;
   int charge = 0;
   double thePiMass = 0.13957;
-  for (reco::Vertex::trackRef_iterator recDaughter = vertex.tracks_begin(); recDaughter != vertex.tracks_end();
-       ++recDaughter) {
+  for (auto recDaughter = vertex.tracks_begin(); recDaughter != vertex.tracks_end(); ++recDaughter) {
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double>> vec;
 
     vec.SetPx((**recDaughter).px());
@@ -621,8 +620,7 @@ void SVTagInfoValidationAnalyzer::fillSimToReco(std::string const &prefix,
   math::XYZTLorentzVector sum;
   int charge = 0;
   double thePiMass = 0.13957;
-  for (reco::Vertex::trackRef_iterator recDaughter = vertex->tracks_begin(); recDaughter != vertex->tracks_end();
-       ++recDaughter) {
+  for (auto recDaughter = vertex->tracks_begin(); recDaughter != vertex->tracks_end(); ++recDaughter) {
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double>> vec;
 
     vec.SetPx((**recDaughter).px());

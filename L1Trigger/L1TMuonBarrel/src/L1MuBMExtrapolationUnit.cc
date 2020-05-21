@@ -77,7 +77,7 @@ L1MuBMExtrapolationUnit::L1MuBMExtrapolationUnit(const L1MuBMSectorProcessor& sp
 //--------------
 
 L1MuBMExtrapolationUnit::~L1MuBMExtrapolationUnit() {
-  for (SEUmap::iterator iter = m_SEUs.begin(); iter != m_SEUs.end(); iter++) {
+  for (auto iter = m_SEUs.begin(); iter != m_SEUs.end(); iter++) {
     delete (*iter).second;
     (*iter).second = nullptr;
   }
@@ -160,7 +160,7 @@ void L1MuBMExtrapolationUnit::reset(Extrapolation ext, unsigned int startAdr, un
   //  assert( relAdr >= 0 && relAdr <= 12 );
 
   SEUId seuid = make_pair(ext, startAdr);
-  SEUmap::const_iterator iter = m_SEUs.find(seuid);
+  auto iter = m_SEUs.find(seuid);
   if (iter != m_SEUs.end())
     ((*iter).second)->reset(relAdr);
 }
@@ -179,7 +179,7 @@ unsigned short int L1MuBMExtrapolationUnit::getAddress(Extrapolation ext, unsign
   unsigned short int address = 15;
 
   SEUId seuid = make_pair(ext, startAdr);
-  SEUmap::const_iterator iter = m_SEUs.find(seuid);
+  auto iter = m_SEUs.find(seuid);
   if (iter != m_SEUs.end())
     address = ((*iter).second)->ers()->address(id);
 
@@ -200,7 +200,7 @@ unsigned short int L1MuBMExtrapolationUnit::getQuality(Extrapolation ext, unsign
   unsigned short int quality = 0;
 
   SEUId seuid = make_pair(ext, startAdr);
-  SEUmap::const_iterator iter = m_SEUs.find(seuid);
+  auto iter = m_SEUs.find(seuid);
   if (iter != m_SEUs.end())
     quality = ((*iter).second)->ers()->quality(id);
 

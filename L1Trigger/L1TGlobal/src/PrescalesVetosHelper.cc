@@ -7,7 +7,7 @@ const PrescalesVetosHelper* PrescalesVetosHelper::readFromEventSetup(const L1TGl
 }
 
 PrescalesVetosHelper* PrescalesVetosHelper::readAndWriteFromEventSetup(const L1TGlobalPrescalesVetos* es) {
-  PrescalesVetosHelper* x = new PrescalesVetosHelper(es);
+  auto* x = new PrescalesVetosHelper(es);
   x->useCopy();
   return x;
 }

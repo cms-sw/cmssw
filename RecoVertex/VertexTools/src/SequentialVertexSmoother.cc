@@ -29,7 +29,7 @@ CachingVertex<N> SequentialVertexSmoother<N>::smooth(const CachingVertex<N>& ver
   std::vector<RefCountedVertexTrack> newTracks;
   if (theVertexTrackUpdator != nullptr) {
     const std::vector<RefCountedVertexTrack>& vOut = vertex.tracks();
-    for (typename std::vector<RefCountedVertexTrack>::const_iterator i = vOut.begin(); i != vOut.end(); i++) {
+    for (auto i = vOut.begin(); i != vOut.end(); i++) {
       RefCountedVertexTrack nTrack = theVertexTrackUpdator->update(vertex, *i);
       newTracks.push_back(nTrack);
     }

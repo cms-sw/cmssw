@@ -79,7 +79,7 @@ void FWSiPixelClusterProxyBuilder::build(const FWEventItem* iItem, TEveElementLi
 
       setupAddElement(pointSet, itemHolder);
 
-      TEveStraightLineSet* ls = new TEveStraightLineSet();
+      auto* ls = new TEveStraightLineSet();
       for (int j = 0; j < (*itc).size(); j++) {
         //            float adc= (*itc).pixel(j).adc*0.03/5000.;
         float adc = 0.025;

@@ -19,8 +19,8 @@ int PixelToFEDAssociateFromAscii::operator()(const PixelModuleName& id) const {
 }
 
 int PixelToFEDAssociateFromAscii::operator()(const PixelBarrelName& id) const {
-  for (BarrelConnections::const_iterator ibc = theBarrel.begin(); ibc != theBarrel.end(); ibc++) {
-    for (vector<Bdu>::const_iterator ibd = (*ibc).second.begin(); ibd != (*ibc).second.end(); ibd++) {
+  for (auto ibc = theBarrel.begin(); ibc != theBarrel.end(); ibc++) {
+    for (auto ibd = (*ibc).second.begin(); ibd != (*ibc).second.end(); ibd++) {
       if (ibd->b == id.shell() && ibd->l.inside(id.layerName()) && ibd->z.inside(id.moduleName()) &&
           ibd->f.inside(id.ladderName()))
         return (*ibc).first;
@@ -31,8 +31,8 @@ int PixelToFEDAssociateFromAscii::operator()(const PixelBarrelName& id) const {
 }
 
 int PixelToFEDAssociateFromAscii::operator()(const PixelEndcapName& id) const {
-  for (EndcapConnections::const_iterator iec = theEndcap.begin(); iec != theEndcap.end(); iec++) {
-    for (vector<Edu>::const_iterator ied = (*iec).second.begin(); ied != (*iec).second.end(); ied++) {
+  for (auto iec = theEndcap.begin(); iec != theEndcap.end(); iec++) {
+    for (auto ied = (*iec).second.begin(); ied != (*iec).second.end(); ied++) {
       if (ied->e == id.halfCylinder() && ied->d.inside(id.diskName()) && ied->b.inside(id.bladeName()))
         return iec->first;
     }
@@ -121,16 +121,16 @@ void PixelToFEDAssociateFromAscii::init(const string& cfg_name) {
   //
   std::ostringstream str;
   str << " **PixelToFEDAssociateFromAscii ** BARREL FED CONNECTIONS: " << endl;
-  for (BarrelConnections::const_iterator ibc = theBarrel.begin(); ibc != theBarrel.end(); ibc++) {
+  for (auto ibc = theBarrel.begin(); ibc != theBarrel.end(); ibc++) {
     str << "FED: " << ibc->first << endl;
-    for (vector<Bdu>::const_iterator ibd = (*ibc).second.begin(); ibd != (*ibc).second.end(); ibd++) {
+    for (auto ibd = (*ibc).second.begin(); ibd != (*ibc).second.end(); ibd++) {
       str << "b: " << ibd->b << " l: " << ibd->l << " z: " << ibd->z << " f: " << ibd->f << endl;
     }
   }
   str << " **PixelToFEDAssociateFromAscii ** ENDCAP FED CONNECTIONS: " << endl;
-  for (EndcapConnections::const_iterator iec = theEndcap.begin(); iec != theEndcap.end(); iec++) {
+  for (auto iec = theEndcap.begin(); iec != theEndcap.end(); iec++) {
     str << "FED: " << iec->first << endl;
-    for (vector<Edu>::const_iterator ied = (*iec).second.begin(); ied != (*iec).second.end(); ied++) {
+    for (auto ied = (*iec).second.begin(); ied != (*iec).second.end(); ied++) {
       str << " e: " << ied->e << " d: " << ied->d << " b: " << ied->b << endl;
     }
   }

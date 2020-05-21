@@ -105,8 +105,7 @@ void EventIDChecker::analyze(edm::Event const& iEvent, edm::EventSetup const&) {
     if (0 == numberOfEventsLeftBeforeSearch_) {
       numberOfEventsLeftBeforeSearch_ = multiProcessSequentialEvents_;
       //the event must be after the last event in our list since multicore doesn't go backwards
-      std::vector<edm::EventID>::iterator itFind =
-          std::find_if(ids_.begin() + index_, ids_.end(), CompareWithoutLumi(iEvent.id()));
+      auto itFind = std::find_if(ids_.begin() + index_, ids_.end(), CompareWithoutLumi(iEvent.id()));
       if (itFind == ids_.end()) {
         throw cms::Exception("MissedEvent") << "The event " << iEvent.id() << "is not in the list.\n";
       }

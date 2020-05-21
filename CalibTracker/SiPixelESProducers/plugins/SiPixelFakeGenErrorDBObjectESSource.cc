@@ -20,7 +20,7 @@ std::unique_ptr<SiPixelGenErrorDBObject> SiPixelFakeGenErrorDBObjectESSource::pr
 
   //Mostly copied from CondTools/SiPixel/test/SiPixelGenErrorDBObjectUploader.cc
   //--- Make the POOL-ORA object to store the database object
-  SiPixelGenErrorDBObject* obj = new SiPixelGenErrorDBObject;
+  auto* obj = new SiPixelGenErrorDBObject;
 
   // Local variables
   const char* tempfile;

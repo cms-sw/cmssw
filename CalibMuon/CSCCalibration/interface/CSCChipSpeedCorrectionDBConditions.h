@@ -70,7 +70,7 @@ inline CSCDBChipSpeedCorrection *CSCChipSpeedCorrectionDBConditions::prefillDBCh
   const int CHIP_FACTOR = 100;
   const int MAX_SIZE = 15768;
   const int MAX_SHORT = 32767;
-  CSCDBChipSpeedCorrection *cndbChipCorr = new CSCDBChipSpeedCorrection();
+  auto *cndbChipCorr = new CSCDBChipSpeedCorrection();
 
   CSCDBChipSpeedCorrection::ChipSpeedContainer &itemvector = cndbChipCorr->chipSpeedCorr;
   itemvector.resize(MAX_SIZE);

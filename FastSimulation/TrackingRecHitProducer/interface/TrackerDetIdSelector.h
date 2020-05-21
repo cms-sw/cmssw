@@ -128,7 +128,7 @@ public:
   }
   int operator()(const int& i) const { return i; }
   int operator()(const std::string& s) const {
-    TrackerDetIdSelector::StringFunctionMap::const_iterator it = TrackerDetIdSelector::functionTable.find(s);
+    auto it = TrackerDetIdSelector::functionTable.find(s);
     int value = 0;
     if (it != TrackerDetIdSelector::functionTable.cend()) {
       value = (it->second)(_trackerTopology, _detId);

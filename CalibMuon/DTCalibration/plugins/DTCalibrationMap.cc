@@ -87,7 +87,7 @@ const DTCalibrationMap::CalibConsts* DTCalibrationMap::getConsts(DTWireId wireId
   }
 
   // Look for the given key into the map
-  map<Key, CalibConsts>::const_iterator res = theMap.find(theKey);
+  auto res = theMap.find(theKey);
   if (res != theMap.end()) {
     cache = (*res);
     return &((*res).second);
@@ -168,7 +168,7 @@ void DTCalibrationMap::addCell(Key theKey, const CalibConsts& calibConst) {
 // Write the calibration consts to a file
 void DTCalibrationMap::writeConsts(const string& outputFileName) const {
   ofstream out(outputFileName.c_str());
-  for (map<Key, CalibConsts>::const_iterator iter = theMap.begin(); iter != theMap.end(); ++iter) {
+  for (auto iter = theMap.begin(); iter != theMap.end(); ++iter) {
     out << (*iter).first.wheel() << ' ' << (*iter).first.station() << ' ' << (*iter).first.sector() << ' '
         << (*iter).first.superlayer() << ' ' << (*iter).first.layer() << ' ' << (*iter).first.wire() << ' ';
     copy((*iter).second.begin(), (*iter).second.end(), ostream_iterator<float>(out, " "));

@@ -98,7 +98,7 @@ void PixelVertexCollectionTrimmer::produce(edm::Event& iEvent, const edm::EventS
 
   double sumpt2first = pvComparer_->pTSquaredSum(*(vtxs->begin()));
 
-  for (reco::VertexCollection::const_iterator vtx = vtxs->begin(), evtx = vtxs->end(); vtx != evtx; ++vtx) {
+  for (auto vtx = vtxs->begin(), evtx = vtxs->end(); vtx != evtx; ++vtx) {
     if (vtxs_trim->size() >= maxVtx_)
       break;
     sumpt2 = pvComparer_->pTSquaredSum(*vtx);

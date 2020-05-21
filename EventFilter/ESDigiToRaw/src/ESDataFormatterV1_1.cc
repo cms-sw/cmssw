@@ -138,7 +138,7 @@ void ESDataFormatterV1_1::DigiToRaw(int fedId, Digis& digis, FEDRawData& fedRawD
   //       return 0;
   //     }
 
-  for (DetDigis::const_iterator it = detDigis.begin(); it != detDigis.end(); ++it) {
+  for (auto it = detDigis.begin(); it != detDigis.end(); ++it) {
     const ESDataFrame& dataframe = (*it);
     const ESDetId& detId = dataframe.id();
 

@@ -2154,8 +2154,7 @@ public:
   }
 
   ~HCovarianceVSParts() override {
-    for (std::map<TString, HCovarianceVSxy*>::const_iterator histo = mapHisto_.begin(); histo != mapHisto_.end();
-         histo++) {
+    for (auto histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
       delete (*histo).second;
     }
   }
@@ -2235,15 +2234,13 @@ public:
   void Write() override {
     if (!readMode_) {
       histoDir_->cd();
-      for (std::map<TString, HCovarianceVSxy*>::const_iterator histo = mapHisto_.begin(); histo != mapHisto_.end();
-           histo++) {
+      for (auto histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
         (*histo).second->Write();
       }
     }
   }
   void Clear() override {
-    for (std::map<TString, HCovarianceVSxy*>::const_iterator histo = mapHisto_.begin(); histo != mapHisto_.end();
-         histo++) {
+    for (auto histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
       (*histo).second->Clear();
     }
   }
@@ -2293,7 +2290,7 @@ public:
   }
 
   ~HMassResolutionVSPart() override {
-    for (std::map<TString, TH1*>::const_iterator histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
+    for (auto histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
       delete (*histo).second;
     }
   }
@@ -2365,7 +2362,7 @@ public:
 
   void Write() override {
     histoDir_->cd();
-    for (std::map<TString, TH1*>::const_iterator histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
+    for (auto histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
       (*histo).second->Write();
     }
     // Create the new dir and cd into it
@@ -2375,7 +2372,7 @@ public:
   }
 
   void Clear() override {
-    for (std::map<TString, TH1*>::const_iterator histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
+    for (auto histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
       (*histo).second->Clear();
     }
     muMinus->Clear();

@@ -182,7 +182,7 @@ void DCCEBEventBlock::unpack(const uint64_t* buffer, size_t numbBytes, unsigned 
 
   if (feUnpacking_ || memUnpacking_) {
     // pointer for the
-    std::vector<short>::iterator it = feChStatus_.begin();
+    auto it = feChStatus_.begin();
 
     // fields for tower recovery code
     unsigned int next_tower_id = 1000;

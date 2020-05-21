@@ -256,7 +256,7 @@ void L1MuDTSectorProcessor::reset() {
 void L1MuDTSectorProcessor::print() const {
   if (anyTrack()) {
     cout << "Muon candidates found in " << m_spid << " : " << endl;
-    vector<L1MuDTTrack*>::const_iterator iter = m_TrackCands.begin();
+    auto iter = m_TrackCands.begin();
     while (iter != m_TrackCands.end()) {
       if (*iter)
         (*iter)->print();

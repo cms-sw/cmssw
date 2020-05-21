@@ -46,7 +46,7 @@ inline CSCDBNoiseMatrix *CSCFakeDBNoiseMatrix::prefillDBNoiseMatrix() {
   const int MAX_SIZE = 252288;  // or 252288 for ME4/2 chambers
   const int FACTOR = 1000;
 
-  CSCDBNoiseMatrix *cndbmatrix = new CSCDBNoiseMatrix();
+  auto *cndbmatrix = new CSCDBNoiseMatrix();
   cndbmatrix->matrix.resize(MAX_SIZE);
 
   seed = 10000;

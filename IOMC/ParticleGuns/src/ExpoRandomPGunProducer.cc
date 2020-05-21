@@ -57,7 +57,7 @@ void ExpoRandomPGunProducer::produce(Event& e, const EventSetup& es) {
   // 1st, primary vertex
   //
   //HepMC::GenVertex* Vtx = new HepMC::GenVertex(CLHEP::HepLorentzVector(0.,0.,0.));
-  HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
+  auto* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
 
   // loop over particles
   //
@@ -92,7 +92,7 @@ void ExpoRandomPGunProducer::produce(Event& e, const EventSetup& es) {
     //HepMC::GenParticle* Part =
     //    new HepMC::GenParticle(CLHEP::HepLorentzVector(p,energy),PartID,1);
     HepMC::FourVector p(px, py, pz, energy);
-    HepMC::GenParticle* Part = new HepMC::GenParticle(p, PartID, 1);
+    auto* Part = new HepMC::GenParticle(p, PartID, 1);
     Part->suggest_barcode(barcode);
     barcode++;
     Vtx->add_particle_out(Part);
@@ -106,7 +106,7 @@ void ExpoRandomPGunProducer::produce(Event& e, const EventSetup& es) {
       }
       //HepMC::GenParticle* APart =
       //   new HepMC::GenParticle(CLHEP::HepLorentzVector(ap,energy),APartID,1);
-      HepMC::GenParticle* APart = new HepMC::GenParticle(ap, APartID, 1);
+      auto* APart = new HepMC::GenParticle(ap, APartID, 1);
       APart->suggest_barcode(barcode);
       barcode++;
       Vtx->add_particle_out(APart);

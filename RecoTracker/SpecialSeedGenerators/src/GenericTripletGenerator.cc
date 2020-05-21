@@ -109,8 +109,8 @@ std::pair<bool, float> GenericTripletGenerator::qualityFilter(const OrderedHitTr
     return std::make_pair(false, circle.rho());  //to small radius
   //now check if at least 2 hits are shared with an existing triplet
   //look for similar radii in the map
-  std::map<float, OrderedHitTriplet>::const_iterator lower_bound = map.lower_bound((1 - 0.01) * circle.rho());
-  std::map<float, OrderedHitTriplet>::const_iterator upper_bound = map.upper_bound((1 + 0.01) * circle.rho());
+  auto lower_bound = map.lower_bound((1 - 0.01) * circle.rho());
+  auto upper_bound = map.upper_bound((1 + 0.01) * circle.rho());
   std::map<float, OrderedHitTriplet>::const_iterator iter;
   for (iter = lower_bound; iter != upper_bound && iter->first <= upper_bound->first; iter++) {
     int shared = 0;

@@ -15,12 +15,12 @@ namespace reco {
         return chargedHadron.getTrack().get();
       }
       // In MiniAOD, even isolated tracks are saved as candidates, so the track Ptr doesn't exist
-      const pat::PackedCandidate* chargedPFPCand =
+      const auto* chargedPFPCand =
           dynamic_cast<const pat::PackedCandidate*>(chargedHadron.getChargedPFCandidate().get());
       if (chargedPFPCand != nullptr) {
         return chargedPFPCand->bestTrack();
       }
-      const pat::PackedCandidate* lostTrackCand =
+      const auto* lostTrackCand =
           dynamic_cast<const pat::PackedCandidate*>(chargedHadron.getLostTrackCandidate().get());
       if (lostTrackCand != nullptr) {
         return lostTrackCand->bestTrack();
@@ -60,9 +60,7 @@ namespace reco {
       } else
         assert(0);
       const std::vector<reco::CandidatePtr>& neutralPFCands = chargedHadron.getNeutralPFCandidates();
-      for (std::vector<reco::CandidatePtr>::const_iterator neutralPFCand = neutralPFCands.begin();
-           neutralPFCand != neutralPFCands.end();
-           ++neutralPFCand) {
+      for (auto neutralPFCand = neutralPFCands.begin(); neutralPFCand != neutralPFCands.end(); ++neutralPFCand) {
         SumNeutrals += (*neutralPFCand)->p();
       }
       double noNeutrals = chargedHadronP;

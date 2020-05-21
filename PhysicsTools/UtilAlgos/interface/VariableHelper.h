@@ -12,7 +12,7 @@ class VariableHelper {
 public:
   VariableHelper(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC);
   ~VariableHelper() {
-    for (iterator it = variables_.begin(); it != variables_.end(); ++it) {
+    for (auto it = variables_.begin(); it != variables_.end(); ++it) {
       delete it->second;
     }
   }
@@ -51,8 +51,7 @@ public:
       printValuesForEachEventCategory_ = iConfig.getParameter<std::string>("printValuesForEachEventCategory");
   }
   ~VariableHelperService() {
-    for (std::map<std::string, VariableHelper*>::iterator it = multipleInstance_.begin(); it != multipleInstance_.end();
-         ++it) {
+    for (auto it = multipleInstance_.begin(); it != multipleInstance_.end(); ++it) {
       delete it->second;
     }
   }
@@ -81,7 +80,7 @@ public:
   void preModule(edm::StreamContext const&, edm::ModuleCallingContext const& mcc) {
     const edm::ModuleDescription& desc = *mcc.moduleDescription();
     //does a set with the module name, except that it does not throw on non-configured modules
-    std::map<std::string, VariableHelper*>::iterator f = multipleInstance_.find(desc.moduleLabel());
+    auto f = multipleInstance_.find(desc.moduleLabel());
     if (f != multipleInstance_.end()) {
       SetVariableHelperUniqueInstance_ = (f->second);
       return;
@@ -106,7 +105,7 @@ public:
   }
 
   VariableHelper& set(std::string user) {
-    std::map<std::string, VariableHelper*>::iterator f = multipleInstance_.find(user);
+    auto f = multipleInstance_.find(user);
     if (f == multipleInstance_.end()) {
       std::cerr << user << " VariableHelper user not defined." << std::endl;
       throw;

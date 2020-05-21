@@ -147,7 +147,7 @@ bool MuonErrorMatrixAdjuster::attachRecHits(const reco::Track& recotrack_orig,
                                             TrackingRecHitCollection& RHcol,
                                             const TrackerTopology& ttopo) {
   //loop over the hits of the original track
-  trackingRecHit_iterator recHit = recotrack_orig.recHitsBegin();
+  auto recHit = recotrack_orig.recHitsBegin();
   auto const firstHitIndex = theRHi;
   for (; recHit != recotrack_orig.recHitsEnd(); ++recHit) {
     //clone it. this is meandatory

@@ -228,8 +228,7 @@ bool HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent,
     for (unsigned int i = 0; i != maxI; i++) {
       const TrackRef& tk = (*mucands)[i].track();
       if (previousCandIsL2_) {
-        edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef =
-            tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
+        auto l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
         TrackRef staTrack = l3seedRef->l2Track();
         L2toL3s[staTrack].push_back(RecoChargedCandidateRef(mucands, i));
       } else {

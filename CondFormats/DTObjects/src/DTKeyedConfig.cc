@@ -32,12 +32,12 @@ DTKeyedConfig::DTKeyedConfig() {}
 
 DTKeyedConfig::DTKeyedConfig(const DTKeyedConfig& obj) : cond::BaseKeyed::BaseKeyed(obj) {
   cfgId = obj.cfgId;
-  data_iterator d_iter = obj.dataList.begin();
-  data_iterator d_iend = obj.dataList.end();
+  auto d_iter = obj.dataList.begin();
+  auto d_iend = obj.dataList.end();
   while (d_iter != d_iend)
     dataList.push_back(*d_iter++);
-  link_iterator l_iter = obj.linkList.begin();
-  link_iterator l_iend = obj.linkList.end();
+  auto l_iter = obj.linkList.begin();
+  auto l_iend = obj.linkList.end();
   while (l_iter != l_iend)
     linkList.push_back(*l_iter++);
 }

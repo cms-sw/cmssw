@@ -45,11 +45,11 @@ void l1t::Stage1Layer2EGammaAlgorithmImpPP::processEvent(const std::vector<l1t::
   RegionCorrection(regions, &subRegions, params_);
 
   // ----- need to cluster jets in order to compute jet isolation ----
-  std::vector<l1t::Jet>* unCorrJets = new std::vector<l1t::Jet>();
+  auto* unCorrJets = new std::vector<l1t::Jet>();
   // slidingWindowJetFinder(jetSeedThreshold, subRegions, unCorrJets);
   TwelveByTwelveFinder(jetSeedThreshold, &subRegions, unCorrJets);
 
-  for (CaloEmCandBxCollection::const_iterator egCand = EMCands.begin(); egCand != EMCands.end(); egCand++) {
+  for (auto egCand = EMCands.begin(); egCand != EMCands.end(); egCand++) {
     int eg_et = egCand->hwPt();
     int eg_eta = egCand->hwEta();
     int eg_phi = egCand->hwPhi();
@@ -115,7 +115,7 @@ double l1t::Stage1Layer2EGammaAlgorithmImpPP::Isolation(int ieta,
                                                         const std::vector<l1t::CaloRegion>& regions) const {
   double isolation = 0;
 
-  for (CaloRegionBxCollection::const_iterator region = regions.begin(); region != regions.end(); region++) {
+  for (auto region = regions.begin(); region != regions.end(); region++) {
     int regionPhi = region->hwPhi();
     int regionEta = region->hwEta();
     ///    unsigned int deltaPhi = iphi - regionPhi;
@@ -147,7 +147,7 @@ int l1t::Stage1Layer2EGammaAlgorithmImpPP::AssociatedJetPt(int ieta,
                                                            const std::vector<l1t::Jet>* jets) const {
   int pt = -1;
 
-  for (JetBxCollection::const_iterator itJet = jets->begin(); itJet != jets->end(); ++itJet) {
+  for (auto itJet = jets->begin(); itJet != jets->end(); ++itJet) {
     int jetEta = itJet->hwEta();
     int jetPhi = itJet->hwPhi();
     if ((jetEta == ieta) && (jetPhi == iphi)) {
@@ -167,7 +167,7 @@ double l1t::Stage1Layer2EGammaAlgorithmImpPP::HoverE(int et,
                                                      const std::vector<l1t::CaloRegion>& regions) const {
   int hadronicET = 0;
 
-  for (CaloRegionBxCollection::const_iterator region = regions.begin(); region != regions.end(); region++) {
+  for (auto region = regions.begin(); region != regions.end(); region++) {
     int regionET = region->hwPt();
     int regionPhi = region->hwPhi();
     int regionEta = region->hwEta();

@@ -203,7 +203,7 @@ void MCPhotonAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
   std::vector<PhotonMCTruth> mcPhotons = thePhotonMCTruthFinder_->find(theSimTracks, theSimVertices);
   std::cout << " MCPhotonAnalyzer mcPhotons size " << mcPhotons.size() << std::endl;
 
-  for (std::vector<PhotonMCTruth>::const_iterator iPho = mcPhotons.begin(); iPho != mcPhotons.end(); ++iPho) {
+  for (auto iPho = mcPhotons.begin(); iPho != mcPhotons.end(); ++iPho) {
     if ((*iPho).fourMomentum().e() < 35)
       continue;
 

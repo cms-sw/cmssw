@@ -337,7 +337,7 @@ void L1GtDataEmulAnalyzer::compareFDL(const edm::Event& iEvent,
   //       otherwise the labels are wrong
   const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
 
-  for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
+  for (auto itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
     std::string aName = itAlgo->first;
     const char* algName = aName.c_str();
     int algBitNumber = (itAlgo->second).algoBitNumber();

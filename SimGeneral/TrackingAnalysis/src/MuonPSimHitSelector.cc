@@ -15,7 +15,7 @@ void MuonPSimHitSelector::select(PSimHitCollection &selection,
                                  edm::Event const &event,
                                  edm::EventSetup const &setup) const {
   // Look for psimhit collection associated to the muon system
-  PSimHitCollectionMap::const_iterator pSimHitCollections = pSimHitCollectionMap_.find("muon");
+  auto pSimHitCollections = pSimHitCollectionMap_.find("muon");
 
   // Check that there are psimhit collections defined for the tracker
   if (pSimHitCollections == pSimHitCollectionMap_.end())

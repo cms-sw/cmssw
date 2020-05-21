@@ -145,7 +145,7 @@ ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry(const ME0Geometry* geome
                                      "compatitble with geometries that contain only one partition per ME0Layer.";
 
   const auto* mainPartition = mainLayer->etaPartitions()[0];
-  const TrapezoidalStripTopology* mainTopo = dynamic_cast<const TrapezoidalStripTopology*>(&mainPartition->topology());
+  const auto* mainTopo = dynamic_cast<const TrapezoidalStripTopology*>(&mainPartition->topology());
   if (!mainTopo)
     throw cms::Exception("Setup") << "ME0ReDigiProducer::TemporaryGeometry::TemporaryGeometry() - ME0 strip topology "
                                      "must be of type TrapezoidalStripTopology. This module cannot be used";
@@ -537,7 +537,7 @@ void ME0ReDigiProducer::getStripProperties(const ME0EtaPartition* etaPart,
   //convert to relative to partition
   tof -= tofs[etaPart->id().layer() - 1][etaPart->id().roll() - 1];
 
-  const TrapezoidalStripTopology* origTopo = (const TrapezoidalStripTopology*)(&etaPart->specificTopology());
+  const auto* origTopo = (const TrapezoidalStripTopology*)(&etaPart->specificTopology());
   TrapezoidalStripTopology padTopo(
       origTopo->nstrips() / 2, origTopo->pitch() * 2, origTopo->stripLength(), origTopo->radius());
   const auto& topo = usePads ? padTopo : etaPart->specificTopology();

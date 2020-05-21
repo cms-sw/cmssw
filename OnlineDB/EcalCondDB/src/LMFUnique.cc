@@ -13,7 +13,7 @@ std::string LMFUnique::sequencePostfix(const Tm& t) {
 
 LMFUnique& LMFUnique::setString(std::string key, std::string value) {
   // check if this key exists
-  std::map<std::string, std::string>::const_iterator i = m_stringFields.find(key);
+  auto i = m_stringFields.find(key);
   if (i != m_stringFields.end()) {
     // the key exist: check if it changed: reset the ID of the object
     if (i->second != value) {
@@ -30,7 +30,7 @@ LMFUnique& LMFUnique::setString(std::string key, std::string value) {
 
 LMFUnique& LMFUnique::setInt(std::string key, int value) {
   // check if this key exists
-  std::map<std::string, int>::const_iterator i = m_intFields.find(key);
+  auto i = m_intFields.find(key);
   if (i != m_intFields.end()) {
     // the key exist: check if it changed: reset the ID of the object
     if (i->second != value) {
@@ -46,7 +46,7 @@ LMFUnique& LMFUnique::setInt(std::string key, int value) {
 }
 
 void LMFUnique::attach(std::string name, LMFUnique* u) {
-  std::map<std::string, LMFUnique*>::const_iterator i = m_foreignKeys.find(name);
+  auto i = m_foreignKeys.find(name);
   if (i != m_foreignKeys.end()) {
     if (i->second != u) {
       m_foreignKeys[name] = u;
@@ -127,16 +127,16 @@ void LMFUnique::dump(int n) const {
   }
   cout << endl;
   // iterate over string fields
-  std::map<std::string, std::string>::const_iterator is = m_stringFields.begin();
-  std::map<std::string, std::string>::const_iterator es = m_stringFields.end();
+  auto is = m_stringFields.begin();
+  auto es = m_stringFields.end();
   while (is != es) {
     std::string key = is->first;
     cout << m_indent << key << setw(20 - key.length()) << ": " << is->second << endl;
     is++;
   }
   // iterate over integer fields
-  std::map<std::string, int>::const_iterator ii = m_intFields.begin();
-  std::map<std::string, int>::const_iterator ei = m_intFields.end();
+  auto ii = m_intFields.begin();
+  auto ei = m_intFields.end();
   while (ii != ei) {
     std::string key = ii->first;
     cout << m_indent << key << setw(20 - key.length()) << ": " << ii->second << endl;
@@ -144,8 +144,8 @@ void LMFUnique::dump(int n) const {
   }
   cout << m_indent << "#################" << setw(15) << m_className << " " << m_trail << endl;
   // iterate over foreign keys
-  std::map<std::string, LMFUnique*>::const_iterator ik = m_foreignKeys.begin();
-  std::map<std::string, LMFUnique*>::const_iterator ek = m_foreignKeys.end();
+  auto ik = m_foreignKeys.begin();
+  auto ek = m_foreignKeys.end();
   m_indent.clear();
   m_indent.resize((n + 1) * 2, ' ');
   while (ik != ek) {
@@ -177,7 +177,7 @@ LMFUnique* LMFUnique::createObject() const {
 
 std::string LMFUnique::getString(std::string s) const {
   std::string rs = "";
-  std::map<std::string, std::string>::const_iterator i = m_stringFields.find(s);
+  auto i = m_stringFields.find(s);
   if (i != m_stringFields.end()) {
     rs = i->second;
   }
@@ -187,7 +187,7 @@ std::string LMFUnique::getString(std::string s) const {
 int LMFUnique::getInt(std::string s) const {
   // this should be better defined
   int ret = 0;
-  std::map<std::string, int>::const_iterator i = m_intFields.find(s);
+  auto i = m_intFields.find(s);
   if (i != m_intFields.end()) {
     ret = i->second;
   }
@@ -250,8 +250,8 @@ int LMFUnique::fetchID() noexcept(false) {
     setByID(m_ID);
   }
   // if foreignKeys are there, set these objects too
-  map<string, LMFUnique*>::iterator i = m_foreignKeys.begin();
-  map<string, LMFUnique*>::iterator e = m_foreignKeys.end();
+  auto i = m_foreignKeys.begin();
+  auto e = m_foreignKeys.end();
   while (i != e) {
     if (i->second->getID() == 0) {
       i->second->fetchID();
@@ -300,8 +300,8 @@ void LMFUnique::setByID(int id) noexcept(false) {
 }
 
 int LMFUnique::writeForeignKeys() noexcept(false) {
-  std::map<std::string, LMFUnique*>::const_iterator i = m_foreignKeys.begin();
-  std::map<std::string, LMFUnique*>::const_iterator e = m_foreignKeys.end();
+  auto i = m_foreignKeys.begin();
+  auto e = m_foreignKeys.end();
   int count = 0;
   while (i != e) {
     if (i->second->getID() == 0) {

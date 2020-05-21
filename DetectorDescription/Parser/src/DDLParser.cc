@@ -53,7 +53,7 @@ SAX2XMLReader* DDLParser::getXMLParser(void) { return SAX2Parser_; }
 DDLSAX2FileHandler* DDLParser::getDDLSAX2FileHandler(void) { return fileHandler_; }
 
 size_t DDLParser::isFound(const std::string& filename) {
-  FileNameHolder::const_iterator it = fileNames_.begin();
+  auto it = fileNames_.begin();
   size_t i = 1;
   bool foundFile = false;
   while (it != fileNames_.end() && !foundFile) {

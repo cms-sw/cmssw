@@ -489,10 +489,9 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
       //  of the successor starts after end of the current range there is no overlap
       //  and I save this range only if it has mask different from the default
       //  otherwise modify predecessor/successor ranges accordingly
-      std::set<Range_t>::iterator curr = ranges.end();  // inserted range
-      std::set<Range_t>::iterator succ =
-          ranges.lower_bound(std::make_pair(first, last));  // successor starts at current or later
-      std::set<Range_t>::iterator pred = succ;
+      auto curr = ranges.end();                                     // inserted range
+      auto succ = ranges.lower_bound(std::make_pair(first, last));  // successor starts at current or later
+      auto pred = succ;
       if (pred != ranges.begin())
         pred--;
       else
@@ -589,7 +588,7 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
       //  remove those from the consideration up until the last covered range
       //  that may or may not extend beyond the current range end
       if (curr != ranges.end()) {  // insertion took place
-        std::set<Range_t, RangeComp_t>::iterator last_covered = ranges.upper_bound(std::make_pair(curr->second, 0));
+        auto last_covered = ranges.upper_bound(std::make_pair(curr->second, 0));
         if (last_covered != ranges.begin())
           last_covered--;
         else

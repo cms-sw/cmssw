@@ -107,7 +107,7 @@ void HGCDigitizerBase<DFr>::runSimple(std::unique_ptr<HGCDigitizerBase::DColl>& 
   for (const auto& id : validIds) {
     chargeColl.fill(0.f);
     toa.fill(0.f);
-    HGCSimHitDataAccumulator::iterator it = simData.find(id);
+    auto it = simData.find(id);
     HGCCellInfo& cell = (simData.end() == it ? zeroData : it->second);
     addCellMetadata(cell, theGeom, id);
     if (NoiseGeneration_Method_ == true) {

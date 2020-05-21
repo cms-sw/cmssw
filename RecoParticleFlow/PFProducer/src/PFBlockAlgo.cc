@@ -311,7 +311,7 @@ void PFBlockAlgo::buildElements(const edm::Event& evt) {
   // Here we provide to all KDTree linkers the collections to link.
   // Glowinski & Gouzevitch
 
-  for (ElementList::iterator it = elements_.begin(); it != elements_.end(); ++it) {
+  for (auto it = elements_.begin(); it != elements_.end(); ++it) {
     for (const auto& kdtree : kdtrees_) {
       if ((*it)->type() == kdtree->targetType()) {
         kdtree->insertTargetElt(it->get());

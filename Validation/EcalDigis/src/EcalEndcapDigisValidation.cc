@@ -262,7 +262,7 @@ void EcalEndcapDigisValidation::checkCalibrations(edm::EventSetup const& eventSe
   eventSetup.get<EcalADCToGeVConstantRcd>().get(pAgc);
   const EcalADCToGeVConstant* agc = pAgc.product();
 
-  EcalMGPAGainRatio* defaultRatios = new EcalMGPAGainRatio();
+  auto* defaultRatios = new EcalMGPAGainRatio();
 
   gainConv_[1] = 1.;
   gainConv_[2] = defaultRatios->gain12Over6();

@@ -68,9 +68,7 @@ void ShallowGainCalibration::produce(edm::Event& iEvent, const edm::EventSetup& 
     const reco::Track* track = association->val.get();
 
     vector<TrajectoryMeasurement> measurements = traj->measurements();
-    for (vector<TrajectoryMeasurement>::const_iterator measurement_it = measurements.begin();
-         measurement_it != measurements.end();
-         measurement_it++) {
+    for (auto measurement_it = measurements.begin(); measurement_it != measurements.end(); measurement_it++) {
       TrajectoryStateOnSurface trajState = measurement_it->updatedState();
       if (!trajState.isValid())
         continue;
@@ -78,7 +76,7 @@ void ShallowGainCalibration::produce(edm::Event& iEvent, const edm::EventSetup& 
       const TrackingRecHit* hit = (*measurement_it->recHit()).hit();
       const SiStripRecHit1D* sistripsimple1dhit = dynamic_cast<const SiStripRecHit1D*>(hit);
       const SiStripRecHit2D* sistripsimplehit = dynamic_cast<const SiStripRecHit2D*>(hit);
-      const SiStripMatchedRecHit2D* sistripmatchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
+      const auto* sistripmatchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
       const SiPixelRecHit* sipixelhit = dynamic_cast<const SiPixelRecHit*>(hit);
 
       const SiPixelCluster* PixelCluster = nullptr;
@@ -304,8 +302,8 @@ bool ShallowGainCalibration::IsFarFromBorder(TrajectoryStateOnSurface* trajState
   }
 
   const BoundPlane plane = it->surface();
-  const TrapezoidalPlaneBounds* trapezoidalBounds(dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
-  const RectangularPlaneBounds* rectangularBounds(dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));
+  const auto* trapezoidalBounds(dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
+  const auto* rectangularBounds(dynamic_cast<const RectangularPlaneBounds*>(&(plane.bounds())));
 
   double DistFromBorder = 1.0;
   double HalfLength = it->surface().bounds().length() / 2.0;
@@ -326,7 +324,7 @@ bool ShallowGainCalibration::IsFarFromBorder(TrajectoryStateOnSurface* trajState
 }
 
 double ShallowGainCalibration::thickness(DetId id) {
-  map<DetId, double>::iterator th = m_thicknessMap.find(id);
+  auto th = m_thicknessMap.find(id);
   if (th != m_thicknessMap.end())
     return (*th).second;
   else {

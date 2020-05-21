@@ -26,7 +26,7 @@ void SiPixelGainCalibrationForHLTService::calibrate(
   int i = 0;
   bool isDeadColumn = false, isNoisyColumn = false;
   int oldCol = -1, oldAveragedBlock = -1;
-  for (DigiIterator di = b; di != e; ++di) {
+  for (auto di = b; di != e; ++di) {
     int row = di->row();
     int col = di->column();
     int averagedBlock = row / numberOfRowsAveragedOver_;

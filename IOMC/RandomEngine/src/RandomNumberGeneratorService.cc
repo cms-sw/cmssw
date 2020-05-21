@@ -230,8 +230,7 @@ namespace edm {
 
       std::vector<ModuleIDToEngine>& moduleIDVector = streamModuleIDToEngine_.at(streamID.value());
       ModuleIDToEngine target(nullptr, moduleID);
-      std::vector<ModuleIDToEngine>::iterator iter =
-          std::lower_bound(moduleIDVector.begin(), moduleIDVector.end(), target);
+      auto iter = std::lower_bound(moduleIDVector.begin(), moduleIDVector.end(), target);
       if (iter == moduleIDVector.end() || iter->moduleID() != moduleID) {
         throw Exception(errors::Configuration)
             << "The module with label \"" << mcc->moduleDescription()->moduleLabel()
@@ -264,8 +263,7 @@ namespace edm {
 
       std::vector<ModuleIDToEngine>& moduleIDVector = lumiModuleIDToEngine_.at(lumiIndex.value());
       ModuleIDToEngine target(nullptr, moduleID);
-      std::vector<ModuleIDToEngine>::iterator iter =
-          std::lower_bound(moduleIDVector.begin(), moduleIDVector.end(), target);
+      auto iter = std::lower_bound(moduleIDVector.begin(), moduleIDVector.end(), target);
       if (iter == moduleIDVector.end() || iter->moduleID() != moduleID) {
         throw Exception(errors::Configuration)
             << "The module with label \"" << mcc->moduleDescription()->moduleLabel()
@@ -327,7 +325,7 @@ namespace edm {
         label = mcc->moduleDescription()->moduleLabel();
       }
 
-      std::map<std::string, SeedsAndName>::const_iterator iter = seedsAndNameMap_.find(label);
+      auto iter = seedsAndNameMap_.find(label);
       if (iter == seedsAndNameMap_.end()) {
         throw Exception(errors::Configuration)
             << "The module with label \"" << label
@@ -376,7 +374,7 @@ namespace edm {
     }
 
     void RandomNumberGeneratorService::preModuleConstruction(ModuleDescription const& description) {
-      std::map<std::string, SeedsAndName>::iterator iter = seedsAndNameMap_.find(description.moduleLabel());
+      auto iter = seedsAndNameMap_.find(description.moduleLabel());
       if (iter != seedsAndNameMap_.end()) {
         iter->second.setModuleID(description.id());
       }
@@ -615,8 +613,7 @@ namespace edm {
         unsigned int moduleID = mcc.moduleDescription()->id();
         std::vector<ModuleIDToEngine>& moduleIDVector = streamModuleIDToEngine_.at(sc.streamID().value());
         ModuleIDToEngine target(nullptr, moduleID);
-        std::vector<ModuleIDToEngine>::iterator iter =
-            std::lower_bound(moduleIDVector.begin(), moduleIDVector.end(), target);
+        auto iter = std::lower_bound(moduleIDVector.begin(), moduleIDVector.end(), target);
         if (iter != moduleIDVector.end() && iter->moduleID() == moduleID) {
           LabelAndEngine* labelAndEngine = iter->labelAndEngine();
           iter->setEngineState(labelAndEngine->engine()->put());
@@ -629,8 +626,7 @@ namespace edm {
         unsigned int moduleID = mcc.moduleDescription()->id();
         std::vector<ModuleIDToEngine>& moduleIDVector = streamModuleIDToEngine_.at(sc.streamID().value());
         ModuleIDToEngine target(nullptr, moduleID);
-        std::vector<ModuleIDToEngine>::iterator iter =
-            std::lower_bound(moduleIDVector.begin(), moduleIDVector.end(), target);
+        auto iter = std::lower_bound(moduleIDVector.begin(), moduleIDVector.end(), target);
         if (iter != moduleIDVector.end() && iter->moduleID() == moduleID) {
           LabelAndEngine* labelAndEngine = iter->labelAndEngine();
           if (iter->engineState() != labelAndEngine->engine()->put()) {
@@ -698,9 +694,9 @@ namespace edm {
     void RandomNumberGeneratorService::snapShot(std::vector<LabelAndEngine> const& engines,
                                                 std::vector<RandomEngineState>& cache) {
       cache.resize(engines.size());
-      std::vector<RandomEngineState>::iterator state = cache.begin();
+      auto state = cache.begin();
 
-      for (std::vector<LabelAndEngine>::const_iterator iter = engines.begin(); iter != engines.end(); ++iter, ++state) {
+      for (auto iter = engines.begin(); iter != engines.end(); ++iter, ++state) {
         std::string const& label = iter->label();
         state->setLabel(label);
         state->setSeed(iter->seeds());
@@ -716,7 +712,7 @@ namespace edm {
 
     void RandomNumberGeneratorService::restoreFromCache(std::vector<RandomEngineState> const& cache,
                                                         std::vector<LabelAndEngine>& engines) {
-      std::vector<LabelAndEngine>::iterator labelAndEngine = engines.begin();
+      auto labelAndEngine = engines.begin();
       for (auto const& cachedState : cache) {
         std::string const& engineLabel = cachedState.getLabel();
 
@@ -1036,8 +1032,7 @@ namespace edm {
       if (saveToCache) {
         RandomEngineState randomEngineState;
         randomEngineState.setLabel(moduleLabel);
-        std::vector<RandomEngineState>::iterator state =
-            std::lower_bound(cache.begin(), cache.end(), randomEngineState);
+        auto state = std::lower_bound(cache.begin(), cache.end(), randomEngineState);
 
         if (state != cache.end() && moduleLabel == state->getLabel()) {
           if (seedVector.size() != state->getSeed().size() || stateVector.size() != state->getState().size()) {

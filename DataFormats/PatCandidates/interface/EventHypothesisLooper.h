@@ -256,7 +256,7 @@ namespace pat {
 
     template <typename T>
     void Looper<T>::realSize() const {
-      EventHypothesis::const_iterator it = iter_;
+      auto it = iter_;
       if (it < eh_.begin()) {
         it = eh_.begin();
         total_ = 0;

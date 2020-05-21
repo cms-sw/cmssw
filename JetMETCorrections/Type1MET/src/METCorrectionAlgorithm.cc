@@ -11,8 +11,7 @@ METCorrectionAlgorithm::METCorrectionAlgorithm(const edm::ParameterSet& cfg,
   applyType1Corrections_ = cfg.getParameter<bool>("applyType1Corrections");
   if (applyType1Corrections_) {
     vInputTag srcType1Corrections = cfg.getParameter<vInputTag>("srcType1Corrections");
-    for (vInputTag::const_iterator inputTag = srcType1Corrections.begin(); inputTag != srcType1Corrections.end();
-         ++inputTag) {
+    for (auto inputTag = srcType1Corrections.begin(); inputTag != srcType1Corrections.end(); ++inputTag) {
       type1Tokens_.push_back(iConsumesCollector.consumes<CorrMETData>(*inputTag));
     }
   }
@@ -24,8 +23,7 @@ METCorrectionAlgorithm::METCorrectionAlgorithm(const edm::ParameterSet& cfg,
     if (cfg.exists("type2Binning")) {
       typedef std::vector<edm::ParameterSet> vParameterSet;
       vParameterSet cfgType2Binning = cfg.getParameter<vParameterSet>("type2Binning");
-      for (vParameterSet::const_iterator cfgType2BinningEntry = cfgType2Binning.begin();
-           cfgType2BinningEntry != cfgType2Binning.end();
+      for (auto cfgType2BinningEntry = cfgType2Binning.begin(); cfgType2BinningEntry != cfgType2Binning.end();
            ++cfgType2BinningEntry) {
         type2Binning_.push_back(
             new type2BinningEntryType(*cfgType2BinningEntry, srcUnclEnergySums, iConsumesCollector));
@@ -42,7 +40,7 @@ METCorrectionAlgorithm::METCorrectionAlgorithm(const edm::ParameterSet& cfg,
       cfg.exists("applyType0Corrections") ? cfg.getParameter<bool>("applyType0Corrections") : false;
   if (applyType0Corrections_) {
     vInputTag srcCHSSums = cfg.getParameter<vInputTag>("srcCHSSums");
-    for (vInputTag::const_iterator inputTag = srcCHSSums.begin(); inputTag != srcCHSSums.end(); ++inputTag) {
+    for (auto inputTag = srcCHSSums.begin(); inputTag != srcCHSSums.end(); ++inputTag) {
       chsSumTokens_.push_back(iConsumesCollector.consumes<CorrMETData>(*inputTag));
     }
 
@@ -62,8 +60,7 @@ METCorrectionAlgorithm::METCorrectionAlgorithm(const edm::ParameterSet& cfg,
 }
 
 METCorrectionAlgorithm::~METCorrectionAlgorithm() {
-  for (std::vector<type2BinningEntryType*>::const_iterator it = type2Binning_.begin(); it != type2Binning_.end();
-       ++it) {
+  for (auto it = type2Binning_.begin(); it != type2Binning_.end(); ++it) {
     delete (*it);
   }
 }
@@ -77,9 +74,7 @@ CorrMETData METCorrectionAlgorithm::compMETCorrection(edm::Event& evt, const edm
   if (applyType0Corrections_) {
     //--- sum all Type 0 MET correction terms
     edm::Handle<CorrMETData> chsSum;
-    for (std::vector<edm::EDGetTokenT<CorrMETData> >::const_iterator corrToken = chsSumTokens_.begin();
-         corrToken != chsSumTokens_.end();
-         ++corrToken) {
+    for (auto corrToken = chsSumTokens_.begin(); corrToken != chsSumTokens_.end(); ++corrToken) {
       evt.getByToken(*corrToken, chsSum);
 
       metCorr.mex += type0Cuncl_ * (1 - type0Rsoft_) * chsSum->mex;
@@ -91,9 +86,7 @@ CorrMETData METCorrectionAlgorithm::compMETCorrection(edm::Event& evt, const edm
   if (applyType1Corrections_) {
     //--- sum all Type 1 MET correction terms
     edm::Handle<CorrMETData> type1Correction;
-    for (std::vector<edm::EDGetTokenT<CorrMETData> >::const_iterator corrToken = type1Tokens_.begin();
-         corrToken != type1Tokens_.end();
-         ++corrToken) {
+    for (auto corrToken = type1Tokens_.begin(); corrToken != type1Tokens_.end(); ++corrToken) {
       evt.getByToken(*corrToken, type1Correction);
 
       metCorr.mex += type1Correction->mex;
@@ -109,13 +102,11 @@ CorrMETData METCorrectionAlgorithm::compMETCorrection(edm::Event& evt, const edm
     //         (like the jet energy correction factors do)
     //
 
-    for (std::vector<type2BinningEntryType*>::const_iterator type2BinningEntry = type2Binning_.begin();
-         type2BinningEntry != type2Binning_.end();
+    for (auto type2BinningEntry = type2Binning_.begin(); type2BinningEntry != type2Binning_.end();
          ++type2BinningEntry) {
       CorrMETData unclEnergySum;
       edm::Handle<CorrMETData> unclEnergySummand;
-      for (std::vector<edm::EDGetTokenT<CorrMETData> >::const_iterator corrToken =
-               (*type2BinningEntry)->corrTokens_.begin();
+      for (auto corrToken = (*type2BinningEntry)->corrTokens_.begin();
            corrToken != (*type2BinningEntry)->corrTokens_.end();
            ++corrToken) {
         evt.getByToken(*corrToken, unclEnergySummand);

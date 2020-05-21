@@ -71,10 +71,10 @@ std::pair<uint8_t, Measurement1DFloat> ConversionHitChecker::nHitsBeforeVtx(cons
 uint8_t ConversionHitChecker::nSharedHits(const reco::Track &trk1, const reco::Track &trk2) const {
   uint8_t nShared = 0;
 
-  for (trackingRecHit_iterator iHit1 = trk1.recHitsBegin(); iHit1 != trk1.recHitsEnd(); ++iHit1) {
+  for (auto iHit1 = trk1.recHitsBegin(); iHit1 != trk1.recHitsEnd(); ++iHit1) {
     const TrackingRecHit *hit1 = (*iHit1);
     if (hit1->isValid()) {
-      for (trackingRecHit_iterator iHit2 = trk2.recHitsBegin(); iHit2 != trk2.recHitsEnd(); ++iHit2) {
+      for (auto iHit2 = trk2.recHitsBegin(); iHit2 != trk2.recHitsEnd(); ++iHit2) {
         const TrackingRecHit *hit2 = (*iHit2);
         if (hit2->isValid() && hit1->sharesInput(hit2, TrackingRecHit::some)) {
           ++nShared;

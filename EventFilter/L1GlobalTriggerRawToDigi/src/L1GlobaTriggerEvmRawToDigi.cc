@@ -148,7 +148,7 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
   gtRecordMap.reserve(boardMapsSize);
 
   for (int iPos = 0; iPos < boardMapsSize; ++iPos) {
-    for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
+    for (auto itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
       if (itBoard->gtPositionEvmRecord() == iPos) {
         gtRecordMap.push_back(*itBoard);
         break;
@@ -242,7 +242,7 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
                                             << std::endl;
   }
 
-  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
+  for (auto itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
     if (itBoard->gtBoardType() == GTFE) {
       // unpack GTFE
       if (itBoard->gtPositionEvmRecord() == 1) {
@@ -320,7 +320,7 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
   int numberTcsBoards = 0;
   int numberTimBoards = 0;
 
-  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
+  for (auto itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
     int iActiveBit = itBoard->gtBitEvmActiveBoards();
     bool activeBoardToUnpack = false;
 
@@ -395,7 +395,7 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
 
   // ... then unpack modules other than GTFE, if requested
 
-  for (CItBoardMaps itBoard = gtRecordMap.begin(); itBoard != gtRecordMap.end(); ++itBoard) {
+  for (auto itBoard = gtRecordMap.begin(); itBoard != gtRecordMap.end(); ++itBoard) {
     int iActiveBit = itBoard->gtBitEvmActiveBoards();
 
     bool activeBoardToUnpack = false;

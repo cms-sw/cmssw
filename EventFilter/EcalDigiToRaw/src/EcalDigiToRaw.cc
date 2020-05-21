@@ -151,7 +151,7 @@ void EcalDigiToRaw::produce(edm::StreamID, edm::Event& iEvent, const edm::EventS
     iEvent.getByToken(labelTT_, ecalTrigPrim);
 
     // loop on TP's and add one by one to the block
-    for (EcalTrigPrimDigiCollection::const_iterator it = ecalTrigPrim->begin(); it != ecalTrigPrim->end(); it++) {
+    for (auto it = ecalTrigPrim->begin(); it != ecalTrigPrim->end(); it++) {
       const EcalTriggerPrimitiveDigi& trigprim = *it;
       const EcalTrigTowerDetId& detid = it->id();
 
@@ -180,7 +180,7 @@ void EcalDigiToRaw::produce(edm::StreamID, edm::Event& iEvent, const edm::EventS
       // iEvent.getByType(ebSrFlags);
       iEvent.getByToken(labelEBSR_, ebSrFlags);
 
-      for (EBSrFlagCollection::const_iterator it = ebSrFlags->begin(); it != ebSrFlags->end(); it++) {
+      for (auto it = ebSrFlags->begin(); it != ebSrFlags->end(); it++) {
         const EcalSrFlag& srflag = *it;
         int flag = srflag.value();
 
@@ -202,7 +202,7 @@ void EcalDigiToRaw::produce(edm::StreamID, edm::Event& iEvent, const edm::EventS
       // iEvent.getByType(eeSrFlags);
       iEvent.getByToken(labelEESR_, eeSrFlags);
 
-      for (EESrFlagCollection::const_iterator it = eeSrFlags->begin(); it != eeSrFlags->end(); it++) {
+      for (auto it = eeSrFlags->begin(); it != eeSrFlags->end(); it++) {
         const EcalSrFlag& srflag = *it;
         int flag = srflag.value();
         EcalScDetId id = srflag.id();

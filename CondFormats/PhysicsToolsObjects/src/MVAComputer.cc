@@ -111,13 +111,12 @@ namespace PhysicsTools {
 
     MVAComputer::MVAComputer(const MVAComputer &orig)
         : inputSet(orig.inputSet), output(orig.output), cacheId(orig.cacheId) {
-      for (std::vector<VarProcessor *>::const_iterator iter = orig.processors.begin(); iter != orig.processors.end();
-           ++iter)
+      for (auto iter = orig.processors.begin(); iter != orig.processors.end(); ++iter)
         addProcessor(*iter);
     }
 
     MVAComputer::~MVAComputer() {
-      for (std::vector<VarProcessor *>::iterator iter = processors.begin(); iter != processors.end(); ++iter)
+      for (auto iter = processors.begin(); iter != processors.end(); ++iter)
         delete *iter;
       processors.clear();
     }
@@ -127,12 +126,11 @@ namespace PhysicsTools {
       output = orig.output;
       cacheId = orig.cacheId;
 
-      for (std::vector<VarProcessor *>::iterator iter = processors.begin(); iter != processors.end(); ++iter)
+      for (auto iter = processors.begin(); iter != processors.end(); ++iter)
         delete *iter;
       processors.clear();
 
-      for (std::vector<VarProcessor *>::const_iterator iter = orig.processors.begin(); iter != orig.processors.end();
-           ++iter)
+      for (auto iter = orig.processors.begin(); iter != orig.processors.end(); ++iter)
         addProcessor(*iter);
 
       return *this;
@@ -160,10 +158,9 @@ namespace PhysicsTools {
     }
 
     const MVAComputer &MVAComputerContainer::find(const std::string &label) const {
-      std::vector<Entry>::const_iterator pos =
-          std::find_if(entries.begin(), entries.end(), [&label](const MVAComputerContainer::Entry &entry) {
-            return entry.first == label;
-          });
+      auto pos = std::find_if(entries.begin(), entries.end(), [&label](const MVAComputerContainer::Entry &entry) {
+        return entry.first == label;
+      });
 
       if (pos == entries.end())
         throw cms::Exception("MVAComputerCalibration")
@@ -173,10 +170,9 @@ namespace PhysicsTools {
     }
 
     bool MVAComputerContainer::contains(const std::string &label) const {
-      std::vector<Entry>::const_iterator pos =
-          std::find_if(entries.begin(), entries.end(), [&label](const MVAComputerContainer::Entry &entry) {
-            return entry.first == label;
-          });
+      auto pos = std::find_if(entries.begin(), entries.end(), [&label](const MVAComputerContainer::Entry &entry) {
+        return entry.first == label;
+      });
       if (pos == entries.end())
         return false;
       return true;

@@ -63,8 +63,7 @@ SubsystemNeutronWriter::~SubsystemNeutronWriter() {
 
 void SubsystemNeutronWriter::printStats() {
   edm::LogInfo("SubsystemNeutronWriter") << "SubsystemNeutronWriter Statistics:\n";
-  for (map<int, int>::iterator mapItr = theCountPerChamberType.begin(); mapItr != theCountPerChamberType.end();
-       ++mapItr) {
+  for (auto mapItr = theCountPerChamberType.begin(); mapItr != theCountPerChamberType.end(); ++mapItr) {
     edm::LogInfo("SubsystemNeutronWriter")
         << "   theEventOccupancy[" << mapItr->first << "] = " << mapItr->second << " / " << theNEvents << " / NCT \n";
   }
@@ -83,15 +82,13 @@ void SubsystemNeutronWriter::produce(edm::Event& e, edm::EventSetup const& c) {
 
   // sort hits by chamber
   map<int, edm::PSimHitContainer> hitsByChamber;
-  for (edm::PSimHitContainer::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr) {
+  for (auto hitItr = hits->begin(); hitItr != hits->end(); ++hitItr) {
     int chamberIndex = chamberId(hitItr->detUnitId());
     hitsByChamber[chamberIndex].push_back(*hitItr);
   }
 
   // now write out each chamber's contents
-  for (map<int, edm::PSimHitContainer>::iterator hitsByChamberItr = hitsByChamber.begin();
-       hitsByChamberItr != hitsByChamber.end();
-       ++hitsByChamberItr) {
+  for (auto hitsByChamberItr = hitsByChamber.begin(); hitsByChamberItr != hitsByChamber.end(); ++hitsByChamberItr) {
     int chambertype = chamberType(hitsByChamberItr->first);
     writeHits(chambertype, hitsByChamberItr->second, engine);
   }
@@ -170,7 +167,7 @@ void SubsystemNeutronWriter::adjust(PSimHit& h, float timeOffset, float smearing
 }
 
 void SubsystemNeutronWriter::updateCount(int chamberType) {
-  map<int, int>::iterator entry = theCountPerChamberType.find(chamberType);
+  auto entry = theCountPerChamberType.find(chamberType);
   if (entry == theCountPerChamberType.end()) {
     theCountPerChamberType.insert(pair<int, int>(chamberType, 1));
   } else {

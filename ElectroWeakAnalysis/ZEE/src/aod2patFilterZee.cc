@@ -120,7 +120,7 @@ bool aod2patFilterZee::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const reco::GsfElectronCollection* pElecs = gsfElectrons.product();
   // calculate your electrons
   unique_ptr<pat::ElectronCollection> patElectrons(new pat::ElectronCollection);
-  for (reco::GsfElectronCollection::const_iterator elec = pElecs->begin(); elec != pElecs->end(); ++elec) {
+  for (auto elec = pElecs->begin(); elec != pElecs->end(); ++elec) {
     reco::GsfElectron mygsfelec = *elec;
     pat::Electron myElectron(mygsfelec);
     // now set the isolations from the Gsf electron
@@ -141,7 +141,7 @@ bool aod2patFilterZee::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   const reco::CaloMETCollection* mycalomets = calomets.product();
   unique_ptr<pat::METCollection> patCaloMets(new pat::METCollection);
-  for (reco::CaloMETCollection::const_iterator met = mycalomets->begin(); met != mycalomets->end(); ++met) {
+  for (auto met = mycalomets->begin(); met != mycalomets->end(); ++met) {
     pat::MET mymet(*met);
     patCaloMets->push_back(mymet);
   }

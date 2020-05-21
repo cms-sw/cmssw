@@ -23,7 +23,7 @@ namespace edm {
 
   const ValidityInterval& EventSetupRecordIntervalFinder::findIntervalFor(const EventSetupRecordKey& iKey,
                                                                           const IOVSyncValue& iInstance) {
-    Intervals::iterator itFound = intervals_.find(iKey);
+    auto itFound = intervals_.find(iKey);
     assert(itFound != intervals_.end());
     if (!itFound->second.validFor(iInstance)) {
       if
@@ -39,7 +39,7 @@ namespace edm {
   }
 
   void EventSetupRecordIntervalFinder::resetInterval(const eventsetup::EventSetupRecordKey& iKey) {
-    Intervals::iterator itFound = intervals_.find(iKey);
+    auto itFound = intervals_.find(iKey);
     assert(itFound != intervals_.end());
     itFound->second = ValidityInterval{};
     doResetInterval(iKey);
@@ -59,7 +59,7 @@ namespace edm {
       if (iTime == IOVSyncValue::invalidIOVSyncValue()) {
         return true;
       }
-      Intervals::const_iterator itFound = intervals_.find(iKey);
+      auto itFound = intervals_.find(iKey);
       assert(itFound != intervals_.end());
       return !itFound->second.validFor(iTime);
     }
@@ -76,8 +76,7 @@ namespace edm {
 
     std::set<EventSetupRecordKey> returnValue;
 
-    for (Intervals::const_iterator itEntry = intervals_.begin(), itEntryEnd = intervals_.end(); itEntry != itEntryEnd;
-         ++itEntry) {
+    for (auto itEntry = intervals_.begin(), itEntryEnd = intervals_.end(); itEntry != itEntryEnd; ++itEntry) {
       returnValue.insert(returnValue.end(), itEntry->first);
     }
     return returnValue;

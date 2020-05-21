@@ -50,9 +50,9 @@ void CompositeAlignmentDerivativesExtractor::extractCurrentAlignment(
     return;
   }
 
-  align::Alignables::const_iterator itAlignable = alignables.begin();
-  std::vector<AlignableDetOrUnitPtr>::const_iterator itAlignableDet = alignableDets.begin();
-  std::vector<TrajectoryStateOnSurface>::const_iterator itTsos = tsos.begin();
+  auto itAlignable = alignables.begin();
+  auto itAlignableDet = alignableDets.begin();
+  auto itTsos = tsos.begin();
 
   int nRow = 0;
   int nCollumn = 0;
@@ -106,8 +106,8 @@ void CompositeAlignmentDerivativesExtractor::extractCurrentAlignment(
 
 void CompositeAlignmentDerivativesExtractor::extractWithoutMultipleHits(
     const std::vector<AlgebraicVector> &subCorrectionTerm, const std::vector<AlgebraicMatrix> &subDerivatives) {
-  std::vector<AlgebraicVector>::const_iterator itSubCorrectionTerm = subCorrectionTerm.begin();
-  std::vector<AlgebraicMatrix>::const_iterator itSubDerivatives = subDerivatives.begin();
+  auto itSubCorrectionTerm = subCorrectionTerm.begin();
+  auto itSubDerivatives = subDerivatives.begin();
 
   int iRow = 1;
   int iCollumn = 1;
@@ -133,9 +133,9 @@ void CompositeAlignmentDerivativesExtractor::extractWithMultipleHits(
     const std::vector<AlgebraicVector> &subCorrectionTerm,
     const std::vector<AlgebraicMatrix> &subDerivatives,
     const align::Alignables &alignables) {
-  std::vector<AlgebraicVector>::const_iterator itSubCorrectionTerm = subCorrectionTerm.begin();
-  std::vector<AlgebraicMatrix>::const_iterator itSubDerivatives = subDerivatives.begin();
-  align::Alignables::const_iterator itAlignables = alignables.begin();
+  auto itSubCorrectionTerm = subCorrectionTerm.begin();
+  auto itSubDerivatives = subDerivatives.begin();
+  auto itAlignables = alignables.begin();
   align::Alignables::const_iterator itPosition;
   align::Alignables::const_iterator itLastPosition;
 

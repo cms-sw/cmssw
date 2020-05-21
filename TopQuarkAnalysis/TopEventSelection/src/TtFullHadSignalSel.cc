@@ -12,7 +12,7 @@ std::vector<math::XYZVector> makeVecForEventShape(std::vector<pat::Jet> jets,
                                                   ROOT::Math::Boost boost = ROOT::Math::Boost(0., 0., 0.)) {
   std::vector<math::XYZVector> p;
   bool doBoost = (boost == ROOT::Math::Boost(0., 0., 0.)) ? false : true;
-  for (std::vector<pat::Jet>::const_iterator jet = jets.begin(); jet != jets.end(); ++jet) {
+  for (auto jet = jets.begin(); jet != jets.end(); ++jet) {
     math::XYZVector Vjet;
     if (doBoost) {
       ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > Ljet(jet->px(), jet->py(), jet->pz(), jet->energy());
@@ -139,7 +139,7 @@ TtFullHadSignalSel::TtFullHadSignalSel(const std::vector<pat::Jet>& jets) {
   std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > > fourVectors(0);
 
   unsigned short nonBJets = 0;
-  for (std::vector<pat::Jet>::const_iterator jet = jets.begin(); jet != jets.end(); ++jet) {
+  for (auto jet = jets.begin(); jet != jets.end(); ++jet) {
     H_ += jet->energy();
     Ht_ += jet->et();
 
@@ -220,12 +220,12 @@ TtFullHadSignalSel::TtFullHadSignalSel(const std::vector<pat::Jet>& jets) {
       //}
     }
 
-    for (std::vector<pat::Jet>::const_iterator jet2 = jet + 1; jet2 != jets.end(); ++jet2) {
+    for (auto jet2 = jet + 1; jet2 != jets.end(); ++jet2) {
       unsigned short comb2A[2] = {(unsigned short)(jet - jets.begin()), (unsigned short)(jet2 - jets.begin())};
       std::vector<unsigned short> comb2(comb2A, comb2A + sizeof(comb2A) / sizeof(unsigned short));
       dRs.push_back(std::make_pair(deltaR(jet->phi(), jet->eta(), jet2->phi(), jet2->eta()), comb2));
 
-      for (std::vector<pat::Jet>::const_iterator jet3 = jet2 + 1; jet3 != jets.end(); ++jet3) {
+      for (auto jet3 = jet2 + 1; jet3 != jets.end(); ++jet3) {
         unsigned short comb3A[3] = {(unsigned short)(jet - jets.begin()),
                                     (unsigned short)(jet2 - jets.begin()),
                                     (unsigned short)(jet3 - jets.begin())};
@@ -244,7 +244,7 @@ TtFullHadSignalSel::TtFullHadSignalSel(const std::vector<pat::Jet>& jets) {
   ROOT::Math::Boost CoMBoostTotal(totalSystem.BoostToCM());
   std::vector<reco::LeafCandidate> boostedJets;
 
-  for (std::vector<pat::Jet>::const_iterator jet = jets.begin(); jet != jets.end(); ++jet) {
+  for (auto jet = jets.begin(); jet != jets.end(); ++jet) {
     boostedJets.push_back(
         reco::LeafCandidate(jet->charge(), CoMBoostTotal(jet->p4()), jet->vertex(), jet->pdgId(), jet->status(), true));
   }
@@ -280,8 +280,7 @@ TtFullHadSignalSel::TtFullHadSignalSel(const std::vector<pat::Jet>& jets) {
   std::sort(dRs.begin(), dRs.end());
   std::sort(dRs3Jets.begin(), dRs3Jets.end());
 
-  for (std::vector<std::pair<double, std::vector<unsigned short> > >::const_iterator dR = dRs.begin(); dR != dRs.end();
-       ++dR) {
+  for (auto dR = dRs.begin(); dR != dRs.end(); ++dR) {
     dR_.push_back(dR->first);
     dRMass_.push_back((jets.at(dR->second.at(0)).p4() + jets.at(dR->second.at(1)).p4()).mass());
 
@@ -295,9 +294,7 @@ TtFullHadSignalSel::TtFullHadSignalSel(const std::vector<pat::Jet>& jets) {
                                                      CoMBoostWHypo(jets.at(dR->second.at(1)).p4())));
   }
 
-  for (std::vector<std::pair<double, std::vector<unsigned short> > >::const_iterator dR = dRs3Jets.begin();
-       dR != dRs3Jets.end();
-       ++dR) {
+  for (auto dR = dRs3Jets.begin(); dR != dRs3Jets.end(); ++dR) {
     dR3Jets_.push_back(dR->first);
     dR3JetsMass_.push_back(
         (jets.at(dR->second.at(0)).p4() + jets.at(dR->second.at(1)).p4() + jets.at(dR->second.at(2)).p4()).mass());
@@ -305,7 +302,7 @@ TtFullHadSignalSel::TtFullHadSignalSel(const std::vector<pat::Jet>& jets) {
 
   std::vector<std::pair<double, unsigned short> > massDiff2W;
 
-  for (std::vector<double>::const_iterator mass = dRMass_.begin(); mass != dRMass_.end(); ++mass) {
+  for (auto mass = dRMass_.begin(); mass != dRMass_.end(); ++mass) {
     massDiff2W.push_back(std::make_pair(std::abs((*mass) - 80.4), mass - dRMass_.begin()));
   }
 
@@ -313,10 +310,9 @@ TtFullHadSignalSel::TtFullHadSignalSel(const std::vector<pat::Jet>& jets) {
 
   //std::vector<std::pair< double, std::vector<unsigned short> > > massDiff;
 
-  for (std::vector<std::pair<double, unsigned short> >::const_iterator i = massDiff2W.begin(); i != massDiff2W.end();
-       ++i) {
+  for (auto i = massDiff2W.begin(); i != massDiff2W.end(); ++i) {
     unsigned int mass1 = i->second;
-    for (std::vector<std::pair<double, unsigned short> >::const_iterator j = i + 1; j != massDiff2W.end(); ++j) {
+    for (auto j = i + 1; j != massDiff2W.end(); ++j) {
       unsigned int mass2 = j->second;
       if (dRs.at(mass1).second.at(0) != dRs.at(mass2).second.at(0) &&
           dRs.at(mass1).second.at(0) != dRs.at(mass2).second.at(1) &&
@@ -377,10 +373,7 @@ TtFullHadSignalSel::TtFullHadSignalSel(const std::vector<pat::Jet>& jets) {
 
   sqrt_s_ = totalSystem.mass();
 
-  for (std::vector<ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > >::const_iterator jet =
-           fourVectors.begin();
-       jet != fourVectors.end();
-       ++jet) {
+  for (auto jet = fourVectors.begin(); jet != fourVectors.end(); ++jet) {
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > boostedJet = CoMBoostTotal(*jet);
     if (jet - fourVectors.begin() > 1) {
       thetaStar3jet_ += (boostedJet.Theta() > M_PI / 2.) ? (M_PI - boostedJet.Theta()) : boostedJet.Theta();

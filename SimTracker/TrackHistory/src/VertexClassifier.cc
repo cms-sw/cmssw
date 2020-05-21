@@ -113,11 +113,10 @@ void VertexClassifier::processesAtGenerator() {
   VertexHistory::GenVertexTrail const &genVertexTrail = tracer_.genVertexTrail();
 
   // Loop over the generated vertices
-  for (VertexHistory::GenVertexTrail::const_iterator ivertex = genVertexTrail.begin(); ivertex != genVertexTrail.end();
-       ++ivertex) {
+  for (auto ivertex = genVertexTrail.begin(); ivertex != genVertexTrail.end(); ++ivertex) {
     // Get the pointer to the vertex by removing the const-ness (no const methos
     // in HepMC::GenVertex)
-    HepMC::GenVertex *vertex = const_cast<HepMC::GenVertex *>(*ivertex);
+    auto *vertex = const_cast<HepMC::GenVertex *>(*ivertex);
 
     // Loop over the sources looking for specific decays
     for (HepMC::GenVertex::particle_iterator iparent = vertex->particles_begin(HepMC::parents);
@@ -159,8 +158,7 @@ void VertexClassifier::processesAtGenerator() {
 void VertexClassifier::processesAtSimulation() {
   VertexHistory::SimVertexTrail const &simVertexTrail = tracer_.simVertexTrail();
 
-  for (VertexHistory::SimVertexTrail::const_iterator ivertex = simVertexTrail.begin(); ivertex != simVertexTrail.end();
-       ++ivertex) {
+  for (auto ivertex = simVertexTrail.begin(); ivertex != simVertexTrail.end(); ++ivertex) {
     // pdgid of the real source parent vertex
     int pdgid = 0;
 
@@ -270,8 +268,7 @@ void VertexClassifier::vertexInformation() {
   double const mm = 0.1;
 
   // Loop over the generated vertexes
-  for (VertexHistory::GenVertexTrail::const_iterator ivertex = genVertexTrail.begin(); ivertex != genVertexTrail.end();
-       ++ivertex) {
+  for (auto ivertex = genVertexTrail.begin(); ivertex != genVertexTrail.end(); ++ivertex) {
     // Check vertex exist
     if (*ivertex) {
       // Measure the distance2 respecto the primary vertex
@@ -287,7 +284,7 @@ void VertexClassifier::vertexInformation() {
 
       // Check if there is already a cluster in the given distance from primary
       // vertex
-      Clusters::const_iterator icluster = clusters.lower_bound(distance - vertexClusteringDistance_);
+      auto icluster = clusters.lower_bound(distance - vertexClusteringDistance_);
 
       if (icluster == clusters.upper_bound(distance + vertexClusteringDistance_)) {
         clusters.insert(ClusterPair(distance, HepMC::ThreeVector(p.x() * mm, p.y() * mm, p.z() * mm)));
@@ -316,9 +313,7 @@ void VertexClassifier::vertexInformation() {
   const VertexHistory::SimVertexTrail &simVertexTrail = tracer_.simVertexTrail();
 
   // Loop over the generated particles
-  for (VertexHistory::SimVertexTrail::const_reverse_iterator ivertex = simVertexTrail.rbegin();
-       ivertex != simVertexTrail.rend();
-       ++ivertex) {
+  for (auto ivertex = simVertexTrail.rbegin(); ivertex != simVertexTrail.rend(); ++ivertex) {
     // Look for those with production vertex
     TrackingVertex::LorentzVector p = (*ivertex)->position();
 
@@ -332,7 +327,7 @@ void VertexClassifier::vertexInformation() {
 
     // Check if there is already a cluster in the given distance from primary
     // vertex
-    Clusters::const_iterator icluster = clusters.lower_bound(distance - vertexClusteringDistance_);
+    auto icluster = clusters.lower_bound(distance - vertexClusteringDistance_);
 
     if (icluster == clusters.upper_bound(distance + vertexClusteringDistance_)) {
       clusters.insert(ClusterPair(distance, HepMC::ThreeVector(p.x(), p.y(), p.z())));
@@ -412,7 +407,7 @@ void VertexClassifier::genPrimaryVertices() {
 
       GeneratedPrimaryVertex pv(pos.x() * mm, pos.y() * mm, pos.z() * mm);
 
-      std::vector<GeneratedPrimaryVertex>::iterator ientry = genpvs_.begin();
+      auto ientry = genpvs_.begin();
 
       // Search for a VERY close vertex in the list
       for (; ientry != genpvs_.end(); ++ientry) {

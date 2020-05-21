@@ -702,7 +702,7 @@ void HcalDigitizer::buildHFQIECells(const std::vector<DetId> &allCells, const ed
     qieTypes.setTopo(htopo.product());
   }
 
-  for (std::vector<DetId>::const_iterator detItr = allCells.begin(); detItr != allCells.end(); ++detItr) {
+  for (auto detItr = allCells.begin(); detItr != allCells.end(); ++detItr) {
     HcalQIENum qieType = HcalQIENum(qieTypes.getValues(*detItr)->getValue());
     if (qieType == QIE8) {
       theHFQIE8DetIds.push_back(*detItr);
@@ -742,7 +742,7 @@ void HcalDigitizer::buildHBHEQIECells(const std::vector<DetId> &allCells, const 
     qieTypes.setTopo(htopo.product());
   }
 
-  for (std::vector<DetId>::const_iterator detItr = allCells.begin(); detItr != allCells.end(); ++detItr) {
+  for (auto detItr = allCells.begin(); detItr != allCells.end(); ++detItr) {
     HcalQIENum qieType = HcalQIENum(qieTypes.getValues(*detItr)->getValue());
     if (qieType == QIE8) {
       theHBHEQIE8DetIds.push_back(*detItr);
@@ -791,7 +791,7 @@ void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId> &allCells, const e
       mcParams.setTopo(htopo.product());
     }
 
-    for (std::vector<DetId>::const_iterator detItr = allCells.begin(); detItr != allCells.end(); ++detItr) {
+    for (auto detItr = allCells.begin(); detItr != allCells.end(); ++detItr) {
       int shapeType = mcParams.getValues(*detItr)->signalShape();
       if (shapeType == HcalShapes::ZECOTEK) {
         zecotekDetIds.emplace_back(*detItr);

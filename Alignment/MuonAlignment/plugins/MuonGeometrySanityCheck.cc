@@ -122,7 +122,7 @@ MuonGeometrySanityCheck::MuonGeometrySanityCheck(const edm::ParameterSet &iConfi
   prefix = iConfig.getParameter<std::string>("prefix");
 
   std::vector<edm::ParameterSet> frames = iConfig.getParameter<std::vector<edm::ParameterSet> >("frames");
-  for (std::vector<edm::ParameterSet>::const_iterator frame = frames.begin(); frame != frames.end(); ++frame) {
+  for (auto frame = frames.begin(); frame != frames.end(); ++frame) {
     std::string name = frame->getParameter<std::string>("name");
     if (m_frames.find(name) != m_frames.end()) {
       throw cms::Exception("BadConfig") << "Custom frame \"" << name << "\" has been defined twice." << std::endl;
@@ -131,15 +131,13 @@ MuonGeometrySanityCheck::MuonGeometrySanityCheck(const edm::ParameterSet &iConfi
   }
 
   std::vector<edm::ParameterSet> points = iConfig.getParameter<std::vector<edm::ParameterSet> >("points");
-  for (std::vector<edm::ParameterSet>::const_iterator point = points.begin(); point != points.end(); ++point) {
+  for (auto point = points.begin(); point != points.end(); ++point) {
     m_points.push_back(MuonGeometrySanityCheckPoint(*point, m_frames));
   }
 }
 
 MuonGeometrySanityCheck::~MuonGeometrySanityCheck() {
-  for (std::map<std::string, const MuonGeometrySanityCheckCustomFrame *>::iterator iter = m_frames.begin();
-       iter != m_frames.end();
-       ++iter) {
+  for (auto iter = m_frames.begin(); iter != m_frames.end(); ++iter) {
     delete iter->second;
   }
 }
@@ -479,8 +477,7 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(
   }
 
   std::string frameName = iConfig.getParameter<std::string>("frame");
-  const std::map<std::string, const MuonGeometrySanityCheckCustomFrame *>::const_iterator frameIter =
-      frames.find(frameName);
+  const auto frameIter = frames.find(frameName);
   if (frameName == std::string("global")) {
     frame = kGlobal;
     customFrame = nullptr;
@@ -530,8 +527,7 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(
   entry = iConfig.retrieveUnknown("outputFrame");
   if (entry != nullptr) {
     frameName = iConfig.getParameter<std::string>("outputFrame");
-    const std::map<std::string, const MuonGeometrySanityCheckCustomFrame *>::const_iterator frameIter =
-        frames.find(frameName);
+    const auto frameIter = frames.find(frameName);
     if (frameName == std::string("global")) {
       outputFrame = kGlobal;
       outputCustomFrame = nullptr;
@@ -589,8 +585,7 @@ void MuonGeometrySanityCheck::analyze(const edm::Event &iEvent, const edm::Event
   int num_transformed = 0;
   int num_tested = 0;
   int num_bad = 0;
-  for (std::vector<MuonGeometrySanityCheckPoint>::const_iterator point = m_points.begin(); point != m_points.end();
-       ++point) {
+  for (auto point = m_points.begin(); point != m_points.end(); ++point) {
     num_transformed++;
 
     bool dt = (point->detector.subdetId() == MuonSubdetId::DT);

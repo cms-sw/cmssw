@@ -28,7 +28,7 @@ T& FFTJetDict<Key, T, Compare, Allocator>::operator[](const Key& key) {
 
 template <class Key, class T, class Compare, class Allocator>
 const T& FFTJetDict<Key, T, Compare, Allocator>::operator[](const Key& key) const {
-  typename FFTJetDict<Key, T, Compare, Allocator>::const_iterator it = this->find(key);
+  auto it = this->find(key);
   if (it == std::map<Key, T, Compare, Allocator>::end())
     throw cms::Exception("KeyNotFound") << "FFTJetDict: key \"" << key << "\" not found\n";
   return it->second;

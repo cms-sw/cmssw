@@ -186,7 +186,7 @@ vector<typename SequentialVertexFitter<N>::RefCountedVertexTrack> SequentialVert
   GlobalPoint linP = state.position();
   std::vector<RefCountedVertexTrack> finalTracks;
   finalTracks.reserve(tracks.size());
-  for (vector<reco::TransientTrack>::const_iterator i = tracks.begin(); i != tracks.end(); i++) {
+  for (auto i = tracks.begin(); i != tracks.end(); i++) {
     RefCountedLinearizedTrackState lTrData = theLTrackFactory->linearizedTrackState(linP, *i);
     RefCountedVertexTrack vTrData = theVTrackFactory.vertexTrack(lTrData, state);
     finalTracks.push_back(vTrData);
@@ -204,7 +204,7 @@ vector<typename SequentialVertexFitter<N>::RefCountedVertexTrack> SequentialVert
   GlobalPoint linP = state.position();
   std::vector<RefCountedVertexTrack> finalTracks;
   finalTracks.reserve(tracks.size());
-  for (typename std::vector<RefCountedVertexTrack>::const_iterator i = tracks.begin(); i != tracks.end(); i++) {
+  for (auto i = tracks.begin(); i != tracks.end(); i++) {
     RefCountedLinearizedTrackState lTrData = (**i).linearizedTrack()->stateWithNewLinearizationPoint(linP);
     //    RefCountedLinearizedTrackState lTrData =
     //      theLTrackFactory->linearizedTrackState(linP,
@@ -245,9 +245,7 @@ CachingVertex<N> SequentialVertexFitter<N>::fit(const std::vector<RefCountedVert
       globalVTracks = reLinearizeTracks(tracks, returnVertex.vertexState());
 
     // update sequentially the vertex estimate
-    for (typename std::vector<RefCountedVertexTrack>::const_iterator i = globalVTracks.begin();
-         i != globalVTracks.end();
-         i++) {
+    for (auto i = globalVTracks.begin(); i != globalVTracks.end(); i++) {
       fVertex = theUpdator->add(fVertex, *i);
       if (!fVertex.isValid())
         break;

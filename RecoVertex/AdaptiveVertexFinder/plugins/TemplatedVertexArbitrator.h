@@ -131,7 +131,7 @@ void TemplatedVertexArbitrator<InputContainer, VTX>::produce(edm::Event &event, 
     event.getByToken(token_beamSpot, beamSpot);
 
     std::vector<TransientTrack> selectedTracks;
-    for (typename InputContainer::const_iterator track = tracks->begin(); track != tracks->end(); ++track) {
+    for (auto track = tracks->begin(); track != tracks->end(); ++track) {
       selectedTracks.push_back(tthelpers::buildTT(tracks, trackBuilder, track - tracks->begin()));
     }
 

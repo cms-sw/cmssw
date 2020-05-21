@@ -72,9 +72,7 @@ namespace pat {
     ///! cast to bool
     operator bool() const {
       bool b = true;
-      for (bit_vector::const_iterator bitsBegin = bits_.begin(), bitsEnd = bits_.end(), ibit = bitsBegin;
-           ibit != bitsEnd;
-           ++ibit) {
+      for (auto bitsBegin = bits_.begin(), bitsEnd = bits_.end(), ibit = bitsBegin; ibit != bitsEnd; ++ibit) {
         if (*ibit == false)
           b = false;
       }
@@ -99,7 +97,7 @@ namespace pat {
 
     //! print method
     void print(std::ostream& out) const {
-      for (str_index_map::const_iterator mbegin = map_.begin(), mend = map_.end(), mit = mbegin; mit != mend; ++mit) {
+      for (auto mbegin = map_.begin(), mend = map_.end(), mit = mbegin; mit != mend; ++mit) {
         char buff[100];
         sprintf(buff, "%10s = %6i", mit->first.c_str(), (int)(bits_.at(mit->second)));
         out << buff << std::endl;
@@ -124,7 +122,7 @@ namespace pat {
 
     //! set method of all bits
     strbitset& set(bool val = true) {
-      for (bit_vector::iterator ibegin = bits_.begin(), iend = bits_.end(), i = ibegin; i != iend; ++i) {
+      for (auto ibegin = bits_.begin(), iend = bits_.end(), i = ibegin; i != iend; ++i) {
         *i = val;
       }
       return *this;
@@ -132,7 +130,7 @@ namespace pat {
 
     //! flip method of all bits
     strbitset& flip() {
-      for (bit_vector::iterator ibegin = bits_.begin(), iend = bits_.end(), i = ibegin; i != iend; ++i) {
+      for (auto ibegin = bits_.begin(), iend = bits_.end(), i = ibegin; i != iend; ++i) {
         *i = !(*i);
       }
       return *this;
@@ -163,7 +161,7 @@ namespace pat {
     //! logical negation
     strbitset operator~() {
       strbitset ret(*this);
-      for (bit_vector::iterator ibegin = ret.bits_.begin(), iend = ret.bits_.end(), i = ibegin; i != iend; ++i) {
+      for (auto ibegin = ret.bits_.begin(), iend = ret.bits_.end(), i = ibegin; i != iend; ++i) {
         *i = !(*i);
       }
       return ret;
@@ -174,10 +172,10 @@ namespace pat {
       if (map_.size() != r.map_.size()) {
         std::cout << "strbitset operator&= : bitsets not the same size" << std::endl;
       } else {
-        str_index_map::iterator ibegin = map_.begin(), iend = map_.end(), i = ibegin;
+        auto ibegin = map_.begin(), iend = map_.end(), i = ibegin;
         for (; i != iend; ++i) {
           std::string key = i->first;
-          str_index_map::const_iterator j = r.map_.find(key);
+          auto j = r.map_.find(key);
           if (j == r.map_.end()) {
             std::cout << "strbitset operator&= : cannot find key " << key << std::endl;
           } else {
@@ -193,10 +191,10 @@ namespace pat {
       if (map_.size() != r.map_.size()) {
         std::cout << "strbitset operator&= : bitsets not the same size" << std::endl;
       } else {
-        str_index_map::iterator ibegin = map_.begin(), iend = map_.end(), i = ibegin;
+        auto ibegin = map_.begin(), iend = map_.end(), i = ibegin;
         for (; i != iend; ++i) {
           std::string key = i->first;
-          str_index_map::const_iterator j = r.map_.find(key);
+          auto j = r.map_.find(key);
           if (j == r.map_.end()) {
             std::cout << "strbitset operator&= : cannot find key " << key << std::endl;
           } else {
@@ -212,10 +210,10 @@ namespace pat {
       if (map_.size() != r.map_.size()) {
         std::cout << "strbitset operator&= : bitsets not the same size" << std::endl;
       } else {
-        str_index_map::iterator ibegin = map_.begin(), iend = map_.end(), i = ibegin;
+        auto ibegin = map_.begin(), iend = map_.end(), i = ibegin;
         for (; i != iend; ++i) {
           std::string key = i->first;
-          str_index_map::const_iterator j = r.map_.find(key);
+          auto j = r.map_.find(key);
           if (j == r.map_.end()) {
             std::cout << "strbitset operator&= : cannot find key " << key << std::endl;
           } else {
@@ -231,10 +229,10 @@ namespace pat {
       if (map_.size() != r.map_.size()) {
         std::cout << "strbitset operator&= : bitsets not the same size" << std::endl;
       } else {
-        str_index_map::const_iterator ibegin = map_.begin(), iend = map_.end(), i = ibegin;
+        auto ibegin = map_.begin(), iend = map_.end(), i = ibegin;
         for (; i != iend; ++i) {
           std::string key = i->first;
-          str_index_map::const_iterator j = r.map_.find(key);
+          auto j = r.map_.find(key);
           if (j == r.map_.end()) {
             std::cout << "strbitset operator&= : cannot find key " << key << std::endl;
           } else {
@@ -249,7 +247,7 @@ namespace pat {
     //! equality operator to bool
     bool operator==(bool b) const {
       bool result = true;
-      for (bit_vector::const_iterator iBegin = bits_.begin(), iEnd = bits_.end(), ibit = iBegin; ibit != iEnd; ++ibit) {
+      for (auto iBegin = bits_.begin(), iEnd = bits_.end(), ibit = iBegin; ibit != iEnd; ++ibit) {
         result &= (*ibit == b);
       }
       return result;
@@ -264,7 +262,7 @@ namespace pat {
     //! returns number of bits set
     size_t count() const {
       size_t ret = 0;
-      for (bit_vector::const_iterator ibegin = bits_.begin(), iend = bits_.end(), i = ibegin; i != iend; ++i) {
+      for (auto ibegin = bits_.begin(), iend = bits_.end(), i = ibegin; i != iend; ++i) {
         if (*i)
           ++ret;
       }
@@ -273,7 +271,7 @@ namespace pat {
 
     //! returns true if any are set
     size_t any() const {
-      for (bit_vector::const_iterator ibegin = bits_.begin(), iend = bits_.end(), i = ibegin; i != iend; ++i) {
+      for (auto ibegin = bits_.begin(), iend = bits_.end(), i = ibegin; i != iend; ++i) {
         if (*i)
           return true;
       }
@@ -295,7 +293,7 @@ namespace pat {
     const std::vector<std::string> strings() const {
       std::vector<std::string> strings;
       strings.resize(bits_.size());
-      for (str_index_map::const_iterator it = map_.begin(), end = map_.end(); it != end; ++it) {
+      for (auto it = map_.begin(), end = map_.end(); it != end; ++it) {
         strings[it->second] = it->first;
       }
       return strings;
@@ -309,7 +307,7 @@ namespace pat {
     /// workhorse: this gets the index of "bits" that is pointed to by
     /// the string "s"
     size_t index(std::string s) const {
-      str_index_map::const_iterator f = map_.find(s);
+      auto f = map_.find(s);
       if (f == map_.end()) {
         std::cout << "Cannot find " << s << ", returning size()" << std::endl;
         return map_.size();
@@ -319,7 +317,7 @@ namespace pat {
     }
 
     std::string const& index(size_t i) const {
-      for (str_index_map::const_iterator f = map_.begin(), fEnd = map_.end(); f != fEnd; ++f) {
+      for (auto f = map_.begin(), fEnd = map_.end(); f != fEnd; ++f) {
         if (f->second == i)
           return f->first;
       }

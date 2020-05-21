@@ -192,12 +192,10 @@ void StudyTriggerHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   iEvent.getByToken(tok_genTrack_, trackEventHandle);
   edm::LogVerbatim("StudyHLT") << "Muon Handle " << muonEventHandle.isValid() << " Track Handle "
                                << trackEventHandle.isValid();
-  for (reco::TrackCollection::const_iterator track1 = trackEventHandle->begin(); track1 != trackEventHandle->end();
-       ++track1) {
+  for (auto track1 = trackEventHandle->begin(); track1 != trackEventHandle->end(); ++track1) {
     double localMin = 1000;
     if (muonEventHandle.isValid()) {
-      for (reco::MuonCollection::const_iterator recMuon = muonEventHandle->begin(); recMuon != muonEventHandle->end();
-           ++recMuon) {
+      for (auto recMuon = muonEventHandle->begin(); recMuon != muonEventHandle->end(); ++recMuon) {
         if (((recMuon->isPFMuon()) && (recMuon->isGlobalMuon() || recMuon->isTrackerMuon())) &&
             (recMuon->innerTrack()->validFraction() > 0.49)) {
           double chiGlobal = ((recMuon->globalTrack().isNonnull()) ? recMuon->globalTrack()->normalizedChi2() : 999);

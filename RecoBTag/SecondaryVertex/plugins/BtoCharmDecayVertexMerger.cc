@@ -26,7 +26,7 @@ reco::Candidate::LorentzVector vtxP4(const reco::VertexCompositePtrCandidate &vt
   reco::Candidate::LorentzVector sum;
   const std::vector<reco::CandidatePtr> &tracks = vtx.daughterPtrVector();
 
-  for (std::vector<reco::CandidatePtr>::const_iterator track = tracks.begin(); track != tracks.end(); ++track) {
+  for (auto track = tracks.begin(); track != tracks.end(); ++track) {
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double>> vec;
     vec.SetPx((*track)->px());
     vec.SetPy((*track)->py());
@@ -131,8 +131,7 @@ void BtoCharmDecayVertexMergerT<VTX>::produce(edm::Event &iEvent, const edm::Eve
 
     // now create new vertex collection and add to event
     auto bvertColl = std::make_unique<std::vector<VTX>>();
-    for (typename std::vector<VertexProxy>::const_iterator it = vertexProxyColl.begin(); it != vertexProxyColl.end();
-         ++it)
+    for (auto it = vertexProxyColl.begin(); it != vertexProxyColl.end(); ++it)
       bvertColl->push_back((*it).vert);
     iEvent.put(std::move(bvertColl));
   } else {
@@ -214,14 +213,14 @@ void BtoCharmDecayVertexMergerT<reco::Vertex>::resolveBtoDchain(std::vector<Vert
   // create a set of all tracks from both vertices, avoid double counting by using a std::set<>
   std::set<reco::TrackRef> trackrefs;
   // first vertex
-  for (reco::Vertex::trackRef_iterator ti = sv1.tracks_begin(); ti != sv1.tracks_end(); ++ti) {
+  for (auto ti = sv1.tracks_begin(); ti != sv1.tracks_end(); ++ti) {
     if (sv1.trackWeight(*ti) > 0.5) {
       reco::TrackRef t = ti->castTo<reco::TrackRef>();
       trackrefs.insert(t);
     }
   }
   // second vertex
-  for (reco::Vertex::trackRef_iterator ti = sv2.tracks_begin(); ti != sv2.tracks_end(); ++ti) {
+  for (auto ti = sv2.tracks_begin(); ti != sv2.tracks_end(); ++ti) {
     if (sv2.trackWeight(*ti) > 0.5) {
       reco::TrackRef t = ti->castTo<reco::TrackRef>();
       trackrefs.insert(t);
@@ -230,7 +229,7 @@ void BtoCharmDecayVertexMergerT<reco::Vertex>::resolveBtoDchain(std::vector<Vert
 
   // now calculate one LorentzVector from the track momenta
   ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double>> mother;
-  for (std::set<reco::TrackRef>::const_iterator it = trackrefs.begin(); it != trackrefs.end(); ++it) {
+  for (auto it = trackrefs.begin(); it != trackrefs.end(); ++it) {
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double>> temp(
         (*it)->px(), (*it)->py(), (*it)->pz(), ParticleMasses::piPlus);
     mother += temp;
@@ -242,8 +241,8 @@ void BtoCharmDecayVertexMergerT<reco::Vertex>::resolveBtoDchain(std::vector<Vert
     // add tracks of second vertex which are missing to first vertex
     // loop over the second
     bool bFoundDuplicate = false;
-    for (reco::Vertex::trackRef_iterator ti = sv2.tracks_begin(); ti != sv2.tracks_end(); ++ti) {
-      reco::Vertex::trackRef_iterator it = find(sv1.tracks_begin(), sv1.tracks_end(), *ti);
+    for (auto ti = sv2.tracks_begin(); ti != sv2.tracks_end(); ++ti) {
+      auto it = find(sv1.tracks_begin(), sv1.tracks_end(), *ti);
       if (it == sv1.tracks_end())
         coll[i].vert.add(*ti, sv2.refittedTrack(*ti), sv2.trackWeight(*ti));
       else
@@ -257,16 +256,16 @@ void BtoCharmDecayVertexMergerT<reco::Vertex>::resolveBtoDchain(std::vector<Vert
       std::vector<TrackBaseRef> tracks_;
       std::vector<Track> refittedTracks_;
       std::vector<float> weights_;
-      for (reco::Vertex::trackRef_iterator it = coll[i].vert.tracks_begin(); it != coll[i].vert.tracks_end(); ++it) {
+      for (auto it = coll[i].vert.tracks_begin(); it != coll[i].vert.tracks_end(); ++it) {
         tracks_.push_back(*it);
         refittedTracks_.push_back(coll[i].vert.refittedTrack(*it));
         weights_.push_back(coll[i].vert.trackWeight(*it));
       }
       // delete tracks and add all tracks back, and check in which vertex the weight is larger
       coll[i].vert.removeTracks();
-      std::vector<Track>::iterator it2 = refittedTracks_.begin();
-      std::vector<float>::iterator it3 = weights_.begin();
-      for (reco::Vertex::trackRef_iterator it = tracks_.begin(); it != tracks_.end(); ++it, ++it2, ++it3) {
+      auto it2 = refittedTracks_.begin();
+      auto it3 = weights_.begin();
+      for (auto it = tracks_.begin(); it != tracks_.end(); ++it, ++it2, ++it3) {
         float weight = *it3;
         float weight2 = sv2.trackWeight(*it);
         Track refittedTrackWithLargerWeight = *it2;
@@ -331,7 +330,7 @@ void BtoCharmDecayVertexMergerT<reco::VertexCompositePtrCandidate>::resolveBtoDc
 
   // now calculate one LorentzVector from the track momenta
   Candidate::LorentzVector mother;
-  for (std::set<reco::CandidatePtr>::const_iterator it = trackrefs.begin(); it != trackrefs.end(); ++it) {
+  for (auto it = trackrefs.begin(); it != trackrefs.end(); ++it) {
     Candidate::LorentzVector temp((*it)->px(), (*it)->py(), (*it)->pz(), ParticleMasses::piPlus);
     mother += temp;
   }
@@ -343,8 +342,8 @@ void BtoCharmDecayVertexMergerT<reco::VertexCompositePtrCandidate>::resolveBtoDc
     // loop over the second
     const std::vector<reco::CandidatePtr> &tracks1 = sv1.daughterPtrVector();
     const std::vector<reco::CandidatePtr> &tracks2 = sv2.daughterPtrVector();
-    for (std::vector<reco::CandidatePtr>::const_iterator ti = tracks2.begin(); ti != tracks2.end(); ++ti) {
-      std::vector<reco::CandidatePtr>::const_iterator it = find(tracks1.begin(), tracks1.end(), *ti);
+    for (auto ti = tracks2.begin(); ti != tracks2.end(); ++ti) {
+      auto it = find(tracks1.begin(), tracks1.end(), *ti);
       if (it == tracks1.end()) {
         coll[i].vert.addDaughter(*ti);
         coll[i].vert.setP4((*ti)->p4() + coll[i].vert.p4());

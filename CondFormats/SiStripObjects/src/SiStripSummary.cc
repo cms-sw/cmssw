@@ -20,8 +20,7 @@ SiStripSummary::SiStripSummary(const SiStripSummary& input) {
 }
 
 bool SiStripSummary::put(const uint32_t& DetId, InputVector& input, std::vector<std::string>& userContent) {
-  Registry::iterator p =
-      std::lower_bound(indexes_.begin(), indexes_.end(), DetId, SiStripSummary::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes_.begin(), indexes_.end(), DetId, SiStripSummary::StrictWeakOrdering());
 
   if (p == indexes_.end() || p->detid != DetId) {
     //First request for the given DetID
@@ -59,7 +58,7 @@ bool SiStripSummary::put(sistripsummary::TrackerRegion region,
 }
 
 const SiStripSummary::Range SiStripSummary::getRange(const uint32_t& DetId) const {
-  RegistryIterator p = std::lower_bound(indexes_.begin(), indexes_.end(), DetId, SiStripSummary::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes_.begin(), indexes_.end(), DetId, SiStripSummary::StrictWeakOrdering());
   if (p == indexes_.end() || p->detid != DetId) {
     return SiStripSummary::Range(v_sum_.end(), v_sum_.end());
     std::cout << "not in range " << std::endl;
@@ -70,9 +69,9 @@ const SiStripSummary::Range SiStripSummary::getRange(const uint32_t& DetId) cons
 std::vector<uint32_t> SiStripSummary::getDetIds() const {
   // returns vector of DetIds in map
   std::vector<uint32_t> DetIds_;
-  SiStripSummary::RegistryIterator begin = indexes_.begin();
-  SiStripSummary::RegistryIterator end = indexes_.end();
-  for (SiStripSummary::RegistryIterator p = begin; p != end; ++p) {
+  auto begin = indexes_.begin();
+  auto end = indexes_.end();
+  for (auto p = begin; p != end; ++p) {
     DetIds_.push_back(p->detid);
   }
   return DetIds_;
@@ -81,7 +80,7 @@ std::vector<uint32_t> SiStripSummary::getDetIds() const {
 const short SiStripSummary::getPosition(std::string elementName) const {
   // returns position of elementName in UserDBContent_
 
-  std::vector<std::string>::const_iterator it = find(userDBContent_.begin(), userDBContent_.end(), elementName);
+  auto it = find(userDBContent_.begin(), userDBContent_.end(), elementName);
   short pos = -1;
   if (it != userDBContent_.end())
     pos = it - userDBContent_.begin();
@@ -94,7 +93,7 @@ const short SiStripSummary::getPosition(std::string elementName) const {
 void SiStripSummary::setObj(const uint32_t& detID, std::string elementName, float value) {
   // modifies value of info "elementName" for the given detID
   // requires that an entry has be defined beforehand for detId in DB
-  RegistryIterator p = std::lower_bound(indexes_.begin(), indexes_.end(), detID, SiStripSummary::StrictWeakOrdering());
+  auto p = std::lower_bound(indexes_.begin(), indexes_.end(), detID, SiStripSummary::StrictWeakOrdering());
   if (p == indexes_.end() || p->detid != detID) {
     throw cms::Exception("") << "not allowed to modify " << elementName
                              << " in historic DB - SummaryObj needs to be available first !";
@@ -102,7 +101,7 @@ void SiStripSummary::setObj(const uint32_t& detID, std::string elementName, floa
 
   const SiStripSummary::Range range = getRange(detID);
 
-  std::vector<float>::const_iterator it = range.first + getPosition(elementName);
+  auto it = range.first + getPosition(elementName);
   std::vector<float>::difference_type pos = -1;
   if (it != v_sum_.end()) {
     pos = it - v_sum_.begin();

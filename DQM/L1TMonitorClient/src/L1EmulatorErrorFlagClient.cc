@@ -43,8 +43,7 @@ void L1EmulatorErrorFlagClient::initialize() {
 
   int indexSys = 0;
 
-  for (std::vector<edm::ParameterSet>::const_iterator itSystem = m_l1Systems.begin(); itSystem != m_l1Systems.end();
-       ++itSystem) {
+  for (auto itSystem = m_l1Systems.begin(); itSystem != m_l1Systems.end(); ++itSystem) {
     m_systemLabel.push_back(itSystem->getParameter<std::string>("SystemLabel"));
 
     m_systemLabelExt.push_back(itSystem->getParameter<std::string>("HwValLabel"));

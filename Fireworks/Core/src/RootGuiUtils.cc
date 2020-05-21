@@ -11,7 +11,7 @@ namespace fireworks_root_gui {
   TGHorizontalFrame* makeHorizontalFrame(TGCompositeFrame* p) {
     // Make standard horizontal frame.
 
-    TGHorizontalFrame* f = new TGHorizontalFrame(p);
+    auto* f = new TGHorizontalFrame(p);
     p->AddFrame(f, new TGLayoutHints(kLHintsNormal | kLHintsExpandX));
     return f;
   }

@@ -18,7 +18,7 @@ void BetaCalculatorRPC::algo(const std::vector<susybsm::RPCHit4D>& uHSCPRPCRecHi
 
   std::sort(HSCPRPCRecHits.begin(), HSCPRPCRecHits.end());  //Organizing them
 
-  for (std::vector<susybsm::RPCHit4D>::iterator point = HSCPRPCRecHits.begin(); point < HSCPRPCRecHits.end(); ++point) {
+  for (auto point = HSCPRPCRecHits.begin(); point < HSCPRPCRecHits.end(); ++point) {
     outOfTime |= (point->bx != 0);            //condition 1: at least one measurement must have BX!=0
     increasing &= (point->bx >= lastbx);      //condition 2: BX must be increase when going inside-out.
     anydifferentzero &= (!(point->bx == 0));  //to check one knee withoutzeros
@@ -39,7 +39,7 @@ void BetaCalculatorRPC::algo(const std::vector<susybsm::RPCHit4D>& uHSCPRPCRecHi
   int knees = 0;
   float maginknee = 0;
   float maginfirstknee = 0;
-  for (std::vector<susybsm::RPCHit4D>::iterator point = HSCPRPCRecHits.begin(); point < HSCPRPCRecHits.end(); ++point) {
+  for (auto point = HSCPRPCRecHits.begin(); point < HSCPRPCRecHits.end(); ++point) {
     if (lastbx == -7) {
       maginfirstknee = point->gp.mag();
     } else if ((lastbx != point->bx)) {
@@ -76,8 +76,7 @@ void BetaCalculatorRPC::algo(const std::vector<susybsm::RPCHit4D>& uHSCPRPCRecHi
     float betavalue2 = 0;
     lastbx = -7;
     //std::cout<<"Inside BetaCalculatorRPC \t \t \t \t looping again on the RPCRecHits4D="<<knees<<std::endl;
-    for (std::vector<susybsm::RPCHit4D>::iterator point = HSCPRPCRecHits.begin(); point < HSCPRPCRecHits.end();
-         ++point) {
+    for (auto point = HSCPRPCRecHits.begin(); point < HSCPRPCRecHits.end(); ++point) {
       if (lastbx == -7) {
         maginfirstknee = point->gp.mag();
       } else if ((lastbx != point->bx)) {
@@ -144,7 +143,7 @@ void BetaCalculatorRPC::addInfoToCandidate(HSCParticle& candidate,
   } else return;
 */
 
-  for (trackingRecHit_iterator recHit = start; recHit != stop; ++recHit) {
+  for (auto recHit = start; recHit != stop; ++recHit) {
     if ((*recHit)->geographicalId().subdetId() != MuonSubdetId::RPC)
       continue;
     if ((*recHit)->geographicalId().det() != DetId::Muon)
@@ -186,7 +185,7 @@ void BetaCalculatorRPC::addInfoToCandidate(HSCParticle& candidate,
   int lastbx = -7;
   bool increasing = true;
   bool outOfTime = false;
-  for (std::vector<RPCHit4D>::iterator point = hits.begin(); point < hits.end(); ++point) {
+  for (auto point = hits.begin(); point < hits.end(); ++point) {
     outOfTime |= (point->bx != 0);        //condition 1: at least one measurement must have BX!=0
     increasing &= (point->bx >= lastbx);  //condition 2: BX must increase when going inside-out.
     lastbx = point->bx;

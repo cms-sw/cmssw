@@ -78,11 +78,11 @@ void DynamicTruncation::update(TrajectoryStateOnSurface &tsos, ConstRecHitPointe
 void DynamicTruncation::updateWithDThits(TrajectoryStateOnSurface &tsos, DTRecSegment4D const &bestDTSeg) {
   ConstRecHitContainer tmprecHits;
   vector<const TrackingRecHit *> DTrh = bestDTSeg.recHits();
-  for (vector<const TrackingRecHit *>::iterator it = DTrh.begin(); it != DTrh.end(); it++) {
+  for (auto it = DTrh.begin(); it != DTrh.end(); it++) {
     tmprecHits.push_back(theMuonRecHitBuilder->build(*it));
   }
   sort(tmprecHits);
-  for (ConstRecHitContainer::const_iterator it = tmprecHits.begin(); it != tmprecHits.end(); ++it) {
+  for (auto it = tmprecHits.begin(); it != tmprecHits.end(); ++it) {
     DTLayerId layid((*it)->det()->geographicalId());
     TrajectoryStateOnSurface temp = propagator->propagate(tsos, theG->idToDet(layid)->surface());
     if (temp.isValid()) {
@@ -96,11 +96,11 @@ void DynamicTruncation::updateWithDThits(TrajectoryStateOnSurface &tsos, DTRecSe
 void DynamicTruncation::updateWithCSChits(TrajectoryStateOnSurface &tsos, CSCSegment const &bestCSCSeg) {
   ConstRecHitContainer tmprecHits;
   vector<CSCRecHit2D> CSCrh = bestCSCSeg.specificRecHits();
-  for (vector<CSCRecHit2D>::iterator it = CSCrh.begin(); it != CSCrh.end(); ++it) {
+  for (auto it = CSCrh.begin(); it != CSCrh.end(); ++it) {
     tmprecHits.push_back(theMuonRecHitBuilder->build(&*it));
   }
   sort(tmprecHits);
-  for (ConstRecHitContainer::const_iterator it = tmprecHits.begin(); it != tmprecHits.end(); ++it) {
+  for (auto it = tmprecHits.begin(); it != tmprecHits.end(); ++it) {
     const CSCLayer *cscLayer = cscGeom->layer((*it)->det()->geographicalId());
     TrajectoryStateOnSurface temp = propagator->propagate(tsos, cscLayer->surface());
     if (temp.isValid()) {
@@ -161,8 +161,7 @@ TransientTrackingRecHit::ConstRecHitContainer DynamicTruncation::filter(const Tr
   // Get Last tracker TSOS (updated)
   vector<TrajectoryMeasurement> muonMeasurements = traj.measurements();
   TrajectoryMeasurement lastTKm = muonMeasurements.front();
-  for (vector<TrajectoryMeasurement>::const_iterator imT = muonMeasurements.begin(); imT != muonMeasurements.end();
-       imT++) {
+  for (auto imT = muonMeasurements.begin(); imT != muonMeasurements.end(); imT++) {
     if (!(*imT).recHit()->isValid())
       continue;
     const TransientTrackingRecHit *hit = &(*(*imT).recHit());
@@ -207,7 +206,7 @@ void DynamicTruncation::filteringAlgo() {
     preliminaryFit(compatibleIds, dtSegMap, cscSegMap);
 
   // Loop on compatible layers
-  for (map<int, vector<DetId> >::iterator it = compatibleIds.begin(); it != compatibleIds.end(); ++it) {
+  for (auto it = compatibleIds.begin(); it != compatibleIds.end(); ++it) {
     int stLayer = stationfromDet(it->second.front());
     DTRecSegment4D bestDTSeg;
     CSCSegment bestCSCSeg;
@@ -305,7 +304,7 @@ void DynamicTruncation::compatibleDets(TrajectoryStateOnSurface &tsos, map<int, 
 void DynamicTruncation::fillSegmentMaps(map<int, vector<DetId> > &compatibleIds,
                                         map<int, vector<DTRecSegment4D> > &dtSegMap,
                                         map<int, vector<CSCSegment> > &cscSegMap) {
-  for (map<int, vector<DetId> >::iterator it = compatibleIds.begin(); it != compatibleIds.end(); ++it) {
+  for (auto it = compatibleIds.begin(); it != compatibleIds.end(); ++it) {
     vector<DetId> ids = compatibleIds[it->first];
     for (unsigned j = 0; j < ids.size(); j++) {
       if (ids[j].subdetId() == MuonSubdetId::CSC) {
@@ -400,7 +399,7 @@ void DynamicTruncation::useSegment(CSCSegment const &bestCSCSeg, TrajectoryState
 void DynamicTruncation::preliminaryFit(map<int, vector<DetId> > compatibleIds,
                                        map<int, vector<DTRecSegment4D> > dtSegMap,
                                        map<int, vector<CSCSegment> > cscSegMap) {
-  for (map<int, vector<DetId> >::iterator it = compatibleIds.begin(); it != compatibleIds.end(); ++it) {
+  for (auto it = compatibleIds.begin(); it != compatibleIds.end(); ++it) {
     DTRecSegment4D bestDTSeg;
     CSCSegment bestCSCSeg;
     double bestDTEstimator = MAX_THR;
@@ -498,7 +497,7 @@ bool DynamicTruncation::chooseLayers(int &incompLayers,
 //===> getThresholdFromDB
 void DynamicTruncation::getThresholdFromDB(double &thr, DetId const &id) {
   vector<DYTThrObject::DytThrStruct> thrvector = dytThresholds->thrsVec;
-  for (vector<DYTThrObject::DytThrStruct>::const_iterator it = thrvector.begin(); it != thrvector.end(); it++) {
+  for (auto it = thrvector.begin(); it != thrvector.end(); it++) {
     DYTThrObject::DytThrStruct obj = (*it);
     if (obj.id == id) {
       thr = obj.thr;

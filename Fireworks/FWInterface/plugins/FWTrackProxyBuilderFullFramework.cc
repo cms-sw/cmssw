@@ -104,7 +104,7 @@ void FWTrackProxyBuilderFullFramework::build(const FWEventItem* iItem,
         buildTrack(it, comp);
     }
   } else {
-    for (reco::TrackCollection::const_iterator i = tracks->begin(); i != tracks->end(); ++i) {
+    for (auto i = tracks->begin(); i != tracks->end(); ++i) {
       const reco::Track& track = *i;
       TEveRecTrack ts;
       ts.fBeta = 1.;
@@ -136,8 +136,8 @@ void FWTrackProxyBuilderFullFramework::buildTrack(TrajTrackAssociationCollection
 
   // path-marks from a trajectory
   std::vector<TrajectoryMeasurement> measurements = traj.measurements();
-  std::vector<TrajectoryMeasurement>::iterator measurements_it = measurements.begin();
-  std::vector<TrajectoryMeasurement>::reverse_iterator measurements_rit = measurements.rbegin();
+  auto measurements_it = measurements.begin();
+  auto measurements_rit = measurements.rbegin();
   for (size_t t = 0; t != measurements.size(); ++t, ++measurements_it, ++measurements_rit) {
     TrajectoryStateOnSurface trajState =
         (traj.direction() == alongMomentum) ? measurements_it->updatedState() : measurements_rit->updatedState();

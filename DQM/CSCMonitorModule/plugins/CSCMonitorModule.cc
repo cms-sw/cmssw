@@ -100,7 +100,7 @@ void CSCMonitorModule::analyze(const edm::Event& e, const edm::EventSetup& c) {
 #ifdef DQMGLOBAL
       if (e.getByToken(dcstoken, dcsStatus)) {
 #endif
-        DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin();
+        auto dcsStatusItr = dcsStatus->begin();
         for (; dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) {
           standby.applyMeP(dcsStatusItr->ready(DcsStatus::CSCp));
           standby.applyMeM(dcsStatusItr->ready(DcsStatus::CSCm));

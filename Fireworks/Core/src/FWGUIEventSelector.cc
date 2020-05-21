@@ -28,7 +28,7 @@ FWGUIEventSelector::FWGUIEventSelector(TGCompositeFrame* p,
     m_combo = new TGComboBox(this);
     int cnt = 0;
     int id = -1;
-    for (std::vector<std::string>::iterator i = triggerProcessList.begin(); i != triggerProcessList.end(); ++i) {
+    for (auto i = triggerProcessList.begin(); i != triggerProcessList.end(); ++i) {
       if (*i == sel->m_triggerProcess)
         id = cnt;
       m_combo->AddEntry((*i).c_str(), cnt++);
@@ -68,7 +68,7 @@ FWGUIEventSelector::FWGUIEventSelector(TGCompositeFrame* p,
 
   // ---------------- selection info
 
-  TGHorizontalFrame* labFrame = new TGHorizontalFrame(this, 60, 22, kFixedSize);
+  auto* labFrame = new TGHorizontalFrame(this, 60, 22, kFixedSize);
   AddFrame(labFrame, new TGLayoutHints(kLHintsBottom, 2, 2, 2, 2));
   m_nEvents = new TGLabel(labFrame, "");
   m_nEvents->SetTextJustify(kTextLeft);

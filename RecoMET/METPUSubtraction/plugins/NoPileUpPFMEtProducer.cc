@@ -27,7 +27,7 @@ NoPileUpPFMEtProducer::NoPileUpPFMEtProducer(const edm::ParameterSet& cfg)
   srcPFCandInfoLeptonMatch_ =
       consumes<reco::PUSubMETCandInfoCollection>(cfg.getParameter<edm::InputTag>("srcPUSubMETDataPFCandsLeptonMatch"));
   vInputTag srcLeptonsTags = cfg.getParameter<vInputTag>("srcLeptons");
-  for (vInputTag::const_iterator it = srcLeptonsTags.begin(); it != srcLeptonsTags.end(); it++) {
+  for (auto it = srcLeptonsTags.begin(); it != srcLeptonsTags.end(); it++) {
     srcLeptons_.push_back(consumes<edm::View<reco::Candidate> >(*it));
   }
 
@@ -104,8 +104,7 @@ int findBestMatchingLepton(const std::vector<reco::Candidate::LorentzVector>& le
   int leptonIdx_dR2min = -1;
   double dR2min = 1.e+3;
   int leptonIdx = 0;
-  for (std::vector<reco::Candidate::LorentzVector>::const_iterator lepton = leptons.begin(); lepton != leptons.end();
-       ++lepton) {
+  for (auto lepton = leptons.begin(); lepton != leptons.end(); ++lepton) {
     double dR2 = deltaR2(*lepton, p4_ref);
     if (leptonIdx_dR2min == -1 || dR2 < dR2min) {
       leptonIdx_dR2min = leptonIdx;
@@ -127,9 +126,7 @@ void scaleAndAddPFMEtSignObjects(std::vector<metsig::SigInputObj>& metSignObject
     sf_value = sfMax;
   if (sf_value < sfMin)
     sf_value = sfMin;
-  for (std::vector<metsig::SigInputObj>::const_iterator metSignObject = metSignObjects.begin();
-       metSignObject != metSignObjects.end();
-       ++metSignObject) {
+  for (auto metSignObject = metSignObjects.begin(); metSignObject != metSignObjects.end(); ++metSignObject) {
     metsig::SigInputObj metSignObject_scaled;
     metSignObject_scaled.set(metSignObject->get_type(),
                              sf_value * metSignObject->get_energy(),
@@ -229,9 +226,7 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   std::vector<reco::Candidate::LorentzVector> leptons;
   std::vector<metsig::SigInputObj> metSignObjectsLeptons;
   reco::Candidate::LorentzVector sumLeptonP4s;
-  for (std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > >::const_iterator srcLeptons_i = srcLeptons_.begin();
-       srcLeptons_i != srcLeptons_.end();
-       ++srcLeptons_i) {
+  for (auto srcLeptons_i = srcLeptons_.begin(); srcLeptons_i != srcLeptons_.end(); ++srcLeptons_i) {
     edm::Handle<reco::CandidateView> leptons_i;
     evt.getByToken(*srcLeptons_i, leptons_i);
     int leptonIdx = 0;
@@ -260,12 +255,12 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   reco::PUSubMETCandInfoCollection pfCandidates_leptons =
       utils_.cleanPFCandidates(*pfCandidatesLeptonMatch, leptons, 0.3, true);
   std::vector<CommonMETData> sumJetsPlusPFCandidates_leptons(leptons.size());
-  for (std::vector<CommonMETData>::iterator sumJetsPlusPFCandidates = sumJetsPlusPFCandidates_leptons.begin();
+  for (auto sumJetsPlusPFCandidates = sumJetsPlusPFCandidates_leptons.begin();
        sumJetsPlusPFCandidates != sumJetsPlusPFCandidates_leptons.end();
        ++sumJetsPlusPFCandidates) {
     initializeCommonMETData(*sumJetsPlusPFCandidates);
   }
-  for (reco::PUSubMETCandInfoCollection::const_iterator jet = jets_leptons.begin(); jet != jets_leptons.end(); ++jet) {
+  for (auto jet = jets_leptons.begin(); jet != jets_leptons.end(); ++jet) {
     int leptonIdx_dRmin = findBestMatchingLepton(leptons, jet->p4());
     assert(leptonIdx_dRmin >= 0 && leptonIdx_dRmin < (int)sumJetsPlusPFCandidates_leptons.size());
 
@@ -279,13 +274,10 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
     sumJetsPlusPFCandidates_leptons[leptonIdx_dRmin].mey += jet->p4().py();
     sumJetsPlusPFCandidates_leptons[leptonIdx_dRmin].sumet += jet->p4().pt();
   }
-  for (reco::PUSubMETCandInfoCollection::const_iterator pfCandidate = pfCandidates_leptons.begin();
-       pfCandidate != pfCandidates_leptons.end();
-       ++pfCandidate) {
+  for (auto pfCandidate = pfCandidates_leptons.begin(); pfCandidate != pfCandidates_leptons.end(); ++pfCandidate) {
     bool isWithinJet_lepton = false;
     if (pfCandidate->isWithinJet()) {
-      for (reco::PUSubMETCandInfoCollection::const_iterator jet = jets_leptons.begin(); jet != jets_leptons.end();
-           ++jet) {
+      for (auto jet = jets_leptons.begin(); jet != jets_leptons.end(); ++jet) {
         double dR2 = deltaR2(pfCandidate->p4(), jet->p4());
         if (dR2 < 0.5 * 0.5)
           isWithinJet_lepton = true;
@@ -314,7 +306,7 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   auto sumLeptonIsoCones = std::make_unique<CommonMETData>();
   initializeCommonMETData(*sumLeptonIsoCones);
   int leptonIdx = 0;
-  for (std::vector<CommonMETData>::iterator sumJetsPlusPFCandidates = sumJetsPlusPFCandidates_leptons.begin();
+  for (auto sumJetsPlusPFCandidates = sumJetsPlusPFCandidates_leptons.begin();
        sumJetsPlusPFCandidates != sumJetsPlusPFCandidates_leptons.end();
        ++sumJetsPlusPFCandidates) {
     if (sumJetsPlusPFCandidates->sumet > leptons[leptonIdx].pt()) {
@@ -349,7 +341,7 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   initializeCommonMETData(*sumPUjets);
   std::vector<metsig::SigInputObj> metSignObjectsPUjets;
   int jetIdx = 0;
-  for (reco::PUSubMETCandInfoCollection::const_iterator jet = jets_cleaned.begin(); jet != jets_cleaned.end(); ++jet) {
+  for (auto jet = jets_cleaned.begin(); jet != jets_cleaned.end(); ++jet) {
     if (jet->passesLooseJetId()) {
       if (jet->type() == reco::PUSubMETCandInfo::kHS) {
         addToCommonMETData(*sumNoPUjets, jet->p4());
@@ -385,9 +377,7 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es) 
   initializeCommonMETData(*sumUnclNeutralCands);
   std::vector<metsig::SigInputObj> metSignObjectsUnclNeutralCands;
   int pfCandIdx = 0;
-  for (reco::PUSubMETCandInfoCollection::const_iterator pfCandidate = pfCandidates_cleaned.begin();
-       pfCandidate != pfCandidates_cleaned.end();
-       ++pfCandidate) {
+  for (auto pfCandidate = pfCandidates_cleaned.begin(); pfCandidate != pfCandidates_cleaned.end(); ++pfCandidate) {
     if (pfCandidate->passesLooseJetId()) {
       if (!pfCandidate->isWithinJet()) {
         if (pfCandidate->type() == reco::PUSubMETCandInfo::kChHS) {

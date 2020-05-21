@@ -84,7 +84,7 @@ void DQMExample_Step1::analyze(edm::Event const &e, edm::EventSetup const &eSetu
   }
 
   int vertex_number = vertexHandle->size();
-  reco::VertexCollection::const_iterator v = vertexHandle->begin();
+  auto v = vertexHandle->begin();
 
   math::XYZPoint PVPoint(-999, -999, -999);
   if (vertex_number != 0)
@@ -117,9 +117,7 @@ void DQMExample_Step1::analyze(edm::Event const &e, edm::EventSetup const &eSetu
   int posEle = 0, negEle = 0;
   const reco::GsfElectron *ele1 = nullptr;
   const reco::GsfElectron *ele2 = nullptr;
-  for (reco::GsfElectronCollection::const_iterator recoElectron = electronCollection->begin();
-       recoElectron != electronCollection->end();
-       ++recoElectron) {
+  for (auto recoElectron = electronCollection->begin(); recoElectron != electronCollection->end(); ++recoElectron) {
     // decreasing pT
     if (MediumEle(e, eSetup, *recoElectron)) {
       if (!ele1 && recoElectron->pt() > ptThrL1_)
@@ -153,9 +151,7 @@ void DQMExample_Step1::analyze(edm::Event const &e, edm::EventSetup const &eSetu
   const reco::CaloJet *jet1 = nullptr;
   const reco::CaloJet *jet2 = nullptr;
 
-  for (reco::CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin();
-       i_calojet != caloJetCollection->end();
-       ++i_calojet) {
+  for (auto i_calojet = caloJetCollection->begin(); i_calojet != caloJetCollection->end(); ++i_calojet) {
     // remove jet-ele matching
     if (ele1)
       if (Distance(*i_calojet, *ele1) < 0.3)

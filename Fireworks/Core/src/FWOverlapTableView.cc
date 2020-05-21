@@ -68,7 +68,7 @@ FWOverlapTableView::FWOverlapTableView(TEveWindowSlot* iParent, FWColorManager* 
       m_extrusionMarkerColor(this, "ExtrusionMarkerColor", 0l, 0l, 20l),
       m_overlapMarkerColor(this, "OverlapMarkerColor", 9l, 0l, 20l) {
   // top row
-  TGHorizontalFrame* hp = new TGHorizontalFrame(m_frame);
+  auto* hp = new TGHorizontalFrame(m_frame);
 
   {
     m_viewBox = new FWViewCombo(hp, this);
@@ -118,7 +118,7 @@ FWOverlapTableView::FWOverlapTableView(TEveWindowSlot* iParent, FWColorManager* 
 
   // std::cerr << " FWOverlapTableView::initGeometry \n";
 
-  FWGeoTopNodeGLScene* gls = new FWGeoTopNodeGLScene(nullptr);
+  auto* gls = new FWGeoTopNodeGLScene(nullptr);
 #if ROOT_VERSION_CODE < ROOT_VERSION(5, 32, 0)
   m_eveScene = new FWGeoTopNodeEveScene(gls, "TopGeoNodeScene", "");
 #else
@@ -200,7 +200,7 @@ void FWOverlapTableView::recalculate() {
 void FWOverlapTableView::setFrom(const FWConfiguration& iFrom) {
   m_enableRedraw = false;
 
-  for (const_iterator it = begin(), itEnd = end(); it != itEnd; ++it) {
+  for (auto it = begin(), itEnd = end(); it != itEnd; ++it) {
     (*it)->setFrom(iFrom);
   }
 
@@ -286,14 +286,14 @@ void FWOverlapTableView::refreshTable3D() {
   FWGeometryTableViewBase::refreshTable3D();
 
   for (int i = 0; i < m_marker->GetPlex()->Size(); ++i) {
-    FWOverlapTableManager::QuadId* id = (FWOverlapTableManager::QuadId*)m_marker->GetId(i);
-    TEveQuadSet::QFreeQuad_t* q = (TEveQuadSet::QFreeQuad_t*)m_marker->GetDigit(i);
+    auto* id = (FWOverlapTableManager::QuadId*)m_marker->GetId(i);
+    auto* q = (TEveQuadSet::QFreeQuad_t*)m_marker->GetDigit(i);
     q->fValue = -1;
 
     // check if any of the overlaping nodes is visible -> is in the subtree
     bool rnr = false;
 
-    for (std::vector<int>::iterator j = id->m_nodes.begin(); j < id->m_nodes.end(); ++j) {
+    for (auto j = id->m_nodes.begin(); j < id->m_nodes.end(); ++j) {
       if ((id->m_ovl->IsExtrusion() && m_rnrExtrusion.value()) || (id->m_ovl->IsOverlap() && m_rnrOverlap.value())) {
         if (*j == getTopNodeIdx() || m_tableManager->isNodeRendered(*j, getTopNodeIdx())) {
           rnr = true;

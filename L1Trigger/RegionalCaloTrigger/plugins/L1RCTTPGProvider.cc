@@ -61,7 +61,7 @@ void L1RCTTPGProvider::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
   if (iEvent.getByLabel(ecalTPG_, ecal))
     if (ecal.isValid()) {
       // loop through all ecal digis
-      for (EcalTrigPrimDigiCollection::const_iterator ecal_it = ecal->begin(); ecal_it != ecal->end(); ecal_it++) {
+      for (auto ecal_it = ecal->begin(); ecal_it != ecal->end(); ecal_it++) {
         short zside = ecal_it->id().zside();
         unsigned short ietaAbs = ecal_it->id().ietaAbs();
         short iphi = ecal_it->id().iphi();
@@ -155,7 +155,7 @@ void L1RCTTPGProvider::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
   if (iEvent.getByLabel(hcalTPG_, hcal))
     if (hcal.isValid()) {
       // loop through all hcal digis
-      for (HcalTrigPrimDigiCollection::const_iterator hcal_it = hcal->begin(); hcal_it != hcal->end(); hcal_it++) {
+      for (auto hcal_it = hcal->begin(); hcal_it != hcal->end(); hcal_it++) {
         short ieta = hcal_it->id().ieta();
         short iphi = hcal_it->id().iphi();
         // loop through time samples for each digi

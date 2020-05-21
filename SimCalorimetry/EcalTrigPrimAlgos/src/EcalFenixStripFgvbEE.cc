@@ -32,7 +32,7 @@ void EcalFenixStripFgvbEE::process(std::vector<std::vector<int>> &linout, std::v
 
 void EcalFenixStripFgvbEE::setParameters(int identif, uint32_t id, const EcalTPGFineGrainStripEE *ecaltpgFgStripEE) {
   const EcalTPGFineGrainStripEEMap &fgmap = ecaltpgFgStripEE->getMap();
-  EcalTPGFineGrainStripEEMapIterator it = fgmap.find(id);
+  auto it = fgmap.find(id);
   if (it != fgmap.end()) {
     threshold_fg_ = it->second.threshold;
     lut_fg_ = it->second.lut;

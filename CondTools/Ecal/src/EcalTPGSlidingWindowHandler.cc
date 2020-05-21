@@ -179,13 +179,13 @@ void popcon::EcalTPGSlidingWindowHandler::getNewObjects() {
             std::map<EcalLogicID, FEConfigSlidingDat> dataset_TpgSli;
             econn->fetchDataSet(&dataset_TpgSli, &fe_sli_info);
 
-            EcalTPGSlidingWindow* sliW = new EcalTPGSlidingWindow;
+            auto* sliW = new EcalTPGSlidingWindow;
             typedef std::map<EcalLogicID, FEConfigSlidingDat>::const_iterator CIfesli;
             EcalLogicID ecid_xt;
             FEConfigSlidingDat rd_sli;
             int icells = 0;
 
-            for (CIfesli p = dataset_TpgSli.begin(); p != dataset_TpgSli.end(); p++) {
+            for (auto p = dataset_TpgSli.begin(); p != dataset_TpgSli.end(); p++) {
               ecid_xt = p->first;
               rd_sli = p->second;
 

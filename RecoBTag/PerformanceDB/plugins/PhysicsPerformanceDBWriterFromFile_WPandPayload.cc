@@ -141,7 +141,7 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob() {
   // now create pl etc etc
   //
 
-  PerformanceWorkingPoint* wp = new PerformanceWorkingPoint(cut, tagger);
+  auto* wp = new PerformanceWorkingPoint(cut, tagger);
 
   PerformancePayloadFromTable* btagpl = nullptr;
 

@@ -201,10 +201,10 @@ void MuonTrackResidualAnalyzer::analyze(const edm::Event &event, const edm::Even
       momAtExit = theSimHitContainer.back()->momentumAtEntry().perp();
     }
 
-    trackingRecHit_iterator rhFirst = track.recHitsBegin();
-    trackingRecHit_iterator rhLast = track.recHitsEnd() - 1;
-    map<DetId, const PSimHit *>::const_iterator itFirst = muonSimHitsPerId.find((*rhFirst)->geographicalId());
-    map<DetId, const PSimHit *>::const_iterator itLast = muonSimHitsPerId.find((*rhLast)->geographicalId());
+    auto rhFirst = track.recHitsBegin();
+    auto rhLast = track.recHitsEnd() - 1;
+    auto itFirst = muonSimHitsPerId.find((*rhFirst)->geographicalId());
+    auto itLast = muonSimHitsPerId.find((*rhLast)->geographicalId());
 
     double momAtEntry2 = -150, momAtExit2 = -150.;
     if (itFirst != muonSimHitsPerId.end())
@@ -283,7 +283,7 @@ map<DetId, const PSimHit *> MuonTrackResidualAnalyzer::mapMuSimHitsPerId(Handle<
 
   LogDebug("MuonTrackResidualAnalyzer") << "Sim Hit list";
   int count = 1;
-  for (vector<const PSimHit *>::const_iterator it = theSimHitContainer.begin(); it != theSimHitContainer.end(); ++it) {
+  for (auto it = theSimHitContainer.begin(); it != theSimHitContainer.end(); ++it) {
     LogTrace("MuonTrackResidualAnalyzer")
         << count << " "
         << " Process Type: " << (*it)->processType() << " " << debug.dumpMuonId(DetId((*it)->detUnitId())) << endl;
@@ -294,7 +294,7 @@ map<DetId, const PSimHit *> MuonTrackResidualAnalyzer::mapMuSimHitsPerId(Handle<
 
 void MuonTrackResidualAnalyzer::mapMuSimHitsPerId(Handle<PSimHitContainer> simhits,
                                                   map<DetId, const PSimHit *> &hitIdMap) {
-  for (PSimHitContainer::const_iterator simhit = simhits->begin(); simhit != simhits->end(); ++simhit) {
+  for (auto simhit = simhits->begin(); simhit != simhits->end(); ++simhit) {
     if (abs(simhit->particleType()) != 13 && theSimTkId != simhit->trackId())
       continue;
 
@@ -306,7 +306,7 @@ void MuonTrackResidualAnalyzer::mapMuSimHitsPerId(Handle<PSimHitContainer> simhi
       id = DetId(lId.rawId());
     }
 
-    map<DetId, const PSimHit *>::const_iterator it = hitIdMap.find(id);
+    auto it = hitIdMap.find(id);
 
     if (it == hitIdMap.end())
       hitIdMap[id] = &*simhit;
@@ -322,7 +322,7 @@ void MuonTrackResidualAnalyzer::computeResolution(Trajectory &trajectory,
                                                   HResolution1DRecHit *histos) {
   Trajectory::DataContainer data = trajectory.measurements();
 
-  for (Trajectory::DataContainer::const_iterator datum = data.begin(); datum != data.end(); ++datum) {
+  for (auto datum = data.begin(); datum != data.end(); ++datum) {
     GlobalPoint fitPoint = datum->updatedState().globalPosition();
 
     // FIXME!
@@ -334,7 +334,7 @@ void MuonTrackResidualAnalyzer::computeResolution(Trajectory &trajectory,
     double errY = datum->updatedState().localError().matrix()(4, 4);
     double errZ = 1.;
 
-    map<DetId, const PSimHit *>::const_iterator it = hitIdMap.find(datum->recHit()->geographicalId());
+    auto it = hitIdMap.find(datum->recHit()->geographicalId());
 
     if (it == hitIdMap.end())
       continue;  // FIXME! Put a counter

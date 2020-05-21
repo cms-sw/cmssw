@@ -60,7 +60,7 @@ void SiStripDetInfoFileReader::reader(std::string filePath) {
 
         //     	edm::LogInfo("SiStripDetInfoFileReader::SiStripDetInfoFileReader") << detid <<" " <<numberOfAPVs <<" " <<stripLength << " "<< thickness<< endl;
 
-        std::map<uint32_t, DetInfo>::const_iterator it = detData_.find(detid);
+        auto it = detData_.find(detid);
 
         if (it == detData_.end()) {
           detData_[detid] = DetInfo(numberOfAPVs, stripLength, thickness);
@@ -99,7 +99,7 @@ void SiStripDetInfoFileReader::reader(std::string filePath) {
 SiStripDetInfoFileReader::~SiStripDetInfoFileReader() {}
 
 const std::pair<unsigned short, double> SiStripDetInfoFileReader::getNumberOfApvsAndStripLength(uint32_t detId) const {
-  std::map<uint32_t, DetInfo>::const_iterator it = detData_.find(detId);
+  auto it = detData_.find(detId);
 
   if (it != detData_.end()) {
     return std::pair<unsigned short, double>(it->second.nApvs, it->second.stripLength);
@@ -115,7 +115,7 @@ const std::pair<unsigned short, double> SiStripDetInfoFileReader::getNumberOfApv
 }
 
 const float& SiStripDetInfoFileReader::getThickness(uint32_t detId) const {
-  std::map<uint32_t, DetInfo>::const_iterator it = detData_.find(detId);
+  auto it = detData_.find(detId);
 
   if (it != detData_.end()) {
     return it->second.thickness;

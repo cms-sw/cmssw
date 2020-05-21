@@ -487,7 +487,7 @@ void SiStripBadAPVandHotStripAlgorithmFromClusterOccupancy::AnalyzeOccupancy(
     setBasicTreeParameters(Detid);
 
     DetId DetectorId = DetId(Detid);
-    const StripGeomDetUnit* TheStripDet = dynamic_cast<const StripGeomDetUnit*>((TkGeom->idToDet(DetectorId)));
+    const auto* TheStripDet = dynamic_cast<const StripGeomDetUnit*>((TkGeom->idToDet(DetectorId)));
     const StripTopology* TheStripTopol = dynamic_cast<const StripTopology*>(&(TheStripDet->specificTopology()));
 
     //Analyze the occupancies

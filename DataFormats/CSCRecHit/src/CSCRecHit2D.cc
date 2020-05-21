@@ -91,7 +91,7 @@ bool CSCRecHit2D::sharesInput(const TrackingRecHit* other, TrackingRecHit::Share
   // This is to satisfy the base class virtual function
 
   // @@ Cast the enum (!) But what if the TRH::SIT changes?!
-  CSCRecHit2D::SharedInputType cscWhat = static_cast<CSCRecHit2D::SharedInputType>(what);
+  auto cscWhat = static_cast<CSCRecHit2D::SharedInputType>(what);
   return sharesInput(other, cscWhat);
 }
 

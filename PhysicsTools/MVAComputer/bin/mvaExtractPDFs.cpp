@@ -40,8 +40,8 @@ int main(int argc, char **argv) {
     std::ostringstream ss3;
     ss3 << (z + 1);
 
-    Calibration::ProcLikelihood *lkh = dynamic_cast<Calibration::ProcLikelihood *>(proc);
-    Calibration::ProcNormalize *norm = dynamic_cast<Calibration::ProcNormalize *>(proc);
+    auto *lkh = dynamic_cast<Calibration::ProcLikelihood *>(proc);
+    auto *norm = dynamic_cast<Calibration::ProcNormalize *>(proc);
 
     if (lkh) {
       for (unsigned int i = 0; i < lkh->pdfs.size(); i++) {
@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
   if (!f)
     return 2;
 
-  for (std::map<std::string, HistogramF *>::const_iterator iter = histos.begin(); iter != histos.end(); ++iter) {
+  for (auto iter = histos.begin(); iter != histos.end(); ++iter) {
     std::string name = iter->first;
     HistogramF *histo = iter->second;
 

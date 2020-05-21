@@ -57,14 +57,14 @@ DTConfigManager::~DTConfigManager() {
 
 const DTConfigBti* DTConfigManager::getDTConfigBti(DTBtiId btiid) const {
   DTChamberId chambid = btiid.SLId().chamberId();
-  BtiMap::const_iterator biter1 = my_btimap.find(chambid);
+  auto biter1 = my_btimap.find(chambid);
   if (biter1 == my_btimap.end()) {
     std::cout << "DTConfigManager::getConfigBti : Chamber (" << chambid.wheel() << "," << chambid.sector() << ","
               << chambid.station() << ") not found, return 0" << std::endl;
     return nullptr;
   }
 
-  innerBtiMap::const_iterator biter2 = (*biter1).second.find(btiid);
+  auto biter2 = (*biter1).second.find(btiid);
   if (biter2 == (*biter1).second.end()) {
     std::cout << "DTConfigManager::getConfigBti : BTI (" << btiid.wheel() << "," << btiid.sector() << ","
               << btiid.station() << "," << btiid.superlayer() << "," << btiid.bti() << ") not found, return 0"
@@ -75,7 +75,7 @@ const DTConfigBti* DTConfigManager::getDTConfigBti(DTBtiId btiid) const {
 }
 
 const std::map<DTBtiId, DTConfigBti>& DTConfigManager::getDTConfigBtiMap(DTChamberId chambid) const {
-  BtiMap::const_iterator biter = my_btimap.find(chambid);
+  auto biter = my_btimap.find(chambid);
   if (biter == my_btimap.end()) {
     std::cout << "DTConfigManager::getConfigBtiMap : Chamber (" << chambid.wheel() << "," << chambid.sector() << ","
               << chambid.station() << ") not found, return a reference to the end of the map" << std::endl;
@@ -86,14 +86,14 @@ const std::map<DTBtiId, DTConfigBti>& DTConfigManager::getDTConfigBtiMap(DTChamb
 
 const DTConfigTraco* DTConfigManager::getDTConfigTraco(DTTracoId tracoid) const {
   DTChamberId chambid = tracoid.ChamberId();
-  TracoMap::const_iterator titer1 = my_tracomap.find(chambid);
+  auto titer1 = my_tracomap.find(chambid);
   if (titer1 == my_tracomap.end()) {
     std::cout << "DTConfigManager::getConfigTraco : Chamber (" << chambid.wheel() << "," << chambid.sector() << ","
               << chambid.station() << ") not found, return 0" << std::endl;
     return nullptr;
   }
 
-  innerTracoMap::const_iterator titer2 = (*titer1).second.find(tracoid);
+  auto titer2 = (*titer1).second.find(tracoid);
   if (titer2 == (*titer1).second.end()) {
     std::cout << "DTConfigManager::getConfigTraco : TRACO (" << tracoid.wheel() << "," << tracoid.sector() << ","
               << tracoid.station() << "," << tracoid.traco() << ") not found, return a reference to the end of the map"
@@ -104,7 +104,7 @@ const DTConfigTraco* DTConfigManager::getDTConfigTraco(DTTracoId tracoid) const 
 }
 
 const std::map<DTTracoId, DTConfigTraco>& DTConfigManager::getDTConfigTracoMap(DTChamberId chambid) const {
-  TracoMap::const_iterator titer = my_tracomap.find(chambid);
+  auto titer = my_tracomap.find(chambid);
   if (titer == my_tracomap.end()) {
     std::cout << "DTConfigManager::getConfigTracoMap : Chamber (" << chambid.wheel() << "," << chambid.sector() << ","
               << chambid.station() << ") not found, return 0" << std::endl;
@@ -114,7 +114,7 @@ const std::map<DTTracoId, DTConfigTraco>& DTConfigManager::getDTConfigTracoMap(D
 }
 
 const DTConfigTSTheta* DTConfigManager::getDTConfigTSTheta(DTChamberId chambid) const {
-  TSThetaMap::const_iterator thiter = my_tsthetamap.find(chambid);
+  auto thiter = my_tsthetamap.find(chambid);
   if (thiter == my_tsthetamap.end()) {
     std::cout << "DTConfigManager::getConfigTSTheta : Chamber (" << chambid.wheel() << "," << chambid.sector() << ","
               << chambid.station() << ") not found, return 0" << std::endl;
@@ -125,7 +125,7 @@ const DTConfigTSTheta* DTConfigManager::getDTConfigTSTheta(DTChamberId chambid) 
 }
 
 const DTConfigTSPhi* DTConfigManager::getDTConfigTSPhi(DTChamberId chambid) const {
-  TSPhiMap::const_iterator phiter = my_tsphimap.find(chambid);
+  auto phiter = my_tsphimap.find(chambid);
   if (phiter == my_tsphimap.end()) {
     std::cout << "DTConfigManager::getConfigTSPhi : Chamber (" << chambid.wheel() << "," << chambid.sector() << ","
               << chambid.station() << ") not found, return 0" << std::endl;
@@ -136,7 +136,7 @@ const DTConfigTSPhi* DTConfigManager::getDTConfigTSPhi(DTChamberId chambid) cons
 }
 
 const DTConfigTrigUnit* DTConfigManager::getDTConfigTrigUnit(DTChamberId chambid) const {
-  TrigUnitMap::const_iterator tuiter = my_trigunitmap.find(chambid);
+  auto tuiter = my_trigunitmap.find(chambid);
   if (tuiter == my_trigunitmap.end()) {
     std::cout << "DTConfigManager::getConfigTrigUnit : Chamber (" << chambid.wheel() << "," << chambid.sector() << ","
               << chambid.station() << ") not found, return 0" << std::endl;
@@ -147,7 +147,7 @@ const DTConfigTrigUnit* DTConfigManager::getDTConfigTrigUnit(DTChamberId chambid
 }
 
 const DTConfigLUTs* DTConfigManager::getDTConfigLUTs(DTChamberId chambid) const {
-  LUTMap::const_iterator lutiter = my_lutmap.find(chambid);
+  auto lutiter = my_lutmap.find(chambid);
   if (lutiter == my_lutmap.end()) {
     std::cout << "DTConfigManager::getConfigLUTs : Chamber (" << chambid.wheel() << "," << chambid.sector() << ","
               << chambid.station() << ") not found, return 0" << std::endl;
@@ -158,7 +158,7 @@ const DTConfigLUTs* DTConfigManager::getDTConfigLUTs(DTChamberId chambid) const 
 }
 
 const DTConfigSectColl* DTConfigManager::getDTConfigSectColl(DTSectCollId scid) const {
-  SectCollMap::const_iterator sciter = my_sectcollmap.find(scid);
+  auto sciter = my_sectcollmap.find(scid);
   if (sciter == my_sectcollmap.end()) {
     std::cout << "DTConfigManager::getConfigSectColl : SectorCollector (" << scid.wheel() << "," << scid.sector()
               << ") not found, return 0" << std::endl;

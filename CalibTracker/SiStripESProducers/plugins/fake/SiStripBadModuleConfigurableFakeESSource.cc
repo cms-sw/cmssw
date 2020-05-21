@@ -213,9 +213,9 @@ std::vector<uint32_t> SiStripBadModuleConfigurableFakeESSource::selectDetectors(
     std::cout << "genericBadDetIds.size() = " << genericBadDetIds.size() << std::endl;
 
     using DetIdIt = std::vector<uint32_t>::const_iterator;
-    const DetIdIt beginDetIt = std::lower_bound(
+    const auto beginDetIt = std::lower_bound(
         detIds.begin(), detIds.end(), DetId(DetId::Tracker, anySubDet ? SiStripDetId::TIB : subDet).rawId());
-    const DetIdIt endDetIt = std::lower_bound(
+    const auto endDetIt = std::lower_bound(
         detIds.begin(), detIds.end(), DetId(DetId::Tracker, anySubDet ? SiStripDetId::TEC + 1 : subDet + 1).rawId());
 
     if (anySubDet) {

@@ -33,18 +33,18 @@ void AlignmentExtendedCorrelationsStore::correlations(
     std::swap(ap1, ap2);
 
   if (ap1 == previousAlignable) {
-    ExtendedCorrelationsTable::const_iterator itC2 = previousCorrelations->find(ap2);
+    auto itC2 = previousCorrelations->find(ap2);
     if (itC2 != previousCorrelations->end()) {
       transpose ? fillCovarianceT(ap1, ap2, (*itC2).second, cov, row, col)
                 : fillCovariance(ap1, ap2, (*itC2).second, cov, row, col);
     }
   } else {
-    ExtendedCorrelations::const_iterator itC1 = theCorrelations.find(ap1);
+    auto itC1 = theCorrelations.find(ap1);
     if (itC1 != theCorrelations.end()) {
       previousAlignable = ap1;
       previousCorrelations = (*itC1).second;
 
-      ExtendedCorrelationsTable::const_iterator itC2 = (*itC1).second->find(ap2);
+      auto itC2 = (*itC1).second->find(ap2);
       if (itC2 != (*itC1).second->end()) {
         transpose ? fillCovarianceT(ap1, ap2, (*itC2).second, cov, row, col)
                   : fillCovariance(ap1, ap2, (*itC2).second, cov, row, col);
@@ -74,14 +74,14 @@ void AlignmentExtendedCorrelationsStore::setCorrelations(
   if (ap1 == previousAlignable) {
     fillCorrelationsTable(ap1, ap2, previousCorrelations, cov, row, col, transpose);
   } else {
-    ExtendedCorrelations::iterator itC = theCorrelations.find(ap1);
+    auto itC = theCorrelations.find(ap1);
     if (itC != theCorrelations.end()) {
       fillCorrelationsTable(ap1, ap2, itC->second, cov, row, col, transpose);
       previousAlignable = ap1;
       previousCorrelations = itC->second;
     } else {
       // make new entry
-      ExtendedCorrelationsTable* newTable = new ExtendedCorrelationsTable;
+      auto* newTable = new ExtendedCorrelationsTable;
       fillCorrelationsTable(ap1, ap2, newTable, cov, row, col, transpose);
 
       theCorrelations[ap1] = newTable;
@@ -97,16 +97,16 @@ void AlignmentExtendedCorrelationsStore::setCorrelations(Alignable* ap1, Alignab
   if (transpose)
     std::swap(ap1, ap2);
 
-  ExtendedCorrelations::iterator itC1 = theCorrelations.find(ap1);
+  auto itC1 = theCorrelations.find(ap1);
   if (itC1 != theCorrelations.end()) {
-    ExtendedCorrelationsTable::iterator itC2 = itC1->second->find(ap1);
+    auto itC2 = itC1->second->find(ap1);
     if (itC2 != itC1->second->end()) {
       itC2->second = transpose ? ExtendedCorrelationsEntry(mat.T()) : ExtendedCorrelationsEntry(mat);
     } else {
       (*itC1->second)[ap2] = transpose ? ExtendedCorrelationsEntry(mat.T()) : ExtendedCorrelationsEntry(mat);
     }
   } else {
-    ExtendedCorrelationsTable* newTable = new ExtendedCorrelationsTable;
+    auto* newTable = new ExtendedCorrelationsTable;
     (*newTable)[ap2] = transpose ? ExtendedCorrelationsEntry(mat.T()) : ExtendedCorrelationsEntry(mat);
     theCorrelations[ap1] = newTable;
   }
@@ -117,9 +117,9 @@ void AlignmentExtendedCorrelationsStore::getCorrelations(Alignable* ap1, Alignab
   if (transpose)
     std::swap(ap1, ap2);
 
-  ExtendedCorrelations::const_iterator itC1 = theCorrelations.find(ap1);
+  auto itC1 = theCorrelations.find(ap1);
   if (itC1 != theCorrelations.end()) {
-    ExtendedCorrelationsTable::const_iterator itC2 = itC1->second->find(ap2);
+    auto itC2 = itC1->second->find(ap2);
     if (itC2 != itC1->second->end()) {
       mat = transpose ? itC2->second.matrix().T() : itC2->second.matrix();
       return;
@@ -134,9 +134,9 @@ bool AlignmentExtendedCorrelationsStore::correlationsAvailable(Alignable* ap1, A
   if (transpose)
     std::swap(ap1, ap2);
 
-  ExtendedCorrelations::const_iterator itC1 = theCorrelations.find(ap1);
+  auto itC1 = theCorrelations.find(ap1);
   if (itC1 != theCorrelations.end()) {
-    ExtendedCorrelationsTable::const_iterator itC2 = itC1->second->find(ap2);
+    auto itC2 = itC1->second->find(ap2);
     if (itC2 != itC1->second->end())
       return true;
   }
@@ -171,7 +171,7 @@ void AlignmentExtendedCorrelationsStore::fillCorrelationsTable(Alignable* ap1,
                                                                int row,
                                                                int col,
                                                                bool transpose) {
-  ExtendedCorrelationsTable::iterator itC = table->find(ap2);
+  auto itC = table->find(ap2);
 
   if (itC != table->end()) {
     //if ( itC->second.counter() > theMaxUpdates ) return;

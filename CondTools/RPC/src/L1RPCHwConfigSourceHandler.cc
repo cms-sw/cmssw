@@ -43,11 +43,11 @@ void popcon::L1RPCHwConfigSourceHandler::getNewObjects() {
   // now construct new object from online DB
   disabledDevs = new L1RPCHwConfig();
   if (m_dummy == 1) {
-    std::vector<int>::iterator crIt = m_disableCrates.begin();
+    auto crIt = m_disableCrates.begin();
     for (; crIt != m_disableCrates.end(); ++crIt) {
       disabledDevs->enableCrate(*crIt, false);
     }
-    std::vector<int>::iterator twIt = m_disableTowers.begin();
+    auto twIt = m_disableTowers.begin();
     for (; twIt != m_disableTowers.end(); ++twIt) {
       disabledDevs->enableTower(*twIt, false);
     }

@@ -131,9 +131,7 @@ void EgammaBasicClusters::analyze(const edm::Event &evt, const edm::EventSetup &
   const reco::BasicClusterCollection *barrelBasicClusters = pBarrelBasicClusters.product();
   hist_EB_BC_Size_->Fill(barrelBasicClusters->size());
 
-  for (reco::BasicClusterCollection::const_iterator aClus = barrelBasicClusters->begin();
-       aClus != barrelBasicClusters->end();
-       aClus++) {
+  for (auto aClus = barrelBasicClusters->begin(); aClus != barrelBasicClusters->end(); aClus++) {
     hist_EB_BC_NumRecHits_->Fill(aClus->size());
     hist_EB_BC_ET_->Fill(aClus->energy() / std::cosh(aClus->position().eta()));
     hist_EB_BC_Eta_->Fill(aClus->position().eta());
@@ -155,9 +153,7 @@ void EgammaBasicClusters::analyze(const edm::Event &evt, const edm::EventSetup &
   const reco::BasicClusterCollection *endcapBasicClusters = pEndcapBasicClusters.product();
   hist_EE_BC_Size_->Fill(endcapBasicClusters->size());
 
-  for (reco::BasicClusterCollection::const_iterator aClus = endcapBasicClusters->begin();
-       aClus != endcapBasicClusters->end();
-       aClus++) {
+  for (auto aClus = endcapBasicClusters->begin(); aClus != endcapBasicClusters->end(); aClus++) {
     hist_EE_BC_NumRecHits_->Fill(aClus->size());
     hist_EE_BC_ET_->Fill(aClus->energy() / std::cosh(aClus->position().eta()));
     hist_EE_BC_Eta_->Fill(aClus->position().eta());

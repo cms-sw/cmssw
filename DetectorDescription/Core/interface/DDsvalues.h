@@ -21,7 +21,7 @@ inline DDsvalues_type::const_iterator find(DDsvalues_type::const_iterator begin,
                                            unsigned int id) {
   static const DDValue dummy;
   DDsvalues_Content_type v(id, dummy);
-  DDsvalues_type::const_iterator it = std::lower_bound(begin, end, v);
+  auto it = std::lower_bound(begin, end, v);
   if (it != end && (*it).first == id)
     return it;
   return end;

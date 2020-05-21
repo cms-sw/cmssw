@@ -39,7 +39,7 @@ void FWHGTowerSliceSelector::doSelect(const TEveCaloData::CellId_t& iCell) {
 
   int index = 0;
   FWChangeSentry sentry(*(m_item->changeManager()));
-  for (HGCRecHitCollection::const_iterator it = hits->begin(); it != hits->end(); ++it, ++index) {
+  for (auto it = hits->begin(); it != hits->end(); ++it, ++index) {
     DetId id((*it).detid());
     if (findBinFromId(id, iCell.fTower) && m_item->modelInfo(index).m_displayProperties.isVisible() &&
         !m_item->modelInfo(index).isSelected()) {
@@ -59,7 +59,7 @@ void FWHGTowerSliceSelector::doUnselect(const TEveCaloData::CellId_t& iCell) {
 
   int index = 0;
   FWChangeSentry sentry(*(m_item->changeManager()));
-  for (HGCRecHitCollection::const_iterator it = hits->begin(); it != hits->end(); ++it, ++index) {
+  for (auto it = hits->begin(); it != hits->end(); ++it, ++index) {
     DetId id((*it).detid());
     if (findBinFromId(id, iCell.fTower) && m_item->modelInfo(index).m_displayProperties.isVisible() &&
         m_item->modelInfo(index).isSelected()) {

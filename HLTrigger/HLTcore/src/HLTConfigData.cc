@@ -410,8 +410,8 @@ void HLTConfigData::dump(const std::string& what) const {
       cout << endl;
     const map<string, vector<unsigned int>>& table(hltPrescaleTable_.table());
     cout << "HLTConfigData::dump: PrescaleTable: # of paths: " << table.size() << endl;
-    const map<string, vector<unsigned int>>::const_iterator tb(table.begin());
-    const map<string, vector<unsigned int>>::const_iterator te(table.end());
+    const auto tb(table.begin());
+    const auto te(table.end());
     for (map<string, vector<unsigned int>>::const_iterator ti = tb; ti != te; ++ti) {
       for (unsigned int i = 0; i != n; ++i) {
         cout << " " << ti->second.at(i);
@@ -436,7 +436,7 @@ const std::string& HLTConfigData::tableName() const { return tableName_; }
 const std::vector<std::string>& HLTConfigData::triggerNames() const { return triggerNames_; }
 const std::string& HLTConfigData::triggerName(unsigned int trigger) const { return triggerNames_.at(trigger); }
 unsigned int HLTConfigData::triggerIndex(const std::string& trigger) const {
-  const std::map<std::string, unsigned int>::const_iterator index(triggerIndex_.find(trigger));
+  const auto index(triggerIndex_.find(trigger));
   if (index == triggerIndex_.end()) {
     return size();
   } else {
@@ -466,7 +466,7 @@ const std::string& HLTConfigData::moduleLabel(const std::string& trigger, unsign
 }
 
 unsigned int HLTConfigData::moduleIndex(unsigned int trigger, const std::string& module) const {
-  const std::map<std::string, unsigned int>::const_iterator index(moduleIndex_.at(trigger).find(module));
+  const auto index(moduleIndex_.at(trigger).find(module));
   if (index == moduleIndex_.at(trigger).end()) {
     return size(trigger);
   } else {
@@ -548,7 +548,7 @@ const std::vector<std::string>& HLTConfigData::streamNames() const { return stre
 const std::string& HLTConfigData::streamName(unsigned int stream) const { return streamNames_.at(stream); }
 
 unsigned int HLTConfigData::streamIndex(const std::string& stream) const {
-  const std::map<std::string, unsigned int>::const_iterator index(streamIndex_.find(stream));
+  const auto index(streamIndex_.find(stream));
   if (index == streamIndex_.end()) {
     return streamNames_.size();
   } else {
@@ -572,7 +572,7 @@ const std::vector<std::string>& HLTConfigData::datasetNames() const { return dat
 const std::string& HLTConfigData::datasetName(unsigned int dataset) const { return datasetNames_.at(dataset); }
 
 unsigned int HLTConfigData::datasetIndex(const std::string& dataset) const {
-  const std::map<std::string, unsigned int>::const_iterator index(datasetIndex_.find(dataset));
+  const auto index(datasetIndex_.find(dataset));
   if (index == datasetIndex_.end()) {
     return datasetNames_.size();
   } else {

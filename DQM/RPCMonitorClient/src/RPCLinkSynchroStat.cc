@@ -18,15 +18,13 @@ bool RPCLinkSynchroStat::LessCountSum::operator()(const BoardAndCounts& o1, cons
 void RPCLinkSynchroStat::add(const std::string& lbName, const unsigned int* hits) {
   LinkBoard lb(lbName);
   SynchroCounts counts(hits);
-  for (std::vector<BoardAndCounts>::iterator it = theLinkStatMap.begin(); it != theLinkStatMap.end(); ++it)
+  for (auto it = theLinkStatMap.begin(); it != theLinkStatMap.end(); ++it)
     if (it->first == lb)
       it->second += counts;
 }
 
 int RPCLinkSynchroStat::LinkBoard::add(const ChamberAndPartition& part) {
-  for (std::vector<ChamberAndPartition>::const_iterator it = theChamberAndPartitions.begin();
-       it != theChamberAndPartitions.end();
-       ++it) {
+  for (auto it = theChamberAndPartitions.begin(); it != theChamberAndPartitions.end(); ++it) {
     if ((*it) == part)
       return 1;
   }
@@ -35,7 +33,7 @@ int RPCLinkSynchroStat::LinkBoard::add(const ChamberAndPartition& part) {
 }
 
 int RPCLinkSynchroStat::LinkBoard::add(const LinkBoardElectronicIndex& ele) {
-  for (std::vector<LinkBoardElectronicIndex>::const_iterator it = theElePaths.begin(); it != theElePaths.end(); ++it) {
+  for (auto it = theElePaths.begin(); it != theElePaths.end(); ++it) {
     if (it->dccId == ele.dccId && it->dccInputChannelNum == ele.dccInputChannelNum &&
         it->tbLinkInputNum == ele.tbLinkInputNum && it->lbNumInLink == ele.lbNumInLink)
       return 1;
@@ -132,19 +130,18 @@ void RPCLinkSynchroStat::init(const RPCReadOutMapping* theCabling, bool addChamb
   if (!theCabling)
     return;
   std::vector<const DccSpec*> dccs = theCabling->dccList();
-  for (std::vector<const DccSpec*>::const_iterator it1 = dccs.begin(); it1 != dccs.end(); ++it1) {
+  for (auto it1 = dccs.begin(); it1 != dccs.end(); ++it1) {
     const std::vector<TriggerBoardSpec>& rmbs = (*it1)->triggerBoards();
-    for (std::vector<TriggerBoardSpec>::const_iterator it2 = rmbs.begin(); it2 != rmbs.end(); ++it2) {
+    for (auto it2 = rmbs.begin(); it2 != rmbs.end(); ++it2) {
       const std::vector<LinkConnSpec>& links = it2->linkConns();
-      for (std::vector<LinkConnSpec>::const_iterator it3 = links.begin(); it3 != links.end(); ++it3) {
+      for (auto it3 = links.begin(); it3 != links.end(); ++it3) {
         const std::vector<LinkBoardSpec>& lbs = it3->linkBoards();
-        for (std::vector<LinkBoardSpec>::const_iterator it4 = lbs.begin(); it4 != lbs.end(); ++it4) {
+        for (auto it4 = lbs.begin(); it4 != lbs.end(); ++it4) {
           LinkBoardElectronicIndex ele = {
               (*it1)->id(), it2->dccInputChannelNum(), it3->triggerBoardInputNumber(), it4->linkBoardNumInLink()};
           LinkBoard linkBoard(it4->linkBoardName());
           BoardAndCounts candid = std::make_pair(linkBoard, SynchroCounts());
-          std::vector<BoardAndCounts>::iterator candid_place =
-              lower_bound(theLinkStatMap.begin(), theLinkStatMap.end(), candid, LessLinkName());
+          auto candid_place = lower_bound(theLinkStatMap.begin(), theLinkStatMap.end(), candid, LessLinkName());
           if (candid_place != theLinkStatMap.end() && candid.first == candid_place->first) {
             candid_place->first.add(ele);
           } else {
@@ -152,7 +149,7 @@ void RPCLinkSynchroStat::init(const RPCReadOutMapping* theCabling, bool addChamb
             candid_place->first.add(ele);
             if (addChamberInfo) {
               const std::vector<FebConnectorSpec>& febs = it4->febs();
-              for (std::vector<FebConnectorSpec>::const_iterator it5 = febs.begin(); it5 != febs.end(); ++it5) {
+              for (auto it5 = febs.begin(); it5 != febs.end(); ++it5) {
                 std::string chamberName = it5->chamber().chamberLocationName();
                 std::string partitionName = it5->feb().localEtaPartitionName();
                 LinkBoard::ChamberAndPartition chamberAndPartition = std::make_pair(chamberName, partitionName);
@@ -166,7 +163,7 @@ void RPCLinkSynchroStat::init(const RPCReadOutMapping* theCabling, bool addChamb
   }
   for (unsigned int idx = 0; idx < theLinkStatMap.size(); ++idx) {
     const std::vector<LinkBoardElectronicIndex>& paths = theLinkStatMap[idx].first.paths();
-    for (std::vector<LinkBoardElectronicIndex>::const_iterator it = paths.begin(); it != paths.end(); ++it) {
+    for (auto it = paths.begin(); it != paths.end(); ++it) {
       theLinkStatNavi[it->dccId - DCCINDEXSHIFT][it->dccInputChannelNum][it->tbLinkInputNum][it->lbNumInLink] = idx;
     }
   }
@@ -176,7 +173,7 @@ void RPCLinkSynchroStat::init(const RPCReadOutMapping* theCabling, bool addChamb
 void RPCLinkSynchroStat::add(const RPCRawSynchro::ProdItem& vItem, std::vector<LinkBoardElectronicIndex>& problems) {
   std::vector<int> hits(theLinkStatMap.size(), 0);
   std::vector<ShortLinkInfo> slis;
-  for (RPCRawSynchro::ProdItem::const_iterator it = vItem.begin(); it != vItem.end(); ++it) {
+  for (auto it = vItem.begin(); it != vItem.end(); ++it) {
     const LinkBoardElectronicIndex& path = it->first;
     unsigned int bxDiff = it->second;
     unsigned int eleCode = (path.dccId - DCCINDEXSHIFT) * 100000 + path.dccInputChannelNum * 1000 +
@@ -189,14 +186,14 @@ void RPCLinkSynchroStat::add(const RPCRawSynchro::ProdItem& vItem, std::vector<L
       hits[idx] = slis.size();
     } else {
       std::vector<unsigned int>& v = slis[hits[idx] - 1].hit_paths;
-      std::vector<unsigned int>::iterator iv = lower_bound(v.begin(), v.end(), eleCode);
+      auto iv = lower_bound(v.begin(), v.end(), eleCode);
       if (iv == v.end() || (*iv) != eleCode)
         v.insert(iv, eleCode);
     }
     slis[hits[idx] - 1].counts.set(bxDiff);  // ensure one count per LB per BX
   }
 
-  for (std::vector<ShortLinkInfo>::const_iterator ic = slis.begin(); ic != slis.end(); ++ic) {
+  for (auto ic = slis.begin(); ic != slis.end(); ++ic) {
     if (theUseFirstHitOnly) {
       theLinkStatMap[ic->idx].second.increment(ic->counts.firstHit());  // first hit only
     } else {
@@ -226,24 +223,22 @@ std::string RPCLinkSynchroStat::dumpDelays() {
     //PATHS
     str << " paths: ";
     const std::vector<LinkBoardElectronicIndex>& paths = board.paths();
-    for (std::vector<LinkBoardElectronicIndex>::const_iterator ip = paths.begin(); ip != paths.end(); ++ip)
+    for (auto ip = paths.begin(); ip != paths.end(); ++ip)
       str << "{" << ip->dccId << "," << std::setw(2) << ip->dccInputChannelNum << "," << std::setw(2)
           << ip->tbLinkInputNum << "," << ip->lbNumInLink << "}";
 
     // DUMP CHAMBERS
     std::map<std::string, std::vector<std::string> > chMap;
     const std::vector<LinkBoard::ChamberAndPartition>& chamberAndPartitions = board.chamberAndPartitions();
-    for (std::vector<LinkBoard::ChamberAndPartition>::const_iterator it = chamberAndPartitions.begin();
-         it != chamberAndPartitions.end();
-         ++it) {
+    for (auto it = chamberAndPartitions.begin(); it != chamberAndPartitions.end(); ++it) {
       std::vector<std::string>& partitions = chMap[it->first];
       if (find(partitions.begin(), partitions.end(), it->second) == partitions.end())
         partitions.push_back(it->second);
     }
     str << " chambers: ";
-    for (std::map<std::string, std::vector<std::string> >::const_iterator im = chMap.begin(); im != chMap.end(); ++im) {
+    for (auto im = chMap.begin(); im != chMap.end(); ++im) {
       str << im->first << "(";
-      for (std::vector<std::string>::const_iterator ip = im->second.begin(); ip != im->second.end(); ++ip) {
+      for (auto ip = im->second.begin(); ip != im->second.end(); ++ip) {
         str << *ip;
         if ((ip + 1) != (im->second.end()))
           str << ",";

@@ -99,10 +99,10 @@ void SiStripBadComponentInfo::fillBadComponentMaps(const SiStripQuality* siStrip
   // Single Strip Info
   //&&&&&&&&&&&&&&&&&&
 
-  SiStripQuality::RegistryIterator rbegin = siStripQuality->getRegistryVectorBegin();
-  SiStripQuality::RegistryIterator rend = siStripQuality->getRegistryVectorEnd();
+  auto rbegin = siStripQuality->getRegistryVectorBegin();
+  auto rend = siStripQuality->getRegistryVectorEnd();
 
-  for (SiStripBadStrip::RegistryIterator rp = rbegin; rp != rend; ++rp) {
+  for (auto rp = rbegin; rp != rend; ++rp) {
     uint32_t detid = rp->detid;
     int subdet = -999;
     int component = -999;

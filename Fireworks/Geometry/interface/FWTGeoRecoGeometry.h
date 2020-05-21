@@ -31,7 +31,7 @@ public:
     }
     void fillPoints(std::vector<GlobalPoint>::const_iterator begin, std::vector<GlobalPoint>::const_iterator end) {
       unsigned int index(0);
-      for (std::vector<GlobalPoint>::const_iterator i = begin; i != end; ++i) {
+      for (auto i = begin; i != end; ++i) {
         assert(index < maxCorner_);
         points[index * 3] = i->x();
         points[index * 3 + 1] = i->y();

@@ -160,7 +160,7 @@ public:
     RecHitContainer res = _res;
     const GeomDetUnit& gdu(specificGeomDet());
     VLocalValues vlv = cpe()->localParametersV(*cluster, gdu, ltp);
-    for (VLocalValues::const_iterator it = vlv.begin(); it != vlv.end(); ++it)
+    for (auto it = vlv.begin(); it != vlv.end(); ++it)
       res.push_back(std::make_shared<SiStripRecHit2D>(it->first, it->second, fastGeomDet(), cluster));
   }
 

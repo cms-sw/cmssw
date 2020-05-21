@@ -482,7 +482,7 @@ int cond::TestGTPerf::execute() {
   size_t nt = 0;
   for (auto t : gt) {
     nt++;
-    UntypedPayloadProxy* p = new UntypedPayloadProxy;
+    auto* p = new UntypedPayloadProxy;
     p->init(session);
     try {
       p->load(t.tagName());

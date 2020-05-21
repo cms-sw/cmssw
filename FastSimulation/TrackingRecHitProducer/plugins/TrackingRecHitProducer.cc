@@ -198,7 +198,7 @@ void TrackingRecHitProducer::produce(edm::Event& event, const edm::EventSetup& e
   for (auto simHitsIdPairIt = simHitsIdPairPerDetId.begin(); simHitsIdPairIt != simHitsIdPairPerDetId.end();
        ++simHitsIdPairIt) {
     const DetId& detId = simHitsIdPairIt->first;
-    std::map<unsigned int, TrackingRecHitPipe>::const_iterator pipeIt = _detIdPipes.find(detId);
+    auto pipeIt = _detIdPipes.find(detId);
     if (pipeIt != _detIdPipes.cend()) {
       auto& simHitIdPairList = simHitsIdPairIt->second;
       const TrackingRecHitPipe& pipe = pipeIt->second;

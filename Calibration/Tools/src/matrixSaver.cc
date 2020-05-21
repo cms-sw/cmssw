@@ -70,7 +70,7 @@ int matrixSaver::saveMatrixVector(std::string filename, const std::vector<CLHEP:
   outputFile << (*saveMe.begin())->num_row() << '\t' << (*saveMe.begin())->num_col() << '\n';
 
   // loop over the vector
-  for (const_iterator it = saveMe.begin(); it != saveMe.end(); ++it) {
+  for (auto it = saveMe.begin(); it != saveMe.end(); ++it) {
     outputFile << (*it);
   }  // loop over the vecor
 
@@ -146,7 +146,7 @@ std::vector<CLHEP::HepGenMatrix *> *matrixSaver::getMatrixVector(std::string inp
   inputFile >> numCol;
 
   //PG prepara il vector
-  std::vector<CLHEP::HepGenMatrix *> *matrixVector = new std::vector<CLHEP::HepGenMatrix *>(numElem);
+  auto *matrixVector = new std::vector<CLHEP::HepGenMatrix *>(numElem);
 
   //PG loop sugli elementi del vettore
   for (int i = 0; i < numElem; ++i) {

@@ -154,7 +154,7 @@ void MuonSeedsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   if (!seeds.isValid())
     return;
 
-  for (TrajectorySeedCollection::const_iterator seed = seeds->begin(); seed != seeds->end(); ++seed) {
+  for (auto seed = seeds->begin(); seed != seeds->end(); ++seed) {
     //    const TrajectorySeed sd = *seed;
 
     // Get the Trajectory State on Det (persistent version of a TSOS) from the seed

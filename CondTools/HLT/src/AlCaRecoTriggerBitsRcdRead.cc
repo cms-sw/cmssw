@@ -159,7 +159,7 @@ void AlCaRecoTriggerBitsRcdRead::printMap(edm::RunNumber_t firstRun,
   //  if (outputType_ == kPython) output << "  triggerLists = cms.VPSet(\n";
 
   // loop over entries in map
-  for (TriggerMap::const_iterator i = triggerMap.begin(); i != triggerMap.end(); ++i) {
+  for (auto i = triggerMap.begin(); i != triggerMap.end(); ++i) {
     if (outputType_ == kPython && i != triggerMap.begin())
       output << ",\n";
 

@@ -32,8 +32,8 @@ namespace edm {
       void add(const Map& map) {
         if (map.empty())
           return;
-        typename id_offset_vector::const_iterator j = map.ids_.begin();
-        const typename id_offset_vector::const_iterator end = map.ids_.end();
+        auto j = map.ids_.begin();
+        const auto end = map.ids_.end();
         size_t i = 0;
         const size_t size = map.values_.size();
         // std::pair<ProductID, offset> id = *j;
@@ -41,7 +41,7 @@ namespace edm {
           ProductID id = j->first;
           ++j;
           size_t max = (j == end ? size : j->second);
-          typename value_map::iterator f = values_.find(id);
+          auto f = values_.find(id);
           if (f != values_.end())
             throwAdd();
           value_vector& values = values_.insert(std::make_pair(id, value_vector())).first->second;
@@ -55,7 +55,7 @@ namespace edm {
         size_t size = h->size(), sizeIt = end - begin;
         if (sizeIt != size)
           throwFillSize();
-        typename value_map::const_iterator f = values_.find(id);
+        auto f = values_.find(id);
         if (f != values_.end())
           throwFillID(id);
         value_vector& values = values_.insert(make_pair(id, value_vector(size))).first->second;
@@ -67,11 +67,11 @@ namespace edm {
         offset off = 0;
         map_.ids_.reserve(values_.size());
         map_.values_.reserve(totSize_);
-        for (typename value_map::const_iterator i = values_.begin(); i != values_.end(); ++i) {
+        for (auto i = values_.begin(); i != values_.end(); ++i) {
           ProductID id = i->first;
           map_.ids_.push_back(std::make_pair(id, off));
           const value_vector& values = i->second;
-          for (typename value_vector::const_iterator j = values.begin(); j != values.end(); ++j) {
+          for (auto j = values.begin(); j != values.end(); ++j) {
             map_.values_.push_back(*j);
             ++off;
           }
@@ -132,7 +132,7 @@ namespace edm {
     }
     // raw index of a given (id,key) pair
     size_t rawIndexOf(ProductID id, size_t idx) const {
-      typename id_offset_vector::const_iterator f = getIdOffset(id);
+      auto f = getIdOffset(id);
       if (f == ids_.end())
         throwNotExisting();
       offset off = f->second;
@@ -175,7 +175,7 @@ namespace edm {
       typename container::const_iterator end() const {
         if (i_ == end_)
           return values_->end();
-        id_offset_vector::const_iterator end = i_;
+        auto end = i_;
         ++end;
         if (end == end_)
           return values_->end();
@@ -242,7 +242,7 @@ namespace edm {
     id_offset_vector ids_;
 
     typename id_offset_vector::const_iterator getIdOffset(ProductID id) const {
-      typename id_offset_vector::const_iterator i = std::lower_bound(ids_.begin(), ids_.end(), id, IDComparator());
+      auto i = std::lower_bound(ids_.begin(), ids_.end(), id, IDComparator());
       if (i == ids_.end())
         return i;
       return i->first == id ? i : ids_.end();

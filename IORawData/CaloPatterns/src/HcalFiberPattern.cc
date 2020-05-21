@@ -2,7 +2,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 
 static inline int setIf(const std::string& name, const std::map<std::string, std::string>& params) {
-  std::map<std::string, std::string>::const_iterator j = params.find(name);
+  auto j = params.find(name);
   if (j == params.end())
     throw cms::Exception("InvalidFormat") << "Missing parameter '" << name << "'";
   else

@@ -216,7 +216,7 @@ void EgammaHLTNxNClusterProducer::makeNxNClusters(edm::Event &evt,
     clusterSeedThreshold = clusSeedThrEndCap_;
   }
 
-  for (EcalRecHitCollection::const_iterator itt = hits->begin(); itt != hits->end(); itt++) {
+  for (auto itt = hits->begin(); itt != hits->end(); itt++) {
     double energy = itt->energy();
     if (!checkStatusOfEcalRecHit(channelStatus, *itt))
       continue;
@@ -252,10 +252,10 @@ void EgammaHLTNxNClusterProducer::makeNxNClusters(edm::Event &evt,
   // sort seed according to Energy
   sort(seeds.begin(), seeds.end(), [](auto const &x, auto const &y) { return (x.energy() > y.energy()); });
 
-  for (std::vector<EcalRecHit>::iterator itseed = seeds.begin(); itseed != seeds.end(); itseed++) {
+  for (auto itseed = seeds.begin(); itseed != seeds.end(); itseed++) {
     DetId seed_id = itseed->id();
 
-    std::vector<DetId>::iterator itdet = find(usedXtals.begin(), usedXtals.end(), seed_id);
+    auto itdet = find(usedXtals.begin(), usedXtals.end(), seed_id);
     if (itdet != usedXtals.end())
       continue;
 
@@ -264,15 +264,15 @@ void EgammaHLTNxNClusterProducer::makeNxNClusters(edm::Event &evt,
 
     float clus_energy = 0;
 
-    for (std::vector<DetId>::iterator det = clus_v.begin(); det != clus_v.end(); det++) {
+    for (auto det = clus_v.begin(); det != clus_v.end(); det++) {
       DetId detid = *det;
 
       //not yet used
-      std::vector<DetId>::iterator itdet = find(usedXtals.begin(), usedXtals.end(), detid);
+      auto itdet = find(usedXtals.begin(), usedXtals.end(), detid);
       if (itdet != usedXtals.end())
         continue;
       //inside the collection
-      EcalRecHitCollection::const_iterator hit = hits->find(detid);
+      auto hit = hits->find(detid);
       if (hit == hits->end())
         continue;
 

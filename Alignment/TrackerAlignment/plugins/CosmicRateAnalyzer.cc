@@ -226,7 +226,7 @@ void CosmicRateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
     v_ntrk.push_back(tracks->size());
 
   ntrk = 0;
-  for (TrackCollection::const_iterator itTrack1 = tracks->begin(); itTrack1 != tracks->end(); ++itTrack1) {
+  for (auto itTrack1 = tracks->begin(); itTrack1 != tracks->end(); ++itTrack1) {
     pt.push_back(itTrack1->pt());
     charge.push_back(itTrack1->charge());
     chi2.push_back(itTrack1->chi2());

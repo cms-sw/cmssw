@@ -37,9 +37,7 @@ namespace {
     float globalTrajectoryPoint[3];
 
     const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
-    for (std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin(), chamberEnd = matches.end();
-         chamber != chamberEnd;
-         ++chamber) {
+    for (auto chamber = matches.begin(), chamberEnd = matches.end(); chamber != chamberEnd; ++chamber) {
       // expected track position
       localTrajectoryPoint[0] = chamber->x;
       localTrajectoryPoint[1] = chamber->y;
@@ -67,9 +65,7 @@ namespace {
     // FIXME: This should be set elsewhere.
     segmentSet->SetLineWidth(4);
 
-    for (std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin(), chambersEnd = matches.end();
-         chamber != chambersEnd;
-         ++chamber) {
+    for (auto chamber = matches.begin(), chambersEnd = matches.end(); chamber != chambersEnd; ++chamber) {
       unsigned int rawid = chamber->id.rawId();
       float segmentLength = 0.0;
       float segmentLimit = 0.0;
@@ -79,7 +75,7 @@ namespace {
         shape->SetElementName("Chamber");
         shape->RefMainTrans().Scale(0.999, 0.999, 0.999);
 
-        FWGeometry::IdToInfoItr det = geom->find(rawid);
+        auto det = geom->find(rawid);
         if (det->shape[0] == 1)  // TGeoTrap
         {
           segmentLength = det->shape[3];
@@ -100,8 +96,7 @@ namespace {
           pb->setupAddElement(shape, parentList);
         }
 
-        for (std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->segmentMatches.begin(),
-                                                                 segmentEnd = chamber->segmentMatches.end();
+        for (auto segment = chamber->segmentMatches.begin(), segmentEnd = chamber->segmentMatches.end();
              segment != segmentEnd;
              ++segment) {
           float segmentPosition[3] = {segment->x, segment->y, 0.0};
@@ -149,9 +144,7 @@ namespace {
     float globalTrajectoryPoint[3];
 
     const std::vector<reco::MuonChamberMatch>& matches = muon->matches();
-    for (std::vector<reco::MuonChamberMatch>::const_iterator chamber = matches.begin(), chamberEnd = matches.end();
-         chamber != chamberEnd;
-         ++chamber) {
+    for (auto chamber = matches.begin(), chamberEnd = matches.end(); chamber != chamberEnd; ++chamber) {
       // expected track position
       localTrajectoryPoint[0] = chamber->x;
       localTrajectoryPoint[1] = chamber->y;

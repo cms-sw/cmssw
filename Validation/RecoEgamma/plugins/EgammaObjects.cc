@@ -440,7 +440,7 @@ void EgammaObjects::analyzePhotons(const edm::Event& evt, const edm::EventSetup&
   const reco::PhotonCollection* photons = pPhotons.product();
   std::vector<reco::Photon> photonsMCMatched;
 
-  for (reco::PhotonCollection::const_iterator aClus = photons->begin(); aClus != photons->end(); aClus++) {
+  for (auto aClus = photons->begin(); aClus != photons->end(); aClus++) {
     if (aClus->et() >= EtCut) {
       hist_Et_->Fill(aClus->et());
       hist_E_->Fill(aClus->energy());
@@ -502,7 +502,7 @@ void EgammaObjects::analyzePhotons(const edm::Event& evt, const edm::EventSetup&
 
       double closestParticleDistance = 999;
 
-      for (reco::PhotonCollection::const_iterator aClus = photons->begin(); aClus != photons->end(); aClus++) {
+      for (auto aClus = photons->begin(); aClus != photons->end(); aClus++) {
         if (aClus->et() > EtCut) {
           etaCurrent = aClus->eta();
           phiCurrent = aClus->phi();
@@ -603,7 +603,7 @@ void EgammaObjects::analyzeElectrons(const edm::Event& evt, const edm::EventSetu
   const reco::GsfElectronCollection* electrons = pElectrons.product();
   std::vector<reco::GsfElectron> electronsMCMatched;
 
-  for (reco::GsfElectronCollection::const_iterator aClus = electrons->begin(); aClus != electrons->end(); aClus++) {
+  for (auto aClus = electrons->begin(); aClus != electrons->end(); aClus++) {
     if (aClus->et() >= EtCut) {
       hist_Et_->Fill(aClus->et());
       hist_E_->Fill(aClus->energy());
@@ -659,7 +659,7 @@ void EgammaObjects::analyzeElectrons(const edm::Event& evt, const edm::EventSetu
 
       double closestParticleDistance = 999;
 
-      for (reco::GsfElectronCollection::const_iterator aClus = electrons->begin(); aClus != electrons->end(); aClus++) {
+      for (auto aClus = electrons->begin(); aClus != electrons->end(); aClus++) {
         if (aClus->et() > EtCut) {
           etaCurrent = aClus->eta();
           phiCurrent = aClus->phi();

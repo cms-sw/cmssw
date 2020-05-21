@@ -125,9 +125,9 @@ const FWConfiguration* FWConfiguration::valueForKey(const std::string& iKey) con
   if (not m_keyValues) {
     throw std::runtime_error("valueForKey fails becuase no key/values set");
   }
-  KeyValues::iterator itFind = std::find_if(m_keyValues->begin(),
-                                            m_keyValues->end(),
-                                            boost::bind(&std::pair<std::string, FWConfiguration>::first, _1) == iKey);
+  auto itFind = std::find_if(m_keyValues->begin(),
+                             m_keyValues->end(),
+                             boost::bind(&std::pair<std::string, FWConfiguration>::first, _1) == iKey);
   if (itFind == m_keyValues->end()) {
     return nullptr;
   }
@@ -195,15 +195,12 @@ void FWConfiguration::streamTo(std::ostream& oTo, const FWConfiguration& iConfig
   std::string indentation(recursionLevel, ' ');
   oTo << indentation << "<config name=\"" << name << "\" version=\"" << iConfig.version() << "\">\n";
   if (iConfig.stringValues()) {
-    for (FWConfiguration::StringValues::const_iterator it = iConfig.stringValues()->begin();
-         it != iConfig.stringValues()->end();
-         ++it) {
+    for (auto it = iConfig.stringValues()->begin(); it != iConfig.stringValues()->end(); ++it) {
       oTo << indentation << "  <string>" << attrEscape(*it) << "</string>\n";
     }
   }
   if (iConfig.keyValues()) {
-    for (FWConfiguration::KeyValues::const_iterator it = iConfig.keyValues()->begin(); it != iConfig.keyValues()->end();
-         ++it) {
+    for (auto it = iConfig.keyValues()->begin(); it != iConfig.keyValues()->end(); ++it) {
       FWConfiguration::streamTo(oTo, it->second, attrEscape(it->first));
     }
   }

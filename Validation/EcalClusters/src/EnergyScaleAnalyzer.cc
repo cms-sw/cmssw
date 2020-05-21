@@ -305,7 +305,7 @@ void EnergyScaleAnalyzer::analyze(const edm::Event &evt, const edm::EventSetup &
 
   // now loop over MC particles, find the match with SC and do everything we
   // need then save info in the tree for every MC particle
-  for (std::vector<HepMC::GenParticle *>::const_iterator p = mcParticles.begin(); p != mcParticles.end(); ++p) {
+  for (auto p = mcParticles.begin(); p != mcParticles.end(); ++p) {
     HepMC::GenParticle *mc = *p;
 
     // Fill MC information
@@ -348,9 +348,9 @@ void EnergyScaleAnalyzer::fillTree(const reco::SuperClusterCollection *scColl,
                                    float zV,
                                    int scType) {
   // -----------------------------  SuperClusters before energy correction
-  reco::SuperClusterCollection::const_iterator em = scColl->end();
+  auto em = scColl->end();
   float energyMax = -100.0;  // dummy energy of the matched SC
-  for (reco::SuperClusterCollection::const_iterator aClus = scColl->begin(); aClus != scColl->end(); ++aClus) {
+  for (auto aClus = scColl->begin(); aClus != scColl->end(); ++aClus) {
     // check the matching
     float dR =
         kinem::delta_R(mc->momentum().eta(), mc->momentum().phi(), aClus->position().eta(), aClus->position().phi());
@@ -425,7 +425,7 @@ void EnergyScaleAnalyzer::fillTree(const reco::SuperClusterCollection *scColl,
   //-------------------------------   Get SC after energy correction
   em = corrSCColl->end();
   energyMax = -100.0;  // dummy energy of the matched SC
-  for (reco::SuperClusterCollection::const_iterator aClus = corrSCColl->begin(); aClus != corrSCColl->end(); ++aClus) {
+  for (auto aClus = corrSCColl->begin(); aClus != corrSCColl->end(); ++aClus) {
     // check the matching
     float dR =
         kinem::delta_R(mc->momentum().eta(), mc->momentum().phi(), aClus->position().eta(), aClus->position().phi());

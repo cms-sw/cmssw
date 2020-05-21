@@ -38,8 +38,7 @@ void TauJetSelectorForHLTTrackSeeding::produce(edm::StreamID iStreamID,
   edm::Handle<reco::TrackJetCollection> trackjets;
   iEvent.getByToken(inputTrackJetToken_, trackjets);
 
-  for (reco::TrackJetCollection::const_iterator trackjet = trackjets->begin(); trackjet != trackjets->end();
-       trackjet++) {
+  for (auto trackjet = trackjets->begin(); trackjet != trackjets->end(); trackjet++) {
     augmentedTrackJets->push_back(*trackjet);
   }
 
@@ -52,7 +51,7 @@ void TauJetSelectorForHLTTrackSeeding::produce(edm::StreamID iStreamID,
   const double tauConeSize2 = tauConeSize_ * tauConeSize_;
   const double isolationConeSize2 = isolationConeSize_ * isolationConeSize_;
 
-  for (reco::CaloJetCollection::const_iterator calojet = calojets->begin(); calojet != calojets->end(); calojet++) {
+  for (auto calojet = calojets->begin(); calojet != calojets->end(); calojet++) {
     if (calojet->pt() < ptMinCaloJet_)
       continue;
     double etaJet = calojet->eta();
@@ -86,8 +85,7 @@ void TauJetSelectorForHLTTrackSeeding::produce(edm::StreamID iStreamID,
     int ntrk = 0;
     double ptTrk = 0.;
 
-    for (reco::TrackJetCollection::const_iterator trackjet = trackjets->begin(); trackjet != trackjets->end();
-         trackjet++) {
+    for (auto trackjet = trackjets->begin(); trackjet != trackjets->end(); trackjet++) {
       for (unsigned itr = 0; itr < trackjet->numberOfTracks(); ++itr) {
         edm::Ptr<reco::Track> track = trackjet->track(itr);
         double trackEta = track->eta() - etaJet;
@@ -108,7 +106,7 @@ void TauJetSelectorForHLTTrackSeeding::produce(edm::StreamID iStreamID,
     int ntrk2 = 0;
     double ptTrk2 = 0.;
 
-    for (reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); track++) {
+    for (auto track = tracks->begin(); track != tracks->end(); track++) {
       double trackEta = track->eta() - etaJet;
       double trackPhi = deltaPhi(track->phi(), phiJet);
       double deltaR2 = trackEta * trackEta + trackPhi * trackPhi;

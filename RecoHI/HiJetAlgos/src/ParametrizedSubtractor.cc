@@ -15,7 +15,7 @@
 using namespace std;
 
 void ParametrizedSubtractor::rescaleRMS(double s) {
-  for (std::map<int, double>::iterator iter = esigma_.begin(); iter != esigma_.end(); ++iter) {
+  for (auto iter = esigma_.begin(); iter != esigma_.end(); ++iter) {
     iter->second = s * (iter->second);
   }
 }
@@ -71,7 +71,7 @@ void ParametrizedSubtractor::setupGeometryMap(edm::Event& iEvent, const edm::Eve
     int ietaold = -10000;
     ietamax_ = -10000;
     ietamin_ = 10000;
-    for (std::vector<DetId>::const_iterator did = alldid.begin(); did != alldid.end(); did++) {
+    for (auto did = alldid.begin(); did != alldid.end(); did++) {
       if ((*did).det() == DetId::Hcal) {
         HcalDetId hid = HcalDetId(*did);
         if ((hid).depth() == 1) {
@@ -110,9 +110,7 @@ void ParametrizedSubtractor::subtractPedestal(vector<fastjet::PseudoJet>& coll) 
     int it = -100;
     vector<fastjet::PseudoJet> newcoll;
 
-    for (vector<fastjet::PseudoJet>::iterator input_object = coll.begin(), fjInputsEnd = coll.end();
-         input_object != fjInputsEnd;
-         ++input_object) {
+    for (auto input_object = coll.begin(), fjInputsEnd = coll.end(); input_object != fjInputsEnd; ++input_object) {
       reco::CandidatePtr const& itow = (*inputs_)[input_object->user_index()];
 
       it = ieta(itow);
@@ -171,7 +169,7 @@ void ParametrizedSubtractor::offsetCorrectJets() {
 
   jetOffset_.reserve(fjJets_->size());
 
-  vector<fastjet::PseudoJet>::iterator pseudojetTMP = fjJets_->begin(), jetsEnd = fjJets_->end();
+  auto pseudojetTMP = fjJets_->begin(), jetsEnd = fjJets_->end();
   for (; pseudojetTMP != jetsEnd; ++pseudojetTMP) {
     int ijet = pseudojetTMP - fjJets_->begin();
     jetOffset_[ijet] = 0;
@@ -179,7 +177,7 @@ void ParametrizedSubtractor::offsetCorrectJets() {
     std::vector<fastjet::PseudoJet> towers = sorted_by_pt(fjClusterSeq_->constituents(*pseudojetTMP));
 
     double newjetet = 0.;
-    for (vector<fastjet::PseudoJet>::const_iterator ito = towers.begin(), towEnd = towers.end(); ito != towEnd; ++ito) {
+    for (auto ito = towers.begin(), towEnd = towers.end(); ito != towEnd; ++ito) {
       const reco::CandidatePtr& originalTower = (*inputs_)[ito->user_index()];
       int it = ieta(originalTower);
       double Original_Et = originalTower->et();

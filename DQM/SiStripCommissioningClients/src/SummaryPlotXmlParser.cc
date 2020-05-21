@@ -109,13 +109,13 @@ void SummaryPlotXmlParser::print(std::stringstream& ss) const {
      << " Dumping contents of parsed XML file: " << std::endl;
   using namespace sistrip;
   typedef std::vector<SummaryPlot> Plots;
-  std::map<RunType, Plots>::const_iterator irun = plots_.begin();
+  auto irun = plots_.begin();
   for (; irun != plots_.end(); irun++) {
     ss << " RunType=\"" << SiStripEnumsAndStrings::runType(irun->first) << "\"" << std::endl;
     if (irun->second.empty()) {
       ss << " No summary plots for this RunType!";
     } else {
-      Plots::const_iterator iplot = irun->second.begin();
+      auto iplot = irun->second.begin();
       for (; iplot != irun->second.end(); iplot++) {
         ss << *iplot << std::endl;
       }

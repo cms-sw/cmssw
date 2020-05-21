@@ -52,7 +52,7 @@ void RecoMETExtractor::produce(edm::StreamID streamID, edm::Event& iEvent, const
   if (src->empty())
     edm::LogError("RecoMETExtractor::produce") << "input reco MET collection is empty";
 
-  std::vector<reco::MET>* metCol = new std::vector<reco::MET>();
+  auto* metCol = new std::vector<reco::MET>();
 
   reco::MET met(src->front().corSumEt(corLevel_), src->front().corP4(corLevel_), src->front().vertex());
 

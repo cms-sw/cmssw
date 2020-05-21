@@ -9,9 +9,7 @@ SiTrackerMultiRecHit::SiTrackerMultiRecHit(const LocalPoint& pos,
                                            const std::vector<std::pair<const TrackingRecHit*, float> >& aHitMap,
                                            double annealing)
     : BaseTrackerRecHit(pos, err, idet, trackerHitRTTI::multi) {
-  for (std::vector<std::pair<const TrackingRecHit*, float> >::const_iterator ihit = aHitMap.begin();
-       ihit != aHitMap.end();
-       ihit++) {
+  for (auto ihit = aHitMap.begin(); ihit != aHitMap.end(); ihit++) {
     theHits.push_back(ihit->first->clone());
     theWeights.push_back(ihit->second);
   }
@@ -25,8 +23,7 @@ bool SiTrackerMultiRecHit::sharesInput(const TrackingRecHit* other, SharedInputT
   if (what == all) {
     if (theHits.size() != other->recHits().size())
       return false;
-    for (vector<const TrackingRecHit*>::iterator otherhit = otherhits.begin(); otherhit != otherhits.end();
-         ++otherhit) {
+    for (auto otherhit = otherhits.begin(); otherhit != otherhits.end(); ++otherhit) {
       bool found = false;
       for (OwnVector<TrackingRecHit>::const_iterator hit = theHits.begin(); hit != theHits.end(); ++hit) {
         if ((hit)->sharesInput(*otherhit, all)) {
@@ -42,8 +39,7 @@ bool SiTrackerMultiRecHit::sharesInput(const TrackingRecHit* other, SharedInputT
   } else {
     for (OwnVector<TrackingRecHit>::const_iterator hit = theHits.begin(); hit != theHits.end(); ++hit) {
       if (!otherhits.empty()) {
-        for (vector<const TrackingRecHit*>::iterator otherhit = otherhits.begin(); otherhit != otherhits.end();
-             ++otherhit) {
+        for (auto otherhit = otherhits.begin(); otherhit != otherhits.end(); ++otherhit) {
           if ((hit)->sharesInput(*otherhit, some))
             return true;
         }

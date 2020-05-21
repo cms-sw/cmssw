@@ -132,7 +132,7 @@ void EcalDccWeightBuilder::computeAllWeights(bool withIntercalib, const edm::Eve
     copy(inputWeights_.begin(), inputWeights_.end(), baseWeights.begin());
   }
 
-  for (vector<DetId>::const_iterator it = detIds.begin(); it != detIds.end(); ++it) {
+  for (auto it = detIds.begin(); it != detIds.end(); ++it) {
     double phase = parameterMap.simParameters(*it).timePhase();
     int binOfMax = parameterMap.simParameters(*it).binOfMaximum();
 
@@ -351,7 +351,7 @@ void EcalDccWeightBuilder::unbiasWeights(std::vector<double>& weights, std::vect
 double EcalDccWeightBuilder::intercalib(const DetId& detId) {
   // get current intercalibration coeff
   double coef;
-  EcalIntercalibConstantMap::const_iterator itCalib = calibMap_.find(detId.rawId());
+  auto itCalib = calibMap_.find(detId.rawId());
   if (itCalib != calibMap_.end()) {
     coef = (*itCalib);
   } else {
@@ -416,8 +416,7 @@ void EcalDccWeightBuilder::writeWeightToAsciiFile() {
 
   file << "\n" << comment << "list of weights per crystal channel\n";
 
-  for (map<DetId, std::vector<int32_t> >::const_iterator it = encodedWeights_.begin(); it != encodedWeights_.end();
-       ++it) {
+  for (auto it = encodedWeights_.begin(); it != encodedWeights_.end(); ++it) {
     const DetId& detId = it->first;
 
     int fedId;
@@ -484,8 +483,7 @@ void EcalDccWeightBuilder::writeWeightToRootFile() {
            "xtalInRuId/I:"
            "n_weights/I:"
            "weights[n_weights]/I");
-  for (map<DetId, std::vector<int32_t> >::const_iterator it = encodedWeights_.begin(); it != encodedWeights_.end();
-       ++it) {
+  for (auto it = encodedWeights_.begin(); it != encodedWeights_.end(); ++it) {
     buf.detId = it->first.rawId();
     buf.n_weights = it->second.size();
 
@@ -557,8 +555,7 @@ void EcalDccWeightBuilder::writeWeightToDB() {
   }
   econn->insertConfigDataArraySet(dcc1stSampleConfig, &weight_info);
 
-  for (map<DetId, std::vector<int32_t> >::const_iterator it = encodedWeights_.begin(); it != encodedWeights_.end();
-       ++it) {
+  for (auto it = encodedWeights_.begin(); it != encodedWeights_.end(); ++it) {
     const DetId& detId = it->first;
     const unsigned nWeights = 6;
     vector<int> weights(nWeights);

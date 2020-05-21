@@ -15,7 +15,7 @@ SiStripFedIdListReader::SiStripFedIdListReader(std::string filePath) {
       inputFile_ >> fed_id;
 
       if (!(inputFile_.eof() || inputFile_.fail())) {
-        std::vector<uint16_t>::const_iterator it = find(fedIds_.begin(), fedIds_.end(), fed_id);
+        auto it = find(fedIds_.begin(), fedIds_.end(), fed_id);
         if (it == fedIds_.end()) {
           fedIds_.push_back(fed_id);
         } else {
@@ -72,7 +72,7 @@ std::ostream& operator<<(std::ostream& os, const SiStripFedIdListReader& in) {
   std::stringstream ss;
   ss << "[SiStripFedIdListReader::" << __func__ << "]"
      << " Found " << fed_ids.size() << " valid FED ids with values: ";
-  std::vector<uint16_t>::const_iterator iter = fed_ids.begin();
+  auto iter = fed_ids.begin();
   for (; iter != fed_ids.end(); ++iter) {
     ss << *iter << " ";
   }

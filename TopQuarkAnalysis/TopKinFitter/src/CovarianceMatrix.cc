@@ -9,8 +9,7 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet>& udscRes
                                    const std::vector<double>& jetEnergyResolutionEtaBinning)
     : jetEnergyResolutionScaleFactors_(jetEnergyResolutionScaleFactors),
       jetEnergyResolutionEtaBinning_(jetEnergyResolutionEtaBinning) {
-  for (std::vector<edm::ParameterSet>::const_iterator iSet = udscResolutions.begin(); iSet != udscResolutions.end();
-       ++iSet) {
+  for (auto iSet = udscResolutions.begin(); iSet != udscResolutions.end(); ++iSet) {
     if (iSet->exists("bin"))
       binsUdsc_.push_back(iSet->getParameter<std::string>("bin"));
     else if (udscResolutions.size() == 1)
@@ -22,7 +21,7 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet>& udscRes
     funcEtaUdsc_.push_back(iSet->getParameter<std::string>("eta"));
     funcPhiUdsc_.push_back(iSet->getParameter<std::string>("phi"));
   }
-  for (std::vector<edm::ParameterSet>::const_iterator iSet = bResolutions.begin(); iSet != bResolutions.end(); ++iSet) {
+  for (auto iSet = bResolutions.begin(); iSet != bResolutions.end(); ++iSet) {
     if (iSet->exists("bin"))
       binsB_.push_back(iSet->getParameter<std::string>("bin"));
     else if (bResolutions.size() == 1)
@@ -50,8 +49,7 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet>& udscRes
     if (jetEnergyResolutionEtaBinning_[i] < 0. && i < jetEnergyResolutionEtaBinning_.size() - 1)
       throw cms::Exception("Configuration") << "eta binning in absolut values required!\n";
 
-  for (std::vector<edm::ParameterSet>::const_iterator iSet = udscResolutions.begin(); iSet != udscResolutions.end();
-       ++iSet) {
+  for (auto iSet = udscResolutions.begin(); iSet != udscResolutions.end(); ++iSet) {
     if (iSet->exists("bin"))
       binsUdsc_.push_back(iSet->getParameter<std::string>("bin"));
     else if (udscResolutions.size() == 1)
@@ -63,7 +61,7 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet>& udscRes
     funcEtaUdsc_.push_back(iSet->getParameter<std::string>("eta"));
     funcPhiUdsc_.push_back(iSet->getParameter<std::string>("phi"));
   }
-  for (std::vector<edm::ParameterSet>::const_iterator iSet = bResolutions.begin(); iSet != bResolutions.end(); ++iSet) {
+  for (auto iSet = bResolutions.begin(); iSet != bResolutions.end(); ++iSet) {
     if (iSet->exists("bin"))
       binsB_.push_back(iSet->getParameter<std::string>("bin"));
     else if (bResolutions.size() == 1)
@@ -75,8 +73,7 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet>& udscRes
     funcEtaB_.push_back(iSet->getParameter<std::string>("eta"));
     funcPhiB_.push_back(iSet->getParameter<std::string>("phi"));
   }
-  for (std::vector<edm::ParameterSet>::const_iterator iSet = lepResolutions.begin(); iSet != lepResolutions.end();
-       ++iSet) {
+  for (auto iSet = lepResolutions.begin(); iSet != lepResolutions.end(); ++iSet) {
     if (iSet->exists("bin"))
       binsLep_.push_back(iSet->getParameter<std::string>("bin"));
     else if (lepResolutions.size() == 1)
@@ -88,8 +85,7 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet>& udscRes
     funcEtaLep_.push_back(iSet->getParameter<std::string>("eta"));
     funcPhiLep_.push_back(iSet->getParameter<std::string>("phi"));
   }
-  for (std::vector<edm::ParameterSet>::const_iterator iSet = metResolutions.begin(); iSet != metResolutions.end();
-       ++iSet) {
+  for (auto iSet = metResolutions.begin(); iSet != metResolutions.end(); ++iSet) {
     if (iSet->exists("bin"))
       binsMet_.push_back(iSet->getParameter<std::string>("bin"));
     else if (metResolutions.size() == 1)

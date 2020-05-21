@@ -76,7 +76,7 @@ const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection ReferenceTraject
 
   ReferenceTrajectoryCollection trajectories;
 
-  ConstTrajTrackPairCollection::const_iterator itTracks = tracks.begin();
+  auto itTracks = tracks.begin();
 
   while (itTracks != tracks.end()) {
     TrajectoryInput input = this->innermostStateAndRecHits(*itTracks);
@@ -120,8 +120,8 @@ const ReferenceTrajectoryFactory::ReferenceTrajectoryCollection ReferenceTraject
     return this->bzeroFactory()->trajectories(setup, tracks, external, beamSpot);
   }
 
-  ConstTrajTrackPairCollection::const_iterator itTracks = tracks.begin();
-  ExternalPredictionCollection::const_iterator itExternal = external.begin();
+  auto itTracks = tracks.begin();
+  auto itExternal = external.begin();
 
   while (itTracks != tracks.end()) {
     TrajectoryInput input = innermostStateAndRecHits(*itTracks);

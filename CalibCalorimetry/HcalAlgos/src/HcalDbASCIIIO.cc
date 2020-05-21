@@ -220,7 +220,7 @@ bool dumpHcalObject(std::ostream& fOutput, const T& fObject) {
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels();
   std::sort(channels.begin(), channels.end(), DetIdLess());
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     const float* values = fObject.getValues(*channel)->getValues();
     if (values) {
       HcalDbASCIIIO::dumpId(fOutput, *channel);
@@ -271,7 +271,7 @@ bool dumpHcalSingleFloatObject(std::ostream& fOutput, const T& fObject) {
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels();
   std::sort(channels.begin(), channels.end(), DetIdLess());
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     const float value = fObject.getValues(*channel)->getValue();
     HcalDbASCIIIO::dumpId(fOutput, *channel);
     sprintf(buffer, " %8.5f %10X\n", value, channel->rawId());
@@ -287,7 +287,7 @@ bool dumpHcalSingleIntObject(std::ostream& fOutput, const T& fObject) {
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels();
   std::sort(channels.begin(), channels.end(), DetIdLess());
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     const int value = fObject.getValues(*channel)->getValue();
     HcalDbASCIIIO::dumpId(fOutput, *channel);
     sprintf(buffer, " %15d %10X\n", value, channel->rawId());
@@ -350,7 +350,7 @@ bool dumpHcalMatrixObject(std::ostream& fOutput, const T& fObject) {
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels();
   std::sort(channels.begin(), channels.end(), DetIdLess());
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     float thisline[10];
     for (int m = 0; m != 4; m++) {
       for (int i = 0; i != 10; i++) {
@@ -542,7 +542,7 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput, const HcalRecoParams& fObj
   std::vector<DetId> channels = fObject.getAllChannels();
   std::sort(channels.begin(), channels.end(), DetIdLess());
   int myCounter = 0;
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     myCounter++;
     int param1 = fObject.getValues(*channel)->param1();
     int param2 = fObject.getValues(*channel)->param2();
@@ -716,7 +716,7 @@ bool HcalDbASCIIIO::getObject(std::istream& fInput, HcalLongRecoParams* fObject)
     std::vector<unsigned int> mySignalTS = splitStringToIntByComma(items[4]);
     std::vector<unsigned int> myNoiseTS = splitStringToIntByComma(items[5]);
 
-    HcalLongRecoParam* fCondObject = new HcalLongRecoParam(id, mySignalTS, myNoiseTS);
+    auto* fCondObject = new HcalLongRecoParam(id, mySignalTS, myNoiseTS);
     fObject->addValues(*fCondObject);
     delete fCondObject;
   }
@@ -763,7 +763,7 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput, const HcalTimingParams& fO
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels();
   std::sort(channels.begin(), channels.end(), DetIdLess());
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     HcalDbASCIIIO::dumpId(fOutput, *channel);
     sprintf(buffer,
             " %15d %8.5f %8.5f %16X\n",
@@ -783,7 +783,7 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput, const HcalLongRecoParams& 
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels();
   std::sort(channels.begin(), channels.end(), DetIdLess());
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     HcalGenericDetId fId(*channel);
     if (fId.isHcalZDCDetId()) {
       std::vector<unsigned int> vSignalTS = fObject.getValues(*channel)->signalTS();
@@ -883,7 +883,7 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput, const HcalMCParams& fObjec
   std::vector<DetId> channels = fObject.getAllChannels();
   std::sort(channels.begin(), channels.end(), DetIdLess());
   int myCounter = 0;
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     myCounter++;
     ;
     int packingScheme = fObject.getValues(*channel)->packingScheme();
@@ -1051,7 +1051,7 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput, const HcalPedestals& fObje
 
   std::vector<DetId> channels = fObject.getAllChannels();
   std::sort(channels.begin(), channels.end(), DetIdLess());
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     const float* values = fObject.getValues(*channel)->getValues();
     if (values) {
       dumpId(fOutput, *channel);
@@ -1106,7 +1106,7 @@ bool HcalDbASCIIIO::getObject(std::istream& fInput, HcalChannelQuality* fObject)
       continue;
     }
 
-    HcalChannelStatus* fCondObject = new HcalChannelStatus(id, mystatus);  //atoi (items [4].c_str()) );
+    auto* fCondObject = new HcalChannelStatus(id, mystatus);  //atoi (items [4].c_str()) );
     fObject->addValues(*fCondObject);
     delete fCondObject;
     //      }
@@ -1120,7 +1120,7 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput, const HcalChannelQuality& 
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels();
   std::sort(channels.begin(), channels.end(), DetIdLess());
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     const int value = fObject.getValues(*channel)->getValue();
     dumpId(fOutput, *channel);
     sprintf(buffer, "%6s %15X %10X\n", "(hex)", value, channel->rawId());
@@ -1160,7 +1160,7 @@ bool HcalDbASCIIIO::getObject(std::istream& fInput, HcalL1TriggerObjects* fObjec
     }
     DetId id = getId(items);
 
-    HcalL1TriggerObject* fCondObject =
+    auto* fCondObject =
         new HcalL1TriggerObject(id, atof(items[4].c_str()), atof(items[5].c_str()), atoi(items[6].c_str()));
 
     fObject->addValues(*fCondObject);
@@ -1191,7 +1191,7 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput, const HcalL1TriggerObjects
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels();
   //  std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     const HcalL1TriggerObject* item = fObject.getValues(*channel);
     if (item) {
       dumpId(fOutput, *channel);
@@ -1338,7 +1338,7 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput, const HcalPedestalWidths& 
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels();
   std::sort(channels.begin(), channels.end(), DetIdLess());
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     const HcalPedestalWidth* item = fObject.getValues(*channel);
     if (item) {
       dumpId(fOutput, *channel);
@@ -1435,7 +1435,7 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput, const HcalQIEData& fObject
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels();
   std::sort(channels.begin(), channels.end(), DetIdLess());
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     const HcalQIECoder* coder = fObject.getCoder(*channel);
     dumpId(fOutput, *channel);
     for (unsigned capid = 0; capid < 4; capid++) {
@@ -1496,7 +1496,7 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput, const HcalCalibrationQIEDa
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels();
   std::sort(channels.begin(), channels.end(), DetIdLess());
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     const HcalCalibrationQIECoder* coder = fObject.getCoder(*channel);
     if (coder) {
       dumpId(fOutput, *channel);
@@ -1739,7 +1739,7 @@ bool HcalDbASCIIIO::getObject(std::istream& fInput, HcalLutMetadata* fObject) {
     }
     DetId id = getId(items);
 
-    HcalLutMetadatum* fCondObject =
+    auto* fCondObject =
         new HcalLutMetadatum(id, atof(items[4].c_str()), atoi(items[5].c_str()), atoi(items[6].c_str()));
     fObject->addValues(*fCondObject);
     delete fCondObject;
@@ -1770,7 +1770,7 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput, const HcalLutMetadata& fOb
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels();
   std::sort(channels.begin(), channels.end(), DetIdLess());
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     const float _rCalib = fObject.getValues(*channel)->getRCalib();
     const uint8_t _lutGranularity = fObject.getValues(*channel)->getLutGranularity();
     const uint8_t _outputLutThreshold = fObject.getValues(*channel)->getOutputLutThreshold();
@@ -1856,7 +1856,7 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput, HcalDcsValues const& fObje
   for (int subd = HcalDcsValues::HcalHB; subd <= HcalDcsValues::HcalHF; ++subd) {
     //     std::cout << "subd: " << subd << '\n';
     HcalDcsValues::DcsSet const& vals = fObject.getAllSubdetValues(HcalDcsValues::DcsSubDet(subd));
-    for (HcalDcsValues::DcsSet::const_iterator val = vals.begin(); val != vals.end(); ++val) {
+    for (auto val = vals.begin(); val != vals.end(); ++val) {
       HcalDcsDetId valId(val->DcsId());
 
       switch (valId.subdet()) {
@@ -2015,12 +2015,12 @@ bool HcalDbASCIIIO::getObject(std::istream& fInput, HcalFlagHFDigiTimeParams* fO
     DetId id = HcalDbASCIIIO::getId(items);
     std::vector<double> coef = splitStringToDoubleByComma(items[8]);
 
-    HcalFlagHFDigiTimeParam* fCondObject = new HcalFlagHFDigiTimeParam(id,
-                                                                       atoi(items[4].c_str()),  //firstSample
-                                                                       atoi(items[5].c_str()),  //samplesToAdd
-                                                                       atoi(items[6].c_str()),  //expectedPeak
-                                                                       atof(items[7].c_str()),  // minEThreshold
-                                                                       coef                     // coefficients
+    auto* fCondObject = new HcalFlagHFDigiTimeParam(id,
+                                                    atoi(items[4].c_str()),  //firstSample
+                                                    atoi(items[5].c_str()),  //samplesToAdd
+                                                    atoi(items[6].c_str()),  //expectedPeak
+                                                    atof(items[7].c_str()),  // minEThreshold
+                                                    coef                     // coefficients
     );
     fObject->addValues(*fCondObject);
     delete fCondObject;
@@ -2044,7 +2044,7 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput, const HcalFlagHFDigiTimePa
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels();
   std::sort(channels.begin(), channels.end(), DetIdLess());
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     // Dump out channel (ieta,iphi,depth,subdet) info
     HcalDbASCIIIO::dumpId(fOutput, *channel);
     // Dump out values for channel
@@ -2106,7 +2106,7 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput, const HcalFrontEndMap& fOb
 
   std::vector<DetId> channels = fObject.allDetIds();
   std::sort(channels.begin(), channels.end(), DetIdLess());
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     const std::string rbx = fObject.lookupRBX(*channel);
     const int rm = fObject.lookupRM(*channel);
     dumpId(fOutput, *channel);
@@ -2135,12 +2135,12 @@ bool HcalDbASCIIIO::getObject(std::istream& fInput, HcalSiPMParameters* fObject)
     }
     DetId id = HcalDbASCIIIO::getId(items);
 
-    HcalSiPMParameter* obj = new HcalSiPMParameter(id,
-                                                   atoi(items[4].c_str()),
-                                                   atof(items[5].c_str()),
-                                                   atof(items[6].c_str()),
-                                                   atoi(items[7].c_str()),
-                                                   atof(items[8].c_str()));
+    auto* obj = new HcalSiPMParameter(id,
+                                      atoi(items[4].c_str()),
+                                      atof(items[5].c_str()),
+                                      atof(items[6].c_str()),
+                                      atoi(items[7].c_str()),
+                                      atof(items[8].c_str()));
     fObject->addValues(*obj);
     delete obj;
   }
@@ -2163,7 +2163,7 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput, const HcalSiPMParameters& 
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels();
   std::sort(channels.begin(), channels.end(), DetIdLess());
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     const int type = fObject.getValues(*channel)->getType();
     const float fcByPE = fObject.getValues(*channel)->getFCByPE();
     const float darkC = fObject.getValues(*channel)->getDarkCurrent();
@@ -2262,7 +2262,7 @@ bool HcalDbASCIIIO::getObject(std::istream& fInput, HcalTPChannelParameters* fOb
     }
     DetId id = HcalDbASCIIIO::getId(items);
 
-    HcalTPChannelParameter* obj = new HcalTPChannelParameter(
+    auto* obj = new HcalTPChannelParameter(
         id.rawId(), atoi(items[4].c_str()), atoi(items[5].c_str()), atoi(items[6].c_str()), atoi(items[7].c_str()));
     fObject->addValues(*obj);
     delete obj;
@@ -2285,7 +2285,7 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput, const HcalTPChannelParamet
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels();
   std::sort(channels.begin(), channels.end(), DetIdLess());
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     const uint32_t mask = fObject.getValues(*channel)->getMask();
     const uint32_t fgBitInfo = fObject.getValues(*channel)->getFGBitInfo();
     const int auxi1 = fObject.getValues(*channel)->getauxi1();
@@ -2372,7 +2372,7 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput, const HcalCalibrationsSet&
 
   std::vector<DetId> channels = fObject.getAllChannels();
   std::sort(channels.begin(), channels.end(), DetIdLess());
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     dumpId(fOutput, *channel);
     const HcalCalibrations& values = fObject.getCalibrations(*channel);
     sprintf(buffer,
@@ -2420,7 +2420,7 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput, const HcalCalibrationWidth
 
   std::vector<DetId> channels = fObject.getAllChannels();
   std::sort(channels.begin(), channels.end(), DetIdLess());
-  for (std::vector<DetId>::iterator channel = channels.begin(); channel != channels.end(); ++channel) {
+  for (auto channel = channels.begin(); channel != channels.end(); ++channel) {
     dumpId(fOutput, *channel);
     const HcalCalibrationWidths& values = fObject.getCalibrationWidths(*channel);
     sprintf(buffer,

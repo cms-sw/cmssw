@@ -83,7 +83,7 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter
   int nPhoton = 0;
 
   // find the number of electron and photon paths
-  for (std::vector<std::string>::iterator dir = subdirectories.begin(); dir != subdirectories.end(); ++dir) {
+  for (auto dir = subdirectories.begin(); dir != subdirectories.end(); ++dir) {
     if (dir->find("Ele") != std::string::npos || dir->find("_SC") != std::string::npos)
       ++nEle;
     else if (dir->find("Photon") != std::string::npos)
@@ -91,7 +91,7 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter
   }
 
   std::vector<TProfile *> allPhotonPaths;
-  for (std::vector<std::string>::iterator postfix = postfixes.begin(); postfix != postfixes.end(); postfix++) {
+  for (auto postfix = postfixes.begin(); postfix != postfixes.end(); postfix++) {
     bool pop = false;
     int elePos = 1;
     int photonPos = 1;
@@ -112,7 +112,7 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter
     allPhotonPaths.push_back(
         new TProfile(allPhotonHistoName.c_str(), allPhotonHistoLabel.c_str(), nPhoton, 0., (double)nPhoton, 0., 1.2));
 
-    for (std::vector<std::string>::iterator dir = subdirectories.begin(); dir != subdirectories.end(); dir++) {
+    for (auto dir = subdirectories.begin(); dir != subdirectories.end(); dir++) {
       ibooker.cd(*dir);
 
       // get the current trigger name
@@ -273,7 +273,7 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter
       // Get the L1 over gen filter first
       filterName2 = total->GetXaxis()->GetBinLabel(1);
       // loop over variables (eta/phi/et)
-      for (std::vector<std::string>::iterator var = varNames.begin(); var != varNames.end(); var++) {
+      for (auto var = varNames.begin(); var != varNames.end(); var++) {
         numName = ibooker.pwd() + "/" + filterName2 + *var + *postfix;
 
         if (normalizeToReco)
@@ -306,7 +306,7 @@ void EmDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter
         filterName2 = total->GetXaxis()->GetBinLabel(filter + 1);
 
         // loop over variables (eta/et/phi)
-        for (std::vector<std::string>::iterator var = varNames.begin(); var != varNames.end(); var++) {
+        for (auto var = varNames.begin(); var != varNames.end(); var++) {
           numName = ibooker.pwd() + "/" + filterName2 + *var + *postfix;
           denomName = ibooker.pwd() + "/" + filterName + *var + *postfix;
 

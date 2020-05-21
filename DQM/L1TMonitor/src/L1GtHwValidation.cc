@@ -89,8 +89,7 @@ L1GtHwValidation::L1GtHwValidation(const edm::ParameterSet& paramSet)
       //
       m_nrEvJob(0),
       m_nrEvRun(0) {
-  for (std::vector<edm::ParameterSet>::const_iterator itExclud = m_excludeCondCategTypeObject.begin();
-       itExclud != m_excludeCondCategTypeObject.end();
+  for (auto itExclud = m_excludeCondCategTypeObject.begin(); itExclud != m_excludeCondCategTypeObject.end();
        ++itExclud) {
     if (!(itExclud->getParameter<std::string>("ExcludedCondCategory")).empty()) {
       m_excludedCondCategory.push_back(
@@ -671,7 +670,7 @@ void L1GtHwValidation::bookHistograms(DQMStore::IBooker& ibooker,
 
   const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
 
-  for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
+  for (auto itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
     const int algBitNumber = (itAlgo->second).algoBitNumber();
 
     std::stringstream ss;
@@ -738,8 +737,7 @@ void L1GtHwValidation::bookHistograms(DQMStore::IBooker& ibooker,
     }
 
     //
-    for (std::vector<int>::const_iterator itAlgo = m_excludedAlgoList.begin(); itAlgo != m_excludedAlgoList.end();
-         ++itAlgo) {
+    for (auto itAlgo = m_excludedAlgoList.begin(); itAlgo != m_excludedAlgoList.end(); ++itAlgo) {
       if (algBitNumber == *itAlgo) {
         m_excludedAlgorithmsAgreement->setBinLabel(algBitNumber + 1, algName, 1);
       }
@@ -2087,8 +2085,7 @@ bool L1GtHwValidation::matchCondL1GtObject(const std::vector<L1GtObject>& condOb
     matchValue = true;
 
   } else {
-    for (std::vector<L1GtObject>::const_iterator itCondObj = condObjects.begin(); itCondObj != condObjects.end();
-         ++itCondObj) {
+    for (auto itCondObj = condObjects.begin(); itCondObj != condObjects.end(); ++itCondObj) {
       if ((*itCondObj) == excludedObject) {
         matchValue = true;
       }
@@ -2101,7 +2098,7 @@ bool L1GtHwValidation::matchCondL1GtObject(const std::vector<L1GtObject>& condOb
 void L1GtHwValidation::excludedAlgoList() {
   const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
 
-  for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
+  for (auto itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
     const std::string& algName = itAlgo->first;
     const int algBitNumber = (itAlgo->second).algoBitNumber();
     const int chipNr = (itAlgo->second).algoChipNumber();
@@ -2121,7 +2118,7 @@ void L1GtHwValidation::excludedAlgoList() {
       if (!cndName.empty()) {
         bool foundCond = false;
 
-        CItCond itCond = conditionMap.find(cndName);
+        auto itCond = conditionMap.find(cndName);
         if (itCond != conditionMap.end()) {
           const L1GtConditionCategory& cCateg = (itCond->second)->condCategory();
           const L1GtConditionType& cType = (itCond->second)->condType();
@@ -2130,9 +2127,7 @@ void L1GtHwValidation::excludedAlgoList() {
           // condition index in the m_excludedCondCategory, m_excludedCondType, m_excludedL1GtObject vectors
           int iCond = -1;
 
-          for (std::vector<L1GtConditionCategory>::const_iterator itCateg = m_excludedCondCategory.begin();
-               itCateg != m_excludedCondCategory.end();
-               ++itCateg) {
+          for (auto itCateg = m_excludedCondCategory.begin(); itCateg != m_excludedCondCategory.end(); ++itCateg) {
             iCond++;
 
             bool matchCondCategoryValue = matchCondCategory(cCateg, (*itCateg));
@@ -2191,9 +2186,7 @@ void L1GtHwValidation::excludedAlgoList() {
     }
 
     // add algorithm triggers from ExcludeAlgoTrigByName
-    for (std::vector<std::string>::const_iterator itExcl = m_excludeAlgoTrigByName.begin();
-         itExcl != m_excludeAlgoTrigByName.end();
-         ++itExcl) {
+    for (auto itExcl = m_excludeAlgoTrigByName.begin(); itExcl != m_excludeAlgoTrigByName.end(); ++itExcl) {
       if ((*itExcl) == algName) {
         m_excludedAlgoList.push_back(algBitNumber);
 
@@ -2204,9 +2197,7 @@ void L1GtHwValidation::excludedAlgoList() {
     }
 
     // add algorithm triggers from ExcludeAlgoTrigByBit
-    for (std::vector<int>::const_iterator itExcl = m_excludeAlgoTrigByBit.begin();
-         itExcl != m_excludeAlgoTrigByBit.end();
-         ++itExcl) {
+    for (auto itExcl = m_excludeAlgoTrigByBit.begin(); itExcl != m_excludeAlgoTrigByBit.end(); ++itExcl) {
       if ((*itExcl) == algBitNumber) {
         m_excludedAlgoList.push_back(algBitNumber);
 
@@ -2219,8 +2210,7 @@ void L1GtHwValidation::excludedAlgoList() {
 }
 
 bool L1GtHwValidation::excludedAlgo(const int& iBit) const {
-  for (std::vector<int>::const_iterator itAlgo = m_excludedAlgoList.begin(); itAlgo != m_excludedAlgoList.end();
-       ++itAlgo) {
+  for (auto itAlgo = m_excludedAlgoList.begin(); itAlgo != m_excludedAlgoList.end(); ++itAlgo) {
     if (iBit == *itAlgo) {
       return true;
     }

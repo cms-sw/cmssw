@@ -174,7 +174,7 @@ void popcon::EcalTPGLutIdMapHandler::getNewObjects() {
             FEConfigLUTGroupDat rd_lut;
             int igroups = 0;
 
-            for (CIfelut p = dataset_TpgLut.begin(); p != dataset_TpgLut.end(); p++) {
+            for (auto p = dataset_TpgLut.begin(); p != dataset_TpgLut.end(); p++) {
               ecid_xt = p->first;
               rd_lut = p->second;
 

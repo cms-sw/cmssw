@@ -64,7 +64,7 @@ void DTtTrigDBValidation::bookHistograms(DQMStore::IBooker &iBooker, edm::Run co
   setup.get<MuonGeometryRecord>().get(dtGeom_);
 
   // Loop over Ref DB entries
-  for (DTTtrig::const_iterator it = DTTtrigRefMap->begin(); it != DTTtrigRefMap->end(); ++it) {
+  for (auto it = DTTtrigRefMap->begin(); it != DTTtrigRefMap->end(); ++it) {
     DTSuperLayerId slId((*it).first.wheelId, (*it).first.stationId, (*it).first.sectorId, (*it).first.slId);
     float tTrigMean;
     float tTrigRms;
@@ -80,7 +80,7 @@ void DTtTrigDBValidation::bookHistograms(DQMStore::IBooker &iBooker, edm::Run co
   }
 
   // Loop over Ref DB entries
-  for (DTTtrig::const_iterator it = DTTtrigMap->begin(); it != DTTtrigMap->end(); ++it) {
+  for (auto it = DTTtrigMap->begin(); it != DTTtrigMap->end(); ++it) {
     DTSuperLayerId slId((*it).first.wheelId, (*it).first.stationId, (*it).first.sectorId, (*it).first.slId);
     float tTrigMean;
     float tTrigRms;
@@ -95,8 +95,7 @@ void DTtTrigDBValidation::bookHistograms(DQMStore::IBooker &iBooker, edm::Run co
     tTrigMap_[slId] = pair<float, float>(tTrigCorr, tTrigRms);
   }
 
-  for (map<DTSuperLayerId, pair<float, float>>::const_iterator it = tTrigRefMap_.begin(); it != tTrigRefMap_.end();
-       ++it) {
+  for (auto it = tTrigRefMap_.begin(); it != tTrigRefMap_.end(); ++it) {
     if (tTrigMap_.find((*it).first) == tTrigMap_.end())
       continue;
 

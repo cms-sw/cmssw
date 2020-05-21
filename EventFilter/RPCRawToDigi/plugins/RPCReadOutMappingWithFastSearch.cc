@@ -37,17 +37,17 @@ void RPCReadOutMappingWithFastSearch::init(const RPCReadOutMapping* arm) {
 
   typedef vector<const DccSpec*> DCCLIST;
   DCCLIST dccList = arm->dccList();
-  for (DCCLIST::const_iterator idcc = dccList.begin(), idccEnd = dccList.end(); idcc < idccEnd; ++idcc) {
+  for (auto idcc = dccList.begin(), idccEnd = dccList.end(); idcc < idccEnd; ++idcc) {
     const DccSpec& dccSpec = **idcc;
     const std::vector<TriggerBoardSpec>& triggerBoards = dccSpec.triggerBoards();
-    for (std::vector<TriggerBoardSpec>::const_iterator it = triggerBoards.begin(); it != triggerBoards.end(); it++) {
+    for (auto it = triggerBoards.begin(); it != triggerBoards.end(); it++) {
       const TriggerBoardSpec& triggerBoard = (*it);
       typedef std::vector<const LinkConnSpec*> LINKS;
       LINKS linkConns = triggerBoard.enabledLinkConns();
-      for (LINKS::const_iterator ic = linkConns.begin(); ic != linkConns.end(); ic++) {
+      for (auto ic = linkConns.begin(); ic != linkConns.end(); ic++) {
         const LinkConnSpec& link = **ic;
         const std::vector<LinkBoardSpec>& boards = link.linkBoards();
-        for (std::vector<LinkBoardSpec>::const_iterator ib = boards.begin(); ib != boards.end(); ib++) {
+        for (auto ib = boards.begin(); ib != boards.end(); ib++) {
           const LinkBoardSpec& board = (*ib);
 
           LinkBoardElectronicIndex eleIndex;
@@ -55,7 +55,7 @@ void RPCReadOutMappingWithFastSearch::init(const RPCReadOutMapping* arm) {
           eleIndex.dccInputChannelNum = triggerBoard.dccInputChannelNum();
           eleIndex.tbLinkInputNum = link.triggerBoardInputNumber();
           eleIndex.lbNumInLink = board.linkBoardNumInLink();
-          LBMap::iterator inMap = theLBMap.find(eleIndex);
+          auto inMap = theLBMap.find(eleIndex);
           if (inMap != theLBMap.end()) {
             cout << "The element in map already exists!" << endl;
           } else {
@@ -73,7 +73,7 @@ RPCReadOutMapping::StripInDetUnit RPCReadOutMappingWithFastSearch::detUnitFrame(
 }
 
 const LinkBoardSpec* RPCReadOutMappingWithFastSearch::location(const LinkBoardElectronicIndex& ele) const {
-  LBMap::const_iterator inMap = theLBMap.find(ele);
+  auto inMap = theLBMap.find(ele);
   return (inMap != theLBMap.end()) ? inMap->second : nullptr;
   // return theMapping->location(ele);
 }

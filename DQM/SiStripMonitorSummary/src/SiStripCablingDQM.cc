@@ -58,7 +58,7 @@ void SiStripCablingDQM::getActiveDetIds(const edm::EventSetup &eSetup) {
       counterTEC[i][j] = 0;
   }
 
-  std::vector<uint32_t>::const_iterator idet = activeDetIds.begin();
+  auto idet = activeDetIds.begin();
 
   // fill arrays for counting and fill Histo_Map with value for connected :
   for (; idet != activeDetIds.end(); ++idet) {

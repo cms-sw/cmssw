@@ -156,10 +156,10 @@ std::ostream& operator<<(std::ostream& s, LumiDetails const& lumiDetails) {
   LumiDetails::AlgoType i = 0;
 
   for (; algo != algoEnd; ++algo, ++i) {
-    std::vector<float>::const_iterator value = lumiDetails.lumiValuesForAlgo(i).first;
-    std::vector<float>::const_iterator valueEnd = lumiDetails.lumiValuesForAlgo(i).second;
-    std::vector<float>::const_iterator error = lumiDetails.lumiErrorsForAlgo(i).first;
-    std::vector<short>::const_iterator quality = lumiDetails.lumiQualitiesForAlgo(i).first;
+    auto value = lumiDetails.lumiValuesForAlgo(i).first;
+    auto valueEnd = lumiDetails.lumiValuesForAlgo(i).second;
+    auto error = lumiDetails.lumiErrorsForAlgo(i).first;
+    auto quality = lumiDetails.lumiQualitiesForAlgo(i).first;
 
     s << "algorithm: " << *algo << "\n";
     s << std::setw(12) << "value" << std::setw(12) << "error" << std::setw(12) << "quality"
@@ -172,16 +172,12 @@ std::ostream& operator<<(std::ostream& s, LumiDetails const& lumiDetails) {
   }
   s << "beam 1 intensities:\n";
   std::vector<float> const& beam1Intensities = lumiDetails.lumiBeam1Intensities();
-  for (std::vector<float>::const_iterator intensity = beam1Intensities.begin(), iEnd = beam1Intensities.end();
-       intensity != iEnd;
-       ++intensity) {
+  for (auto intensity = beam1Intensities.begin(), iEnd = beam1Intensities.end(); intensity != iEnd; ++intensity) {
     s << *intensity << "\n";
   }
   s << "\nbeam 2 intensities:\n";
   std::vector<float> const& beam2Intensities = lumiDetails.lumiBeam2Intensities();
-  for (std::vector<float>::const_iterator intensity = beam2Intensities.begin(), iEnd = beam2Intensities.end();
-       intensity != iEnd;
-       ++intensity) {
+  for (auto intensity = beam2Intensities.begin(), iEnd = beam2Intensities.end(); intensity != iEnd; ++intensity) {
     s << *intensity << "\n";
   }
   s << "\n";

@@ -32,7 +32,7 @@ SimpleZSPJPTJetCorrector::SimpleZSPJPTJetCorrector(const std::string& fDataFile)
     std::cout << " Size of parameters as read by SimpleJetCorrectorParameters " << mParameters->size() << std::endl;
     for (unsigned int i = 0; i < mParameters->size(); i++) {
       const std::vector<float> p = mParameters->record(i).parameters();
-      for (std::vector<float>::const_iterator j = p.begin(); j < p.end(); j++) {
+      for (auto j = p.begin(); j < p.end(); j++) {
         std::cout << " Parameter number " << mParameters->record(i).xMin(0) << " " << mParameters->record(i).xMax(0)
                   << " " << (*j) << std::endl;
       }

@@ -75,7 +75,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
   for (itID = road_2d.begin(); itID != road_2d.end(); itID++) {
     LogTrace("PreShowerClusterAlgo") << "ID =" << *itID;
 
-    RecHitsMap::iterator strip_it = rechits_map->find(*itID);
+    auto strip_it = rechits_map->find(*itID);
     //if ( strip_it->second.energy() < 0 ) std::cout << "           ##### E = " << strip_it->second.energy() << std::endl;
     if (strip_it == rechits_map->end() || !goodStrip(strip_it))
       continue;
@@ -111,7 +111,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
       ++nadjacents_east;
       LogTrace("PreShowerClusterAlgo") << "Adjacent east #" << nadjacents_east << ":" << next;
 
-      RecHitsMap::iterator strip_it = rechits_map->find(next);
+      auto strip_it = rechits_map->find(next);
 
       if (strip_it == rechits_map->end() || !goodStrip(strip_it))
         continue;
@@ -131,7 +131,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
       ++nadjacents_west;
       LogTrace("PreShowerClusterAlgo") << "Adjacent west #" << nadjacents_west << ":" << next;
 
-      RecHitsMap::iterator strip_it = rechits_map->find(next);
+      auto strip_it = rechits_map->find(next);
       if (strip_it == rechits_map->end() || !goodStrip(strip_it))
         continue;
       clusterRecHits.push_back(strip_it->second);
@@ -148,7 +148,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
       ++nadjacents_north;
       LogTrace("PreShowerClusterAlgo") << "Adjacent north #" << nadjacents_north << ":" << next;
 
-      RecHitsMap::iterator strip_it = rechits_map->find(next);
+      auto strip_it = rechits_map->find(next);
       if (strip_it == rechits_map->end() || !goodStrip(strip_it))
         continue;
       clusterRecHits.push_back(strip_it->second);
@@ -165,7 +165,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
       ++nadjacents_south;
       LogTrace("PreShowerClusterAlgo") << "Adjacent south #" << nadjacents_south << ":" << next;
 
-      RecHitsMap::iterator strip_it = rechits_map->find(next);
+      auto strip_it = rechits_map->find(next);
       if (strip_it == rechits_map->end() || !goodStrip(strip_it))
         continue;
       clusterRecHits.push_back(strip_it->second);

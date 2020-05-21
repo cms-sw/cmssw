@@ -560,8 +560,8 @@ void L1ExtraParticleMapProd::produce(edm::Event &iEvent, const edm::EventSetup &
 
   L1MuonParticleVectorRef inputMuonRefsSingle;
   L1MuonParticleVectorRef inputMuonRefsDouble;
-  L1MuonParticleCollection::const_iterator muItr = muHandle->begin();
-  L1MuonParticleCollection::const_iterator muEnd = muHandle->end();
+  auto muItr = muHandle->begin();
+  auto muEnd = muHandle->end();
 
   for (size_t i = 0; muItr != muEnd; ++muItr, ++i) {
     if (!muItr->gmtMuonCand().empty()) {

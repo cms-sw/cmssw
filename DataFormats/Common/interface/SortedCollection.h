@@ -242,8 +242,8 @@ namespace edm {
     // up to the user (with the help of the Event) to make sure this
     // has been done.
     key_compare comp;
-    inner_iterator last = obj.end();
-    inner_iterator loc = std::lower_bound(obj.begin(), last, key, comp);
+    auto last = obj.end();
+    auto loc = std::lower_bound(obj.begin(), last, key, comp);
     return loc == last || comp(key, *loc) ? last : loc;
   }
 
@@ -253,8 +253,8 @@ namespace edm {
     // up to the user (with the help of the Event) to make sure this
     // has been done.
     key_compare comp;
-    const_inner_iterator last = obj.end();
-    const_inner_iterator loc = std::lower_bound(obj.begin(), last, key, comp);
+    auto last = obj.end();
+    auto loc = std::lower_bound(obj.begin(), last, key, comp);
     return loc == last || comp(key, *loc) ? last : loc;
   }
 

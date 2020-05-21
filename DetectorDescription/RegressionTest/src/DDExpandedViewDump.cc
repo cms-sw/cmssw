@@ -66,7 +66,7 @@ void DDExpandedViewDump(ostream& os, DDExpandedView& ex, size_t skip, size_t sto
     }
     go = ex.next();
   }
-  s_iter it(result.begin()), ed(result.end());
+  auto it(result.begin()), ed(result.end());
   for (; it != ed; ++it) {
     os << *it << endl;
   }

@@ -74,10 +74,8 @@ void FWConfigurationManager::add(const std::string& iName, FWConfigurable* iConf
 //
 void FWConfigurationManager::setFrom(const FWConfiguration& iConfig) const {
   assert(nullptr != iConfig.keyValues());
-  for (FWConfiguration::KeyValues::const_iterator it = iConfig.keyValues()->begin(), itEnd = iConfig.keyValues()->end();
-       it != itEnd;
-       ++it) {
-    std::map<std::string, FWConfigurable*>::const_iterator itFound = m_configurables.find(it->first);
+  for (auto it = iConfig.keyValues()->begin(), itEnd = iConfig.keyValues()->end(); it != itEnd; ++it) {
+    auto itFound = m_configurables.find(it->first);
     assert(itFound != m_configurables.end());
     itFound->second->setFrom(it->second);
   }
@@ -85,10 +83,7 @@ void FWConfigurationManager::setFrom(const FWConfiguration& iConfig) const {
 
 void FWConfigurationManager::to(FWConfiguration& oConfig) const {
   FWConfiguration config;
-  for (std::map<std::string, FWConfigurable*>::const_iterator it = m_configurables.begin(),
-                                                              itEnd = m_configurables.end();
-       it != itEnd;
-       ++it) {
+  for (auto it = m_configurables.begin(), itEnd = m_configurables.end(); it != itEnd; ++it) {
     it->second->addTo(config);
     oConfig.addKeyValue(it->first, config, true);
   }
@@ -184,7 +179,7 @@ std::string FWConfigurationManager::guessAndReadFromFile(FWJobMetadataManager* d
   clist.push_back(CMatch("aod.fwc"));
   std::vector<FWJobMetadataManager::Data>& sdata = dataMng->usableData();
 
-  for (std::vector<CMatch>::iterator c = clist.begin(); c != clist.end(); ++c) {
+  for (auto c = clist.begin(); c != clist.end(); ++c) {
     std::string iName = gSystem->Which(TROOT::GetMacroPath(), c->file.c_str(), kReadPermission);
     std::ifstream f(iName.c_str());
     if (f.peek() != (int)'<') {
@@ -194,26 +189,23 @@ std::string FWConfigurationManager::guessAndReadFromFile(FWJobMetadataManager* d
 
     // Read again, this time actually parse.
     std::ifstream g(iName.c_str());
-    FWXMLConfigParser* parser = new FWXMLConfigParser(g);
+    auto* parser = new FWXMLConfigParser(g);
     parser->parse();
 
     c->cfg = parser->config();
     const FWConfiguration::KeyValues* keyValues = nullptr;
-    for (FWConfiguration::KeyValues::const_iterator it = c->cfg->keyValues()->begin(),
-                                                    itEnd = c->cfg->keyValues()->end();
-         it != itEnd;
-         ++it) {
+    for (auto it = c->cfg->keyValues()->begin(), itEnd = c->cfg->keyValues()->end(); it != itEnd; ++it) {
       if (it->first == "EventItems") {
         keyValues = it->second.keyValues();
         break;
       }
     }
 
-    for (FWConfiguration::KeyValues::const_iterator it = keyValues->begin(); it != keyValues->end(); ++it) {
+    for (auto it = keyValues->begin(); it != keyValues->end(); ++it) {
       const FWConfiguration& conf = it->second;
       const FWConfiguration::KeyValues* keyValues = conf.keyValues();
       const std::string& type = (*keyValues)[0].second.value();
-      for (std::vector<FWJobMetadataManager::Data>::iterator di = sdata.begin(); di != sdata.end(); ++di) {
+      for (auto di = sdata.begin(); di != sdata.end(); ++di) {
         if (di->type_ == type) {
           c->cnt++;
           break;

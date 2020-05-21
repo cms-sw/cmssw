@@ -391,8 +391,7 @@ void EcalSelectiveReadoutSuppressor::setTtFlags(const EcalTrigPrimDigiCollection
       ttFlags[iEta0][iPhi0] = defaultTtf_;
     }
   }
-  for (EcalTrigPrimDigiCollection::const_iterator trigPrim = trigPrims.begin(); trigPrim != trigPrims.end();
-       ++trigPrim) {
+  for (auto trigPrim = trigPrims.begin(); trigPrim != trigPrims.end(); ++trigPrim) {
     int iEta = trigPrim->id().ieta();
     unsigned int iEta0;
     if (iEta < 0) {  //z- half ECAL: transforming ranges -28;-1 => 0;27

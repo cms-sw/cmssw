@@ -56,7 +56,7 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry,
   }
 
   // Loop over EB RecHits
-  for (EBRecHitCollection::const_iterator hit = TheEBRecHits->begin(); hit != TheEBRecHits->end(); hit++) {
+  for (auto hit = TheEBRecHits->begin(); hit != TheEBRecHits->end(); hit++) {
     // Arbitrary threshold to kill noise (needs to be optimized with data)
     if (hit->energy() < EBRecHitEnergyThreshold)
       continue;
@@ -97,7 +97,7 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry,
 
       // Loop over EB RecHits
       std::vector<const EcalRecHit*> Hits;
-      for (EBRecHitCollection::const_iterator hit = TheEBRecHits->begin(); hit != TheEBRecHits->end(); hit++) {
+      for (auto hit = TheEBRecHits->begin(); hit != TheEBRecHits->end(); hit++) {
         if (hit->energy() < EBRecHitEnergyThreshold)
           continue;
 
@@ -137,9 +137,7 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry,
   std::vector<float> vShowerShapes_Roundness;
   std::vector<float> vShowerShapes_Angle;
   if (TheSuperClusters.isValid()) {
-    for (reco::SuperClusterCollection::const_iterator cluster = TheSuperClusters->begin();
-         cluster != TheSuperClusters->end();
-         cluster++) {
+    for (auto cluster = TheSuperClusters->begin(); cluster != TheSuperClusters->end(); cluster++) {
       if (abs(cluster->eta()) <= 1.48) {
         vector<float> shapes = EcalClusterTools::roundnessBarrelSuperClusters(*cluster, (*TheEBRecHits.product()));
         float roundness = shapes[0];
@@ -150,8 +148,7 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry,
           edm::Ref<SuperClusterCollection> TheClusterRef(TheSuperClusters, cluster - TheSuperClusters->begin());
           bool BelongsToPhoton = false;
           if (ThePhotons.isValid()) {
-            for (reco::PhotonCollection::const_iterator iPhoton = ThePhotons->begin(); iPhoton != ThePhotons->end();
-                 iPhoton++) {
+            for (auto iPhoton = ThePhotons->begin(); iPhoton != ThePhotons->end(); iPhoton++) {
               if (iPhoton->isEB())
                 if (TheClusterRef == iPhoton->superCluster()) {
                   BelongsToPhoton = true;

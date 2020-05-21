@@ -139,7 +139,7 @@ void DataPoint::snap(unsigned int lumi) {
         if (itr == streamDataMaps_[i].end()) {
           if (opType_ == OPHISTO) {
             if (*nBinsPtr_) {
-              HistoJ<unsigned int> *nh = new HistoJ<unsigned int>(1, MAXUPDATES);
+              auto *nh = new HistoJ<unsigned int>(1, MAXUPDATES);
               nh->update(monVal);
               streamDataMaps_[i][streamLumi_] = nh;
             }
@@ -216,7 +216,7 @@ void DataPoint::snapStreamAtomic(unsigned int lumi, unsigned int streamID) {
     {
       if (opType_ == OPHISTO) {
         if (*nBinsPtr_) {
-          HistoJ<unsigned int> *h = new HistoJ<unsigned int>(1, MAXUPDATES);
+          auto *h = new HistoJ<unsigned int>(1, MAXUPDATES);
           h->update(monVal);
           streamDataMaps_[streamID][lumi] = h;
         }
@@ -354,7 +354,7 @@ void DataPoint::mergeAndSerialize(Json::Value &root, unsigned int lumi, bool ini
         for (unsigned int i = 0; i < streamDataMaps_.size(); i++) {
           auto itr = streamDataMaps_[i].find(lumi);
           if (itr != streamDataMaps_[i].end()) {
-            HistoJ<unsigned int> *monObj = static_cast<HistoJ<unsigned int> *>(itr->second.get());
+            auto *monObj = static_cast<HistoJ<unsigned int> *>(itr->second.get());
             updates += monObj->getUpdates();
             auto &hvec = monObj->value();
             for (unsigned int j = 0; j < hvec.size(); j++) {
@@ -368,7 +368,7 @@ void DataPoint::mergeAndSerialize(Json::Value &root, unsigned int lumi, bool ini
       else {
         auto itr = streamDataMaps_[unsigned(sid)].find(lumi);
         if (itr != streamDataMaps_[unsigned(sid)].end()) {
-          HistoJ<unsigned int> *monObj = static_cast<HistoJ<unsigned int> *>(itr->second.get());
+          auto *monObj = static_cast<HistoJ<unsigned int> *>(itr->second.get());
           updates += monObj->getUpdates();
           auto &hvec = monObj->value();
           for (unsigned int j = 0; j < hvec.size(); j++) {

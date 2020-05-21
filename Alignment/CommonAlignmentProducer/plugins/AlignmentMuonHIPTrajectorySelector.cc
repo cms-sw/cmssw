@@ -136,8 +136,7 @@ void AlignmentMuonHIPTrajectorySelector::produce(edm::Event& iEvent, const edm::
 
       double tracker_forwardchi2 = 0.;
       double tracker_dof = 0.;
-      for (std::vector<TrajectoryMeasurement>::const_iterator im = measurements.begin(); im != measurements.end();
-           ++im) {
+      for (auto im = measurements.begin(); im != measurements.end(); ++im) {
         const TrajectoryMeasurement meas = *im;
         auto hit = &(*meas.recHit());
         const DetId id = hit->geographicalId();
@@ -184,8 +183,7 @@ void AlignmentMuonHIPTrajectorySelector::produce(edm::Event& iEvent, const edm::
         m_tracker_forwardredchi2->Fill(tracker_forwardredchi2);
         m_tracker_dof->Fill(tracker_dof);
 
-        for (std::vector<TrajectoryMeasurement>::const_iterator im = measurements.begin(); im != measurements.end();
-             ++im) {
+        for (auto im = measurements.begin(); im != measurements.end(); ++im) {
           const TrajectoryMeasurement meas = *im;
           auto hit = &(*meas.recHit());
           const DetId id = hit->geographicalId();

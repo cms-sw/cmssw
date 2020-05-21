@@ -1071,7 +1071,7 @@ int RecoMuonValidator::countMuonHits(const reco::Track& track) const {
 
   int count = 0;
 
-  for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
+  for (auto hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if ((*hit)->isValid()) {
       DetId recoid = (*hit)->geographicalId();
       if (recoid.det() == DetId::Muon)
@@ -1086,7 +1086,7 @@ int RecoMuonValidator::countTrackerHits(const reco::Track& track) const {
 
   int count = 0;
 
-  for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
+  for (auto hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
     if ((*hit)->isValid()) {
       DetId recoid = (*hit)->geographicalId();
       if (recoid.det() == DetId::Tracker)

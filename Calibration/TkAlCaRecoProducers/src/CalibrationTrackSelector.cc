@@ -125,7 +125,7 @@ CalibrationTrackSelector::Tracks CalibrationTrackSelector::basicCuts(const Track
                                                                      const edm::Event &evt) const {
   Tracks result;
 
-  for (Tracks::const_iterator it = tracks.begin(); it != tracks.end(); ++it) {
+  for (auto it = tracks.begin(); it != tracks.end(); ++it) {
     const reco::Track *trackp = *it;
     float pt = trackp->pt();
     float eta = trackp->eta();
@@ -251,9 +251,9 @@ bool CalibrationTrackSelector::isHit2D(const TrackingRecHit &hit) const {
 bool CalibrationTrackSelector::isOkCharge(const TrackingRecHit *therechit) const {
   float charge1 = 0;
   float charge2 = 0;
-  const SiStripMatchedRecHit2D *matchedhit = dynamic_cast<const SiStripMatchedRecHit2D *>(therechit);
+  const auto *matchedhit = dynamic_cast<const SiStripMatchedRecHit2D *>(therechit);
   const SiStripRecHit2D *hit = dynamic_cast<const SiStripRecHit2D *>(therechit);
-  const ProjectedSiStripRecHit2D *unmatchedhit = dynamic_cast<const ProjectedSiStripRecHit2D *>(therechit);
+  const auto *unmatchedhit = dynamic_cast<const ProjectedSiStripRecHit2D *>(therechit);
 
   if (matchedhit) {
     const SiStripCluster &monocluster = matchedhit->monoCluster();
@@ -349,7 +349,7 @@ CalibrationTrackSelector::Tracks CalibrationTrackSelector::theNHighestPtTracks(c
 
   // copy theTrackMult highest pt tracks to result vector
   int n = 0;
-  for (Tracks::const_iterator it = sortedTracks.begin(); it != sortedTracks.end(); ++it) {
+  for (auto it = sortedTracks.begin(); it != sortedTracks.end(); ++it) {
     if (n < nHighestPt_) {
       result.push_back(*it);
       n++;

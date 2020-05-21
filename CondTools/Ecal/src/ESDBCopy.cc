@@ -29,7 +29,7 @@ ESDBCopy::ESDBCopy(const edm::ParameterSet& iConfig)
   std::string record;
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters toCopy = iConfig.getParameter<Parameters>("toCopy");
-  for (Parameters::iterator i = toCopy.begin(); i != toCopy.end(); ++i) {
+  for (auto i = toCopy.begin(); i != toCopy.end(); ++i) {
     container = i->getParameter<std::string>("container");
     record = i->getParameter<std::string>("record");
     m_cacheIDs.insert(std::make_pair(container, 0));
@@ -43,7 +43,7 @@ void ESDBCopy::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
   std::string container;
   std::string record;
   typedef std::map<std::string, std::string>::const_iterator recordIter;
-  for (recordIter i = m_records.begin(); i != m_records.end(); ++i) {
+  for (auto i = m_records.begin(); i != m_records.end(); ++i) {
     container = (*i).first;
     record = (*i).second;
     if (shouldCopy(evtSetup, container)) {

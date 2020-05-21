@@ -14,8 +14,8 @@ using namespace std;
 
 void ExpressionVar::initObjects_() {
   objects_.resize(methods_.size());
-  std::vector<edm::ObjectWithDict>::iterator IO = objects_.begin();
-  for (std::vector<MethodInvoker>::const_iterator I = methods_.begin(), E = methods_.end(); I != E; ++IO, ++I) {
+  auto IO = objects_.begin();
+  for (auto I = methods_.begin(), E = methods_.end(); I != E; ++IO, ++I) {
     if (I->isFunction()) {
       edm::TypeWithDict retType = I->method().finalReturnType();
       needsDestructor_.push_back(makeStorage(*IO, retType));
@@ -36,7 +36,7 @@ ExpressionVar::ExpressionVar(const ExpressionVar& rhs) : methods_(rhs.methods_),
 }
 
 ExpressionVar::~ExpressionVar() {
-  for (std::vector<edm::ObjectWithDict>::iterator I = objects_.begin(), E = objects_.end(); I != E; ++I) {
+  for (auto I = objects_.begin(), E = objects_.end(); I != E; ++I) {
     delStorage(*I);
   }
   objects_.clear();
@@ -124,14 +124,13 @@ bool ExpressionVar::isValidReturnType(method::TypeCode retType) {
 
 double ExpressionVar::value(const edm::ObjectWithDict& obj) const {
   edm::ObjectWithDict val(obj);
-  std::vector<edm::ObjectWithDict>::iterator IO = objects_.begin();
-  for (std::vector<MethodInvoker>::const_iterator I = methods_.begin(), E = methods_.end(); I != E; ++I, ++IO) {
+  auto IO = objects_.begin();
+  for (auto I = methods_.begin(), E = methods_.end(); I != E; ++I, ++IO) {
     val = I->invoke(val, *IO);
   }
   double ret = objToDouble(val, retType_);
-  std::vector<bool>::const_reverse_iterator RIB = needsDestructor_.rbegin();
-  for (std::vector<edm::ObjectWithDict>::reverse_iterator RI = objects_.rbegin(), RE = objects_.rend(); RI != RE;
-       ++RIB, ++RI) {
+  auto RIB = needsDestructor_.rbegin();
+  for (auto RI = objects_.rbegin(), RE = objects_.rend(); RI != RE; ++RIB, ++RI) {
     if (*RIB) {
       RI->destruct(false);
     }
@@ -194,14 +193,13 @@ ExpressionLazyVar::~ExpressionLazyVar() {}
 
 double ExpressionLazyVar::value(const edm::ObjectWithDict& o) const {
   edm::ObjectWithDict val = o;
-  std::vector<LazyInvoker>::const_iterator I = methods_.begin();
-  std::vector<LazyInvoker>::const_iterator E = methods_.end() - 1;
+  auto I = methods_.begin();
+  auto E = methods_.end() - 1;
   for (; I < E; ++I) {
     val = I->invoke(val, objects_);
   }
   double ret = I->invokeLast(val, objects_);
-  for (std::vector<edm::ObjectWithDict>::reverse_iterator RI = objects_.rbegin(), RE = objects_.rend(); RI != RE;
-       ++RI) {
+  for (auto RI = objects_.rbegin(), RE = objects_.rend(); RI != RE; ++RI) {
     RI->destruct(false);
   }
   objects_.clear();

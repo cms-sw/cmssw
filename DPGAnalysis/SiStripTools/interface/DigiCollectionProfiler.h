@@ -50,8 +50,7 @@ DigiCollectionProfiler<T>::DigiCollectionProfiler(const edm::ParameterSet& iConf
 {
   std::vector<edm::ParameterSet> selconfigs = iConfig.getParameter<std::vector<edm::ParameterSet> >("selections");
 
-  for (std::vector<edm::ParameterSet>::const_iterator selconfig = selconfigs.begin(); selconfig != selconfigs.end();
-       ++selconfig) {
+  for (auto selconfig = selconfigs.begin(); selconfig != selconfigs.end(); ++selconfig) {
     DetIdSelector selection(*selconfig);
     m_selections.push_back(selection);
   }
@@ -68,7 +67,7 @@ void DigiCollectionProfiler<edm::DetSetVector<SiStripDigi> >::fill(edm::Handle<e
                                                                    const std::vector<TH1F*>& hist,
                                                                    const std::vector<TProfile*>& hprof,
                                                                    const std::vector<TH2F*>& hist2d) const {
-  for (edm::DetSetVector<SiStripDigi>::const_iterator mod = digis->begin(); mod != digis->end(); mod++) {
+  for (auto mod = digis->begin(); mod != digis->end(); mod++) {
     for (unsigned int isel = 0; isel < m_selections.size(); ++isel) {
       if (m_selections[isel].isSelected(mod->detId())) {
         TH1F* tobefilled1d = nullptr;
@@ -82,7 +81,7 @@ void DigiCollectionProfiler<edm::DetSetVector<SiStripDigi> >::fill(edm::Handle<e
         if (m_want2dHisto)
           tobefilled2d = hist2d[isel];
 
-        for (edm::DetSet<SiStripDigi>::const_iterator digi = mod->begin(); digi != mod->end(); digi++) {
+        for (auto digi = mod->begin(); digi != mod->end(); digi++) {
           if (digi->adc() > 0) {
             unsigned int strip = digi->strip();
             if (m_folded)
@@ -106,7 +105,7 @@ void DigiCollectionProfiler<edm::DetSetVector<SiStripRawDigi> >::fill(
     const std::vector<TH1F*>& hist,
     const std::vector<TProfile*>& hprof,
     const std::vector<TH2F*>& hist2d) const {
-  for (edm::DetSetVector<SiStripRawDigi>::const_iterator mod = digis->begin(); mod != digis->end(); mod++) {
+  for (auto mod = digis->begin(); mod != digis->end(); mod++) {
     for (unsigned int isel = 0; isel < m_selections.size(); ++isel) {
       if (m_selections[isel].isSelected(mod->detId())) {
         TH1F* tobefilled1d = nullptr;
@@ -121,7 +120,7 @@ void DigiCollectionProfiler<edm::DetSetVector<SiStripRawDigi> >::fill(
           tobefilled2d = hist2d[isel];
 
         unsigned int istrip = 0;
-        for (edm::DetSet<SiStripRawDigi>::const_iterator digi = mod->begin(); digi != mod->end(); digi++, ++istrip) {
+        for (auto digi = mod->begin(); digi != mod->end(); digi++, ++istrip) {
           if (digi->adc() > 0) {
             unsigned int strip = istrip;
             if (m_folded)

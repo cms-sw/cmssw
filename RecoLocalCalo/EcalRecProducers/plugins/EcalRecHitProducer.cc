@@ -102,16 +102,14 @@ void EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
 
   if (ebUncalibRecHits) {
     // loop over uncalibrated rechits to make calibrated ones
-    for (EBUncalibratedRecHitCollection::const_iterator it = ebUncalibRecHits->begin(); it != ebUncalibRecHits->end();
-         ++it) {
+    for (auto it = ebUncalibRecHits->begin(); it != ebUncalibRecHits->end(); ++it) {
       worker_->run(evt, *it, *ebRecHits);
     }
   }
 
   if (eeUncalibRecHits) {
     // loop over uncalibrated rechits to make calibrated ones
-    for (EEUncalibratedRecHitCollection::const_iterator it = eeUncalibRecHits->begin(); it != eeUncalibRecHits->end();
-         ++it) {
+    for (auto it = eeUncalibRecHits->begin(); it != eeUncalibRecHits->end(); ++it) {
       worker_->run(evt, *it, *eeRecHits);
     }
   }
@@ -129,9 +127,9 @@ void EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     if (detIds) {
       edm::ESHandle<EcalChannelStatus> chStatus;
       es.get<EcalChannelStatusRcd>().get(chStatus);
-      for (std::set<EBDetId>::const_iterator it = detIds->begin(); it != detIds->end(); ++it) {
+      for (auto it = detIds->begin(); it != detIds->end(); ++it) {
         // get channel status map to treat dead VFE separately
-        EcalChannelStatusMap::const_iterator chit = chStatus->find(*it);
+        auto chit = chStatus->find(*it);
         EcalChannelStatusCode chStatusCode;
         if (chit != chStatus->end()) {
           chStatusCode = *chit;
@@ -165,9 +163,9 @@ void EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     if (detIds) {
       edm::ESHandle<EcalChannelStatus> chStatus;
       es.get<EcalChannelStatusRcd>().get(chStatus);
-      for (std::set<EEDetId>::const_iterator it = detIds->begin(); it != detIds->end(); ++it) {
+      for (auto it = detIds->begin(); it != detIds->end(); ++it) {
         // get channel status map to treat dead VFE separately
-        EcalChannelStatusMap::const_iterator chit = chStatus->find(*it);
+        auto chit = chStatus->find(*it);
         EcalChannelStatusCode chStatusCode;
         if (chit != chStatus->end()) {
           chStatusCode = *chit;
@@ -199,7 +197,7 @@ void EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     ttIds = pEBFEId.product();
 
     if (ttIds) {
-      for (std::set<EcalTrigTowerDetId>::const_iterator it = ttIds->begin(); it != ttIds->end(); ++it) {
+      for (auto it = ttIds->begin(); it != ttIds->end(); ++it) {
         // uses the EcalUncalibratedRecHit to pass the DetId info
         int ieta = (((*it).ietaAbs() - 1) * 5 + 1) * (*it).zside();  // from EcalTrigTowerConstituentsMap
         int iphi = (((*it).iphi() - 1) * 5 + 11) % 360;              // from EcalTrigTowerConstituentsMap
@@ -220,7 +218,7 @@ void EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
     scIds = pEEFEId.product();
 
     if (scIds) {
-      for (std::set<EcalScDetId>::const_iterator it = scIds->begin(); it != scIds->end(); ++it) {
+      for (auto it = scIds->begin(); it != scIds->end(); ++it) {
         // uses the EcalUncalibratedRecHit to pass the DetId info
         if (EEDetId::validDetId(((*it).ix() - 1) * 5 + 1, ((*it).iy() - 1) * 5 + 1, (*it).zside())) {
           EcalUncalibratedRecHit urh(EEDetId(((*it).ix() - 1) * 5 + 1, ((*it).iy() - 1) * 5 + 1, (*it).zside()),

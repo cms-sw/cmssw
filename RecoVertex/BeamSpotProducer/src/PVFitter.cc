@@ -105,7 +105,7 @@ void PVFitter::readEvent(const edm::Event& iEvent) {
   //------
 
   if (hasPVs) {
-    for (reco::VertexCollection::const_iterator pv = PVCollection->begin(); pv != PVCollection->end(); ++pv) {
+    for (auto pv = PVCollection->begin(); pv != PVCollection->end(); ++pv) {
       if (useOnlyFirstPV_) {
         if (pv != PVCollection->begin())
           break;
@@ -191,8 +191,7 @@ bool PVFitter::runBXFitter() {
 
   bool fit_ok = true;
 
-  for (std::map<int, std::vector<BeamSpotFitPVData> >::const_iterator pvStore = bxMap_.begin(); pvStore != bxMap_.end();
-       ++pvStore) {
+  for (auto pvStore = bxMap_.begin(); pvStore != bxMap_.end(); ++pvStore) {
     // first set null beam spot in case
     // fit fails
     fbspotMap[pvStore->first] = reco::BeamSpot();

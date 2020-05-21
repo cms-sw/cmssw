@@ -295,7 +295,7 @@ void AnalyticalTrackSelector::run(edm::Event& evt, const edm::EventSetup& es) co
 
   // Loop over tracks
   size_t current = 0;
-  for (TrackCollection::const_iterator it = hSrcTrack->begin(), ed = hSrcTrack->end(); it != ed; ++it, ++current) {
+  for (auto it = hSrcTrack->begin(), ed = hSrcTrack->end(); it != ed; ++it, ++current) {
     const Track& trk = *it;
     // Check if this track passes cuts
 
@@ -351,7 +351,7 @@ void AnalyticalTrackSelector::run(edm::Event& evt, const edm::EventSetup& es) co
       tx.setResiduals(trk.residuals());
       // TrackingRecHits
       auto const firstHitIndex = selHits_->size();
-      for (trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++hit) {
+      for (auto hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++hit) {
         selHits_->push_back((*hit)->clone());
       }
       tx.setHits(rHits_, firstHitIndex, selHits_->size() - firstHitIndex);

@@ -43,9 +43,9 @@ ApvAnalysisFactory::ApvAnalysisFactory(const edm::ParameterSet& pset) {
 }
 //----------------------------------
 ApvAnalysisFactory::~ApvAnalysisFactory() {
-  ApvAnalysisFactory::ApvAnalysisMap::iterator it = apvMap_.begin();
+  auto it = apvMap_.begin();
   for (; it != apvMap_.end(); it++) {
-    vector<ApvAnalysis*>::iterator myApv = (*it).second.begin();
+    auto myApv = (*it).second.begin();
     for (; myApv != (*it).second.end(); myApv++)
       deleteApv(*myApv);
   }
@@ -55,7 +55,7 @@ ApvAnalysisFactory::~ApvAnalysisFactory() {
 //----------------------------------
 
 bool ApvAnalysisFactory::instantiateApvs(uint32_t detId, int numberOfApvs) {
-  ApvAnalysisFactory::ApvAnalysisMap::iterator CPos = apvMap_.find(detId);
+  auto CPos = apvMap_.find(detId);
   if (CPos != apvMap_.end()) {
     cout << " APVs for Detector Id " << detId << " already created !!!" << endl;
     ;
@@ -73,7 +73,7 @@ bool ApvAnalysisFactory::instantiateApvs(uint32_t detId, int numberOfApvs) {
 }
 
 std::vector<ApvAnalysis*> ApvAnalysisFactory::getApvAnalysis(const uint32_t nDET_ID) {
-  ApvAnalysisMap::const_iterator _apvAnalysisIter = apvMap_.find(nDET_ID);
+  auto _apvAnalysisIter = apvMap_.find(nDET_ID);
 
   return apvMap_.end() != _apvAnalysisIter ? _apvAnalysisIter->second : std::vector<ApvAnalysis*>();
 }
@@ -92,7 +92,7 @@ void ApvAnalysisFactory::constructAuxiliaryApvClasses(ApvAnalysis* theAPV, uint3
   TkCommonModeCalculator* theCM = nullptr;
 
   TkCommonMode* theCommonMode = new TkCommonMode();
-  TkCommonModeTopology* theTopology = new TkCommonModeTopology(128, theNumCMstripsInGroup_);
+  auto* theTopology = new TkCommonModeTopology(128, theNumCMstripsInGroup_);
   theCommonMode->setTopology(theTopology);
 
   // Create desired algorithms.
@@ -134,13 +134,11 @@ void ApvAnalysisFactory::constructAuxiliaryApvClasses(ApvAnalysis* theAPV, uint3
 }
 
 void ApvAnalysisFactory::updatePair(uint32_t detId, size_t pairNumber, const edm::DetSet<SiStripRawDigi>& in) {
-  map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(detId);
+  auto apvAnalysisIt = apvMap_.find(detId);
   if (apvAnalysisIt != apvMap_.end()) {
     size_t iter = 0;
 
-    for (vector<ApvAnalysis*>::const_iterator apvIt = (apvAnalysisIt->second).begin();
-         apvIt != (apvAnalysisIt->second).end();
-         apvIt++) {
+    for (auto apvIt = (apvAnalysisIt->second).begin(); apvIt != (apvAnalysisIt->second).end(); apvIt++) {
       if (iter == pairNumber * 2 || iter == (2 * pairNumber + 1)) {
         //      cout << "ApvAnalysisFactory::updatePair pair number " << pairNumber << endl;
         //      cout << "ApvAnlysis will be updated for the apv # " << iter << endl;
@@ -169,12 +167,10 @@ void ApvAnalysisFactory::updatePair(uint32_t detId, size_t pairNumber, const edm
 }  // void
 
 void ApvAnalysisFactory::update(uint32_t detId, const edm::DetSet<SiStripRawDigi>& in) {
-  map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(detId);
+  auto apvAnalysisIt = apvMap_.find(detId);
   if (apvAnalysisIt != apvMap_.end()) {
     size_t i = 0;
-    for (vector<ApvAnalysis*>::const_iterator apvIt = (apvAnalysisIt->second).begin();
-         apvIt != (apvAnalysisIt->second).end();
-         apvIt++) {
+    for (auto apvIt = (apvAnalysisIt->second).begin(); apvIt != (apvAnalysisIt->second).end(); apvIt++) {
       edm::DetSet<SiStripRawDigi> tmpRawDigi;
       //it is missing the detId ...
       tmpRawDigi.data.reserve(128);
@@ -198,7 +194,7 @@ void ApvAnalysisFactory::update(uint32_t detId, const edm::DetSet<SiStripRawDigi
 void ApvAnalysisFactory::getPedestal(uint32_t detId, int apvNumber, ApvAnalysis::PedestalType& peds) {
   //Get the pedestal for a given apv
   peds.clear();
-  map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(detId);
+  auto apvAnalysisIt = apvMap_.find(detId);
   if (apvAnalysisIt != apvMap_.end()) {
     vector<ApvAnalysis*> myApvs = apvAnalysisIt->second;
     peds = myApvs[apvNumber]->pedestalCalculator().pedestal();
@@ -208,12 +204,12 @@ void ApvAnalysisFactory::getPedestal(uint32_t detId, int apvNumber, ApvAnalysis:
 void ApvAnalysisFactory::getPedestal(uint32_t detId, ApvAnalysis::PedestalType& peds) {
   //Get the pedestal for a given apv
   peds.clear();
-  map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(detId);
+  auto apvAnalysisIt = apvMap_.find(detId);
   if (apvAnalysisIt != apvMap_.end()) {
     vector<ApvAnalysis*> theApvs = apvAnalysisIt->second;
-    for (vector<ApvAnalysis*>::const_iterator it = theApvs.begin(); it != theApvs.end(); it++) {
+    for (auto it = theApvs.begin(); it != theApvs.end(); it++) {
       ApvAnalysis::PedestalType tmp = (*it)->pedestalCalculator().pedestal();
-      for (ApvAnalysis::PedestalType::const_iterator pit = tmp.begin(); pit != tmp.end(); pit++)
+      for (auto pit = tmp.begin(); pit != tmp.end(); pit++)
         peds.push_back(*pit);
     }
   }
@@ -230,7 +226,7 @@ float ApvAnalysisFactory::getStripPedestal(uint32_t detId, int stripNumber) {
 void ApvAnalysisFactory::getNoise(uint32_t detId, int apvNumber, ApvAnalysis::PedestalType& noise) {
   //Get the pedestal for a given apv
   noise.clear();
-  map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(detId);
+  auto apvAnalysisIt = apvMap_.find(detId);
   if (apvAnalysisIt != apvMap_.end()) {
     vector<ApvAnalysis*> theApvs = apvAnalysisIt->second;
 
@@ -251,12 +247,12 @@ float ApvAnalysisFactory::getStripNoise(uint32_t detId, int stripNumber) {
 void ApvAnalysisFactory::getNoise(uint32_t detId, ApvAnalysis::PedestalType& peds) {
   //Get the pedestal for a given apv
   peds.clear();
-  map<uint32_t, vector<ApvAnalysis*> >::const_iterator theApvs_map = apvMap_.find(detId);
+  auto theApvs_map = apvMap_.find(detId);
   if (theApvs_map != apvMap_.end()) {
-    vector<ApvAnalysis*>::const_iterator theApvs = (theApvs_map->second).begin();
+    auto theApvs = (theApvs_map->second).begin();
     for (; theApvs != (theApvs_map->second).end(); theApvs++) {
       ApvAnalysis::PedestalType tmp = (*theApvs)->noiseCalculator().noise();
-      for (ApvAnalysis::PedestalType::const_iterator pit = tmp.begin(); pit != tmp.end(); pit++)
+      for (auto pit = tmp.begin(); pit != tmp.end(); pit++)
         peds.push_back(*pit);
     }
   }
@@ -265,7 +261,7 @@ void ApvAnalysisFactory::getNoise(uint32_t detId, ApvAnalysis::PedestalType& ped
 void ApvAnalysisFactory::getRawNoise(uint32_t detId, int apvNumber, ApvAnalysis::PedestalType& noise) {
   //Get the pedestal for a given apv
   noise.clear();
-  map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(detId);
+  auto apvAnalysisIt = apvMap_.find(detId);
   if (apvAnalysisIt != apvMap_.end()) {
     vector<ApvAnalysis*> theApvs = apvAnalysisIt->second;
 
@@ -286,12 +282,12 @@ float ApvAnalysisFactory::getStripRawNoise(uint32_t detId, int stripNumber) {
 void ApvAnalysisFactory::getRawNoise(uint32_t detId, ApvAnalysis::PedestalType& peds) {
   //Get the pedestal for a given apv
   peds.clear();
-  map<uint32_t, vector<ApvAnalysis*> >::const_iterator theApvs_map = apvMap_.find(detId);
+  auto theApvs_map = apvMap_.find(detId);
   if (theApvs_map != apvMap_.end()) {
-    vector<ApvAnalysis*>::const_iterator theApvs = (theApvs_map->second).begin();
+    auto theApvs = (theApvs_map->second).begin();
     for (; theApvs != (theApvs_map->second).end(); theApvs++) {
       ApvAnalysis::PedestalType tmp = (*theApvs)->pedestalCalculator().rawNoise();
-      for (ApvAnalysis::PedestalType::const_iterator pit = tmp.begin(); pit != tmp.end(); pit++)
+      for (auto pit = tmp.begin(); pit != tmp.end(); pit++)
         peds.push_back(*pit);
     }
   }
@@ -300,7 +296,7 @@ void ApvAnalysisFactory::getRawNoise(uint32_t detId, ApvAnalysis::PedestalType& 
 vector<float> ApvAnalysisFactory::getCommonMode(uint32_t detId, int apvNumber) {
   vector<float> tmp;
   tmp.clear();
-  map<uint32_t, vector<ApvAnalysis*> >::const_iterator theApvs_map = apvMap_.find(detId);
+  auto theApvs_map = apvMap_.find(detId);
   if (theApvs_map != apvMap_.end()) {
     vector<ApvAnalysis*> theApvs = theApvs_map->second;
 
@@ -309,7 +305,7 @@ vector<float> ApvAnalysisFactory::getCommonMode(uint32_t detId, int apvNumber) {
   return tmp;
 }
 void ApvAnalysisFactory::getCommonMode(uint32_t detId, ApvAnalysis::PedestalType& tmp) {
-  map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(detId);
+  auto apvAnalysisIt = apvMap_.find(detId);
   if (apvAnalysisIt != apvMap_.end()) {
     vector<ApvAnalysis*> theApvs = apvAnalysisIt->second;
     for (unsigned int i = 0; i < theApvs.size(); i++) {
@@ -322,7 +318,7 @@ void ApvAnalysisFactory::getCommonMode(uint32_t detId, ApvAnalysis::PedestalType
 }
 
 void ApvAnalysisFactory::getMask(uint32_t det_id, TkApvMask::MaskType& tmp) {
-  map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(det_id);
+  auto apvAnalysisIt = apvMap_.find(det_id);
   if (apvAnalysisIt != apvMap_.end()) {
     vector<ApvAnalysis*> theApvs = apvAnalysisIt->second;
     for (unsigned int i = 0; i < theApvs.size(); i++) {
@@ -338,11 +334,9 @@ void ApvAnalysisFactory::getMask(uint32_t det_id, TkApvMask::MaskType& tmp) {
 }
 bool ApvAnalysisFactory::isUpdating(uint32_t detId) {
   bool updating = true;
-  map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(detId);
+  auto apvAnalysisIt = apvMap_.find(detId);
   if (apvAnalysisIt != apvMap_.end()) {
-    for (vector<ApvAnalysis*>::const_iterator apvIt = (apvAnalysisIt->second).begin();
-         apvIt != (apvAnalysisIt->second).end();
-         apvIt++) {
+    for (auto apvIt = (apvAnalysisIt->second).begin(); apvIt != (apvAnalysisIt->second).end(); apvIt++) {
       if (!((*apvIt)->pedestalCalculator().status()->isUpdating()))
         updating = false;
     }
@@ -363,7 +357,7 @@ void ApvAnalysisFactory::deleteApv(ApvAnalysis* apv) {
 // -- Get Common Mode Slope
 //
 float ApvAnalysisFactory::getCommonModeSlope(uint32_t detId, int apvNumber) {
-  map<uint32_t, vector<ApvAnalysis*> >::const_iterator theApvs_map = apvMap_.find(detId);
+  auto theApvs_map = apvMap_.find(detId);
   float tmp = -100.0;
   if (theApvs_map != apvMap_.end()) {
     vector<ApvAnalysis*> theApvs = theApvs_map->second;
@@ -374,7 +368,7 @@ float ApvAnalysisFactory::getCommonModeSlope(uint32_t detId, int apvNumber) {
 }
 void ApvAnalysisFactory::getCommonModeSlope(uint32_t detId, ApvAnalysis::PedestalType& tmp) {
   tmp.clear();
-  map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(detId);
+  auto apvAnalysisIt = apvMap_.find(detId);
   if (apvAnalysisIt != apvMap_.end()) {
     vector<ApvAnalysis*> theApvs = apvAnalysisIt->second;
     for (unsigned int i = 0; i < theApvs.size(); i++) {

@@ -16,7 +16,7 @@ AnnealingGhostTrackFitter::AnnealingGhostTrackFitter() : firstStep(true) {
 void AnnealingGhostTrackFitter::postFit(const GhostTrackFitter::PredictionUpdater &updater,
                                         const GhostTrackPrediction &pred,
                                         std::vector<GhostTrackState> &states) {
-  for (std::vector<GhostTrackState>::iterator state = states.begin(); state != states.end(); ++state) {
+  for (auto state = states.begin(); state != states.end(); ++state) {
     if (!state->isValid())
       continue;
 

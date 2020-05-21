@@ -380,14 +380,14 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     gctColl.reserve(20);
     gctColl.clear();
 
-    for (L1DEDigiCollection::const_iterator it = deColl.begin(); it != deColl.end(); it++)
+    for (auto it = deColl.begin(); it != deColl.end(); it++)
       if (!it->empty())
         if (it->sid() == GCT)
           gctColl.push_back(*it);
 
     if (verbose()) {
       std::cout << "[L1TdeGCT] record has " << gctColl.size() << " gct de digis\n" << std::flush;
-      for (L1DEDigiCollection::const_iterator it = gctColl.begin(); it != gctColl.end(); it++)
+      for (auto it = gctColl.begin(); it != gctColl.end(); it++)
         std::cout << "\t" << *it << std::endl;
     }
 
@@ -396,7 +396,7 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     /// --- Fill histograms(me) ---
 
     // d|e candidate loop
-    for (L1DEDigiCollection::const_iterator it = gctColl.begin(); it != gctColl.end(); it++) {
+    for (auto it = gctColl.begin(); it != gctColl.end(); it++) {
       // sid should be GCT
       int sid = it->sid();
       // cid: GCTisolaem, GCTnoisoem, GCTcenjets, GCTforjets, GCTtaujets
@@ -502,7 +502,7 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     //error rates per GCT trigger object type
     int hasCol[nGctColl_] = {0};
     int nagree[nGctColl_] = {0};
-    for (L1DEDigiCollection::const_iterator it = gctColl.begin(); it != gctColl.end(); it++) {
+    for (auto it = gctColl.begin(); it != gctColl.end(); it++) {
       int ccid = it->cid() - dedefs::GCTisolaem;
       ccid = (ccid < 0 || ccid >= nGctColl_) ? 0 : ccid;
       hasCol[ccid]++;
@@ -565,7 +565,7 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     stage1layer2Coll.reserve(21);
     stage1layer2Coll.clear();
 
-    for (L1DEDigiCollection::const_iterator it = deColl.begin(); it != deColl.end(); it++)
+    for (auto it = deColl.begin(); it != deColl.end(); it++)
       if (!it->empty())
         if (it->sid() == GCT)
           stage1layer2Coll.push_back(*it);
@@ -573,7 +573,7 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     if (verbose()) {
       std::cout << "[L1TdeSTAGE1LAYER2] record has " << stage1layer2Coll.size() << " stage1layer2 de digis\n"
                 << std::endl;
-      for (L1DEDigiCollection::const_iterator it = stage1layer2Coll.begin(); it != stage1layer2Coll.end(); it++)
+      for (auto it = stage1layer2Coll.begin(); it != stage1layer2Coll.end(); it++)
         std::cout << "\t" << *it << std::endl;
     }
 
@@ -582,7 +582,7 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     /// --- Fill histograms(me) ---
 
     // d|e candidate loop
-    for (L1DEDigiCollection::const_iterator it = stage1layer2Coll.begin(); it != stage1layer2Coll.end(); it++) {
+    for (auto it = stage1layer2Coll.begin(); it != stage1layer2Coll.end(); it++) {
       // sid should be GCT
       int sid = it->sid();
 
@@ -684,7 +684,7 @@ void L1TdeGCT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     //error rates per GCT trigger object type
     int hasCol[nStage1Layer2Coll_] = {0};
     int nagree[nStage1Layer2Coll_] = {0};
-    for (L1DEDigiCollection::const_iterator it = stage1layer2Coll.begin(); it != stage1layer2Coll.end(); it++) {
+    for (auto it = stage1layer2Coll.begin(); it != stage1layer2Coll.end(); it++) {
       int ccid = it->cid() - dedefs::GCTisolaem;
       ccid = (ccid < 0 || ccid >= nStage1Layer2Coll_) ? 0 : ccid;
       hasCol[ccid]++;

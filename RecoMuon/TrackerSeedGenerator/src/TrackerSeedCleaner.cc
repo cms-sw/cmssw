@@ -74,7 +74,7 @@ void TrackerSeedCleaner::clean(const reco::TrackRef& muR,
 
   TSCBLBuilderNoMaterial tscblBuilder;
   // PerigeeConversions tspConverter;
-  for (TrajectorySeedCollection::iterator seed = seeds.begin(); seed < seeds.end(); ++seed) {
+  for (auto seed = seeds.begin(); seed < seeds.end(); ++seed) {
     if (seed->nHits() < 2)
       continue;
     //get parameters and errors from the seed state

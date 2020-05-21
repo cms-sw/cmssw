@@ -211,8 +211,7 @@ void DTCalibValidationFromMuons::compute(const DTGeometry *dtGeom, const DTRecSe
     ++rightSegment;
 
     // Loop over 1D RecHit inside 4D segment
-    for (vector<DTRecHit1D>::const_iterator recHit1D = recHits1D_S3.begin(); recHit1D != recHits1D_S3.end();
-         ++recHit1D) {
+    for (auto recHit1D = recHits1D_S3.begin(); recHit1D != recHits1D_S3.end(); ++recHit1D) {
       const DTWireId wireId = (*recHit1D).wireId();
 
       // Get the layer and the wire position
@@ -294,11 +293,11 @@ void DTCalibValidationFromMuons::bookHistograms(DQMStore::IBooker &ibooker,
   DTSuperLayerId slId;
 
   // Loop over all the chambers
-  vector<const DTChamber *>::const_iterator ch_it = dtGeom->chambers().begin();
-  vector<const DTChamber *>::const_iterator ch_end = dtGeom->chambers().end();
+  auto ch_it = dtGeom->chambers().begin();
+  auto ch_end = dtGeom->chambers().end();
   for (; ch_it != ch_end; ++ch_it) {
-    vector<const DTSuperLayer *>::const_iterator sl_it = (*ch_it)->superLayers().begin();
-    vector<const DTSuperLayer *>::const_iterator sl_end = (*ch_it)->superLayers().end();
+    auto sl_it = (*ch_it)->superLayers().begin();
+    auto sl_end = (*ch_it)->superLayers().end();
     // Loop over the SLs
     for (; sl_it != sl_end; ++sl_it) {
       slId = (*sl_it)->id();

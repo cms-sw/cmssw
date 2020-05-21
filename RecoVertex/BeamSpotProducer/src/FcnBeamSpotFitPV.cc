@@ -34,7 +34,7 @@ unsigned int FcnBeamSpotFitPV::nrOfVerticesUsed() const {
   double v1(0);
   double v2(0);
   double v3(0);
-  for (vector<BeamSpotFitPVData>::const_iterator ipv = data_.begin(); ipv != data_.end(); ++ipv) {
+  for (auto ipv = data_.begin(); ipv != data_.end(); ++ipv) {
     v1 = (*ipv).position[0];
     if (v1 < lowerLimits_[0] || v1 > upperLimits_[0])
       continue;
@@ -104,7 +104,7 @@ double FcnBeamSpotFitPV::operator()(const std::vector<double>& pars) const {
   //
   // iteration over vertices
   //
-  for (vector<BeamSpotFitPVData>::const_iterator ipv = data_.begin(); ipv != data_.end(); ++ipv) {
+  for (auto ipv = data_.begin(); ipv != data_.end(); ++ipv) {
     //
     // additional selection
     //

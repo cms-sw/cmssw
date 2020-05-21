@@ -141,7 +141,7 @@ double CSCDriftSim::avalancheCharge(CLHEP::HepRandomEngine *engine) {
   }
   */
   // return position of first element with a value >= x
-  std::vector<double>::const_iterator p = lower_bound(dNdEIntegral.begin(), dNdEIntegral.end(), x);
+  auto p = lower_bound(dNdEIntegral.begin(), dNdEIntegral.end(), x);
   if (p == dNdEIntegral.end())
     i = isiz - 1;
   else

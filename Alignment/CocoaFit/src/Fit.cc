@@ -1712,7 +1712,7 @@ int Fit::CheckIfMeasIsProportionalToAnother(ALIuint measNo) {
           std::cout << "CheckIfMeasIsProportionalToAnother 2 columns != " << ii << " in " << measNo << " & " << jj
                     << std::endl;
         // if it is not equal delete this column
-        std::set<ALIuint>::iterator ite = columnsEqual.find(ii);
+        auto ite = columnsEqual.find(ii);
         if (ite != columnsEqual.end()) {
           columnsEqual.erase(ite);
         }

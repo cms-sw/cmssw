@@ -51,7 +51,7 @@ void L1TCSCTFClient::processHistograms(DQMStore::IGetter &igetter) {
   igetter.setCurrentFolder(input_dir);
 
   vector<string> meVec = igetter.getMEs();
-  for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+  for (auto it = meVec.begin(); it != meVec.end(); it++) {
     string full_path = input_dir + "/" + (*it);
     MonitorElement *me = igetter.get(full_path);
     if (!me) {

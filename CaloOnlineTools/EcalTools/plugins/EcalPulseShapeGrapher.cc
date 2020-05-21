@@ -42,7 +42,7 @@ EcalPulseShapeGrapher::EcalPulseShapeGrapher(const edm::ParameterSet& iConfig)
   listDefaults.push_back(-1);
   listChannels_ = iConfig.getUntrackedParameter<std::vector<int> >("listChannels", listDefaults);
 
-  for (std::vector<int>::const_iterator itr = listChannels_.begin(); itr != listChannels_.end(); ++itr) {
+  for (auto itr = listChannels_.begin(); itr != listChannels_.end(); ++itr) {
     std::string title = "Amplitude of cry " + intToString(*itr);
     std::string name = "ampOfCry" + intToString(*itr);
     ampHistMap_[*itr] = new TH1F(name.c_str(), title.c_str(), 100, 0, 100);
@@ -110,7 +110,7 @@ void EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSe
   unique_ptr<EcalElectronicsMapping> ecalElectronicsMap(new EcalElectronicsMapping);
 
   // Loop over the hits
-  for (EcalUncalibratedRecHitCollection::const_iterator hitItr = EBHits->begin(); hitItr != EBHits->end(); ++hitItr) {
+  for (auto hitItr = EBHits->begin(); hitItr != EBHits->end(); ++hitItr) {
     EcalUncalibratedRecHit hit = (*hitItr);
     float amplitude = hit.amplitude();
     EBDetId hitDetId = hit.id();
@@ -120,7 +120,7 @@ void EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSe
     int FEDid = 600 + elecId.dccId();
     string SMname = fedMap_->getSliceFromFed(FEDid);
 
-    vector<int>::const_iterator itr = listChannels_.begin();
+    auto itr = listChannels_.begin();
     while (itr != listChannels_.end() && (*itr) != hitDetId.hashedIndex()) {
       itr++;
     }
@@ -176,7 +176,7 @@ void EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSe
   }
 
   // Now do the same for the EE hits
-  for (EcalUncalibratedRecHitCollection::const_iterator hitItr = EEHits->begin(); hitItr != EEHits->end(); ++hitItr) {
+  for (auto hitItr = EEHits->begin(); hitItr != EEHits->end(); ++hitItr) {
     EcalUncalibratedRecHit hit = (*hitItr);
     float amplitude = hit.amplitude();
     EEDetId hitDetId = hit.id();
@@ -186,7 +186,7 @@ void EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSe
     int FEDid = 600 + elecId.dccId();
     string SMname = fedMap_->getSliceFromFed(FEDid);
 
-    vector<int>::const_iterator itr = listChannels_.begin();
+    auto itr = listChannels_.begin();
     while (itr != listChannels_.end() && (*itr) != hitDetId.hashedIndex()) {
       itr++;
     }
@@ -248,7 +248,7 @@ void EcalPulseShapeGrapher::endJob() {
   file_ = new TFile(rootFilename_.c_str(), "RECREATE");
   TH1::AddDirectory(false);
 
-  for (std::vector<int>::const_iterator itr = listChannels_.begin(); itr != listChannels_.end(); ++itr) {
+  for (auto itr = listChannels_.begin(); itr != listChannels_.end(); ++itr) {
     ampHistMap_[*itr]->Write();
     cutAmpHistMap_[*itr]->Write();
     firstSampleHistMap_[*itr]->Write();

@@ -125,13 +125,13 @@ void SetPtEtaPhi(const reco::Candidate &p, float &pt, float &eta, float &phi) {
 void MVAJetPuId::bookReader() {
   reader_ = new TMVA::Reader("!Color:Silent");
   assert(!tmvaMethod_.empty() && !tmvaWeights_.empty());
-  for (std::vector<std::string>::iterator it = tmvaVariables_.begin(); it != tmvaVariables_.end(); ++it) {
+  for (auto it = tmvaVariables_.begin(); it != tmvaVariables_.end(); ++it) {
     if (tmvaNames_[*it].empty()) {
       tmvaNames_[*it] = *it;
     }
     reader_->AddVariable(*it, variables_[tmvaNames_[*it]].first);
   }
-  for (std::vector<std::string>::iterator it = tmvaSpectators_.begin(); it != tmvaSpectators_.end(); ++it) {
+  for (auto it = tmvaSpectators_.begin(); it != tmvaSpectators_.end(); ++it) {
     if (tmvaNames_[*it].empty()) {
       tmvaNames_[*it] = *it;
     }
@@ -233,7 +233,7 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet *jet,
       *jet, internalId_.jetPt_, internalId_.jetEta_, internalId_.jetPhi_);  // use corrected pt for jet kinematics
   internalId_.jetM_ = jet->mass();
   internalId_.rho_ = rho;  //allvtx.size();
-  for (constituents_iterator it = constituents.begin(); it != constituents.end(); ++it) {
+  for (auto it = constituents.begin(); it != constituents.end(); ++it) {
     reco::PFCandidatePtr &icand = *it;
     float candPt = icand->pt();
     float candPtFrac = candPt / jetPt;
@@ -306,7 +306,7 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet *jet,
 
       double dZ0 = fabs(icand->trackRef()->dz(vtx->position()));
       double dZ = dZ0;
-      for (reco::VertexCollection::const_iterator vi = allvtx.begin(); vi != allvtx.end(); ++vi) {
+      for (auto vi = allvtx.begin(); vi != allvtx.end(); ++vi) {
         const reco::Vertex &iv = *vi;
         if (iv.isFake() || iv.ndof() < 4) {
           continue;
@@ -479,7 +479,7 @@ PileupJetIdentifier MVAJetPuId::computeIdVariables(const reco::Jet *jet,
 
 std::string MVAJetPuId::dumpVariables() const {
   std::stringstream out;
-  for (variables_list_t::const_iterator it = variables_.begin(); it != variables_.end(); ++it) {
+  for (auto it = variables_.begin(); it != variables_.end(); ++it) {
     out << std::setw(15) << it->first << std::setw(3) << "=" << std::setw(5) << *it->second.first << " ("
         << std::setw(5) << it->second.second << ")" << std::endl;
   }
@@ -488,7 +488,7 @@ std::string MVAJetPuId::dumpVariables() const {
 
 void MVAJetPuId::resetVariables() {
   internalId_.idFlag_ = 0;
-  for (variables_list_t::iterator it = variables_.begin(); it != variables_.end(); ++it) {
+  for (auto it = variables_.begin(); it != variables_.end(); ++it) {
     *it->second.first = it->second.second;
   }
 }

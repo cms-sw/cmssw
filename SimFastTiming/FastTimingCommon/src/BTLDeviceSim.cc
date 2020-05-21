@@ -58,8 +58,8 @@ void BTLDeviceSim::getHitsResponse(const std::vector<std::tuple<int, uint32_t, f
       throw cms::Exception("BTLDeviceSim") << "GeographicalID: " << std::hex << geoId.rawId() << " (" << detId.rawId()
                                            << ") is invalid!" << std::dec << std::endl;
     }
-    const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
-    const RectangularMTDTopology& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
+    const auto& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
+    const auto& topo = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
     // calculate the simhit row and column
     const auto& pentry = hit.entryPoint();
     Local3DPoint simscaled(0.1 * pentry.x(), 0.1 * pentry.y(), 0.1 * pentry.z());  // mm -> cm here is the switch

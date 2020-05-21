@@ -58,7 +58,7 @@ void FedCablingHistograms::histoAnalysis(bool debug) {
 
     // Retrieve pointers to histos
     std::vector<TH1*> profs;
-    Histos::const_iterator ihis = iter->second.begin();
+    auto ihis = iter->second.begin();
     for (; ihis != iter->second.end(); ihis++) {
       TProfile* prof = ExtractTObject<TProfile>().extract((*ihis)->me_);
       if (prof) {
@@ -67,7 +67,7 @@ void FedCablingHistograms::histoAnalysis(bool debug) {
     }
 
     // Perform histo analysis
-    FedCablingAnalysis* anal = new FedCablingAnalysis(iter->first);
+    auto* anal = new FedCablingAnalysis(iter->first);
     FedCablingAlgorithm algo(this->pset(), anal);
     algo.analysis(profs);
     data_[iter->first] = anal;
@@ -89,8 +89,8 @@ void FedCablingHistograms::histoAnalysis(bool debug) {
 // -----------------------------------------------------------------------------
 /** */
 void FedCablingHistograms::printAnalyses() {
-  Analyses::iterator ianal = data_.begin();
-  Analyses::iterator janal = data_.end();
+  auto ianal = data_.begin();
+  auto janal = data_.end();
   for (; ianal != janal; ++ianal) {
     if (ianal->second) {
       std::stringstream ss;

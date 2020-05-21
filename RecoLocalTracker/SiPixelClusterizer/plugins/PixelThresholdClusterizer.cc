@@ -125,8 +125,8 @@ void PixelThresholdClusterizer::clusterizeDetUnitT(const T& input,
                                                    const TrackerTopology* tTopo,
                                                    const std::vector<short>& badChannels,
                                                    edmNew::DetSetVector<SiPixelCluster>::FastFiller& output) {
-  typename T::const_iterator begin = input.begin();
-  typename T::const_iterator end = input.end();
+  auto begin = input.begin();
+  auto end = input.end();
 
   // Do not bother for empty detectors
   //if (begin == end) cout << " PixelThresholdClusterizer::clusterizeDetUnit - No digis to clusterize";
@@ -191,7 +191,7 @@ void PixelThresholdClusterizer::clusterizeDetUnitT(const T& input,
 //!  the whole buffer array?
 //----------------------------------------------------------------------------
 void PixelThresholdClusterizer::clear_buffer(DigiIterator begin, DigiIterator end) {
-  for (DigiIterator di = begin; di != end; ++di) {
+  for (auto di = begin; di != end; ++di) {
     theBuffer.set_adc(di->row(), di->column(), 0);  // reset pixel adc to 0
   }
 }
@@ -222,7 +222,7 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
 
   if (doPhase2Calibration) {
     int i = 0;
-    for (DigiIterator di = begin; di != end; ++di) {
+    for (auto di = begin; di != end; ++di) {
       electron[i] = calibrate(di->adc(), di->column(), di->row());
       i++;
     }
@@ -240,7 +240,7 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
     } else {
       int i = 0;
       const float gain = theElectronPerADCGain;  // default: 1 ADC = 135 electrons
-      for (DigiIterator di = begin; di != end; ++di) {
+      for (auto di = begin; di != end; ++di) {
         auto adc = di->adc();
         const float pedestal = 0.;  //
         electron[i] = int(adc * gain + pedestal);
@@ -254,7 +254,7 @@ void PixelThresholdClusterizer::copy_to_buffer(DigiIterator begin, DigiIterator 
 #ifdef PIXELREGRESSION
   static std::atomic<int> eqD = 0;
 #endif
-  for (DigiIterator di = begin; di != end; ++di) {
+  for (auto di = begin; di != end; ++di) {
     int row = di->row();
     int col = di->column();
     int adc = electron[i++];  // this is in electrons

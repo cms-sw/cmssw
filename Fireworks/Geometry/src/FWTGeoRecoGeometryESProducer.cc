@@ -179,7 +179,7 @@ namespace {
 }
 
 TGeoMedium* FWTGeoRecoGeometryESProducer::GetMedium(ERecoDet det) {
-  std::map<ERecoDet, TGeoMedium*>::iterator it = m_recoMedium.find(det);
+  auto it = m_recoMedium.find(det);
   if (it != m_recoMedium.end())
     return it->second;
 
@@ -341,7 +341,7 @@ TGeoShape* FWTGeoRecoGeometryESProducer::createShape(const GeomDet* det) {
 
   // Trapezoidal
   const Bounds* b = &((det->surface()).bounds());
-  const TrapezoidalPlaneBounds* b2 = dynamic_cast<const TrapezoidalPlaneBounds*>(b);
+  const auto* b2 = dynamic_cast<const TrapezoidalPlaneBounds*>(b);
   if (b2) {
     std::array<const float, 4> const& par = b2->parameters();
 
@@ -402,7 +402,7 @@ TGeoShape* FWTGeoRecoGeometryESProducer::createShape(const GeomDet* det) {
 TGeoVolume* FWTGeoRecoGeometryESProducer::createVolume(const std::string& name, const GeomDet* det, ERecoDet mid) {
   TGeoShape* solid = createShape(det);
 
-  std::map<TGeoShape*, TGeoVolume*>::iterator vIt = m_shapeToVolume.find(solid);
+  auto vIt = m_shapeToVolume.find(solid);
   if (vIt != m_shapeToVolume.end())
     return vIt->second;
 
@@ -790,11 +790,11 @@ void FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel(void) {
 
   CaloVolMap caloShapeMapP;
   CaloVolMap caloShapeMapN;
-  for (std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it) {
+  for (auto it = vid.begin(), end = vid.end(); it != end; ++it) {
     //HcalDetId detid = HcalDetId(it->rawId());
     HcalDetId detid(*it);
     const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
-    const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*>(cellb);
+    const auto* cell = dynamic_cast<const IdealObliquePrism*>(cellb);
 
     if (!cell) {
       printf("HB not oblique !!!\n");
@@ -803,7 +803,7 @@ void FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel(void) {
 
     TGeoVolume* volume = nullptr;
     CaloVolMap& caloShapeMap = (cell->etaPos() > 0) ? caloShapeMapP : caloShapeMapN;
-    CaloVolMap::iterator volIt = caloShapeMap.find(cell->param());
+    auto volIt = caloShapeMap.find(cell->param());
     if (volIt == caloShapeMap.end()) {
       // printf("FIREWORKS NEW SHAPE BEGIN eta = %f etaPos = %f, phiPos %f >>>>>> \n", cell->eta(), cell->etaPos(), cell->phiPos());
       IdealObliquePrism::Pt3DVec lc(8);
@@ -867,10 +867,10 @@ void FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap(void) {
 
   std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalEndcap);
 
-  for (std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it) {
+  for (auto it = vid.begin(), end = vid.end(); it != end; ++it) {
     HcalDetId detid = HcalDetId(it->rawId());
     const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
-    const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*>(cellb);
+    const auto* cell = dynamic_cast<const IdealObliquePrism*>(cellb);
 
     if (!cell) {
       printf("EC not oblique \n");
@@ -879,7 +879,7 @@ void FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap(void) {
 
     TGeoVolume* volume = nullptr;
     CaloVolMap& caloShapeMap = (cell->etaPos() > 0) ? caloShapeMapP : caloShapeMapN;
-    CaloVolMap::iterator volIt = caloShapeMap.find(cell->param());
+    auto volIt = caloShapeMap.find(cell->param());
     if (volIt == caloShapeMap.end()) {
       IdealObliquePrism::Pt3DVec lc(8);
       IdealObliquePrism::Pt3D ref;
@@ -941,10 +941,10 @@ void FWTGeoRecoGeometryESProducer::addHcalCaloGeometryOuter() {
 
   std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalOuter);
 
-  for (std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it) {
+  for (auto it = vid.begin(), end = vid.end(); it != end; ++it) {
     HcalDetId detid = HcalDetId(it->rawId());
     const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
-    const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*>(cellb);
+    const auto* cell = dynamic_cast<const IdealObliquePrism*>(cellb);
 
     if (!cell) {
       printf("EC not oblique \n");
@@ -953,7 +953,7 @@ void FWTGeoRecoGeometryESProducer::addHcalCaloGeometryOuter() {
 
     TGeoVolume* volume = nullptr;
     CaloVolMap& caloShapeMap = (cell->etaPos() > 0) ? caloShapeMapP : caloShapeMapN;
-    CaloVolMap::iterator volIt = caloShapeMap.find(cell->param());
+    auto volIt = caloShapeMap.find(cell->param());
     if (volIt == caloShapeMap.end()) {
       IdealObliquePrism::Pt3DVec lc(8);
       IdealObliquePrism::Pt3D ref;
@@ -1007,7 +1007,7 @@ void FWTGeoRecoGeometryESProducer::addHcalCaloGeometryForward() {
 
   std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Hcal, HcalSubdetector::HcalForward);
 
-  for (std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it) {
+  for (auto it = vid.begin(), end = vid.end(); it != end; ++it) {
     HcalDetId detid = HcalDetId(it->rawId());
     const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
     const IdealZPrism* cell = dynamic_cast<const IdealZPrism*>(cellb);
@@ -1019,7 +1019,7 @@ void FWTGeoRecoGeometryESProducer::addHcalCaloGeometryForward() {
 
     TGeoVolume* volume = nullptr;
     CaloVolMap& caloShapeMap = (cell->etaPos() > 0) ? caloShapeMapP : caloShapeMapN;
-    CaloVolMap::iterator volIt = caloShapeMap.find(cell->param());
+    auto volIt = caloShapeMap.find(cell->param());
     if (volIt == caloShapeMap.end()) {
       IdealZPrism::Pt3DVec lc(8);
       IdealZPrism::Pt3D ref;
@@ -1072,17 +1072,17 @@ void FWTGeoRecoGeometryESProducer::addCaloTowerGeometry() {
   TGeoVolume* assembly = GetDaughter(tv, "CaloTower", kCaloTower);
 
   std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Calo, CaloTowerDetId::SubdetId);
-  for (std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it) {
+  for (auto it = vid.begin(), end = vid.end(); it != end; ++it) {
     CaloTowerDetId detid = CaloTowerDetId(it->rawId());
     const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
-    const IdealObliquePrism* cell = dynamic_cast<const IdealObliquePrism*>(cellb);
+    const auto* cell = dynamic_cast<const IdealObliquePrism*>(cellb);
     if (!cell) {
       printf("EC not oblique \n");
       continue;
     }
     TGeoVolume* volume = nullptr;
     CaloVolMap& caloShapeMap = (cell->etaPos() > 0) ? caloShapeMapP : caloShapeMapN;
-    CaloVolMap::iterator volIt = caloShapeMap.find(cell->param());
+    auto volIt = caloShapeMap.find(cell->param());
     if (volIt == caloShapeMap.end()) {
       IdealObliquePrism::Pt3DVec lc(8);
       IdealObliquePrism::Pt3D ref;
@@ -1199,17 +1199,17 @@ void FWTGeoRecoGeometryESProducer::addEcalCaloGeometry(void) {
     TGeoVolume* assembly = GetDaughter(tv, "ECalBarrel", kECal);
 
     std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Ecal, EcalSubdetector::EcalBarrel);
-    for (std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it) {
+    for (auto it = vid.begin(), end = vid.end(); it != end; ++it) {
       EBDetId detid(*it);
       const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
-      const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*>(cellb);
+      const auto* cell = dynamic_cast<const TruncatedPyramid*>(cellb);
       if (!cell) {
         printf("ecalBarrel cell not a TruncatedPyramid !!\n");
         return;
       }
 
       TGeoVolume* volume = nullptr;
-      CaloVolMap::iterator volIt = caloShapeMap.find(cell->param());
+      auto volIt = caloShapeMap.find(cell->param());
       if (volIt == caloShapeMap.end()) {
         volume = new TGeoVolume("EE TruncatedPyramid", makeEcalShape(cell), GetMedium(kECal));
         caloShapeMap[cell->param()] = volume;
@@ -1229,17 +1229,17 @@ void FWTGeoRecoGeometryESProducer::addEcalCaloGeometry(void) {
     TGeoVolume* assembly = GetDaughter(tv, "ECalEndcap", kECal);
 
     std::vector<DetId> vid = m_caloGeom->getValidDetIds(DetId::Ecal, EcalSubdetector::EcalEndcap);
-    for (std::vector<DetId>::const_iterator it = vid.begin(), end = vid.end(); it != end; ++it) {
+    for (auto it = vid.begin(), end = vid.end(); it != end; ++it) {
       EEDetId detid(*it);
       const CaloCellGeometry* cellb = (m_caloGeom->getGeometry(*it)).get();
-      const TruncatedPyramid* cell = dynamic_cast<const TruncatedPyramid*>(cellb);
+      const auto* cell = dynamic_cast<const TruncatedPyramid*>(cellb);
       if (!cell) {
         printf("ecalEndcap cell not a TruncatedPyramid !!\n");
         continue;
       }
 
       TGeoVolume* volume = nullptr;
-      CaloVolMap::iterator volIt = caloShapeMap.find(cell->param());
+      auto volIt = caloShapeMap.find(cell->param());
       if (volIt == caloShapeMap.end()) {
         volume = new TGeoVolume("EE TruncatedPyramid", makeEcalShape(cell), GetMedium(kECal));
         caloShapeMap[cell->param()] = volume;

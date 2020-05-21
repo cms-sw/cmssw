@@ -112,7 +112,7 @@ int main(int argc, char* argv[]) {
     MiscalibReaderFromXMLEcalEndcap endcapreader(map);
     if (!fileName.empty())
       endcapreader.parseXMLMiscalibFile(fileName);
-    EcalIntercalibConstants* constants = new EcalIntercalibConstants(map.get());
+    auto* constants = new EcalIntercalibConstants(map.get());
     recalibrators[currentIndex] = constants->getMap();
   }  //PG loop on EB rad indexes
 
@@ -121,9 +121,7 @@ int main(int argc, char* argv[]) {
   //PG this command outputs an XML file with a fixed name
   calibXMLwriter endcapWriter(EcalEndcap);
   //PG loop on EB rad slices
-  for (std::map<int, EcalIntercalibConstantMap>::const_iterator itMap = recalibrators.begin();
-       itMap != recalibrators.end();
-       ++itMap) {
+  for (auto itMap = recalibrators.begin(); itMap != recalibrators.end(); ++itMap) {
     //PG compute the values of the limits
     //PG FIXME questo forse non e' sufficiente, bisogna anche considerare il caso
     //PG FIXME in cui currentIndex e' positivo e effradIndex start no

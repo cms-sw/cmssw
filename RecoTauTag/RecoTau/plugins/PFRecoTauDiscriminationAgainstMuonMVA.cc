@@ -94,7 +94,7 @@ namespace {
       if (!loadMVAfromDB_)
         delete mvaReader_;
       delete[] mvaInput_;
-      for (std::vector<TFile*>::iterator it = inputFilesToDelete_.begin(); it != inputFilesToDelete_.end(); ++it) {
+      for (auto it = inputFilesToDelete_.begin(); it != inputFilesToDelete_.end(); ++it) {
         delete (*it);
       }
     }
@@ -182,8 +182,7 @@ namespace {
     double tauCaloEnECAL = 0.;
     double tauCaloEnHCAL = 0.;
     const std::vector<reco::PFCandidatePtr>& tauSignalPFCands = tau->signalPFCands();
-    for (std::vector<reco::PFCandidatePtr>::const_iterator tauSignalPFCand = tauSignalPFCands.begin();
-         tauSignalPFCand != tauSignalPFCands.end();
+    for (auto tauSignalPFCand = tauSignalPFCands.begin(); tauSignalPFCand != tauSignalPFCands.end();
          ++tauSignalPFCand) {
       tauCaloEnECAL += (*tauSignalPFCand)->ecalEnergy();
       tauCaloEnHCAL += (*tauSignalPFCand)->hcalEnergy();

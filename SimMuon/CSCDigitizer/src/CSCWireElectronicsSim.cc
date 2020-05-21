@@ -32,8 +32,7 @@ void CSCWireElectronicsSim::fillDigis(CSCWireDigiCollection &digis, CLHEP::HepRa
 
   // Loop over analog signals, run the fractional discriminator on each one,
   // and save the DIGI in the layer.
-  for (CSCSignalMap::iterator mapI = theSignalMap.begin(), lastSignal = theSignalMap.end(); mapI != lastSignal;
-       ++mapI) {
+  for (auto mapI = theSignalMap.begin(), lastSignal = theSignalMap.end(); mapI != lastSignal; ++mapI) {
     int wireGroup = (*mapI).first;
     const CSCAnalogSignal &signal = (*mapI).second;
     LogTrace("CSCWireElectronicsSim") << "CSCWireElectronicsSim: dump of wire signal follows... " << signal;

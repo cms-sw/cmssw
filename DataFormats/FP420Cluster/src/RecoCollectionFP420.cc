@@ -21,8 +21,8 @@ void RecoCollectionFP420::put(RecoCollectionFP420::Range input, unsigned int sta
 
   // fill input in temporary vector for sorting
   std::vector<RecoFP420> temporary;
-  RecoCollectionFP420::ContainerIterator sort_begin = input.first;
-  RecoCollectionFP420::ContainerIterator sort_end = input.second;
+  auto sort_begin = input.first;
+  auto sort_end = input.second;
 #ifdef mydigidebug
   std::cout << "   !!!!!!!!!!!!!!!!    RecoCollectionFP420:: !!!!  put !!!!           start " << std::endl;
 #endif
@@ -35,8 +35,8 @@ void RecoCollectionFP420::put(RecoCollectionFP420::Range input, unsigned int sta
   std::sort(temporary.begin(), temporary.end());
 
   // iterators over input
-  RecoCollectionFP420::ContainerIterator begin = temporary.begin();
-  RecoCollectionFP420::ContainerIterator end = temporary.end();
+  auto begin = temporary.begin();
+  auto end = temporary.end();
   for (; begin != end; ++begin) {
     container_.push_back(*begin);
     if (first) {
@@ -73,7 +73,7 @@ const RecoCollectionFP420::Range RecoCollectionFP420::get(unsigned int stationID
 #ifdef mydigidebug
   std::cout << "RecoCollectionFP420::get:stationID= " << stationID << std::endl;
 #endif
-  RecoCollectionFP420::RegistryIterator returnIndex = map_.find(stationID);
+  auto returnIndex = map_.find(stationID);
   RecoCollectionFP420::IndexRange returnIndexRange = returnIndex->second;
 #ifdef mydigidebug
   std::cout << "RecoCollectionFP420::get1: returnIndexRange.first= " << returnIndexRange.first << std::endl;
@@ -100,16 +100,16 @@ void RecoCollectionFP420::putclear(RecoCollectionFP420::Range input, unsigned in
   RecoCollectionFP420::IndexRange inputRange;
 
   std::vector<RecoFP420> temporary;
-  RecoCollectionFP420::ContainerIterator sort_begin = input.first;
-  RecoCollectionFP420::ContainerIterator sort_end = input.second;
+  auto sort_begin = input.first;
+  auto sort_end = input.second;
   for (; sort_begin != sort_end; ++sort_begin) {
     temporary.push_back(*sort_begin);
   }
   std::sort(temporary.begin(), temporary.end());
 
   //	temporary.clear();
-  RecoCollectionFP420::ContainerIterator begin = temporary.begin();
-  RecoCollectionFP420::ContainerIterator end = temporary.end();
+  auto begin = temporary.begin();
+  auto end = temporary.end();
   for (; begin != end; ++begin) {
     container_.push_back(*begin);
   }
@@ -132,8 +132,8 @@ const std::vector<unsigned int> RecoCollectionFP420::stationIDs() const {
 #ifdef mydigidebug
   std::cout << "RecoCollectionFP420::stationIDs:start " << std::endl;
 #endif
-  RecoCollectionFP420::RegistryIterator begin = map_.begin();
-  RecoCollectionFP420::RegistryIterator end = map_.end();
+  auto begin = map_.begin();
+  auto end = map_.end();
 
   std::vector<unsigned int> output;
 

@@ -199,8 +199,7 @@ void AlignmentMonitorMuonVsCurvature::event(const edm::Event &iEvent,
 
   if (m_muonCollectionTag.label().empty())  // use trajectories
   {
-    for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin(); trajtrack != trajtracks.end();
-         ++trajtrack) {
+    for (auto trajtrack = trajtracks.begin(); trajtrack != trajtracks.end(); ++trajtrack) {
       const Trajectory *traj = (*trajtrack).first;
       const reco::Track *track = (*trajtrack).second;
 
@@ -214,7 +213,7 @@ void AlignmentMonitorMuonVsCurvature::event(const edm::Event &iEvent,
     edm::Handle<reco::MuonCollection> muons;
     iEvent.getByLabel(m_muonCollectionTag, muons);
 
-    for (reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
+    for (auto muon = muons->begin(); muon != muons->end(); ++muon) {
       if (!(muon->isTrackerMuon() && muon->innerTrack().isNonnull()))
         continue;
 
@@ -253,7 +252,7 @@ void AlignmentMonitorMuonVsCurvature::processMuonResidualsFromTrack(MuonResidual
   if (fabs(mrft.getTrack()->pz()) > 0.01)
     qoverpz = mrft.getTrack()->charge() / fabs(mrft.getTrack()->pz());
 
-  for (std::vector<DetId>::const_iterator chamberId = chamberIds.begin(); chamberId != chamberIds.end(); ++chamberId) {
+  for (auto chamberId = chamberIds.begin(); chamberId != chamberIds.end(); ++chamberId) {
     if (chamberId->det() != DetId::Muon)
       continue;
 

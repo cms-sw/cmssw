@@ -15,7 +15,7 @@ namespace {
 vector<DAClusterizerInZ::track_t> DAClusterizerInZ::fill(const vector<reco::TransientTrack>& tracks) const {
   // prepare track data for clustering
   vector<track_t> tks;
-  for (vector<reco::TransientTrack>::const_iterator it = tracks.begin(); it != tracks.end(); it++) {
+  for (auto it = tracks.begin(); it != tracks.end(); it++) {
     track_t t;
     t.z = ((*it).stateAtBeamLine().trackStateAtPCA()).position().z();
     double tantheta = tan(((*it).stateAtBeamLine().trackStateAtPCA()).momentum().theta());
@@ -50,7 +50,7 @@ double DAClusterizerInZ::update(double beta, vector<track_t>& tks, vector<vertex
 
   //initialize sums
   double sumpi = 0;
-  for (vector<vertex_t>::iterator k = y.begin(); k != y.end(); k++) {
+  for (auto k = y.begin(); k != y.end(); k++) {
     k->se = 0;
     k->sw = 0;
     k->swz = 0;
@@ -62,7 +62,7 @@ double DAClusterizerInZ::update(double beta, vector<track_t>& tks, vector<vertex
   for (unsigned int i = 0; i < nt; i++) {
     // update pik and Zi
     double Zi = 0.;
-    for (vector<vertex_t>::iterator k = y.begin(); k != y.end(); k++) {
+    for (auto k = y.begin(); k != y.end(); k++) {
       k->ei = exp(-beta * Eik(tks[i], *k));  // cache exponential for one track at a time
       Zi += k->pk * k->ei;
     }
@@ -72,7 +72,7 @@ double DAClusterizerInZ::update(double beta, vector<track_t>& tks, vector<vertex
     if (tks[i].Z > 0) {
       sumpi += tks[i].pi;
       // accumulate weighted z and weights for vertex update
-      for (vector<vertex_t>::iterator k = y.begin(); k != y.end(); k++) {
+      for (auto k = y.begin(); k != y.end(); k++) {
         k->se += tks[i].pi * k->ei / Zi;
         double w = k->pk * tks[i].pi * k->ei / Zi / tks[i].dz2;
         k->sw += w;
@@ -87,7 +87,7 @@ double DAClusterizerInZ::update(double beta, vector<track_t>& tks, vector<vertex
 
   // now update z and pk
   double delta = 0;
-  for (vector<vertex_t>::iterator k = y.begin(); k != y.end(); k++) {
+  for (auto k = y.begin(); k != y.end(); k++) {
     if (k->sw > 0) {
       double znew = k->swz / k->sw;
       delta += pow(k->z - znew, 2);
@@ -115,7 +115,7 @@ double DAClusterizerInZ::update(double beta, vector<track_t>& tks, vector<vertex
   unsigned int nt = tks.size();
 
   //initialize sums
-  for (vector<vertex_t>::iterator k = y.begin(); k != y.end(); k++) {
+  for (auto k = y.begin(); k != y.end(); k++) {
     k->se = 0;
     k->sw = 0;
     k->swz = 0;
@@ -127,7 +127,7 @@ double DAClusterizerInZ::update(double beta, vector<track_t>& tks, vector<vertex
   for (unsigned int i = 0; i < nt; i++) {
     // update pik and Zi
     double Zi = rho0 * exp(-beta * dzCutOff_ * dzCutOff_);  // cut-off
-    for (vector<vertex_t>::iterator k = y.begin(); k != y.end(); k++) {
+    for (auto k = y.begin(); k != y.end(); k++) {
       k->ei = exp(-beta * Eik(tks[i], *k));  // cache exponential for one track at a time
       Zi += k->pk * k->ei;
     }
@@ -136,7 +136,7 @@ double DAClusterizerInZ::update(double beta, vector<track_t>& tks, vector<vertex
     // normalization
     if (tks[i].Z > 0) {
       // accumulate weighted z and weights for vertex update
-      for (vector<vertex_t>::iterator k = y.begin(); k != y.end(); k++) {
+      for (auto k = y.begin(); k != y.end(); k++) {
         k->se += tks[i].pi * k->ei / Zi;
         double w = k->pk * tks[i].pi * k->ei / Zi / tks[i].dz2;
         k->sw += w;
@@ -149,7 +149,7 @@ double DAClusterizerInZ::update(double beta, vector<track_t>& tks, vector<vertex
 
   // now update z
   double delta = 0;
-  for (vector<vertex_t>::iterator k = y.begin(); k != y.end(); k++) {
+  for (auto k = y.begin(); k != y.end(); k++) {
     if (k->sw > 0) {
       double znew = k->swz / k->sw;
       delta += pow(k->z - znew, 2);
@@ -174,7 +174,7 @@ bool DAClusterizerInZ::merge(vector<vertex_t>& y, int nt) const {
   if (y.size() < 2)
     return false;
 
-  for (vector<vertex_t>::iterator k = y.begin(); (k + 1) != y.end(); k++) {
+  for (auto k = y.begin(); (k + 1) != y.end(); k++) {
     if (fabs((k + 1)->z - k->z) < 1.e-3) {  // with fabs if only called after freeze-out (splitAll() at highter T)
       double rho = k->pk + (k + 1)->pk;
       if (rho > 0) {
@@ -199,7 +199,7 @@ bool DAClusterizerInZ::merge(vector<vertex_t>& y, double& beta) const {
   if (y.size() < 2)
     return false;
 
-  for (vector<vertex_t>::iterator k = y.begin(); (k + 1) != y.end(); k++) {
+  for (auto k = y.begin(); (k + 1) != y.end(); k++) {
     if (fabs((k + 1)->z - k->z) < 2.e-3) {
       double rho = k->pk + (k + 1)->pk;
       double swE = k->swE + (k + 1)->swE - k->pk * (k + 1)->pk / rho * pow((k + 1)->z - k->z, 2);
@@ -231,8 +231,8 @@ bool DAClusterizerInZ::purge(vector<vertex_t>& y, vector<track_t>& tks, double& 
 
   unsigned int nt = tks.size();
   double sumpmin = nt;
-  vector<vertex_t>::iterator k0 = y.end();
-  for (vector<vertex_t>::iterator k = y.begin(); k != y.end(); k++) {
+  auto k0 = y.end();
+  for (auto k = y.begin(); k != y.end(); k++) {
     int nUnique = 0;
     double sump = 0;
     double pmax = k->pk / (k->pk + rho0 * exp(-beta * dzCutOff_ * dzCutOff_));
@@ -269,7 +269,7 @@ double DAClusterizerInZ::beta0(double betamax, vector<track_t>& tks, vector<vert
   // estimate critical temperature from beta=0 (T=inf)
   unsigned int nt = tks.size();
 
-  for (vector<vertex_t>::iterator k = y.begin(); k != y.end(); k++) {
+  for (auto k = y.begin(); k != y.end(); k++) {
     // vertex fit at T=inf
     double sumwz = 0;
     double sumw = 0;
@@ -388,7 +388,7 @@ void DAClusterizerInZ::splitAll(vector<vertex_t>& y) const {
   double zsep = 2 * epsilon;  // split vertices that are isolated by at least zsep (vertices that haven't collapsed)
   vector<vertex_t> y1;
 
-  for (vector<vertex_t>::iterator k = y.begin(); k != y.end(); k++) {
+  for (auto k = y.begin(); k != y.end(); k++) {
     if (((k == y.begin()) || (k - 1)->z < k->z - zsep) && (((k + 1) == y.end()) || (k + 1)->z > k->z + zsep)) {
       // isolated prototype, split
       vertex_t vnew;
@@ -449,7 +449,7 @@ void DAClusterizerInZ::dump(const double beta,
                             int verbosity) const {
   // copy and sort for nicer printout
   vector<track_t> tks;
-  for (vector<track_t>::const_iterator t = tks0.begin(); t != tks0.end(); t++) {
+  for (auto t = tks0.begin(); t != tks0.end(); t++) {
     tks.push_back(*t);
   }
   stable_sort(tks.begin(), tks.end(), recTrackLessZ1);
@@ -458,17 +458,17 @@ void DAClusterizerInZ::dump(const double beta,
   cout << "beta=" << beta << "   betamax= " << betamax_ << endl;
   cout << "                                                               z= ";
   cout.precision(4);
-  for (vector<vertex_t>::const_iterator k = y.begin(); k != y.end(); k++) {
+  for (auto k = y.begin(); k != y.end(); k++) {
     cout << setw(8) << fixed << k->z;
   }
   cout << endl << "T=" << setw(15) << 1. / beta << "                                             Tc= ";
-  for (vector<vertex_t>::const_iterator k = y.begin(); k != y.end(); k++) {
+  for (auto k = y.begin(); k != y.end(); k++) {
     cout << setw(8) << fixed << k->Tc;
   }
 
   cout << endl << "                                                               pk=";
   double sumpk = 0;
-  for (vector<vertex_t>::const_iterator k = y.begin(); k != y.end(); k++) {
+  for (auto k = y.begin(); k != y.end(); k++) {
     cout << setw(8) << setprecision(3) << fixed << k->pk;
     sumpk += k->pk;
   }
@@ -516,7 +516,7 @@ void DAClusterizerInZ::dump(const double beta,
            << tks[i].tt->track().eta();
 
       double sump = 0.;
-      for (vector<vertex_t>::const_iterator k = y.begin(); k != y.end(); k++) {
+      for (auto k = y.begin(); k != y.end(); k++) {
         if ((tks[i].pi > 0) && (tks[i].Z > 0)) {
           //double p=pik(beta,tks[i],*k);
           double p = k->pk * exp(-beta * Eik(tks[i], *k)) / tks[i].Z;
@@ -609,7 +609,7 @@ vector<TransientVertex> DAClusterizerInZ::vertices(const vector<reco::TransientT
 
   // switch on outlier rejection
   rho0 = 1. / nt;
-  for (vector<vertex_t>::iterator k = y.begin(); k != y.end(); k++) {
+  for (auto k = y.begin(); k != y.end(); k++) {
     k->pk = 1.;
   }  // democratic
   niter = 0;
@@ -657,12 +657,12 @@ vector<TransientVertex> DAClusterizerInZ::vertices(const vector<reco::TransientT
   // ensure correct normalization of probabilities, should make double assginment reasonably impossible
   for (unsigned int i = 0; i < nt; i++) {
     tks[i].Z = rho0 * exp(-beta * dzCutOff_ * dzCutOff_);
-    for (vector<vertex_t>::iterator k = y.begin(); k != y.end(); k++) {
+    for (auto k = y.begin(); k != y.end(); k++) {
       tks[i].Z += k->pk * exp(-beta * Eik(tks[i], *k));
     }
   }
 
-  for (vector<vertex_t>::iterator k = y.begin(); k != y.end(); k++) {
+  for (auto k = y.begin(); k != y.end(); k++) {
     GlobalPoint pos(0, 0, k->z);
     vector<reco::TransientTrack> vertexTracks;
     for (unsigned int i = 0; i < nt; i++) {
@@ -701,7 +701,7 @@ vector<vector<reco::TransientTrack> > DAClusterizerInZ::clusterize(const vector<
   // fill into clusters and merge
   vector<reco::TransientTrack> aCluster = pv.begin()->originalTracks();
 
-  for (vector<TransientVertex>::iterator k = pv.begin() + 1; k != pv.end(); k++) {
+  for (auto k = pv.begin() + 1; k != pv.end(); k++) {
     if (fabs(k->position().z() - (k - 1)->position().z()) > (2 * vertexSize_)) {
       // close a cluster
       clusters.push_back(aCluster);

@@ -76,7 +76,7 @@ void HcalSimParameterMap::setFrameSize(const DetId &detId, int frameSize) {
       setFrameSize(theHFParameters1, frameSize);
       setFrameSize(theHFParameters2, frameSize);
     } else {
-      CaloSimParameters &parameters = const_cast<CaloSimParameters &>(simParameters(detId));
+      auto &parameters = const_cast<CaloSimParameters &>(simParameters(detId));
       setFrameSize(parameters, frameSize);
     }
   }

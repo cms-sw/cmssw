@@ -62,7 +62,7 @@ void CompositeCandidate::applyRoles() {
     std::string role = roles_[i];
     Candidate* c = CompositeCandidate::daughter(i);
 
-    CompositeCandidate* c1 = dynamic_cast<CompositeCandidate*>(c);
+    auto* c1 = dynamic_cast<CompositeCandidate*>(c);
     if (c1 != nullptr) {
       c1->setName(role);
     }
@@ -108,14 +108,14 @@ const Candidate* CompositeCandidate::daughter(const std::string& s) const {
 void CompositeCandidate::addDaughter(const Candidate& cand, const std::string& s) {
   Candidate* c = cand.clone();
   if (!s.empty()) {
-    role_collection::iterator begin = roles_.begin(), end = roles_.end();
+    auto begin = roles_.begin(), end = roles_.end();
     bool isFound = (find(begin, end, s) != end);
     if (isFound) {
       throw cms::Exception("InvalidReference") << "CompositeCandidate::addDaughter: Already have role with name \"" << s
                                                << "\", please clearDaughters, or use a new name\n";
     }
     roles_.push_back(s);
-    CompositeCandidate* c1 = dynamic_cast<CompositeCandidate*>(&*c);
+    auto* c1 = dynamic_cast<CompositeCandidate*>(&*c);
     if (c1 != nullptr) {
       c1->setName(s);
     }
@@ -125,14 +125,14 @@ void CompositeCandidate::addDaughter(const Candidate& cand, const std::string& s
 
 void CompositeCandidate::addDaughter(std::unique_ptr<Candidate> cand, const std::string& s) {
   if (!s.empty()) {
-    role_collection::iterator begin = roles_.begin(), end = roles_.end();
+    auto begin = roles_.begin(), end = roles_.end();
     bool isFound = (find(begin, end, s) != end);
     if (isFound) {
       throw cms::Exception("InvalidReference") << "CompositeCandidate::addDaughter: Already have role with name \"" << s
                                                << "\", please clearDaughters, or use a new name\n";
     }
     roles_.push_back(s);
-    CompositeCandidate* c1 = dynamic_cast<CompositeCandidate*>(&*cand);
+    auto* c1 = dynamic_cast<CompositeCandidate*>(&*cand);
     if (c1 != nullptr) {
       c1->setName(s);
     }

@@ -22,7 +22,7 @@ public:
         componentStereo_(rStereo){};
 
   FastMatchedTrackerRecHit* clone() const override {
-    FastMatchedTrackerRecHit* p = new FastMatchedTrackerRecHit(*this);
+    auto* p = new FastMatchedTrackerRecHit(*this);
     p->load();
     return p;
   }

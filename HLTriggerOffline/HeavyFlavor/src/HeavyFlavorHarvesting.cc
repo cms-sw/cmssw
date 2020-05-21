@@ -41,7 +41,7 @@ HeavyFlavorHarvesting::HeavyFlavorHarvesting(const edm::ParameterSet& pset)
       efficiencies(pset.getUntrackedParameter<VParameterSet>("Efficiencies")) {}
 
 void HeavyFlavorHarvesting::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::IGetter& igetter_) {
-  for (VParameterSet::const_iterator pset = efficiencies.begin(); pset != efficiencies.end(); pset++) {
+  for (auto pset = efficiencies.begin(); pset != efficiencies.end(); pset++) {
     calculateEfficiency(*pset, ibooker_, igetter_);
   }
 }

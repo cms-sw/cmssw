@@ -61,7 +61,7 @@ float PerformancePayloadFromBinnedTFormula::getResult(PerformanceResult::ResultT
   // sorry, TFormulas just work up to dimension==4
   Double_t values[4];
   int i = 0;
-  for (std::vector<BinningVariables::BinningVariablesType>::const_iterator it = t.begin(); it != t.end(); ++it, ++i) {
+  for (auto it = t.begin(); it != t.end(); ++it, ++i) {
     values[i] = p.value(*it);
   }
   //
@@ -81,7 +81,7 @@ bool PerformancePayloadFromBinnedTFormula::isOk(const BinningPointByMap& _p, uns
   for (unsigned int ti = 0; ti < pls.size(); ++ti) {
     bool result = true;
     std::vector<BinningVariables::BinningVariablesType> t = myBinning();
-    for (std::vector<BinningVariables::BinningVariablesType>::const_iterator it = t.begin(); it != t.end(); ++it) {
+    for (auto it = t.begin(); it != t.end(); ++it) {
       //
       // now looking into a single payload
       //
@@ -131,7 +131,7 @@ void PerformancePayloadFromBinnedTFormula::printFormula(PerformanceResult::Resul
   //
   std::vector<BinningVariables::BinningVariablesType> t = myBinning();
 
-  for (std::vector<BinningVariables::BinningVariablesType>::const_iterator it = t.begin(); it != t.end(); ++it) {
+  for (auto it = t.begin(); it != t.end(); ++it) {
     int pos = limitPos(*it);
     std::pair<float, float> limits = (pls[whichone].limits())[pos];
     cout << "      Variable: " << *it << " with limits: "

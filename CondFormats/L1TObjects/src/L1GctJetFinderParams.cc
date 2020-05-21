@@ -248,7 +248,7 @@ double L1GctJetFinderParams::orcaStyleCorrect(const double Et, const std::vector
   // The coefficients are arranged in groups of four
   // The first in each group is a threshold value of Et.
 
-  std::vector<double>::const_iterator next_coeff = coeffs.begin();
+  auto next_coeff = coeffs.begin();
   while (next_coeff != coeffs.end()) {
     double threshold = *next_coeff++;
     double A = *next_coeff++;
@@ -282,7 +282,7 @@ double L1GctJetFinderParams::piecewiseCubicCorrect(const double Et, const std::v
   // The first in each group is a threshold value of input Et,
   // followed by the four coefficients for the cubic function.
   double etOut = Et;
-  std::vector<double>::const_iterator next_coeff = coeffs.begin();
+  auto next_coeff = coeffs.begin();
   while (next_coeff != coeffs.end()) {
     // Read the coefficients from the vector
     double threshold = *next_coeff++;

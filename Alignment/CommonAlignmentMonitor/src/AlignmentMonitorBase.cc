@@ -45,9 +45,7 @@ void AlignmentMonitorBase::beginOfJob(AlignableTracker *pTracker,
 void AlignmentMonitorBase::startingNewLoop() {
   m_iteration++;
 
-  for (std::map<std::vector<std::string>, TFileDirectory *>::const_iterator i = m_iterDirMap.begin();
-       i != m_iterDirMap.end();
-       ++i) {
+  for (auto i = m_iterDirMap.begin(); i != m_iterDirMap.end(); ++i) {
     delete i->second;
   }
   m_iterDirMap.clear();

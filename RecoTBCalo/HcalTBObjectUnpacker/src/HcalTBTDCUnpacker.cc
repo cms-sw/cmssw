@@ -96,7 +96,7 @@ namespace hcaltb {
   //static const double CONVERSION_FACTOR=25.0/32.0;
 
   void HcalTBTDCUnpacker::unpackHits(const FEDRawData& raw, std::vector<Hit>& hits, HcalTBTiming& timing) const {
-    const ClassicTDCDataFormat* tdc = (const ClassicTDCDataFormat*)raw.data();
+    const auto* tdc = (const ClassicTDCDataFormat*)raw.data();
 
     if (raw.size() < 3 * 8) {
       throw cms::Exception("Missing Data") << "No data in the TDC block";
@@ -107,7 +107,7 @@ namespace hcaltb {
 
     // old TDC (767)
     if (tdc->n_max_hits != 192) {
-      const CombinedTDCQDCDataFormat* qdctdc = (const CombinedTDCQDCDataFormat*)raw.data();
+      const auto* qdctdc = (const CombinedTDCQDCDataFormat*)raw.data();
       hitbase = (const unsigned int*)(qdctdc);
       hitbase += 6;                             // header
       hitbase += qdctdc->n_qdc_hits / 2;        // two unsigned short per unsigned long
@@ -134,7 +134,7 @@ namespace hcaltb {
     for (int i = 0; i < 32; i++)
       v775[i] = -1;
     if (tdc->n_max_hits != 192) {
-      const CombinedTDCQDCDataFormat* qdctdc = (const CombinedTDCQDCDataFormat*)raw.data();
+      const auto* qdctdc = (const CombinedTDCQDCDataFormat*)raw.data();
       hitbase = (const unsigned int*)(qdctdc);
       hitbase += 6;                                         // header
       hitbase += qdctdc->n_qdc_hits / 2;                    // two unsigned short per unsigned long
@@ -318,7 +318,7 @@ void HcalTBTDCUnpacker::setupWC() {
       chan2 = WC_CHANNELIDS[plane * 3 + 1];
       chanA = WC_CHANNELIDS[plane * 3 + 2];
 
-      for (std::vector<Hit>::const_iterator j = hits.begin(); j != hits.end(); j++) {
+      for (auto j = hits.begin(); j != hits.end(); j++) {
         if (j->channel == chan1 && n1 < MAX_HITS) {
           hits1[n1] = j->time - TDC_OFFSET_CONSTANT;
           n1++;

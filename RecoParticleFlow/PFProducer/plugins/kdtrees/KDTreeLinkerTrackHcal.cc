@@ -126,7 +126,7 @@ void KDTreeLinkerTrackHcal::buildTree() {
   std::vector<KDTreeNodeInfo<reco::PFRecHit const*, 2>> eltList;
 
   // Filling of this list
-  for (RecHitSet::const_iterator it = rechitsSet_.begin(); it != rechitsSet_.end(); it++) {
+  for (auto it = rechitsSet_.begin(); it != rechitsSet_.end(); it++) {
     const reco::PFRecHit::REPPoint& posrep = (*it)->positionREP();
 
     KDTreeNodeInfo<reco::PFRecHit const*, 2> rh1(*it, posrep.eta(), posrep.phi());
@@ -162,7 +162,7 @@ void KDTreeLinkerTrackHcal::searchLinks() {
   // Most of the code has been taken from LinkByRecHit.cc
 
   // We iterate over the tracks.
-  for (BlockEltSet::iterator it = targetSet_.begin(); it != targetSet_.end(); it++) {
+  for (auto it = targetSet_.begin(); it != targetSet_.end(); it++) {
     reco::PFRecTrackRef trackref = (*it)->trackRefPF();
 
     const reco::PFTrajectoryPoint& atHCAL = trackref->extrapolatedPoint(trajectoryLayerEntrance_);
@@ -219,9 +219,9 @@ void KDTreeLinkerTrackHcal::searchLinks() {
         dphi = 2. * M_PI - dphi;
 
       // Find all clusters associated to given rechit
-      RecHit2BlockEltMap::iterator ret = rechit2ClusterLinks_.find(recHit);
+      auto ret = rechit2ClusterLinks_.find(recHit);
 
-      for (BlockEltSet::iterator clusterIt = ret->second.begin(); clusterIt != ret->second.end(); clusterIt++) {
+      for (auto clusterIt = ret->second.begin(); clusterIt != ret->second.end(); clusterIt++) {
         const reco::PFClusterRef clusterref = (*clusterIt)->clusterRef();
         int fracsNbr = clusterref->recHitFractions().size();
 
@@ -240,10 +240,10 @@ void KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks() {
   //TODO YG : Check if cluster positionREP() is valid ?
 
   // Here we save in each HCAL cluster the list of phi/eta values of linked clusters (actually tracks).
-  for (BlockElt2BlockEltMap::iterator it = cluster2TargetLinks_.begin(); it != cluster2TargetLinks_.end(); ++it) {
+  for (auto it = cluster2TargetLinks_.begin(); it != cluster2TargetLinks_.end(); ++it) {
     reco::PFMultiLinksTC multitracks(true);
 
-    for (BlockEltSet::iterator jt = it->second.begin(); jt != it->second.end(); ++jt) {
+    for (auto jt = it->second.begin(); jt != it->second.end(); ++jt) {
       reco::PFRecTrackRef trackref = (*jt)->trackRefPF();
       const reco::PFTrajectoryPoint& atHCAL = trackref->extrapolatedPoint(trajectoryLayerEntrance_);
       double tracketa = atHCAL.positionREP().eta();
@@ -257,7 +257,7 @@ void KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks() {
 
   // We set the multilinks flag of the track to true. It will allow us to
   // use in an optimized way our algo results in the recursive linking algo.
-  for (BlockEltSet::iterator it = fieldClusterSet_.begin(); it != fieldClusterSet_.end(); ++it)
+  for (auto it = fieldClusterSet_.begin(); it != fieldClusterSet_.end(); ++it)
     (*it)->setIsValidMultilinks(true);
 }
 

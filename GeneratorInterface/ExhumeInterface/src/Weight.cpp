@@ -43,9 +43,9 @@ void Exhume::Weight::WeightInit(const double &min, const double &max) {
   UNLineShape.clear();
   UNLineShape.insert(std::pair<double, double>(0.0, min));
 
-  std::map<double, double>::iterator jj = FuncMap.begin();
+  auto jj = FuncMap.begin();
   jj++;
-  for (std::map<double, double>::iterator ii = FuncMap.begin(); jj != FuncMap.end(); ii++) {
+  for (auto ii = FuncMap.begin(); jj != FuncMap.end(); ii++) {
     UNLineShape.insert(std::pair<double, double>(
         UNLineShape.rbegin()->first + 0.5 * (ii->second + jj->second) * (jj->first - ii->first), jj->first));
     jj++;

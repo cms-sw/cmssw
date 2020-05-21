@@ -8,7 +8,7 @@ align::Alignables& AlignableMap::get(const std::string& name) { return theStore[
 
 //_____________________________________________________________________________
 align::Alignables& AlignableMap::find(const std::string& name) {
-  typename Container::iterator o = theStore.find(name);
+  auto o = theStore.find(name);
 
   if (theStore.end() == o) {
     std::ostringstream knownKeys;
@@ -26,7 +26,7 @@ align::Alignables& AlignableMap::find(const std::string& name) {
 //_____________________________________________________________________________
 void AlignableMap::dump(void) const {
   edm::LogInfo("AlignableMap") << "Printing out AlignSetup: ";
-  for (typename Container::const_iterator it = theStore.begin(); it != theStore.end(); ++it) {
+  for (auto it = theStore.begin(); it != theStore.end(); ++it) {
     edm::LogVerbatim("AlignableMap") << it->first << std::endl;
   }
 }

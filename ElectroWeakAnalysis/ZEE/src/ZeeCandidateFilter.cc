@@ -639,7 +639,7 @@ Bool_t ZeeCandidateFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSe
   std::vector<Double_t> ETs;
   pat::ElectronCollection myElectrons;
 
-  for (pat::ElectronCollection::const_iterator elec = pElecs->begin(); elec != pElecs->end();
+  for (auto elec = pElecs->begin(); elec != pElecs->end();
        ++elec) {  //  the definition of  the electron ET is wrt Gsf track eta
     Double_t sc_et = elec->caloEnergy() / TMath::CosH(elec->gsfTrack()->eta());
     indices.push_back(counter);
@@ -1223,15 +1223,15 @@ Bool_t ZeeCandidateFilter::filter(edm::Event &iEvent, const edm::EventSetup &iSe
   iEvent.getByToken(tcMetCollectionToken_, pattcMET);
 
   const pat::METCollection *pMet = patMET.product();
-  const pat::METCollection::const_iterator met = pMet->begin();
+  const auto met = pMet->begin();
   const pat::MET theMET = *met;
   //
   const pat::METCollection *pPfMet = patpfMET.product();
-  const pat::METCollection::const_iterator pfmet = pPfMet->begin();
+  const auto pfmet = pPfMet->begin();
   const pat::MET thePfMET = *pfmet;
   //
   const pat::METCollection *pTcMet = pattcMET.product();
-  const pat::METCollection::const_iterator tcmet = pTcMet->begin();
+  const auto tcmet = pTcMet->begin();
   const pat::MET theTcMET = *tcmet;
 
   Double_t metEt = met->et();

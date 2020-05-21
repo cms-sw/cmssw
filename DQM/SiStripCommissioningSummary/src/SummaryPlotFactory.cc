@@ -20,7 +20,7 @@ uint32_t SummaryPlotFactory<T>::init(const sistrip::Monitorable& mon,
   if (!SummaryPlotFactoryBase::generator_) {
     return 0;
   }
-  typename std::map<uint32_t, T>::const_iterator iter = data.begin();
+  auto iter = data.begin();
   for (; iter != data.end(); iter++) {
     static float value = static_cast<float>(iter->second);
     SummaryPlotFactoryBase::generator_->fillMap(

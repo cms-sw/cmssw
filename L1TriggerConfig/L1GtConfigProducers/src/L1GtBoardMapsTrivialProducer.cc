@@ -39,8 +39,7 @@ std::vector<L1GtObject> chInputObjects(const std::vector<std::string>& chInputSt
 
   L1GtObject obj;
 
-  for (std::vector<std::string>::const_iterator itObj = chInputStrings.begin(); itObj != chInputStrings.end();
-       ++itObj) {
+  for (auto itObj = chInputStrings.begin(); itObj != chInputStrings.end(); ++itObj) {
     if ((*itObj) == "Mu") {
       obj = Mu;
     } else if ((*itObj) == "NoIsoEG") {
@@ -190,7 +189,7 @@ L1GtBoardMapsTrivialProducer::L1GtBoardMapsTrivialProducer(const edm::ParameterS
   // fill the maps
   int posVec = 0;
 
-  for (std::vector<std::string>::const_iterator it = boardList.begin(); it != boardList.end(); ++it) {
+  for (auto it = boardList.begin(); it != boardList.end(); ++it) {
     L1GtBoardType boardType;
 
     if ((*it) == "GTFE") {
@@ -248,7 +247,7 @@ L1GtBoardMapsTrivialProducer::L1GtBoardMapsTrivialProducer(const edm::ParameterS
       int iPsb = 0;
       std::vector<L1GtPsbQuad> quadVec(L1GtBoard::NumberCablesBoard);
 
-      for (std::vector<std::string>::const_iterator cIt = cableList.begin(); cIt != cableList.end(); ++cIt) {
+      for (auto cIt = cableList.begin(); cIt != cableList.end(); ++cIt) {
         if (*cIt == "TechTr") {
           psbQuad = TechTr;
         } else if (*cIt == "IsoEGQ") {
@@ -327,8 +326,7 @@ L1GtBoardMapsTrivialProducer::L1GtBoardMapsTrivialProducer(const edm::ParameterS
 
       std::vector<L1GtObject> chObjects;
 
-      for (std::vector<edm::ParameterSet>::const_iterator itPSet = psbInput.begin(); itPSet != psbInput.end();
-           ++itPSet) {
+      for (auto itPSet = psbInput.begin(); itPSet != psbInput.end(); ++itPSet) {
         //
         int slot = itPSet->getParameter<int>("Slot");
 

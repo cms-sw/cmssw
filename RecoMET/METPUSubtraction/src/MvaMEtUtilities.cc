@@ -122,7 +122,7 @@ reco::Candidate::LorentzVector MvaMEtUtilities::jetP4(const std::vector<reco::PU
 }
 unsigned MvaMEtUtilities::numJetsAboveThreshold(const std::vector<reco::PUSubMETCandInfo>& jets, double ptThreshold) {
   unsigned retVal = 0;
-  for (std::vector<reco::PUSubMETCandInfo>::const_iterator jet = jets.begin(); jet != jets.end(); ++jet) {
+  for (auto jet = jets.begin(); jet != jets.end(); ++jet) {
     if (jet->p4().pt() > ptThreshold)
       ++retVal;
   }
@@ -134,10 +134,9 @@ std::vector<reco::PUSubMETCandInfo> MvaMEtUtilities::cleanJets(const std::vector
                                                                double dRmatch) {
   double dR2match = dRmatch * dRmatch;
   std::vector<reco::PUSubMETCandInfo> retVal;
-  for (std::vector<reco::PUSubMETCandInfo>::const_iterator jet = jets.begin(); jet != jets.end(); ++jet) {
+  for (auto jet = jets.begin(); jet != jets.end(); ++jet) {
     bool isOverlap = false;
-    for (std::vector<reco::PUSubMETCandInfo>::const_iterator lepton = leptons.begin(); lepton != leptons.end();
-         ++lepton) {
+    for (auto lepton = leptons.begin(); lepton != leptons.end(); ++lepton) {
       if (deltaR2(jet->p4(), lepton->p4()) < dR2match)
         isOverlap = true;
     }
@@ -154,12 +153,9 @@ std::vector<reco::PUSubMETCandInfo> MvaMEtUtilities::cleanPFCands(
     bool invert) {
   double dR2match = dRmatch * dRmatch;
   std::vector<reco::PUSubMETCandInfo> retVal;
-  for (std::vector<reco::PUSubMETCandInfo>::const_iterator pfCandidate = pfCandidates.begin();
-       pfCandidate != pfCandidates.end();
-       ++pfCandidate) {
+  for (auto pfCandidate = pfCandidates.begin(); pfCandidate != pfCandidates.end(); ++pfCandidate) {
     bool isOverlap = false;
-    for (std::vector<reco::PUSubMETCandInfo>::const_iterator lepton = leptons.begin(); lepton != leptons.end();
-         ++lepton) {
+    for (auto lepton = leptons.begin(); lepton != leptons.end(); ++lepton) {
       if (deltaR2(pfCandidate->p4(), lepton->p4()) < dR2match)
         isOverlap = true;
     }
@@ -185,8 +181,7 @@ CommonMETData MvaMEtUtilities::computeCandSum(int compKey,
   retVal.mey = 0.;
   retVal.sumet = 0.;
 
-  for (std::vector<reco::PUSubMETCandInfo>::const_iterator object = objects.begin(); object != objects.end();
-       ++object) {
+  for (auto object = objects.begin(); object != objects.end(); ++object) {
     double pFrac = 1;
 
     //pf candidates

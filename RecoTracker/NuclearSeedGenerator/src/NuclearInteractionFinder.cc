@@ -83,7 +83,7 @@ bool NuclearInteractionFinder::run(const Trajectory& traj, const MeasurementTrac
     std::reverse(measurements.begin(), measurements.end());
   }
 
-  std::vector<TrajectoryMeasurement>::const_iterator it_meas = measurements.begin();
+  auto it_meas = measurements.begin();
 
   std::vector<double> ncompatibleHits;
   bool NIfound = false;
@@ -168,7 +168,7 @@ std::vector<TrajectoryMeasurement> NuclearInteractionFinder::findMeasurementsFro
     return result;
   }
 
-  for (vector<const DetLayer*>::iterator il = nl.begin(); il != nl.end(); il++) {
+  for (auto il = nl.begin(); il != nl.end(); il++) {
     vector<TM> tmp = layerMeasurements.measurements((**il), currentState, *thePropagator, *theEstimator);
     if (!tmp.empty()) {
       if (result.empty())
@@ -197,7 +197,7 @@ void NuclearInteractionFinder::fillSeeds(
   const std::vector<TM>& outerTMs = tmPairs.second;
 
   // Loop on all outer TM
-  for (std::vector<TM>::const_iterator outtm = outerTMs.begin(); outtm != outerTMs.end(); outtm++) {
+  for (auto outtm = outerTMs.begin(); outtm != outerTMs.end(); outtm++) {
     if ((innerTM.recHit())->isValid() && (outtm->recHit())->isValid()) {
       currentSeed->setMeasurements(innerTM.updatedState(), innerTM.recHit(), outtm->recHit());
       allSeeds.push_back(*currentSeed);
@@ -210,8 +210,7 @@ void NuclearInteractionFinder::fillSeeds(
 //----------------------------------------------------------------------
 std::unique_ptr<TrajectorySeedCollection> NuclearInteractionFinder::getPersistentSeeds() {
   auto output = std::make_unique<TrajectorySeedCollection>();
-  for (std::vector<SeedFromNuclearInteraction>::const_iterator it_seed = allSeeds.begin(); it_seed != allSeeds.end();
-       it_seed++) {
+  for (auto it_seed = allSeeds.begin(); it_seed != allSeeds.end(); it_seed++) {
     if (it_seed->isValid()) {
       output->push_back(it_seed->TrajSeed());
     } else
@@ -227,8 +226,7 @@ void NuclearInteractionFinder::improveSeeds(const MeasurementTrackerEvent& event
   LayerMeasurements layerMeasurements(*theMeasurementTracker, event);
 
   // loop on all actual seeds
-  for (std::vector<SeedFromNuclearInteraction>::const_iterator it_seed = allSeeds.begin(); it_seed != allSeeds.end();
-       it_seed++) {
+  for (auto it_seed = allSeeds.begin(); it_seed != allSeeds.end(); it_seed++) {
     if (!it_seed->isValid())
       continue;
 
@@ -237,7 +235,7 @@ void NuclearInteractionFinder::improveSeeds(const MeasurementTrackerEvent& event
         findMeasurementsFromTSOS(it_seed->updatedTSOS(), it_seed->outerHitDetId(), layerMeasurements);
 
     // loop on those new TMs
-    for (std::vector<TM>::const_iterator tm = thirdTMs.begin(); tm != thirdTMs.end(); tm++) {
+    for (auto tm = thirdTMs.begin(); tm != thirdTMs.end(); tm++) {
       if (!tm->recHit()->isValid())
         continue;
 

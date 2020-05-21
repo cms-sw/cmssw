@@ -342,8 +342,7 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
 
   c.get<CaloGeometryRecord>().get(geometry);
 
-  for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResult->begin(); SimHits != SimHitResult->end();
-       ++SimHits) {
+  for (auto SimHits = SimHitResult->begin(); SimHits != SimHitResult->end(); ++SimHits) {
     HcalDetId cell;
     if (testNumber_)
       cell = HcalHitRelabeller::relabel(SimHits->id(), hcons);
@@ -434,8 +433,7 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
     ev.getByToken(tok_ecalEB_, ecalEBHits);
     const PCaloHitContainer *SimHitResultEB = ecalEBHits.product();
 
-    for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResultEB->begin(); SimHits != SimHitResultEB->end();
-         ++SimHits) {
+    for (auto SimHits = SimHitResultEB->begin(); SimHits != SimHitResultEB->end(); ++SimHits) {
       EBDetId EBid = EBDetId(SimHits->id());
 
       auto cellGeometry = geometry->getSubdetectorGeometry(EBid)->getGeometry(EBid);
@@ -456,8 +454,7 @@ void HcalSimHitsValidation::analyze(edm::Event const &ev, edm::EventSetup const 
     ev.getByToken(tok_ecalEE_, ecalEEHits);
     const PCaloHitContainer *SimHitResultEE = ecalEEHits.product();
 
-    for (std::vector<PCaloHit>::const_iterator SimHits = SimHitResultEE->begin(); SimHits != SimHitResultEE->end();
-         ++SimHits) {
+    for (auto SimHits = SimHitResultEE->begin(); SimHits != SimHitResultEE->end(); ++SimHits) {
       EEDetId EEid = EEDetId(SimHits->id());
 
       auto cellGeometry = geometry->getSubdetectorGeometry(EEid)->getGeometry(EEid);

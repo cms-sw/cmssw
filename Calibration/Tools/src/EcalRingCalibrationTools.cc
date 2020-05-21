@@ -199,7 +199,7 @@ void EcalRingCalibrationTools::initializeFromGeometry(CaloGeometry const* geomet
 
   std::vector<DetId> const& endcapCells = geometry->getValidDetIds(DetId::Ecal, EcalEndcap);
 
-  for (std::vector<DetId>::const_iterator endcapIt = endcapCells.begin(); endcapIt != endcapCells.end(); ++endcapIt) {
+  for (auto endcapIt = endcapCells.begin(); endcapIt != endcapCells.end(); ++endcapIt) {
     EEDetId ee(*endcapIt);
     if (ee.zside() == -1)
       continue;  //Just using +side to fill absEta x,y map
@@ -233,7 +233,7 @@ void EcalRingCalibrationTools::initializeFromGeometry(CaloGeometry const* geomet
 
   std::vector<DetId> const& barrelCells = geometry->getValidDetIds(DetId::Ecal, EcalBarrel);
 
-  for (std::vector<DetId>::const_iterator barrelIt = barrelCells.begin(); barrelIt != barrelCells.end(); ++barrelIt) {
+  for (auto barrelIt = barrelCells.begin(); barrelIt != barrelCells.end(); ++barrelIt) {
     EBDetId eb(*barrelIt);
   }
 

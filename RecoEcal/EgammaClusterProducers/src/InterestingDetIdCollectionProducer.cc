@@ -85,7 +85,7 @@ void InterestingDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::
       EcalRecHit testEcalRecHit;
 
       for (posCurrent = clusterDetIds.begin(); posCurrent != clusterDetIds.end(); posCurrent++) {
-        EcalRecHitCollection::const_iterator itt = recHitsHandle->find((*posCurrent).first);
+        auto itt = recHitsHandle->find((*posCurrent).first);
         if ((!((*posCurrent).first.null())) && (itt != recHitsHandle->end()) && ((*itt).energy() > eMax)) {
           eMax = (*itt).energy();
           eMaxId = (*itt).id();
@@ -106,7 +106,7 @@ void InterestingDetIdCollectionProducer::produce(edm::Event& iEvent, const edm::
   }
 
   if (severityLevel_ >= 0 || keepNextToDead_ || keepNextToBoundary_) {
-    for (EcalRecHitCollection::const_iterator it = recHitsHandle->begin(); it != recHitsHandle->end(); ++it) {
+    for (auto it = recHitsHandle->begin(); it != recHitsHandle->end(); ++it) {
       // also add recHits of dead TT if the corresponding TP is saturated
       if (it->checkFlag(EcalRecHit::kTPSaturated)) {
         indexToStore.push_back(it->id());

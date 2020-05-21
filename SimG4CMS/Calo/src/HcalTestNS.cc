@@ -22,7 +22,7 @@ HcalTestNS::HcalTestNS(const edm::EventSetup* iSetup) {
 HcalTestNS::~HcalTestNS() {}
 
 bool HcalTestNS::compare(HcalNumberingFromDDD::HcalID const& tmp, uint32_t const& id) {
-  HcalNumberingScheme* scheme = dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme(false));
+  auto* scheme = dynamic_cast<HcalNumberingScheme*>(new HcalTestNumberingScheme(false));
   uint32_t id0 = scheme->getUnitID(tmp);
   DetId hid = HcalHitRelabeller::relabel(id0, hcons_);
   bool ok = (id == hid.rawId());

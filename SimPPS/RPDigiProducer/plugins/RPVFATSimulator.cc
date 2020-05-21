@@ -17,7 +17,7 @@ void RPVFATSimulator::ConvertChargeToHits(const simromanpot::strip_charge_map &s
                                           simromanpot::strip_charge_map_links_type &theSignalProvenance,
                                           std::vector<TotemRPDigi> &output_digi,
                                           simromanpot::DigiPrimaryMapType &output_digi_links) {
-  for (simromanpot::strip_charge_map::const_iterator i = signals.begin(); i != signals.end(); ++i) {
+  for (auto i = signals.begin(); i != signals.end(); ++i) {
     //one threshold per hybrid
     unsigned short strip_no = i->first;
     if (i->second > threshold_ && (!dead_strips_simulation_on_ || dead_strips_.find(strip_no) == dead_strips_.end())) {

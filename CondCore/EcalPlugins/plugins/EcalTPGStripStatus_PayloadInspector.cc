@@ -390,7 +390,7 @@ namespace {
 
         int NbMaskedTT = 0;
 
-        for (EcalTPGStripStatusMapIterator it = stripMap.begin(); it != stripMap.end(); ++it)
+        for (auto it = stripMap.begin(); it != stripMap.end(); ++it)
           if ((*it).second > 0)
             NbMaskedTT++;
 

@@ -166,7 +166,7 @@ SoftLeptonTagPlotter::SoftLeptonTagPlotter(const std::string& tagName,
 SoftLeptonTagPlotter::~SoftLeptonTagPlotter() {}
 
 void SoftLeptonTagPlotter::analyzeTag(const reco::BaseTagInfo* baseTagInfo, double jec, int jetFlavour, float w /*=1*/) {
-  const reco::SoftLeptonTagInfo* tagInfo = dynamic_cast<const reco::SoftLeptonTagInfo*>(baseTagInfo);
+  const auto* tagInfo = dynamic_cast<const reco::SoftLeptonTagInfo*>(baseTagInfo);
 
   if (!tagInfo) {
     throw cms::Exception("Configuration")

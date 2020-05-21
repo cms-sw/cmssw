@@ -610,7 +610,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event &e, const edm::EventS
       {
         auto thit2 = recHit;
         DetId detid2 = thit2->geographicalId();
-        const SiStripMatchedRecHit2D *matchedhit = dynamic_cast<const SiStripMatchedRecHit2D *>(thit2);
+        const auto *matchedhit = dynamic_cast<const SiStripMatchedRecHit2D *>(thit2);
         const SiStripRecHit2D *hit2d = dynamic_cast<const SiStripRecHit2D *>(thit2);
         const SiStripRecHit1D *hit1d = dynamic_cast<const SiStripRecHit1D *>(thit2);
 
@@ -627,7 +627,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event &e, const edm::EventS
         std::string label = hidmanager.getSubdetid(myid, tTopo, true);
         // std::cout<< "label " << label << " and id " << detid.subdetId() << std::endl;
 
-        StripSubdetector StripSubdet = (StripSubdetector)detid;
+        auto StripSubdet = (StripSubdetector)detid;
         //Variable to define the case we are dealing with
         std::string matchedmonorstereo;
 
@@ -641,7 +641,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event &e, const edm::EventS
           // rechitmatched.push_back(rechitpro);
         }
 
-        std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME = StereoAndMatchedMEsMap.find(label);
+        auto iStereoAndMatchedME = StereoAndMatchedMEsMap.find(label);
 
         //Filling Histograms for Matched hits
 
@@ -704,7 +704,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event &e, const edm::EventS
             isrechitsas = 1;
 
             const GeomDetUnit *det = tracker.idToDetUnit(detid2);
-            const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *)(det);
+            const auto *stripdet = (const StripGeomDetUnit *)(det);
 
             //Analysis for hit1d stereo
             rechitanalysis(ldir, thit2, stripdet, stripcpe, associate, true);
@@ -713,7 +713,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event &e, const edm::EventS
             //      cout<<"simple hit mono"<<endl;
 
             const GeomDetUnit *det = tracker.idToDetUnit(detid2);
-            const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *)(det);
+            const auto *stripdet = (const StripGeomDetUnit *)(det);
 
             //Analysis for hit1d mono
             rechitanalysis(ldir, thit2, stripdet, stripcpe, associate, true);
@@ -728,7 +728,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event &e, const edm::EventS
             isrechitsas = 1;
 
             const GeomDetUnit *det = tracker.idToDetUnit(detid2);
-            const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *)(det);
+            const auto *stripdet = (const StripGeomDetUnit *)(det);
 
             //Analysis for hit2d stereo
             rechitanalysis(ldir, thit2, stripdet, stripcpe, associate, false);
@@ -738,7 +738,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event &e, const edm::EventS
             //      cout<<"simple hit mono"<<endl;
 
             const GeomDetUnit *det = tracker.idToDetUnit(detid2);
-            const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *)(det);
+            const auto *stripdet = (const StripGeomDetUnit *)(det);
 
             //Analysis for hit2d mono
             rechitanalysis(ldir, thit2, stripdet, stripcpe, associate, false);
@@ -750,7 +750,7 @@ void SiStripTrackingRecHitsValid::analyze(const edm::Event &e, const edm::EventS
         //Filling Histograms for simple hits
         //cout<<"isrechitrphi,isrechitsas = "<<isrechitrphi<<","<<isrechitsas<<endl;
 
-        std::map<std::string, LayerMEs>::iterator iLayerME = LayerMEsMap.find(label);
+        auto iLayerME = LayerMEsMap.find(label);
         if (isrechitrphi) {
           fillME(simplehitsMEs.meCategory, rechitpro.category);
           fillME(simplehitsMEs.meTrackwidth, rechitpro.trackwidth);
@@ -1091,9 +1091,9 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(LocalVector ldir,
   const GeomDetUnit *stereodet = gluedDet->stereoDet();
   //We initialized it to monoHit case because it complains that it may be uninitialized
   //and it will change value in the stereoHit case. The matched case do not use this
-  const StripGeomDetUnit *stripdet = (const StripGeomDetUnit *)(monodet);
+  const auto *stripdet = (const StripGeomDetUnit *)(monodet);
 
-  const SiStripMatchedRecHit2D *matchedhit = dynamic_cast<const SiStripMatchedRecHit2D *>(rechit);
+  const auto *matchedhit = dynamic_cast<const SiStripMatchedRecHit2D *>(rechit);
   const SiStripRecHit2D *monohit = nullptr;
   const SiStripRecHit2D *stereohit = nullptr;
   SiStripRecHit2D::ClusterRef clust;
@@ -1204,7 +1204,7 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(LocalVector ldir,
     std::pair<LocalPoint, LocalVector> closestPair;
     PSimHit *closest = nullptr;
 
-    const StripGeomDetUnit *partnerstripdet = static_cast<const StripGeomDetUnit *>(gluedDet->stereoDet());
+    const auto *partnerstripdet = static_cast<const StripGeomDetUnit *>(gluedDet->stereoDet());
     std::pair<LocalPoint, LocalVector> hitPair;
 
     if (matchedmonorstereo == MatchStatus::matched) {
@@ -1404,8 +1404,7 @@ void SiStripTrackingRecHitsValid::createMEs(DQMStore::IBooker &ibooker, const ed
   edm::LogInfo("SiStripTrackingRecHitsValid|SiStripTrackingRecHitsValid")
       << "nr. of activeDets:  " << activeDets.size();
   const std::string &tec = "TEC", tid = "TID", tob = "TOB", tib = "TIB";
-  for (std::vector<uint32_t>::iterator detid_iterator = activeDets.begin(), detid_end = activeDets.end();
-       detid_iterator != detid_end;
+  for (auto detid_iterator = activeDets.begin(), detid_end = activeDets.end(); detid_iterator != detid_end;
        ++detid_iterator) {
     uint32_t detid = (*detid_iterator);
     // remove any eventual zero elements - there should be none, but just in case
@@ -1420,7 +1419,7 @@ void SiStripTrackingRecHitsValid::createMEs(DQMStore::IBooker &ibooker, const ed
     std::string label = hidmanager.getSubdetid(detid, tTopo, true);
     // std::cout << "label " << label << endl;
 
-    std::map<std::string, LayerMEs>::iterator iLayerME = LayerMEsMap.find(label);
+    auto iLayerME = LayerMEsMap.find(label);
     if (iLayerME == LayerMEsMap.end()) {
       // get detids for the layer
       // Keep in mind that when we are on the TID or TEC we deal with rings not wheel
@@ -1455,7 +1454,7 @@ void SiStripTrackingRecHitsValid::createMEs(DQMStore::IBooker &ibooker, const ed
       createLayerMEs(ibooker, label);
     }
     //Create StereoAndMatchedMEs
-    std::map<std::string, StereoAndMatchedMEs>::iterator iStereoAndMatchedME = StereoAndMatchedMEsMap.find(label);
+    auto iStereoAndMatchedME = StereoAndMatchedMEsMap.find(label);
     if (iStereoAndMatchedME == StereoAndMatchedMEsMap.end()) {
       // get detids for the stereo and matched layer. We are going to need a bool for these layers
       bool isStereo = false;

@@ -198,7 +198,7 @@ void pat::PATPackedCandidateProducer::produce(edm::StreamID, edm::Event &iEvent,
       }
       // Whitelist via RecoCharged
       for (auto dau = svWhiteList[i].begin(); dau != svWhiteList[i].end(); dau++) {
-        const reco::RecoChargedCandidate *chCand = dynamic_cast<const reco::RecoChargedCandidate *>(&(*dau));
+        const auto *chCand = dynamic_cast<const reco::RecoChargedCandidate *>(&(*dau));
         if (chCand != nullptr) {
           whiteListTk.insert(chCand->track());
         }

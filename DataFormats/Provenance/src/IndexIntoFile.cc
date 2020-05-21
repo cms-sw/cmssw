@@ -163,9 +163,9 @@ namespace edm {
 
     long long beginEventNumbers = 0;
 
-    std::vector<RunOrLumiIndexes>::iterator beginOfLumi = runOrLumiIndexes().begin();
-    std::vector<RunOrLumiIndexes>::iterator endOfLumi = beginOfLumi;
-    std::vector<RunOrLumiIndexes>::iterator iEnd = runOrLumiIndexes().end();
+    auto beginOfLumi = runOrLumiIndexes().begin();
+    auto endOfLumi = beginOfLumi;
+    auto iEnd = runOrLumiIndexes().end();
     while (true) {
       while (beginOfLumi != iEnd && beginOfLumi->isRun()) {
         ++beginOfLumi;
@@ -179,13 +179,13 @@ namespace edm {
         ++endOfLumi;
       }
       int nEvents = 0;
-      for (std::vector<RunOrLumiIndexes>::iterator iter = beginOfLumi; iter != endOfLumi; ++iter) {
+      for (auto iter = beginOfLumi; iter != endOfLumi; ++iter) {
         if (runOrLumiEntries_[iter->indexToGetEntry()].beginEvents() != invalidEntry) {
           nEvents += runOrLumiEntries_[iter->indexToGetEntry()].endEvents() -
                      runOrLumiEntries_[iter->indexToGetEntry()].beginEvents();
         }
       }
-      for (std::vector<RunOrLumiIndexes>::iterator iter = beginOfLumi; iter != endOfLumi; ++iter) {
+      for (auto iter = beginOfLumi; iter != endOfLumi; ++iter) {
         iter->setBeginEventNumbers(beginEventNumbers);
         iter->setEndEventNumbers(beginEventNumbers + nEvents);
       }
@@ -369,12 +369,8 @@ namespace edm {
 
   void IndexIntoFile::fixIndexes(std::vector<ProcessHistoryID>& processHistoryIDs) {
     std::map<int, int> oldToNewIndex;
-    for (std::vector<ProcessHistoryID>::const_iterator iter = processHistoryIDs_.begin(),
-                                                       iEnd = processHistoryIDs_.end();
-         iter != iEnd;
-         ++iter) {
-      std::vector<ProcessHistoryID>::const_iterator iterExisting =
-          std::find(processHistoryIDs.begin(), processHistoryIDs.end(), *iter);
+    for (auto iter = processHistoryIDs_.begin(), iEnd = processHistoryIDs_.end(); iter != iEnd; ++iter) {
+      auto iterExisting = std::find(processHistoryIDs.begin(), processHistoryIDs.end(), *iter);
       if (iterExisting == processHistoryIDs.end()) {
         oldToNewIndex[iter - processHistoryIDs_.begin()] = processHistoryIDs.size();
         processHistoryIDs.push_back(*iter);
@@ -391,8 +387,7 @@ namespace edm {
 
   void IndexIntoFile::sortVector_Run_Or_Lumi_Entries() {
     for (RunOrLumiEntry& item : runOrLumiEntries_) {
-      std::map<IndexRunKey, EntryNumber_t>::const_iterator keyAndOrder =
-          runToOrder().find(IndexRunKey(item.processHistoryIDIndex(), item.run()));
+      auto keyAndOrder = runToOrder().find(IndexRunKey(item.processHistoryIDIndex(), item.run()));
       if (keyAndOrder == runToOrder().end()) {
         throw Exception(errors::LogicError)
             << "In IndexIntoFile::sortVector_Run_Or_Lumi_Entries. A run entry is missing.\n"
@@ -410,9 +405,9 @@ namespace edm {
 
   void IndexIntoFile::sortEvents() const {
     fillRunOrLumiIndexes();
-    std::vector<RunOrLumiIndexes>::iterator beginOfLumi = runOrLumiIndexes().begin();
-    std::vector<RunOrLumiIndexes>::iterator endOfLumi = beginOfLumi;
-    std::vector<RunOrLumiIndexes>::iterator iEnd = runOrLumiIndexes().end();
+    auto beginOfLumi = runOrLumiIndexes().begin();
+    auto endOfLumi = beginOfLumi;
+    auto iEnd = runOrLumiIndexes().end();
     while (true) {
       while (beginOfLumi != iEnd && beginOfLumi->isRun()) {
         ++beginOfLumi;
@@ -435,9 +430,9 @@ namespace edm {
 
   void IndexIntoFile::sortEventEntries() const {
     fillRunOrLumiIndexes();
-    std::vector<RunOrLumiIndexes>::iterator beginOfLumi = runOrLumiIndexes().begin();
-    std::vector<RunOrLumiIndexes>::iterator endOfLumi = beginOfLumi;
-    std::vector<RunOrLumiIndexes>::iterator iEnd = runOrLumiIndexes().end();
+    auto beginOfLumi = runOrLumiIndexes().begin();
+    auto endOfLumi = beginOfLumi;
+    auto iEnd = runOrLumiIndexes().end();
     while (true) {
       while (beginOfLumi != iEnd && beginOfLumi->isRun()) {
         ++beginOfLumi;
@@ -493,16 +488,15 @@ namespace edm {
 
     bool lumiMissing = (lumi == 0 && event != 0);
 
-    std::vector<RunOrLumiIndexes>::const_iterator iEnd = runOrLumiIndexes().end();
+    auto iEnd = runOrLumiIndexes().end();
     std::vector<RunOrLumiIndexes>::const_iterator phEnd;
 
     // Loop over ranges of entries with the same ProcessHistoryID
-    for (std::vector<RunOrLumiIndexes>::const_iterator phBegin = runOrLumiIndexes().begin(); phBegin != iEnd;
-         phBegin = phEnd) {
+    for (auto phBegin = runOrLumiIndexes().begin(); phBegin != iEnd; phBegin = phEnd) {
       RunOrLumiIndexes el(phBegin->processHistoryIDIndex(), run, lumi, 0);
       phEnd = std::upper_bound(phBegin, iEnd, el, Compare_Index());
 
-      std::vector<RunOrLumiIndexes>::const_iterator iRun = std::lower_bound(phBegin, phEnd, el, Compare_Index_Run());
+      auto iRun = std::lower_bound(phBegin, phEnd, el, Compare_Index_Run());
 
       if (iRun == phEnd || iRun->run() != run)
         continue;
@@ -514,9 +508,9 @@ namespace edm {
         return indexItr;
       }
 
-      std::vector<RunOrLumiIndexes>::const_iterator iRunEnd = std::upper_bound(iRun, phEnd, el, Compare_Index_Run());
+      auto iRunEnd = std::upper_bound(iRun, phEnd, el, Compare_Index_Run());
       if (!lumiMissing) {
-        std::vector<RunOrLumiIndexes>::const_iterator iLumi = std::lower_bound(iRun, iRunEnd, el);
+        auto iLumi = std::lower_bound(iRun, iRunEnd, el);
         if (iLumi == iRunEnd || iLumi->lumi() != lumi)
           continue;
 
@@ -540,17 +534,16 @@ namespace edm {
 
         long long indexToEvent = 0;
         if (!eventEntries().empty()) {
-          std::vector<EventEntry>::const_iterator eventIter =
-              std::lower_bound(eventEntries().begin() + beginEventNumbers,
-                               eventEntries().begin() + endEventNumbers,
-                               EventEntry(event, invalidEntry));
+          auto eventIter = std::lower_bound(eventEntries().begin() + beginEventNumbers,
+                                            eventEntries().begin() + endEventNumbers,
+                                            EventEntry(event, invalidEntry));
           if (eventIter == (eventEntries().begin() + endEventNumbers) || eventIter->event() != event)
             continue;
 
           indexToEvent = eventIter - eventEntries().begin() - beginEventNumbers;
         } else {
           fillEventNumbers();
-          std::vector<EventNumber_t>::const_iterator eventIter = std::lower_bound(
+          auto eventIter = std::lower_bound(
               eventNumbers().begin() + beginEventNumbers, eventNumbers().begin() + endEventNumbers, event);
           if (eventIter == (eventNumbers().begin() + endEventNumbers) || *eventIter != event)
             continue;
@@ -575,7 +568,7 @@ namespace edm {
                                 endEventNumbers - beginEventNumbers);
       }
       if (lumiMissing) {
-        std::vector<RunOrLumiIndexes>::const_iterator iLumi = iRun;
+        auto iLumi = iRun;
         while (iLumi != iRunEnd && iLumi->lumi() == invalidLumi) {
           ++iLumi;
         }
@@ -594,16 +587,15 @@ namespace edm {
 
           long long indexToEvent = 0;
           if (!eventEntries().empty()) {
-            std::vector<EventEntry>::const_iterator eventIter =
-                std::lower_bound(eventEntries().begin() + beginEventNumbers,
-                                 eventEntries().begin() + endEventNumbers,
-                                 EventEntry(event, invalidEntry));
+            auto eventIter = std::lower_bound(eventEntries().begin() + beginEventNumbers,
+                                              eventEntries().begin() + endEventNumbers,
+                                              EventEntry(event, invalidEntry));
             if (eventIter == (eventEntries().begin() + endEventNumbers) || eventIter->event() != event)
               continue;
             indexToEvent = eventIter - eventEntries().begin() - beginEventNumbers;
           } else {
             fillEventNumbers();
-            std::vector<EventNumber_t>::const_iterator eventIter = std::lower_bound(
+            auto eventIter = std::lower_bound(
                 eventNumbers().begin() + beginEventNumbers, eventNumbers().begin() + endEventNumbers, event);
             if (eventIter == (eventNumbers().begin() + endEventNumbers) || *eventIter != event)
               continue;
@@ -835,13 +827,13 @@ namespace edm {
         continue;
 
       if (!eventEntries().empty()) {
-        std::vector<EventEntry>::iterator last = eventEntries().begin() + endEventNumbers;
+        auto last = eventEntries().begin() + endEventNumbers;
         if (std::adjacent_find(eventEntries().begin() + beginEventNumbers, last) != last) {
           return true;
         }
       } else {
         fillEventNumbers();
-        std::vector<EventNumber_t>::iterator last = eventNumbers().begin() + endEventNumbers;
+        auto last = eventNumbers().begin() + endEventNumbers;
         if (std::adjacent_find(eventNumbers().begin() + beginEventNumbers, last) != last) {
           return true;
         }

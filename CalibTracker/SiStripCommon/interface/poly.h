@@ -72,7 +72,7 @@ public:
     if (columns.empty())
       return 0;
     size_t size = 1;
-    for (const_column_iterator column = columns.begin(); column != columns.end(); ++column)
+    for (auto column = columns.begin(); column != columns.end(); ++column)
       size *= column->size();
     return size;
   }
@@ -89,13 +89,13 @@ public:
     bool equal(const_iterator const& rhs) const { return std::equal(state.begin(), state.end(), rhs.state.begin()); }
     T dereference() const {
       T s;
-      for (const_state_iterator istate = state.begin(); istate != state.end(); ++istate)
+      for (auto istate = state.begin(); istate != state.end(); ++istate)
         s += **istate;
       return s;
     }
     void increment() {
-      state_iterator istate = state.begin();
-      const_column_iterator column = begin;
+      auto istate = state.begin();
+      auto column = begin;
       while (column != end && ++*istate == column->end()) {
         ++istate;
         ++column;
@@ -127,7 +127,7 @@ public:
   public:
     const_iterator() {}
     const_iterator(const poly& p) : begin(p.getColumns().begin()), end(p.getColumns().end()) {
-      const_column_iterator column = begin;
+      auto column = begin;
       while (column != end)
         state.push_back((column++)->begin());
     }

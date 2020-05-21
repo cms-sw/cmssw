@@ -123,7 +123,7 @@ namespace {
           sizeY = (*clust).sizeY();
         }
 
-        const PixelGeomDetUnit* geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(tracker->idToDet(id));
+        const auto* geomdetunit = dynamic_cast<const PixelGeomDetUnit*>(tracker->idToDet(id));
         const PixelTopology& topol = geomdetunit->specificTopology();
 
         LocalPoint lp = trajParams[h].position();

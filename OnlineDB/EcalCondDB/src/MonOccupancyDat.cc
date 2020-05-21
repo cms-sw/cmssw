@@ -132,7 +132,7 @@ void MonOccupancyDat::writeArrayDB(const std::map<EcalLogicID, MonOccupancyDat>*
   const MonOccupancyDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, MonOccupancyDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
+  for (auto p = data->begin(); p != data->end(); ++p) {
     channel = &(p->first);
     int logicID = channel->getLogicID();
     if (!logicID) {

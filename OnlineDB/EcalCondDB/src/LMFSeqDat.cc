@@ -296,7 +296,7 @@ LMFSeqDat LMFSeqDat::fetchByRunNumber(int runno, std::string taken_at) {
   l = fetchByRunIOV(pars, q, "fetchByRunNumberAt");
   LMFSeqDat ret;
   if (l.size() == 1) {
-    std::map<int, LMFSeqDat>::const_iterator x = l.begin();
+    auto x = l.begin();
     ret = x->second;
   } else if (l.size() > 1) {
     std::cout << "WARNING: Your query returned more than one result. " << std::endl;

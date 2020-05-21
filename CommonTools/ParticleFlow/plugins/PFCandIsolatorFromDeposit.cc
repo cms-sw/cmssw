@@ -70,7 +70,7 @@ PFCandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet
   reco::isodeposit::EventDependentAbsVeto *evdep = nullptr;
   static const std::regex ecalSwitch("^Ecal(Barrel|Endcaps):(.*)");
 
-  for (vstring::const_iterator it = vetos.begin(), ed = vetos.end(); it != ed; ++it) {
+  for (auto it = vetos.begin(), ed = vetos.end(); it != ed; ++it) {
     std::cmatch match;
     // in that case, make two series of vetoes
     if (usePivotForBarrelEndcaps_) {
@@ -108,10 +108,10 @@ PFCandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet
   //std::cout << "PFCandIsolatorFromDeposits::SingleDeposit::SingleDeposit: Total of " << vetos_.size() << " vetos" << std::endl;
 }
 void PFCandIsolatorFromDeposits::SingleDeposit::cleanup() {
-  for (AbsVetos::iterator it = barrelVetos_.begin(), ed = barrelVetos_.end(); it != ed; ++it) {
+  for (auto it = barrelVetos_.begin(), ed = barrelVetos_.end(); it != ed; ++it) {
     delete *it;
   }
-  for (AbsVetos::iterator it = endcapVetos_.begin(), ed = endcapVetos_.end(); it != ed; ++it) {
+  for (auto it = endcapVetos_.begin(), ed = endcapVetos_.end(); it != ed; ++it) {
     delete *it;
   }
   barrelVetos_.clear();
@@ -121,7 +121,7 @@ void PFCandIsolatorFromDeposits::SingleDeposit::cleanup() {
 }
 void PFCandIsolatorFromDeposits::SingleDeposit::open(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
   iEvent.getByToken(srcToken_, hDeps_);
-  for (EventDependentAbsVetos::iterator it = evdepVetos_.begin(), ed = evdepVetos_.end(); it != ed; ++it) {
+  for (auto it = evdepVetos_.begin(), ed = evdepVetos_.end(); it != ed; ++it) {
     (*it)->setEvent(iEvent, iSetup);
   }
 }
@@ -132,12 +132,12 @@ double PFCandIsolatorFromDeposits::SingleDeposit::compute(const reco::CandidateB
                                             // that could be, e.g., the impact point at calo
   bool barrel = true;
   if (usePivotForBarrelEndcaps_) {
-    const reco::PFCandidate *myPFCand = dynamic_cast<const reco::PFCandidate *>(&(*cand));
+    const auto *myPFCand = dynamic_cast<const reco::PFCandidate *>(&(*cand));
     if (myPFCand) {
       // exact barrel boundary
       barrel = fabs(myPFCand->positionAtECALEntrance().eta()) < 1.479;
     } else {
-      const reco::RecoCandidate *myRecoCand = dynamic_cast<const reco::RecoCandidate *>(&(*cand));
+      const auto *myRecoCand = dynamic_cast<const reco::RecoCandidate *>(&(*cand));
       if (myRecoCand) {
         // not optimal. isEB should be used.
         barrel = (fabs(myRecoCand->superCluster()->eta()) < 1.479);
@@ -147,7 +147,7 @@ double PFCandIsolatorFromDeposits::SingleDeposit::compute(const reco::CandidateB
   // if ! usePivotForBarrelEndcaps_ only the barrel series is used, which does not prevent the vetoes do be different in barrel & endcaps
   reco::isodeposit::AbsVetos *vetos = (barrel) ? &barrelVetos_ : &endcapVetos_;
 
-  for (AbsVetos::iterator it = vetos->begin(), ed = vetos->end(); it != ed; ++it) {
+  for (auto it = vetos->begin(), ed = vetos->end(); it != ed; ++it) {
     (*it)->centerOn(eta, phi);
   }
   double weight = (usesFunction_ ? weightExpr_(*cand) : weight_);
@@ -177,7 +177,7 @@ double PFCandIsolatorFromDeposits::SingleDeposit::compute(const reco::CandidateB
 PFCandIsolatorFromDeposits::PFCandIsolatorFromDeposits(const ParameterSet &par) {
   typedef std::vector<edm::ParameterSet> VPSet;
   VPSet depPSets = par.getParameter<VPSet>("deposits");
-  for (VPSet::const_iterator it = depPSets.begin(), ed = depPSets.end(); it != ed; ++it) {
+  for (auto it = depPSets.begin(), ed = depPSets.end(); it != ed; ++it) {
     sources_.push_back(SingleDeposit(*it, consumesCollector()));
   }
   if (sources_.empty())
@@ -217,8 +217,8 @@ void PFCandIsolatorFromDeposits::produce(Event &event, const EventSetup &eventSe
     event.get(depI.id(), candH);
     const edm::View<reco::Candidate> &candV = *candH;
 
-    iterator_ii depII = depI.begin();
-    iterator_ii depIIEnd = depI.end();
+    auto depII = depI.begin();
+    auto depIIEnd = depI.end();
     size_t iRet = 0;
     for (; depII != depIIEnd; ++depII, ++iRet) {
       double sum = 0;

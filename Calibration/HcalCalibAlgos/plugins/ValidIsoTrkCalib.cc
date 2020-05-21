@@ -292,15 +292,13 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   if (isoPixelTracks->empty())
     return;
 
-  for (reco::TrackCollection::const_iterator trit = isoProdTracks->begin(); trit != isoProdTracks->end(); trit++) {
-    reco::IsolatedPixelTrackCandidateCollection::const_iterator isoMatched = isoPixelTracks->begin();
+  for (auto trit = isoProdTracks->begin(); trit != isoProdTracks->end(); trit++) {
+    auto isoMatched = isoPixelTracks->begin();
     //reco::TrackCollection::const_iterator isoMatched=isoPixelTracks->begin();
     bool matched = false;
 
     //for (reco::IsolatedPixelTrackCandidateCollection::const_iterator trit = isoPixelTracks->begin(); trit!=isoPixelTracks->end(); trit++)
-    for (reco::IsolatedPixelTrackCandidateCollection::const_iterator it = isoPixelTracks->begin();
-         it != isoPixelTracks->end();
-         it++)
+    for (auto it = isoPixelTracks->begin(); it != isoPixelTracks->end(); it++)
     //for (reco::TrackCollection::const_iterator it = isoPixelTracks->begin(); it!=isoPixelTracks->end(); it++)
     {
       if (abs((trit->pt() - it->pt()) / it->pt()) < 0.005 && abs(trit->eta() - it->eta()) < 0.01) {
@@ -400,7 +398,7 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     GlobalPoint gPhot;
 
-    for (HBHERecHitCollection::const_iterator hhit = Hithbhe.begin(); hhit != Hithbhe.end(); hhit++) {
+    for (auto hhit = Hithbhe.begin(); hhit != Hithbhe.end(); hhit++) {
       //check that this hit was not considered before and push it into usedHits
       bool hitIsUsed = false;
       for (uint32_t i = 0; i < usedHits.size(); i++) {
@@ -439,7 +437,7 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       double distAtHcal = getDistInPlaneSimple(gPointHcal, pos);
 
       if (distAtHcal < associationConeSize_) {
-        for (HBHERecHitCollection::const_iterator hhit2 = Hithbhe.begin(); hhit2 != Hithbhe.end(); hhit2++) {
+        for (auto hhit2 = Hithbhe.begin(); hhit2 != Hithbhe.end(); hhit2++) {
           int iphihitm2 = (hhit2->id()).iphi();
           int ietahitm2 = (hhit2->id()).ieta();
           int depthhit2 = (hhit2->id()).depth();
@@ -494,7 +492,7 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     e5x5After = 0.0;
     e5x5Before = 0.0;
 
-    for (HBHERecHitCollection::const_iterator hhit = Hithbhe.begin(); hhit != Hithbhe.end(); hhit++) {
+    for (auto hhit = Hithbhe.begin(); hhit != Hithbhe.end(); hhit++) {
       //check that this hit was not considered before and push it into usedHits
       bool hitIsUsed = false;
       for (uint32_t i = 0; i < usedHits.size(); i++) {
@@ -690,23 +688,21 @@ void ValidIsoTrkCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     pixEta[0] = -33;
 
     Int_t gencount = 0, isocount = 0, pixcount = 0;
-    for (reco::TrackCollection::const_iterator gentr = generalTracks->begin(); gentr != generalTracks->end(); gentr++) {
+    for (auto gentr = generalTracks->begin(); gentr != generalTracks->end(); gentr++) {
       genPt[gencount] = gentr->pt();
       genPhi[gencount] = gentr->phi();
       genEta[gencount] = gentr->eta();
       gencount++;
     }
 
-    for (reco::TrackCollection::const_iterator isotr = isoProdTracks->begin(); isotr != isoProdTracks->end(); isotr++) {
+    for (auto isotr = isoProdTracks->begin(); isotr != isoProdTracks->end(); isotr++) {
       isoPt[isocount] = isotr->pt();
       isoPhi[isocount] = isotr->phi();
       isoEta[isocount] = isotr->eta();
       isocount++;
     }
 
-    for (reco::IsolatedPixelTrackCandidateCollection::const_iterator pixtr = isoPixelTracks->begin();
-         pixtr != isoPixelTracks->end();
-         pixtr++) {
+    for (auto pixtr = isoPixelTracks->begin(); pixtr != isoPixelTracks->end(); pixtr++) {
       pixPt[pixcount] = pixtr->pt();
       pixPhi[pixcount] = pixtr->phi();
       pixEta[pixcount] = pixtr->eta();

@@ -116,8 +116,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
   std::vector<reco::TransientTrack> theTransTracks;
 
   // fill vectors of TransientTracks and TrackRefs after applying preselection cuts
-  for (reco::TrackCollection::const_iterator iTk = theTrackCollection->begin(); iTk != theTrackCollection->end();
-       ++iTk) {
+  for (auto iTk = theTrackCollection->begin(); iTk != theTrackCollection->end(); ++iTk) {
     const reco::Track* tmpTrack = &(*iTk);
     double ipsigXY = std::abs(tmpTrack->dxy(*theBeamSpot) / tmpTrack->dxyError());
     if (useVertex_)
@@ -266,8 +265,7 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
       if (useRefTracks_ && theRefTracks.size() > 1) {
         reco::TransientTrack* thePositiveRefTrack = nullptr;
         reco::TransientTrack* theNegativeRefTrack = nullptr;
-        for (std::vector<reco::TransientTrack>::iterator iTrack = theRefTracks.begin(); iTrack != theRefTracks.end();
-             ++iTrack) {
+        for (auto iTrack = theRefTracks.begin(); iTrack != theRefTracks.end(); ++iTrack) {
           if (iTrack->track().charge() > 0.) {
             thePositiveRefTrack = &*iTrack;
           } else if (iTrack->track().charge() < 0.) {

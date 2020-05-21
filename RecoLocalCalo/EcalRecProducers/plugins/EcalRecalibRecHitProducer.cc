@@ -100,12 +100,12 @@ void EcalRecalibRecHitProducer::produce(edm::StreamID sid, edm::Event& evt, cons
 
   if (EBRecHits) {
     // loop over uncalibrated rechits to make calibrated ones
-    for (EBRecHitCollection::const_iterator it = EBRecHits->begin(); it != EBRecHits->end(); ++it) {
+    for (auto it = EBRecHits->begin(); it != EBRecHits->end(); ++it) {
       EcalIntercalibConstant icalconst = 1.;
       if (doIntercalib_) {
         // find intercalib constant for this xtal
         const EcalIntercalibConstantMap& icalMap = ical->getMap();
-        EcalIntercalibConstantMap::const_iterator icalit = icalMap.find(it->id());
+        auto icalit = icalMap.find(it->id());
         if (icalit != icalMap.end()) {
           icalconst = (*icalit);
         } else {
@@ -136,12 +136,12 @@ void EcalRecalibRecHitProducer::produce(edm::StreamID sid, edm::Event& evt, cons
 
   if (EERecHits) {
     // loop over uncalibrated rechits to make calibrated ones
-    for (EERecHitCollection::const_iterator it = EERecHits->begin(); it != EERecHits->end(); ++it) {
+    for (auto it = EERecHits->begin(); it != EERecHits->end(); ++it) {
       // find intercalib constant for this xtal
       EcalIntercalibConstant icalconst = 1.;
       if (doIntercalib_) {
         const EcalIntercalibConstantMap& icalMap = ical->getMap();
-        EcalIntercalibConstantMap::const_iterator icalit = icalMap.find(it->id());
+        auto icalit = icalMap.find(it->id());
         if (icalit != icalMap.end()) {
           icalconst = (*icalit);
         } else {

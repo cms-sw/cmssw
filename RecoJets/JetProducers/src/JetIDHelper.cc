@@ -149,8 +149,8 @@ void reco::helper::JetIDHelper::calculate(const edm::Event &event,
 
   // energy fractions
   double max_HPD_energy = 0., max_RBX_energy = 0.;
-  std::vector<double>::const_iterator it_max_HPD_energy = std::max_element(HPD_energies.begin(), HPD_energies.end());
-  std::vector<double>::const_iterator it_max_RBX_energy = std::max_element(RBX_energies.begin(), RBX_energies.end());
+  auto it_max_HPD_energy = std::max_element(HPD_energies.begin(), HPD_energies.end());
+  auto it_max_RBX_energy = std::max_element(RBX_energies.begin(), RBX_energies.end());
   if (it_max_HPD_energy != HPD_energies.end()) {
     max_HPD_energy = *it_max_HPD_energy;
   }
@@ -330,7 +330,7 @@ void reco::helper::JetIDHelper::classifyJetComponents(const edm::Event &event,
         HcalSubdetector HcalNum = HcalID.subdet();
         double hitE = 0;
         if (HcalNum == HcalOuter) {
-          HORecHitCollection::const_iterator theRecHit = HORecHits->find(HcalID);
+          auto theRecHit = HORecHits->find(HcalID);
           if (theRecHit == HORecHits->end()) {
             edm::LogWarning("UnexpectedEventContents") << "Can't find the HO recHit with ID: " << HcalID;
             continue;
@@ -339,7 +339,7 @@ void reco::helper::JetIDHelper::classifyJetComponents(const edm::Event &event,
           HO_energies.push_back(hitE);
 
         } else if (HcalNum == HcalForward) {
-          HFRecHitCollection::const_iterator theRecHit = HFRecHits->find(HcalID);
+          auto theRecHit = HFRecHits->find(HcalID);
           if (theRecHit == HFRecHits->end()) {
             edm::LogWarning("UnexpectedEventContents") << "Can't find the HF recHit with ID: " << HcalID;
             continue;
@@ -367,7 +367,7 @@ void reco::helper::JetIDHelper::classifyJetComponents(const edm::Event &event,
 
         } else {  // HBHE
 
-          HBHERecHitCollection::const_iterator theRecHit = HBHERecHits->find(HcalID);
+          auto theRecHit = HBHERecHits->find(HcalID);
           if (theRecHit == HBHERecHits->end()) {
             edm::LogWarning("UnexpectedEventContents") << "Can't find the HBHE recHit with ID: " << HcalID;
             continue;
@@ -427,7 +427,7 @@ void reco::helper::JetIDHelper::classifyJetComponents(const edm::Event &event,
         double hitE = 0;
         if (EcalNum == 1) {
           EBDetId EcalID = cellIDs[iCell];
-          EBRecHitCollection::const_iterator theRecHit = EBRecHits->find(EcalID);
+          auto theRecHit = EBRecHits->find(EcalID);
           if (theRecHit == EBRecHits->end()) {
             edm::LogWarning("UnexpectedEventContents") << "Can't find the EB recHit with ID: " << EcalID;
             continue;
@@ -436,7 +436,7 @@ void reco::helper::JetIDHelper::classifyJetComponents(const edm::Event &event,
           EB_energies.push_back(hitE);
         } else if (EcalNum == 2) {
           EEDetId EcalID = cellIDs[iCell];
-          EERecHitCollection::const_iterator theRecHit = EERecHits->find(EcalID);
+          auto theRecHit = EERecHits->find(EcalID);
           if (theRecHit == EERecHits->end()) {
             edm::LogWarning("UnexpectedEventContents") << "Can't find the EE recHit with ID: " << EcalID;
             continue;

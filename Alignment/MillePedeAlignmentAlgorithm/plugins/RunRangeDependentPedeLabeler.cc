@@ -53,7 +53,7 @@ unsigned int RunRangeDependentPedeLabeler::alignableLabel(Alignable* alignable) 
   if (!alignable)
     return 0;
 
-  AlignableToIdMap::const_iterator position = theAlignableToIdMap.find(alignable);
+  auto position = theAlignableToIdMap.find(alignable);
   if (position != theAlignableToIdMap.end()) {
     return position->second;
   } else {
@@ -75,11 +75,11 @@ unsigned int RunRangeDependentPedeLabeler::alignableLabelFromParamAndInstance(Al
   if (!alignable)
     return 0;
 
-  AlignableToIdMap::const_iterator position = theAlignableToIdMap.find(alignable);
+  auto position = theAlignableToIdMap.find(alignable);
   if (position != theAlignableToIdMap.end()) {
-    AlignableToRunRangeRangeMap::const_iterator positionAli = theAlignableToRunRangeRangeMap.find(alignable);
+    auto positionAli = theAlignableToRunRangeRangeMap.find(alignable);
     if (positionAli != theAlignableToRunRangeRangeMap.end()) {
-      RunRangeParamMap::const_iterator positionParam = (*positionAli).second.find(param);
+      auto positionParam = (*positionAli).second.find(param);
       if (positionParam != (*positionAli).second.end()) {
         if (instance >= (*positionParam).second.size()) {
           throw cms::Exception("Alignment") << "RunRangeDependentPedeLabeler::alignableLabelFromParamAndRunRange: "
@@ -105,7 +105,7 @@ unsigned int RunRangeDependentPedeLabeler::alignableLabelFromParamAndInstance(Al
 
 //_________________________________________________________________________
 unsigned int RunRangeDependentPedeLabeler::lasBeamLabel(unsigned int lasBeamId) const {
-  UintUintMap::const_iterator position = theLasBeamToLabelMap.find(lasBeamId);
+  auto position = theLasBeamToLabelMap.find(lasBeamId);
   if (position != theLasBeamToLabelMap.end()) {
     return position->second;
   } else {
@@ -138,11 +138,11 @@ unsigned int RunRangeDependentPedeLabeler::parameterLabel(Alignable* alignable,
                                       << "Parameter number " << parNum << " out of range 0 <= num < " << theMaxNumParam;
   }
 
-  AlignableToIdMap::const_iterator position = theAlignableToIdMap.find(alignable);
+  auto position = theAlignableToIdMap.find(alignable);
   if (position != theAlignableToIdMap.end()) {
-    AlignableToRunRangeRangeMap::const_iterator positionAli = theAlignableToRunRangeRangeMap.find(alignable);
+    auto positionAli = theAlignableToRunRangeRangeMap.find(alignable);
     if (positionAli != theAlignableToRunRangeRangeMap.end()) {
-      RunRangeParamMap::const_iterator positionParam = (*positionAli).second.find(parNum);
+      auto positionParam = (*positionAli).second.find(parNum);
       if (positionParam != (*positionAli).second.end()) {
         int offset = 0;
         const RunRangeVector& runRanges = (*positionParam).second;
@@ -179,7 +179,7 @@ unsigned int RunRangeDependentPedeLabeler::parameterLabel(Alignable* alignable,
 
 //_________________________________________________________________________
 bool RunRangeDependentPedeLabeler::hasSplitParameters(Alignable* alignable) const {
-  AlignableToRunRangeRangeMap::const_iterator positionAli = theAlignableToRunRangeRangeMap.find(alignable);
+  auto positionAli = theAlignableToRunRangeRangeMap.find(alignable);
   if (positionAli != theAlignableToRunRangeRangeMap.end())
     return true;
   return false;
@@ -187,7 +187,7 @@ bool RunRangeDependentPedeLabeler::hasSplitParameters(Alignable* alignable) cons
 
 //_________________________________________________________________________
 unsigned int RunRangeDependentPedeLabeler::numberOfParameterInstances(Alignable* alignable, int param) const {
-  AlignableToRunRangeRangeMap::const_iterator positionAli = theAlignableToRunRangeRangeMap.find(alignable);
+  auto positionAli = theAlignableToRunRangeRangeMap.find(alignable);
   if (positionAli != theAlignableToRunRangeRangeMap.end()) {
     size_t nRunRanges = 1;
     if (param == -1) {
@@ -196,7 +196,7 @@ unsigned int RunRangeDependentPedeLabeler::numberOfParameterInstances(Alignable*
       }
       return nRunRanges;
     } else {
-      RunRangeParamMap::const_iterator iParam = (*positionAli).second.find(param);
+      auto iParam = (*positionAli).second.find(param);
       if (iParam != (*positionAli).second.end()) {
         return iParam->second.size();
       } else {
@@ -229,12 +229,12 @@ Alignable* RunRangeDependentPedeLabeler::alignableFromLabel(unsigned int label) 
   if (aliLabel < theMinLabel)
     return nullptr;  // error already given
 
-  IdToAlignableMap::const_iterator position = theIdToAlignableMap.find(aliLabel);
+  auto position = theIdToAlignableMap.find(aliLabel);
   if (position != theIdToAlignableMap.end()) {
     return position->second;
   } else {
     // error only if not in lasBeamMap:
-    UintUintMap::const_iterator position = theLabelToLasBeamMap.find(aliLabel);
+    auto position = theLabelToLasBeamMap.find(aliLabel);
     if (position == theLabelToLasBeamMap.end()) {
       edm::LogError("LogicError") << "@SUB=RunRangeDependentPedeLabeler::alignableFromLabel"
                                   << "Alignable label " << aliLabel << " not in map.";
@@ -249,7 +249,7 @@ unsigned int RunRangeDependentPedeLabeler::lasBeamIdFromLabel(unsigned int label
   if (aliLabel < theMinLabel)
     return 0;  // error already given
 
-  UintUintMap::const_iterator position = theLabelToLasBeamMap.find(aliLabel);
+  auto position = theLabelToLasBeamMap.find(aliLabel);
   if (position != theLabelToLasBeamMap.end()) {
     return position->second;
   } else {
@@ -268,7 +268,7 @@ unsigned int RunRangeDependentPedeLabeler::runRangeIndexFromLabel(unsigned int l
 const RunRangeDependentPedeLabeler::RunRange& RunRangeDependentPedeLabeler::runRangeFromLabel(unsigned int label) const {
   Alignable* ali = alignableFromLabel(label);
 
-  AlignableToRunRangeRangeMap::const_iterator positionAli = theAlignableToRunRangeRangeMap.find(ali);
+  auto positionAli = theAlignableToRunRangeRangeMap.find(ali);
   if (positionAli == theAlignableToRunRangeRangeMap.end())
     return theOpenRunRange;
 
@@ -276,7 +276,7 @@ const RunRangeDependentPedeLabeler::RunRange& RunRangeDependentPedeLabeler::runR
   unsigned int runRangeIndex = (label - firstLabel) / theParamInstanceOffset;
   unsigned int paramNum = this->paramNumFromLabel(label);
 
-  RunRangeParamMap::const_iterator positionParam = (*positionAli).second.find(paramNum);
+  auto positionParam = (*positionAli).second.find(paramNum);
   if (positionParam == (*positionAli).second.end()) {
     return theOpenRunRange;
   }
@@ -400,7 +400,7 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
         }
 
         for (const auto& iParam : selParam) {
-          AlignableToRunRangeRangeMap::const_iterator positionAli = theAlignableToRunRangeRangeMap.find(iAli);
+          auto positionAli = theAlignableToRunRangeRangeMap.find(iAli);
           if (positionAli != theAlignableToRunRangeRangeMap.end()) {
             AlignmentParameters* AliParams = (*positionAli).first->alignmentParameters();
             if (static_cast<int>(selParam[selParam.size() - 1]) >= AliParams->size()) {
@@ -408,7 +408,7 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
                                                 << "mismatch in number of parameters\n";
             }
 
-            RunRangeParamMap::const_iterator positionParam = (*positionAli).second.find(iParam);
+            auto positionParam = (*positionAli).second.find(iParam);
             if (positionParam != (*positionAli).second.end()) {
               throw cms::Exception("BadConfig") << "@SUB=RunRangeDependentPedeLabeler::buildRunRangeDependencyMap\n"
                                                 << "RunRange range for parameter specified twice\n";

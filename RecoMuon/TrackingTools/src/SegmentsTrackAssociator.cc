@@ -98,8 +98,7 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
         // container for 4D segment recHits
         vector<const TrackingRecHit*> dtRecHits;
 
-        for (vector<const TrackingRecHit*>::const_iterator segm2D = segments2D.begin(); segm2D != segments2D.end();
-             segm2D++) {
+        for (auto segm2D = segments2D.begin(); segm2D != segments2D.end(); segm2D++) {
           vector<const TrackingRecHit*> rHits1D = (*segm2D)->recHits();
           for (int hit = 0; hit < int(rHits1D.size()); hit++) {
             dtRecHits.push_back(rHits1D[hit]);

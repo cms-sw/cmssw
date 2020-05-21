@@ -78,7 +78,7 @@ namespace lumi {
     std::string triggerpathtabname("HLT_SUPERVISOR_TRIGGERPATHS");
     std::string maptabname("HLT_SUPERVISOR_SCALAR_MAP_V2");
     std::string gttabname("LUMI_SECTIONS");
-    coral::ConnectionService* svc = new coral::ConnectionService;
+    auto* svc = new coral::ConnectionService;
     lumi::DBConfig dbconf(*svc);
     if (!m_authpath.empty()) {
       dbconf.setAuthentication(m_authpath);
@@ -165,8 +165,8 @@ namespace lumi {
     /** select name from cms_hlt.paths where pathid=:pathid **/
     /** fill up hltpathmap **/
     HltPathMap::iterator mpit;
-    HltPathMap::iterator mpitBeg = hltpathmap.begin();
-    HltPathMap::iterator mpitEnd = hltpathmap.end();
+    auto mpitBeg = hltpathmap.begin();
+    auto mpitEnd = hltpathmap.end();
     for (mpit = mpitBeg; mpit != mpitEnd; ++mpit) {  //loop over paths
       coral::IQuery* mq = confdbSchemaHandle.newQuery();
       coral::AttributeList mqbindVariableList;
@@ -194,8 +194,8 @@ namespace lumi {
         continue;  //skip ls=0
       std::map<unsigned int, HLTV32DB::hltinfo> allpaths;
       HltPathMap::iterator aIt;
-      HltPathMap::iterator aItBeg = hltpathmap.begin();
-      HltPathMap::iterator aItEnd = hltpathmap.end();
+      auto aItBeg = hltpathmap.begin();
+      auto aItEnd = hltpathmap.end();
       for (aIt = aItBeg; aIt != aItEnd; ++aIt) {
         HLTV32DB::hltinfo ct;
         ct.cmsluminr = i;
@@ -211,8 +211,7 @@ namespace lumi {
     bool lscountfromzero = false;
 
     /**select t.l1pass,t.paccept,t.pathid,m.psvalue from cms_runinfo.hlt_supervisor_triggerpaths t, cms_runinfo.hlt_supervisor_scalar_map_v2 m where m.pathid=t.pathid and m.runnumber=t.runnumber and m.runnumber=:runnum and m.psindex=:0 and t.lsnumber=:ls **/
-    for (std::vector<std::pair<unsigned int, unsigned int> >::iterator it = psindexmap.begin(); it != psindexmap.end();
-         ++it) {
+    for (auto it = psindexmap.begin(); it != psindexmap.end(); ++it) {
       //loop over ls
       unsigned int lsnum = it->first;
       unsigned int psindex = it->second;
@@ -336,7 +335,7 @@ namespace lumi {
     lumi::idDealer idg(lumisession->nominalSchema());
     unsigned long long hltID =
         idg.generateNextIDForTable(LumiNames::hltTableName(), totalcmsls * npath) - totalcmsls * npath;
-    for (HltResult::iterator hltIt = hltItBeg; hltIt != hltItEnd; ++hltIt, ++hltlscount) {
+    for (auto hltIt = hltItBeg; hltIt != hltItEnd; ++hltIt, ++hltlscount) {
       std::vector<unsigned long long> pathvec;
       pathvec.reserve(npath);
       for (unsigned int i = 0; i < npath; ++i, ++hltID) {
@@ -356,7 +355,7 @@ namespace lumi {
     hltData.extend("PRESCALE", typeid(unsigned int));
 
     //loop over lumi LS
-    unsigned long long& hlt_id = hltData["HLT_ID"].data<unsigned long long>();
+    auto& hlt_id = hltData["HLT_ID"].data<unsigned long long>();
     unsigned int& hltrunnum = hltData["RUNNUM"].data<unsigned int>();
     unsigned int& cmslsnum = hltData["CMSLSNUM"].data<unsigned int>();
     std::string& pathname = hltData["PATHNAME"].data<std::string>();
@@ -366,10 +365,10 @@ namespace lumi {
     hltlscount = 0;
     coral::IBulkOperation* hltInserter = nullptr;
     unsigned int comittedls = 0;
-    for (HltResult::iterator hltIt = hltItBeg; hltIt != hltItEnd; ++hltIt, ++hltlscount) {
+    for (auto hltIt = hltItBeg; hltIt != hltItEnd; ++hltIt, ++hltlscount) {
       std::map<unsigned int, HLTV32DB::hltinfo>::const_iterator pathIt;
-      std::map<unsigned int, HLTV32DB::hltinfo>::const_iterator pathBeg = hltIt->begin();
-      std::map<unsigned int, HLTV32DB::hltinfo>::const_iterator pathEnd = hltIt->end();
+      auto pathBeg = hltIt->begin();
+      auto pathEnd = hltIt->end();
       if (!lumisession->transaction().isActive()) {
         lumisession->transaction().start(false);
         coral::ITable& hlttable = lumisession->nominalSchema().tableHandle(LumiNames::hltTableName());
@@ -426,7 +425,7 @@ namespace lumi {
     lshltData.extend("PRESCALEBLOB", typeid(coral::Blob));
     lshltData.extend("HLTCOUNTBLOB", typeid(coral::Blob));
     lshltData.extend("HLTACCEPTBLOB", typeid(coral::Blob));
-    unsigned long long& data_id = lshltData["DATA_ID"].data<unsigned long long>();
+    auto& data_id = lshltData["DATA_ID"].data<unsigned long long>();
     unsigned int& hltrunnum = lshltData["RUNNUM"].data<unsigned int>();
     unsigned int& cmslsnum = lshltData["CMSLSNUM"].data<unsigned int>();
     coral::Blob& prescaleblob = lshltData["PRESCALEBLOB"].data<coral::Blob>();
@@ -447,8 +446,8 @@ namespace lumi {
     hltrundata.npath = npath;
     std::string pathnames;
     HltPathMap::iterator hltpathmapIt;
-    HltPathMap::iterator hltpathmapItBeg = hltpathmap.begin();
-    HltPathMap::iterator hltpathmapItEnd = hltpathmap.end();
+    auto hltpathmapItBeg = hltpathmap.begin();
+    auto hltpathmapItEnd = hltpathmap.end();
     for (hltpathmapIt = hltpathmapItBeg; hltpathmapIt != hltpathmapItEnd; ++hltpathmapIt) {
       if (hltpathmapIt != hltpathmapItBeg) {
         pathnames += std::string(",");
@@ -479,11 +478,11 @@ namespace lumi {
     unsigned int hltlscount = 0;
     coral::IBulkOperation* hltInserter = nullptr;
     unsigned int comittedls = 0;
-    for (HltResult::iterator hltIt = hltItBeg; hltIt != hltItEnd; ++hltIt, ++hltlscount) {
+    for (auto hltIt = hltItBeg; hltIt != hltItEnd; ++hltIt, ++hltlscount) {
       unsigned int cmslscount = hltlscount + 1;
       std::map<unsigned int, HLTV32DB::hltinfo, std::less<unsigned int> >::const_iterator pathIt;
-      std::map<unsigned int, HLTV32DB::hltinfo, std::less<unsigned int> >::const_iterator pathBeg = hltIt->begin();
-      std::map<unsigned int, HLTV32DB::hltinfo, std::less<unsigned int> >::const_iterator pathEnd = hltIt->end();
+      auto pathBeg = hltIt->begin();
+      auto pathEnd = hltIt->end();
       if (!lumisession->transaction().isActive()) {
         lumisession->transaction().start(false);
         coral::ITable& hlttable = lumisession->nominalSchema().tableHandle(LumiNames::lshltTableName());

@@ -27,7 +27,7 @@ void RPCSimTriv::simulate(const RPCRoll* roll, const edm::PSimHitContainer& rpcH
   theRpcDigiSimLinks = RPCDigiSimLinks(roll->id().rawId());
 
   const Topology& topology = roll->specs()->topology();
-  for (edm::PSimHitContainer::const_iterator _hit = rpcHits.begin(); _hit != rpcHits.end(); ++_hit) {
+  for (auto _hit = rpcHits.begin(); _hit != rpcHits.end(); ++_hit) {
     int type = _hit->particleType();
     if (type == 13 || type == -13) {
       // Here I hould check if the RPC are up side down;

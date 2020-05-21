@@ -52,7 +52,7 @@ void GctFibreAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   unsigned int flag_for_consistency = 0;
   int flag_for_consistent_events = 0;
 
-  for (L1GctFibreCollection::const_iterator f = fibre->begin(); f != fibre->end(); f++) {
+  for (auto f = fibre->begin(); f != fibre->end(); f++) {
     if (f->data() != 0) {
       if (m_doCounter) {
         if (f == fibre->begin()) {

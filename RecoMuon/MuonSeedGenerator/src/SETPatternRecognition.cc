@@ -208,7 +208,7 @@ void SETPatternRecognition::produce(const edm::Event& event,
   // split rechits into subvectors and return vector of vectors:
   // Loop over rechits
   // Create one seed per hit
-  for (MuonRecHitContainer::const_iterator it = muonRecHits.begin(); it != muonRecHits.end(); ++it) {
+  for (auto it = muonRecHits.begin(); it != muonRecHits.end(); ++it) {
     // try to avoid using 2D DT segments. We will add them later to the
     // clusters they are most likely to belong to. Might need to add them
     // to more than just one cluster, if we find them to be consistent with
@@ -350,9 +350,7 @@ void SETPatternRecognition::produce(const edm::Event& event,
 
     // We have a valid cluster - loop over all 2D segments.
     if (useDT2D_hasZed) {
-      for (MuonRecHitContainer::const_iterator it2 = muonRecHits_DT2D_hasZed.begin();
-           it2 != muonRecHits_DT2D_hasZed.end();
-           ++it2) {
+      for (auto it2 = muonRecHits_DT2D_hasZed.begin(); it2 != muonRecHits_DT2D_hasZed.end(); ++it2) {
         // check that global theta of 2-D segment lies within cluster box plus or minus allowed slop
         if (((*it2)->globalPosition().theta() < seed_maxY[NNN] + dYclusBoxMax) &&
             ((*it2)->globalPosition().theta() > seed_minY[NNN] - dYclusBoxMax)) {
@@ -372,9 +370,7 @@ void SETPatternRecognition::produce(const edm::Event& event,
 
     // put DT hasphi loop here
     if (useDT2D_hasPhi) {
-      for (MuonRecHitContainer::const_iterator it2 = muonRecHits_DT2D_hasPhi.begin();
-           it2 != muonRecHits_DT2D_hasPhi.end();
-           ++it2) {
+      for (auto it2 = muonRecHits_DT2D_hasPhi.begin(); it2 != muonRecHits_DT2D_hasPhi.end(); ++it2) {
         if (((*it2)->globalPosition().phi() < seed_maxX[NNN] + dXclusBoxMax) &&
             ((*it2)->globalPosition().phi() > seed_minX[NNN] - dXclusBoxMax)) {
           if (!((((*it2)->globalPosition().theta() + 0.3) < (seed_minY[NNN] - dYclusBoxMax) &&
@@ -402,7 +398,7 @@ void SETPatternRecognition::produce(const edm::Event& event,
     }
 
     if (useRPCs && !secondCh && !tooCloseClusters) {
-      for (MuonRecHitContainer::const_iterator it2 = muonRecHits_RPC.begin(); it2 != muonRecHits_RPC.end(); ++it2) {
+      for (auto it2 = muonRecHits_RPC.begin(); it2 != muonRecHits_RPC.end(); ++it2) {
         if (((*it2)->globalPosition().phi() < seed_maxX[NNN] + dXclusBoxMax) &&
             ((*it2)->globalPosition().phi() > seed_minX[NNN] - dXclusBoxMax)) {
           if (!((((*it2)->globalPosition().theta() + 0.3) < (seed_minY[NNN] - dYclusBoxMax) &&

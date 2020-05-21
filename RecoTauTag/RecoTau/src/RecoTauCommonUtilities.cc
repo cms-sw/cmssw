@@ -79,7 +79,7 @@ namespace reco {
       const CandPtrs& pfCands = jet.daughterPtrVector();
       CandPtrs output;
       // Get each desired candidate type, unsorted for now
-      for (std::vector<int>::const_iterator pdgId = pdgIds.begin(); pdgId != pdgIds.end(); ++pdgId) {
+      for (auto pdgId = pdgIds.begin(); pdgId != pdgIds.end(); ++pdgId) {
         CandPtrs&& selectedPFCands = filterPFCandidates(pfCands.begin(), pfCands.end(), *pdgId, false);
         output.insert(output.end(), selectedPFCands.begin(), selectedPFCands.end());
       }
@@ -106,7 +106,7 @@ namespace reco {
     }
 
     math::XYZPointF atECALEntrance(const reco::Candidate* part, double bField) {
-      const reco::PFCandidate* pfCand = dynamic_cast<const reco::PFCandidate*>(part);
+      const auto* pfCand = dynamic_cast<const reco::PFCandidate*>(part);
       if (pfCand)
         return pfCand->positionAtECALEntrance();
 

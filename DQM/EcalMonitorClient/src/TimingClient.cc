@@ -201,7 +201,7 @@ namespace ecaldqm {
 
       bool doMask(false);
 
-      for (std::vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr) {
+      for (auto idItr(ids.begin()); idItr != ids.end(); ++idItr) {
         DetId& id(*idItr);
 
         doMask |= meQuality.maskMatches(id, mask, statusManager_);

@@ -262,7 +262,7 @@ GEMEtaPartition* GEMGeometryBuilderFromDDD::buildEtaPartition(DDFilteredView& fv
   DDValue numbOfStrips("nStrips");
   DDValue numbOfPads("nPads");
   std::vector<const DDsvalues_type*> specs(fv.specifics());
-  std::vector<const DDsvalues_type*>::iterator is = specs.begin();
+  auto is = specs.begin();
   double nStrips = 0., nPads = 0.;
   for (; is != specs.end(); is++) {
     if (DDfetch(*is, numbOfStrips))
@@ -293,7 +293,7 @@ GEMEtaPartition* GEMGeometryBuilderFromDDD::buildEtaPartition(DDFilteredView& fv
   bool isOdd = detId.chamber() % 2;
   RCPBoundPlane surf(boundPlane(fv, new TrapezoidalPlaneBounds(be, te, ap, ti), isOdd));
   std::string name = fv.logicalPart().name().name();
-  GEMEtaPartitionSpecs* e_p_specs = new GEMEtaPartitionSpecs(GeomDetEnumerators::GEM, name, pars);
+  auto* e_p_specs = new GEMEtaPartitionSpecs(GeomDetEnumerators::GEM, name, pars);
 
   LogDebug("GEMGeometryBuilderFromDDD") << "size " << be << " " << te << " " << ap << " " << ti << std::endl;
 
@@ -497,7 +497,7 @@ GEMEtaPartition* GEMGeometryBuilderFromDDD::buildEtaPartition(cms::DDFilteredVie
 
   std::string_view name = fv.name();
 
-  GEMEtaPartitionSpecs* e_p_specs = new GEMEtaPartitionSpecs(GeomDetEnumerators::GEM, std::string(name), pars);
+  auto* e_p_specs = new GEMEtaPartitionSpecs(GeomDetEnumerators::GEM, std::string(name), pars);
 
   GEMEtaPartition* etaPartition = new GEMEtaPartition(detId, surf, e_p_specs);
   return etaPartition;

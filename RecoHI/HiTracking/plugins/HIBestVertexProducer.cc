@@ -90,7 +90,7 @@ void HIBestVertexProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
   //otherwise use the pixel track adaptive vertex if it is good
   if (!hasFinalVertex) {
     if (vertices1->begin()->zError() < maxZError) {
-      reco::VertexCollection::const_iterator vertex1 = vertices1->begin();
+      auto vertex1 = vertices1->begin();
       newVertexCollection->push_back(*vertex1);
 
       LogInfo("HeavyIonVertexing") << "adaptive vertex:\n vz = (" << vertex1->x() << ", " << vertex1->y() << ", "
@@ -114,7 +114,7 @@ void HIBestVertexProducer::produce(edm::Event& ev, const edm::EventSetup& es) {
         LogError("HeavyIonVertexing") << "no beamspot found " << endl;
 
       if (!vertices2->empty()) {
-        reco::VertexCollection::const_iterator vertex2 = vertices2->begin();
+        auto vertex2 = vertices2->begin();
         reco::Vertex::Error err;
         err(0, 0) = pow(beamSpot.BeamWidthX(), 2);
         err(1, 1) = pow(beamSpot.BeamWidthY(), 2);

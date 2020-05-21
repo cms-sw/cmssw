@@ -168,8 +168,8 @@ bool SiStripCondObjBuilderFromDb::checkForCompatibility(std::stringstream& input
 
   SiStripDbParams::const_iterator_range partitionsRange = dbParams().partitions();
 
-  SiStripDbParams::SiStripPartitions::const_iterator ipart = partitionsRange.begin();
-  SiStripDbParams::SiStripPartitions::const_iterator ipartEnd = partitionsRange.end();
+  auto ipart = partitionsRange.begin();
+  auto ipartEnd = partitionsRange.end();
   for (; ipart != ipartEnd; ++ipart) {
     SiStripPartition partition = ipart->second;
     output << "@ "
@@ -198,8 +198,8 @@ std::string SiStripCondObjBuilderFromDb::getConfigString(const std::type_info& t
   std::stringstream output;
 
   SiStripDbParams::const_iterator_range partitionsRange = dbParams().partitions();
-  SiStripDbParams::SiStripPartitions::const_iterator ipart = partitionsRange.begin();
-  SiStripDbParams::SiStripPartitions::const_iterator ipartEnd = partitionsRange.end();
+  auto ipart = partitionsRange.begin();
+  auto ipartEnd = partitionsRange.end();
   for (; ipart != ipartEnd; ++ipart) {
     SiStripPartition partition = ipart->second;
     output << "%%"
@@ -400,8 +400,8 @@ void SiStripCondObjBuilderFromDb::setDefaultValuesApvLatency(SiStripLatency& lat
 bool SiStripCondObjBuilderFromDb::setValuesApvTiming(SiStripConfigDb* const db, FedChannelConnection& ipair) {
   SiStripConfigDb::AnalysisDescriptionsRange anal_descriptions =
       db->getAnalysisDescriptions(CommissioningAnalysisDescription::T_ANALYSIS_TIMING);
-  SiStripConfigDb::AnalysisDescriptionsV::const_iterator iii = anal_descriptions.begin();
-  SiStripConfigDb::AnalysisDescriptionsV::const_iterator jjj = anal_descriptions.end();
+  auto iii = anal_descriptions.begin();
+  auto jjj = anal_descriptions.end();
 
   while (iii != jjj) {
     CommissioningAnalysisDescription* tmp = *iii;
@@ -475,8 +475,8 @@ bool SiStripCondObjBuilderFromDb::setValuesApvLatency(SiStripLatency& latency_,
                                                       SiStripConfigDb::DeviceDescriptionsRange apvs) {
   m_reader->getNumberOfApvsAndStripLength(detid);
 
-  SiStripConfigDb::DeviceDescriptionsV::const_iterator iapv = apvs.begin();
-  SiStripConfigDb::DeviceDescriptionsV::const_iterator japv = apvs.end();
+  auto iapv = apvs.begin();
+  auto japv = apvs.end();
   if (iapv == japv)
     return false;
   for (; iapv != japv; ++iapv) {
@@ -529,7 +529,7 @@ bool SiStripCondObjBuilderFromDb::setValuesCabling(SiStripConfigDb::FedDescripti
                                                    FedChannelConnection& ipair,
                                                    uint32_t detid) {
   //SiStripConfigDb::FedDescriptionsRange descriptions = db->getFedDescriptions();
-  SiStripConfigDb::FedDescriptionsV::const_iterator description = descriptions.begin();
+  auto description = descriptions.begin();
   while (description != descriptions.end()) {
     if ((*description)->getFedId() == ipair.fedId()) {
       break;
@@ -550,7 +550,7 @@ bool SiStripCondObjBuilderFromDb::setValuesCabling(SiStripConfigDb::FedDescripti
     addr.setFedApv(iapv);
     vector<Fed9U::Fed9UStripDescription> strip = strips.getApvStrips(addr);
 
-    vector<Fed9U::Fed9UStripDescription>::const_iterator istrip = strip.begin();
+    auto istrip = strip.begin();
 
     for (; istrip != strip.end(); istrip++) {
       pedestals_->setData(istrip->getPedestal(), inputPedestals);
@@ -676,7 +676,7 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects(SiStripConfigDb* cons
     //build connections per DetId
     const vector<const FedChannelConnection*>& conns = buildConnections(det_cabling, *det_id);
 
-    vector<const FedChannelConnection*>::const_iterator ipair = conns.begin();
+    auto ipair = conns.begin();
     if (conns.empty())
       continue;
 
@@ -759,15 +759,14 @@ void SiStripCondObjBuilderFromDb::buildAnalysisRelatedObjects(SiStripConfigDb* c
 
     uint32_t detid = it->first;
     bool update_ = true;
-    i_trackercon det_iter =
-        std::find_if(tc.begin(), tc.end(), [detid](const pair_detcon& p) { return p.first == detid; });
+    auto det_iter = std::find_if(tc.begin(), tc.end(), [detid](const pair_detcon& p) { return p.first == detid; });
     if (det_iter == tc.end()) {
       update_ = false;  // do not update if it is not connected in cabling
     }
 
     if (update_) {
       //loop connections
-      for (i_apvpairconn connections = det_iter->second.begin(); connections != det_iter->second.end(); connections++) {
+      for (auto connections = det_iter->second.begin(); connections != det_iter->second.end(); connections++) {
         uint32_t apvPair = (*connections).first;
         FedChannelConnection ipair = (*connections).second;
 
@@ -820,20 +819,20 @@ void SiStripCondObjBuilderFromDb::buildFECRelatedObjects(SiStripConfigDb* const 
   //data container
   latency_ = new SiStripLatency();
 
-  i_trackercon detids_end = tc.end();
+  auto detids_end = tc.end();
 
   // get APV DeviceDescriptions
   SiStripConfigDb::DeviceDescriptionsRange apvs = db->getDeviceDescriptions(APV25);
   ;
 
   //loop detids
-  for (i_trackercon detids = tc.begin(); detids != detids_end; detids++) {
+  for (auto detids = tc.begin(); detids != detids_end; detids++) {
     uint32_t detid = (*detids).first;
     uint16_t apvnr = 1;
-    i_apvpairconn connections_end = ((*detids).second).end();
+    auto connections_end = ((*detids).second).end();
 
     //loop connections
-    for (i_apvpairconn connections = ((*detids).second).begin(); connections != connections_end; connections++) {
+    for (auto connections = ((*detids).second).begin(); connections != connections_end; connections++) {
       uint32_t apvPair = (*connections).first;
       FedChannelConnection ipair = (*connections).second;
 
@@ -877,18 +876,18 @@ void SiStripCondObjBuilderFromDb::buildFEDRelatedObjects(SiStripConfigDb* const 
   threshold_ = new SiStripThreshold();
   quality_ = new SiStripQuality();
 
-  i_trackercon detids_end = tc.end();
+  auto detids_end = tc.end();
 
   //Build FED Descriptions out of db object
   SiStripConfigDb::FedDescriptionsRange descriptions = db->getFedDescriptions();
 
   //loop detids
-  for (i_trackercon detids = tc.begin(); detids != detids_end; detids++) {
+  for (auto detids = tc.begin(); detids != detids_end; detids++) {
     uint32_t detid = (*detids).first;
-    i_apvpairconn connections_end = ((*detids).second).end();
+    auto connections_end = ((*detids).second).end();
 
     //loop connections
-    for (i_apvpairconn connections = ((*detids).second).begin(); connections != connections_end; connections++) {
+    for (auto connections = ((*detids).second).begin(); connections != connections_end; connections++) {
       uint32_t apvPair = (*connections).first;
       FedChannelConnection ipair = (*connections).second;
 

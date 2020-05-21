@@ -89,7 +89,7 @@ AlignableDetOrUnitPtr AlignableNavigator::alignableFromGeomDet(const GeomDet* ge
 
 //_____________________________________________________________________________
 AlignableDetOrUnitPtr AlignableNavigator::alignableFromDetId(const DetId& detid) {
-  MapType::iterator position = theMap.find(detid);
+  auto position = theMap.find(detid);
   if (position != theMap.end()) {
     return position->second;
   }
@@ -154,8 +154,7 @@ std::vector<AlignableDetOrUnitPtr> AlignableNavigator::alignablesFromHits(
   std::vector<AlignableDetOrUnitPtr> result;
   result.reserve(hitvec.size());
 
-  for (std::vector<const TransientTrackingRecHit*>::const_iterator ih = hitvec.begin(), iEnd = hitvec.end(); ih != iEnd;
-       ++ih) {
+  for (auto ih = hitvec.begin(), iEnd = hitvec.end(); ih != iEnd; ++ih) {
     result.push_back(this->alignableFromDetId((*ih)->geographicalId()));
   }
 
@@ -168,9 +167,7 @@ std::vector<AlignableDetOrUnitPtr> AlignableNavigator::alignablesFromHits(
   std::vector<AlignableDetOrUnitPtr> result;
   result.reserve(hitVec.size());
 
-  for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator it = hitVec.begin(), iEnd = hitVec.end();
-       it != iEnd;
-       ++it) {
+  for (auto it = hitVec.begin(), iEnd = hitVec.end(); it != iEnd; ++it) {
     result.push_back(this->alignableFromDetId((*it)->geographicalId()));
   }
 
@@ -182,7 +179,7 @@ std::vector<AlignableDetOrUnitPtr> AlignableNavigator::alignableDetOrUnits() {
   std::vector<AlignableDetOrUnitPtr> result;
   result.reserve(theMap.size());
 
-  for (MapType::const_iterator iIdAli = theMap.begin(); iIdAli != theMap.end(); ++iIdAli) {
+  for (auto iIdAli = theMap.begin(); iIdAli != theMap.end(); ++iIdAli) {
     result.push_back(iIdAli->second);
   }
 
@@ -193,7 +190,7 @@ std::vector<AlignableDetOrUnitPtr> AlignableNavigator::alignableDetOrUnits() {
 bool AlignableNavigator::detAndSubdetInMap(const DetId& detid) const {
   int det = detid.det();
   int subdet = detid.subdetId();
-  for (std::vector<std::pair<int, int> >::const_iterator i = theDetAndSubdet.begin(); i != theDetAndSubdet.end(); ++i) {
+  for (auto i = theDetAndSubdet.begin(); i != theDetAndSubdet.end(); ++i) {
     if (det == i->first && subdet == i->second)
       return true;
   }

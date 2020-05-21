@@ -26,8 +26,7 @@ void MuonMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
   workingPoints.push_back(ibooker.book2D("highPtMuons", "High Pt Muons", 2, 1, 3, 2, 1, 3));
   workingPoints.push_back(ibooker.book2D("softMuons", "Soft Muons", 2, 1, 3, 2, 1, 3));
 
-  for (std::vector<MonitorElement*>::iterator monitor = workingPoints.begin(); monitor != workingPoints.end();
-       ++monitor) {
+  for (auto monitor = workingPoints.begin(); monitor != workingPoints.end(); ++monitor) {
     (*monitor)->setBinLabel(1, "Pass", 1);
     (*monitor)->setBinLabel(2, "No Pass", 1);
     (*monitor)->setBinLabel(1, "Pass", 2);
@@ -119,8 +118,7 @@ void MuonMiniAOD::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   const reco::Vertex thePrimaryVertex(posVtx, errVtx);
 
   for (edm::View<pat::Muon>::const_iterator muon1 = muons->begin(); muon1 != muons->end(); ++muon1) {
-    for (std::vector<MonitorElement*>::iterator monitor = workingPoints.begin(); monitor != workingPoints.end();
-         ++monitor) {
+    for (auto monitor = workingPoints.begin(); monitor != workingPoints.end(); ++monitor) {
       int Pass_A = 0;
       int Pass_B = 0;
       if (PassesCut_A(muon1, thePrimaryVertex, (*monitor)->getName()))

@@ -153,7 +153,7 @@ void L1TLSBlock::blockByStatistics() {
   double currentError(0);
   bool resetFlag(true);
 
-  for (LumiTestDoubleList::iterator i = inputDoubleList_.begin(); i != inputDoubleList_.end(); i++) {
+  for (auto i = inputDoubleList_.begin(); i != inputDoubleList_.end(); i++) {
     if (resetFlag) {
       currentRange = std::make_pair(i->first, i->first);
       resetFlag = false;

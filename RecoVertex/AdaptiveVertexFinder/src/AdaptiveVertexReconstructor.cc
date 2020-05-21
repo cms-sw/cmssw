@@ -13,7 +13,7 @@ TransientVertex AdaptiveVertexReconstructor::cleanUp(const TransientVertex& old)
   vector<reco::TransientTrack> newtrks;
   TransientVertex::TransientTrackToFloatMap mp;
   static const float minweight = 1.e-8;  // discard all tracks with lower weight
-  for (vector<reco::TransientTrack>::const_iterator i = trks.begin(); i != trks.end(); ++i) {
+  for (auto i = trks.begin(); i != trks.end(); ++i) {
     if (old.trackWeight(*i) > minweight) {
       newtrks.push_back(*i);
       mp[*i] = old.trackWeight(*i);
@@ -34,8 +34,8 @@ TransientVertex AdaptiveVertexReconstructor::cleanUp(const TransientVertex& old)
     // we have refitted tracks -- copy them!
     vector<reco::TransientTrack> newrfs;
     vector<reco::TransientTrack> oldrfs = old.refittedTracks();
-    vector<reco::TransientTrack>::const_iterator origtrkiter = trks.begin();
-    for (vector<reco::TransientTrack>::const_iterator i = oldrfs.begin(); i != oldrfs.end(); ++i) {
+    auto origtrkiter = trks.begin();
+    for (auto i = oldrfs.begin(); i != oldrfs.end(); ++i) {
       if (old.trackWeight(*origtrkiter) > minweight) {
         newrfs.push_back(*i);
       }
@@ -60,7 +60,7 @@ void AdaptiveVertexReconstructor::erase(const TransientVertex& newvtx,
    * But erase only if trackweight > w
    */
   const vector<reco::TransientTrack>& origtrks = newvtx.originalTracks();
-  for (vector<reco::TransientTrack>::const_iterator i = origtrks.begin(); i != origtrks.end(); ++i) {
+  for (auto i = origtrks.begin(); i != origtrks.end(); ++i) {
     double weight = newvtx.trackWeight(*i);
     if (weight > w) {
       remainingtrks.erase(*i);
@@ -234,7 +234,7 @@ vector<TransientVertex> AdaptiveVertexReconstructor::vertices(const vector<reco:
 
 vector<TransientVertex> AdaptiveVertexReconstructor::cleanUpVertices(const vector<TransientVertex>& old) const {
   vector<TransientVertex> ret;
-  for (vector<TransientVertex>::const_iterator i = old.begin(); i != old.end(); ++i) {
+  for (auto i = old.begin(); i != old.end(); ++i) {
     if (!(i->hasTrackWeight())) {  // if we dont have track weights, we take the vtx
       ret.push_back(*i);
       continue;
@@ -244,7 +244,7 @@ vector<TransientVertex> AdaptiveVertexReconstructor::cleanUpVertices(const vecto
     // e.g. if ( ndf > - 1. )
     int nsig = 0;  // number of significant tracks.
     TransientVertex::TransientTrackToFloatMap wm = i->weightMap();
-    for (TransientVertex::TransientTrackToFloatMap::const_iterator w = wm.begin(); w != wm.end(); ++w) {
+    for (auto w = wm.begin(); w != wm.end(); ++w) {
       if (w->second > theWeightThreshold)
         nsig++;
     }

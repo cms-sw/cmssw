@@ -120,7 +120,7 @@ void SiStripQualityStatistics::updateAndSave(const SiStripQuality* siStripQualit
 
   std::stringstream ss;
   std::vector<uint32_t> detids = reader->getAllDetIds();
-  std::vector<uint32_t>::const_iterator idet = detids.begin();
+  auto idet = detids.begin();
   for (; idet != detids.end(); ++idet) {
     ss << "detid " << (*idet) << " IsModuleUsable " << siStripQuality->IsModuleUsable((*idet)) << "\n";
     if (siStripQuality->IsModuleUsable((*idet)))
@@ -188,10 +188,10 @@ void SiStripQualityStatistics::updateAndSave(const SiStripQuality* siStripQualit
   //&&&&&&&&&&&&&&&&&&
   float percentage = 0;
 
-  SiStripQuality::RegistryIterator rbegin = siStripQuality->getRegistryVectorBegin();
-  SiStripQuality::RegistryIterator rend = siStripQuality->getRegistryVectorEnd();
+  auto rbegin = siStripQuality->getRegistryVectorBegin();
+  auto rend = siStripQuality->getRegistryVectorEnd();
 
-  for (SiStripBadStrip::RegistryIterator rp = rbegin; rp != rend; ++rp) {
+  for (auto rp = rbegin; rp != rend; ++rp) {
     uint32_t detid = rp->detid;
 
     int subdet = -999;

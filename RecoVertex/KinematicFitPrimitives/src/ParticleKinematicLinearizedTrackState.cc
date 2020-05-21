@@ -56,8 +56,7 @@ TrackCharge ParticleKinematicLinearizedTrackState::charge() const { return part-
 RefCountedKinematicParticle ParticleKinematicLinearizedTrackState::particle() const { return part; }
 
 bool ParticleKinematicLinearizedTrackState::operator==(LinearizedTrackState<6>& other) const {
-  const ParticleKinematicLinearizedTrackState* otherP =
-      dynamic_cast<const ParticleKinematicLinearizedTrackState*>(&other);
+  const auto* otherP = dynamic_cast<const ParticleKinematicLinearizedTrackState*>(&other);
   if (otherP == nullptr) {
     throw VertexException(
         " ParticleKinematicLinearizedTrackState:: don't know how to compare myself to non-kinematic track state");
@@ -126,7 +125,7 @@ AlgebraicSymMatrix44 ParticleKinematicLinearizedTrackState::predictedStateMoment
   if (!jacobiansAvailable)
     computeJacobians();
   AlgebraicSymMatrix44 res;
-  AlgebraicSymMatrix33 m3 = thePredState.perigeeError().weightMatrix(error).Sub<AlgebraicSymMatrix33>(0, 0);
+  auto m3 = thePredState.perigeeError().weightMatrix(error).Sub<AlgebraicSymMatrix33>(0, 0);
   res.Place_at(m3, 0, 0);
   res(3, 0) = thePredState.perigeeError().weightMatrix(error)(5, 5);
   res(3, 1) = thePredState.perigeeError().weightMatrix(error)(5, 0);

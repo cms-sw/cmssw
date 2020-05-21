@@ -40,7 +40,7 @@ const DTRecoConditions& DTRecoConditions::operator=(const DTRecoConditions& iOth
 DTRecoConditions::~DTRecoConditions() { delete formula.load(); }
 
 float DTRecoConditions::get(const DTWireId& wireid, double* x) const {
-  map<uint32_t, vector<double> >::const_iterator slIt = payload.find(wireid.superlayerId().rawId());
+  auto slIt = payload.find(wireid.superlayerId().rawId());
   if (slIt == payload.end()) {
     throw cms::Exception("InvalidInput") << "The SLId: " << wireid.superlayerId() << " is not in the paylaod map";
   }

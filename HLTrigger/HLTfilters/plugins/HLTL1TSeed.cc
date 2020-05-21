@@ -565,9 +565,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
   /// Loop over the list of required algorithms for seeding
   /// /////////////////////////////////////////////////////
 
-  for (std::vector<GlobalLogicParser::OperandToken>::const_iterator itSeed = m_l1AlgoSeeds.begin();
-       itSeed != m_l1AlgoSeeds.end();
-       ++itSeed) {
+  for (auto itSeed = m_l1AlgoSeeds.begin(); itSeed != m_l1AlgoSeeds.end(); ++itSeed) {
     std::string algoSeedName = (*itSeed).tokenName;
 
     LogTrace("HLTL1TSeed") << "\n ----------------  algo seed name = " << algoSeedName << endl;
@@ -861,7 +859,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
                                     << "\nrequested in configuration, but not found in the event."
                                     << "\nNo muons added to filterproduct." << endl;
     } else {
-      for (std::list<int>::const_iterator itObj = listMuon.begin(); itObj != listMuon.end(); ++itObj) {
+      for (auto itObj = listMuon.begin(); itObj != listMuon.end(); ++itObj) {
         // Transform to index for Bx = 0 to begin of BxVector
         unsigned int index = muons->begin(0) - muons->begin() + *itObj;
 
@@ -880,7 +878,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
                                     << "\nrequested in configuration, but not found in the event."
                                     << "\nNo egammas added to filterproduct." << endl;
     } else {
-      for (std::list<int>::const_iterator itObj = listEG.begin(); itObj != listEG.end(); ++itObj) {
+      for (auto itObj = listEG.begin(); itObj != listEG.end(); ++itObj) {
         // Transform to begin of BxVector
         unsigned int index = egammas->begin(0) - egammas->begin() + *itObj;
 
@@ -900,7 +898,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
                                     << "\nrequested in configuration, but not found in the event."
                                     << "\nNo jets added to filterproduct." << endl;
     } else {
-      for (std::list<int>::const_iterator itObj = listJet.begin(); itObj != listJet.end(); ++itObj) {
+      for (auto itObj = listJet.begin(); itObj != listJet.end(); ++itObj) {
         // Transform to begin of BxVector
         unsigned int index = jets->begin(0) - jets->begin() + *itObj;
 
@@ -920,7 +918,7 @@ bool HLTL1TSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent, trigger::TriggerFi
                                     << "\nrequested in configuration, but not found in the event."
                                     << "\nNo taus added to filterproduct." << endl;
     } else {
-      for (std::list<int>::const_iterator itObj = listTau.begin(); itObj != listTau.end(); ++itObj) {
+      for (auto itObj = listTau.begin(); itObj != listTau.end(); ++itObj) {
         // Transform to begin of BxVector
         unsigned int index = taus->begin(0) - taus->begin() + *itObj;
 

@@ -42,7 +42,7 @@ namespace lumi {
     //
     //generate dummy data for lumi summary and detail for the given run and write data to LumiDB
     //
-    coral::ConnectionService* svc = new coral::ConnectionService;
+    auto* svc = new coral::ConnectionService;
     lumi::DBConfig dbconf(*svc);
     if (!m_authpath.empty()) {
       dbconf.setAuthentication(m_authpath);
@@ -86,7 +86,7 @@ namespace lumi {
       detailData.extend("ALGONAME", typeid(std::string));
       coral::IBulkOperation* detailInserter = detailtable.dataEditor().bulkInsert(detailData, totallumils * N_LUMIALGO);
       //loop over lumi LS
-      unsigned long long& lumisummary_id = summaryData["LUMISUMMARY_ID"].data<unsigned long long>();
+      auto& lumisummary_id = summaryData["LUMISUMMARY_ID"].data<unsigned long long>();
       unsigned int& lumirunnum = summaryData["RUNNUM"].data<unsigned int>();
       unsigned int& cmslsnum = summaryData["CMSLSNUM"].data<unsigned int>();
       unsigned int& lumilsnum = summaryData["LUMILSNUM"].data<unsigned int>();
@@ -103,8 +103,8 @@ namespace lumi {
       float& beamenergy = summaryData["BEAMENERGY"].data<float>();
       std::string& beamstatus = summaryData["BEAMSTATUS"].data<std::string>();
 
-      unsigned long long& lumidetail_id = detailData["LUMIDETAIL_ID"].data<unsigned long long>();
-      unsigned long long& d2lumisummary_id = detailData["LUMISUMMARY_ID"].data<unsigned long long>();
+      auto& lumidetail_id = detailData["LUMIDETAIL_ID"].data<unsigned long long>();
+      auto& d2lumisummary_id = detailData["LUMISUMMARY_ID"].data<unsigned long long>();
       coral::Blob& bxlumivalue = detailData["BXLUMIVALUE"].data<coral::Blob>();
       coral::Blob& bxlumierror = detailData["BXLUMIERROR"].data<coral::Blob>();
       coral::Blob& bxlumiquality = detailData["BXLUMIQUALITY"].data<coral::Blob>();

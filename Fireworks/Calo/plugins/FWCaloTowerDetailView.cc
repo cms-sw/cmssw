@@ -38,7 +38,7 @@ void FWCaloTowerDetailView::build(const FWModelId& id, const CaloTower* iTower) 
   m_eveScene->AddElement(lego);
 
   // draw axis at the window corners
-  TEveCaloLegoOverlay* overlay = new TEveCaloLegoOverlay();
+  auto* overlay = new TEveCaloLegoOverlay();
   overlay->SetShowPlane(kFALSE);
   overlay->SetShowPerspective(kFALSE);
   overlay->SetCaloLego(lego);
@@ -47,7 +47,7 @@ void FWCaloTowerDetailView::build(const FWModelId& id, const CaloTower* iTower) 
 
   // set event handler and flip camera to top view at beginning
   viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
-  FWGLEventHandler* eh = new FWGLEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
+  auto* eh = new FWGLEventHandler((TGWindow*)viewerGL()->GetGLWidget(), (TObject*)viewerGL(), lego);
   viewerGL()->SetEventHandler(eh);
   viewerGL()->UpdateScene();
   viewerGL()->CurrentCamera().Reset();

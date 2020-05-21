@@ -73,7 +73,7 @@ void RctDigiToSourceCardText::analyze(const edm::Event &iEvent, const edm::Event
   unsigned numIsoEM[18] = {0};
   unsigned numNonIsoEM[18] = {0};
 
-  for (L1CaloEmCollection::const_iterator iem = em->begin(); iem != em->end(); iem++) {
+  for (auto iem = em->begin(); iem != em->end(); iem++) {
     if (iem->isolated()) {
       eIsoRank[iem->rctCrate()][numIsoEM[iem->rctCrate()]] = iem->rank();
       eIsoCardId[iem->rctCrate()][numIsoEM[iem->rctCrate()]] = iem->rctCard();
@@ -100,7 +100,7 @@ void RctDigiToSourceCardText::analyze(const edm::Event &iEvent, const edm::Event
   unsigned short Qbits[18][7][2] = {{{0}}};
 
   // Fill regions
-  for (L1CaloRegionCollection::const_iterator irgn = rgn->begin(); irgn != rgn->end(); irgn++) {
+  for (auto irgn = rgn->begin(); irgn != rgn->end(); irgn++) {
     if (irgn->id().isHf()) {
       HF[irgn->rctCrate()][irgn->id().rctEta() - 7][irgn->id().rctPhi()] = irgn->et();
       HFQ[irgn->rctCrate()][irgn->id().rctEta() - 7][irgn->id().rctPhi()] = irgn->fineGrain();

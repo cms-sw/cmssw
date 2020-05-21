@@ -34,7 +34,7 @@ EcalTestDevDB::EcalTestDevDB(const edm::ParameterSet& iConfig)
 
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters toCopy = iConfig.getParameter<Parameters>("toCopy");
-  for (Parameters::iterator i = toCopy.begin(); i != toCopy.end(); ++i) {
+  for (auto i = toCopy.begin(); i != toCopy.end(); ++i) {
     container = i->getParameter<std::string>("container");
     record = i->getParameter<std::string>("record");
     m_cacheIDs.insert(std::make_pair(container, 0));
@@ -53,7 +53,7 @@ void EcalTestDevDB::analyze(const edm::Event& evt, const edm::EventSetup& evtSet
   std::string container;
   std::string record;
   typedef std::map<std::string, std::string>::const_iterator recordIter;
-  for (recordIter i = m_records.begin(); i != m_records.end(); ++i) {
+  for (auto i = m_records.begin(); i != m_records.end(); ++i) {
     container = (*i).first;
     record = (*i).second;
 
@@ -243,7 +243,7 @@ EcalADCToGeVConstant* EcalTestDevDB::generateEcalADCToGeVConstant() {
   //-------------------------------------------------------------
 
   double r = (double)std::rand() / (double(RAND_MAX) + double(1));
-  EcalADCToGeVConstant* agc = new EcalADCToGeVConstant(36. + r * 4., 60. + r * 4);
+  auto* agc = new EcalADCToGeVConstant(36. + r * 4., 60. + r * 4);
   return agc;
 }
 
@@ -251,7 +251,7 @@ EcalADCToGeVConstant* EcalTestDevDB::generateEcalADCToGeVConstant() {
 EcalIntercalibConstants* EcalTestDevDB::generateEcalIntercalibConstants() {
   //-------------------------------------------------------------
 
-  EcalIntercalibConstants* ical = new EcalIntercalibConstants();
+  auto* ical = new EcalIntercalibConstants();
 
   for (int ieta = -EBDetId::MAX_IETA; ieta <= EBDetId::MAX_IETA; ++ieta) {
     if (ieta == 0)
@@ -270,7 +270,7 @@ EcalIntercalibConstants* EcalTestDevDB::generateEcalIntercalibConstants() {
 EcalLinearCorrections* EcalTestDevDB::generateEcalLinearCorrections() {
   //-------------------------------------------------------------
 
-  EcalLinearCorrections* ical = new EcalLinearCorrections();
+  auto* ical = new EcalLinearCorrections();
 
   for (int ieta = -EBDetId::MAX_IETA; ieta <= EBDetId::MAX_IETA; ++ieta) {
     if (ieta == 0)
@@ -357,7 +357,7 @@ EcalGainRatios* EcalTestDevDB::generateEcalGainRatios() {
 EcalWeightXtalGroups* EcalTestDevDB::generateEcalWeightXtalGroups() {
   //-------------------------------------------------------------
 
-  EcalWeightXtalGroups* xtalGroups = new EcalWeightXtalGroups();
+  auto* xtalGroups = new EcalWeightXtalGroups();
   for (int ieta = -EBDetId::MAX_IETA; ieta <= EBDetId::MAX_IETA; ++ieta) {
     if (ieta == 0)
       continue;
@@ -421,7 +421,7 @@ EcalTBWeights* EcalTestDevDB::generateEcalTBWeights() {
 EcalLaserAPDPNRatios* EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run) {
   //--------------------------------------------------------------
 
-  EcalLaserAPDPNRatios* laser = new EcalLaserAPDPNRatios();
+  auto* laser = new EcalLaserAPDPNRatios();
 
   EcalLaserAPDPNRatios::EcalLaserAPDPNpair APDPNpair;
   EcalLaserAPDPNRatios::EcalLaserTimeStamp TimeStamp;
@@ -573,7 +573,7 @@ EcalLaserAPDPNRatios* EcalTestDevDB::generateEcalLaserAPDPNRatios(uint32_t i_run
 EcalLaserAPDPNRatiosRef* EcalTestDevDB::generateEcalLaserAPDPNRatiosRef() {
   //--------------------------------------------------------------
 
-  EcalLaserAPDPNRatiosRef* laser = new EcalLaserAPDPNRatiosRef();
+  auto* laser = new EcalLaserAPDPNRatiosRef();
 
   EcalLaserAPDPNref APDPNref;
 

@@ -161,7 +161,7 @@ bool SeedFromNuclearInteraction::construct() {
 //----------------------------------------------------------------------
 edm::OwnVector<TrackingRecHit> SeedFromNuclearInteraction::hits() const {
   recHitContainer _hits;
-  for (ConstRecHitContainer::const_iterator it = theHits.begin(); it != theHits.end(); it++) {
+  for (auto it = theHits.begin(); it != theHits.end(); it++) {
     _hits.push_back(it->get()->hit()->clone());
   }
   return _hits;

@@ -37,8 +37,8 @@ L1TriggerKeyOnlineProdExt::ReturnType L1TriggerKeyOnlineProdExt::produce(const L
   auto pL1TriggerKey = std::make_unique<L1TriggerKeyExt>(*subsystemKeys);
 
   // Collate object keys
-  std::vector<std::string>::const_iterator itr = m_subsystemLabels.begin();
-  std::vector<std::string>::const_iterator end = m_subsystemLabels.end();
+  auto itr = m_subsystemLabels.begin();
+  auto end = m_subsystemLabels.end();
   for (; itr != end; ++itr) {
     edm::ESHandle<L1TriggerKeyExt> objectKeys;
     try {

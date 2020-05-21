@@ -93,14 +93,14 @@ PFRecoTauDiscriminationByHPSSelection::PFRecoTauDiscriminationByHPSSelection(con
 }
 
 PFRecoTauDiscriminationByHPSSelection::~PFRecoTauDiscriminationByHPSSelection() {
-  for (DecayModeCutMap::iterator it = decayModeCuts_.begin(); it != decayModeCuts_.end(); ++it) {
+  for (auto it = decayModeCuts_.begin(); it != decayModeCuts_.end(); ++it) {
     delete it->second.maxMass_;
   }
 }
 
 namespace {
   inline const reco::Track* getTrack(const reco::Candidate& cand) {
-    const reco::PFCandidate* pfCandPtr = dynamic_cast<const reco::PFCandidate*>(&cand);
+    const auto* pfCandPtr = dynamic_cast<const reco::PFCandidate*>(&cand);
     if (pfCandPtr) {
       if (pfCandPtr->trackRef().isNonnull())
         return pfCandPtr->trackRef().get();
@@ -109,7 +109,7 @@ namespace {
       else
         return nullptr;
     }
-    const pat::PackedCandidate* packedCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
+    const auto* packedCand = dynamic_cast<const pat::PackedCandidate*>(&cand);
     if (packedCand && packedCand->hasTrackDetails())
       return &packedCand->pseudoTrack();
 
@@ -133,7 +133,7 @@ double PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef&
   }
 
   // See if we select this decay mode
-  DecayModeCutMap::const_iterator massWindowIter = decayModeCuts_.find(
+  auto massWindowIter = decayModeCuts_.find(
       std::make_pair(tau->signalTauChargedHadronCandidates().size(), tau->signalPiZeroCandidates().size()));
   // Check if decay mode is supported
   if (massWindowIter == decayModeCuts_.end()) {
@@ -147,9 +147,7 @@ double PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef&
   if (massWindow.nTracksMin_ > 0) {
     unsigned int nTracks = 0;
     const std::vector<reco::PFRecoTauChargedHadron>& chargedHadrons = tau->signalTauChargedHadronCandidates();
-    for (std::vector<reco::PFRecoTauChargedHadron>::const_iterator chargedHadron = chargedHadrons.begin();
-         chargedHadron != chargedHadrons.end();
-         ++chargedHadron) {
+    for (auto chargedHadron = chargedHadrons.begin(); chargedHadron != chargedHadrons.end(); ++chargedHadron) {
       if (chargedHadron->algoIs(reco::PFRecoTauChargedHadron::kChargedPFCandidate) ||
           chargedHadron->algoIs(reco::PFRecoTauChargedHadron::kTrack)) {
         ++nTracks;
@@ -168,9 +166,7 @@ double PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef&
   if (massWindow.nChargedPFCandsMin_ > 0) {
     unsigned int nChargedPFCands = 0;
     const std::vector<reco::PFRecoTauChargedHadron>& chargedHadrons = tau->signalTauChargedHadronCandidates();
-    for (std::vector<reco::PFRecoTauChargedHadron>::const_iterator chargedHadron = chargedHadrons.begin();
-         chargedHadron != chargedHadrons.end();
-         ++chargedHadron) {
+    for (auto chargedHadron = chargedHadrons.begin(); chargedHadron != chargedHadrons.end(); ++chargedHadron) {
       if (chargedHadron->algoIs(reco::PFRecoTauChargedHadron::kChargedPFCandidate)) {
         ++nChargedPFCands;
       }
@@ -227,8 +223,7 @@ double PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef&
   //     irrespective of bendCorrection_mass
   reco::Candidate::LorentzVector tauP4_charged;
   const std::vector<reco::PFRecoTauChargedHadron>& signalChargedHadrons = tau->signalTauChargedHadronCandidates();
-  for (std::vector<reco::PFRecoTauChargedHadron>::const_iterator signalChargedHadron = signalChargedHadrons.begin();
-       signalChargedHadron != signalChargedHadrons.end();
+  for (auto signalChargedHadron = signalChargedHadrons.begin(); signalChargedHadron != signalChargedHadrons.end();
        ++signalChargedHadron) {
     tauP4_charged += signalChargedHadron->p4();
   }

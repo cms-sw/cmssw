@@ -561,7 +561,7 @@ void fastsim::NuclearInteraction::interact(fastsim::Particle& particle,
   }
 
   // The particle type
-  std::map<int, int>::const_iterator thePit = theIDMap.find(pdgId);
+  auto thePit = theIDMap.find(pdgId);
   // Use map for unique ID (e.g. proton = {2212, 3222, -101, -102, -103, -104})
   int thePid = (thePit != theIDMap.end() ? thePit->second : pdgId);
 
@@ -639,7 +639,7 @@ void fastsim::NuclearInteraction::interact(fastsim::Particle& particle,
     // The target nucleon
     XYZTLorentzVector Proton(0., 0., 0., 0.939);
     // The current particle
-    const XYZTLorentzVector& Hadron = (const XYZTLorentzVector&)particle.momentum();
+    const auto& Hadron = (const XYZTLorentzVector&)particle.momentum();
     // The smallest momentum for inelastic interactions
     double pMin = theHadronPMin[thePidIndex];
     // The corresponding smallest four vector
@@ -815,8 +815,8 @@ void fastsim::NuclearInteraction::save() {
   size2 *= sizeof(unsigned);
 
   // Save the current entries
-  std::vector<std::vector<unsigned> >::const_iterator aCurrentEntry = theCurrentEntry.begin();
-  std::vector<std::vector<unsigned> >::const_iterator lastCurrentEntry = theCurrentEntry.end();
+  auto aCurrentEntry = theCurrentEntry.begin();
+  auto lastCurrentEntry = theCurrentEntry.end();
   unsigned allEntries = 0;
   for (; aCurrentEntry != lastCurrentEntry; ++aCurrentEntry) {
     unsigned size = aCurrentEntry->size();
@@ -825,8 +825,8 @@ void fastsim::NuclearInteraction::save() {
   }
 
   // Save the current interactions
-  std::vector<std::vector<unsigned> >::const_iterator aCurrentInteraction = theCurrentInteraction.begin();
-  std::vector<std::vector<unsigned> >::const_iterator lastCurrentInteraction = theCurrentInteraction.end();
+  auto aCurrentInteraction = theCurrentInteraction.begin();
+  auto lastCurrentInteraction = theCurrentInteraction.end();
   unsigned allInteractions = 0;
   for (; aCurrentInteraction != lastCurrentInteraction; ++aCurrentInteraction) {
     unsigned size = aCurrentInteraction->size();
@@ -871,8 +871,8 @@ bool fastsim::NuclearInteraction::read(std::string inputFile) {
     myInputFile.close();
 
     // Read the current entries
-    std::vector<std::vector<unsigned> >::iterator aCurrentEntry = theCurrentEntry.begin();
-    std::vector<std::vector<unsigned> >::iterator lastCurrentEntry = theCurrentEntry.end();
+    auto aCurrentEntry = theCurrentEntry.begin();
+    auto lastCurrentEntry = theCurrentEntry.end();
     unsigned allEntries = 0;
     for (; aCurrentEntry != lastCurrentEntry; ++aCurrentEntry) {
       unsigned size = aCurrentEntry->size();
@@ -881,8 +881,8 @@ bool fastsim::NuclearInteraction::read(std::string inputFile) {
     }
 
     // Read the current interactions
-    std::vector<std::vector<unsigned> >::iterator aCurrentInteraction = theCurrentInteraction.begin();
-    std::vector<std::vector<unsigned> >::iterator lastCurrentInteraction = theCurrentInteraction.end();
+    auto aCurrentInteraction = theCurrentInteraction.begin();
+    auto lastCurrentInteraction = theCurrentInteraction.end();
     unsigned allInteractions = 0;
     for (; aCurrentInteraction != lastCurrentInteraction; ++aCurrentInteraction) {
       unsigned size = aCurrentInteraction->size();

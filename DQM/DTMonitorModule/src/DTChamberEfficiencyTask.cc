@@ -56,9 +56,7 @@ void DTChamberEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSe
       << "[DTChamberEfficiencyTask]: Begin of LS transition";
 
   if (lumiSeg.id().luminosityBlock() % parameters.getUntrackedParameter<int>("ResetCycle", 3) == 0 && onlineMonitor) {
-    for (map<DTChamberId, vector<MonitorElement*> >::const_iterator histo = histosPerCh.begin();
-         histo != histosPerCh.end();
-         histo++) {
+    for (auto histo = histosPerCh.begin(); histo != histosPerCh.end(); histo++) {
       int size = (*histo).second.size();
       for (int i = 0; i < size; i++) {
         (*histo).second[i]->Reset();
@@ -78,8 +76,8 @@ void DTChamberEfficiencyTask::bookHistograms(DQMStore::IBooker& ibooker,
   ibooker.setCurrentFolder("DT/DTChamberEfficiencyTask");
 
   // Loop over all the chambers
-  vector<const DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
-  vector<const DTChamber*>::const_iterator ch_end = dtGeom->chambers().end();
+  auto ch_it = dtGeom->chambers().begin();
+  auto ch_end = dtGeom->chambers().end();
   for (; ch_it != ch_end; ++ch_it) {
     // histo booking
     bookHistos(ibooker, (*ch_it)->id());
@@ -154,8 +152,8 @@ void DTChamberEfficiencyTask::analyze(const edm::Event& event, const edm::EventS
   int bottom = 0, top = 0;
 
   // Loop over all the chambers
-  vector<const DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin();
-  vector<const DTChamber*>::const_iterator ch_end = dtGeom->chambers().end();
+  auto ch_it = dtGeom->chambers().begin();
+  auto ch_end = dtGeom->chambers().end();
   for (; ch_it != ch_end; ++ch_it) {
     DTChamberId ch = (*ch_it)->id();
     int wheel = ch.wheel();

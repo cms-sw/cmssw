@@ -133,9 +133,9 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent,
       // events with at least two jets, needed for alphaT
       // Make a vector of Lorentz Jets for the AlphaT calcualtion
       std::vector<LorentzV> jets;
-      typename TCollection::const_iterator ijet = recojets->begin();
-      typename TCollection::const_iterator ijetFast = recojetsFastJet->begin();
-      typename TCollection::const_iterator jjet = recojets->end();
+      auto ijet = recojets->begin();
+      auto ijetFast = recojetsFastJet->begin();
+      auto jjet = recojets->end();
 
       for (; ijet != jjet; ijet++, ijetFast++) {
         if (flag == 1)
@@ -172,7 +172,7 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent,
 
       //If passed, add jets to the filter product for the DQM
       if (flag == 1) {
-        for (typename TCollection::const_iterator recojet = recojets->begin(); recojet != jjet; recojet++) {
+        for (auto recojet = recojets->begin(); recojet != jjet; recojet++) {
           if (recojet->et() > minPtJet_.at(0)) {
             ref = TRef(recojets, distance(recojets->begin(), recojet));
             filterproduct.addObject(triggerType_, ref);
@@ -192,14 +192,14 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent,
   else {
     // look at all candidates,  check cuts and add to filter object
     int flag(0);
-    typename TCollection::const_iterator ijet = recojets->begin();
-    typename TCollection::const_iterator jjet = recojets->end();
+    auto ijet = recojets->begin();
+    auto jjet = recojets->end();
 
     if ((recojets->size() > 1) && (recojetsFastJet->size() > 1)) {
       // events with at least two jets, needed for alphaT
       double htFast = 0.;
-      typename TCollection::const_iterator ijetFast = recojetsFastJet->begin();
-      typename TCollection::const_iterator jjetFast = recojetsFastJet->end();
+      auto ijetFast = recojetsFastJet->begin();
+      auto jjetFast = recojetsFastJet->end();
       for (; ijetFast != jjetFast; ijetFast++) {
         if (std::abs(ijetFast->eta()) < etaJet_.at(1)) {
           if (ijetFast->et() > minPtJet_.at(1)) {
@@ -243,7 +243,7 @@ bool HLTAlphaTFilter<T>::hltFilter(edm::Event& iEvent,
 
         //If passed, add the jets to the filterproduct for DQM
         if (flag == 1) {
-          for (typename TCollection::const_iterator recojet = recojets->begin(); recojet != jjet; recojet++) {
+          for (auto recojet = recojets->begin(); recojet != jjet; recojet++) {
             if (recojet->et() > minPtJet_.at(0)) {
               ref = TRef(recojets, distance(recojets->begin(), recojet));
               filterproduct.addObject(triggerType_, ref);

@@ -385,8 +385,7 @@ G4DecayTable *CustomParticleFactory::getDecayTable(std::ifstream *configFile, in
       name[i] = part->GetParticleName();
     }
     ////Set the G4 decay
-    G4PhaseSpaceDecayChannel *aDecayChannel =
-        new G4PhaseSpaceDecayChannel(parentName, br, nDaughters, name[0], name[1], name[2], name[3]);
+    auto *aDecayChannel = new G4PhaseSpaceDecayChannel(parentName, br, nDaughters, name[0], name[1], name[2], name[3]);
     decaytable->Insert(aDecayChannel);
     edm::LogInfo("SimG4CoreCustomPhysics")
         << "CustomParticleFactory: inserted decay channel "
@@ -416,7 +415,7 @@ G4DecayTable *CustomParticleFactory::getAntiDecayTable(int pdgId, G4DecayTable *
       }
       name[j] = part->GetParticleName();
     }
-    G4PhaseSpaceDecayChannel *aDecayChannel =
+    auto *aDecayChannel =
         new G4PhaseSpaceDecayChannel(parentName, theDecayChannel->GetBR(), nd, name[0], name[1], name[2], name[3]);
     decaytable->Insert(aDecayChannel);
     edm::LogInfo("SimG4CoreCustomPhysics")

@@ -178,7 +178,7 @@ void PhotonsWithConversionsAnalyzer::analyze(const edm::Event& e, const edm::Eve
   //UNUSED int iRadius=-1;
   //UNUSED int indPho=0;
 
-  for (std::vector<PhotonMCTruth>::const_iterator mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
+  for (auto mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
     float mcPhi = (*mcPho).fourMomentum().phi();
     float mcEta = (*mcPho).fourMomentum().pseudoRapidity();
     mcEta = etaTransformation(mcEta, (*mcPho).primaryVertex().z());
@@ -205,8 +205,7 @@ void PhotonsWithConversionsAnalyzer::analyze(const edm::Event& e, const edm::Eve
 
     /// Loop over recontructed photons
     //std::cout   << " ConvertedPhotonAnalyzer  Starting loop over photon candidates " << "\n";
-    for (reco::PhotonCollection::const_iterator iPho = photonCollection.begin(); iPho != photonCollection.end();
-         iPho++) {
+    for (auto iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
       REJECTED = false;
 
       //      std::cout  << " ConvertedPhotonAnalyzer Reco SC energy " << (*iPho).superCluster()->energy() <<  "\n";

@@ -126,7 +126,7 @@ void EcalPFRecHitThresholdsMaker::analyze(const edm::Event& evt, const edm::Even
   edm::ESHandle<EcalLaserDbService> laser;
   evtSetup.get<EcalLaserDbRecord>().get(laser);
 
-  EcalPFRecHitThresholds* pfthresh = new EcalPFRecHitThresholds();
+  auto* pfthresh = new EcalPFRecHitThresholds();
 
   //    const EcalIntercalibConstantMap& icalMap = ical_db->getMap();
 
@@ -142,10 +142,10 @@ void EcalPFRecHitThresholdsMaker::analyze(const edm::Event& evt, const edm::Even
       // make an EBDetId since we need EBDetId::rawId() to be used as the key for the pedestals
       if (EBDetId::validDetId(iEta, iPhi)) {
         EBDetId ebdetid(iEta, iPhi, EBDetId::ETAPHIMODE);
-        EcalPedestals::const_iterator it = ped_db->find(ebdetid.rawId());
+        auto it = ped_db->find(ebdetid.rawId());
         EcalPedestals::Item aped = (*it);
 
-        EcalIntercalibConstants::const_iterator itc = ical_db->find(ebdetid.rawId());
+        auto itc = ical_db->find(ebdetid.rawId());
         float calib = (*itc);
 
         // get laser coefficient
@@ -168,10 +168,10 @@ void EcalPFRecHitThresholdsMaker::analyze(const edm::Event& evt, const edm::Even
       if (EEDetId::validDetId(iX, iY, 1)) {
         EEDetId eedetid(iX, iY, 1);
 
-        EcalPedestals::const_iterator it = ped_db->find(eedetid.rawId());
+        auto it = ped_db->find(eedetid.rawId());
         EcalPedestals::Item aped = (*it);
 
-        EcalIntercalibConstants::const_iterator itc = ical_db->find(eedetid.rawId());
+        auto itc = ical_db->find(eedetid.rawId());
         float calib = (*itc);
 
         // get laser coefficient
@@ -184,10 +184,10 @@ void EcalPFRecHitThresholdsMaker::analyze(const edm::Event& evt, const edm::Even
       if (EEDetId::validDetId(iX, iY, -1)) {
         EEDetId eedetid(iX, iY, -1);
 
-        EcalPedestals::const_iterator it = ped_db->find(eedetid.rawId());
+        auto it = ped_db->find(eedetid.rawId());
         EcalPedestals::Item aped = (*it);
 
-        EcalIntercalibConstants::const_iterator itc = ical_db->find(eedetid.rawId());
+        auto itc = ical_db->find(eedetid.rawId());
         float calib = (*itc);
 
         // get laser coefficient

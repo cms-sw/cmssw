@@ -15,10 +15,10 @@ namespace reco {
   public:
     MCMatchSelector(const edm::ParameterSet& cfg) : checkCharge_(cfg.getParameter<bool>("checkCharge")) {
       std::vector<int> ids = cfg.getParameter<std::vector<int> >("mcPdgId");
-      for (std::vector<int>::const_iterator i = ids.begin(); i != ids.end(); ++i)
+      for (auto i = ids.begin(); i != ids.end(); ++i)
         ids_.insert(*i);
       std::vector<int> status = cfg.getParameter<std::vector<int> >("mcStatus");
-      for (std::vector<int>::const_iterator i = status.begin(); i != status.end(); ++i)
+      for (auto i = status.begin(); i != status.end(); ++i)
         status_.insert(*i);
     }
     /// true if match is possible

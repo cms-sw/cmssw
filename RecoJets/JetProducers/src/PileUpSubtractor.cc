@@ -66,7 +66,7 @@ void PileUpSubtractor::setupGeometryMap(edm::Event& iEvent, const edm::EventSetu
     int ietaold = -10000;
     ietamax_ = -10000;
     ietamin_ = 10000;
-    for (std::vector<DetId>::const_iterator did = alldid.begin(); did != alldid.end(); did++) {
+    for (auto did = alldid.begin(); did != alldid.end(); did++) {
       if ((*did).det() == DetId::Hcal) {
         HcalDetId hid = HcalDetId(*did);
         if ((hid).depth() == 1) {
@@ -112,9 +112,7 @@ void PileUpSubtractor::calculatePedestal(vector<fastjet::PseudoJet> const& coll)
     ntowers[i] = 0;
   }
 
-  for (vector<fastjet::PseudoJet>::const_iterator input_object = coll.begin(), fjInputsEnd = coll.end();
-       input_object != fjInputsEnd;
-       ++input_object) {
+  for (auto input_object = coll.begin(), fjInputsEnd = coll.end(); input_object != fjInputsEnd; ++input_object) {
     const reco::CandidatePtr& originalTower = (*inputs_)[input_object->user_index()];
     ieta0 = ieta(originalTower);
     double Original_Et = originalTower->et();
@@ -130,7 +128,7 @@ void PileUpSubtractor::calculatePedestal(vector<fastjet::PseudoJet> const& coll)
     }
   }
 
-  for (map<int, int>::const_iterator gt = geomtowers_.begin(); gt != geomtowers_.end(); gt++) {
+  for (auto gt = geomtowers_.begin(); gt != geomtowers_.end(); gt++) {
     int it = (*gt).first;
 
     double e1 = (*(emean_.find(it))).second;
@@ -160,9 +158,7 @@ void PileUpSubtractor::subtractPedestal(vector<fastjet::PseudoJet>& coll) {
   LogDebug("PileUpSubtractor") << "The subtractor subtracting pedestals...\n";
 
   int it = -100;
-  for (vector<fastjet::PseudoJet>::iterator input_object = coll.begin(), fjInputsEnd = coll.end();
-       input_object != fjInputsEnd;
-       ++input_object) {
+  for (auto input_object = coll.begin(), fjInputsEnd = coll.end(); input_object != fjInputsEnd; ++input_object) {
     reco::CandidatePtr const& itow = (*inputs_)[input_object->user_index()];
 
     it = ieta(itow);
@@ -191,29 +187,27 @@ void PileUpSubtractor::calculateOrphanInput(vector<fastjet::PseudoJet>& orphanIn
   vector<int> jettowers;                   // vector of towers indexed by "user_index"
   vector<pair<int, int> > excludedTowers;  // vector of excluded ieta, iphi values
 
-  vector<fastjet::PseudoJet>::iterator pseudojetTMP = fjJets_->begin(), fjJetsEnd = fjJets_->end();
+  auto pseudojetTMP = fjJets_->begin(), fjJetsEnd = fjJets_->end();
   for (; pseudojetTMP != fjJetsEnd; ++pseudojetTMP) {
     if (pseudojetTMP->perp() < puPtMin_)
       continue;
 
     // find towers within radiusPU_ of this jet
-    for (vector<HcalDetId>::const_iterator im = allgeomid_.begin(); im != allgeomid_.end(); im++) {
+    for (auto im = allgeomid_.begin(); im != allgeomid_.end(); im++) {
       double dr = reco::deltaR(geo_->getPosition((DetId)(*im)), (*pseudojetTMP));
-      vector<pair<int, int> >::const_iterator exclude =
-          find(excludedTowers.begin(), excludedTowers.end(), pair<int, int>(im->ieta(), im->iphi()));
+      auto exclude = find(excludedTowers.begin(), excludedTowers.end(), pair<int, int>(im->ieta(), im->iphi()));
       if (dr < radiusPU_ && exclude == excludedTowers.end()) {
         ntowersWithJets_[(*im).ieta()]++;
         excludedTowers.push_back(pair<int, int>(im->ieta(), im->iphi()));
       }
     }
-    vector<fastjet::PseudoJet>::const_iterator it = fjInputs_->begin(), fjInputsEnd = fjInputs_->end();
+    auto it = fjInputs_->begin(), fjInputsEnd = fjInputs_->end();
 
     for (; it != fjInputsEnd; ++it) {
       int index = it->user_index();
       int ie = ieta((*inputs_)[index]);
       int ip = iphi((*inputs_)[index]);
-      vector<pair<int, int> >::const_iterator exclude =
-          find(excludedTowers.begin(), excludedTowers.end(), pair<int, int>(ie, ip));
+      auto exclude = find(excludedTowers.begin(), excludedTowers.end(), pair<int, int>(ie, ip));
       if (exclude != excludedTowers.end()) {
         jettowers.push_back(index);
       }  //dr < radiusPU_
@@ -223,11 +217,9 @@ void PileUpSubtractor::calculateOrphanInput(vector<fastjet::PseudoJet>& orphanIn
   //
   // Create a new collections from the towers not included in jets
   //
-  for (vector<fastjet::PseudoJet>::const_iterator it = fjInputs_->begin(), fjInputsEnd = fjInputs_->end();
-       it != fjInputsEnd;
-       ++it) {
+  for (auto it = fjInputs_->begin(), fjInputsEnd = fjInputs_->end(); it != fjInputsEnd; ++it) {
     int index = it->user_index();
-    vector<int>::const_iterator itjet = find(jettowers.begin(), jettowers.end(), index);
+    auto itjet = find(jettowers.begin(), jettowers.end(), index);
     if (itjet == jettowers.end()) {
       const reco::CandidatePtr& originalTower = (*inputs_)[index];
       fastjet::PseudoJet orphan(originalTower->px(), originalTower->py(), originalTower->pz(), originalTower->energy());
@@ -247,14 +239,14 @@ void PileUpSubtractor::offsetCorrectJets() {
   // Reestimate energy of jet (energy of jet with initial map)
   //
   jetOffset_.reserve(fjJets_->size());
-  vector<fastjet::PseudoJet>::iterator pseudojetTMP = fjJets_->begin(), jetsEnd = fjJets_->end();
+  auto pseudojetTMP = fjJets_->begin(), jetsEnd = fjJets_->end();
   for (; pseudojetTMP != jetsEnd; ++pseudojetTMP) {
     int ijet = pseudojetTMP - fjJets_->begin();
     jetOffset_[ijet] = 0;
 
     std::vector<fastjet::PseudoJet> towers = fastjet::sorted_by_pt(pseudojetTMP->constituents());
     double newjetet = 0.;
-    for (vector<fastjet::PseudoJet>::const_iterator ito = towers.begin(), towEnd = towers.end(); ito != towEnd; ++ito) {
+    for (auto ito = towers.begin(), towEnd = towers.end(); ito != towEnd; ++ito) {
       const reco::CandidatePtr& originalTower = (*inputs_)[ito->user_index()];
       int it = ieta(originalTower);
       double Original_Et = originalTower->et();
@@ -283,7 +275,7 @@ void PileUpSubtractor::offsetCorrectJets() {
 double PileUpSubtractor::getCone(double cone, double eta, double phi, double& et, double& pu) {
   pu = 0;
 
-  for (vector<HcalDetId>::const_iterator im = allgeomid_.begin(); im != allgeomid_.end(); im++) {
+  for (auto im = allgeomid_.begin(); im != allgeomid_.end(); im++) {
     if (im->depth() != 1)
       continue;
     const GlobalPoint& point = geo_->getPosition((DetId)(*im));

@@ -272,18 +272,18 @@ reco::VertexRef FFTJetPFPileupCleaner::findSomeVertexWFakes(const edm::Handle<re
 
   size_t iVertex = 0;
   unsigned nFoundVertex = 0;
-  const IV vertend(vertices->end());
+  const auto vertend(vertices->end());
 
   {
     unsigned index = 0;
     double bestweight = 0.0;
-    for (IV iv = vertices->begin(); iv != vertend; ++iv, ++index)
+    for (auto iv = vertices->begin(); iv != vertend; ++iv, ++index)
       if (isAcceptableVtx(iv)) {
         const reco::Vertex& vtx = *iv;
 
         // loop on tracks in vertices
-        IT trackend(vtx.tracks_end());
-        for (IT iTrack = vtx.tracks_begin(); iTrack != trackend; ++iTrack) {
+        auto trackend(vtx.tracks_end());
+        for (auto iTrack = vtx.tracks_begin(); iTrack != trackend; ++iTrack) {
           const reco::TrackBaseRef& baseRef = *iTrack;
 
           // one of the tracks in the vertex is the same as
@@ -312,9 +312,9 @@ reco::VertexRef FFTJetPFPileupCleaner::findSomeVertexWFakes(const edm::Handle<re
       const double ztrack = pfcand.vertex().z();
       double dzmin = std::abs(ztrack - ((*vertices)[iVertex]).z());
 
-      const IV fakeEnd(fakeVertices->end());
+      const auto fakeEnd(fakeVertices->end());
       unsigned index = 0;
-      for (IV iv = fakeVertices->begin(); iv != fakeEnd; ++iv, ++index)
+      for (auto iv = fakeVertices->begin(); iv != fakeEnd; ++iv, ++index)
         if (isAcceptableVtx(iv)) {
           const double dz = std::abs(ztrack - iv->z());
           if (dz < dzmin) {
@@ -337,7 +337,7 @@ reco::VertexRef FFTJetPFPileupCleaner::findSomeVertexWFakes(const edm::Handle<re
       // Sort all vertices according to their Z coordinate
       zAssoc.clear();
       unsigned index = 0;
-      for (IV iv = vertices->begin(); iv != vertend; ++iv, ++index)
+      for (auto iv = vertices->begin(); iv != vertend; ++iv, ++index)
         if (isAcceptableVtx(iv))
           zAssoc.push_back(std::pair<double, unsigned>(iv->z(), index));
       const unsigned numRealVertices = index;
@@ -345,8 +345,8 @@ reco::VertexRef FFTJetPFPileupCleaner::findSomeVertexWFakes(const edm::Handle<re
       // Mix the fake vertex collection into zAssoc.
       // Note that we do not reset "index" before doing this.
       if (useFakePrimaryVertex) {
-        const IV fakeEnd(fakeVertices->end());
-        for (IV iv = fakeVertices->begin(); iv != fakeEnd; ++iv, ++index)
+        const auto fakeEnd(fakeVertices->end());
+        for (auto iv = fakeVertices->begin(); iv != fakeEnd; ++iv, ++index)
           if (isAcceptableVtx(iv))
             zAssoc.push_back(std::pair<double, unsigned>(iv->z(), index));
       }
@@ -402,7 +402,7 @@ reco::VertexRef FFTJetPFPileupCleaner::findSomeVertexWFakes(const edm::Handle<re
       // extended to take fake vertices into account
       double dzmin = 1.0e100;
       unsigned index = 0;
-      for (IV iv = vertices->begin(); iv != vertend; ++iv, ++index)
+      for (auto iv = vertices->begin(); iv != vertend; ++iv, ++index)
         if (isAcceptableVtx(iv)) {
           const double dz = std::abs(ztrack - iv->z());
           if (dz < dzmin) {
@@ -413,9 +413,9 @@ reco::VertexRef FFTJetPFPileupCleaner::findSomeVertexWFakes(const edm::Handle<re
         }
 
       if (useFakePrimaryVertex) {
-        const IV fakeEnd(fakeVertices->end());
+        const auto fakeEnd(fakeVertices->end());
         index = 0;
-        for (IV iv = fakeVertices->begin(); iv != fakeEnd; ++iv, ++index)
+        for (auto iv = fakeVertices->begin(); iv != fakeEnd; ++iv, ++index)
           if (isAcceptableVtx(iv)) {
             const double dz = std::abs(ztrack - iv->z());
             if (dz < dzmin) {

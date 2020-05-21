@@ -137,7 +137,7 @@ namespace lowptgsfeleseed {
                               double rho,
                               const reco::BeamSpot& spot,
                               noZS::EcalClusterLazyTools& ecalTools) const {
-    std::vector<std::string>::const_iterator iter = std::find(names_.begin(), names_.end(), name);
+    auto iter = std::find(names_.begin(), names_.end(), name);
     if (iter != names_.end()) {
       int index = std::distance(names_.begin(), iter);
       Features features;

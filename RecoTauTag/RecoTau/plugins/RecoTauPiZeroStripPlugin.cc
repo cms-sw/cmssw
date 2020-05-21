@@ -110,7 +110,7 @@ namespace reco {
         strip->addDaughter(seed);
 
         // Find all other objects in the strip
-        CandPtrListIter stripCand = cands.begin();
+        auto stripCand = cands.begin();
         while (stripCand != cands.end()) {
           if (fabs(strip->eta() - (*stripCand)->eta()) < etaAssociationDistance_ &&
               fabs(deltaPhi(*strip, **stripCand)) < phiAssociationDistance_) {

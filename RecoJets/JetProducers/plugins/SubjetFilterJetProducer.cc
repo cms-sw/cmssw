@@ -122,7 +122,7 @@ void SubjetFilterJetProducer::writeCompoundJets(edm::Event& iEvent, const edm::E
 
   vector<CompoundPseudoJet>::const_iterator itBegin(fjCompoundJets_.begin());
   vector<CompoundPseudoJet>::const_iterator itEnd(fjCompoundJets_.end());
-  vector<CompoundPseudoJet>::const_iterator it(itBegin);
+  auto it(itBegin);
 
   for (; it != itEnd; ++it) {
     int jetIndex = it - itBegin;
@@ -130,9 +130,9 @@ void SubjetFilterJetProducer::writeCompoundJets(edm::Event& iEvent, const edm::E
     p4FatJets.push_back(math::XYZTLorentzVector(fatJet.px(), fatJet.py(), fatJet.pz(), fatJet.e()));
     areaFatJets.push_back(it->hardJetArea());
 
-    vector<CompoundPseudoSubJet>::const_iterator itSubBegin(it->subjets().begin());
-    vector<CompoundPseudoSubJet>::const_iterator itSubEnd(it->subjets().end());
-    vector<CompoundPseudoSubJet>::const_iterator itSub(itSubBegin);
+    auto itSubBegin(it->subjets().begin());
+    auto itSubEnd(it->subjets().end());
+    auto itSub(itSubBegin);
 
     for (; itSub != itSubEnd; ++itSub) {
       int subJetIndex = itSub - itSubBegin;
@@ -142,9 +142,9 @@ void SubjetFilterJetProducer::writeCompoundJets(edm::Event& iEvent, const edm::E
 
       vector<reco::CandidatePtr> subJetConstituents;
       const vector<int>& subJetConstituentIndices = itSub->constituents();
-      vector<int>::const_iterator itIndexBegin(subJetConstituentIndices.begin());
-      vector<int>::const_iterator itIndexEnd(subJetConstituentIndices.end());
-      vector<int>::const_iterator itIndex(itIndexBegin);
+      auto itIndexBegin(subJetConstituentIndices.begin());
+      auto itIndexEnd(subJetConstituentIndices.end());
+      auto itIndex(itIndexBegin);
       for (; itIndex != itIndexEnd; ++itIndex)
         if ((*itIndex) < static_cast<int>(inputs_.size()))
           subJetConstituents.push_back(inputs_[*itIndex]);
@@ -168,7 +168,7 @@ void SubjetFilterJetProducer::writeCompoundJets(edm::Event& iEvent, const edm::E
 
   vector<math::XYZTLorentzVector>::const_iterator itP4Begin(p4FatJets.begin());
   vector<math::XYZTLorentzVector>::const_iterator itP4End(p4FatJets.end());
-  vector<math::XYZTLorentzVector>::const_iterator itP4(itP4Begin);
+  auto itP4(itP4Begin);
   for (; itP4 != itP4End; ++itP4) {
     int fatIndex = itP4 - itP4Begin;
     vector<int>& fatToSub = subIndices[fatIndex];
@@ -178,7 +178,7 @@ void SubjetFilterJetProducer::writeCompoundJets(edm::Event& iEvent, const edm::E
 
     vector<int>::const_iterator itSubBegin(fatToSub.begin());
     vector<int>::const_iterator itSubEnd(fatToSub.end());
-    vector<int>::const_iterator itSub(itSubBegin);
+    auto itSub(itSubBegin);
     for (; itSub != itSubEnd; ++itSub) {
       reco::CandidatePtr candPtr(subJetsAfterPut, (*itSub), false);
       i_fatJetConstituents.push_back(candPtr);
@@ -186,7 +186,7 @@ void SubjetFilterJetProducer::writeCompoundJets(edm::Event& iEvent, const edm::E
 
     vector<int>::const_iterator itFilterBegin(fatToFilter.begin());
     vector<int>::const_iterator itFilterEnd(fatToFilter.end());
-    vector<int>::const_iterator itFilter(itFilterBegin);
+    auto itFilter(itFilterBegin);
     for (; itFilter != itFilterEnd; ++itFilter) {
       reco::CandidatePtr candPtr(filterJetsAfterPut, (*itFilter), false);
       i_fatJetConstituents.push_back(candPtr);

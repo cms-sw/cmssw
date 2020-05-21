@@ -103,8 +103,7 @@ BigEventsDebugger<T>::BigEventsDebugger(const edm::ParameterSet& iConfig)
 
   std::vector<edm::ParameterSet> selconfigs = iConfig.getParameter<std::vector<edm::ParameterSet> >("selections");
 
-  for (std::vector<edm::ParameterSet>::const_iterator selconfig = selconfigs.begin(); selconfig != selconfigs.end();
-       ++selconfig) {
+  for (auto selconfig = selconfigs.begin(); selconfig != selconfigs.end(); ++selconfig) {
     m_labels.push_back(selconfig->getParameter<std::string>("label"));
   }
 
@@ -121,7 +120,7 @@ BigEventsDebugger<T>::BigEventsDebugger(const edm::ParameterSet& iConfig)
     if (m_folded)
       nbins = 256;
 
-    for (std::vector<std::string>::const_iterator label = m_labels.begin(); label != m_labels.end(); ++label) {
+    for (auto label = m_labels.begin(); label != m_labels.end(); ++label) {
       if (m_want1dHisto) {
         std::string hname = *label + "hist";
         std::string htitle = *label + " occupancy";
@@ -175,7 +174,7 @@ void BigEventsDebugger<T>::analyze(const edm::Event& iEvent, const edm::EventSet
     if (m_folded)
       nbins = 256;
 
-    for (std::vector<std::string>::const_iterator label = m_labels.begin(); label != m_labels.end(); ++label) {
+    for (auto label = m_labels.begin(); label != m_labels.end(); ++label) {
       if (m_want1dHisto) {
         std::string hname = *label + "hist";
         std::string htitle = *label + " occupancy";

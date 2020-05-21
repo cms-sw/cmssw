@@ -60,7 +60,7 @@ void RandomtXiGunProducer::produce(edm::Event& e, const edm::EventSetup& es) {
   //
   // 1st, primary vertex
   //
-  HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
+  auto* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
 
   // loop over particles
   //
@@ -90,7 +90,7 @@ void RandomtXiGunProducer::produce(edm::Event& e, const edm::EventSetup& es) {
         break;
       }
       phi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
-      HepMC::GenParticle* Part = new HepMC::GenParticle(make_particle(t, Xi, phi, PartID, 1), PartID, 1);
+      auto* Part = new HepMC::GenParticle(make_particle(t, Xi, phi, PartID, 1), PartID, 1);
       Part->suggest_barcode(barcode);
       barcode++;
       Vtx->add_particle_out(Part);
@@ -110,7 +110,7 @@ void RandomtXiGunProducer::produce(edm::Event& e, const edm::EventSetup& es) {
         break;
       }
       phi = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
-      HepMC::GenParticle* Part2 = new HepMC::GenParticle(make_particle(t, Xi, phi, PartID, -1), PartID, 1);
+      auto* Part2 = new HepMC::GenParticle(make_particle(t, Xi, phi, PartID, -1), PartID, 1);
       Part2->suggest_barcode(barcode);
       barcode++;
       Vtx->add_particle_out(Part2);

@@ -111,8 +111,7 @@ void L1GtTriggerMenuTester::beginRun(const edm::Run& iRun, const edm::EventSetup
       edm::LogVerbatim("L1GtTriggerMenuTester")
           << "\n List of algorithm triggers used as L1 seeds but not in L1 menu" << std::endl;
 
-      for (std::vector<std::string>::const_iterator strIter = m_algoTriggerSeedNotInL1Menu.begin();
-           strIter != m_algoTriggerSeedNotInL1Menu.end();
+      for (auto strIter = m_algoTriggerSeedNotInL1Menu.begin(); strIter != m_algoTriggerSeedNotInL1Menu.end();
            ++strIter) {
         edm::LogVerbatim("L1GtTriggerMenuTester") << "   " << (*strIter) << std::endl;
       }
@@ -266,7 +265,7 @@ void L1GtTriggerMenuTester::associateL1SeedsHltPath(const edm::Run& iRun, const 
             for (size_t i = 0; i < l1AlgoSeedsSize; ++i) {
               const std::string& trigNameOrAlias = (m_l1AlgoSeeds[i]).tokenName;
 
-              CItAlgo itAlgo = m_algorithmAliasMap->find(trigNameOrAlias);
+              auto itAlgo = m_algorithmAliasMap->find(trigNameOrAlias);
               if (itAlgo != m_algorithmAliasMap->end()) {
                 int bitNr = (itAlgo->second).algoBitNumber();
 
@@ -353,7 +352,7 @@ void L1GtTriggerMenuTester::printTriggerGroup(const std::string& trigGroupName,
     }
   }
 
-  for (CItAlgoP itAlgo = trigGroup.begin(); itAlgo != trigGroup.end(); itAlgo++) {
+  for (auto itAlgo = trigGroup.begin(); itAlgo != trigGroup.end(); itAlgo++) {
     const std::string& aName = (itAlgo->second)->algoName();
     const std::string& aAlias = (itAlgo->second)->algoAlias();
     const int& bitNumber = (itAlgo->second)->algoBitNumber();
@@ -367,8 +366,7 @@ void L1GtTriggerMenuTester::printTriggerGroup(const std::string& trigGroupName,
         algoTriggerNotSeed.push_back(aAlias);
         seedsHlt = "<font color = \"red\">Not used as seed by any !HLT path</font>";
       } else {
-        for (std::vector<std::string>::const_iterator strIter = hltPaths.begin(); strIter != hltPaths.end();
-             ++strIter) {
+        for (auto strIter = hltPaths.begin(); strIter != hltPaths.end(); ++strIter) {
           seedsHlt = seedsHlt + (*strIter) + "<BR>";
         }
       }
@@ -405,9 +403,7 @@ void L1GtTriggerMenuTester::printTriggerGroup(const std::string& trigGroupName,
         << "\n Algorithm triggers from " << trigGroupName << " not used as seeds by !HLT:" << std::endl;
 
     if (!algoTriggerNotSeed.empty()) {
-      for (std::vector<std::string>::const_iterator strIter = algoTriggerNotSeed.begin();
-           strIter != algoTriggerNotSeed.end();
-           ++strIter) {
+      for (auto strIter = algoTriggerNotSeed.begin(); strIter != algoTriggerNotSeed.end(); ++strIter) {
         edm::LogVerbatim("L1GtTriggerMenuTesterWiki") << "   * " << (*strIter) << std::endl;
       }
 
@@ -456,7 +452,7 @@ void L1GtTriggerMenuTester::printWiki() {
   int crossAlgoTrigNumber = 0;
   int bkgdAlgoTrigNumber = 0;
 
-  for (CItAlgo itAlgo = m_algorithmMap->begin(); itAlgo != m_algorithmMap->end(); itAlgo++) {
+  for (auto itAlgo = m_algorithmMap->begin(); itAlgo != m_algorithmMap->end(); itAlgo++) {
     const int bitNumber = (itAlgo->second).algoBitNumber();
     const std::string& algName = (itAlgo->second).algoName();
 
@@ -481,7 +477,7 @@ void L1GtTriggerMenuTester::printWiki() {
 
         bool foundCond = false;
 
-        CItCond itCond = conditionMap.find(cndName);
+        auto itCond = conditionMap.find(cndName);
         if (itCond != conditionMap.end()) {
           foundCond = true;
 
@@ -489,8 +485,7 @@ void L1GtTriggerMenuTester::printWiki() {
 
           const std::vector<L1GtObject>& objType = (itCond->second)->objectType();
 
-          for (std::vector<L1GtObject>::const_iterator itObject = objType.begin(); itObject != objType.end();
-               itObject++) {
+          for (auto itObject = objType.begin(); itObject != objType.end(); itObject++) {
             listObjects.push_back(*itObject);
 
             edm::LogVerbatim("L1GtTriggerMenuTester") << (*itObject) << std::endl;
@@ -523,7 +518,7 @@ void L1GtTriggerMenuTester::printWiki() {
     bool crossGroup = false;
     bool bkgdGroup = false;
 
-    for (std::list<L1GtObject>::const_iterator itObj = listObjects.begin(); itObj != listObjects.end(); ++itObj) {
+    for (auto itObj = listObjects.begin(); itObj != listObjects.end(); ++itObj) {
       switch (*itObj) {
         case Mu: {
           muonGroup = true;
@@ -657,7 +652,7 @@ void L1GtTriggerMenuTester::printWiki() {
   int techTrigNumber = 0;
   int freeTechTrigNumber = 0;
 
-  for (CItAlgo itAlgo = m_technicalTriggerMap->begin(); itAlgo != m_technicalTriggerMap->end(); itAlgo++) {
+  for (auto itAlgo = m_technicalTriggerMap->begin(); itAlgo != m_technicalTriggerMap->end(); itAlgo++) {
     int bitNumber = (itAlgo->second).algoBitNumber();
     techBitToAlgo[bitNumber] = &(itAlgo->second);
 
@@ -750,7 +745,7 @@ void L1GtTriggerMenuTester::printWiki() {
 
   edm::LogVerbatim("L1GtTriggerMenuTesterWiki") << "| *Algorithm* | *Alias* | *Bit number* |" << std::endl;
 
-  for (CItBit itBit = algoBitToAlgo.begin(); itBit != algoBitToAlgo.end(); itBit++) {
+  for (auto itBit = algoBitToAlgo.begin(); itBit != algoBitToAlgo.end(); itBit++) {
     int bitNumber = itBit->first;
     std::string aName = (itBit->second)->algoName();
     std::string aAlias = (itBit->second)->algoAlias();
@@ -766,7 +761,7 @@ void L1GtTriggerMenuTester::printWiki() {
 
   edm::LogVerbatim("L1GtTriggerMenuTesterWiki") << "| *Technical trigger* | *Bit number* |" << std::endl;
 
-  for (CItBit itBit = techBitToAlgo.begin(); itBit != techBitToAlgo.end(); itBit++) {
+  for (auto itBit = techBitToAlgo.begin(); itBit != techBitToAlgo.end(); itBit++) {
     int bitNumber = itBit->first;
     std::string aName = (itBit->second)->algoName();
     std::string aAlias = (itBit->second)->algoAlias();

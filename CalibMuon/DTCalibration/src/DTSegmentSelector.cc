@@ -126,8 +126,8 @@ bool DTSegmentSelector::checkNoisySegment(edm::ESHandle<DTStatusFlag> const& sta
                                           std::vector<DTRecHit1D> const& dtHits) {
   bool segmentNoisy = false;
 
-  std::vector<DTRecHit1D>::const_iterator dtHit = dtHits.begin();
-  std::vector<DTRecHit1D>::const_iterator dtHits_end = dtHits.end();
+  auto dtHit = dtHits.begin();
+  auto dtHits_end = dtHits.end();
   for (; dtHit != dtHits_end; ++dtHit) {
     DTWireId wireId = dtHit->wireId();
     // Check for noisy channels to skip them

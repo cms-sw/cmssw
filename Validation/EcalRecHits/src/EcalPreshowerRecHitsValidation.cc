@@ -152,7 +152,7 @@ void EcalPreshowerRecHitsValidation::analyze(const Event &e, const EventSetup &c
   float ene_zm2nd = 0.;
 
   // ES
-  for (ESRecHitCollection::const_iterator recHit = ESRecHit->begin(); recHit != ESRecHit->end(); ++recHit) {
+  for (auto recHit = ESRecHit->begin(); recHit != ESRecHit->end(); ++recHit) {
     ESDetId ESid = ESDetId(recHit->id());
 
     int zside = ESid.zside();
@@ -220,14 +220,12 @@ void EcalPreshowerRecHitsValidation::analyze(const Event &e, const EventSetup &c
   double zpEE = 0.;
   double zmEE = 0.;
   if (!skipEE) {
-    for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EEUncalibRecHit->begin();
-         uncalibRecHit != EEUncalibRecHit->end();
-         ++uncalibRecHit) {
+    for (auto uncalibRecHit = EEUncalibRecHit->begin(); uncalibRecHit != EEUncalibRecHit->end(); ++uncalibRecHit) {
       EEDetId EEid = EEDetId(uncalibRecHit->id());
       int mySide = EEid.zside();
 
       // Find corresponding recHit
-      EcalRecHitCollection::const_iterator myRecHit = EERecHit->find(EEid);
+      auto myRecHit = EERecHit->find(EEid);
 
       if (myRecHit != EERecHit->end()) {
         if (mySide > 0) {

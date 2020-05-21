@@ -167,7 +167,7 @@ PseudoJet HEPTopTaggerV2::result(const PseudoJet &jet) const {
   PseudoJet W = join(subjets[1], subjets[2], *rec);
 
   PseudoJet result = join<HEPTopTaggerV2Structure>(W1, W2, non_W, *rec);
-  HEPTopTaggerV2Structure *s = (HEPTopTaggerV2Structure *)result.structure_non_const_ptr();
+  auto *s = (HEPTopTaggerV2Structure *)result.structure_non_const_ptr();
 
   s->_fj_mass = jet.m();
   s->_fj_pt = jet.perp();

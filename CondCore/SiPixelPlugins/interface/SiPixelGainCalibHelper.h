@@ -1420,7 +1420,7 @@ namespace gainCalibHelper {
 
       // book the intermediate histograms
       for (int r = SiPixelPI::BPixL1o; r != SiPixelPI::NUM_OF_REGIONS; r++) {
-        SiPixelPI::regions part = static_cast<SiPixelPI::regions>(r);
+        auto part = static_cast<SiPixelPI::regions>(r);
         std::string s_part = SiPixelPI::getStringFromRegionEnum(part);
 
         FirstGains_spectraByRegion[part] =
@@ -1516,7 +1516,7 @@ namespace gainCalibHelper {
       // fill the summary plots
       int bin = 1;
       for (int r = SiPixelPI::BPixL1o; r != SiPixelPI::NUM_OF_REGIONS; r++) {
-        SiPixelPI::regions part = static_cast<SiPixelPI::regions>(r);
+        auto part = static_cast<SiPixelPI::regions>(r);
 
         summaryFirst->GetXaxis()->SetBinLabel(bin, SiPixelPI::getStringFromRegionEnum(part).c_str());
         // avoid filling the histogram with numerical noise

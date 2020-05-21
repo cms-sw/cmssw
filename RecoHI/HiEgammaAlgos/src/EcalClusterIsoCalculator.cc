@@ -56,7 +56,7 @@ double EcalClusterIsoCalculator::getEcalClusterIso(const reco::SuperClusterRef c
   TotalEt = -cluster->rawEnergy() / cosh(cluster->eta());
 
   // Loop over barrel basic clusters
-  for (BasicClusterCollection::const_iterator iclu = fEBclusters_->begin(); iclu != fEBclusters_->end(); ++iclu) {
+  for (auto iclu = fEBclusters_->begin(); iclu != fEBclusters_->end(); ++iclu) {
     const BasicCluster *clu = &(*iclu);
     math::XYZVector ClusPoint(clu->x(), clu->y(), clu->z());
     double eta = ClusPoint.eta();
@@ -71,7 +71,7 @@ double EcalClusterIsoCalculator::getEcalClusterIso(const reco::SuperClusterRef c
     }
   }
 
-  for (BasicClusterCollection::const_iterator iclu = fEEclusters_->begin(); iclu != fEEclusters_->end(); ++iclu) {
+  for (auto iclu = fEEclusters_->begin(); iclu != fEEclusters_->end(); ++iclu) {
     const BasicCluster *clu = &(*iclu);
     const GlobalPoint clusPoint(clu->x(), clu->y(), clu->z());
     math::XYZVector ClusPoint(clu->x(), clu->y(), clu->z());
@@ -106,7 +106,7 @@ double EcalClusterIsoCalculator::getBkgSubEcalClusterIso(const reco::SuperCluste
 
   TotalEt = -cluster->rawEnergy() / cosh(cluster->eta());
 
-  for (BasicClusterCollection::const_iterator iclu = fEBclusters_->begin(); iclu != fEBclusters_->end(); ++iclu) {
+  for (auto iclu = fEBclusters_->begin(); iclu != fEBclusters_->end(); ++iclu) {
     const BasicCluster *clu = &(*iclu);
     math::XYZVector ClusPoint(clu->x(), clu->y(), clu->z());
     double eta = ClusPoint.eta();
@@ -121,7 +121,7 @@ double EcalClusterIsoCalculator::getBkgSubEcalClusterIso(const reco::SuperCluste
     }
   }
 
-  for (BasicClusterCollection::const_iterator iclu = fEEclusters_->begin(); iclu != fEEclusters_->end(); ++iclu) {
+  for (auto iclu = fEEclusters_->begin(); iclu != fEEclusters_->end(); ++iclu) {
     const BasicCluster *clu = &(*iclu);
     math::XYZVector ClusPoint(clu->x(), clu->y(), clu->z());
     double eta = ClusPoint.eta();

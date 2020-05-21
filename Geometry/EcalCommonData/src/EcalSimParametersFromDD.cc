@@ -110,7 +110,7 @@ bool EcalSimParametersFromDD::build(const cms::DDCompactView* cpv,
   std::string specName = ((name == "EcalHitsEE") ? "ecal_ee" : ((name == "EcalHitsES") ? "ecal_sf" : "ecal_eb"));
 
   php.useWeight_ = true;
-  std::vector<double> tempD = fv.get<std::vector<double> >(specName, "EnergyWeight");
+  auto tempD = fv.get<std::vector<double> >(specName, "EnergyWeight");
   if (!tempD.empty()) {
     if (tempD[0] < 0.1)
       php.useWeight_ = false;
@@ -142,7 +142,7 @@ bool EcalSimParametersFromDD::build(const cms::DDCompactView* cpv,
   else
     php.nmods_ = static_cast<int>(tempD[0]);
 
-  std::vector<std::string> tempS = fv.get<std::vector<std::string> >(specName, "Depth1Name");
+  auto tempS = fv.get<std::vector<std::string> >(specName, "Depth1Name");
   if (!tempS.empty())
     php.depth1Name_ = tempS[0];
   else

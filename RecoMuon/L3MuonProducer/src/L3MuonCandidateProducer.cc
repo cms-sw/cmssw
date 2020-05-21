@@ -99,7 +99,7 @@ void L3MuonCandidateProducer::produce(StreamID, Event& event, const EventSetup& 
     TrackRef tkRef = TrackRef();
 
     if (theUseLinks) {
-      for (reco::MuonTrackLinksCollection::const_iterator link = links->begin(); link != links->end(); ++link) {
+      for (auto link = links->begin(); link != links->end(); ++link) {
         LogDebug(category) << " i = " << i;
 
         if (not link->trackerTrack().isNull())

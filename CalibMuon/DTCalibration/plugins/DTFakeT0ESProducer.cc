@@ -44,9 +44,7 @@ std::unique_ptr<DTT0> DTFakeT0ESProducer::produce(const DTT0Rcd& iRecord) {
   auto t0Map = std::make_unique<DTT0>();
 
   //Loop on layerId-nwires map
-  for (map<DTLayerId, pair<unsigned int, unsigned int> >::const_iterator lIdWire = theLayerIdWiresMap.begin();
-       lIdWire != theLayerIdWiresMap.end();
-       ++lIdWire) {
+  for (auto lIdWire = theLayerIdWiresMap.begin(); lIdWire != theLayerIdWiresMap.end(); ++lIdWire) {
     int firstWire = ((*lIdWire).second).first;
     int nWires = ((*lIdWire).second).second;
     //Loop on wires of each layer

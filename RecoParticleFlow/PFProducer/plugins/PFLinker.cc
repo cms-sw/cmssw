@@ -269,7 +269,7 @@ edm::ValueMap<reco::PFCandidatePtr> PFLinker::fillValueMap(
 
   for (unsigned iobj = 0; iobj < nObj; ++iobj) {
     edm::Ref<TYPE> objRef(inputObjCollection, iobj);
-    MapTYPE_it itcheck = mapToTheCandidate.find(objRef);
+    auto itcheck = mapToTheCandidate.find(objRef);
 
     reco::PFCandidatePtr candPtr;
 

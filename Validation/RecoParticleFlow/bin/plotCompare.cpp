@@ -33,8 +33,7 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  PlotCompareUtility *pc =
-      new PlotCompareUtility(argv[1], argv[2], branchNew, branchNewPrefix, branchRef, branchRefPrefix);
+  auto *pc = new PlotCompareUtility(argv[1], argv[2], branchNew, branchNewPrefix, branchRef, branchRefPrefix);
 
   // set thresholds for tests (set to zero or negative to ignore results)
   // pc->setKSThreshold(1e-6);

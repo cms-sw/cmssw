@@ -103,7 +103,7 @@ void FWDTDigiProxyBuilder::buildViewType(const FWEventItem* iItem,
     }
 
     const float* pars = geom->getParameters(rawid);
-    FWGeometry::IdToInfoItr det = geom->find(rawid);
+    auto det = geom->find(rawid);
 
     int superLayer = layerId.superlayerId().superLayer();
 

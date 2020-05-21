@@ -53,9 +53,9 @@ void DTTriggerEfficiencyTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQ
     Bookings(ibooker, igetter);
 
   // Loop over Trig & Hw sources
-  for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr) {
+  for (auto iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr) {
     trigSource = (*iTr);
-    for (vector<string>::const_iterator iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw) {
+    for (auto iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw) {
       hwSource = (*iHw);
       // Loop over the TriggerUnits
       if (globalEffDistr.find(fullName("TrigEffPhi")) == globalEffDistr.end()) {
@@ -292,10 +292,10 @@ void DTTriggerEfficiencyTest::bookChambHistos(DQMStore::IBooker& ibooker,
 }
 
 void DTTriggerEfficiencyTest::Bookings(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
-  vector<string>::const_iterator iTr = trigSources.begin();
-  vector<string>::const_iterator trEnd = trigSources.end();
-  vector<string>::const_iterator iHw = hwSources.begin();
-  vector<string>::const_iterator hwEnd = hwSources.end();
+  auto iTr = trigSources.begin();
+  auto trEnd = trigSources.end();
+  auto iHw = hwSources.begin();
+  auto hwEnd = hwSources.end();
 
   //Booking
   if (parameters.getUntrackedParameter<bool>("staticBooking", true)) {

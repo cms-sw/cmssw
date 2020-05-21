@@ -119,7 +119,7 @@ bool EcalTPSkimmer::alreadyInserted(EcalTrigTowerDetId ttId) { return (insertedT
 void EcalTPSkimmer::insertTP(EcalTrigTowerDetId ttId,
                              edm::Handle<EcalTrigPrimDigiCollection>& tpIn,
                              EcalTrigPrimDigiCollection& tpOut) {
-  EcalTrigPrimDigiCollection::const_iterator tpIt = tpIn->find(ttId);
+  auto tpIt = tpIn->find(ttId);
   if (tpIt != tpIn->end()) {
     tpOut.push_back(*tpIt);
     insertedTP_.insert(ttId);

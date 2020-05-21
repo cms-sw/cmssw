@@ -134,7 +134,7 @@ void L1MuBMTEtaPatternLut::print() const {
   cout << "======================" << endl;
   cout << endl;
 
-  LUT::const_iterator iter = m_lut.begin();
+  auto iter = m_lut.begin();
   while (iter != m_lut.end()) {
     cout << (*iter).second << endl;
     iter++;
@@ -147,7 +147,7 @@ void L1MuBMTEtaPatternLut::print() const {
 // get pattern with a given ID
 //
 L1MuDTEtaPattern L1MuBMTEtaPatternLut::getPattern(int id) const {
-  LUT::const_iterator it = m_lut.find(id);
+  auto it = m_lut.find(id);
   if (it == m_lut.end()) {
     edm::LogError("L1MuBMTEtaPatternLut: fine eta not found")
         << "Error: L1MuBMTEtaPatternLut: pattern not found : " << id << endl;

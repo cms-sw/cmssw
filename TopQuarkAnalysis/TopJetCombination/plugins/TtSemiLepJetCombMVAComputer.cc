@@ -108,7 +108,7 @@ void TtSemiLepJetCombMVAComputer::produce(edm::Event& evt, const edm::EventSetup
   // (starting with the JetComb having the highest discriminator value -> reverse iterator)
   unsigned int iDiscComb = 0;
   typedef std::list<discCombPair>::reverse_iterator discCombIterator;
-  for (discCombIterator discCombPair = discCombList.rbegin(); discCombPair != discCombList.rend(); ++discCombPair) {
+  for (auto discCombPair = discCombList.rbegin(); discCombPair != discCombList.rend(); ++discCombPair) {
     if (maxNComb_ >= 1 && iDiscComb == (unsigned int)maxNComb_)
       break;
     pOut->push_back(discCombPair->second);

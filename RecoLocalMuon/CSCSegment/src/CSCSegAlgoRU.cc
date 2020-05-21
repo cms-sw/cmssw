@@ -109,8 +109,8 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const CSCChamber* aChamber,
 
   // Define buffer for segments we build
   std::vector<CSCSegment> segments;
-  ChamberHitContainerCIt ib = rechits.begin();
-  ChamberHitContainerCIt ie = rechits.end();
+  auto ib = rechits.begin();
+  auto ie = rechits.end();
   // Possibly allow 3 passes, second widening scale factor for cuts, third for segments from displaced vertices
   aState.windowScale = 1.;  // scale factor for cuts
   bool search_disp = false;
@@ -130,7 +130,7 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const CSCChamber* aChamber,
     }
 
     int used_rh = 0;
-    for (ChamberHitContainerCIt i1 = ib; i1 != ie; ++i1) {
+    for (auto i1 = ib; i1 != ie; ++i1) {
       if (used[i1 - ib])
         used_rh++;
     }
@@ -162,7 +162,7 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const CSCChamber* aChamber,
       float min_chi[120] = {9999};
       int common_it = 0;
       bool first_proto_segment = true;
-      for (ChamberHitContainerCIt i1 = ib; i1 != ie; ++i1) {
+      for (auto i1 = ib; i1 != ie; ++i1) {
         bool segok = false;
         //skip if rh is used and the layer tat has big rh multiplicity(>25RHs)
         if (used[i1 - ib] || recHits_per_layer[int(layerIndex[i1 - ib]) - 1] > 25 ||
@@ -170,7 +170,7 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const CSCChamber* aChamber,
           continue;
         int layer1 = layerIndex[i1 - ib];
         const CSCRecHit2D* h1 = *i1;
-        for (ChamberHitContainerCIt i2 = ie - 1; i2 != i1; --i2) {
+        for (auto i2 = ie - 1; i2 != i1; --i2) {
           if (used[i2 - ib] || recHits_per_layer[int(layerIndex[i2 - ib]) - 1] > 25 ||
               (n_seg_min == 3 && used3p[i2 - ib]))
             continue;
@@ -289,7 +289,7 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const CSCChamber* aChamber,
       aState.chi2Max = 0.5 * aState.chi2Max / scale_factor;
     }
 
-    std::vector<CSCSegment>::iterator it = segments.begin();
+    auto it = segments.begin();
     bool good_segs = false;
     while (it != segments.end()) {
       if ((*it).nRecHits() > 3) {
@@ -311,12 +311,12 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const CSCChamber* aChamber,
   }  // ipass
 
   //get rid of enchansed 3p segments
-  std::vector<CSCSegment>::iterator it = segments.begin();
+  auto it = segments.begin();
   while (it != segments.end()) {
     if ((*it).nRecHits() == 3) {
       bool found_common = false;
       const std::vector<CSCRecHit2D>& theseRH = (*it).specificRecHits();
-      for (ChamberHitContainerCIt i1 = ib; i1 != ie; ++i1) {
+      for (auto i1 = ib; i1 != ie; ++i1) {
         if (used[i1 - ib] && used3p[i1 - ib]) {
           const CSCRecHit2D* sh1 = *i1;
           CSCDetId id = sh1->cscDetId();
@@ -369,9 +369,9 @@ void CSCSegAlgoRU::tryAddingHitsToSegment(AlgoState& aState,
   // then replace the original segment with the new one (by swap)
   // - if not, copy the segment, add the hit. If the new chi2/dof is still satisfactory
   // then replace the original segment with the new one (by swap)
-  ChamberHitContainerCIt ib = rechits.begin();
-  ChamberHitContainerCIt ie = rechits.end();
-  for (ChamberHitContainerCIt i = ib; i != ie; ++i) {
+  auto ib = rechits.begin();
+  auto ie = rechits.end();
+  for (auto i = ib; i != ie; ++i) {
     int layer = layerIndex[i - ib];
     if (hasHitOnLayer(aState, layer) && aState.proto_segment.size() <= 2)
       continue;
@@ -593,7 +593,7 @@ void CSCSegAlgoRU::flagHitsAsUsed(const AlgoState& aState,
                                   const ChamberHitContainer& rechitsInChamber,
                                   BoolContainer& used) const {
   // Flag hits on segment as used
-  ChamberHitContainerCIt ib = rechitsInChamber.begin();
+  auto ib = rechitsInChamber.begin();
   ChamberHitContainerCIt hi, iu;
   for (hi = aState.proto_segment.begin(); hi != aState.proto_segment.end(); ++hi) {
     for (iu = ib; iu != rechitsInChamber.end(); ++iu) {
@@ -656,7 +656,7 @@ void CSCSegAlgoRU::baseline(AlgoState& aState, int n_seg_min) const {
   while (buffer.size() < init_size) {
     ChamberHitContainer::iterator min;
     int min_layer = 10;
-    for (ChamberHitContainer::iterator k = aState.proto_segment.begin(); k != aState.proto_segment.end(); k++) {
+    for (auto k = aState.proto_segment.begin(); k != aState.proto_segment.end(); k++) {
       const CSCRecHit2D* iRHk = *k;
       CSCDetId idRHk = iRHk->cscDetId();
       int kLayer = idRHk.layer();
@@ -670,12 +670,11 @@ void CSCSegAlgoRU::baseline(AlgoState& aState, int n_seg_min) const {
   }  //while
 
   aState.proto_segment.clear();
-  for (ChamberHitContainer::const_iterator cand = buffer.begin(); cand != buffer.end(); cand++) {
+  for (auto cand = buffer.begin(); cand != buffer.end(); cand++) {
     aState.proto_segment.push_back(*cand);
   }
 
-  for (ChamberHitContainer::const_iterator iRH = aState.proto_segment.begin(); iRH != aState.proto_segment.end();
-       iRH++) {
+  for (auto iRH = aState.proto_segment.begin(); iRH != aState.proto_segment.end(); iRH++) {
     const CSCRecHit2D* iRHp = *iRH;
     CSCDetId idRH = iRHp->cscDetId();
     int kRing = idRH.ring();
@@ -710,21 +709,19 @@ void CSCSegAlgoRU::baseline(AlgoState& aState, int n_seg_min) const {
   ChamberHitContainer::const_iterator rh_to_be_deleted_1;
   ChamberHitContainer::const_iterator rh_to_be_deleted_2;
   if ((chi2_str) > aState.chi2_str_ * aState.chi2D_iadd) {  ///(nhits-2)
-    for (ChamberHitContainer::const_iterator i1 = aState.proto_segment.begin(); i1 != aState.proto_segment.end();
-         ++i1) {
+    for (auto i1 = aState.proto_segment.begin(); i1 != aState.proto_segment.end(); ++i1) {
       ++i1b;
       const CSCRecHit2D* i1_1 = *i1;
       CSCDetId idRH1 = i1_1->cscDetId();
       int z1 = idRH1.layer();
       i2b = i1b;
-      for (ChamberHitContainer::const_iterator i2 = i1 + 1; i2 != aState.proto_segment.end(); ++i2) {
+      for (auto i2 = i1 + 1; i2 != aState.proto_segment.end(); ++i2) {
         ++i2b;
         const CSCRecHit2D* i2_1 = *i2;
         CSCDetId idRH2 = i2_1->cscDetId();
         int z2 = idRH2.layer();
         int irej = 0;
-        for (ChamberHitContainer::const_iterator ir = aState.proto_segment.begin(); ir != aState.proto_segment.end();
-             ++ir) {
+        for (auto ir = aState.proto_segment.begin(); ir != aState.proto_segment.end(); ++ir) {
           ++irej;
           if (ir == i1 || ir == i2)
             continue;
@@ -733,8 +730,7 @@ void CSCSegAlgoRU::baseline(AlgoState& aState, int n_seg_min) const {
           const CSCRecHit2D* ir_1 = *ir;
           CSCDetId idRH = ir_1->cscDetId();
           int worst_layer = idRH.layer();
-          for (ChamberHitContainer::const_iterator i = aState.proto_segment.begin(); i != aState.proto_segment.end();
-               ++i) {
+          for (auto i = aState.proto_segment.begin(); i != aState.proto_segment.end(); ++i) {
             ++hit_nr;
             const CSCRecHit2D* i_1 = *i;
             if (i == i1 || i == i2 || i == ir)
@@ -766,21 +762,19 @@ void CSCSegAlgoRU::baseline(AlgoState& aState, int n_seg_min) const {
     float minSum = 1000;
     int i1b = 0;
     int i2b = 0;
-    for (ChamberHitContainer::const_iterator i1 = aState.proto_segment.begin(); i1 != aState.proto_segment.end();
-         ++i1) {
+    for (auto i1 = aState.proto_segment.begin(); i1 != aState.proto_segment.end(); ++i1) {
       ++i1b;
       const CSCRecHit2D* i1_1 = *i1;
       CSCDetId idRH1 = i1_1->cscDetId();
       int z1 = idRH1.layer();
       i2b = i1b;
-      for (ChamberHitContainer::const_iterator i2 = i1 + 1; i2 != aState.proto_segment.end(); ++i2) {
+      for (auto i2 = i1 + 1; i2 != aState.proto_segment.end(); ++i2) {
         ++i2b;
         const CSCRecHit2D* i2_1 = *i2;
         CSCDetId idRH2 = i2_1->cscDetId();
         int z2 = idRH2.layer();
         int irej = 0;
-        for (ChamberHitContainer::const_iterator ir = aState.proto_segment.begin(); ir != aState.proto_segment.end();
-             ++ir) {
+        for (auto ir = aState.proto_segment.begin(); ir != aState.proto_segment.end(); ++ir) {
           ++irej;
           int irej2 = 0;
           if (ir == i1 || ir == i2)
@@ -788,9 +782,7 @@ void CSCSegAlgoRU::baseline(AlgoState& aState, int n_seg_min) const {
           const CSCRecHit2D* ir_1 = *ir;
           CSCDetId idRH = ir_1->cscDetId();
           int worst_layer = idRH.layer();
-          for (ChamberHitContainer::const_iterator ir2 = aState.proto_segment.begin();
-               ir2 != aState.proto_segment.end();
-               ++ir2) {
+          for (auto ir2 = aState.proto_segment.begin(); ir2 != aState.proto_segment.end(); ++ir2) {
             ++irej2;
             if (ir2 == i1 || ir2 == i2 || ir2 == ir)
               continue;
@@ -799,8 +791,7 @@ void CSCSegAlgoRU::baseline(AlgoState& aState, int n_seg_min) const {
             const CSCRecHit2D* ir2_1 = *ir2;
             CSCDetId idRH = ir2_1->cscDetId();
             int worst_layer2 = idRH.layer();
-            for (ChamberHitContainer::const_iterator i = aState.proto_segment.begin(); i != aState.proto_segment.end();
-                 ++i) {
+            for (auto i = aState.proto_segment.begin(); i != aState.proto_segment.end(); ++i) {
               ++hit_nr;
               const CSCRecHit2D* i_1 = *i;
               if (i == i1 || i == i2 || i == ir || i == ir2)

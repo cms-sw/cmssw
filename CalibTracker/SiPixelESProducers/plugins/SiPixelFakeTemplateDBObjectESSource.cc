@@ -20,7 +20,7 @@ std::unique_ptr<SiPixelTemplateDBObject> SiPixelFakeTemplateDBObjectESSource::pr
 
   //Mostly copied from CondTools/SiPixel/test/SiPixelTemplateDBObjectUploader.cc
   //--- Make the POOL-ORA object to store the database object
-  SiPixelTemplateDBObject* obj = new SiPixelTemplateDBObject;
+  auto* obj = new SiPixelTemplateDBObject;
 
   // Local variables
   const char* tempfile;

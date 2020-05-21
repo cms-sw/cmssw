@@ -36,8 +36,7 @@ FourVectorHLT::FourVectorHLT(const edm::ParameterSet& iConfig) {
 
   // this is the list of paths to look at.
   std::vector<edm::ParameterSet> filters = iConfig.getParameter<std::vector<edm::ParameterSet> >("filters");
-  for (std::vector<edm::ParameterSet>::iterator filterconf = filters.begin(); filterconf != filters.end();
-       filterconf++) {
+  for (auto filterconf = filters.begin(); filterconf != filters.end(); filterconf++) {
     std::string me = filterconf->getParameter<std::string>("name");
     int objectType = filterconf->getParameter<unsigned int>("type");
     float ptMin = filterconf->getUntrackedParameter<double>("ptMin");
@@ -98,7 +97,7 @@ void FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       LogDebug("Parameter") << "filter " << ia << ", full name = " << fullname << ", p = " << p
                             << ", abbreviated = " << name;
 
-      PathInfoCollection::iterator pic = hltPaths_.find(name);
+      auto pic = hltPaths_.find(name);
       if (pic == hltPaths_.end()) {
         // doesn't exist - add it
         MonitorElement *et(nullptr), *eta(nullptr), *phi(nullptr), *etavsphi(nullptr);
@@ -127,7 +126,7 @@ void FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         pic = hltPaths_.begin() + hltPaths_.size() - 1;
       }
       const trigger::Keys& k = triggerObj->filterKeys(ia);
-      for (trigger::Keys::const_iterator ki = k.begin(); ki != k.end(); ++ki) {
+      for (auto ki = k.begin(); ki != k.end(); ++ki) {
         LogDebug("Parameters") << "pt, eta, phi = " << toc[*ki].pt() << ", " << toc[*ki].eta() << ", "
                                << toc[*ki].phi();
         pic->getEtHisto()->Fill(toc[*ki].pt());
@@ -138,14 +137,14 @@ void FourVectorHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     }
 
   } else {  // not plotAll_
-    for (PathInfoCollection::iterator v = hltPaths_.begin(); v != hltPaths_.end(); ++v) {
+    for (auto v = hltPaths_.begin(); v != hltPaths_.end(); ++v) {
       const int index = triggerObj->filterIndex(v->getName());
       if (index >= triggerObj->sizeFilters()) {
         continue;  // not in this event
       }
       LogDebug("Status") << "filling ... ";
       const trigger::Keys& k = triggerObj->filterKeys(index);
-      for (trigger::Keys::const_iterator ki = k.begin(); ki != k.end(); ++ki) {
+      for (auto ki = k.begin(); ki != k.end(); ++ki) {
         v->getEtHisto()->Fill(toc[*ki].pt());
         v->getEtaHisto()->Fill(toc[*ki].eta());
         v->getPhiHisto()->Fill(toc[*ki].phi());
@@ -165,7 +164,7 @@ void FourVectorHLT::beginJob() {
     dbe->setCurrentFolder(dirname_);
 
     if (!plotAll_) {
-      for (PathInfoCollection::iterator v = hltPaths_.begin(); v != hltPaths_.end(); ++v) {
+      for (auto v = hltPaths_.begin(); v != hltPaths_.end(); ++v) {
         MonitorElement *et, *eta, *phi, *etavsphi = nullptr;
         std::string histoname(v->getName() + "_et");
         std::string title(v->getName() + " E_t");

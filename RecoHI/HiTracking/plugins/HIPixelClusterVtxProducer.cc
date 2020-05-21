@@ -60,21 +60,18 @@ void HIPixelClusterVtxProducer::produce(edm::Event &ev, const edm::EventSetup &e
 
     // loop over pixel rechits
     std::vector<VertexHit> vhits;
-    for (SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(), end = hits->data().end();
-         hit != end;
-         ++hit) {
+    for (auto hit = hits->data().begin(), end = hits->data().end(); hit != end; ++hit) {
       if (!hit->isValid())
         continue;
       DetId id(hit->geographicalId());
       if (id.subdetId() != int(PixelSubdetector::PixelBarrel))
         continue;
-      const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit *>(tgeo->idToDet(id));
+      const auto *pgdu = static_cast<const PixelGeomDetUnit *>(tgeo->idToDet(id));
       if (true) {
         const PixelTopology *pixTopo = &(pgdu->specificTopology());
         std::vector<SiPixelCluster::Pixel> pixels(hit->cluster()->pixels());
         bool pixelOnEdge = false;
-        for (std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin(); pixel != pixels.end();
-             ++pixel) {
+        for (auto pixel = pixels.begin(); pixel != pixels.end(); ++pixel) {
           int pixelX = pixel->x;
           int pixelY = pixel->y;
           if (pixTopo->isItEdgePixelInX(pixelX) || pixTopo->isItEdgePixelInY(pixelY)) {
@@ -132,7 +129,7 @@ int HIPixelClusterVtxProducer::getContainedHits(const std::vector<VertexHit> &hi
   int n = 0;
   chi = 0.;
 
-  for (std::vector<VertexHit>::const_iterator hit = hits.begin(); hit != hits.end(); hit++) {
+  for (auto hit = hits.begin(); hit != hits.end(); hit++) {
     double p = 2 * fabs(hit->z - z0) / hit->r + 0.5;  // FIXME
     if (TMath::Abs(p - hit->w) <= 1.) {
       chi += fabs(p - hit->w);

@@ -74,7 +74,7 @@ std::string EcalClusterEnergyCorrectionObjectSpecificXMLTranslator::dumpXML(cons
                                    "fEnergyPhotonsEE"};
   int tit = 0;
   int par = 0;
-  for (EcalFunctionParameters::const_iterator it = record.params().begin(); it != record.params().end(); ++it) {
+  for (auto it = record.params().begin(); it != record.params().end(); ++it) {
     if (par < 2)
       tit = 0;
     else if (par < 86)

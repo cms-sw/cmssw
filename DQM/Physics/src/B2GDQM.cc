@@ -87,9 +87,7 @@ B2GDQM::B2GDQM(const edm::ParameterSet& ps) {
 
   // Jets
   jetLabels_ = ps.getParameter<std::vector<edm::InputTag> >("jetLabels");
-  for (std::vector<edm::InputTag>::const_iterator jetlabel = jetLabels_.begin(), jetlabelEnd = jetLabels_.end();
-       jetlabel != jetlabelEnd;
-       ++jetlabel) {
+  for (auto jetlabel = jetLabels_.begin(), jetlabelEnd = jetLabels_.end(); jetlabel != jetlabelEnd; ++jetlabel) {
     jetTokens_.push_back(consumes<edm::View<reco::Jet> >(*jetlabel));
   }
   sdjetLabel_ = ps.getParameter<edm::InputTag>("sdjetLabel");

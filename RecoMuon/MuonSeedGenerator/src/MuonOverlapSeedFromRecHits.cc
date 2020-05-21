@@ -17,7 +17,7 @@ std::vector<TrajectorySeed> MuonOverlapSeedFromRecHits::seeds() const {
   //@@ doesn't handle overlap between ME11 and ME12 correctly
   // sort by station
   MuonRecHitContainer barrelHits, endcapHits;
-  for (MuonRecHitContainer::const_iterator iter = theRhits.begin(), end = theRhits.end(); iter != end; ++iter) {
+  for (auto iter = theRhits.begin(), end = theRhits.end(); iter != end; ++iter) {
     if ((*iter)->isDT()) {
       DTChamberId dtId((**iter).geographicalId().rawId());
       // try not doing seeds that start in DT station 2, if there'as a good single segment seed
@@ -30,11 +30,9 @@ std::vector<TrajectorySeed> MuonOverlapSeedFromRecHits::seeds() const {
   }
 
   ConstMuonRecHitPointer bestSegment = bestHit(barrelHits, endcapHits);
-  for (MuonRecHitContainer::const_iterator barrelHitItr = barrelHits.begin(), lastBarrelHit = barrelHits.end();
-       barrelHitItr != lastBarrelHit;
+  for (auto barrelHitItr = barrelHits.begin(), lastBarrelHit = barrelHits.end(); barrelHitItr != lastBarrelHit;
        ++barrelHitItr) {
-    for (MuonRecHitContainer::const_iterator endcapHitItr = endcapHits.begin(), lastEndcapHit = endcapHits.end();
-         endcapHitItr != lastEndcapHit;
+    for (auto endcapHitItr = endcapHits.begin(), lastEndcapHit = endcapHits.end(); endcapHitItr != lastEndcapHit;
          ++endcapHitItr) {
       TrajectorySeed seed;
       bool good = makeSeed(*barrelHitItr, *endcapHitItr, bestSegment, seed);

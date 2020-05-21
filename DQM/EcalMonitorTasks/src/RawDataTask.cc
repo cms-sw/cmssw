@@ -87,11 +87,11 @@ namespace ecaldqm {
     if (!l1A_) {
       // majority vote on L1A.. is there no better implementation?
       map<int, int> l1aCounts;
-      for (EcalRawDataCollection::const_iterator dcchItr(_dcchs.begin()); dcchItr != _dcchs.end(); ++dcchItr) {
+      for (auto dcchItr(_dcchs.begin()); dcchItr != _dcchs.end(); ++dcchItr) {
         l1aCounts[dcchItr->getLV1()]++;
       }
       int maxVote(0);
-      for (map<int, int>::iterator l1aItr(l1aCounts.begin()); l1aItr != l1aCounts.end(); ++l1aItr) {
+      for (auto l1aItr(l1aCounts.begin()); l1aItr != l1aCounts.end(); ++l1aItr) {
         if (l1aItr->second > maxVote) {
           maxVote = l1aItr->second;
           l1A_ = l1aItr->first;
@@ -99,7 +99,7 @@ namespace ecaldqm {
       }
     }
 
-    for (EcalRawDataCollection::const_iterator dcchItr(_dcchs.begin()); dcchItr != _dcchs.end(); ++dcchItr) {
+    for (auto dcchItr(_dcchs.begin()); dcchItr != _dcchs.end(); ++dcchItr) {
       int dccId(dcchItr->id());
 
       int dccL1A(dcchItr->getLV1());

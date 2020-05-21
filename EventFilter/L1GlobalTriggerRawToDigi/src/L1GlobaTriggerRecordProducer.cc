@@ -128,7 +128,7 @@ void L1GlobalTriggerRecordProducer::produce(edm::Event& iEvent, const edm::Event
 
   int iBit = -1;  // bit counter
 
-  for (std::vector<bool>::iterator itBit = algoDecisionWord.begin(); itBit != algoDecisionWord.end(); ++itBit) {
+  for (auto itBit = algoDecisionWord.begin(); itBit != algoDecisionWord.end(); ++itBit) {
     iBit++;
 
     int triggerMaskAlgoTrigBit = m_triggerMaskAlgoTrig[iBit] & (1 << iDaq);
@@ -151,7 +151,7 @@ void L1GlobalTriggerRecordProducer::produce(edm::Event& iEvent, const edm::Event
 
   iBit = -1;  // bit counter
 
-  for (std::vector<bool>::iterator itBit = techDecisionWord.begin(); itBit != techDecisionWord.end(); ++itBit) {
+  for (auto itBit = techDecisionWord.begin(); itBit != techDecisionWord.end(); ++itBit) {
     iBit++;
 
     int triggerMaskTechTrigBit = m_triggerMaskTechTrig[iBit] & (1 << iDaq);

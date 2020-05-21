@@ -187,7 +187,7 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
       pseudoRef ref = makePseudoRef(*thisRef);
       LogDebug(metname) << "seed ref: " << thisRef.id().id() << ":" << thisRef.key()
                         << " transcribe to pseudoref: " << ref.first << ":" << ref.second;
-      LXtoL3sMap::iterator f = LXtoL3s.find(ref);
+      auto f = LXtoL3s.find(ref);
       if (f != LXtoL3s.end()) {
         //there's already an entry. because of the prior ordering in pT of the tracker track refs
         // the track ref already there *has* a higher pT: this one cannot compete and should be assigned to the next Lx;
@@ -219,7 +219,7 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
   LogDebug(metname) << "reading the map to make " << LXtoL3s.size() << "products.";
   //fill the collection from the map
-  LXtoL3sMap::iterator f = LXtoL3s.begin();
+  auto f = LXtoL3s.begin();
   unsigned int i = 0;
   for (; f != LXtoL3s.end(); ++f, ++i) {
     LogDebug(metname) << "copy the track over, and make ref to extra";
@@ -245,7 +245,7 @@ void L3TkMuonProducer::produce(Event& event, const EventSetup& eventSetup) {
 
     LogDebug(metname) << "copy the hits too";
     unsigned int iRH = 0;
-    for (trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++hit, ++iRH) {
+    for (auto hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++hit, ++iRH) {
       outRecHits->push_back((*hit)->clone());
     }
     (*outTrackExtras)[i].setHits(rHits, 0, iRH);

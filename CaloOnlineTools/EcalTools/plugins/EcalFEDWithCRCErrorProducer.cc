@@ -92,7 +92,7 @@ void EcalFEDWithCRCErrorProducer::produce(edm::Event& iEvent, const edm::EventSe
   // get fed raw data and SM id
 
   // loop over FEDS
-  for (std::vector<int>::const_iterator i = fedUnpackList_.begin(); i != fedUnpackList_.end(); i++) {
+  for (auto i = fedUnpackList_.begin(); i != fedUnpackList_.end(); i++) {
     // get fed raw data and SM id
     const FEDRawData& fedData = rawdata->FEDData(*i);
     int length = fedData.size() / sizeof(uint64_t);

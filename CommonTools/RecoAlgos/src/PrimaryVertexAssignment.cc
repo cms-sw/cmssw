@@ -37,7 +37,7 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
   }
 
   if (preferHighRanked_) {
-    for (IV iv = vertices.begin(); iv != vertices.end(); ++iv) {
+    for (auto iv = vertices.begin(); iv != vertices.end(); ++iv) {
       int ivtx = iv - vertices.begin();
       if (iVertex == ivtx)
         return std::pair<int, PrimaryVertexAssignment::Quality>(ivtx, PrimaryVertexAssignment::UsedInFit);
@@ -61,7 +61,7 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
   double dzmin = std::numeric_limits<double>::max();
   double dtmin = std::numeric_limits<double>::max();
   int vtxIdMinSignif = -1;
-  for (IV iv = vertices.begin(); iv != vertices.end(); ++iv) {
+  for (auto iv = vertices.begin(); iv != vertices.end(); ++iv) {
     double dz = std::abs(track->dz(iv->position()));
     double dt = std::abs(time - iv->t());
 
@@ -120,7 +120,7 @@ std::pair<int, PrimaryVertexAssignment::Quality> PrimaryVertexAssignment::charge
     // find the vertex with the smallest distanceToJetAxis that is still within maxDistaneToJetAxis_
     int vtxIdx = -1;
     double minDistanceToJetAxis = maxDistanceToJetAxis_;
-    for (IV iv = vertices.begin(); iv != vertices.end(); ++iv) {
+    for (auto iv = vertices.begin(); iv != vertices.end(); ++iv) {
       // only check for vertices that are close enough in Z and for tracks that have not too high dXY
       if (std::abs(track->dz(iv->position())) > maxDzForJetAxisAssigment_ ||
           std::abs(track->dxy(iv->position())) > maxDxyForJetAxisAssigment_)

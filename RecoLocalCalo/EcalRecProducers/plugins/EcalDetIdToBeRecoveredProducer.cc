@@ -72,7 +72,7 @@ void EcalDetIdToBeRecoveredProducer::beginRun(edm::Run const& run, const edm::Ev
 // fuction return true if "coll" have "item"
 template <typename CollT, typename ItemT>
 bool include(const CollT& coll, const ItemT& item) {
-  typename CollT::const_iterator res = std::find(coll.begin(), coll.end(), item);
+  auto res = std::find(coll.begin(), coll.end(), item);
   return (res != coll.end());
 }
 
@@ -137,7 +137,7 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
   // -- Barrel
   EBDetIdCollection ebSrpDetId;
   EcalTrigTowerDetIdCollection ebSrpTTDetId;
-  for (EBSrFlagCollection::const_iterator it = ebSrFlags->begin(); it != ebSrFlags->end(); ++it) {
+  for (auto it = ebSrFlags->begin(); it != ebSrFlags->end(); ++it) {
     const int flag = it->value();
     if (flag == EcalSrFlag::SRF_FULL || (flag == EcalSrFlag::SRF_FORCED_MASK)) {
       const EcalTrigTowerDetId ttId = it->id();
@@ -145,7 +145,7 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
 
       const std::vector<DetId> vid = ttMap_->constituentsOf(ttId);
 
-      for (std::vector<DetId>::const_iterator itId = vid.begin(); itId != vid.end(); ++itId) {
+      for (auto itId = vid.begin(); itId != vid.end(); ++itId) {
         ebSrpDetId.push_back(*itId);
       }
     }
@@ -153,7 +153,7 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
   // -- Endcap
   EEDetIdCollection eeSrpDetId;
   //EcalTrigTowerDetIdCollection eeSrpTTDetId;
-  for (EESrFlagCollection::const_iterator it = eeSrFlags->begin(); it != eeSrFlags->end(); ++it) {
+  for (auto it = eeSrFlags->begin(); it != eeSrFlags->end(); ++it) {
     const int flag = it->value();
     if (flag == EcalSrFlag::SRF_FULL || (flag == EcalSrFlag::SRF_FORCED_MASK)) {
       //EcalTrigTowerDetId ttId = it->id();
@@ -175,7 +175,7 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
       }
       ////eeSrpDetId.insert( interestingDetId.end(), vid.begin(), vid.end() );
       //std::vector<DetId> vid = ttMap_->constituentsOf( ttId );
-      for (std::vector<DetId>::const_iterator itId = vid.begin(); itId != vid.end(); ++itId) {
+      for (auto itId = vid.begin(); itId != vid.end(); ++itId) {
         eeSrpDetId.push_back(*itId);
       }
     }
@@ -193,18 +193,16 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
          *  and insert them in the list of DetId to recover
          */
   // -- Barrel
-  for (std::vector<edm::Handle<EBDetIdCollection>>::const_iterator it = ebDetIdColls.begin(); it != ebDetIdColls.end();
-       ++it) {
+  for (auto it = ebDetIdColls.begin(); it != ebDetIdColls.end(); ++it) {
     const EBDetIdCollection* idc = it->product();
-    for (EBDetIdCollection::const_iterator jt = idc->begin(); jt != idc->end(); ++jt)
+    for (auto jt = idc->begin(); jt != idc->end(); ++jt)
       if (include(ebSrpDetId, *jt))
         ebDetIdToRecover->insert(*jt);
   }
   // -- Endcap
-  for (std::vector<edm::Handle<EEDetIdCollection>>::const_iterator it = eeDetIdColls.begin(); it != eeDetIdColls.end();
-       ++it) {
+  for (auto it = eeDetIdColls.begin(); it != eeDetIdColls.end(); ++it) {
     const EEDetIdCollection* idc = it->product();
-    for (EEDetIdCollection::const_iterator jt = idc->begin(); jt != idc->end(); ++jt)
+    for (auto jt = idc->begin(); jt != idc->end(); ++jt)
       if (include(eeSrpDetId, *jt))
         eeDetIdToRecover->insert(*jt);
   }
@@ -215,8 +213,8 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
          * in interesting regions flagged by SRP
          */
   // -- Barrel
-  for (EBDetIdCollection::const_iterator itId = ebSrpDetId.begin(); itId != ebSrpDetId.end(); ++itId) {
-    EcalChannelStatusMap::const_iterator chit = chStatus_->find(*itId);
+  for (auto itId = ebSrpDetId.begin(); itId != ebSrpDetId.end(); ++itId) {
+    auto chit = chStatus_->find(*itId);
     if (chit != chStatus_->end()) {
       const int flag = (*chit).getStatusCode();
       if (flag >= 10 && flag <= 12) {  // FIXME -- avoid hardcoded values...
@@ -230,8 +228,8 @@ void EcalDetIdToBeRecoveredProducer::produce(edm::Event& ev, const edm::EventSet
     }
   }
   // -- Endcap
-  for (EEDetIdCollection::const_iterator itId = eeSrpDetId.begin(); itId != eeSrpDetId.end(); ++itId) {
-    EcalChannelStatusMap::const_iterator chit = chStatus_->find(*itId);
+  for (auto itId = eeSrpDetId.begin(); itId != eeSrpDetId.end(); ++itId) {
+    auto chit = chStatus_->find(*itId);
     if (chit != chStatus_->end()) {
       int flag = (*chit).getStatusCode();
       if (flag >= 10 && flag <= 12) {  // FIXME -- avoid hardcoded values...

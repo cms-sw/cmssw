@@ -255,8 +255,7 @@ namespace {
 
 TrajectoryMeasurement const& Trajectory::closestMeasurement(GlobalPoint point) const {
   check();
-  vector<TrajectoryMeasurement>::const_iterator iter =
-      std::min_element(measurements().begin(), measurements().end(), LessMag(point));
+  auto iter = std::min_element(measurements().begin(), measurements().end(), LessMag(point));
 
   return (*iter);
 }

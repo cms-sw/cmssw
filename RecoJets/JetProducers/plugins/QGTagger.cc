@@ -49,13 +49,13 @@ QGTagger::QGTagger(const edm::ParameterSet& iConfig)
 
 /// Produce qgLikelihood using {mult, ptD, -log(axis2)}
 void QGTagger::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
-  std::vector<float>* qgProduct = new std::vector<float>;
-  std::vector<float>* axis2Product = new std::vector<float>;
-  std::vector<int>* multProduct = new std::vector<int>;
-  std::vector<float>* ptDProduct = new std::vector<float>;
-  std::vector<float>* smearedQuarkProduct = new std::vector<float>;
-  std::vector<float>* smearedGluonProduct = new std::vector<float>;
-  std::vector<float>* smearedAllProduct = new std::vector<float>;
+  auto* qgProduct = new std::vector<float>;
+  auto* axis2Product = new std::vector<float>;
+  auto* multProduct = new std::vector<int>;
+  auto* ptDProduct = new std::vector<float>;
+  auto* smearedQuarkProduct = new std::vector<float>;
+  auto* smearedGluonProduct = new std::vector<float>;
+  auto* smearedAllProduct = new std::vector<float>;
 
   edm::Handle<edm::View<reco::Jet>> jets;
   iEvent.getByToken(jetsToken, jets);

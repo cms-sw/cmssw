@@ -15,7 +15,7 @@ AlgebraicVector VertexKinematicConstraint::value(const std::vector<KinematicStat
   //it is 2 equations per track
   AlgebraicVector vl(2 * num, 0);
   int num_r = 0;
-  for (std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++) {
+  for (auto i = states.begin(); i != states.end(); i++) {
     TrackCharge ch = i->particleCharge();
     GlobalVector mom = i->globalMomentum();
     GlobalPoint pos = i->globalPosition();
@@ -54,7 +54,7 @@ AlgebraicMatrix VertexKinematicConstraint::parametersDerivative(const std::vecto
     throw VertexException("VertexKinematicConstraint::<2 states passed");
   AlgebraicMatrix jac_d(2 * num, 7 * num);
   int num_r = 0;
-  for (std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++) {
+  for (auto i = states.begin(); i != states.end(); i++) {
     AlgebraicMatrix el_part_d(2, 7, 0);
     TrackCharge ch = i->particleCharge();
     GlobalVector mom = i->globalMomentum();
@@ -116,7 +116,7 @@ AlgebraicMatrix VertexKinematicConstraint::positionDerivative(const std::vector<
     throw VertexException("VertexKinematicConstraint::<2 states passed");
   AlgebraicMatrix jac_e(2 * num, 3);
   int num_r = 0;
-  for (std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++) {
+  for (auto i = states.begin(); i != states.end(); i++) {
     AlgebraicMatrix el_part_e(2, 3, 0);
     TrackCharge ch = i->particleCharge();
     GlobalVector mom = i->globalMomentum();

@@ -33,7 +33,7 @@ bool DTCalibMuonSelection::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   Handle<MuonCollection> MuHandle;
   iEvent.getByToken(muonList, MuHandle);
 
-  for (MuonCollection::const_iterator nmuon = MuHandle->begin(); nmuon != MuHandle->end(); ++nmuon) {
+  for (auto nmuon = MuHandle->begin(); nmuon != MuHandle->end(); ++nmuon) {
     double ptMuon(0.);
     double etaMuon(-999.);
 

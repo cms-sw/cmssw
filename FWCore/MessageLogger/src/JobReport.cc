@@ -254,7 +254,7 @@ namespace edm {
 
   void JobReport::JobReportImpl::associateRun(JobReport::Token token, unsigned int runNumber) {
     auto& theMap = outputFiles_.at(token).runReports;
-    std::map<RunNumber, RunReport>::iterator iter(theMap.lower_bound(runNumber));
+    auto iter(theMap.lower_bound(runNumber));
     if (iter == theMap.end() || runNumber < iter->first) {                        // not found
       theMap.emplace_hint(iter, runNumber, JobReport::RunReport{runNumber, {}});  // insert it
     }
@@ -264,7 +264,7 @@ namespace edm {
     for (auto& inputFile : inputFiles_) {
       if (!inputFile.fileHasBeenClosed) {
         std::map<RunNumber, RunReport>& theMap = inputFile.runReports;
-        std::map<RunNumber, RunReport>::iterator iter(theMap.lower_bound(runNumber));
+        auto iter(theMap.lower_bound(runNumber));
         if (iter == theMap.end() || runNumber < iter->first) {                        // not found
           theMap.emplace_hint(iter, runNumber, JobReport::RunReport{runNumber, {}});  // insert it
         }
@@ -277,7 +277,7 @@ namespace edm {
                                                       unsigned int lumiSect,
                                                       unsigned long nEvents) {
     auto& theMap = outputFiles_.at(token).runReports;
-    std::map<RunNumber, RunReport>::iterator iter(theMap.lower_bound(runNumber));
+    auto iter(theMap.lower_bound(runNumber));
     if (iter == theMap.end() || runNumber < iter->first) {                                             // not found
       theMap.emplace_hint(iter, runNumber, JobReport::RunReport{runNumber, {{{lumiSect, nEvents}}}});  // insert it
     } else {
@@ -289,7 +289,7 @@ namespace edm {
     for (auto& inputFile : inputFiles_) {
       if (!inputFile.fileHasBeenClosed) {
         std::map<RunNumber, RunReport>& theMap = inputFile.runReports;
-        std::map<RunNumber, RunReport>::iterator iter(theMap.lower_bound(runNumber));
+        auto iter(theMap.lower_bound(runNumber));
         if (iter == theMap.end() || runNumber < iter->first) {  // not found
           theMap.emplace_hint(
               iter,
@@ -480,7 +480,7 @@ namespace edm {
             << "  <FileName>" << doc.NewText(fileName.c_str())->Value() << "</FileName>\n";
 
         typedef std::map<std::string, std::string>::const_iterator const_iterator;
-        for (const_iterator pos = fileData.begin(), posEnd = fileData.end(); pos != posEnd; ++pos) {
+        for (auto pos = fileData.begin(), posEnd = fileData.end(); pos != posEnd; ++pos) {
           msg << "  <" << pos->first << "  Value=\"" << pos->second << "\" />"
               << "\n";
         }
@@ -544,7 +544,7 @@ namespace edm {
       msg << "<MemoryService>\n";
 
       typedef std::vector<std::string>::const_iterator const_iterator;
-      for (const_iterator pos = memoryData.begin(), posEnd = memoryData.end(); pos != posEnd; ++pos) {
+      for (auto pos = memoryData.begin(), posEnd = memoryData.end(); pos != posEnd; ++pos) {
         msg << *pos << "\n";
       }
       msg << "</MemoryService>\n";
@@ -557,7 +557,7 @@ namespace edm {
       std::ostream& msg = *(impl_->ost_);
       msg << "<MessageSummary>\n";
       typedef std::map<std::string, double>::const_iterator const_iterator;
-      for (const_iterator pos = messageData.begin(), posEnd = messageData.end(); pos != posEnd; ++pos) {
+      for (auto pos = messageData.begin(), posEnd = messageData.end(); pos != posEnd; ++pos) {
         msg << "  <" << pos->first << "  Value=\"" << pos->second << "\" />"
             << "\n";
       }
@@ -626,9 +626,7 @@ namespace edm {
   void JobReport::reportFastClonedBranches(std::set<std::string> const& fastClonedBranches, long long nEvents) {
     std::set<std::string>& clonedBranches =
         impl_->inputFiles_.at(impl_->lastOpenedPrimaryInputFile_).fastClonedBranches;
-    for (std::set<std::string>::const_iterator it = fastClonedBranches.begin(), itEnd = fastClonedBranches.end();
-         it != itEnd;
-         ++it) {
+    for (auto it = fastClonedBranches.begin(), itEnd = fastClonedBranches.end(); it != itEnd; ++it) {
       if (clonedBranches.insert(*it).second) {
         impl_->readBranches_[*it] += nEvents;
       }
@@ -657,7 +655,7 @@ namespace edm {
           << "  <PerformanceSummary Metric=\"" << metricClass << "\">\n";
 
       typedef std::map<std::string, std::string>::const_iterator const_iterator;
-      for (const_iterator iter = metrics.begin(), iterEnd = metrics.end(); iter != iterEnd; ++iter) {
+      for (auto iter = metrics.begin(), iterEnd = metrics.end(); iter != iterEnd; ++iter) {
         msg << "    <Metric Name=\"" << iter->first << "\" "
             << "Value=\"" << iter->second << "\"/>\n";
       }
@@ -679,7 +677,7 @@ namespace edm {
           << " Module=\"" << moduleName << "\" >\n";
 
       typedef std::map<std::string, std::string>::const_iterator const_iterator;
-      for (const_iterator iter = metrics.begin(), iterEnd = metrics.end(); iter != iterEnd; ++iter) {
+      for (auto iter = metrics.begin(), iterEnd = metrics.end(); iter != iterEnd; ++iter) {
         msg << "    <Metric Name=\"" << iter->first << "\" "
             << "Value=\"" << iter->second << "\"/>\n";
       }

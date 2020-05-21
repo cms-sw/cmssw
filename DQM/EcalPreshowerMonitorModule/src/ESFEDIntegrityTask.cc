@@ -93,7 +93,7 @@ void ESFEDIntegrityTask::analyze(const Event& e, const EventSetup& c) {
       map<int, int> esDCC_OrbitNumber_FreqMap;
 
       if (e.getByToken(dccCollections_, dccs)) {
-        for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
+        for (auto dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
           ESDCCHeaderBlock esdcc = (*dccItr);
 
           esDCC_L1A_FreqMap[esdcc.getLV1()]++;
@@ -126,7 +126,7 @@ void ESFEDIntegrityTask::analyze(const Event& e, const EventSetup& c) {
 
   vector<int> fiberStatus;
   if (e.getByToken(dccCollections_, dccs)) {
-    for (ESRawDataCollection::const_iterator dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
+    for (auto dccItr = dccs->begin(); dccItr != dccs->end(); ++dccItr) {
       ESDCCHeaderBlock dcc = (*dccItr);
 
       if (dcc.getDCCErrors() > 0) {

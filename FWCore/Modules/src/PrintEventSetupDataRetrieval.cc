@@ -140,15 +140,12 @@ namespace edm {
     iES.fillAvailableRecordKeys(m_recordKeys);
 
     std::unique_ptr<LogSystem> msg;
-    for (std::vector<eventsetup::EventSetupRecordKey>::const_iterator it = m_recordKeys.begin(),
-                                                                      itEnd = m_recordKeys.end();
-         it != itEnd;
-         ++it) {
+    for (auto it = m_recordKeys.begin(), itEnd = m_recordKeys.end(); it != itEnd; ++it) {
       //std::cout <<"  "<<it->name()<<std::endl;
       auto r = iES.find(*it);
       assert(r);
 
-      RetrievedDataMap::iterator itRetrievedData = m_retrievedDataMap.find(*it);
+      auto itRetrievedData = m_retrievedDataMap.find(*it);
       if (itRetrievedData == m_retrievedDataMap.end()) {
         itRetrievedData =
             m_retrievedDataMap
@@ -157,25 +154,21 @@ namespace edm {
         itRetrievedData->second.first = r->cacheIdentifier();
         std::vector<eventsetup::DataKey> keys;
         r->fillRegisteredDataKeys(keys);
-        for (std::vector<eventsetup::DataKey>::const_iterator itData = keys.begin(), itDataEnd = keys.end();
-             itData != itDataEnd;
-             ++itData) {
+        for (auto itData = keys.begin(), itDataEnd = keys.end(); itData != itDataEnd; ++itData) {
           itRetrievedData->second.second.insert(std::make_pair(*itData, false));
         }
       }
       RetrievedDataMap::value_type& retrievedData = *itRetrievedData;
       if (itRetrievedData->second.first != r->cacheIdentifier()) {
         itRetrievedData->second.first = r->cacheIdentifier();
-        for (std::map<eventsetup::DataKey, bool>::iterator itDatum = retrievedData.second.second.begin(),
-                                                           itDatumEnd = retrievedData.second.second.end();
+        for (auto itDatum = retrievedData.second.second.begin(), itDatumEnd = retrievedData.second.second.end();
              itDatum != itDatumEnd;
              ++itDatum) {
           itDatum->second = false;
         }
       }
 
-      for (std::map<eventsetup::DataKey, bool>::iterator itDatum = retrievedData.second.second.begin(),
-                                                         itDatumEnd = retrievedData.second.second.end();
+      for (auto itDatum = retrievedData.second.second.begin(), itDatumEnd = retrievedData.second.second.end();
            itDatum != itDatumEnd;
            ++itDatum) {
         bool wasGotten = r->wasGotten(itDatum->first);

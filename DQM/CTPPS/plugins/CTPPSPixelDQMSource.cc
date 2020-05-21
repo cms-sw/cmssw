@@ -522,7 +522,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
       int rpot = theId.rp() & 0x7;
       int rpInd = getRPindex(arm, station, rpot);
 
-      for (DetSet<CTPPSPixelLocalTrack>::const_iterator dit = ds_tr.begin(); dit != ds_tr.end(); ++dit) {
+      for (auto dit = ds_tr.begin(); dit != ds_tr.end(); ++dit) {
         ++pixRPTracks[rpInd];
         int nh_tr = (dit->ndf() + TrackFitDimension) / 2;
         if (onlinePlots) {
@@ -552,7 +552,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
           std::map<int, int> numberOfPointPerPlaneEff;
           for (const auto &ds_frh : fittedHits) {
             int plane = getPixPlane(ds_frh.id);
-            for (DetSet<CTPPSPixelFittedRecHit>::const_iterator frh_it = ds_frh.begin(); frh_it != ds_frh.end();
+            for (auto frh_it = ds_frh.begin(); frh_it != ds_frh.end();
                  ++frh_it) {  // there should always be only one hit in each
                               // vector
               if (frh_it != ds_frh.begin())
@@ -577,8 +577,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
             int plane = getPixPlane(ds_frh.id);
             if (isPlanePlotsTurnedOff[arm][station][rpot][plane])
               continue;
-            for (DetSet<CTPPSPixelFittedRecHit>::const_iterator frh_it = ds_frh.begin(); frh_it != ds_frh.end();
-                 ++frh_it) {
+            for (auto frh_it = ds_frh.begin(); frh_it != ds_frh.end(); ++frh_it) {
               float frhX0 = frh_it->globalCoordinates().x() + frh_it->xResidual();
               float frhY0 = frh_it->globalCoordinates().y() + frh_it->yResidual();
               if (numberOfPointPerPlaneEff[plane] >= 3) {
@@ -638,7 +637,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const &event, edm::EventSetup const
         }
         int rocHistIndex = getPlaneIndex(arm, station, rpot, plane);
 
-        for (DetSet<CTPPSPixelDigi>::const_iterator dit = ds_digi.begin(); dit != ds_digi.end(); ++dit) {
+        for (auto dit = ds_digi.begin(); dit != ds_digi.end(); ++dit) {
           int row = dit->row();
           int col = dit->column();
           int adc = dit->adc();

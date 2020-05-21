@@ -173,7 +173,7 @@ std::unique_ptr<DeepVertexTFCache> DeepVertexTFJetTagsProducer::initializeGlobal
   std::string pbFile = iConfig.getParameter<edm::FileInPath>("graph_path").fullPath();
 
   // load the graph def and save it in the cache
-  DeepVertexTFCache* cache = new DeepVertexTFCache();
+  auto* cache = new DeepVertexTFCache();
   cache->graphDef = tensorflow::loadGraphDef(pbFile);
 
   return std::unique_ptr<DeepVertexTFCache>(cache);

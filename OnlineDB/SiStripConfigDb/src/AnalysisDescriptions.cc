@@ -27,8 +27,8 @@ SiStripConfigDb::AnalysisDescriptionsRange SiStripConfigDb::getAnalysisDescripti
 
   try {
     if (!dbParams_.usingDbCache()) {
-      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
-      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
+      auto iter = dbParams_.partitions().begin();
+      auto jter = dbParams_.partitions().end();
       for (; iter != jter; ++iter) {
         if (partition.empty() || partition == iter->second.partitionName()) {
           if (iter->second.partitionName() == SiStripPartition::defaultPartitionName_) {
@@ -184,8 +184,8 @@ void SiStripConfigDb::addAnalysisDescriptions(std::string partition, AnalysisDes
     return;
   }
 
-  SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
-  SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
+  auto iter = dbParams_.partitions().begin();
+  auto jter = dbParams_.partitions().end();
   for (; iter != jter; ++iter) {
     if (partition == iter->second.partitionName()) {
       break;
@@ -255,8 +255,8 @@ void SiStripConfigDb::uploadAnalysisDescriptions(bool calibration_for_physics, s
   }
 
   try {
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
+    auto iter = dbParams_.partitions().begin();
+    auto jter = dbParams_.partitions().end();
     for (; iter != jter; ++iter) {
       if (partition.empty() || partition == iter->second.partitionName()) {
         AnalysisDescriptionsRange range = analyses_.find(iter->second.partitionName());
@@ -350,8 +350,8 @@ void SiStripConfigDb::clearAnalysisDescriptions(std::string partition) {
   if (partition.empty()) {
     temporary_cache = AnalysisDescriptions();
   } else {
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
+    auto iter = dbParams_.partitions().begin();
+    auto jter = dbParams_.partitions().end();
     for (; iter != jter; ++iter) {
       if (partition != iter->second.partitionName()) {
         AnalysisDescriptionsRange range = analyses_.find(iter->second.partitionName());
@@ -379,8 +379,8 @@ void SiStripConfigDb::clearAnalysisDescriptions(std::string partition) {
       anals = analyses_.emptyRange();
     }
   } else {
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
+    auto iter = dbParams_.partitions().begin();
+    auto jter = dbParams_.partitions().end();
     for (; iter != jter; ++iter) {
       if (partition == iter->second.partitionName()) {
         break;
@@ -390,8 +390,8 @@ void SiStripConfigDb::clearAnalysisDescriptions(std::string partition) {
   }
 
   if (anals != analyses_.emptyRange()) {
-    AnalysisDescriptionsV::const_iterator ianal = anals.begin();
-    AnalysisDescriptionsV::const_iterator janal = anals.end();
+    auto ianal = anals.begin();
+    auto janal = anals.end();
     for (; ianal != janal; ++ianal) {
       if (*ianal) {
         delete *ianal;
@@ -433,8 +433,8 @@ void SiStripConfigDb::printAnalysisDescriptions(std::string partition) {
 
       // Extract FEC crate, slot, etc
       std::map<uint32_t, vector<uint32_t> > analyses;
-      AnalysisDescriptionsV::const_iterator iter = ianal->second.begin();
-      AnalysisDescriptionsV::const_iterator jter = ianal->second.end();
+      auto iter = ianal->second.begin();
+      auto jter = ianal->second.end();
       for (; iter != jter; ++iter) {
         if (*iter) {
           DeviceAddress addr = deviceAddress(**iter);
@@ -455,13 +455,13 @@ void SiStripConfigDb::printAnalysisDescriptions(std::string partition) {
 
       // Sort contents
       std::map<uint32_t, std::vector<uint32_t> > tmp;
-      std::map<uint32_t, std::vector<uint32_t> >::const_iterator ii = analyses.begin();
-      std::map<uint32_t, std::vector<uint32_t> >::const_iterator jj = analyses.end();
+      auto ii = analyses.begin();
+      auto jj = analyses.end();
       for (; ii != jj; ++ii) {
         std::vector<uint32_t> temp = ii->second;
         std::sort(temp.begin(), temp.end());
-        std::vector<uint32_t>::const_iterator iii = temp.begin();
-        std::vector<uint32_t>::const_iterator jjj = temp.end();
+        auto iii = temp.begin();
+        auto jjj = temp.end();
         for (; iii != jjj; ++iii) {
           tmp[ii->first].push_back(*iii);
         }
@@ -470,8 +470,8 @@ void SiStripConfigDb::printAnalysisDescriptions(std::string partition) {
       analyses = tmp;
 
       // Print FEC crate, slot, etc...
-      std::map<uint32_t, std::vector<uint32_t> >::const_iterator ianal = analyses.begin();
-      std::map<uint32_t, std::vector<uint32_t> >::const_iterator janal = analyses.end();
+      auto ianal = analyses.begin();
+      auto janal = analyses.end();
       for (; ianal != janal; ++ianal) {
         SiStripFecKey key(ianal->first);
         ss << "  Found " << std::setw(3) << ianal->second.size() << " analyses for FEC crate/slot/ring "

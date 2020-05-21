@@ -8,7 +8,7 @@ TtFullHadEvtPartons::TtFullHadEvtPartons(const std::vector<std::string>& partons
   for (unsigned int i = 0; i < 6; i++)
     ignorePartons_.push_back(false);
   // read vector of strings and flag partons to be ignored
-  for (std::vector<std::string>::const_iterator str = partonsToIgnore.begin(); str != partonsToIgnore.end(); ++str) {
+  for (auto str = partonsToIgnore.begin(); str != partonsToIgnore.end(); ++str) {
     if ((*str) == "LightQ")
       ignorePartons_[LightQ] = true;
     else if ((*str) == "LightQBar")

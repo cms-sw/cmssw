@@ -67,7 +67,7 @@ bool EcalGenEvtSelectorFrag::filter(HepMC::GenEvent* evt) {
         //	 cout << "number of mothers = " << numberOfMothers << endl;
       } else {
         //	 cout << "number of mothers = " << numberOfMothers << endl;
-        HepMC::GenVertex::particles_in_const_iterator motherIt = productionVertex->particles_in_const_begin();
+        auto motherIt = productionVertex->particles_in_const_begin();
         for (; motherIt != productionVertex->particles_in_const_end(); motherIt++) {
           if (fabs((*motherIt)->pdg_id()) <= 22) {
             isFrag = true;

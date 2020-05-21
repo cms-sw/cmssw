@@ -122,12 +122,12 @@ HepMC::GenParticle* HijingHadronizer::build_hijing(int index, int barcode) {
   if (himain2.katt[3][index] <= 20 && himain2.katt[3][index] > 10)
     himain2.katt[3][index] = 2;
 
-  HepMC::GenParticle* p = new HepMC::GenParticle(HepMC::FourVector(x,                        // px
-                                                                   y,                        // py
-                                                                   himain2.patt[2][index],   // pz
-                                                                   himain2.patt[3][index]),  // E
-                                                 himain2.katt[0][index],                     // id
-                                                 himain2.katt[3][index]                      // status
+  auto* p = new HepMC::GenParticle(HepMC::FourVector(x,                        // px
+                                                     y,                        // py
+                                                     himain2.patt[2][index],   // pz
+                                                     himain2.patt[3][index]),  // E
+                                   himain2.katt[0][index],                     // id
+                                   himain2.katt[3][index]                      // status
   );
   p->suggest_barcode(barcode);
 
@@ -144,7 +144,7 @@ HepMC::GenVertex* HijingHadronizer::build_hijing_vertex(int i, int id) {
   double z = himain2.vatt[2][i];
   double t = himain2.vatt[3][i];
 
-  HepMC::GenVertex* vertex = new HepMC::GenVertex(HepMC::FourVector(x, y, z, t), id);
+  auto* vertex = new HepMC::GenVertex(HepMC::FourVector(x, y, z, t), id);
   return vertex;
 }
 

@@ -177,7 +177,7 @@ void popcon::EcalTPGBadXTHandler::getNewObjects() {
             FEConfigBadXTDat rd_badXt;
             int icells = 0;
 
-            for (CIfeped p = dataset_TpgBadXT.begin(); p != dataset_TpgBadXT.end(); p++) {
+            for (auto p = dataset_TpgBadXT.begin(); p != dataset_TpgBadXT.end(); p++) {
               rd_badXt = *p;
 
               int fed_id = rd_badXt.getFedId();
@@ -356,7 +356,7 @@ void popcon::EcalTPGBadXTHandler::writeFile(const char* inputFile) {
 }
 
 EcalTPGCrystalStatus* popcon::EcalTPGBadXTHandler::produceEcalTrgChannelStatus() {
-  EcalTPGCrystalStatus* ical = new EcalTPGCrystalStatus();
+  auto* ical = new EcalTPGCrystalStatus();
   // barrel
   for (int ieta = -EBDetId::MAX_IETA; ieta <= EBDetId::MAX_IETA; ++ieta) {
     if (ieta == 0)

@@ -69,8 +69,7 @@ void RecordWriter::update(const void* iData, const std::type_info& iType, const 
   if (nullptr == iLabel) {
     label = "";
   }
-  std::map<std::pair<edm::TypeIDBase, std::string>, DataBuffer>::iterator itFound =
-      idToBuffer_.find(std::make_pair(edm::TypeIDBase(iType), std::string(iLabel)));
+  auto itFound = idToBuffer_.find(std::make_pair(edm::TypeIDBase(iType), std::string(iLabel)));
   if (itFound == idToBuffer_.end()) {
     //first request
     DataBuffer buffer;
@@ -101,10 +100,7 @@ void RecordWriter::update(const void* iData, const std::type_info& iType, const 
 
 //call update before calling write
 void RecordWriter::fill(const edm::ESRecordAuxiliary& iValue) {
-  for (std::map<std::pair<edm::TypeIDBase, std::string>, DataBuffer>::iterator it = idToBuffer_.begin(),
-                                                                               itEnd = idToBuffer_.end();
-       it != itEnd;
-       ++it) {
+  for (auto it = idToBuffer_.begin(), itEnd = idToBuffer_.end(); it != itEnd; ++it) {
     if (nullptr == it->second.pBuffer_) {
       throw cms::Exception("MissingESData")
           << "The EventSetup data " << it->first.first.name() << " '" << it->first.second << "' was not supplied";
@@ -113,10 +109,7 @@ void RecordWriter::fill(const edm::ESRecordAuxiliary& iValue) {
 
   aux_ = iValue;
   tree_->Fill();
-  for (std::map<std::pair<edm::TypeIDBase, std::string>, DataBuffer>::iterator it = idToBuffer_.begin(),
-                                                                               itEnd = idToBuffer_.end();
-       it != itEnd;
-       ++it) {
+  for (auto it = idToBuffer_.begin(), itEnd = idToBuffer_.end(); it != itEnd; ++it) {
     it->second.pBuffer_ = nullptr;
   }
 }

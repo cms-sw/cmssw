@@ -135,7 +135,7 @@ bool TestHistoMgr::addHistoProf2(TProfile2D* sih) {
 TH1F* TestHistoMgr::getHisto1(int ih) {
   TH1F* his = nullptr;
 
-  mih1::const_iterator ite = theHistos1.find(ih);
+  auto ite = theHistos1.find(ih);
   if (ite != theHistos1.end()) {
     his = (*ite).second;
   } else {
@@ -147,7 +147,7 @@ TH1F* TestHistoMgr::getHisto1(int ih) {
 
 TH2F* TestHistoMgr::getHisto2(int ih) {
   TH2F* his = nullptr;
-  mih2::const_iterator ite = theHistos2.find(ih);
+  auto ite = theHistos2.find(ih);
   if (ite != theHistos2.end()) {
     his = (*ite).second;
   } else {
@@ -159,7 +159,7 @@ TH2F* TestHistoMgr::getHisto2(int ih) {
 
 TProfile* TestHistoMgr::getHistoProf1(int ih) {
   TProfile* his = nullptr;
-  mihp1::const_iterator ite = theHistoProfs1.find(ih);
+  auto ite = theHistoProfs1.find(ih);
   if (ite != theHistoProfs1.end()) {
     his = (*ite).second;
   } else {
@@ -171,7 +171,7 @@ TProfile* TestHistoMgr::getHistoProf1(int ih) {
 
 TProfile2D* TestHistoMgr::getHistoProf2(int ih) {
   TProfile2D* his = nullptr;
-  mihp2::const_iterator ite = theHistoProfs2.find(ih);
+  auto ite = theHistoProfs2.find(ih);
   if (ite != theHistoProfs2.end()) {
     his = (*ite).second;
   } else {

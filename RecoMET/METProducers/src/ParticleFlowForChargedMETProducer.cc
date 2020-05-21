@@ -24,7 +24,7 @@ void ParticleFlowForChargedMETProducer::produce(Event& iEvent, const EventSetup&
   //Get the PV collection
   Handle<VertexCollection> pvCollection;
   iEvent.getByToken(pvCollectionToken, pvCollection);
-  VertexCollection::const_iterator vertex = pvCollection->begin();
+  auto vertex = pvCollection->begin();
 
   //Get pfCandidates
   Handle<PFCandidateCollection> pfCandidates;

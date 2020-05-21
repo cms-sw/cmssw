@@ -46,7 +46,7 @@ CLHEP::Hep3Vector TBPositionCalc::CalculateTBPos(const std::vector<EBDetId> &upa
   CLHEP::Hep3Vector cmsPos = CalculateCMSPos(passedDetIds, myCrystal, passedRecHitsMap);
 
   // computing the rotation matrix (from CMS to TB)
-  CLHEP::HepRotation *CMStoTB = new CLHEP::HepRotation();
+  auto *CMStoTB = new CLHEP::HepRotation();
   computeRotation(myCrystal, (*CMStoTB));
 
   // moving to testbeam frame
@@ -66,7 +66,7 @@ CLHEP::Hep3Vector TBPositionCalc::CalculateCMSPos(const std::vector<EBDetId> &pa
   std::vector<EBDetId>::const_iterator myIt;
   for (myIt = passedDetIds.begin(); myIt != passedDetIds.end(); myIt++) {
     myId = (*myIt);
-    EcalRecHitCollection::const_iterator itt = passedRecHitsMap->find(myId);
+    auto itt = passedRecHitsMap->find(myId);
     thisEne = itt->energy();
     eTot += thisEne;
   }
@@ -93,7 +93,7 @@ CLHEP::Hep3Vector TBPositionCalc::CalculateCMSPos(const std::vector<EBDetId> &pa
   for (myIt2 = passedDetIds.begin(); myIt2 != passedDetIds.end(); myIt2++) {
     // getting weights
     myId = (*myIt2);
-    EcalRecHitCollection::const_iterator itj = passedRecHitsMap->find(myId);
+    auto itj = passedRecHitsMap->find(myId);
     double ener = itj->energy();
 
     if (param_LogWeighted_) {
@@ -145,13 +145,13 @@ void TBPositionCalc::computeRotation(int MyCrystal, CLHEP::HepRotation &CMStoTB)
   myTheta = 2.0 * atan(exp(-myEta));
 
   // matrix
-  CLHEP::HepRotation *fromCMStoTB = new CLHEP::HepRotation();
+  auto *fromCMStoTB = new CLHEP::HepRotation();
   double angle1 = 90. * deg - myPhi;
-  CLHEP::HepRotationZ *r1 = new CLHEP::HepRotationZ(angle1);
+  auto *r1 = new CLHEP::HepRotationZ(angle1);
   double angle2 = myTheta;
-  CLHEP::HepRotationX *r2 = new CLHEP::HepRotationX(angle2);
+  auto *r2 = new CLHEP::HepRotationX(angle2);
   double angle3 = 90. * deg;
-  CLHEP::HepRotationZ *r3 = new CLHEP::HepRotationZ(angle3);
+  auto *r3 = new CLHEP::HepRotationZ(angle3);
   (*fromCMStoTB) *= (*r3);
   (*fromCMStoTB) *= (*r2);
   (*fromCMStoTB) *= (*r1);

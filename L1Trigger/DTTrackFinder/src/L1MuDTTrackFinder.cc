@@ -81,14 +81,14 @@ L1MuDTTrackFinder::L1MuDTTrackFinder(const edm::ParameterSet& ps, edm::ConsumesC
 L1MuDTTrackFinder::~L1MuDTTrackFinder() {
   delete m_spmap;
 
-  vector<L1MuDTEtaProcessor*>::iterator it_ep = m_epvec.begin();
+  auto it_ep = m_epvec.begin();
   while (it_ep != m_epvec.end()) {
     delete (*it_ep);
     it_ep++;
   }
   m_epvec.clear();
 
-  vector<L1MuDTWedgeSorter*>::iterator it_ws = m_wsvec.begin();
+  auto it_ws = m_wsvec.begin();
   while (it_ws != m_wsvec.end()) {
     delete (*it_ws);
     it_ws++;
@@ -125,7 +125,7 @@ void L1MuDTTrackFinder::setup(edm::ConsumesCollector&& iC) {
       continue;
     for (int sc = 0; sc < 12; sc++) {
       L1MuDTSecProcId tmpspid(wh, sc);
-      L1MuDTSectorProcessor* sp = new L1MuDTSectorProcessor(*this, tmpspid, std::move(iC));
+      auto* sp = new L1MuDTSectorProcessor(*this, tmpspid, std::move(iC));
       if (m_config->Debug(2))
         cout << "creating " << tmpspid << endl;
       m_spmap->insert(tmpspid, sp);
@@ -134,11 +134,11 @@ void L1MuDTTrackFinder::setup(edm::ConsumesCollector&& iC) {
 
   // create new eta processors and wedge sorters
   for (int sc = 0; sc < 12; sc++) {
-    L1MuDTEtaProcessor* ep = new L1MuDTEtaProcessor(*this, sc, std::move(iC));
+    auto* ep = new L1MuDTEtaProcessor(*this, sc, std::move(iC));
     if (m_config->Debug(2))
       cout << "creating Eta Processor " << sc << endl;
     m_epvec.push_back(ep);
-    L1MuDTWedgeSorter* ws = new L1MuDTWedgeSorter(*this, sc);
+    auto* ws = new L1MuDTWedgeSorter(*this, sc);
     if (m_config->Debug(2))
       cout << "creating Wedge Sorter " << sc << endl;
     m_wsvec.push_back(ws);
@@ -182,7 +182,7 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
     reset();
 
     // run sector processors
-    L1MuDTSecProcMap::SPmap_iter it_sp = m_spmap->begin();
+    auto it_sp = m_spmap->begin();
     while (it_sp != m_spmap->end()) {
       if (m_config->Debug(2))
         cout << "running " << (*it_sp).second->id() << endl;
@@ -194,7 +194,7 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
     }
 
     // run eta processors
-    vector<L1MuDTEtaProcessor*>::iterator it_ep = m_epvec.begin();
+    auto it_ep = m_epvec.begin();
     while (it_ep != m_epvec.end()) {
       if (m_config->Debug(2))
         cout << "running Eta Processor " << (*it_ep)->id() << endl;
@@ -228,7 +228,7 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
     }
 
     // run wedge sorters
-    vector<L1MuDTWedgeSorter*>::iterator it_ws = m_wsvec.begin();
+    auto it_ws = m_wsvec.begin();
     while (it_ws != m_wsvec.end()) {
       if (m_config->Debug(2))
         cout << "running Wedge Sorter " << (*it_ws)->id() << endl;
@@ -263,21 +263,21 @@ void L1MuDTTrackFinder::run(const edm::Event& e, const edm::EventSetup& c) {
 // reset MTTF
 //
 void L1MuDTTrackFinder::reset() {
-  L1MuDTSecProcMap::SPmap_iter it_sp = m_spmap->begin();
+  auto it_sp = m_spmap->begin();
   while (it_sp != m_spmap->end()) {
     if ((*it_sp).second)
       (*it_sp).second->reset();
     it_sp++;
   }
 
-  vector<L1MuDTEtaProcessor*>::iterator it_ep = m_epvec.begin();
+  auto it_ep = m_epvec.begin();
   while (it_ep != m_epvec.end()) {
     if (*it_ep)
       (*it_ep)->reset();
     it_ep++;
   }
 
-  vector<L1MuDTWedgeSorter*>::iterator it_ws = m_wsvec.begin();
+  auto it_ws = m_wsvec.begin();
   while (it_ws != m_wsvec.end()) {
     if (*it_ws)
       (*it_ws)->reset();
@@ -312,7 +312,7 @@ void L1MuDTTrackFinder::clear() {
 //
 int L1MuDTTrackFinder::numberOfTracks(int bx) {
   int number = 0;
-  for (TFtracks_const_iter it = _cache.begin(); it != _cache.end(); it++) {
+  for (auto it = _cache.begin(); it != _cache.end(); it++) {
     if ((*it).bx() == bx)
       number++;
   }

@@ -35,7 +35,7 @@ using ns_nm_type = std::map<std::string, std::set<DDName>>;
 
 template <class T>
 std::ostream& operator<<(std::ostream& o, const std::set<T>& v) {
-  typename std::set<T>::const_iterator it(v.begin()), ed(v.end());
+  auto it(v.begin()), ed(v.end());
   for (; it != ed; ++it) {
     o << it->ddname() << ' ';
   }
@@ -45,7 +45,7 @@ std::ostream& operator<<(std::ostream& o, const std::set<T>& v) {
 template <class T>
 std::ostream& operator<<(std::ostream& o, const std::map<std::string, std::set<T>>& m) {
   typedef typename std::map<std::string, std::set<T>>::const_iterator c_it;
-  c_it it(m.begin()), ed(m.end());
+  auto it(m.begin()), ed(m.end());
   for (; it != ed; ++it) {
     o << it->first << ": " << it->second;
     o << std::endl;
@@ -56,7 +56,7 @@ std::ostream& operator<<(std::ostream& o, const std::map<std::string, std::set<T
 template <class T, class N>
 std::ostream& operator<<(std::ostream& o, const std::map<N, std::set<T>>& m) {
   typedef typename std::map<N, std::set<T>>::const_iterator c_it;
-  c_it it(m.begin()), ed(m.end());
+  auto it(m.begin()), ed(m.end());
   for (; it != ed; ++it) {
     o << it->first.ddname() << ": " << it->second;
     o << std::endl;

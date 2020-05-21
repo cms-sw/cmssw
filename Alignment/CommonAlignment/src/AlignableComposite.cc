@@ -269,7 +269,7 @@ Alignments* AlignableComposite::alignments(void) const {
 AlignmentErrorsExtended* AlignableComposite::alignmentErrors(void) const {
   // Recursively call alignmentsErrors, until we get to an AlignableDetUnit
 
-  AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();
+  auto* m_alignmentErrors = new AlignmentErrorsExtended();
 
   // Add components recursively
   for (const auto& i : this->components()) {

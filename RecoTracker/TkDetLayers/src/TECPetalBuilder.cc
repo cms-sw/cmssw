@@ -16,8 +16,7 @@ TECPetal* TECPetalBuilder::build(const GeometricDet* aTECPetal, const TrackerGeo
 
   TECWedgeBuilder myWedgeBuilder;
 
-  for (vector<const GeometricDet*>::const_iterator it = theGeometricWedges.begin(); it != theGeometricWedges.end();
-       it++) {
+  for (auto it = theGeometricWedges.begin(); it != theGeometricWedges.end(); it++) {
     if (std::abs((*it)->positionBounds().z()) < std::abs(meanZ))
       theInnerWedges.push_back(myWedgeBuilder.build(*it, theGeomDetGeometry));
 

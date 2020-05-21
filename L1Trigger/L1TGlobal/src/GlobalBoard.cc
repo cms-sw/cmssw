@@ -168,7 +168,7 @@ void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
 
         //Loop over EG in this bx
         int nObj = 0;
-        for (std::vector<l1t::EGamma>::const_iterator eg = egData->begin(i); eg != egData->end(i); ++eg) {
+        for (auto eg = egData->begin(i); eg != egData->end(i); ++eg) {
           if (nObj < nrL1EG) {
             (*m_candL1EG).push_back(i, &(*eg));
           } else {
@@ -206,7 +206,7 @@ void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
 
         //Loop over tau in this bx
         int nObj = 0;
-        for (std::vector<l1t::Tau>::const_iterator tau = tauData->begin(i); tau != tauData->end(i); ++tau) {
+        for (auto tau = tauData->begin(i); tau != tauData->end(i); ++tau) {
           if (nObj < nrL1Tau) {
             (*m_candL1Tau).push_back(i, &(*tau));
           } else {
@@ -245,7 +245,7 @@ void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
 
         //Loop over jet in this bx
         int nObj = 0;
-        for (std::vector<l1t::Jet>::const_iterator jet = jetData->begin(i); jet != jetData->end(i); ++jet) {
+        for (auto jet = jetData->begin(i); jet != jetData->end(i); ++jet) {
           if (nObj < nrL1Jet) {
             (*m_candL1Jet).push_back(i, &(*jet));
           } else {
@@ -281,7 +281,7 @@ void l1t::GlobalBoard::receiveCaloObjectData(edm::Event& iEvent,
           continue;
 
         //Loop over jet in this bx
-        for (std::vector<l1t::EtSum>::const_iterator etsum = etSumData->begin(i); etsum != etSumData->end(i); ++etsum) {
+        for (auto etsum = etSumData->begin(i); etsum != etSumData->end(i); ++etsum) {
           (*m_candL1EtSum).push_back(i, &(*etsum));
 
           /*  In case we need to split these out
@@ -362,7 +362,7 @@ void l1t::GlobalBoard::receiveMuonObjectData(edm::Event& iEvent,
 
         //Loop over Muons in this bx
         int nObj = 0;
-        for (std::vector<l1t::Muon>::const_iterator mu = muonData->begin(i); mu != muonData->end(i); ++mu) {
+        for (auto mu = muonData->begin(i); mu != muonData->end(i); ++mu) {
           if (nObj < nrL1Mu) {
             (*m_candL1Mu).push_back(i, &(*mu));
           } else {
@@ -414,7 +414,7 @@ void l1t::GlobalBoard::receiveExternalData(edm::Event& iEvent,
           continue;
 
         //Loop over ext in this bx
-        for (std::vector<GlobalExtBlk>::const_iterator ext = extData->begin(i); ext != extData->end(i); ++ext) {
+        for (auto ext = extData->begin(i); ext != extData->end(i); ++ext) {
           (*m_candL1External).push_back(i, &(*ext));
         }  //end loop over ext in bx
       }    //end loop over bx
@@ -472,14 +472,12 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
 
   int iChip = -1;
 
-  for (std::vector<ConditionMap>::const_iterator itCondOnChip = conditionMap.begin();
-       itCondOnChip != conditionMap.end();
-       itCondOnChip++) {
+  for (auto itCondOnChip = conditionMap.begin(); itCondOnChip != conditionMap.end(); itCondOnChip++) {
     iChip++;
 
     AlgorithmEvaluation::ConditionEvaluationMap& cMapResults = m_conditionResultMaps[iChip];
 
-    for (CItCond itCond = itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
+    for (auto itCond = itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
       // evaluate condition
       switch ((itCond->second)->condCategory()) {
         case CondMuon: {
@@ -527,7 +525,7 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
 
         } break;
         case CondEnergySum: {
-          EnergySumCondition* eSumCondition = new EnergySumCondition(itCond->second, this);
+          auto* eSumCondition = new EnergySumCondition(itCond->second, this);
 
           eSumCondition->setVerbosity(m_verbosity);
           eSumCondition->evaluateConditionStoreResult(iBxInEvent);
@@ -545,7 +543,7 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
         } break;
 
         case CondExternal: {
-          ExternalCondition* extCondition = new ExternalCondition(itCond->second, this);
+          auto* extCondition = new ExternalCondition(itCond->second, this);
 
           extCondition->setVerbosity(m_verbosity);
           extCondition->evaluateConditionStoreResult(iBxInEvent);
@@ -563,7 +561,7 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
         } break;
         case CondCorrelation: {
           // get first the sub-conditions
-          const CorrelationTemplate* corrTemplate = static_cast<const CorrelationTemplate*>(itCond->second);
+          const auto* corrTemplate = static_cast<const CorrelationTemplate*>(itCond->second);
           const GtConditionCategory cond0Categ = corrTemplate->cond0Category();
           const GtConditionCategory cond1Categ = corrTemplate->cond1Category();
           const int cond0Ind = corrTemplate->cond0Index();
@@ -628,8 +626,7 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
         } break;
         case CondCorrelationWithOverlapRemoval: {
           // get first the sub-conditions
-          const CorrelationWithOverlapRemovalTemplate* corrTemplate =
-              static_cast<const CorrelationWithOverlapRemovalTemplate*>(itCond->second);
+          const auto* corrTemplate = static_cast<const CorrelationWithOverlapRemovalTemplate*>(itCond->second);
           const GtConditionCategory cond0Categ = corrTemplate->cond0Category();
           const GtConditionCategory cond1Categ = corrTemplate->cond1Category();
           const GtConditionCategory cond2Categ = corrTemplate->cond2Category();
@@ -693,7 +690,7 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
             } break;
           }
 
-          CorrWithOverlapRemovalCondition* correlationCondWOR =
+          auto* correlationCondWOR =
               new CorrWithOverlapRemovalCondition(itCond->second, cond0Condition, cond1Condition, cond2Condition, this);
 
           correlationCondWOR->setVerbosity(m_verbosity);
@@ -731,7 +728,7 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
   if (produceL1GtObjectMapRecord && (iBxInEvent == 0))
     objMapVec.reserve(numberPhysTriggers);
 
-  for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
+  for (auto itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
     AlgorithmEvaluation gtAlg(itAlgo->second);
     gtAlg.evaluateAlgorithm((itAlgo->second).algoChipNumber(), m_conditionResultMaps);
 
@@ -815,9 +812,7 @@ void l1t::GlobalBoard::runGTL(edm::Event& iEvent,
   // loop over condition maps (one map per condition chip)
   // then loop over conditions in the map
   // delete the conditions created with new, zero pointer, do not clear map, keep the vector as is...
-  for (std::vector<AlgorithmEvaluation::ConditionEvaluationMap>::iterator itCondOnChip = m_conditionResultMaps.begin();
-       itCondOnChip != m_conditionResultMaps.end();
-       itCondOnChip++) {
+  for (auto itCondOnChip = m_conditionResultMaps.begin(); itCondOnChip != m_conditionResultMaps.end(); itCondOnChip++) {
     for (AlgorithmEvaluation::ItEvalMap itCond = itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
       delete itCond->second;
       itCond->second = nullptr;

@@ -318,8 +318,7 @@ namespace reco {
              ++recHitIterator) {
           // add selection if needed, now all hits.
           const SiPixelRecHit* recHit = &(*recHitIterator);
-          const PixelGeomDetUnit* pixelLayer =
-              dynamic_cast<const PixelGeomDetUnit*>(tGeo->idToDet(recHit->geographicalId()));
+          const auto* pixelLayer = dynamic_cast<const PixelGeomDetUnit*>(tGeo->idToDet(recHit->geographicalId()));
           GlobalPoint gpos = pixelLayer->toGlobal(recHit->localPosition());
           math::XYZVector rechitPos(gpos.x(), gpos.y(), gpos.z());
           double eta = rechitPos.eta();

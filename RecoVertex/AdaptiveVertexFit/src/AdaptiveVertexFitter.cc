@@ -284,7 +284,7 @@ vector<AdaptiveVertexFitter::RefCountedVertexTrack> AdaptiveVertexFitter::linear
     const vector<reco::TransientTrack>& tracks, const VertexState& seed) const {
   const GlobalPoint& linP(seed.position());
   vector<RefCountedLinearizedTrackState> lTracks;
-  for (vector<reco::TransientTrack>::const_iterator i = tracks.begin(); i != tracks.end(); ++i) {
+  for (auto i = tracks.begin(); i != tracks.end(); ++i) {
     try {
       RefCountedLinearizedTrackState lTrData = theLinTrkFactory->linearizedTrackState(linP, *i);
       lTracks.push_back(lTrData);
@@ -306,7 +306,7 @@ vector<AdaptiveVertexFitter::RefCountedVertexTrack> AdaptiveVertexFitter::reLine
   const VertexState& seed = vertex.vertexState();
   GlobalPoint linP = seed.position();
   vector<RefCountedLinearizedTrackState> lTracks;
-  for (vector<RefCountedVertexTrack>::const_iterator i = tracks.begin(); i != tracks.end(); i++) {
+  for (auto i = tracks.begin(); i != tracks.end(); i++) {
     try {
       RefCountedLinearizedTrackState lTrData =
           theLinTrkFactory->linearizedTrackState(linP, (**i).linearizedTrack()->track());
@@ -353,7 +353,7 @@ vector<AdaptiveVertexFitter::RefCountedVertexTrack> AdaptiveVertexFitter::reWeig
 #ifdef STORE_WEIGHTS
   iter++;
 #endif
-  for (vector<RefCountedLinearizedTrackState>::const_iterator i = lTracks.begin(); i != lTracks.end(); i++) {
+  for (auto i = lTracks.begin(); i != lTracks.end(); i++) {
     double weight = 0.;
     // cout << "[AdaptiveVertexFitter] estimate " << endl;
     pair<bool, double> chi2Res(false, 0.);
@@ -403,7 +403,7 @@ vector<AdaptiveVertexFitter::RefCountedVertexTrack> AdaptiveVertexFitter::weight
 #ifdef STORE_WEIGHTS
   iter++;
 #endif
-  for (vector<RefCountedLinearizedTrackState>::const_iterator i = lTracks.begin(); i != lTracks.end(); i++) {
+  for (auto i = lTracks.begin(); i != lTracks.end(); i++) {
     double weight = 0.;
     pair<bool, double> chi2Res = theComp->estimate(seedvtx, *i, std::distance(lTracks.begin(), i));
     if (!chi2Res.first) {
@@ -437,7 +437,7 @@ vector<AdaptiveVertexFitter::RefCountedVertexTrack> AdaptiveVertexFitter::weight
 vector<AdaptiveVertexFitter::RefCountedVertexTrack> AdaptiveVertexFitter::reWeightTracks(
     const vector<RefCountedVertexTrack>& tracks, const CachingVertex<5>& seed) const {
   vector<RefCountedLinearizedTrackState> lTracks;
-  for (vector<RefCountedVertexTrack>::const_iterator i = tracks.begin(); i != tracks.end(); i++) {
+  for (auto i = tracks.begin(); i != tracks.end(); i++) {
     lTracks.push_back((**i).linearizedTrack());
   }
 
@@ -509,7 +509,7 @@ CachingVertex<5> AdaptiveVertexFitter::fit(const vector<RefCountedVertexTrack>& 
     // cout << "[AdaptiveVertexFit] relinarized, reweighted" << endl;
     // update sequentially the vertex estimate
     CachingVertex<5> nVertex;
-    for (vector<RefCountedVertexTrack>::const_iterator i = globalVTracks.begin(); i != globalVTracks.end(); i++) {
+    for (auto i = globalVTracks.begin(); i != globalVTracks.end(); i++) {
       if ((**i).weight() > 0.)
         nVertex = theUpdator->add(fVertex, *i);
       else

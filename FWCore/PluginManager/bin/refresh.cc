@@ -47,7 +47,7 @@ namespace std {
   ostream& operator<<(std::ostream& o, vector<std::string> const& iValue) {
     std::string sep("");
     std::string commaSep(",");
-    for (std::vector<std::string>::const_iterator it = iValue.begin(), itEnd = iValue.end(); it != itEnd; ++it) {
+    for (auto it = iValue.begin(), itEnd = iValue.end(); it != itEnd; ++it) {
       o << sep << *it;
       sep = commaSep;
     }
@@ -171,8 +171,7 @@ int main(int argc, char** argv) try {
     } else {
       //we have files
       directory = directory.branch_path();
-      for (std::vector<std::string>::iterator it = requestedPaths.begin(), itEnd = requestedPaths.end(); it != itEnd;
-           ++it) {
+      for (auto it = requestedPaths.begin(), itEnd = requestedPaths.end(); it != itEnd; ++it) {
         boost::filesystem::path f(*it);
         if (!exists(f)) {
           std::cerr << "the file '" << f.string() << "' does not exist" << std::endl;
@@ -291,20 +290,20 @@ int main(int argc, char** argv) try {
     }
     CacheParser::read(icf, ltp);
 
-    for (CacheParser::LoadableToPlugins::iterator itFile = ltp.begin(); itFile != ltp.end(); ++itFile) {
+    for (auto itFile = ltp.begin(); itFile != ltp.end(); ++itFile) {
       old[itFile->first] = itFile->second;
     }
 
     // If required, we remove the plugins which are missing. Notice that old is
     // now the most updated copy of the cache.
     if (removeMissingFiles) {
-      for (CacheParser::LoadableToPlugins::iterator itFile = old.begin(); itFile != old.end();
+      for (auto itFile = old.begin(); itFile != old.end();
            /*don't advance the iterator here because it may have become invalid */) {
         path loadableFile(directory);
         loadableFile /= (itFile->first);
         if (not exists(loadableFile)) {
           std::cout << "removing file '" << temporaryFilename.c_str() << "'" << std::endl;
-          CacheParser::LoadableToPlugins::iterator itToItemBeingRemoved = itFile;
+          auto itToItemBeingRemoved = itFile;
           //advance the iterator while it is still valid
           ++itFile;
           old.erase(itToItemBeingRemoved);

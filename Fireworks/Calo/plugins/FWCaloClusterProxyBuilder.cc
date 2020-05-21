@@ -96,9 +96,7 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData,
   boxset->Reset(TEveBoxSet::kBT_FreeBox, true, 64);
   boxset->SetAntiFlick(true);
 
-  for (std::vector<std::pair<DetId, float>>::iterator it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
-       it != itEnd;
-       ++it) {
+  for (auto it = clusterDetIds.begin(), itEnd = clusterDetIds.end(); it != itEnd; ++it) {
     const uint8_t type = ((it->first >> 28) & 0xF);
 
     const float *corners = item()->getGeom()->getCorners(it->first);
@@ -144,7 +142,7 @@ void FWCaloClusterProxyBuilder::build(const reco::CaloCluster &iData,
 
       // seed
       if (iData.seed().rawId() == it->first.rawId()) {
-        TEveStraightLineSet *marker = new TEveStraightLineSet;
+        auto *marker = new TEveStraightLineSet;
         marker->SetLineWidth(1);
 
         // center of RecHit

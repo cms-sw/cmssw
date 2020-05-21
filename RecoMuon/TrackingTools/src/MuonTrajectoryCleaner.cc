@@ -197,16 +197,14 @@ void MuonTrajectoryCleaner::clean(TrajectoryContainer& trajC,
 
     int seedcnt(0);
 
-    for (map<int, vector<int> >::iterator itmap = seedmap.begin(); itmap != seedmap.end(); ++itmap, ++seedcnt) {
+    for (auto itmap = seedmap.begin(); itmap != seedmap.end(); ++itmap, ++seedcnt) {
       edm::RefToBase<TrajectorySeed> tmpSeedRef1 = trajC[(*itmap).first]->seedRef();
-      edm::Ref<L2MuonTrajectorySeedCollection> tmpL2SeedRef1 =
-          tmpSeedRef1.castTo<edm::Ref<L2MuonTrajectorySeedCollection> >();
+      auto tmpL2SeedRef1 = tmpSeedRef1.castTo<edm::Ref<L2MuonTrajectorySeedCollection> >();
 
       int tmpsize = (*itmap).second.size();
       for (int cnt = 0; cnt != tmpsize; ++cnt) {
         edm::RefToBase<TrajectorySeed> tmpSeedRef2 = trajC[(*itmap).second[cnt]]->seedRef();
-        edm::Ref<L2MuonTrajectorySeedCollection> tmpL2SeedRef2 =
-            tmpSeedRef2.castTo<edm::Ref<L2MuonTrajectorySeedCollection> >();
+        auto tmpL2SeedRef2 = tmpSeedRef2.castTo<edm::Ref<L2MuonTrajectorySeedCollection> >();
         seedToSeedsMap->insert(tmpL2SeedRef1, tmpL2SeedRef2);
       }
     }

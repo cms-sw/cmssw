@@ -94,9 +94,7 @@ std::ostream& operator<<(std::ostream& out, const PFEnergyCalibrationHF& calib) 
     return out;
   out << "PFEnergyCalibrationHF -- " << endl;
   int ii = 0;
-  for (std::vector<double>::const_iterator iteta = (calib.getcalibHF_eta_step()).begin();
-       iteta != (calib.getcalibHF_eta_step()).end();
-       ++iteta) {
+  for (auto iteta = (calib.getcalibHF_eta_step()).begin(); iteta != (calib.getcalibHF_eta_step()).end(); ++iteta) {
     //double currenteta = *iteta;
     out << " i " << ii << ",";
     out << "use " << calib.getcalibHF_use() << ",";

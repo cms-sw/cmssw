@@ -101,7 +101,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event& event,
     std::vector<const pat::CompositeCandidate*> collSelGT;
     std::vector<const pat::CompositeCandidate*> collSelTT;
     if (collAll.isValid()) {
-      for (std::vector<pat::CompositeCandidate>::const_iterator it = collAll->begin(); it != collAll->end(); ++it) {
+      for (auto it = collAll->begin(); it != collAll->end(); ++it) {
         const pat::CompositeCandidate* cand = &(*it);
         // cout << "Now checking candidate of type " << theJpsiCat << " with pt = " << cand->pt() << endl;
         const pat::Muon* muon1 = dynamic_cast<const pat::Muon*>(cand->daughter("muon1"));
@@ -185,7 +185,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event& event,
         // Take directly the muon
         muons = fillMuonCollection(*allMuons);
       } else {
-        for (std::vector<pat::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon) {
+        for (auto muon = allMuons->begin(); muon != allMuons->end(); ++muon) {
           //std::cout<<"pat muon is global "<<muon->isGlobalMuon()<<std::endl;
           takeSelectedMuonType(muon, tracks);
         }
@@ -198,7 +198,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event& event,
         // Take directly the muon
         muons = fillMuonCollection(*allMuons);
       } else {
-        for (std::vector<reco::Muon>::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon) {
+        for (auto muon = allMuons->begin(); muon != allMuons->end(); ++muon) {
           takeSelectedMuonType(muon, tracks);
         }
         muons = fillMuonCollection(tracks);
@@ -208,7 +208,7 @@ void MuScleFitMuonSelector::selectMuons(const edm::Event& event,
     edm::Handle<reco::CaloMuonCollection> caloMuons;
     event.getByLabel(muonLabel_, caloMuons);
     std::vector<reco::Track> tracks;
-    for (std::vector<reco::CaloMuon>::const_iterator muon = caloMuons->begin(); muon != caloMuons->end(); ++muon) {
+    for (auto muon = caloMuons->begin(); muon != caloMuons->end(); ++muon) {
       tracks.push_back(*(muon->track()));
     }
     muons = fillMuonCollection(tracks);
@@ -241,7 +241,7 @@ void MuScleFitMuonSelector::selectGeneratedMuons(const edm::Handle<pat::Composit
   reco::GenParticleCollection genPatParticles{};
 
   //explicitly for JPsi but can be adapted!!!!!
-  for (std::vector<pat::CompositeCandidate>::const_iterator it = collAll->begin(); it != collAll->end(); ++it) {
+  for (auto it = collAll->begin(); it != collAll->end(); ++it) {
     reco::GenParticleRef genJpsi = it->genParticleRef();
     bool isMatched = (genJpsi.isAvailable() && genJpsi->pdgId() == 443);
     if (isMatched) {
@@ -401,7 +401,7 @@ GenMuonPair MuScleFitMuonSelector::findGenMuFromRes(const reco::GenParticleColle
   //Loop on generated particles
   if (debug_ > 0)
     std::cout << "Starting loop on " << genParticles->size() << " genParticles" << std::endl;
-  for (reco::GenParticleCollection::const_iterator part = genParticles->begin(); part != genParticles->end(); ++part) {
+  for (auto part = genParticles->begin(); part != genParticles->end(); ++part) {
     if (debug_ > 0)
       std::cout << "genParticle has pdgId = " << std::abs(part->pdgId()) << " and status = " << part->status()
                 << std::endl;
@@ -457,7 +457,7 @@ std::pair<lorentzVector, lorentzVector> MuScleFitMuonSelector::findSimMuFromRes(
     const edm::Handle<edm::HepMCProduct>& evtMC, const edm::Handle<edm::SimTrackContainer>& simTracks) {
   //Loop on simulated tracks
   std::pair<lorentzVector, lorentzVector> simMuFromRes;
-  for (edm::SimTrackContainer::const_iterator simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
+  for (auto simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack) {
     //Chose muons
     if (std::abs((*simTrack).type()) == 13) {
       //If tracks from IP than find mother

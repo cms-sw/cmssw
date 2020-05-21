@@ -34,8 +34,7 @@ public:
 
     std::vector<edm::InputTag> corrInputTags = cfg.getParameter<std::vector<edm::InputTag> >("srcCorrections");
     std::vector<edm::EDGetTokenT<CorrMETData> > corrTokens;
-    for (std::vector<edm::InputTag>::const_iterator inputTag = corrInputTags.begin(); inputTag != corrInputTags.end();
-         ++inputTag) {
+    for (auto inputTag = corrInputTags.begin(); inputTag != corrInputTags.end(); ++inputTag) {
       corrTokens.push_back(consumes<CorrMETData>(*inputTag));
     }
 

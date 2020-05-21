@@ -649,7 +649,7 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
       const double newDx = fabs(recX - simX);
 
       // Associate SimHit to RecHit
-      SimToRecHitMap::const_iterator prevSimToReco = simToRecHitMap.find(simHit);
+      auto prevSimToReco = simToRecHitMap.find(simHit);
       if (prevSimToReco == simToRecHitMap.end()) {
         simToRecHitMap.insert(std::make_pair(simHit, recHitIter));
       } else {
@@ -721,7 +721,7 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
   h_.nMatchHitEndcap->Fill(nMatchHitEndcap);
 
   // Reco Muon hits
-  for (reco::MuonCollection::const_iterator muon = muonHandle->begin(); muon != muonHandle->end(); ++muon) {
+  for (auto muon = muonHandle->begin(); muon != muonHandle->end(); ++muon) {
     if (!muon->isGlobalMuon())
       continue;
 
@@ -729,7 +729,7 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
     int nRPCHitEndcap = 0;
 
     const reco::TrackRef glbTrack = muon->globalTrack();
-    for (trackingRecHit_iterator recHit = glbTrack->recHitsBegin(); recHit != glbTrack->recHitsEnd(); ++recHit) {
+    for (auto recHit = glbTrack->recHitsBegin(); recHit != glbTrack->recHitsEnd(); ++recHit) {
       if (!(*recHit)->isValid())
         continue;
       const DetId detId = (*recHit)->geographicalId();
@@ -829,7 +829,7 @@ void RPCRecHitValid::analyze(const edm::Event &event, const edm::EventSetup &eve
     const double recErrX = sqrt(recHitIter->localPositionError().xx());
 
     bool matched = false;
-    for (SimHitIter simHitIter = simHitHandle->begin(); simHitIter != simHitHandle->end(); ++simHitIter) {
+    for (auto simHitIter = simHitHandle->begin(); simHitIter != simHitHandle->end(); ++simHitIter) {
       const RPCDetId simDetId = static_cast<const RPCDetId>(simHitIter->detUnitId());
       const RPCRoll *simRoll = dynamic_cast<const RPCRoll *>(rpcGeom->roll(simDetId));
       if (!simRoll)

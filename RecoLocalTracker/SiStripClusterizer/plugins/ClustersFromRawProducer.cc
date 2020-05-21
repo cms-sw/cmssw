@@ -437,7 +437,7 @@ void ClusterFiller::fill(StripClusterizerAlgorithm::output_t::TSFastFiller& reco
             //rawAlgos_->suppressor->suppress( digis, zsdigis);
             uint16_t firstAPV = ipair * 2;
             rawAlgos.suppressProcessedRawData(id, firstAPV, digis, zsdigis);
-            for (edm::DetSet<SiStripDigi>::const_iterator it = zsdigis.begin(); it != zsdigis.end(); it++) {
+            for (auto it = zsdigis.begin(); it != zsdigis.end(); it++) {
               clusterizer.stripByStripAdd(state, it->strip(), it->adc(), record);
             }
           }

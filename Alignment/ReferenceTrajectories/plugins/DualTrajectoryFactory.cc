@@ -72,7 +72,7 @@ const DualTrajectoryFactory::ReferenceTrajectoryCollection DualTrajectoryFactory
                                  << "or fix this code to switch automatically as the ReferenceTrajectoryFactory does.";
   }
 
-  ConstTrajTrackPairCollection::const_iterator itTracks = tracks.begin();
+  auto itTracks = tracks.begin();
 
   while (itTracks != tracks.end()) {
     const DualTrajectoryInput input = this->referenceStateAndRecHits(*itTracks);
@@ -117,8 +117,8 @@ const DualTrajectoryFactory::ReferenceTrajectoryCollection DualTrajectoryFactory
                                  << "or fix this code to switch automatically as the ReferenceTrajectoryFactory does.";
   }
 
-  ConstTrajTrackPairCollection::const_iterator itTracks = tracks.begin();
-  ExternalPredictionCollection::const_iterator itExternal = external.begin();
+  auto itTracks = tracks.begin();
+  auto itExternal = external.begin();
 
   while (itTracks != tracks.end()) {
     const DualTrajectoryInput input = referenceStateAndRecHits(*itTracks);

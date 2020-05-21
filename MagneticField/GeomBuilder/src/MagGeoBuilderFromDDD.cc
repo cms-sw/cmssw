@@ -60,11 +60,11 @@ MagGeoBuilderFromDDD::MagGeoBuilderFromDDD(string tableSet_, int geometryVersion
 }
 
 MagGeoBuilderFromDDD::~MagGeoBuilderFromDDD() {
-  for (handles::const_iterator i = bVolumes.begin(); i != bVolumes.end(); ++i) {
+  for (auto i = bVolumes.begin(); i != bVolumes.end(); ++i) {
     delete (*i);
   }
 
-  for (handles::const_iterator i = eVolumes.begin(); i != eVolumes.end(); ++i) {
+  for (auto i = eVolumes.begin(); i != eVolumes.end(); ++i) {
     delete (*i);
   }
 }
@@ -80,10 +80,10 @@ void MagGeoBuilderFromDDD::summary(handles& volumes) {
 
   set<const void*> ptrs;
 
-  handles::const_iterator first = volumes.begin();
-  handles::const_iterator last = volumes.end();
+  auto first = volumes.begin();
+  auto last = volumes.end();
 
-  for (handles::const_iterator i = first; i != last; ++i) {
+  for (auto i = first; i != last; ++i) {
     if (int((*i)->shape()) > 4)
       continue;  // FIXME: implement test for missing shapes...
     for (int side = 0; side < 6; ++side) {
@@ -190,7 +190,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
 
     if (theGridFiles != nullptr) {
       int key = (v->volumeno) * 100 + v->copyno;
-      TableFileMap::const_iterator itable = theGridFiles->find(key);
+      auto itable = theGridFiles->find(key);
       if (itable == theGridFiles->end()) {
         key = (v->volumeno) * 100;
         itable = theGridFiles->find(key);
@@ -293,16 +293,16 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
   if (debug)
     cout << " R layers: " << rmin << " " << rmax << endl;
 
-  handles::const_iterator first = bVolumes.begin();
-  handles::const_iterator last = bVolumes.end();
+  auto first = bVolumes.begin();
+  auto last = bVolumes.end();
 
-  for (handles::const_iterator i = first; i != last; ++i) {
+  for (auto i = first; i != last; ++i) {
     hisR.fill((*i)->RN());
   }
   vector<float> rClust = hisR.clusterize(resolution);
 
-  handles::const_iterator ringStart = first;
-  handles::const_iterator separ = first;
+  auto ringStart = first;
+  auto separ = first;
 
   for (unsigned int i = 0; i < rClust.size() - 1; ++i) {
     if (debug)
@@ -333,7 +333,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
   float phireso = 0.05;  // rad
   ClusterizingHistogram hisPhi(int((Geom::ftwoPi()) / phireso) + 1, -Geom::fpi(), Geom::fpi());
 
-  for (handles::const_iterator i = eVolumes.begin(); i != eVolumes.end(); ++i) {
+  for (auto i = eVolumes.begin(); i != eVolumes.end(); ++i) {
     hisPhi.fill((*i)->minPhi());
   }
   vector<float> phiClust = hisPhi.clusterize(phireso);
@@ -347,14 +347,14 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
   // Handle the -pi/pi boundary: volumes crossing it could be half at the begin and half at end of the sorted list.
   // So, check if any of the volumes that should belong to the first bin (at -phi) are at the end of the list:
   float lastBinPhi = phiClust.back();
-  handles::reverse_iterator ri = eVolumes.rbegin();
+  auto ri = eVolumes.rbegin();
   while ((*ri)->center().phi() > lastBinPhi) {
     ++ri;
   }
   if (ri != eVolumes.rbegin()) {
     // ri points to the first element that is within the last bin.
     // We need to move the following element (ie ri.base()) to the beginning of the list,
-    handles::iterator newbeg = ri.base();
+    auto newbeg = ri.base();
     rotate(eVolumes.begin(), newbeg, eVolumes.end());
   }
 
@@ -365,8 +365,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
       cout << " Sector at phi = " << (*(eVolumes.begin() + ((i)*offset)))->center().phi() << endl;
       // Additional x-check: sectors are expected to be made by volumes with the same copyno
       int secCopyNo = -1;
-      for (handles::const_iterator iv = eVolumes.begin() + ((i)*offset); iv != eVolumes.begin() + ((i + 1) * offset);
-           ++iv) {
+      for (auto iv = eVolumes.begin() + ((i)*offset); iv != eVolumes.begin() + ((i + 1) * offset); ++iv) {
         if (secCopyNo >= 0 && (*iv)->copyno != secCopyNo)
           cout << "ERROR: volume copyno" << (*iv)->name << ":" << (*iv)->copyno
                << " differs from others in same sectors " << secCopyNo << endl;
@@ -421,7 +420,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
   buildMagVolumes(bVolumes, bInterpolators);
 
   // Build MagBLayers
-  for (vector<bLayer>::const_iterator ilay = layers.begin(); ilay != layers.end(); ++ilay) {
+  for (auto ilay = layers.begin(); ilay != layers.end(); ++ilay) {
     mBLayers.push_back((*ilay).buildMagBLayer());
   }
 
@@ -439,7 +438,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
   buildMagVolumes(eVolumes, eInterpolators);
 
   // Build the MagESectors
-  for (vector<eSector>::const_iterator isec = sectors.begin(); isec != sectors.end(); ++isec) {
+  for (auto isec = sectors.begin(); isec != sectors.end(); ++isec) {
     mESectors.push_back((*isec).buildMagESector());
   }
 
@@ -455,7 +454,7 @@ void MagGeoBuilderFromDDD::build(const DDCompactView& cpva) {
 
 void MagGeoBuilderFromDDD::buildMagVolumes(const handles& volumes, map<string, MagProviderInterpol*>& interpolators) {
   // Build all MagVolumes setting the MagProviderInterpol
-  for (handles::const_iterator vol = volumes.begin(); vol != volumes.end(); ++vol) {
+  for (auto vol = volumes.begin(); vol != volumes.end(); ++vol) {
     const MagProviderInterpol* mp = nullptr;
     if (interpolators.find((*vol)->magFile) != interpolators.end()) {
       mp = interpolators[(*vol)->magFile];
@@ -468,7 +467,7 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles& volumes, map<string, M
     // Search for [volume,sector] in the list of scaling factors; sector = 0 handled as wildcard
     // ASSUMPTION: copyno == sector.
     int key = ((*vol)->volumeno) * 100 + (*vol)->copyno;
-    map<int, double>::const_iterator isf = theScalingFactors.find(key);
+    auto isf = theScalingFactors.find(key);
     if (isf == theScalingFactors.end()) {
       key = ((*vol)->volumeno) * 100;
       isf = theScalingFactors.find(key);
@@ -598,8 +597,8 @@ void MagGeoBuilderFromDDD::testInside(handles& volumes) {
   // test inside() for all volumes.
   cout << "--------------------------------------------------" << endl;
   cout << " inside(center) test" << endl;
-  for (handles::const_iterator vol = volumes.begin(); vol != volumes.end(); ++vol) {
-    for (handles::const_iterator i = volumes.begin(); i != volumes.end(); ++i) {
+  for (auto vol = volumes.begin(); vol != volumes.end(); ++vol) {
+    for (auto i = volumes.begin(); i != volumes.end(); ++i) {
       if ((*i) == (*vol))
         continue;
       //if ((*i)->magVolume == 0) continue;
@@ -625,7 +624,7 @@ vector<MagESector*> MagGeoBuilderFromDDD::endcapSectors() const { return mESecto
 vector<MagVolume6Faces*> MagGeoBuilderFromDDD::barrelVolumes() const {
   vector<MagVolume6Faces*> v;
   v.reserve(bVolumes.size());
-  for (handles::const_iterator i = bVolumes.begin(); i != bVolumes.end(); ++i) {
+  for (auto i = bVolumes.begin(); i != bVolumes.end(); ++i) {
     v.push_back((*i)->magVolume);
   }
   return v;
@@ -634,7 +633,7 @@ vector<MagVolume6Faces*> MagGeoBuilderFromDDD::barrelVolumes() const {
 vector<MagVolume6Faces*> MagGeoBuilderFromDDD::endcapVolumes() const {
   vector<MagVolume6Faces*> v;
   v.reserve(eVolumes.size());
-  for (handles::const_iterator i = eVolumes.begin(); i != eVolumes.end(); ++i) {
+  for (auto i = eVolumes.begin(); i != eVolumes.end(); ++i) {
     v.push_back((*i)->magVolume);
   }
   return v;

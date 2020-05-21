@@ -305,7 +305,7 @@ reco::SingleTauDiscriminatorContainer TauDiscriminantCutMultiplexerT<TauType, Ta
     if (raw_category_idx_ >= 0)
       result.rawValues[raw_category_idx_] = key_result;
   }
-  typename DiscriminantCutMap::const_iterator cutWPsIter = cuts_.find(std::round(key_result));
+  auto cutWPsIter = cuts_.find(std::round(key_result));
 
   // Return null if it doesn't exist
   if (cutWPsIter == cuts_.end()) {

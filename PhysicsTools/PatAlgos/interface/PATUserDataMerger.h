@@ -105,8 +105,7 @@ pat::PATUserDataMerger<ObjectType, Operation>::PATUserDataMerger(const edm::Para
       labelPostfixesToStrip_(iConfig.existsAs<std::vector<std::string>>("labelPostfixesToStrip")
                                  ? iConfig.getParameter<std::vector<std::string>>("labelPostfixesToStrip")
                                  : std::vector<std::string>()) {
-  for (std::vector<edm::InputTag>::const_iterator input_it = userDataSrc_.begin(); input_it != userDataSrc_.end();
-       ++input_it) {
+  for (auto input_it = userDataSrc_.begin(); input_it != userDataSrc_.end(); ++input_it) {
     userDataSrcTokens_.push_back(iC.consumes<typename Operation::product_type>(*input_it));
   }
   for (edm::InputTag tag : userDataSrc_) {  // copy by value
@@ -140,9 +139,8 @@ template <class ObjectType, typename Operation>
 void pat::PATUserDataMerger<ObjectType, Operation>::add(ObjectType &patObject,
                                                         edm::Event const &iEvent,
                                                         const edm::EventSetup &iSetup) {
-  typename std::vector<edm::EDGetTokenT<typename Operation::product_type>>::const_iterator
-      token_begin = userDataSrcTokens_.begin(),
-      token_it = userDataSrcTokens_.begin(), token_end = userDataSrcTokens_.end();
+  auto token_begin = userDataSrcTokens_.begin(), token_it = userDataSrcTokens_.begin(),
+       token_end = userDataSrcTokens_.end();
 
   for (; token_it != token_end; ++token_it) {
     const std::string &encoded = (labels_.at(token_it - token_begin));

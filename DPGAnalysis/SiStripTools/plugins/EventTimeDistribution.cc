@@ -125,8 +125,7 @@ EventTimeDistribution::EventTimeDistribution(const edm::ParameterSet& iConfig)
   std::vector<edm::ParameterSet> dbxhistoparams(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >(
       "dbxHistosParams", std::vector<edm::ParameterSet>()));
 
-  for (std::vector<edm::ParameterSet>::const_iterator params = dbxhistoparams.begin(); params != dbxhistoparams.end();
-       ++params) {
+  for (auto params = dbxhistoparams.begin(); params != dbxhistoparams.end(); ++params) {
     m_dbxindices.push_back(std::pair<unsigned int, unsigned int>(params->getParameter<unsigned int>("firstEvent"),
                                                                  params->getParameter<unsigned int>("secondEvent")));
     char hname[300];
@@ -189,9 +188,8 @@ void EventTimeDistribution::analyze(const edm::Event& iEvent, const edm::EventSe
   // improve the matchin between default and actual partitions
 
   (*_dbx)->Fill(he->deltaBX());
-  std::vector<std::pair<unsigned int, unsigned int> >::const_iterator indices = m_dbxindices.begin();
-  for (std::vector<TH1F**>::const_iterator dbxhist = m_dbxhistos.begin(); dbxhist != m_dbxhistos.end();
-       ++dbxhist, ++indices) {
+  auto indices = m_dbxindices.begin();
+  for (auto dbxhist = m_dbxhistos.begin(); dbxhist != m_dbxhistos.end(); ++dbxhist, ++indices) {
     (*(*dbxhist))->Fill(he->deltaBX(indices->first, indices->second));
   }
 
@@ -233,7 +231,7 @@ void EventTimeDistribution::beginRun(const edm::Run& iRun, const edm::EventSetup
   }
 
   LogDebug("NomberOfHistos") << m_dbxhistos.size();
-  for (std::vector<TH1F**>::const_iterator dbxhist = m_dbxhistos.begin(); dbxhist != m_dbxhistos.end(); ++dbxhist) {
+  for (auto dbxhist = m_dbxhistos.begin(); dbxhist != m_dbxhistos.end(); ++dbxhist) {
     LogDebug("HistoPointer") << *dbxhist;
     if (*(*dbxhist)) {
       (*(*dbxhist))->GetXaxis()->SetTitle("#DeltaBX");

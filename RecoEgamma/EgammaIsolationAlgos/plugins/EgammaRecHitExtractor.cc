@@ -131,7 +131,7 @@ reco::IsoDeposit EgammaRecHitExtractor::deposit(const edm::Event& iEvent,
   iEvent.getByToken(endcapEcalHitsToken_, endcapEcalRecHitsH);
 
   //define isodeposit starting from candidate
-  reco::SuperClusterRef sc = emObject.get<reco::SuperClusterRef>();
+  auto sc = emObject.get<reco::SuperClusterRef>();
   math::XYZPoint caloPosition = sc->position();
 
   Direction candDir(caloPosition.eta(), caloPosition.phi());
@@ -169,14 +169,14 @@ void EgammaRecHitExtractor::collect(reco::IsoDeposit& deposit,
                                     bool barrel) const {
   GlobalPoint caloPosition(sc->position().x(), sc->position().y(), sc->position().z());
   CaloSubdetectorGeometry::DetIdSet chosen = subdet->getCells(caloPosition, extRadius_);
-  EcalRecHitCollection::const_iterator j = hits.end();
+  auto j = hits.end();
   double caloeta = caloPosition.eta();
   double calophi = caloPosition.phi();
   double r2 = intRadius_ * intRadius_;
 
   std::vector<std::pair<DetId, float> >::const_iterator rhIt;
 
-  for (CaloSubdetectorGeometry::DetIdSet::const_iterator i = chosen.begin(), end = chosen.end(); i != end; ++i) {
+  for (auto i = chosen.begin(), end = chosen.end(); i != end; ++i) {
     j = hits.find(*i);
     if (j != hits.end()) {
       const GlobalPoint& position = caloGeom->getPosition(*i);

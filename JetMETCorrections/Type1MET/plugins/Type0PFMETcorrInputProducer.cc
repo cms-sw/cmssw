@@ -50,8 +50,7 @@ void Type0PFMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup
     const PFCandQualityPairVector& pfCandidates_vertex = pfCandidateToVertexAssociation->val;
 
     bool isHardScatterVertex = false;
-    for (reco::VertexCollection::const_iterator hardScatterVertex_i = hardScatterVertex->begin();
-         hardScatterVertex_i != hardScatterVertex->end();
+    for (auto hardScatterVertex_i = hardScatterVertex->begin(); hardScatterVertex_i != hardScatterVertex->end();
          ++hardScatterVertex_i) {
       if (TMath::Abs(vertex->position().z() - hardScatterVertex_i->position().z()) < minDz_) {
         isHardScatterVertex = true;
@@ -61,8 +60,7 @@ void Type0PFMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup
 
     if (!isHardScatterVertex) {
       reco::Candidate::LorentzVector sumChargedPFCandP4_vertex;
-      for (PFCandQualityPairVector::const_iterator pfCandidate_vertex = pfCandidates_vertex.begin();
-           pfCandidate_vertex != pfCandidates_vertex.end();
+      for (auto pfCandidate_vertex = pfCandidates_vertex.begin(); pfCandidate_vertex != pfCandidates_vertex.end();
            ++pfCandidate_vertex) {
         const reco::PFCandidate& pfCandidate = (*pfCandidate_vertex->first);
         if (pfCandidate.particleId() == reco::PFCandidate::h || pfCandidate.particleId() == reco::PFCandidate::e ||

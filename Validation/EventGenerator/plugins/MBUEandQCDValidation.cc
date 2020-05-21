@@ -843,10 +843,10 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   unsigned int nJets = 0;
   double pt1 = 0.;
   double pt2 = 0.;
-  reco::GenJetCollection::const_iterator ij1 = genChJets->begin();
-  reco::GenJetCollection::const_iterator ij2 = genChJets->begin();
+  auto ij1 = genChJets->begin();
+  auto ij2 = genChJets->begin();
   if (sel2) {
-    for (reco::GenJetCollection::const_iterator iter = genChJets->begin(); iter != genChJets->end(); ++iter) {
+    for (auto iter = genChJets->begin(); iter != genChJets->end(); ++iter) {
       double eta = (*iter).eta();
       double pt = (*iter).pt();
       if (verbosity_ > 0) {
@@ -904,9 +904,9 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   double jm80pt3 = 0.;
   double jm80pt4 = 0.;
 
-  reco::GenJetCollection::const_iterator ij3 = genJets->begin();
+  auto ij3 = genJets->begin();
   if (sel6) {
-    for (reco::GenJetCollection::const_iterator iter = genJets->begin(); iter != genJets->end(); ++iter) {
+    for (auto iter = genJets->begin(); iter != genJets->end(); ++iter) {
       double eta = (*iter).eta();
       double pt = (*iter).pt();
       if (verbosity_ > 0) {
@@ -1030,7 +1030,7 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent, const edm::EventSet
           sumChPt->Fill(sumChPartPt, weight);
 
           unsigned int nSelJets = 0;
-          for (reco::GenJetCollection::const_iterator iter = genJets->begin(); iter != genJets->end(); ++iter) {
+          for (auto iter = genJets->begin(); iter != genJets->end(); ++iter) {
             double pt = (*iter).pt();
             double eta = (*iter).eta();
             if (std::fabs(eta) < 5.) {
@@ -1095,8 +1095,7 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent, const edm::EventSet
   double sumEt4 = 0.;
   double sumEt5 = 0.;
 
-  for (std::vector<const HepMC::GenParticle*>::const_iterator iter = allStable.begin(); iter != allStable.end();
-       ++iter) {
+  for (auto iter = allStable.begin(); iter != allStable.end(); ++iter) {
     double thisEta = fabs((*iter)->momentum().eta());
 
     if (thisEta < 5.) {

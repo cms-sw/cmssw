@@ -80,9 +80,7 @@ void CandidateTriggerObjectProducer::produce(edm::Event& iEvent, const edm::Even
   std::map<std::string, bool> triggerInMenu;
   std::map<std::string, bool> triggerUnprescaled;
 
-  for (std::vector<std::string>::const_iterator iHLT = activeHLTPathsInThisEvent.begin();
-       iHLT != activeHLTPathsInThisEvent.end();
-       ++iHLT) {
+  for (auto iHLT = activeHLTPathsInThisEvent.begin(); iHLT != activeHLTPathsInThisEvent.end(); ++iHLT) {
     //matching with regexp filter name. More than 1 matching filter is allowed
     if (TString(*iHLT).Contains(TRegexp(TString(triggerName_)))) {
       triggerInMenu[*iHLT] = true;
@@ -92,8 +90,7 @@ void CandidateTriggerObjectProducer::produce(edm::Event& iEvent, const edm::Even
     }
   }
 
-  for (std::map<std::string, bool>::const_iterator iMyHLT = triggerInMenu.begin(); iMyHLT != triggerInMenu.end();
-       ++iMyHLT) {
+  for (auto iMyHLT = triggerInMenu.begin(); iMyHLT != triggerInMenu.end(); ++iMyHLT) {
     //using only unprescaled triggers
     if (!(iMyHLT->second && triggerUnprescaled[iMyHLT->first]))
       continue;

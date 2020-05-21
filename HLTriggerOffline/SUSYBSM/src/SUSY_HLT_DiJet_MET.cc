@@ -167,8 +167,7 @@ void SUSY_HLT_DiJet_MET::analyze(edm::Event const &e, edm::EventSetup const &eSe
     int offlineCentralJets = 0;
     int nMatch = 0, jet1Index = -1, jet2Index = -1;
 
-    for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end();
-         ++i_pfjet) {
+    for (auto i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end(); ++i_pfjet) {
       if (i_pfjet->pt() > ptThrJet_ && fabs(i_pfjet->eta()) < etaThrJet_) {
         offlineCentralJets++;
         if (offlineCentralJets == 2 && pfMETCollection->begin()->et() > metCut_)

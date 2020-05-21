@@ -112,7 +112,7 @@ Alignments* AlignableBeamSpot::alignments() const {
 
 //__________________________________________________________________________________________________
 AlignmentErrorsExtended* AlignableBeamSpot::alignmentErrors(void) const {
-  AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();
+  auto* m_alignmentErrors = new AlignmentErrorsExtended();
 
   // Add associated alignment position error
   uint32_t detId = theId;

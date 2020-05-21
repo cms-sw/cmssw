@@ -37,8 +37,7 @@ namespace edm {
       : recordName_(pset.getParameter<std::string>("recordName")),
         iovIsTime_(!pset.getParameter<bool>("iovIsRunNotTime")) {
     std::vector<unsigned int> temp(pset.getParameter<std::vector<unsigned int>>("firstValid"));
-    for (std::vector<unsigned int>::iterator itValue = temp.begin(), itValueEnd = temp.end(); itValue != itValueEnd;
-         ++itValue) {
+    for (auto itValue = temp.begin(), itValueEnd = temp.end(); itValue != itValueEnd; ++itValue) {
       if (iovIsTime_) {
         setOfIOV_.insert(IOVSyncValue(Timestamp(*itValue)));
       } else {

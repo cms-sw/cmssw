@@ -181,7 +181,7 @@ void GeometryInterface::loadFromTopology(const TrackerGeometry& trackerGeometry,
 
     // we record each module 4 times, one for each corner, so we also get ROCs
     // in booking (at least for the ranges)
-    const PixelGeomDetUnit* detUnit = dynamic_cast<const PixelGeomDetUnit*>(trackerGeometry.idToDetUnit(id));
+    const auto* detUnit = dynamic_cast<const PixelGeomDetUnit*>(trackerGeometry.idToDetUnit(id));
     assert(detUnit);
     const PixelTopology* topo = &detUnit->specificTopology();
     iq.row = 0;

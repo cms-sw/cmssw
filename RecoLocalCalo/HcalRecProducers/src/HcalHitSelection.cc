@@ -78,9 +78,9 @@ void HcalHitSelection::skim(const edm::Handle<CollectionType>& input,
                             CollectionType& output,
                             int severityThreshold) const {
   output.reserve(input->size());
-  typename CollectionType::const_iterator begin = input->begin();
-  typename CollectionType::const_iterator end = input->end();
-  typename CollectionType::const_iterator hit = begin;
+  auto begin = input->begin();
+  auto end = input->end();
+  auto hit = begin;
 
   for (; hit != end; ++hit) {
     //    edm::LogError("HcalHitSelection")<<"the hit pointer is"<<&(*hit);

@@ -95,7 +95,7 @@ void VertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   if (pvHandle.isValid()) {
     totalNumPV = pvHandle->size();
     //      std::cout << "totalNumPV : " << totalNumPV << std::endl;
-    for (reco::VertexCollection::const_iterator pv = pvHandle->begin(); pv != pvHandle->end(); ++pv) {
+    for (auto pv = pvHandle->begin(); pv != pvHandle->end(); ++pv) {
       //--- count pv w/ ndof < 4
       if (pv->ndof() < 4.)
         totalNumBADndofPV++;
@@ -149,7 +149,7 @@ void VertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       chi2ndf = pv.normalizedChi2();
       chi2prob = TMath::Prob(pv.chi2(), (int)pv.ndof());
 
-      for (reco::Vertex::trackRef_iterator itrk = pv.tracks_begin(); itrk != pv.tracks_end(); ++itrk) {
+      for (auto itrk = pv.tracks_begin(); itrk != pv.tracks_end(); ++itrk) {
         double pt = (**itrk).pt();
         sumpt += pt * pt;
       }

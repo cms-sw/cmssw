@@ -64,9 +64,7 @@ void CompareToObjectMapRecord::analyze(edm::Event const &event, edm::EventSetup 
   std::vector<int> algoBitNumbers1;
   std::vector<L1GlobalTriggerObjectMap> const &vectorInRecord = gtObjectMapRecord->gtObjectMap();
   algoBitNumbers1.reserve(vectorInRecord.size());
-  for (std::vector<L1GlobalTriggerObjectMap>::const_iterator i = vectorInRecord.begin(), iEnd = vectorInRecord.end();
-       i != iEnd;
-       ++i) {
+  for (auto i = vectorInRecord.begin(), iEnd = vectorInRecord.end(); i != iEnd; ++i) {
     algoBitNumbers1.push_back(i->algoBitNumber());
     if (verbose_) {
       // This will print out all the data from the
@@ -103,9 +101,7 @@ void CompareToObjectMapRecord::analyze(edm::Event const &event, edm::EventSetup 
   }
 
   // Main loop over algorithms
-  for (std::vector<int>::const_iterator iBit = algoBitNumbers1.begin(), endBits = algoBitNumbers1.end();
-       iBit != endBits;
-       ++iBit) {
+  for (auto iBit = algoBitNumbers1.begin(), endBits = algoBitNumbers1.end(); iBit != endBits; ++iBit) {
     L1GlobalTriggerObjectMap const *objMap = gtObjectMapRecord->getObjectMap(*iBit);
     const std::string &algoName1 = objMap->algoName();
 
@@ -158,9 +154,7 @@ void CompareToObjectMapRecord::analyze(edm::Event const &event, edm::EventSetup 
 
     // Loop over conditions
     unsigned iCondition = 0;
-    for (std::vector<L1GtLogicParser::OperandToken>::const_iterator iToken1 = operandTokens1.begin(),
-                                                                    endTokens1 = operandTokens1.end();
-         iToken1 != endTokens1;
+    for (auto iToken1 = operandTokens1.begin(), endTokens1 = operandTokens1.end(); iToken1 != endTokens1;
          ++iToken1, ++iCondition) {
       // Compare condition numbers
       if (iToken1->tokenNumber != static_cast<int>(iCondition)) {
@@ -198,9 +192,7 @@ void CompareToObjectMapRecord::analyze(edm::Event const &event, edm::EventSetup 
         throw ex;
       }
 
-      for (CombinationsInCond::const_iterator iCombo = combinations1->begin(), endCombos = combinations1->end();
-           iCombo != endCombos;
-           ++iCombo) {
+      for (auto iCombo = combinations1->begin(), endCombos = combinations1->end(); iCombo != endCombos; ++iCombo) {
         if (iCombo->size() != combinations2.nObjectsPerCombination()) {
           cms::Exception ex("L1GlobalTrigger");
           ex << "The number of indexes in a combination does not match";
@@ -208,9 +200,7 @@ void CompareToObjectMapRecord::analyze(edm::Event const &event, edm::EventSetup 
           throw ex;
         }
 
-        for (std::vector<int>::const_iterator iIndex = iCombo->begin(), endIndexes = iCombo->end();
-             iIndex != endIndexes;
-             ++iIndex) {
+        for (auto iIndex = iCombo->begin(), endIndexes = iCombo->end(); iIndex != endIndexes; ++iIndex) {
           if (*iIndex != combinations2.getObjectIndex(iCombo - combinations1->begin(), iIndex - iCombo->begin())) {
             cms::Exception ex("L1GlobalTrigger");
             ex << "Object index does not match";

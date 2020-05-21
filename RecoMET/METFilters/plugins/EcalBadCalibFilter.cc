@@ -91,7 +91,7 @@ bool EcalBadCalibFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::Ev
       continue;
 
     // find rechit corresponding to this DetId
-    EcalRecHitCollection::const_iterator ecalhit = ecalRHs->find(ecaldet);
+    auto ecalhit = ecalRHs->find(ecaldet);
 
     if (ecalhit == ecalRHs->end())
       continue;

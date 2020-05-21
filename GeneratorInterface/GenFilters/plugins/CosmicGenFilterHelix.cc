@@ -332,8 +332,8 @@ void CosmicGenFilterHelix::endJob() {
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 bool CosmicGenFilterHelix::charge(int id, int &charge) const {
-  std::vector<int>::const_iterator iC = theCharges.begin();
-  for (std::vector<int>::const_iterator i = theIds.begin(), end = theIds.end(); i != end; ++i, ++iC) {
+  auto iC = theCharges.begin();
+  for (auto i = theIds.begin(), end = theIds.end(); i != end; ++i, ++iC) {
     if (*i == id) {
       charge = *iC;
       return true;

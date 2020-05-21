@@ -77,7 +77,7 @@ void RPCMonitorLinkSynchro::analyze(const edm::Event& ev, const edm::EventSetup&
   const RPCRawSynchro::ProdItem& vItem = select(*synchroCounts.product(), ev, es);
   theSynchroStat.add(vItem, problems);
 
-  for (std::vector<LinkBoardElectronicIndex>::const_iterator it = problems.begin(); it != problems.end(); ++it) {
+  for (auto it = problems.begin(); it != problems.end(); ++it) {
     me_notComplete[it->dccId - 790]->Fill(it->dccInputChannelNum, it->tbLinkInputNum);
   }
 }

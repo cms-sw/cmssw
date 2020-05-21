@@ -101,8 +101,7 @@ void PFRecoTauTagInfoProducer::produce(edm::StreamID, edm::Event& iEvent, const 
   }
 
   auto resultExt = std::make_unique<PFTauTagInfoCollection>();
-  for (JetTracksAssociationCollection::const_iterator iAssoc = thePFJetTracksAssociatorCollection->begin();
-       iAssoc != thePFJetTracksAssociatorCollection->end();
+  for (auto iAssoc = thePFJetTracksAssociatorCollection->begin(); iAssoc != thePFJetTracksAssociatorCollection->end();
        iAssoc++) {
     PFTauTagInfo myPFTauTagInfo = PFRecoTauTagInfoAlgo_->buildPFTauTagInfo(
         JetBaseRef((*iAssoc).first), thePFCandsInTheEvent, (*iAssoc).second, thePV);

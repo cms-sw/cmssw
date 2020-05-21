@@ -134,7 +134,7 @@ void DTChamberEfficiency::analyze(const Event& event, const EventSetup& eventSet
     const MagneticField* magneticField = theService->magneticField().product();
 
     //loop over the muons
-    for (reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); ++track) {
+    for (auto track = tracks->begin(); track != tracks->end(); ++track) {
       reco::TransientTrack trans_track(*track, magneticField, globalTrackingGeometry);
       const int recHitsize = (int)trans_track.recHitsSize();
       if (recHitsize < theMinNrec)
@@ -144,7 +144,7 @@ void DTChamberEfficiency::analyze(const Event& event, const EventSetup& eventSet
       if (debug) {
         LogTrace("DTDQM|DTMonitorModule|DTChamberEfficiency") << "--- New track" << endl;
         set<DTChamberId> chAlrUsed;
-        for (trackingRecHit_iterator rHit = trans_track.recHitsBegin(); rHit != trans_track.recHitsEnd(); ++rHit) {
+        for (auto rHit = trans_track.recHitsBegin(); rHit != trans_track.recHitsEnd(); ++rHit) {
           DetId rHitid = (*rHit)->geographicalId();
           if (!(rHitid.det() == DetId::Muon && rHitid.subdetId() == MuonSubdetId::DT))
             continue;
@@ -243,16 +243,13 @@ bool DTChamberEfficiency::chamberSelection(const DetId& idDetLay, reco::Transien
 MeasurementContainer DTChamberEfficiency::segQualityCut(const MeasurementContainer& seg_list) const {
   MeasurementContainer result;
 
-  for (MeasurementContainer::const_iterator mescont_Itr = seg_list.begin(); mescont_Itr != seg_list.end();
-       ++mescont_Itr) {
+  for (auto mescont_Itr = seg_list.begin(); mescont_Itr != seg_list.end(); ++mescont_Itr) {
     //get the rechits of the segment
     TransientTrackingRecHit::ConstRecHitContainer recHit_list = mescont_Itr->recHit()->transientHits();
 
     //loop over the rechits and get the number of hits
     int nhit_seg(0);
-    for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator recList_Itr = recHit_list.begin();
-         recList_Itr != recHit_list.end();
-         ++recList_Itr) {
+    for (auto recList_Itr = recHit_list.begin(); recList_Itr != recHit_list.end(); ++recList_Itr) {
       nhit_seg += (int)(*recList_Itr)->transientHits().size();
     }
 

@@ -63,7 +63,7 @@ std::string EcalClusterCrackCorrXMLTranslator::dumpXML(const EcalCondHeader& hea
   const std::string ECCC_tag[4] = {"IPCloseEtaSide", "IPFarEtaSide", "IPClosePhiSide", "IPFarPhiSide"};
   ;
   int num = 0;
-  for (EcalFunctionParameters::const_iterator it = record.params().begin(); it != record.params().end(); ++it) {
+  for (auto it = record.params().begin(); it != record.params().end(); ++it) {
     int side = num / 5;
     int par = num % 5;
     std::string s;

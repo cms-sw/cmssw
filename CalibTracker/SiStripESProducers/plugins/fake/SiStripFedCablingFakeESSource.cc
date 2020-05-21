@@ -38,7 +38,7 @@ SiStripFedCabling* SiStripFedCablingFakeESSource::make(const SiStripFedCablingRc
                                  << " from real DetIds and FedIds (read from ascii file)";
 
   // Create FEC cabling object
-  SiStripFecCabling* fec_cabling = new SiStripFecCabling();
+  auto* fec_cabling = new SiStripFecCabling();
 
   // Read DetId list from file
   typedef std::vector<uint32_t> Dets;
@@ -52,8 +52,8 @@ SiStripFedCabling* SiStripFedCablingFakeESSource::make(const SiStripFedCablingRc
 
   // Iterator through DetInfo objects and populate FEC cabling object
   uint32_t imodule = 0;
-  Dets::const_iterator idet = dets.begin();
-  Dets::const_iterator jdet = dets.end();
+  auto idet = dets.begin();
+  auto jdet = dets.end();
   for (; idet != jdet; ++idet) {
     uint16_t npairs = m_detInfoFileReader.getNumberOfApvsAndStripLength(*idet).first / 2;
     for (uint16_t ipair = 0; ipair < npairs; ++ipair) {
@@ -92,18 +92,13 @@ SiStripFedCabling* SiStripFedCablingFakeESSource::make(const SiStripFedCablingRc
 
   // Assign "dummy" FED ids/chans
   bool insufficient = false;
-  Feds::const_iterator ifed = feds.begin();
+  auto ifed = feds.begin();
   uint16_t fed_ch = 0;
-  for (std::vector<SiStripFecCrate>::const_iterator icrate = fec_cabling->crates().begin();
-       icrate != fec_cabling->crates().end();
-       icrate++) {
-    for (std::vector<SiStripFec>::const_iterator ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++) {
-      for (std::vector<SiStripRing>::const_iterator iring = ifec->rings().begin(); iring != ifec->rings().end();
-           iring++) {
-        for (std::vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end();
-             iccu++) {
-          for (std::vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end();
-               imod++) {
+  for (auto icrate = fec_cabling->crates().begin(); icrate != fec_cabling->crates().end(); icrate++) {
+    for (auto ifec = icrate->fecs().begin(); ifec != icrate->fecs().end(); ifec++) {
+      for (auto iring = ifec->rings().begin(); iring != ifec->rings().end(); iring++) {
+        for (auto iccu = iring->ccus().begin(); iccu != iring->ccus().end(); iccu++) {
+          for (auto imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++) {
             if (populateAllFeds) {
               for (uint16_t ipair = 0; ipair < imod->nApvPairs(); ipair++) {
                 if (ifed == feds.end()) {
@@ -163,7 +158,7 @@ SiStripFedCabling* SiStripFedCablingFakeESSource::make(const SiStripFedCablingRc
   // Build FED cabling using FedChannelConnections
   std::vector<FedChannelConnection> conns;
   fec_cabling->connections(conns);
-  SiStripFedCabling* cabling = new SiStripFedCabling(conns);
+  auto* cabling = new SiStripFedCabling(conns);
 
   return cabling;
 }

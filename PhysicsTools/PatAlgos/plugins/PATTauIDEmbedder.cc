@@ -77,8 +77,7 @@ void PATTauIDEmbedder::produce(edm::Event& evt, const edm::EventSetup& es) {
   outputTaus->reserve(inputTaus->size());
 
   int tau_idx = 0;
-  for (pat::TauCollection::const_iterator inputTau = inputTaus->begin(); inputTau != inputTaus->end();
-       ++inputTau, ++tau_idx) {
+  for (auto inputTau = inputTaus->begin(); inputTau != inputTaus->end(); ++inputTau, ++tau_idx) {
     pat::Tau outputTau(*inputTau);
     pat::TauRef inputTauRef(inputTaus, tau_idx);
     size_t nTauIds = inputTau->tauIDs().size();

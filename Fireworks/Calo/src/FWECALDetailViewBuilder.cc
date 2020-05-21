@@ -212,7 +212,7 @@ void FWECALDetailViewBuilder::fillEtaPhi(const EcalRecHitCollection *hits, TEveC
   double phi2 = m_phi + area;
 
   std::vector<FWBoxRecHit *> boxes;
-  for (EcalRecHitCollection::const_iterator hitIt = hits->begin(); hitIt != hits->end(); ++hitIt) {
+  for (auto hitIt = hits->begin(); hitIt != hits->end(); ++hitIt) {
     const float *corners = m_geom->getCorners(hitIt->detid());
     float energy, et;
     std::vector<TEveVector> etaphiCorners(8);
@@ -261,12 +261,12 @@ void FWECALDetailViewBuilder::fillEtaPhi(const EcalRecHitCollection *hits, TEveC
     energy = hitIt->energy();
     et = calculateEt(center, energy);
     Color_t bcolor = m_defaultColor;
-    std::map<DetId, int>::const_iterator itr = m_detIdsToColor.find(hitIt->id());
+    auto itr = m_detIdsToColor.find(hitIt->id());
     if (itr != m_detIdsToColor.end())
       bcolor = itr->second;
 
     m_boxes.push_back(new FWBoxRecHit(etaphiCorners, m_towerList, energy, et));
-    TEveElement::List_i pIt = m_boxes.back()->getTower()->BeginParents();
+    auto pIt = m_boxes.back()->getTower()->BeginParents();
     TEveCompound *comp = dynamic_cast<TEveCompound *>(*pIt);
     comp->SetMainColor(bcolor);
     m_boxes.back()->getTower()->SetPickable(true);

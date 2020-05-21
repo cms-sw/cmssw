@@ -112,7 +112,7 @@ void ScalersRawToDigi::produce(edm::StreamID, edm::Event& iEvent, const edm::Eve
     pLumi.emplace_back(fedData.data());
 
     if ((nBytesExtra >= 8) && ((nBytesExtra % 8) == 0)) {
-      unsigned long long const* data = (unsigned long long const*)fedData.data();
+      auto const* data = (unsigned long long const*)fedData.data();
 
       int nWordsExtra = nBytesExtra / 8;
       for (int i = 0; i < nWordsExtra; i++) {

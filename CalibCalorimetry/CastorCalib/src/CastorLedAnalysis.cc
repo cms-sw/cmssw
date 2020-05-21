@@ -530,7 +530,7 @@ void CastorLedAnalysis::processLedEvent(const CastorDigiCollection& castor, cons
   try {
     if (castor.empty())
       throw(int) castor.size();
-    for (CastorDigiCollection::const_iterator j = castor.begin(); j != castor.end(); ++j) {
+    for (auto j = castor.begin(); j != castor.end(); ++j) {
       const CastorDataFrame digi = (const CastorDataFrame)(*j);
       _meol = castorHists.LEDTRENDS.find(digi.id());
       if (_meol == castorHists.LEDTRENDS.end()) {

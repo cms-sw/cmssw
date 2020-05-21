@@ -5,13 +5,11 @@ static TMinuit *MuonResidualsPositionFitter_TMinuit;
 void MuonResidualsPositionFitter::inform(TMinuit *tMinuit) { MuonResidualsPositionFitter_TMinuit = tMinuit; }
 
 void MuonResidualsPositionFitter_FCN(int &npar, double *gin, double &fval, double *par, int iflag) {
-  MuonResidualsFitterFitInfo *fitinfo =
-      (MuonResidualsFitterFitInfo *)(MuonResidualsPositionFitter_TMinuit->GetObjectFit());
+  auto *fitinfo = (MuonResidualsFitterFitInfo *)(MuonResidualsPositionFitter_TMinuit->GetObjectFit());
   MuonResidualsFitter *fitter = fitinfo->fitter();
 
   fval = 0.;
-  for (std::vector<double *>::const_iterator resiter = fitter->residuals_begin(); resiter != fitter->residuals_end();
-       ++resiter) {
+  for (auto resiter = fitter->residuals_begin(); resiter != fitter->residuals_end(); ++resiter) {
     const double residual = (*resiter)[MuonResidualsPositionFitter::kResidual];
     const double angleerror = (*resiter)[MuonResidualsPositionFitter::kAngleError];
     const double trackangle = (*resiter)[MuonResidualsPositionFitter::kTrackAngle];
@@ -46,7 +44,7 @@ bool MuonResidualsPositionFitter::fit(Alignable *ali) {
   double sum_xx = 0.;
   int N = 0;
 
-  for (std::vector<double *>::const_iterator resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
+  for (auto resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
     const double residual = (*resiter)[kResidual];
     //    const double angleerror = (*resiter)[kAngleError];
     //    const double trackangle = (*resiter)[kTrackAngle];
@@ -70,7 +68,7 @@ bool MuonResidualsPositionFitter::fit(Alignable *ali) {
   sum_x = 0.;
   sum_xx = 0.;
   N = 0;
-  for (std::vector<double *>::const_iterator resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
+  for (auto resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
     const double residual = (*resiter)[kResidual];
     if (mean - 1.5 * stdev < residual && residual < mean + 1.5 * stdev) {
       sum_x += residual;
@@ -84,7 +82,7 @@ bool MuonResidualsPositionFitter::fit(Alignable *ali) {
   sum_x = 0.;
   sum_xx = 0.;
   N = 0;
-  for (std::vector<double *>::const_iterator resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
+  for (auto resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
     const double residual = (*resiter)[kResidual];
     if (mean - 1.5 * stdev < residual && residual < mean + 1.5 * stdev) {
       sum_x += residual;
@@ -205,7 +203,7 @@ double MuonResidualsPositionFitter::plot(std::string name, TFileDirectory *dir, 
   trackposition_fit->SetParameters(value(kPosition) * 10., value(kPhiz) * 10.);
   trackposition_fit->Write();
 
-  for (std::vector<double *>::const_iterator resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
+  for (auto resiter = residuals_begin(); resiter != residuals_end(); ++resiter) {
     const double raw_residual = (*resiter)[kResidual];
     const double angleerror = (*resiter)[kAngleError];
     const double trackangle = (*resiter)[kTrackAngle];

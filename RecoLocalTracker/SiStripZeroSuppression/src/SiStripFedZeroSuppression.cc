@@ -144,7 +144,7 @@ void SiStripFedZeroSuppression::suppress(const edm::DetSet<SiStripRawDigi>& in, 
         << "[SiStripFedZeroSuppression::suppress] Zero suppression on edm::DetSet<SiStripRawDigi>: detID " << detID
         << " size = " << in.data.size();
 #endif
-  edm::DetSet<SiStripRawDigi>::const_iterator in_iter = in.data.begin();
+  auto in_iter = in.data.begin();
   for (; in_iter != in.data.end(); in_iter++) {
     const uint32_t strip = (uint32_t)(in_iter - in.data.begin());
 
@@ -276,7 +276,7 @@ void SiStripFedZeroSuppression::suppress(const std::vector<int16_t>& in,
 
   fillThresholds_(detID, size + firstAPV * 128);  // want to decouple this from the other cost
 
-  std::vector<int16_t>::const_iterator in_iter = in.begin();
+  auto in_iter = in.begin();
   uint16_t strip = firstAPV * 128;
   for (; strip < size + firstAPV * 128; ++strip, ++in_iter) {
     size_t strip_mod_128 = strip & 127;

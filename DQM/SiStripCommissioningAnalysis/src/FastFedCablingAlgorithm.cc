@@ -39,7 +39,7 @@ void FastFedCablingAlgorithm::extract(const std::vector<TH1*>& histos) {
   }
 
   // Extract histograms
-  std::vector<TH1*>::const_iterator ihis = histos.begin();
+  auto ihis = histos.begin();
   for (; ihis != histos.end(); ihis++) {
     // Check for NULL pointer
     if (!(*ihis)) {
@@ -68,8 +68,8 @@ void FastFedCablingAlgorithm::analyse() {
     return;
   }
 
-  CommissioningAnalysis* tmp = const_cast<CommissioningAnalysis*>(anal());
-  FastFedCablingAnalysis* anal = dynamic_cast<FastFedCablingAnalysis*>(tmp);
+  auto* tmp = const_cast<CommissioningAnalysis*>(anal());
+  auto* anal = dynamic_cast<FastFedCablingAnalysis*>(tmp);
   if (!anal) {
     edm::LogWarning(mlCommissioning_) << "[FastFedCablingAlgorithm::" << __func__ << "]"
                                       << " NULL pointer to derived Analysis object!";

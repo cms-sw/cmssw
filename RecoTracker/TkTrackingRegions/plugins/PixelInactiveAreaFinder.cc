@@ -1053,12 +1053,12 @@ void PixelInactiveAreaFinder::getPhiSpanEndcap(const DetGroup& detGroup, DetGrou
   Stream ss;
   bool found = false;
   auto const tGeom = trackerGeometry_;
-  DetGroup::const_iterator startDetIter = detGroup.begin();
+  auto startDetIter = detGroup.begin();
   Span_t phiSpan, phiSpanComp;
   unsigned int counter = 0;
   while (!found) {
     phiSpan = tGeom->idToDet(DetId(*startDetIter))->surface().phiSpan();
-    for (DetGroup::const_iterator compDetIter = detGroup.begin(); compDetIter != detGroup.end(); ++compDetIter) {
+    for (auto compDetIter = detGroup.begin(); compDetIter != detGroup.end(); ++compDetIter) {
       phiSpanComp = tGeom->idToDet(DetId(*compDetIter))->surface().phiSpan();
       if (phiRangesOverlap(phiSpan, phiSpanComp) && phiMoreClockwise(phiSpanComp.first, phiSpan.first) &&
           startDetIter != compDetIter) {
@@ -1078,11 +1078,11 @@ void PixelInactiveAreaFinder::getPhiSpanEndcap(const DetGroup& detGroup, DetGrou
   cspan.phiSpan.first = phiSpan.first;
   // second with same method}
   found = false;
-  DetGroup::const_iterator endDetIter = detGroup.begin();
+  auto endDetIter = detGroup.begin();
   counter = 0;
   while (!found) {
     phiSpan = tGeom->idToDet(DetId(*endDetIter))->surface().phiSpan();
-    for (DetGroup::const_iterator compDetIter = detGroup.begin(); compDetIter != detGroup.end(); ++compDetIter) {
+    for (auto compDetIter = detGroup.begin(); compDetIter != detGroup.end(); ++compDetIter) {
       phiSpanComp = tGeom->idToDet(DetId(*compDetIter))->surface().phiSpan();
       if (phiRangesOverlap(phiSpan, phiSpanComp) && phiMoreCounterclockwise(phiSpanComp.second, phiSpan.second) &&
           endDetIter != compDetIter) {

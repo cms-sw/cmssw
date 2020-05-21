@@ -420,8 +420,7 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent, const edm::Eve
                  << m_l1GtUtilsProv.l1TriggerMenu() << std::endl;
 
     int iBit = -1;
-    for (std::vector<int>::const_iterator cItBit = pfSetAlgorithmTrigger.begin(); cItBit != pfSetAlgorithmTrigger.end();
-         ++cItBit) {
+    for (auto cItBit = pfSetAlgorithmTrigger.begin(); cItBit != pfSetAlgorithmTrigger.end(); ++cItBit) {
       iBit++;
       myCoutStream << "Bit number " << std::right << std::setw(4) << iBit << ": prescale factor = " << (*cItBit)
                    << std::endl;
@@ -449,9 +448,7 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent, const edm::Eve
                  << std::endl;
 
     int iBit = -1;
-    for (std::vector<unsigned int>::const_iterator cItBit = tmSetAlgorithmTrigger.begin();
-         cItBit != tmSetAlgorithmTrigger.end();
-         ++cItBit) {
+    for (auto cItBit = tmSetAlgorithmTrigger.begin(); cItBit != tmSetAlgorithmTrigger.end(); ++cItBit) {
       iBit++;
       myCoutStream << "Bit number " << std::right << std::setw(4) << iBit << ": trigger mask = " << (*cItBit)
                    << std::endl;
@@ -503,8 +500,7 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent, const edm::Eve
                  << std::endl;
 
     int iBit = -1;
-    for (std::vector<int>::const_iterator cItBit = pfSetTechnicalTrigger.begin(); cItBit != pfSetTechnicalTrigger.end();
-         ++cItBit) {
+    for (auto cItBit = pfSetTechnicalTrigger.begin(); cItBit != pfSetTechnicalTrigger.end(); ++cItBit) {
       iBit++;
       myCoutStream << "Bit number " << std::right << std::setw(4) << iBit << ": prescale factor = " << (*cItBit)
                    << std::endl;
@@ -532,9 +528,7 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent, const edm::Eve
                  << std::endl;
 
     int iBit = -1;
-    for (std::vector<unsigned int>::const_iterator cItBit = tmSetTechnicalTrigger.begin();
-         cItBit != tmSetTechnicalTrigger.end();
-         ++cItBit) {
+    for (auto cItBit = tmSetTechnicalTrigger.begin(); cItBit != tmSetTechnicalTrigger.end(); ++cItBit) {
       iBit++;
       myCoutStream << "Bit number " << std::right << std::setw(4) << iBit << ": trigger mask = " << (*cItBit)
                    << std::endl;
@@ -691,9 +685,7 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent, const edm::Eve
                  << ", with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu() << std::endl;
 
     int iBit = -1;
-    for (std::vector<int>::const_iterator cItBit = pfSetAlgorithmTriggerITag.begin();
-         cItBit != pfSetAlgorithmTriggerITag.end();
-         ++cItBit) {
+    for (auto cItBit = pfSetAlgorithmTriggerITag.begin(); cItBit != pfSetAlgorithmTriggerITag.end(); ++cItBit) {
       iBit++;
       myCoutStream << "Bit number " << std::right << std::setw(4) << iBit << ": prescale factor = " << (*cItBit)
                    << std::endl;
@@ -744,9 +736,7 @@ void L1GtAnalyzer::analyzeL1GtUtilsCore(const edm::Event& iEvent, const edm::Eve
                  << ", with L1 menu \n  " << m_l1GtUtils.l1TriggerMenu() << std::endl;
 
     int iBit = -1;
-    for (std::vector<int>::const_iterator cItBit = pfSetTechnicalTriggerITag.begin();
-         cItBit != pfSetTechnicalTriggerITag.end();
-         ++cItBit) {
+    for (auto cItBit = pfSetTechnicalTriggerITag.begin(); cItBit != pfSetTechnicalTriggerITag.end(); ++cItBit) {
       iBit++;
       myCoutStream << "Bit number " << std::right << std::setw(4) << iBit << ": prescale factor = " << (*cItBit)
                    << std::endl;
@@ -1112,7 +1102,7 @@ void L1GtAnalyzer::analyzeObjectMap(const edm::Event& iEvent, const edm::EventSe
   const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
 
   // print every object map via the implemented print
-  for (std::vector<L1GlobalTriggerObjectMap>::const_iterator it = objMapVec.begin(); it != objMapVec.end(); ++it) {
+  for (auto it = objMapVec.begin(); it != objMapVec.end(); ++it) {
     (*it).print(myCoutStream);
   }
 
@@ -1203,12 +1193,12 @@ void L1GtAnalyzer::analyzeL1GtTriggerMenuLite(const edm::Event& iEvent, const ed
 
   myCoutStream << std::endl;
 
-  for (L1GtTriggerMenuLite::CItL1Trig itTrig = algorithmMap.begin(); itTrig != algorithmMap.end(); itTrig++) {
+  for (auto itTrig = algorithmMap.begin(); itTrig != algorithmMap.end(); itTrig++) {
     const unsigned int bitNumber = itTrig->first;
     const std::string& aName = itTrig->second;
 
     std::string aAlias;
-    L1GtTriggerMenuLite::CItL1Trig itAlias = algorithmAliasMap.find(bitNumber);
+    auto itAlias = algorithmAliasMap.find(bitNumber);
     if (itAlias != algorithmAliasMap.end()) {
       aAlias = itAlias->second;
     }
@@ -1236,8 +1226,7 @@ void L1GtAnalyzer::analyzeL1GtTriggerMenuLite(const edm::Event& iEvent, const ed
     myCoutStream << std::endl;
   }
 
-  for (L1GtTriggerMenuLite::CItL1Trig itTrig = technicalTriggerMap.begin(); itTrig != technicalTriggerMap.end();
-       itTrig++) {
+  for (auto itTrig = technicalTriggerMap.begin(); itTrig != technicalTriggerMap.end(); itTrig++) {
     unsigned int bitNumber = itTrig->first;
     std::string aName = itTrig->second;
 

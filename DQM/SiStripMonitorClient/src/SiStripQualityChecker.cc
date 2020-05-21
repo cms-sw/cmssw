@@ -357,7 +357,7 @@ void SiStripQualityChecker::fillSubDetStatus(DQMStore& dqm_store,
 //
 void SiStripQualityChecker::printStatusReport() {
   std::ostringstream det_summary_str;
-  for (std::map<std::string, SubDetMEs>::const_iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
+  for (auto it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
     std::string det = it->first;
     det_summary_str << std::setprecision(4);
     det_summary_str << std::setiosflags(std::ios::fixed);
@@ -396,7 +396,7 @@ void SiStripQualityChecker::getModuleStatus(DQMStore& dqm_store,
                                             int& errdet_hasDcsErr) {
   std::string lname;
   std::map<uint32_t, uint16_t> bad_modules;
-  for (std::vector<MonitorElement*>::const_iterator it = layer_mes.begin(); it != layer_mes.end(); it++) {
+  for (auto it = layer_mes.begin(); it != layer_mes.end(); it++) {
     MonitorElement* me = (*it);
     if (!me)
       continue;
@@ -413,11 +413,11 @@ void SiStripQualityChecker::getModuleStatus(DQMStore& dqm_store,
       lname = name.substr(name.find("TkHMap_") + 7);
       lname = lname.substr(lname.find("_T") + 1);
     }
-    for (std::vector<DQMChannel>::iterator it = bad_channels_me.begin(); it != bad_channels_me.end(); it++) {
+    for (auto it = bad_channels_me.begin(); it != bad_channels_me.end(); it++) {
       int xval = (*it).getBinX();
       int yval = (*it).getBinY();
       uint32_t detId = tkDetMap_->getDetFromBin(lname, xval, yval);
-      std::map<uint32_t, uint16_t>::iterator iPos = bad_modules.find(detId);
+      auto iPos = bad_modules.find(detId);
       uint16_t flag;
       if (iPos != bad_modules.end()) {
         flag = iPos->second;
@@ -446,7 +446,7 @@ void SiStripQualityChecker::getModuleStatus(DQMStore& dqm_store,
       }
     }
   }
-  for (std::map<uint32_t, uint16_t>::const_iterator it = bad_modules.begin(); it != bad_modules.end(); it++) {
+  for (auto it = bad_modules.begin(); it != bad_modules.end(); it++) {
     uint32_t detId = it->first;
     uint16_t flag = it->second;
     if (((flag >> 0) & 0x1) > 0)
@@ -459,7 +459,7 @@ void SiStripQualityChecker::getModuleStatus(DQMStore& dqm_store,
       errdet_hasExclFed++;
     if (((flag >> 4) & 0x1) > 0)
       errdet_hasDcsErr++;
-    std::map<uint32_t, uint16_t>::iterator iPos = badModuleList.find(detId);
+    auto iPos = badModuleList.find(detId);
     if (iPos != badModuleList.end()) {
       iPos->second = flag;
     } else {
@@ -554,7 +554,7 @@ void SiStripQualityChecker::fillDetectorStatusAtLumi(DQMStore& dqm_store) {
     float dets = 0.0;
     for (int ibin = 1; ibin <= th1->GetNbinsX(); ibin++) {
       std::string label = th1->GetXaxis()->GetBinLabel(ibin);
-      std::map<std::string, SubDetMEs>::iterator iPos = SubDetMEsMap.find(label);
+      auto iPos = SubDetMEsMap.find(label);
       if (iPos != SubDetMEsMap.end()) {
         float fraction = 1.0 - th1->GetBinContent(ibin);
         global_fraction += fraction;

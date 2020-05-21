@@ -336,7 +336,7 @@ namespace cms {
 
         {
           Lock lock(theMutex);
-          for (vector<Trajectory>::iterator it = theTmpTrajectories.begin(); it != theTmpTrajectories.end(); it++) {
+          for (auto it = theTmpTrajectories.begin(); it != theTmpTrajectories.end(); it++) {
             if (it->isValid()) {
               it->setSeedRef(collseed->refAt(j));
               (*outputSeedStopInfos)[j].setStopReason(SeedStopReason::NOT_STOPPED);
@@ -464,7 +464,7 @@ namespace cms {
         output->reserve(unsmoothedResult.size());
         Traj2TrackHits t2t(theTrajectoryBuilder->hitBuilder(), true);
 
-        for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin(); it != unsmoothedResult.end(); ++it) {
+        for (auto it = unsmoothedResult.begin(); it != unsmoothedResult.end(); ++it) {
           LogDebug("CkfPattern") << "copying " << (useSplitting ? "splitted" : "un-splitted")
                                  << " hits from trajectory";
           edm::OwnVector<TrackingRecHit> recHits;

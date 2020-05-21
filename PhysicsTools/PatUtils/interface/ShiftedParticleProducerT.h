@@ -41,8 +41,7 @@ public:
     if (cfg.exists("binning")) {
       typedef std::vector<edm::ParameterSet> vParameterSet;
       vParameterSet cfgBinning = cfg.getParameter<vParameterSet>("binning");
-      for (vParameterSet::const_iterator cfgBinningEntry = cfgBinning.begin(); cfgBinningEntry != cfgBinning.end();
-           ++cfgBinningEntry) {
+      for (auto cfgBinningEntry = cfgBinning.begin(); cfgBinningEntry != cfgBinning.end(); ++cfgBinningEntry) {
         binning_.push_back(new binningEntryType(*cfgBinningEntry));
       }
     } else {
@@ -53,7 +52,7 @@ public:
     produces<ParticleCollection>();
   }
   ~ShiftedParticleProducerT() override {
-    for (typename std::vector<binningEntryType*>::const_iterator it = binning_.begin(); it != binning_.end(); ++it) {
+    for (auto it = binning_.begin(); it != binning_.end(); ++it) {
       delete (*it);
     }
   }
@@ -65,13 +64,10 @@ private:
 
     auto shiftedParticles = std::make_unique<ParticleCollection>();
 
-    for (typename ParticleCollection::const_iterator originalParticle = originalParticles->begin();
-         originalParticle != originalParticles->end();
+    for (auto originalParticle = originalParticles->begin(); originalParticle != originalParticles->end();
          ++originalParticle) {
       double uncertainty = 0.;
-      for (typename std::vector<binningEntryType*>::iterator binningEntry = binning_.begin();
-           binningEntry != binning_.end();
-           ++binningEntry) {
+      for (auto binningEntry = binning_.begin(); binningEntry != binning_.end(); ++binningEntry) {
         if ((!(*binningEntry)->binSelection_) || (*(*binningEntry)->binSelection_)(*originalParticle)) {
           uncertainty = (*binningEntry)->binUncertainty_;
           break;

@@ -366,8 +366,8 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord, DTCon
 
   // loop over chambers
   DTCCBConfig::ccb_config_map configKeys(ccb_conf.configKeyMap());
-  DTCCBConfig::ccb_config_iterator iter = configKeys.begin();
-  DTCCBConfig::ccb_config_iterator iend = configKeys.end();
+  auto iter = configKeys.begin();
+  auto iend = configKeys.end();
 
   // 110628 SV check that number of CCB is equal to total number of chambers
   if (ccb_conf.configKeyMap().size() != 250)  // check the number of chambers!!!
@@ -400,8 +400,8 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord, DTCon
 
     // get brick identifiers list
     const std::vector<int> &ccbConf = iter->second;
-    std::vector<int>::const_iterator cfgIter = ccbConf.begin();
-    std::vector<int>::const_iterator cfgIend = ccbConf.end();
+    auto cfgIter = ccbConf.begin();
+    auto cfgIend = ccbConf.end();
 
     // TSS-TSM buffers
     unsigned short int tss_buffer[7][31];
@@ -421,8 +421,8 @@ int DTConfigDBProducer::readDTCCBConfig(const DTConfigManagerRcd &iRecord, DTCon
       cfgCache.getData(keyList, id, list);
 
       // loop over strings
-      std::vector<std::string>::const_iterator s_iter = list.begin();
-      std::vector<std::string>::const_iterator s_iend = list.end();
+      auto s_iter = list.begin();
+      auto s_iend = list.end();
       while (s_iter != s_iend) {
         if (m_debugDB)
           cout << "        ----> " << *s_iter << endl;

@@ -43,7 +43,7 @@ namespace pf2pat {
       double vte = vtx.tError();
 
       unsigned key = 0;
-      for (collection::const_iterator pfc = hc->begin(); pfc != hc->end(); ++pfc, ++key) {
+      for (auto pfc = hc->begin(); pfc != hc->end(); ++pfc, ++key) {
         bool passing = true;
         const reco::Track *tk = nullptr;
         if (pfc->gsfTrackRef().isNonnull())

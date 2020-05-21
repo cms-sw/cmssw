@@ -153,7 +153,7 @@ void RPCRecHitProbability::analyze(const edm::Event& event, const edm::EventSetu
       //loop on mu rechits
 
       int recHitCounter = 0;
-      for (trackingRecHit_iterator it = muTrack.recHitsBegin(); it != muTrack.recHitsEnd(); it++) {
+      for (auto it = muTrack.recHitsBegin(); it != muTrack.recHitsEnd(); it++) {
         if (!(*it)->isValid())
           continue;
         int muSubDetId = (*it)->geographicalId().subdetId();
@@ -201,8 +201,7 @@ void RPCRecHitProbability::makeDcsInfo(const edm::Event& e) {
     return;
   }
 
-  for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); dcsStatusItr != dcsStatus->end();
-       ++dcsStatusItr) {
+  for (auto dcsStatusItr = dcsStatus->begin(); dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) {
     if (!dcsStatusItr->ready(DcsStatus::RPC))
       dcs_ = false;
   }

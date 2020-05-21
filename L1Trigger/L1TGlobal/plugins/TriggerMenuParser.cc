@@ -160,7 +160,7 @@ std::map<std::string, unsigned int> l1t::TriggerMenuParser::getExternalSignals(c
   std::map<std::string, unsigned int> extBitMap;
 
   //loop over the algorithms
-  for (std::map<std::string, esCondition>::const_iterator cit = condMap.begin(); cit != condMap.end(); cit++) {
+  for (auto cit = condMap.begin(); cit != condMap.end(); cit++) {
     const esCondition& condition = cit->second;
     if (condition.getType() == esConditionType::Externals) {
       // Get object for External conditions
@@ -225,7 +225,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
   parseScales(scaleMap);
 
   //loop over the algorithms
-  for (std::map<std::string, esAlgorithm>::const_iterator cit = algoMap.begin(); cit != algoMap.end(); cit++) {
+  for (auto cit = algoMap.begin(); cit != algoMap.end(); cit++) {
     //condition chip (artifact)  TO DO: Update
     int chipNr = 0;
 
@@ -376,8 +376,7 @@ void l1t::TriggerMenuParser::setGtAlgorithmImplementation(const std::string& val
 void l1t::TriggerMenuParser::clearMaps() {
   // loop over condition maps (one map per condition chip)
   // then loop over conditions in the map
-  for (std::vector<ConditionMap>::iterator itCondOnChip = m_conditionMap.begin(); itCondOnChip != m_conditionMap.end();
-       itCondOnChip++) {
+  for (auto itCondOnChip = m_conditionMap.begin(); itCondOnChip != m_conditionMap.end(); itCondOnChip++) {
     // the conditions in the maps are deleted in L1uGtTriggerMenu, not here
 
     itCondOnChip->clear();
@@ -462,7 +461,7 @@ bool l1t::TriggerMenuParser::insertAlgorithmIntoMap(const GlobalAlgorithm& alg) 
   }
 
   // no two algorithms on the same chip can have the same output pin
-  for (CItAlgo itAlgo = m_algorithmMap.begin(); itAlgo != m_algorithmMap.end(); itAlgo++) {
+  for (auto itAlgo = m_algorithmMap.begin(); itAlgo != m_algorithmMap.end(); itAlgo++) {
     int iPin = (itAlgo->second)
                    .algoOutputPin(static_cast<int>(m_numberConditionChips),
                                   static_cast<int>(m_pinsOnConditionChip),
@@ -529,7 +528,7 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
   GlobalScales::ScaleParameters htmScales;
 
   // Start by parsing the Scale Map
-  for (std::map<std::string, esScale>::const_iterator cit = scaleMap.begin(); cit != scaleMap.end(); cit++) {
+  for (auto cit = scaleMap.begin(); cit != scaleMap.end(); cit++) {
     const esScale& scale = cit->second;
 
     GlobalScales::ScaleParameters* scaleParam;
@@ -639,7 +638,7 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
   bool hasPrecision = false;
   std::map<std::string, unsigned int> precisions;
   getPrecisions(precisions, scaleMap);
-  for (std::map<std::string, unsigned int>::const_iterator cit = precisions.begin(); cit != precisions.end(); cit++) {
+  for (auto cit = precisions.begin(); cit != precisions.end(); cit++) {
     //std::cout << cit->first << " = " << cit->second << "\n";
     hasPrecision = true;
   }

@@ -32,7 +32,7 @@ PhiBorderFinder::PhiBorderFinder(const std::vector<const Det*>& utheDets)
     std::vector<GlobalPoint> dc = BoundingBox().corners(*plane);
 
     float phimin(999.), phimax(-999.);
-    for (std::vector<GlobalPoint>::const_iterator pt = dc.begin(); pt != dc.end(); pt++) {
+    for (auto pt = dc.begin(); pt != dc.end(); pt++) {
       float phi = (*pt).phi();
       //	float z = pt->z();
       if (phi < phimin)

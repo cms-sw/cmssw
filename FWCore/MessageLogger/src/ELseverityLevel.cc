@@ -104,7 +104,7 @@ namespace edm {
   ELseverityLevel::ELseverityLevel(ELstring const& s) {
     static ELmap const& m = loadMap();
 
-    ELmap::const_iterator i = m.find(s);
+    auto i = m.find(s);
     myLevel = (i == m.end()) ? ELsev_unspecified : i->second;
   }
 

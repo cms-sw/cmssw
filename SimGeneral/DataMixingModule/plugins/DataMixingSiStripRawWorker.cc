@@ -100,7 +100,7 @@ namespace edm {
     OneDetectorMap LocalMap;
 
     // loop on all detsets (detectorIDs) inside the input collection
-    edm::DetSetVector<SiStripDigi>::const_iterator DSViter = digicollection_->begin();
+    auto DSViter = digicollection_->begin();
     for (; DSViter != digicollection_->end(); DSViter++) {
 #ifdef DEBUG
       LogDebug("DataMixingSiStripRawWorker") << "Processing DetID " << DSViter->id;
@@ -121,7 +121,7 @@ namespace edm {
     std::vector<edm::DetSet<SiStripRawDigi>> vSiStripRawDigi;
 
     // loop on all detsets (detectorIDs) inside the SiStripRawDigis collection
-    edm::DetSetVector<SiStripRawDigi>::const_iterator rawDSViter = rawdigicollection_->begin();
+    auto rawDSViter = rawdigicollection_->begin();
     for (; rawDSViter != rawdigicollection_->end(); rawDSViter++) {
       // Make empty collection with this detID
       edm::DetSet<SiStripRawDigi> SSRD(rawDSViter->id);
@@ -138,11 +138,11 @@ namespace edm {
 
         // get the map from storage
         LocalMap = itest->second;
-        OneDetectorMap::const_iterator iLocal = LocalMap.begin();
+        auto iLocal = LocalMap.begin();
 
         // loop on all strips in rawdigi detset
         int currentstrip = 0;
-        edm::DetSet<SiStripRawDigi>::const_iterator iRawDigi = rawDSViter->begin();
+        auto iRawDigi = rawDSViter->begin();
         while (iRawDigi != rawDSViter->end()) {
           int ADCSum = iRawDigi->adc();
 

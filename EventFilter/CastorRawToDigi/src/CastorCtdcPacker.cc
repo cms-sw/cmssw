@@ -17,7 +17,7 @@ namespace {
     if (pt == nullptr)
       return 0;
     int size = 0;
-    typename Coll::const_iterator i = pt->find(DetIdClass(did));
+    auto i = pt->find(DetIdClass(did));
     if (i != pt->end()) {
       presamples = i->presamples();
       size = i->size();
@@ -127,7 +127,7 @@ void CastorCtdcPacker::pack(int fedid,
   output.resize(theSize);
 
   // construct the bare CTDC Header
-  CastorCTDCHeader* dcc = (CastorCTDCHeader*)(output.data());
+  auto* dcc = (CastorCTDCHeader*)(output.data());
   dcc->clear();
   dcc->setHeader(fedid, bcn, nl1a, orbitn);
 

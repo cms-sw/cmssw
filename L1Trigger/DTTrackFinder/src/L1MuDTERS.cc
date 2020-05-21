@@ -61,8 +61,8 @@ L1MuDTERS::~L1MuDTERS() {}
 void L1MuDTERS::run() {
   int n_ext = m_seu.numberOfExt();
   if (n_ext > 0) {
-    vector<L1MuDTEUX*>::const_iterator first = m_seu.eux().begin();
-    vector<L1MuDTEUX*>::const_iterator last = m_seu.eux().end();
+    auto first = m_seu.eux().begin();
+    auto last = m_seu.eux().end();
     vector<L1MuDTEUX*>::const_iterator first_max;
     vector<L1MuDTEUX*>::const_iterator second_max;
 

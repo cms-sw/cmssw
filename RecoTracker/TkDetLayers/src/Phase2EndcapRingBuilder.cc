@@ -17,8 +17,7 @@ Phase2EndcapRing* Phase2EndcapRingBuilder::build(const GeometricDet* aPhase2Endc
 
   if (!useBrothers) {
     //---- to evaluate meanZ
-    for (vector<const GeometricDet*>::const_iterator compGeometricDets = allGeometricDets.begin();
-         compGeometricDets != allGeometricDets.end();
+    for (auto compGeometricDets = allGeometricDets.begin(); compGeometricDets != allGeometricDets.end();
          compGeometricDets++) {
       LogTrace("TkDetLayers") << " compGeometricDets->positionBounds().perp() "
                               << (*compGeometricDets)->positionBounds().z() << std::endl;
@@ -27,8 +26,7 @@ Phase2EndcapRing* Phase2EndcapRingBuilder::build(const GeometricDet* aPhase2Endc
     meanZ = meanZ / allGeometricDets.size();
     LogDebug("TkDetLayers") << " meanZ " << meanZ << std::endl;
 
-    for (vector<const GeometricDet*>::const_iterator compGeometricDets = allGeometricDets.begin();
-         compGeometricDets != allGeometricDets.end();
+    for (auto compGeometricDets = allGeometricDets.begin(); compGeometricDets != allGeometricDets.end();
          compGeometricDets++) {
       const GeomDet* theGeomDet = theGeomDetGeometry->idToDet((*compGeometricDets)->geographicalID());
 
@@ -55,8 +53,7 @@ Phase2EndcapRing* Phase2EndcapRingBuilder::build(const GeometricDet* aPhase2Endc
     //---- to evaluate meanZ
     double meanZ = 0;
     double meanZBrothers = 0;
-    for (vector<const GeometricDet*>::const_iterator it = allGeometricDets.begin(); it != allGeometricDets.end();
-         it++) {
+    for (auto it = allGeometricDets.begin(); it != allGeometricDets.end(); it++) {
       compGeometricDets = (*it)->components();
       if (compGeometricDets.size() != 2) {
         throw DetLayerException("Phase2OTEndcapRing is considered as a stack but does not have two components");
@@ -74,8 +71,7 @@ Phase2EndcapRing* Phase2EndcapRingBuilder::build(const GeometricDet* aPhase2Endc
     LogDebug("TkDetLayers") << " meanZ Lower " << meanZ << std::endl;
     LogDebug("TkDetLayers") << " meanZ Upper " << meanZBrothers << std::endl;
 
-    for (vector<const GeometricDet*>::const_iterator it = allGeometricDets.begin(); it != allGeometricDets.end();
-         it++) {
+    for (auto it = allGeometricDets.begin(); it != allGeometricDets.end(); it++) {
       compGeometricDets = (*it)->components();
       const GeomDet* theGeomDet = theGeomDetGeometry->idToDet(compGeometricDets[0]->geographicalID());
 

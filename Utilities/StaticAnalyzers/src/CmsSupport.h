@@ -31,7 +31,7 @@ namespace clangcms {
         return qt.getNonReferenceType().isConstQualified();
       }
       if (qt->isPointerType()) {
-        clang::PointerType const *pt = qt->getAs<clang::PointerType>();
+        auto const *pt = qt->getAs<clang::PointerType>();
         return pt->getPointeeType().isConstQualified();
       }
 

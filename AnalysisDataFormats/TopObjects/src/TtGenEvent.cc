@@ -157,7 +157,7 @@ const reco::GenParticle* TtGenEvent::hadronicDecayQuark(bool invertFlavor) const
   // only makes sense if taus are not excluded from the
   // decision
   if (singleLepton(false)) {
-    for (reco::GenParticleCollection::const_iterator w = parts_->begin(); w != parts_->end(); ++w) {
+    for (auto w = parts_->begin(); w != parts_->end(); ++w) {
       if (std::abs(w->pdgId()) == TopDecayID::WID) {
         // make sure that the particle is a W daughter
         for (reco::GenParticle::const_iterator wd = w->begin(); wd != w->end(); ++wd) {

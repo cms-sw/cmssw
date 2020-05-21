@@ -72,8 +72,7 @@ void ElectronIdMVABased::produce(edm::StreamID, edm::Event& iEvent, const edm::E
   edm::Handle<reco::GsfElectronCollection> egCollection;
   iEvent.getByToken(electronToken, egCollection);
   const reco::GsfElectronCollection egCandidates = (*egCollection.product());
-  for (reco::GsfElectronCollection::const_iterator egIter = egCandidates.begin(); egIter != egCandidates.end();
-       ++egIter) {
+  for (auto egIter = egCandidates.begin(); egIter != egCandidates.end(); ++egIter) {
     double mvaVal = mvaID_->mva(*egIter, nVtx);
     double isoDr03 = egIter->dr03TkSumPt() + egIter->dr03EcalRecHitSumEt() + egIter->dr03HcalTowerSumEt();
     double eleEta = fabs(egIter->eta());

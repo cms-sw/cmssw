@@ -385,17 +385,13 @@ METCorrectorParameters const& METCorrectorParametersCollection::operator[](key_t
 // that are aware of all three collections.
 void METCorrectorParametersCollection::validKeys(std::vector<key_type>& keys) const {
   keys.clear();
-  for (collection_type::const_iterator ibegin = correctionsMiniAod_.begin(),
-                                       iend = correctionsMiniAod_.end(),
-                                       i = ibegin;
-       i != iend;
-       ++i) {
+  for (auto ibegin = correctionsMiniAod_.begin(), iend = correctionsMiniAod_.end(), i = ibegin; i != iend; ++i) {
     keys.push_back(i->first);
   }
 }
 
 METCorrectorParametersCollection::key_type METCorrectorParametersCollection::getMiniAodBin(std::string const& source) {
-  std::vector<std::string>::const_iterator found = find(MiniAodSource_.begin(), MiniAodSource_.end(), source);
+  auto found = find(MiniAodSource_.begin(), MiniAodSource_.end(), source);
   if (found != MiniAodSource_.end()) {
     return (found - MiniAodSource_.begin() + 1) + MiniAod * 100;
   } else

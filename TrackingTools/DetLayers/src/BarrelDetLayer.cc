@@ -26,9 +26,9 @@ BoundCylinder* BarrelDetLayer::computeSurface() {
   float theRmax = theRmin;
   float theZmin = comps.front()->position().z();
   float theZmax = theZmin;
-  for (vector<const GeomDet*>::const_iterator deti = comps.begin(); deti != comps.end(); deti++) {
+  for (auto deti = comps.begin(); deti != comps.end(); deti++) {
     vector<GlobalPoint> corners = BoundingBox().corners(dynamic_cast<const Plane&>((*deti)->surface()));
-    for (vector<GlobalPoint>::const_iterator ic = corners.begin(); ic != corners.end(); ic++) {
+    for (auto ic = corners.begin(); ic != corners.end(); ic++) {
       float r = ic->perp();
       float z = ic->z();
       theRmin = min(theRmin, r);

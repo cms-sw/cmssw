@@ -176,8 +176,7 @@ void Onia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
             if (status)
               extrapZ = ttmd.points().first.z();
 
-            for (VertexCollection::const_iterator itv = priVtxs->begin(), itvend = priVtxs->end(); itv != itvend;
-                 ++itv) {
+            for (auto itv = priVtxs->begin(), itvend = priVtxs->end(); itv != itvend; ++itv) {
               float deltaZ = fabs(extrapZ - itv->position().z());
               if (deltaZ < minDz) {
                 minDz = deltaZ;
@@ -215,8 +214,8 @@ void Onia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
                 // vertexTracksKeys.reserve(thePrimaryV.tracksSize());
                 if (thePrimaryV.hasRefittedTracks()) {
                   // Need to go back to the original tracks before taking the key
-                  std::vector<reco::Track>::const_iterator itRefittedTrack = thePrimaryV.refittedTracks().begin();
-                  std::vector<reco::Track>::const_iterator refittedTracksEnd = thePrimaryV.refittedTracks().end();
+                  auto itRefittedTrack = thePrimaryV.refittedTracks().begin();
+                  auto refittedTracksEnd = thePrimaryV.refittedTracks().end();
                   for (; itRefittedTrack != refittedTracksEnd; ++itRefittedTrack) {
                     if (thePrimaryV.originalTrack(*itRefittedTrack).key() == rmu1->track().key())
                       continue;
@@ -226,7 +225,7 @@ void Onia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
                     muonLess.push_back(*(thePrimaryV.originalTrack(*itRefittedTrack)));
                   }
                 } else {
-                  std::vector<reco::TrackBaseRef>::const_iterator itPVtrack = thePrimaryV.tracks_begin();
+                  auto itPVtrack = thePrimaryV.tracks_begin();
                   for (; itPVtrack != thePrimaryV.tracks_end(); ++itPVtrack)
                     if (itPVtrack->isNonnull()) {
                       if (itPVtrack->key() == rmu1->track().key())
@@ -254,9 +253,7 @@ void Onia2MuMuPAT::produce(edm::Event &iEvent, const edm::EventSetup &iSetup) {
           const reco::Muon *rmu1 = dynamic_cast<const reco::Muon *>(it->originalObject());
           const reco::Muon *rmu2 = dynamic_cast<const reco::Muon *>(it2->originalObject());
           try {
-            for (reco::Vertex::trackRef_iterator itVtx = theOriginalPV.tracks_begin();
-                 itVtx != theOriginalPV.tracks_end();
-                 itVtx++)
+            for (auto itVtx = theOriginalPV.tracks_begin(); itVtx != theOriginalPV.tracks_end(); itVtx++)
               if (itVtx->isNonnull()) {
                 const reco::Track &track = **itVtx;
                 if (!track.quality(reco::TrackBase::highPurity))

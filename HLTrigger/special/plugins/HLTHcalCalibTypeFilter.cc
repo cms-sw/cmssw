@@ -101,7 +101,7 @@ bool HLTHcalCalibTypeFilter::filter(edm::StreamID, edm::Event& iEvent, const edm
         numPositives++;
     } else {
       //    UTCA
-      hcal::AMC13Header const* hamc13 = (hcal::AMC13Header const*)fedData.data();
+      auto const* hamc13 = (hcal::AMC13Header const*)fedData.data();
       for (int iamc = 0; iamc < hamc13->NAMC(); iamc++) {
         HcalUHTRData uhtr(hamc13->AMCPayload(iamc), hamc13->AMCSize(iamc));
         int eventtype = uhtr.getEventType();

@@ -54,15 +54,15 @@ namespace edm {
 
     if (e.getByToken(PixelDigiToken_, input)) {
       // loop on all detsets (detectorIDs) inside the input collection
-      edm::DetSetVector<PixelDigi>::const_iterator DSViter = input->begin();
+      auto DSViter = input->begin();
       for (; DSViter != input->end(); DSViter++) {
 #ifdef DEBUG
         LogDebug("DataMixingSiPixelWorker") << "Processing DetID " << DSViter->id;
 #endif
 
         uint32_t detID = DSViter->id;
-        edm::DetSet<PixelDigi>::const_iterator begin = (DSViter->data).begin();
-        edm::DetSet<PixelDigi>::const_iterator end = (DSViter->data).end();
+        auto begin = (DSViter->data).begin();
+        auto end = (DSViter->data).end();
         edm::DetSet<PixelDigi>::const_iterator icopy;
 
         OneDetectorMap LocalMap;
@@ -97,15 +97,15 @@ namespace edm {
       //   if( e->getByLabel(pixeldigi_collectionPile_,input) ) {
 
       // loop on all detsets (detectorIDs) inside the input collection
-      edm::DetSetVector<PixelDigi>::const_iterator DSViter = input->begin();
+      auto DSViter = input->begin();
       for (; DSViter != input->end(); DSViter++) {
 #ifdef DEBUG
         LogDebug("DataMixingSiPixelWorker") << "Pileups: Processing DetID " << DSViter->id;
 #endif
 
         uint32_t detID = DSViter->id;
-        edm::DetSet<PixelDigi>::const_iterator begin = (DSViter->data).begin();
-        edm::DetSet<PixelDigi>::const_iterator end = (DSViter->data).end();
+        auto begin = (DSViter->data).begin();
+        auto end = (DSViter->data).end();
         edm::DetSet<PixelDigi>::const_iterator icopy;
 
         // find correct local map (or new one) for this detector ID
@@ -150,7 +150,7 @@ namespace edm {
 
     // big loop over Detector IDs:
 
-    for (SiGlobalIndex::const_iterator IDet = SiHitStorage_.begin(); IDet != SiHitStorage_.end(); IDet++) {
+    for (auto IDet = SiHitStorage_.begin(); IDet != SiHitStorage_.end(); IDet++) {
       edm::DetSet<PixelDigi> SPD(IDet->first);  // Make empty collection with this detector ID
 
       OneDetectorMap LocalMap = IDet->second;
@@ -162,7 +162,7 @@ namespace edm {
 
       OneDetectorMap::const_iterator iLocalchk;
 
-      for (OneDetectorMap::const_iterator iLocal = LocalMap.begin(); iLocal != LocalMap.end(); ++iLocal) {
+      for (auto iLocal = LocalMap.begin(); iLocal != LocalMap.end(); ++iLocal) {
         currentPixel = iLocal->first;
 
         if (currentPixel == formerPixel) {  // we have to add these digis together

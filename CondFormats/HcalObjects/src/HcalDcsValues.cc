@@ -108,9 +108,9 @@ HcalDcsValues::DcsSet HcalDcsValues::getValues(HcalDcsDetId const& fid) {
 
   if (valList) {
     HcalDcsValue dummy(fid.rawId(), -1, 0., 0., 0.);
-    DcsSet::const_iterator lb = lower_bound(valList->begin(), valList->end(), dummy);
+    auto lb = lower_bound(valList->begin(), valList->end(), dummy);
     if ((lb != valList->end()) && (lb->DcsId() == fid.rawId())) {
-      DcsSet::const_iterator ub = upper_bound(valList->begin(), valList->end(), dummy);
+      auto ub = upper_bound(valList->begin(), valList->end(), dummy);
       return DcsSet(lb, ub);
     }
   }
@@ -206,7 +206,7 @@ bool HcalDcsValues::DcsValuesOK(DcsSubDet subd, int LS) {
 
 bool HcalDcsValues::foundDcsId(DcsSet const& valList, HcalDcsDetId const& fid) const {
   HcalDcsValue dummy(fid.rawId(), -1, 0., 0., 0.);
-  DcsSet::const_iterator lb = lower_bound(valList.begin(), valList.end(), dummy);
+  auto lb = lower_bound(valList.begin(), valList.end(), dummy);
   if ((lb != valList.end()) && (lb->DcsId() == fid.rawId()))
     return true;
   return false;
@@ -214,12 +214,12 @@ bool HcalDcsValues::foundDcsId(DcsSet const& valList, HcalDcsDetId const& fid) c
 
 bool HcalDcsValues::subDetOk(DcsSet const& valList, int LS) const {
   std::set<uint32_t> badIds;
-  DcsSet::const_iterator val = valList.begin();
+  auto val = valList.begin();
   while ((val != valList.end()) && ((LS > -1) ? (val->LS() <= LS) : true)) {
     if (!val->isValueGood()) {
       badIds.insert(val->DcsId());
     } else {
-      std::set<uint32_t>::iterator fnd = badIds.find(val->DcsId());
+      auto fnd = badIds.find(val->DcsId());
       if (*fnd == val->DcsId())
         badIds.erase(fnd);
     }

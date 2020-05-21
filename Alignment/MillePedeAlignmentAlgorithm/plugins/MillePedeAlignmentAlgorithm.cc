@@ -249,8 +249,7 @@ void MillePedeAlignmentAlgorithm::initialize(const edm::EventSetup &setup,
   // FIXME: add selection of run range via 'pedeReaderInputs'
   // Note: Results for parameters of IntegratedCalibration's cannot be treated...
   RunRange runrange(cond::timeTypeSpecs[cond::runnumber].beginValue, cond::timeTypeSpecs[cond::runnumber].endValue);
-  for (std::vector<edm::ParameterSet>::const_iterator iSet = mprespset.begin(), iE = mprespset.end(); iSet != iE;
-       ++iSet) {
+  for (auto iSet = mprespset.begin(), iE = mprespset.end(); iSet != iE; ++iSet) {
     // This read will ignore calibrations as long as they are not yet passed to Millepede
     // during/before initialize(..) - currently addCalibrations(..) is called later in AlignmentProducer
     if (!this->readFromPede((*iSet), false, runrange)) {  // false: do not erase SelectionUserVariables
@@ -601,7 +600,7 @@ unsigned int MillePedeAlignmentAlgorithm::addHitCount(const std::vector<Alignmen
       AlignmentParameters *pars = ali->alignmentParameters();
       if (pars) {  // otherwise hierarchy level not selected
         // cast ensured by previous checks:
-        MillePedeVariables *mpVar = static_cast<MillePedeVariables *>(pars->userVariables());
+        auto *mpVar = static_cast<MillePedeVariables *>(pars->userVariables());
         // every hit has an x-measurement, cf. addReferenceTrajectory(..):
         mpVar->increaseHitsX();
         if (validHitVecY[iHit]) {
@@ -1151,7 +1150,7 @@ void MillePedeAlignmentAlgorithm::buildUserVariables(const align::Alignables &al
       throw cms::Exception("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::buildUserVariables"
                                         << "No parameters for alignable";
     }
-    MillePedeVariables *userVars = dynamic_cast<MillePedeVariables *>(params->userVariables());
+    auto *userVars = dynamic_cast<MillePedeVariables *>(params->userVariables());
     if (userVars) {  // Just re-use existing, keeping label and numHits:
       for (unsigned int iPar = 0; iPar < userVars->size(); ++iPar) {
         //      if (params->hierarchyLevel() > 0) {
@@ -1199,7 +1198,7 @@ bool MillePedeAlignmentAlgorithm::addHitStatistics(int fromIov,
   bool allOk = true;
   int ierr = 0;
   MillePedeVariablesIORoot millePedeIO;
-  for (std::vector<std::string>::const_iterator iFile = inFiles.begin(); iFile != inFiles.end(); ++iFile) {
+  for (auto iFile = inFiles.begin(); iFile != inFiles.end(); ++iFile) {
     const std::string inFile(theDir + *iFile);
     const std::vector<AlignmentUserVariables *> mpVars =
         millePedeIO.readMillePedeVariables(theAlignables, inFile.c_str(), fromIov, ierr);
@@ -1209,7 +1208,7 @@ bool MillePedeAlignmentAlgorithm::addHitStatistics(int fromIov,
                                  << ", or problems in addHits";
       allOk = false;
     }
-    for (std::vector<AlignmentUserVariables *>::const_iterator i = mpVars.begin(); i != mpVars.end(); ++i) {
+    for (auto i = mpVars.begin(); i != mpVars.end(); ++i) {
       delete *i;  // clean created objects
     }
   }
@@ -1221,9 +1220,9 @@ bool MillePedeAlignmentAlgorithm::addHitStatistics(int fromIov,
 bool MillePedeAlignmentAlgorithm::addHits(const align::Alignables &alis,
                                           const std::vector<AlignmentUserVariables *> &mpVars) const {
   bool allOk = (mpVars.size() == alis.size());
-  std::vector<AlignmentUserVariables *>::const_iterator iUser = mpVars.begin();
+  auto iUser = mpVars.begin();
   for (auto iAli = alis.cbegin(); iAli != alis.cend() && iUser != mpVars.end(); ++iAli, ++iUser) {
-    MillePedeVariables *mpVarNew = dynamic_cast<MillePedeVariables *>(*iUser);
+    auto *mpVarNew = dynamic_cast<MillePedeVariables *>(*iUser);
     AlignmentParameters *ps = (*iAli)->alignmentParameters();
     MillePedeVariables *mpVarOld = (ps ? dynamic_cast<MillePedeVariables *>(ps->userVariables()) : nullptr);
     if (!mpVarNew || !mpVarOld || mpVarOld->size() != mpVarNew->size()) {
@@ -1508,8 +1507,8 @@ void MillePedeAlignmentAlgorithm ::addVirtualMeas(const ReferenceTrajectoryBase:
 void MillePedeAlignmentAlgorithm::addLaserData(const EventInfo &eventInfo,
                                                const TkFittedLasBeamCollection &lasBeams,
                                                const TsosVectorCollection &lasBeamTsoses) {
-  TsosVectorCollection::const_iterator iTsoses = lasBeamTsoses.begin();
-  for (TkFittedLasBeamCollection::const_iterator iBeam = lasBeams.begin(), iEnd = lasBeams.end(); iBeam != iEnd;
+  auto iTsoses = lasBeamTsoses.begin();
+  for (auto iBeam = lasBeams.begin(), iEnd = lasBeams.end(); iBeam != iEnd;
        ++iBeam, ++iTsoses) {  // beam/tsoses parallel!
 
     edm::LogInfo("Alignment") << "@SUB=MillePedeAlignmentAlgorithm::addLaserData"

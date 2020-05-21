@@ -110,7 +110,7 @@ PixelMaxVsf::PixelMaxVsf(std::string filename) : PixelConfigBase("", "", "") {
 }
 
 bool PixelMaxVsf::getVsf(PixelROCName roc, unsigned int &Vsf) const {
-  std::map<PixelROCName, unsigned int>::const_iterator itr = rocs_.find(roc);
+  auto itr = rocs_.find(roc);
 
   if (itr == rocs_.end()) {
     return false;
@@ -135,7 +135,7 @@ void PixelMaxVsf::writeASCII(std::string dir) const {
     exit(1);
   }
 
-  std::map<PixelROCName, unsigned int>::const_iterator irocs = rocs_.begin();
+  auto irocs = rocs_.begin();
   for (; irocs != rocs_.end(); ++irocs) {
     out << (irocs->first).rocname() << " " << irocs->second << endl;
   }
@@ -190,7 +190,7 @@ void PixelMaxVsf::writeXMLHeader(pos::PixelConfigKey key,
 void PixelMaxVsf::writeXML(std::ofstream *outstream, std::ofstream *out1stream, std::ofstream *out2stream) const {
   std::string mthn = "[PixelMaxVsf::writeXML()]\t\t\t    ";
 
-  std::map<PixelROCName, unsigned int>::const_iterator irocs = rocs_.begin();
+  auto irocs = rocs_.begin();
   for (; irocs != rocs_.end(); ++irocs) {
     *outstream << "  <DATA>" << std::endl;
     *outstream << "   <ROC_NAME>" << (irocs->first).rocname() << "</ROC_NAME>" << std::endl;

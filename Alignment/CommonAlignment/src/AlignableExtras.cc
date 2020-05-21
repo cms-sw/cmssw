@@ -33,7 +33,7 @@ void AlignableExtras::dump(void) const {
   edm::LogInfo("AlignableDump") << " AlignableExtras knows " << comp.size() << " alignable(s)" << std::endl;
 
   // Dump components
-  for (Alignables::iterator i = comp.begin(); i != comp.end(); ++i)
+  for (auto i = comp.begin(); i != comp.end(); ++i)
     (*i)->dump();
 }
 
@@ -42,7 +42,7 @@ Alignments* AlignableExtras::alignments(void) const {
   align::Alignables comp = this->components();
   Alignments* m_alignments = new Alignments();
   // Add components recursively
-  for (align::Alignables::iterator i = comp.begin(); i != comp.end(); ++i) {
+  for (auto i = comp.begin(); i != comp.end(); ++i) {
     Alignments* tmpAlignments = (*i)->alignments();
     std::copy(tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), std::back_inserter(m_alignments->m_align));
     delete tmpAlignments;
@@ -57,10 +57,10 @@ Alignments* AlignableExtras::alignments(void) const {
 //__________________________________________________________________________________________________
 AlignmentErrorsExtended* AlignableExtras::alignmentErrors(void) const {
   align::Alignables comp = this->components();
-  AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();
+  auto* m_alignmentErrors = new AlignmentErrorsExtended();
 
   // Add components recursively
-  for (align::Alignables::iterator i = comp.begin(); i != comp.end(); ++i) {
+  for (auto i = comp.begin(); i != comp.end(); ++i) {
     AlignmentErrorsExtended* tmpAlignmentErrorsExtended = (*i)->alignmentErrors();
     std::copy(tmpAlignmentErrorsExtended->m_alignError.begin(),
               tmpAlignmentErrorsExtended->m_alignError.end(),
@@ -77,7 +77,7 @@ AlignmentErrorsExtended* AlignableExtras::alignmentErrors(void) const {
 //______________________________________________________________________________
 void AlignableExtras::initializeBeamSpot(double x, double y, double z, double dxdz, double dydz) {
   align::Alignables& alis = beamSpot();
-  AlignableBeamSpot* aliBS = dynamic_cast<AlignableBeamSpot*>(alis.back());
+  auto* aliBS = dynamic_cast<AlignableBeamSpot*>(alis.back());
   if (aliBS) {
     aliBS->initialize(x, y, z, dxdz, dydz);
   } else {
@@ -88,7 +88,7 @@ void AlignableExtras::initializeBeamSpot(double x, double y, double z, double dx
 //______________________________________________________________________________
 void AlignableExtras::resetBeamSpot() {
   align::Alignables& alis = beamSpot();
-  AlignableBeamSpot* aliBS = dynamic_cast<AlignableBeamSpot*>(alis.back());
+  auto* aliBS = dynamic_cast<AlignableBeamSpot*>(alis.back());
   if (aliBS) {
     aliBS->reset();
   } else {

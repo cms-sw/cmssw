@@ -123,7 +123,7 @@ void HBHEStatusBitSetter::SetFlagsFromRecHits(HBHERecHitCollection& rec) {
     return;
   }
 
-  for (HBHERecHitCollection::iterator iHBHE = rec.begin(); iHBHE != rec.end(); ++iHBHE) {
+  for (auto iHBHE = rec.begin(); iHBHE != rec.end(); ++iHBHE) {
     const int index = frontEndMap_->lookupRMIndex(iHBHE->detid());
     if (hpdMultiplicity_.at(index) < hitMultiplicityThreshold_)
       continue;

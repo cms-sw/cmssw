@@ -114,7 +114,7 @@ bool TrackerSingleRecHit::sharesInput(const TrackingRecHit *other, SharedInputTy
 
   // move to switch?
   if (trackerHitRTTI::isSingleType(*other)) {
-    const TrackerSingleRecHit &otherCast = static_cast<const TrackerSingleRecHit &>(*other);
+    const auto &otherCast = static_cast<const TrackerSingleRecHit &>(*other);
     return sharesInput(otherCast);
   }
 

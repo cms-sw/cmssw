@@ -74,9 +74,9 @@ int main(int argc, char* argv[]) {
   std::ofstream outputFile;
   outputFile.open("TreeDump.txt");
 
-  MuonPairVector::const_iterator it = pairVector.begin();
-  MuonPairVector::const_iterator genIt = genPairVector.begin();
-  std::vector<std::pair<unsigned int, unsigned long long> >::iterator evtRunIt = evtRun.begin();
+  auto it = pairVector.begin();
+  auto genIt = genPairVector.begin();
+  auto evtRunIt = evtRun.begin();
   for (; it != pairVector.end(); ++it, ++genIt, ++evtRunIt) {
     // Write the information to a txt file
     outputFile << it->first.pt() << " " << it->first.eta() << " " << it->first.phi() << " " << it->second.pt() << " "

@@ -70,8 +70,7 @@ namespace edm {
 
     // Gen. PU protons
     std::shared_ptr<edm::Wrapper<std::vector<reco::GenParticle>> const> GenPUProtonsPTR;
-    for (std::vector<edm::InputTag>::const_iterator it_InputTag = GenPUProtonsInputTags_.begin();
-         it_InputTag != GenPUProtonsInputTags_.end();
+    for (auto it_InputTag = GenPUProtonsInputTags_.begin(); it_InputTag != GenPUProtonsInputTags_.end();
          ++it_InputTag) {
       GenPUProtonsPTR = getProductByTag<std::vector<reco::GenParticle>>(*ep, *it_InputTag, mcc);
       if (GenPUProtonsPTR != nullptr) {
@@ -113,8 +112,8 @@ namespace edm {
     // Gen. PU protons
     for (size_t idx = 0; idx < GenPUProtons_.size(); ++idx) {
       std::unique_ptr<std::vector<reco::GenParticle>> GenPUProtons_ptr(new std::vector<reco::GenParticle>());
-      std::vector<reco::GenParticle>::const_iterator it_GenParticle = GenPUProtons_.at(idx).begin();
-      std::vector<reco::GenParticle>::const_iterator it_GenParticle_end = GenPUProtons_.at(idx).end();
+      auto it_GenParticle = GenPUProtons_.at(idx).begin();
+      auto it_GenParticle_end = GenPUProtons_.at(idx).end();
       for (; it_GenParticle != it_GenParticle_end; ++it_GenParticle)
         GenPUProtons_ptr->push_back(*it_GenParticle);
 

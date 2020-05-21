@@ -127,8 +127,7 @@ namespace edm {
               EventSetupRecordProvider::DataToPreferredProviderMap& dataToProviderMap = iReturnValue[recordKey];
 
               for (auto keyedProxy : keyedProxies) {
-                EventSetupRecordProvider::DataToPreferredProviderMap::iterator itFind =
-                    dataToProviderMap.find(keyedProxy.dataKey_);
+                auto itFind = dataToProviderMap.find(keyedProxy.dataKey_);
                 if (itFind != dataToProviderMap.end()) {
                   throw cms::Exception("ESPreferConflict")
                       << "Two providers have been set to be preferred for\n"
@@ -176,7 +175,7 @@ namespace edm {
               EventSetupRecordProvider& recordProviderForKey = *recordProvider(recordKey);
 
               std::set<ComponentDescription> components = recordProviderForKey.proxyProviderDescriptions();
-              std::set<ComponentDescription>::iterator itProxyProv = components.find(itInfo.first);
+              auto itProxyProv = components.find(itInfo.first);
               if (itProxyProv == components.end()) {
                 throw cms::Exception("ESPreferWrongRecord")
                     << "The type=" << itInfo.first.type_ << " label=\"" << itInfo.first.label_
@@ -209,8 +208,7 @@ namespace edm {
                   (*recordToPreferred_)[recordKey];
               //has another provider already been specified?
               if (dataToProviderMap.end() != dataToProviderMap.find(datumKey)) {
-                EventSetupRecordProvider::DataToPreferredProviderMap::iterator itFind =
-                    dataToProviderMap.find(datumKey);
+                auto itFind = dataToProviderMap.find(datumKey);
                 throw cms::Exception("ESPreferConflict")
                     << "Two providers have been set to be preferred for\n"
                     << datumKey.type().name() << " \"" << datumKey.name().value() << "\""
@@ -294,7 +292,7 @@ namespace edm {
       //CHANGE: now allow for missing Providers
       for (auto& itRecordProvider : recordProviders_) {
         const EventSetupRecordProvider::DataToPreferredProviderMap* preferredInfo = &kEmptyMap;
-        RecordToPreferred::const_iterator itRecordFound = recordToPreferred_->find(itRecordProvider->key());
+        auto itRecordFound = recordToPreferred_->find(itRecordProvider->key());
         if (itRecordFound != recordToPreferred_->end()) {
           preferredInfo = &(itRecordFound->second);
         }
@@ -353,7 +351,7 @@ namespace edm {
                                Itr itBegin,
                                Itr itEnd,
                                std::vector<std::shared_ptr<EventSetupRecordProvider>>& oDependents) {
-      for (Itr it = itBegin; it != itEnd; ++it) {
+      for (auto it = itBegin; it != itEnd; ++it) {
         //does it depend on the record in question?
         const std::set<EventSetupRecordKey>& deps = (*it)->dependentRecords();
         if (deps.end() != deps.find(iKey)) {
@@ -631,7 +629,7 @@ namespace edm {
       for (auto const& recProvider : recordProviders_) {
         static const EventSetupRecordProvider::DataToPreferredProviderMap kEmptyMap;
         const EventSetupRecordProvider::DataToPreferredProviderMap* preferredInfo = &kEmptyMap;
-        RecordToPreferred::const_iterator itRecordFound = recordToPreferred_->find(recProvider->key());
+        auto itRecordFound = recordToPreferred_->find(recProvider->key());
         if (itRecordFound != recordToPreferred_->end()) {
           preferredInfo = &(itRecordFound->second);
         }

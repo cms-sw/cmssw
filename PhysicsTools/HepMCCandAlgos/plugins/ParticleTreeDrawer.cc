@@ -109,7 +109,7 @@ void ParticleTreeDrawer::printInfo(const Candidate &c) const {
     cout << "{status: " << c.status() << "}";
   if (printIndex_) {
     int idx = -1;
-    vector<const Candidate *>::const_iterator found = find(cands_.begin(), cands_.end(), &c);
+    auto found = find(cands_.begin(), cands_.end(), &c);
     if (found != cands_.end()) {
       idx = found - cands_.begin();
       cout << " <idx: " << idx << ">";

@@ -163,8 +163,8 @@ bool HeaderLess::operator()(const LHERunInfoProduct::Header &a, const LHERunInfo
   if (a.tag() > b.tag())
     return false;
 
-  LHERunInfoProduct::Header::const_iterator iter1 = a.begin();
-  LHERunInfoProduct::Header::const_iterator iter2 = b.begin();
+  auto iter1 = a.begin();
+  auto iter2 = b.begin();
 
   for (; iter1 != a.end() && iter2 != b.end(); ++iter1, ++iter2) {
     if (*iter1 < *iter2)
@@ -221,9 +221,7 @@ bool LHERunInfoProduct::mergeProduct(const LHERunInfoProduct &other) {
 
     // loop over the headers of the original file
     bool failed = false;
-    for (std::vector<LHERunInfoProduct::Header>::const_iterator header = other.headers_begin();
-         header != other.headers_end();
-         ++header) {
+    for (auto header = other.headers_begin(); header != other.headers_end(); ++header) {
       if (headers.count(*header)) {
         continue;
       }

@@ -88,7 +88,7 @@ void CounterChecker::Analyze(T &status, bool error, std::ostream &es) {
   unsigned int totalFrames = 0;
 
   // finding the most frequent counter
-  for (CounterMap::iterator iter = relationMap.begin(); iter != relationMap.end(); iter++) {
+  for (auto iter = relationMap.begin(); iter != relationMap.end(); iter++) {
     unsigned int iterSize = iter->second.size();
     totalFrames += iterSize;
 
@@ -113,9 +113,9 @@ void CounterChecker::Analyze(T &status, bool error, std::ostream &es) {
     return;
   }
 
-  for (CounterMap::iterator iter = relationMap.begin(); iter != relationMap.end(); iter++) {
+  for (auto iter = relationMap.begin(); iter != relationMap.end(); iter++) {
     if (iter->first != mostFrequentCounter) {
-      for (std::vector<TotemFramePosition>::iterator fr = iter->second.begin(); fr != iter->second.end(); fr++) {
+      for (auto fr = iter->second.begin(); fr != iter->second.end(); fr++) {
         if (error) {
           if (type == ECChecker)
             status[*fr].status.setECProgressError();

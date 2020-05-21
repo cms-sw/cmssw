@@ -5,7 +5,7 @@ const double pi = M_PI, pi2 = 2 * pi, pi_2 = pi / 2, pi_4 = pi / 4;
 
 void Thrust::init(const std::vector<const Candidate*>& cands) {
   int i = 0;
-  for (std::vector<const Candidate*>::const_iterator t = cands.begin(); t != cands.end(); ++t, ++i)
+  for (auto t = cands.begin(); t != cands.end(); ++t, ++i)
     pSum_ += (p_[i] = (*t)->momentum()).r();
   axis_ = axis(finalAxis(initialAxis()));
   if (axis_.z() < 0)

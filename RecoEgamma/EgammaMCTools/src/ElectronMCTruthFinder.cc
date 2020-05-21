@@ -31,7 +31,7 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTr
   int iPV = -1;
   //int partType1=0;
   //int partType2=0;
-  std::vector<SimTrack>::const_iterator iFirstSimTk = theSimTracks.begin();
+  auto iFirstSimTk = theSimTracks.begin();
   if (!(*iFirstSimTk).noVertex()) {
     iPV = (*iFirstSimTk).vertIndex();
 
@@ -66,7 +66,7 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTr
   //std::cout << " Loop over all particles " << std::endl;
 
   int npv = 0;
-  for (std::vector<SimTrack>::const_iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk) {
+  for (auto iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk) {
     if ((*iSimTk).noVertex())
       continue;
 
@@ -109,7 +109,7 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTr
   std::vector<CLHEP::HepLorentzVector> pBrem;
   std::vector<float> xBrem;
 
-  for (std::vector<SimTrack>::iterator iEleTk = electronTracks.begin(); iEleTk != electronTracks.end(); ++iEleTk) {
+  for (auto iEleTk = electronTracks.begin(); iEleTk != electronTracks.end(); ++iEleTk) {
     //std::cout << " Looping on the primary electron pt  " << std::sqrt((*iEleTk).momentum().perp2()) << " electron track ID " << (*iEleTk).trackId() << std::endl;
 
     SimTrack trLast = (*iEleTk);
@@ -126,7 +126,7 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTr
     pBrem.clear();
     xBrem.clear();
 
-    for (std::vector<SimTrack>::const_iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk) {
+    for (auto iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk) {
       if ((*iSimTk).noVertex())
         continue;
       if ((*iSimTk).vertIndex() == iPV)
@@ -155,7 +155,7 @@ std::vector<ElectronMCTruth> ElectronMCTruthFinder::find(const std::vector<SimTr
 
         if (vertex1.parentIndex()) {
           unsigned motherGeantId = vertex1.parentIndex();
-          std::map<unsigned, unsigned>::iterator association = geantToIndex_.find(motherGeantId);
+          auto association = geantToIndex_.find(motherGeantId);
           if (association != geantToIndex_.end())
             motherId = association->second;
 

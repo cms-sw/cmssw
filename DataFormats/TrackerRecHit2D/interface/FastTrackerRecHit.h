@@ -64,7 +64,7 @@ public:
   }
 
   FastTrackerRecHit* clone() const override {
-    FastTrackerRecHit* p = new FastTrackerRecHit(*this);
+    auto* p = new FastTrackerRecHit(*this);
     p->load();
     return p;
   }
@@ -140,7 +140,7 @@ public:
     // cast other hit
     if (!trackerHitRTTI::isFast(*other))
       return false;
-    const FastTrackerRecHit* otherCast = static_cast<const FastTrackerRecHit*>(other);
+    const auto* otherCast = static_cast<const FastTrackerRecHit*>(other);
 
     // checks
     if (this->nIds() == 1) {         // this hit is single/projected

@@ -63,7 +63,7 @@ bool TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts
       false;  // set this to true for debugging and add TtDecayChannelSelector category to the MessageLogger in your cfg file
   unsigned int iLep = 0;
   unsigned int iTop = 0, iBeauty = 0, iElec = 0, iMuon = 0, iTau = 0;
-  for (reco::GenParticleCollection::const_iterator top = parts.begin(); top != parts.end(); ++top) {
+  for (auto top = parts.begin(); top != parts.end(); ++top) {
     if (search(top, TopDecayID::tID, inputType)) {
       ++iTop;
       for (reco::GenParticle::const_iterator td = top->begin(); td != top->end(); ++td) {

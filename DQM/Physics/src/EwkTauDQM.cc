@@ -195,7 +195,7 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
   const edm::TriggerNames& triggerNames = evt.triggerNames(*hltDecision);
 
   bool isTriggered = false;
-  for (vstring::const_iterator hltPath = hltPaths_.begin(); hltPath != hltPaths_.end(); ++hltPath) {
+  for (auto hltPath = hltPaths_.begin(); hltPath != hltPaths_.end(); ++hltPath) {
     unsigned int index = triggerNames.triggerIndex(*hltPath);
     if (index < triggerNames.size()) {
       if (hltDecision->accept(index))
@@ -403,8 +403,7 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt, const edm::Eve
 
   //--- fill electron multiplicity histogram
   unsigned numIdElectrons = 0;
-  for (reco::GsfElectronCollection::const_iterator electron = electrons->begin(); electron != electrons->end();
-       ++electron) {
+  for (auto electron = electrons->begin(); electron != electrons->end(); ++electron) {
     if (passesElectronId(*electron)) {
       ++numIdElectrons;
     }
@@ -669,7 +668,7 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
   const edm::TriggerNames& triggerNames = evt.triggerNames(*hltDecision);
 
   bool isTriggered = false;
-  for (vstring::const_iterator hltPath = hltPaths_.begin(); hltPath != hltPaths_.end(); ++hltPath) {
+  for (auto hltPath = hltPaths_.begin(); hltPath != hltPaths_.end(); ++hltPath) {
     unsigned int index = triggerNames.triggerIndex(*hltPath);
     if (index < triggerNames.size()) {
       if (hltDecision->accept(index))
@@ -865,7 +864,7 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt, const edm::Event
 
   //--- fill muon multiplicity histogram
   unsigned numGlobalMuons = 0;
-  for (reco::MuonCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++muon) {
+  for (auto muon = muons->begin(); muon != muons->end(); ++muon) {
     if (muon->isGlobalMuon()) {
       ++numGlobalMuons;
     }
@@ -1104,8 +1103,7 @@ const reco::GsfElectron* getTheElectron(const reco::GsfElectronCollection& elect
                                         double electronPtCut) {
   const reco::GsfElectron* theElectron = nullptr;
 
-  for (reco::GsfElectronCollection::const_iterator electron = electrons.begin(); electron != electrons.end();
-       ++electron) {
+  for (auto electron = electrons.begin(); electron != electrons.end(); ++electron) {
     if (TMath::Abs(electron->eta()) < electronEtaCut && electron->pt() > electronPtCut &&
         passesElectronPreId(*electron)) {
       if (theElectron == nullptr || electron->pt() > theElectron->pt())
@@ -1119,7 +1117,7 @@ const reco::GsfElectron* getTheElectron(const reco::GsfElectronCollection& elect
 const reco::Muon* getTheMuon(const reco::MuonCollection& muons, double muonEtaCut, double muonPtCut) {
   const reco::Muon* theMuon = nullptr;
 
-  for (reco::MuonCollection::const_iterator muon = muons.begin(); muon != muons.end(); ++muon) {
+  for (auto muon = muons.begin(); muon != muons.end(); ++muon) {
     if (TMath::Abs(muon->eta()) < muonEtaCut && muon->pt() > muonPtCut) {
       if (theMuon == nullptr || muon->pt() > theMuon->pt())
         theMuon = &(*muon);

@@ -78,7 +78,7 @@ double BSpdfsFcn::operator()(const std::vector<double>& params) const {
 
   //std::cout << "fusepdfs=" << fusepdfs << " params.size="<<params.size() << std::endl;
 
-  std::vector<BSTrkParameters>::const_iterator iparam = fBSvector.begin();
+  auto iparam = fBSvector.begin();
 
   double pdf = 0;
 

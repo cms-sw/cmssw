@@ -101,7 +101,7 @@ bool LatencyHistosUsingDb::update(SiStripConfigDb::DeviceDescriptionsRange devic
 
   // Compute latency and PLL shift from the sampling measurement
   SamplingAnalysis* anal = nullptr;
-  for (CommissioningHistograms::Analysis it = data().begin(); it != data().end(); ++it) {
+  for (auto it = data().begin(); it != data().end(); ++it) {
     if (dynamic_cast<SamplingAnalysis*>(it->second) &&
         dynamic_cast<SamplingAnalysis*>(it->second)->granularity() == sistrip::TRACKER)
       anal = dynamic_cast<SamplingAnalysis*>(it->second);
@@ -114,14 +114,14 @@ bool LatencyHistosUsingDb::update(SiStripConfigDb::DeviceDescriptionsRange devic
   // Compute latency and PLL shift per partition... this is an option
   uint16_t latency = globalLatency;
   float shift[5] = {0.};
-  for (CommissioningHistograms::Analysis it = data().begin(); it != data().end(); ++it) {
+  for (auto it = data().begin(); it != data().end(); ++it) {
     if (dynamic_cast<SamplingAnalysis*>(it->second) &&
         dynamic_cast<SamplingAnalysis*>(it->second)->granularity() == sistrip::PARTITION) {
       anal = dynamic_cast<SamplingAnalysis*>(it->second);
       latency = uint16_t(ceil(anal->maximum() / (-25.))) > latency ? uint16_t(ceil(anal->maximum() / (-25.))) : latency;
     }
   }
-  for (CommissioningHistograms::Analysis it = data().begin(); it != data().end(); ++it) {
+  for (auto it = data().begin(); it != data().end(); ++it) {
     if (dynamic_cast<SamplingAnalysis*>(it->second) &&
         dynamic_cast<SamplingAnalysis*>(it->second)->granularity() == sistrip::PARTITION) {
       anal = dynamic_cast<SamplingAnalysis*>(it->second);
@@ -236,7 +236,7 @@ bool LatencyHistosUsingDb::update(SiStripConfigDb::DeviceDescriptionsRange devic
       if (DetId(iconn->detId()).det() != DetId::Tracker)
         continue;
       // build the Fed9UAddress for that channel. Used to update the description.
-      Fed9U::Fed9UAddress fedChannel = Fed9U::Fed9UAddress(iconn->fedCh());
+      auto fedChannel = Fed9U::Fed9UAddress(iconn->fedCh());
       // retreive the current value for the delays
       fedDelayCoarse = (*ifed)->getCoarseDelay(fedChannel);
       // update min and max
@@ -251,7 +251,7 @@ bool LatencyHistosUsingDb::update(SiStripConfigDb::DeviceDescriptionsRange devic
     offset = (MAXFEDCOARSE - maxDelay) * 25;  // otherwise, take the largest possible
 
   // loop over the FED ids
-  for (SiStripConfigDb::FedDescriptionsV::const_iterator ifed = feds.begin(); ifed != feds.end(); ifed++) {
+  for (auto ifed = feds.begin(); ifed != feds.end(); ifed++) {
     // If FED id not found in list (from cabling), then continue
     if (find(ids.begin(), ids.end(), (*ifed)->getFedId()) == ids.end()) {
       continue;
@@ -263,7 +263,7 @@ bool LatencyHistosUsingDb::update(SiStripConfigDb::DeviceDescriptionsRange devic
       if (DetId(iconn->detId()).det() != DetId::Tracker)
         continue;
       // build the Fed9UAddress for that channel. Used to update the description.
-      Fed9U::Fed9UAddress fedChannel = Fed9U::Fed9UAddress(iconn->fedCh());
+      auto fedChannel = Fed9U::Fed9UAddress(iconn->fedCh());
       // retreive the current value for the delays
       int fedDelayCoarse = (*ifed)->getCoarseDelay(fedChannel);
       int fedDelayFine = (*ifed)->getFineDelay(fedChannel);
@@ -299,8 +299,8 @@ bool LatencyHistosUsingDb::update(SiStripConfigDb::DeviceDescriptionsRange devic
        << " Found PLL coarse setting of 15"
        << " (not allowed!) for following channels"
        << " (Crate/FEC/slot/ring/CCU/LLD): ";
-    std::vector<SiStripFecKey>::iterator ikey = invalid.begin();
-    std::vector<SiStripFecKey>::iterator jkey = invalid.end();
+    auto ikey = invalid.begin();
+    auto jkey = invalid.end();
     for (; ikey != jkey; ++ikey) {
       ss << ikey->fecCrate() << "/" << ikey->fecSlot() << "/" << ikey->fecRing() << "/" << ikey->ccuAddr() << "/"
          << ikey->ccuChan() << ", ";
@@ -319,7 +319,7 @@ bool LatencyHistosUsingDb::update(SiStripConfigDb::DeviceDescriptionsRange devic
 // -----------------------------------------------------------------------------
 /** */
 void LatencyHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& desc, Analysis analysis) {
-  SamplingAnalysis* anal = dynamic_cast<SamplingAnalysis*>(analysis->second);
+  auto* anal = dynamic_cast<SamplingAnalysis*>(analysis->second);
   if (!anal) {
     return;
   }
@@ -349,8 +349,8 @@ void LatencyHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& desc, 
   // Add comments
   typedef std::vector<std::string> Strings;
   Strings errors = anal->getErrorCodes();
-  Strings::const_iterator istr = errors.begin();
-  Strings::const_iterator jstr = errors.end();
+  auto istr = errors.begin();
+  auto jstr = errors.end();
   for (; istr != jstr; ++istr) {
     tmp->addComments(*istr);
   }

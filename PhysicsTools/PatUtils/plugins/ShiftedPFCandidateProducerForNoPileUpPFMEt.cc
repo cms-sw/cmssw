@@ -41,7 +41,7 @@ void ShiftedPFCandidateProducerForNoPileUpPFMEt::produce(edm::Event& evt, const 
   evt.getByToken(srcJetsToken_, jets);
 
   std::vector<const reco::PFJet*> selectedJets;
-  for (reco::PFJetCollection::const_iterator jet = jets->begin(); jet != jets->end(); ++jet) {
+  for (auto jet = jets->begin(); jet != jets->end(); ++jet) {
     if (jet->pt() > minJetPt_)
       selectedJets.push_back(&(*jet));
   }
@@ -55,14 +55,12 @@ void ShiftedPFCandidateProducerForNoPileUpPFMEt::produce(edm::Event& evt, const 
   }
 
   auto shiftedPFCandidates = std::make_unique<reco::PFCandidateCollection>();
-  for (reco::PFCandidateCollection::const_iterator originalPFCandidate = originalPFCandidates->begin();
-       originalPFCandidate != originalPFCandidates->end();
+  for (auto originalPFCandidate = originalPFCandidates->begin(); originalPFCandidate != originalPFCandidates->end();
        ++originalPFCandidate) {
     const reco::PFJet* jet_matched = nullptr;
-    for (std::vector<const reco::PFJet*>::iterator jet = selectedJets.begin(); jet != selectedJets.end(); ++jet) {
+    for (auto jet = selectedJets.begin(); jet != selectedJets.end(); ++jet) {
       std::vector<reco::PFCandidatePtr> jetConstituents = (*jet)->getPFConstituents();
-      for (std::vector<reco::PFCandidatePtr>::const_iterator jetConstituent = jetConstituents.begin();
-           jetConstituent != jetConstituents.end() && !jet_matched;
+      for (auto jetConstituent = jetConstituents.begin(); jetConstituent != jetConstituents.end() && !jet_matched;
            ++jetConstituent) {
         if (deltaR(originalPFCandidate->p4(), (*jetConstituent)->p4()) < 1.e-2)
           jet_matched = (*jet);

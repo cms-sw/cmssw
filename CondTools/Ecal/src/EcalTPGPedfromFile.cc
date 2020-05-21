@@ -49,8 +49,8 @@ void popcon::EcalTPGPedfromFile::getNewObjects() {
   char cryst[10];
   uint32_t ped[kGains], mult[kGains], shift[kGains];
   uint32_t id;
-  EcalTPGLinearizationConst* linC = new EcalTPGLinearizationConst;
-  EcalTPGPedestals* peds = new EcalTPGPedestals;
+  auto* linC = new EcalTPGLinearizationConst;
+  auto* peds = new EcalTPGPedestals;
   for (int iChannel = 0; iChannel < kEBChannels; iChannel++) {
     getline(fLin, line);
     sscanf(line.c_str(), "%s %u", cryst, &id);

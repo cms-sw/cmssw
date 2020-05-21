@@ -272,7 +272,7 @@ namespace edm {
     if (decayer_)
       decayer_->statistics();
 
-    GenRunInfoProduct genRunInfo = GenRunInfoProduct(hadronizer_.getGenRunInfo());
+    auto genRunInfo = GenRunInfoProduct(hadronizer_.getGenRunInfo());
     std::vector<GenLumiInfoProduct::ProcessInfo> GenLumiProcess;
     const GenRunInfoProduct::XSec& xsec = genRunInfo.internalXSec();
     GenLumiInfoProduct::ProcessInfo temp;

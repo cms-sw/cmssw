@@ -28,7 +28,7 @@ void TTbar_GenJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
     return;
   // loop Jet collection and fill histograms
   int njets = 0;
-  for (std::vector<reco::GenJet>::const_iterator jet_it = jets->begin(); jet_it != jets->end(); ++jet_it) {
+  for (auto jet_it = jets->begin(); jet_it != jets->end(); ++jet_it) {
     ++njets;
 
     hists_["jetPtAll"]->Fill(jet_it->pt(), weight);

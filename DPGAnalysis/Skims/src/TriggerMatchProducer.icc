@@ -85,9 +85,7 @@ void TriggerMatchProducer<object>::produce(edm::Event& event, const edm::EventSe
   //      if ( triggerUnprescaled.find((*iMyHLT).label()) == triggerUnprescaled.end() )
   //        triggerUnprescaled[(*iMyHLT).label()] = false;
   //    }
-  for (std::vector<std::string>::const_iterator iHLT = activeHLTPathsInThisEvent.begin();
-       iHLT != activeHLTPathsInThisEvent.end();
-       ++iHLT) {
+  for (auto iHLT = activeHLTPathsInThisEvent.begin(); iHLT != activeHLTPathsInThisEvent.end(); ++iHLT) {
     //        cout << "######## " << *iHLT << endl;
 
     if (TString(*iHLT).Contains(TRegexp(hltTag_))) {
@@ -116,8 +114,7 @@ void TriggerMatchProducer<object>::produce(edm::Event& event, const edm::EventSe
   std::vector<std::string> filters;
   //    if(isFilter_){
   //-----------------------------------------------------------------------
-  for (std::map<std::string, bool>::const_iterator iMyHLT = triggerInMenu.begin(); iMyHLT != triggerInMenu.end();
-       ++iMyHLT) {
+  for (auto iMyHLT = triggerInMenu.begin(); iMyHLT != triggerInMenu.end(); ++iMyHLT) {
     if (!(iMyHLT->second && triggerUnprescaled[iMyHLT->first]))
       continue;
 
@@ -135,7 +132,7 @@ void TriggerMatchProducer<object>::produce(edm::Event& event, const edm::EventSe
       continue;
     }
 
-    for (std::vector<std::string>::iterator filter = filters.begin(); filter != filters.end(); ++filter) {
+    for (auto filter = filters.begin(); filter != filters.end(); ++filter) {
       edm::InputTag testTag(*filter, "", triggerEventTag_.process());
       int testindex = trgEvent->filterIndex(testTag);
       if (!(testindex >= trgEvent->sizeFilters())) {

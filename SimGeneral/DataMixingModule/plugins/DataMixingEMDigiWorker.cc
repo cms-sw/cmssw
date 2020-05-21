@@ -249,7 +249,7 @@ namespace edm {
 
     EBDigiMap::const_iterator iEBchk;
 
-    for (EBDigiMap::const_iterator iEB = EBDigiStorage_.begin(); iEB != EBDigiStorage_.end(); iEB++) {
+    for (auto iEB = EBDigiStorage_.begin(); iEB != EBDigiStorage_.end(); iEB++) {
       currentID = iEB->first;
 
       if (currentID == formerID) {  // we have to add these digis together
@@ -362,7 +362,7 @@ namespace edm {
 
     EEDigiMap::const_iterator iEEchk;
 
-    for (EEDigiMap::const_iterator iEE = EEDigiStorage_.begin(); iEE != EEDigiStorage_.end(); iEE++) {
+    for (auto iEE = EEDigiStorage_.begin(); iEE != EEDigiStorage_.end(); iEE++) {
       currentID = iEE->first;
 
       if (currentID == formerID) {  // we have to add these digis together
@@ -452,7 +452,7 @@ namespace edm {
 
     ESDigiMap::const_iterator iESchk;
 
-    for (ESDigiMap::const_iterator iES = ESDigiStorage_.begin(); iES != ESDigiStorage_.end(); iES++) {
+    for (auto iES = ESDigiStorage_.begin(); iES != ESDigiStorage_.end(); iES++) {
       currentID = iES->first;
 
       if (currentID == formerID) {  // we have to add these digis together

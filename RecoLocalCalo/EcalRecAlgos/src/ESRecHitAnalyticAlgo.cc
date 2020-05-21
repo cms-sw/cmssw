@@ -77,12 +77,12 @@ double* ESRecHitAnalyticAlgo::EvalAmplitude(const ESDataFrame& digi, double ped)
 }
 
 EcalRecHit ESRecHitAnalyticAlgo::reconstruct(const ESDataFrame& digi) const {
-  ESPedestals::const_iterator it_ped = peds_->find(digi.id());
+  auto it_ped = peds_->find(digi.id());
 
-  ESIntercalibConstantMap::const_iterator it_mip = mips_->getMap().find(digi.id());
-  ESAngleCorrectionFactors::const_iterator it_ang = ang_->getMap().find(digi.id());
+  auto it_mip = mips_->getMap().find(digi.id());
+  auto it_ang = ang_->getMap().find(digi.id());
 
-  ESChannelStatusMap::const_iterator it_status = channelStatus_->getMap().find(digi.id());
+  auto it_status = channelStatus_->getMap().find(digi.id());
 
   double* results;
 

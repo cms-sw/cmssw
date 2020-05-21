@@ -35,8 +35,7 @@ CachingVertex<N> KalmanVertexUpdator<N>::update(const CachingVertex<N>& oldVerte
   if (sign > 0) {
     newVertexTracks.push_back(track);
   } else {
-    typename std::vector<RefCountedVertexTrack>::iterator pos =
-        find(newVertexTracks.begin(), newVertexTracks.end(), track);
+    auto pos = find(newVertexTracks.begin(), newVertexTracks.end(), track);
     if (pos != newVertexTracks.end()) {
       newVertexTracks.erase(pos);
     } else {

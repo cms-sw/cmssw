@@ -26,7 +26,7 @@ namespace edm {
   void WorkerRegistry::clear() { m_workerMap.clear(); }
 
   Worker* WorkerRegistry::getWorker(WorkerParams const& p, std::string const& moduleLabel) {
-    WorkerMap::iterator workerIt = m_workerMap.find(moduleLabel);
+    auto workerIt = m_workerMap.find(moduleLabel);
 
     // if the worker is not there, make it
     if (workerIt == m_workerMap.end()) {

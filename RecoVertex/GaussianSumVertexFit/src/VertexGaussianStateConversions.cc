@@ -10,7 +10,7 @@ namespace GaussianStateConversions {
     const std::vector<VertexState> components = aState.components();
     MultiGaussianState<3>::SingleStateContainer singleStates;
     singleStates.reserve(components.size());
-    for (std::vector<VertexState>::const_iterator ic = components.begin(); ic != components.end(); ic++) {
+    for (auto ic = components.begin(); ic != components.end(); ic++) {
       if (ic->isValid()) {
         GlobalPoint pos(ic->position());
         AlgebraicVector3 parameters;
@@ -31,9 +31,7 @@ namespace GaussianStateConversions {
     const MultiGaussianState<3>::SingleStateContainer& singleStates = multiState.components();
     std::vector<VertexState> components;
     components.reserve(singleStates.size());
-    for (MultiGaussianState<3>::SingleStateContainer::const_iterator ic = singleStates.begin();
-         ic != singleStates.end();
-         ic++) {
+    for (auto ic = singleStates.begin(); ic != singleStates.end(); ic++) {
       const AlgebraicVector3& par = (**ic).mean();
       GlobalPoint position(par(0), par(1), par(2));
       const AlgebraicSymMatrix33& cov = (**ic).covariance();

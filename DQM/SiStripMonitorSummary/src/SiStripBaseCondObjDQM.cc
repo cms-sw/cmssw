@@ -178,16 +178,13 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> &detIds_, const 
     std::vector<DetIdSelector> included_subdetsels;
     std::vector<std::string> included_subdets =
         fPSet_.getParameter<std::vector<std::string>>("ModulesToBeIncluded_DetIdSelector");
-    for (std::vector<std::string>::const_iterator wsdps = included_subdets.begin(); wsdps != included_subdets.end();
-         ++wsdps) {
+    for (auto wsdps = included_subdets.begin(); wsdps != included_subdets.end(); ++wsdps) {
       included_subdetsels.push_back(DetIdSelector(*wsdps));
     }
 
     std::vector<uint32_t> modulesToBeIncluded;
-    for (std::vector<uint32_t>::const_iterator detid = detIds_.begin(); detid != detIds_.end(); ++detid) {
-      for (std::vector<DetIdSelector>::const_iterator detidsel = included_subdetsels.begin();
-           detidsel != included_subdetsels.end();
-           ++detidsel) {
+    for (auto detid = detIds_.begin(); detid != detIds_.end(); ++detid) {
+      for (auto detidsel = included_subdetsels.begin(); detidsel != included_subdetsels.end(); ++detidsel) {
         if (detidsel->isSelected(*detid)) {
           modulesToBeIncluded.push_back(*detid);
           break;
@@ -202,16 +199,13 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> &detIds_, const 
     std::vector<DetIdSelector> excluded_subdetsels;
     std::vector<std::string> excluded_subdets =
         fPSet_.getParameter<std::vector<std::string>>("ModulesToBeExcluded_DetIdSelector");
-    for (std::vector<std::string>::const_iterator wsdps = excluded_subdets.begin(); wsdps != excluded_subdets.end();
-         ++wsdps) {
+    for (auto wsdps = excluded_subdets.begin(); wsdps != excluded_subdets.end(); ++wsdps) {
       excluded_subdetsels.push_back(DetIdSelector(*wsdps));
     }
 
     std::vector<uint32_t> modulesToBeExcluded;
-    for (std::vector<uint32_t>::const_iterator detid = detIds_.begin(); detid != detIds_.end(); ++detid) {
-      for (std::vector<DetIdSelector>::const_iterator detidsel = excluded_subdetsels.begin();
-           detidsel != excluded_subdetsels.end();
-           ++detidsel) {
+    for (auto detid = detIds_.begin(); detid != detIds_.end(); ++detid) {
+      for (auto detidsel = excluded_subdetsels.begin(); detidsel != excluded_subdetsels.end(); ++detidsel) {
         if (detidsel->isSelected(*detid)) {
           modulesToBeExcluded.push_back(*detid);
           break;
@@ -256,9 +250,8 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> &detIds_, const 
 
     std::sort(detIds_.begin(), detIds_.end());
     if (!modulesToBeExcluded.empty()) {
-      for (std::vector<uint32_t>::const_iterator mod = modulesToBeExcluded.begin(); mod != modulesToBeExcluded.end();
-           mod++) {
-        std::vector<uint32_t>::iterator detid = std::lower_bound(detIds_.begin(), detIds_.end(), *mod);
+      for (auto mod = modulesToBeExcluded.begin(); mod != modulesToBeExcluded.end(); mod++) {
+        auto detid = std::lower_bound(detIds_.begin(), detIds_.end(), *mod);
         if (detid != detIds_.end())
           detIds_.erase(detid);
         detid--;
@@ -271,9 +264,7 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> &detIds_, const 
     if (*(SubDetectorsToBeExcluded_.begin()) != "none") {
       std::vector<uint32_t> tmp;
 
-      for (std::vector<std::string>::const_iterator modIter_ = SubDetectorsToBeExcluded_.begin();
-           modIter_ != SubDetectorsToBeExcluded_.end();
-           modIter_++) {
+      for (auto modIter_ = SubDetectorsToBeExcluded_.begin(); modIter_ != SubDetectorsToBeExcluded_.end(); modIter_++) {
         tmp.clear();
 
         if (*modIter_ == "TIB") {
@@ -290,13 +281,11 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> &detIds_, const 
                                                    << std::endl;
         }
 
-        std::vector<uint32_t>::iterator iterBegin_ =
-            std::lower_bound(detIds_.begin(), detIds_.end(), *min_element(tmp.begin(), tmp.end()));
+        auto iterBegin_ = std::lower_bound(detIds_.begin(), detIds_.end(), *min_element(tmp.begin(), tmp.end()));
 
-        std::vector<uint32_t>::iterator iterEnd_ =
-            std::lower_bound(detIds_.begin(), detIds_.end(), *max_element(tmp.begin(), tmp.end()));
+        auto iterEnd_ = std::lower_bound(detIds_.begin(), detIds_.end(), *max_element(tmp.begin(), tmp.end()));
 
-        for (std::vector<uint32_t>::iterator detIter_ = iterEnd_; detIter_ != iterBegin_ - 1; detIter_--) {
+        for (auto detIter_ = iterEnd_; detIter_ != iterBegin_ - 1; detIter_--) {
           detIds_.erase(detIter_);
         }
 
@@ -361,7 +350,7 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> &detIds_, const 
 //=================================================
 // -----
 void SiStripBaseCondObjDQM::getModMEs(ModMEs &CondObj_ME, const uint32_t &detId_, const TrackerTopology *tTopo) {
-  std::map<uint32_t, ModMEs>::const_iterator ModMEsMap_iter = ModMEsMap_.find(detId_);
+  auto ModMEsMap_iter = ModMEsMap_.find(detId_);
 
   if (ModMEsMap_iter != ModMEsMap_.end()) {
     CondObj_ME = ModMEsMap_iter->second;
@@ -1203,8 +1192,7 @@ void SiStripBaseCondObjDQM::fillModMEs(const std::vector<uint32_t> &selectedDetI
 
   ModMEs CondObj_ME;
 
-  for (std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin(); detIter_ != selectedDetIds.end();
-       ++detIter_) {
+  for (auto detIter_ = selectedDetIds.begin(); detIter_ != selectedDetIds.end(); ++detIter_) {
     fillMEsForDet(CondObj_ME, *detIter_, tTopo);
   }
 }
@@ -1216,12 +1204,11 @@ void SiStripBaseCondObjDQM::fillSummaryMEs(const std::vector<uint32_t> &selected
   es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology *const tTopo = tTopoHandle.product();
 
-  for (std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin(); detIter_ != selectedDetIds.end();
-       detIter_++) {
+  for (auto detIter_ = selectedDetIds.begin(); detIter_ != selectedDetIds.end(); detIter_++) {
     fillMEsForLayer(/*SummaryMEsMap_,*/ *detIter_, tTopo);
   }
 
-  for (std::map<uint32_t, ModMEs>::iterator iter = SummaryMEsMap_.begin(); iter != SummaryMEsMap_.end(); iter++) {
+  for (auto iter = SummaryMEsMap_.begin(); iter != SummaryMEsMap_.end(); iter++) {
     ModMEs selME;
     selME = iter->second;
 

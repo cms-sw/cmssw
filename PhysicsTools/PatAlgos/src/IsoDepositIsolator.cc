@@ -58,7 +58,7 @@ IsoDepositIsolator::IsoDepositIsolator(const edm::ParameterSet &conf, edm::Consu
     typedef std::vector<std::string> vstring;
     vstring vetos = conf.getParameter<vstring>("vetos");
     reco::isodeposit::EventDependentAbsVeto *evdep = nullptr;
-    for (vstring::const_iterator it = vetos.begin(), ed = vetos.end(); it != ed; ++it) {
+    for (auto it = vetos.begin(), ed = vetos.end(); it != ed; ++it) {
       vetos_.push_back(IsoDepositVetoFactory::make(it->c_str(), evdep, iC));
       if (evdep != nullptr)
         evdepVetos_.push_back(evdep);

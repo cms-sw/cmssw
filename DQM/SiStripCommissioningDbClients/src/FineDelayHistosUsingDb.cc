@@ -121,7 +121,7 @@ void FineDelayHistosUsingDb::computeDelays() {
   // the reference parameters (best delay in ns, initial Latency)
   float bestDelay_ = 0.;
   if (!data().empty()) {
-    Analyses::const_iterator iter = data().begin();
+    auto iter = data().begin();
     bestDelay_ = dynamic_cast<SamplingAnalysis*>(iter->second)->maximum();
   }
 
@@ -232,8 +232,8 @@ bool FineDelayHistosUsingDb::update(SiStripConfigDb::DeviceDescriptionsRange dev
        << " Found PLL coarse setting of 15"
        << " (not allowed!) for following channels"
        << " (Crate/FEC/slot/ring/CCU/LLD): ";
-    std::vector<SiStripFecKey>::iterator ikey = invalid.begin();
-    std::vector<SiStripFecKey>::iterator jkey = invalid.end();
+    auto ikey = invalid.begin();
+    auto jkey = invalid.end();
     for (; ikey != jkey; ++ikey) {
       ss << ikey->fecCrate() << "/" << ikey->fecSlot() << "/" << ikey->fecRing() << "/" << ikey->ccuAddr() << "/"
          << ikey->ccuChan() << ", ";
@@ -257,7 +257,7 @@ void FineDelayHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange feds) 
   auto ids = cabling()->fedIds();
 
   // loop over the FED ids
-  for (SiStripConfigDb::FedDescriptionsV::const_iterator ifed = feds.begin(); ifed != feds.end(); ifed++) {
+  for (auto ifed = feds.begin(); ifed != feds.end(); ifed++) {
     // If FED id not found in list (from cabling), then continue
     if (find(ids.begin(), ids.end(), (*ifed)->getFedId()) == ids.end()) {
       continue;
@@ -269,7 +269,7 @@ void FineDelayHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange feds) 
       if (DetId(iconn->detId()).det() != DetId::Tracker)
         continue;
       // build the Fed9UAddress for that channel. Used to update the description.
-      Fed9U::Fed9UAddress fedChannel = Fed9U::Fed9UAddress(iconn->fedCh());
+      auto fedChannel = Fed9U::Fed9UAddress(iconn->fedCh());
       // retreive the current value for the delays
       int fedDelayCoarse = (*ifed)->getCoarseDelay(fedChannel);
       int fedDelayFine = (*ifed)->getFineDelay(fedChannel);
@@ -307,7 +307,7 @@ void FineDelayHistosUsingDb::update(SiStripConfigDb::FedDescriptionsRange feds) 
 // -----------------------------------------------------------------------------
 /** */
 void FineDelayHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& desc, Analysis analysis) {
-  SamplingAnalysis* anal = dynamic_cast<SamplingAnalysis*>(analysis->second);
+  auto* anal = dynamic_cast<SamplingAnalysis*>(analysis->second);
   if (!anal) {
     return;
   }
@@ -336,8 +336,8 @@ void FineDelayHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& desc
   // Add comments
   typedef std::vector<std::string> Strings;
   Strings errors = anal->getErrorCodes();
-  Strings::const_iterator istr = errors.begin();
-  Strings::const_iterator jstr = errors.end();
+  auto istr = errors.begin();
+  auto jstr = errors.end();
   for (; istr != jstr; ++istr) {
     tmp->addComments(*istr);
   }

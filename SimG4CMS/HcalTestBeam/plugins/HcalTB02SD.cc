@@ -138,7 +138,7 @@ double HcalTB02SD::curve_LY(const std::string& nameVolume, const G4StepPoint* st
 
 double HcalTB02SD::crystalLength(const std::string& name) {
   double length = 230.;
-  std::map<std::string, double>::const_iterator it = hcalTB02Parameters_->lengthMap_.find(name);
+  auto it = hcalTB02Parameters_->lengthMap_.find(name);
   if (it != hcalTB02Parameters_->lengthMap_.end())
     length = it->second;
   return length;

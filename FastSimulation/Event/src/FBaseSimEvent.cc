@@ -152,7 +152,7 @@ void FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks, const std::vect
     if (!vertex.noParent()) {  // there is a parent to this vertex
       // geant id of the mother
       unsigned motherGeantId = vertex.parentIndex();
-      std::map<unsigned, unsigned>::iterator association = geantToIndex.find(motherGeantId);
+      auto association = geantToIndex.find(motherGeantId);
       if (association != geantToIndex.end())
         motherId = association->second;
     }
@@ -225,7 +225,7 @@ void FBaseSimEvent::fill(const std::vector<SimTrack>& simTracks, const std::vect
 
       // geant id of the mother
       unsigned motherGeantId = vertex.parentIndex();
-      std::map<unsigned, unsigned>::iterator association = geantToIndex.find(motherGeantId);
+      auto association = geantToIndex.find(motherGeantId);
       if (association != geantToIndex.end())
         motherId = association->second;
     }
@@ -392,8 +392,8 @@ void FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
     // 2) or particles with stable daughters (watch out! New status code = 1001!)
     bool testDaugh = false;
     if (!testStable && p->status() == 2 && endVertex && endVertex->particles_out_size()) {
-      HepMC::GenVertex::particles_out_const_iterator firstDaughterIt = endVertex->particles_out_const_begin();
-      HepMC::GenVertex::particles_out_const_iterator lastDaughterIt = endVertex->particles_out_const_end();
+      auto firstDaughterIt = endVertex->particles_out_const_begin();
+      auto lastDaughterIt = endVertex->particles_out_const_end();
       for (; firstDaughterIt != lastDaughterIt; ++firstDaughterIt) {
         HepMC::GenParticle* daugh = *firstDaughterIt;
         if (daugh->status() % 1000 == 1) {
@@ -613,8 +613,8 @@ void FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
       int vertexId2 = p->end_vertex()->barcode();
 
       std::vector<const HepMC::GenParticle*> children;
-      HepMC::GenVertex::particles_out_const_iterator firstDaughterIt = p->end_vertex()->particles_out_const_begin();
-      HepMC::GenVertex::particles_out_const_iterator lastDaughterIt = p->end_vertex()->particles_out_const_end();
+      auto firstDaughterIt = p->end_vertex()->particles_out_const_begin();
+      auto lastDaughterIt = p->end_vertex()->particles_out_const_end();
       for (; firstDaughterIt != lastDaughterIt; ++firstDaughterIt) {
         children.push_back(*firstDaughterIt);
       }

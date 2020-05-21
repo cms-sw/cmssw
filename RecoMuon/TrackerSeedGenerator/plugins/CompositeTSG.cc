@@ -10,7 +10,7 @@ CompositeTSG::CompositeTSG(const edm::ParameterSet& par, edm::ConsumesCollector&
   //configure the individual components of the TSG
   std::vector<std::string> PSetNames = par.getParameter<std::vector<std::string> >("PSetNames");
 
-  for (std::vector<std::string>::iterator nIt = PSetNames.begin(); nIt != PSetNames.end(); nIt++) {
+  for (auto nIt = PSetNames.begin(); nIt != PSetNames.end(); nIt++) {
     edm::ParameterSet TSGpset = par.getParameter<edm::ParameterSet>(*nIt);
     if (TSGpset.empty()) {
       theNames.push_back((*nIt) + ":" + "NULL");

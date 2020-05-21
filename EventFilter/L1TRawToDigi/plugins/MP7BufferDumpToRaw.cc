@@ -282,7 +282,7 @@ namespace l1t {
       std::vector<uint32_t> data;
       if (packetisedData_) {
         const PacketData& p = rxPacketReader_.get(iBoard);
-        PacketData::const_iterator itr = p.begin();
+        auto itr = p.begin();
         for (unsigned i = 0; i < rxIndex_.at(iBoard); i++)
           itr++;
 
@@ -321,7 +321,7 @@ namespace l1t {
       std::vector<uint32_t> data;
       if (packetisedData_) {
         const PacketData& p = txPacketReader_.get(iBoard);
-        PacketData::const_iterator itr = p.begin();
+        auto itr = p.begin();
         for (unsigned i = 0; i < txIndex_.at(iBoard); i++)
           itr++;
 

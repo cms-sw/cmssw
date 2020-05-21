@@ -39,7 +39,7 @@ CastorDataFrameFilter::CastorDataFrameFilter(
 
 CastorDigiCollection CastorDataFrameFilter::filter(const CastorDigiCollection& incol, HcalUnpackerReport& r) {
   CastorDigiCollection output;
-  for (CastorDigiCollection::const_iterator i = incol.begin(); i != incol.end(); i++) {
+  for (auto i = incol.begin(); i != incol.end(); i++) {
     if (!CastorDataFrameFilter_impl::check(*i, requireCapid_, requireDVER_))
       r.countBadQualityDigi();
     else if (!energyFilter_ || minimumAmplitude_ < CastorDataFrameFilter_impl::energySum(*i, firstSample_, lastSample_))

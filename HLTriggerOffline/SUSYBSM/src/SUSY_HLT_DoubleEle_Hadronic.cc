@@ -145,10 +145,8 @@ void SUSY_HLT_DoubleEle_Hadronic::analyze(edm::Event const &e, edm::EventSetup c
       }
     }
     if (ptElectron.size() >= 2) {
-      math::PtEtaPhiMLorentzVectorD *ele1 =
-          new math::PtEtaPhiMLorentzVectorD(ptElectron[0], etaElectron[0], phiElectron[0], 0.0005);
-      math::PtEtaPhiMLorentzVectorD *ele2 =
-          new math::PtEtaPhiMLorentzVectorD(ptElectron[1], etaElectron[1], phiElectron[1], 0.0005);
+      auto *ele1 = new math::PtEtaPhiMLorentzVectorD(ptElectron[0], etaElectron[0], phiElectron[0], 0.0005);
+      auto *ele2 = new math::PtEtaPhiMLorentzVectorD(ptElectron[1], etaElectron[1], phiElectron[1], 0.0005);
       (*ele1) += (*ele2);
       h_triggerDoubleEleMass->Fill(ele1->M());
       delete ele1;
@@ -180,8 +178,7 @@ void SUSY_HLT_DoubleEle_Hadronic::analyze(edm::Event const &e, edm::EventSetup c
     int indexOfMatchedElectron[2] = {-1};
     int matchedCounter = 0;
     int offlineCounter = 0;
-    for (reco::GsfElectronCollection::const_iterator Electron = ElectronCollection->begin();
-         (Electron != ElectronCollection->end() && matchedCounter < 2);
+    for (auto Electron = ElectronCollection->begin(); (Electron != ElectronCollection->end() && matchedCounter < 2);
          ++Electron) {
       for (size_t off_i = 0; off_i < ptElectron.size(); ++off_i) {
         if (sqrt((Electron->phi() - phiElectron[off_i]) * (Electron->phi() - phiElectron[off_i]) +
@@ -196,17 +193,14 @@ void SUSY_HLT_DoubleEle_Hadronic::analyze(edm::Event const &e, edm::EventSetup c
 
     float caloHT = 0.0;
     float pfHT = 0.0;
-    for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end();
-         ++i_pfjet) {
+    for (auto i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end(); ++i_pfjet) {
       if (i_pfjet->pt() < ptThrJet_)
         continue;
       if (fabs(i_pfjet->eta()) > etaThrJet_)
         continue;
       pfHT += i_pfjet->pt();
     }
-    for (reco::CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin();
-         i_calojet != caloJetCollection->end();
-         ++i_calojet) {
+    for (auto i_calojet = caloJetCollection->begin(); i_calojet != caloJetCollection->end(); ++i_calojet) {
       if (i_calojet->pt() < ptThrJet_)
         continue;
       if (fabs(i_calojet->eta()) > etaThrJet_)

@@ -96,8 +96,8 @@ void DTSegmentAnalysisTask::bookHistograms(DQMStore::IBooker& ibooker,
 
   // loop over all the DT chambers & book the histos
   const vector<const DTChamber*>& chambers = dtGeom->chambers();
-  vector<const DTChamber*>::const_iterator ch_it = chambers.begin();
-  vector<const DTChamber*>::const_iterator ch_end = chambers.end();
+  auto ch_it = chambers.begin();
+  auto ch_end = chambers.end();
   for (; ch_it != ch_end; ++ch_it) {
     bookHistos(ibooker, (*ch_it)->id());
   }
@@ -145,7 +145,7 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
           const DTChamberRecSegment2D* phiSeg = (*segment4D).phiSegment();
           vector<DTRecHit1D> phiHits = phiSeg->specificRecHits();
           map<DTSuperLayerId, vector<DTRecHit1D> > hitsBySLMap;
-          for (vector<DTRecHit1D>::const_iterator hit = phiHits.begin(); hit != phiHits.end(); ++hit) {
+          for (auto hit = phiHits.begin(); hit != phiHits.end(); ++hit) {
             DTWireId wireId = (*hit).wireId();
 
             // Check for noisy channels to skip them
@@ -168,7 +168,7 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
           const DTSLRecSegment2D* zSeg = (*segment4D).zSegment();  // zSeg lives in the SL RF
           // Check for noisy channels to skip them
           vector<DTRecHit1D> zHits = zSeg->specificRecHits();
-          for (vector<DTRecHit1D>::const_iterator hit = zHits.begin(); hit != zHits.end(); ++hit) {
+          for (auto hit = zHits.begin(); hit != zHits.end(); ++hit) {
             DTWireId wireId = (*hit).wireId();
             bool isNoisy = false;
             bool isFEMasked = false;

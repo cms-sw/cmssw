@@ -53,7 +53,7 @@ std::unique_ptr<reco::Track> PixelFitterByConformalMappingAndLine::run(const std
   vector<GlobalError> errors;
   vector<bool> isBarrel;
 
-  for (vector<const TrackingRecHit *>::const_iterator ih = hits.begin(); ih != hits.end(); ih++) {
+  for (auto ih = hits.begin(); ih != hits.end(); ih++) {
     TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder->build(*ih);
     points.push_back(recHit->globalPosition());
     errors.push_back(recHit->globalPositionError());

@@ -22,9 +22,9 @@ void CandCommonVertexFitterBase::set(VertexCompositeCandidate &c) const {
     tracks = vertex.refittedTracks();
     Candidate::Point vtx(vertex.position());
     c.setVertex(vtx);
-    vector<TransientTrack>::const_iterator trackIt = tracks.begin(), tracksEnd = tracks.end();
-    vector<Candidate *>::const_iterator daughterIt = daughters.begin();
-    vector<RecoCandidate::TrackType>::const_iterator trackTypeIt = trackTypes.begin();
+    auto trackIt = tracks.begin(), tracksEnd = tracks.end();
+    auto daughterIt = daughters.begin();
+    auto trackTypeIt = trackTypes.begin();
     Candidate::LorentzVector mp4(0, 0, 0, 0);
     for (; trackIt != tracksEnd; ++trackIt, ++daughterIt, ++trackTypeIt) {
       const Track &track = trackIt->track();
@@ -79,7 +79,7 @@ void CandCommonVertexFitterBase::fill(vector<TransientTrack> &tracks,
       fill(tracks, daughters, trackTypes, *d);
     else {
       const Track *trk = d->get<const Track *>();
-      RecoCandidate::TrackType type = d->get<RecoCandidate::TrackType>();
+      auto type = d->get<RecoCandidate::TrackType>();
       if (trk != nullptr) {
         tracks.push_back(TransientTrack(*trk, bField_));
         daughters.push_back(d);

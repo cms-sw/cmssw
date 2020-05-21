@@ -30,7 +30,7 @@ RPCMonitorRaw::RPCMonitorRaw(const edm::ParameterSet& cfg) : theConfig(cfg) {
   for (unsigned int i = 0; i < 10; i++)
     theWatchedErrorHistoPos[i] = 0;
   std::vector<int> algos = cfg.getUntrackedParameter<std::vector<int> >("watchedErrors");
-  for (std::vector<int>::const_iterator it = algos.begin(); it != algos.end(); ++it) {
+  for (auto it = algos.begin(); it != algos.end(); ++it) {
     unsigned int ialgo = *it;
     if (ialgo < 10)
       theWatchedErrorHistoPos[ialgo] = 1;  // real position initialisain is in begin job. here mark just switched on.
@@ -86,25 +86,25 @@ void RPCMonitorRaw::analyze(const edm::Event& ev, const edm::EventSetup& es) {
   //
   // record type
   //
-  for (IT it = counts.theRecordTypes.begin(); it != counts.theRecordTypes.end(); ++it)
+  for (auto it = counts.theRecordTypes.begin(); it != counts.theRecordTypes.end(); ++it)
     me_t[it->first.first - 790]->Fill(it->first.second, it->second);
 
   //
   // good events topology
   //
-  for (IT it = counts.theGoodEvents.begin(); it != counts.theGoodEvents.end(); ++it)
+  for (auto it = counts.theGoodEvents.begin(); it != counts.theGoodEvents.end(); ++it)
     me_mapGoodEvents->Fill(it->first.second, it->first.first, it->second);
 
   //
   // bad events topology
   //
-  for (IT it = counts.theBadEvents.begin(); it != counts.theBadEvents.end(); ++it)
+  for (auto it = counts.theBadEvents.begin(); it != counts.theBadEvents.end(); ++it)
     me_mapBadEvents->Fill(it->first.second, it->first.first, it->second);
 
   //
   // readout errors
   //
-  for (IT it = counts.theReadoutErrors.begin(); it != counts.theReadoutErrors.end(); ++it) {
+  for (auto it = counts.theReadoutErrors.begin(); it != counts.theReadoutErrors.end(); ++it) {
     rpcrawtodigi::ReadoutError error(it->first.second);
     LinkBoardElectronicIndex ele = error.where();
     rpcrawtodigi::ReadoutError::ReadoutErrorType type = error.type();

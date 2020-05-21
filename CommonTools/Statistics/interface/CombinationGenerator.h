@@ -40,8 +40,7 @@ public:
         aPartitionGenerator.sortedPartitions(data.size());
 
     // Use partitions of size 'numberOfCollections' only
-    for (std::vector<PartitionGenerator::Partition>::const_iterator idiv = partitions[numberOfCollections - 1].begin();
-         idiv != partitions[numberOfCollections - 1].end();
+    for (auto idiv = partitions[numberOfCollections - 1].begin(); idiv != partitions[numberOfCollections - 1].end();
          idiv++) {
       const PartitionGenerator::Partition& partition = *idiv;
       std::vector<Combination> subCombinations = this->combinations(data, partition);
@@ -63,7 +62,7 @@ public:
     // Check that sum of collection sizes in 'partition'
     // amounts to number of elements in 'data'
     int nElts = 0;
-    for (PartitionGenerator::Partition::const_iterator iSize = partition.begin(); iSize != partition.end(); iSize++) {
+    for (auto iSize = partition.begin(); iSize != partition.end(); iSize++) {
       nElts += *iSize;
     }
     if (nElts != data.size())
@@ -161,8 +160,7 @@ public:
     PartitionGenerator aPartitionGenerator;
     std::vector<PartitionGenerator::Partition> partitions = aPartitionGenerator.partitions(data.size());
 
-    for (std::vector<PartitionGenerator::Partition>::const_iterator idiv = partitions.begin(); idiv != partitions.end();
-         idiv++) {
+    for (auto idiv = partitions.begin(); idiv != partitions.end(); idiv++) {
       const PartitionGenerator::Partition& partition = *idiv;
 
       std::vector<Combination> subCombinations = this->combinations(data, partition);

@@ -59,7 +59,7 @@ void NoiseHistograms::histoAnalysis(bool debug) {
 
     // Retrieve pointers to profile histos
     std::vector<TH1*> profs;
-    Histos::const_iterator ihis = iter->second.begin();
+    auto ihis = iter->second.begin();
     for (; ihis != iter->second.end(); ihis++) {
       TProfile* prof = ExtractTObject<TProfile>().extract((*ihis)->me_);
       if (prof) {
@@ -109,8 +109,8 @@ void NoiseHistograms::histoAnalysis(bool debug) {
 // -----------------------------------------------------------------------------
 /** */
 void NoiseHistograms::printAnalyses() {
-  Analyses::iterator ianal = data().begin();
-  Analyses::iterator janal = data().end();
+  auto ianal = data().begin();
+  auto janal = data().end();
   for (; ianal != janal; ++ianal) {
     if (ianal->second) {
       std::stringstream ss;

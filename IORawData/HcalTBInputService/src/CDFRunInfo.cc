@@ -10,7 +10,7 @@ CDFRunInfo::CDFRunInfo() {}
 CDFRunInfo::CDFRunInfo(TFile* file) { load(file); }
 
 const char* CDFRunInfo::get(const char* key) const {
-  std::map<std::string, std::string>::const_iterator i = m_mapData.find(key);
+  auto i = m_mapData.find(key);
   if (i == m_mapData.end())
     return nullptr;
   return i->second.c_str();
@@ -32,15 +32,14 @@ double CDFRunInfo::getDouble(const char* key) const {
 
 int CDFRunInfo::getKeys(const char** buffer, int nbufs) {
   int j = 0;
-  for (std::map<std::string, std::string>::const_iterator i = m_mapData.begin(); i != m_mapData.end() && j < nbufs;
-       i++, j++) {
+  for (auto i = m_mapData.begin(); i != m_mapData.end() && j < nbufs; i++, j++) {
     buffer[j] = i->first.c_str();
   }
   return j;
 }
 
 bool CDFRunInfo::hasKey(const char* key) const {
-  std::map<std::string, std::string>::const_iterator i = m_mapData.find(key);
+  auto i = m_mapData.find(key);
   return (i != m_mapData.end());
 }
 
@@ -67,7 +66,7 @@ bool CDFRunInfo::load(TFile* f) {
 void CDFRunInfo::store(TFile* f) {
   f->cd();
   TMap* myMap = new TMap();
-  for (std::map<std::string, std::string>::iterator i = m_mapData.begin(); i != m_mapData.end(); i++) {
+  for (auto i = m_mapData.begin(); i != m_mapData.end(); i++) {
     myMap->Add(new TObjString(i->first.c_str()), new TObjString(i->second.c_str()));
   }
   myMap->SetName(RootVariableName);
@@ -75,6 +74,6 @@ void CDFRunInfo::store(TFile* f) {
 }
 
 void CDFRunInfo::print() const {
-  for (std::map<std::string, std::string>::const_iterator i = m_mapData.begin(); i != m_mapData.end(); i++)
+  for (auto i = m_mapData.begin(); i != m_mapData.end(); i++)
     printf(" '%s' => '%s' \n", i->first.c_str(), i->second.c_str());
 }

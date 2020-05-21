@@ -24,7 +24,7 @@ void EcalFloatCondObjectContainerHandler::getNewObjects() {
 
   // we allocate on the heap here, knowing that popcon will
   // take care of deleting the payload
-  EcalFloatCondObjectContainer *payload = new EcalFloatCondObjectContainer;
+  auto *payload = new EcalFloatCondObjectContainer;
 
   EcalFloatCondObjectContainerXMLTranslator::readXML(xmlFileSource_, header, *payload);
 

@@ -11,7 +11,7 @@ Plane* RodPlaneBuilderFromDet::operator()(const vector<const Det*>& dets) const 
   // find mean position
   typedef Surface::PositionType::BasicVectorType Vector;
   Vector posSum(0, 0, 0);
-  for (vector<const Det*>::const_iterator i = dets.begin(); i != dets.end(); i++) {
+  for (auto i = dets.begin(); i != dets.end(); i++) {
     posSum += (**i).surface().position().basicVector();
   }
   Surface::PositionType meanPos(posSum / float(dets.size()));
@@ -34,7 +34,7 @@ pair<RectangularPlaneBounds*, GlobalVector> RodPlaneBuilderFromDet::computeBound
                                                                                   const Plane& plane) const {
   // go over all corners and compute maximum deviations from mean pos.
   vector<GlobalPoint> corners;
-  for (vector<const Det*>::const_iterator idet = dets.begin(); idet != dets.end(); idet++) {
+  for (auto idet = dets.begin(); idet != dets.end(); idet++) {
     /* ---- original implementation. Is it obsolete?
     vector<const DetUnit*> detUnits = (**idet).basicComponents();
     for (vector<const DetUnit*>::const_iterator detu=detUnits.begin();
@@ -52,7 +52,7 @@ pair<RectangularPlaneBounds*, GlobalVector> RodPlaneBuilderFromDet::computeBound
   }
 
   float xmin(0), xmax(0), ymin(0), ymax(0), zmin(0), zmax(0);
-  for (vector<GlobalPoint>::const_iterator i = corners.begin(); i != corners.end(); i++) {
+  for (auto i = corners.begin(); i != corners.end(); i++) {
     LocalPoint p = plane.toLocal(*i);
     if (p.x() < xmin)
       xmin = p.x();

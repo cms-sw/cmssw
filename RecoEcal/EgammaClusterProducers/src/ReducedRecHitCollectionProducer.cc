@@ -77,7 +77,7 @@ void ReducedRecHitCollectionProducer::produce(edm::Event& iEvent, const edm::Eve
   auto miniRecHitCollection = std::make_unique<EcalRecHitCollection>();
 
   for (unsigned int iCry = 0; iCry < xtalsToStore.size(); iCry++) {
-    EcalRecHitCollection::const_iterator iRecHit = recHitsHandle->find(xtalsToStore[iCry]);
+    auto iRecHit = recHitsHandle->find(xtalsToStore[iCry]);
     if ((iRecHit != recHitsHandle->end()) &&
         (miniRecHitCollection->find(xtalsToStore[iCry]) == miniRecHitCollection->end()))
       miniRecHitCollection->push_back(*iRecHit);

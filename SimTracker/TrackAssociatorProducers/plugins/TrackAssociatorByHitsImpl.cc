@@ -255,7 +255,7 @@ SimToRecoCollection TrackAssociatorByHitsImpl::associateSimToReco(
             //                            << " layer = " << LayerFromDetid(dId)
             //                            << " id = " << dId.rawId();
             bool newhit = true;
-            for (std::vector<PSimHit>::const_iterator TPhitOK = tphits.begin(); TPhitOK != tphits.end(); TPhitOK++) {
+            for (auto TPhitOK = tphits.begin(); TPhitOK != tphits.end(); TPhitOK++) {
               DetId dIdOK = DetId(TPhitOK->detUnitId());
               //unsigned int dRawIdOK = dIdOK.rawId();
               //LogTrace("TrackAssociator") << "\t\tcompare with SUBDET = " << dIdOK.subdetId()
@@ -351,7 +351,7 @@ RecoToSimCollectionSeed TrackAssociatorByHitsImpl::associateRecoToSim(
     std::vector<SimHitIdpr> idcachev;
     if (!matchedIds.empty()) {
       int tpindex = 0;
-      for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
+      for (auto t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
         LogTrace("TrackAssociator") << "TP number " << tpindex << " pdgId=" << t->pdgId()
                                     << " with number of PSimHits: " << nsimhit;
         idcachev.clear();
@@ -421,7 +421,7 @@ SimToRecoCollectionSeed TrackAssociatorByHitsImpl::associateSimToReco(
     std::vector<SimHitIdpr> idcachev;
     if (!matchedIds.empty()) {
       int tpindex = 0;
-      for (TrackingParticleCollection::const_iterator t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
+      for (auto t = tPC.begin(); t != tPC.end(); ++t, ++tpindex) {
         idcachev.clear();
         int nsimhit = t->numberOfTrackerHits();
         LogTrace("TrackAssociator") << "TP number " << tpindex << " pdgId=" << t->pdgId()
@@ -516,7 +516,7 @@ int TrackAssociatorByHitsImpl::getShared(std::vector<SimHitIdpr>& matchedIds,
       //only the first time we see this ID
       idcachev.push_back(matchedIds[j]);
 
-      for (TrackingParticle::g4t_iterator g4T = t.g4Track_begin(); g4T != t.g4Track_end(); ++g4T) {
+      for (auto g4T = t.g4Track_begin(); g4T != t.g4Track_end(); ++g4T) {
         //	LogTrace("TrackAssociator") << " TP   (ID, Ev, BC) = " << (*g4T).trackId()
         //                                  << ", " << t.eventId().event() << ", "<< t.eventId().bunchCrossing()
         //                                  << " Match(ID, Ev, BC) = " <<  matchedIds[j].first
@@ -552,7 +552,7 @@ int TrackAssociatorByHitsImpl::getDoubleCount(iter begin,
     //    cout<<SimTrackIdsDC.size()<<endl;
     if (SimTrackIdsDC.size() > 1) {
       //     cout<<(t.g4Track_end()-t.g4Track_begin())<<endl;
-      for (TrackingParticle::g4t_iterator g4T = t.g4Track_begin(); g4T != t.g4Track_end(); ++g4T) {
+      for (auto g4T = t.g4Track_begin(); g4T != t.g4Track_end(); ++g4T) {
         if (find(SimTrackIdsDC.begin(),
                  SimTrackIdsDC.end(),
                  SimHitIdpr((*g4T).trackId(), SimTrackIdsDC.begin()->second)) != SimTrackIdsDC.end()) {

@@ -82,17 +82,14 @@ bool QCDSingleJetFilter::filter(edm::Event& event, const edm::EventSetup& setup)
   event.getByToken(theTriggerJetCollectionAToken, theTriggerCollectionJetsA);
   event.getByToken(theTrigCollBToken, theTrigCollJetsB);
 
-  for (reco::CaloJetCollection::const_iterator iter = theTriggerCollectionJetsA->begin();
-       iter != theTriggerCollectionJetsA->end();
-       ++iter) {
+  for (auto iter = theTriggerCollectionJetsA->begin(); iter != theTriggerCollectionJetsA->end(); ++iter) {
     if ((*iter).pt() >= theMinPt) {
       keepEvent = true;
       break;
     }
   }
 
-  for (reco::CaloJetCollection::const_iterator iter = theTrigCollJetsB->begin(); iter != theTrigCollJetsB->end();
-       ++iter) {
+  for (auto iter = theTrigCollJetsB->begin(); iter != theTrigCollJetsB->end(); ++iter) {
     if ((*iter).pt() >= theMinPt) {
       keepEvent = true;
       break;

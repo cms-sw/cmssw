@@ -51,7 +51,7 @@ void AssociationVector2ValueMap<KeyRefProd, CVal>::produce(edm::Event& evt, cons
   size_t size = av->size();
   vector<value_t> values;
   values.reserve(size);
-  for (typename av_t::const_iterator i = av->begin(); i != av->end(); ++i) {
+  for (auto i = av->begin(); i != av->end(); ++i) {
     values.push_back(i->second);
   }
   filler.insert(av->keyProduct(), values.begin(), values.end());

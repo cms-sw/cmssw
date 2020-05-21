@@ -124,7 +124,7 @@ bool HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event,
 
   Particle::LorentzVector b1, b2, q1, q2;
   if (inputJetTags_.encode().empty()) {
-    for (typename TCollection::const_iterator jet = jets->begin(); (jet != jets->end() && nJet < nMax); ++jet) {
+    for (auto jet = jets->begin(); (jet != jets->end() && nJet < nMax); ++jet) {
       if (value_ == "Pt") {
         value = jet->pt();
       } else if (value_ == "Eta") {
@@ -151,7 +151,7 @@ bool HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event,
     vector<Jpair> sorted;
     unsigned int b1_idx = -1;
     float csv_max = -999;
-    for (typename TCollection::const_iterator jet = jets->begin(); (jet != jets->end() && nJet < nMax);
+    for (auto jet = jets->begin(); (jet != jets->end() && nJet < nMax);
          ++jet) {  //fill "sorted" and get the most b-tagged jet with higher CSV (b1)
       value = findCSV(jet, *jetTags);
       if (value > csv_max) {
@@ -207,7 +207,7 @@ bool HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event,
     unsigned int b2_idx = -1;
     float csv1 = -999;
     float csv2 = -999;
-    for (typename TCollection::const_iterator jet = jets->begin(); (jet != jets->end() && nJet < nMax);
+    for (auto jet = jets->begin(); (jet != jets->end() && nJet < nMax);
          ++jet) {  //fill "sorted" and get the two most b-tagged jets (b1,b2)
       value = findCSV(jet, *jetTags);
       if (value > csv1) {
@@ -255,7 +255,7 @@ bool HLTJetSortedVBFFilter<T>::hltFilter(edm::Event& event,
     //   	cout<<"\tPathA: b1="<<b1.pt()<<" b2="<<b2.pt()<<" q1="<<q1.pt()<<" q2="<<q2.pt()<<endl;
   } else {
     event.getByToken(m_theJetTagsToken, jetTags);
-    for (typename TCollection::const_iterator jet = jets->begin(); (jet != jets->end() && nJet < nMax); ++jet) {
+    for (auto jet = jets->begin(); (jet != jets->end() && nJet < nMax); ++jet) {
       if (value_ == "second") {
         value = findCSV(jet, *jetTags);
       } else {

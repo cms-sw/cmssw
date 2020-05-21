@@ -231,7 +231,7 @@ void HGCalSimHitStudy::analyzeHits(int ih, std::string const& name, std::vector<
         h_W2_[ih]->Fill(sector2);
         h_C2_[ih]->Fill(cell2);
       } else if (hgcons_[ih]->geomMode() == HGCalGeometryMode::Trapezoid) {
-        HGCScintillatorDetId detId = HGCScintillatorDetId(id);
+        auto detId = HGCScintillatorDetId(id);
         subdet = static_cast<int>(detId.det());
         sector = detId.ieta();
         cell = detId.iphi();

@@ -85,18 +85,18 @@ void DTSectColl::localClear() {
   }
 
   for (int iph = 0; iph < 2; ++iph) {
-    std::vector<DTSectCollPhCand*>::const_iterator phbi = _incand_ph[iph].begin();
-    std::vector<DTSectCollPhCand*>::const_iterator phei = _incand_ph[iph].end();
-    for (std::vector<DTSectCollPhCand*>::const_iterator iphit = phbi; iphit != phei; ++iphit)
+    auto phbi = _incand_ph[iph].begin();
+    auto phei = _incand_ph[iph].end();
+    for (auto iphit = phbi; iphit != phei; ++iphit)
       delete (*iphit);
     _incand_ph[iph].clear();
   }
 
   _outcand_ph.clear();
 
-  std::vector<DTSectCollThCand*>::const_iterator thb = _incand_th.begin();
-  std::vector<DTSectCollThCand*>::const_iterator the = _incand_th.end();
-  for (std::vector<DTSectCollThCand*>::const_iterator ithit = thb; ithit != the; ++ithit)
+  auto thb = _incand_th.begin();
+  auto the = _incand_th.end();
+  for (auto ithit = thb; ithit != the; ++ithit)
     delete (*ithit);
   _incand_th.clear();
 
@@ -228,7 +228,7 @@ void DTSectColl::addTSPhi(int step, const DTChambPhSegm* tsmsegm, int ifs, int i
 
   DTSC* tsc = getDTSC(step, istat);
 
-  DTSectCollPhCand* cand = new DTSectCollPhCand(tsc, tsmsegm, ifs);
+  auto* cand = new DTSectCollPhCand(tsc, tsmsegm, ifs);
 
   bool fs = (ifs == 1);
   _incand_ph[fs].push_back(cand);
@@ -275,7 +275,7 @@ void DTSectColl::addTSTheta(int step, const DTChambThSegm* tstsegm, int istat) {
 
   DTSC* tsc = getDTSC(step, istat);
 
-  DTSectCollThCand* cand = new DTSectCollThCand(tsc, tstsegm);
+  auto* cand = new DTSectCollThCand(tsc, tstsegm);
 
   _incand_th.push_back(cand);
 
@@ -367,7 +367,7 @@ DTSectCollPhCand* DTSectColl::getDTSectCollPhCand(int ifs, unsigned n) const {
     return nullptr;
   }
 
-  std::vector<DTSectCollPhCand*>::const_iterator p = _incand_ph[ifs - 1].begin() + n - 1;
+  auto p = _incand_ph[ifs - 1].begin() + n - 1;
   return (*p);
 }
 
@@ -378,7 +378,7 @@ DTSectCollThCand* DTSectColl::getDTSectCollThCand(unsigned n) const {
     return nullptr;
   }
 
-  std::vector<DTSectCollThCand*>::const_iterator p = _incand_th.begin() + n - 1;
+  auto p = _incand_th.begin() + n - 1;
   return (*p);
 }
 
@@ -389,7 +389,7 @@ DTSectCollPhCand* DTSectColl::getTrackPh(int n) const {
     return nullptr;
   }
 
-  std::vector<DTSectCollPhCand*>::const_iterator p = _outcand_ph.begin() + n - 1;
+  auto p = _outcand_ph.begin() + n - 1;
   return (*p);
 }
 
@@ -400,7 +400,7 @@ DTSectCollThCand* DTSectColl::getTrackTh(int n) const {
     return nullptr;
   }
 
-  std::vector<DTSectCollThCand*>::const_iterator p = _outcand_th.begin() + n - 1;
+  auto p = _outcand_th.begin() + n - 1;
   return (*p);
 }
 
@@ -419,7 +419,7 @@ unsigned DTSectColl::nCandTh() const { return _incand_th.size(); }
 int DTSectColl::nSegmPh(int step) {
   int n = 0;
   std::vector<DTSectCollPhSegm>::const_iterator p;
-  std::vector<DTSectCollPhSegm>::const_iterator endp = DTSCPhCache::end();
+  auto endp = DTSCPhCache::end();
   for (p = DTSCPhCache::begin(); p < endp; p++) {
     if (p->step() == step)
       n++;
@@ -431,7 +431,7 @@ int DTSectColl::nSegmPh(int step) {
 int DTSectColl::nSegmTh(int step) {
   int n = 0;
   std::vector<DTSectCollThSegm>::const_iterator p;
-  std::vector<DTSectCollThSegm>::const_iterator endp = DTSCThCache::end();
+  auto endp = DTSCThCache::end();
   for (p = DTSCThCache::begin(); p > endp; p++) {
     if (p->step() == step)
       n++;
@@ -442,7 +442,7 @@ int DTSectColl::nSegmTh(int step) {
 
 const DTSectCollPhSegm* DTSectColl::SectCollPhSegment(int step, unsigned n) {
   std::vector<DTSectCollPhSegm>::const_iterator p;
-  std::vector<DTSectCollPhSegm>::const_iterator endp = DTSCPhCache::end();
+  auto endp = DTSCPhCache::end();
   for (p = DTSCPhCache::begin(); p < endp; p++) {
     if (p->step() == step && ((n == 1 && p->isFirst()) || (n == 2 && !p->isFirst())))
       return &(*p);
@@ -453,7 +453,7 @@ const DTSectCollPhSegm* DTSectColl::SectCollPhSegment(int step, unsigned n) {
 
 const DTSectCollThSegm* DTSectColl::SectCollThSegment(int step) {
   std::vector<DTSectCollThSegm>::const_iterator p;
-  std::vector<DTSectCollThSegm>::const_iterator endp = DTSCThCache::end();
+  auto endp = DTSCThCache::end();
   for (p = DTSCThCache::begin(); p < endp; p++) {
     if (p->step() == step)
       return &(*p);

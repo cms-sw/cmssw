@@ -82,7 +82,7 @@ const vector<const reco::Candidate*>& BPHDecayMomentum::daughFull() const {
 const reco::Candidate* BPHDecayMomentum::originalReco(const reco::Candidate* daug) const {
   // return the original particle for a given clone
   // return null pointer if not found
-  map<const reco::Candidate*, const reco::Candidate*>::const_iterator iter = clonesMap.find(daug);
+  auto iter = clonesMap.find(daug);
   return (iter != clonesMap.end() ? iter->second : nullptr);
 }
 
@@ -99,7 +99,7 @@ const reco::Candidate* BPHDecayMomentum::getDaug(const string& name) const {
     const BPHRecoCandidate* comp = getComp(name.substr(0, pos)).get();
     return (comp == nullptr ? nullptr : comp->getDaug(name.substr(pos + 1)));
   }
-  map<const string, const reco::Candidate*>::const_iterator iter = dMap.find(name);
+  auto iter = dMap.find(name);
   return (iter != dMap.end() ? iter->second : nullptr);
 }
 
@@ -111,7 +111,7 @@ BPHRecoConstCandPtr BPHDecayMomentum::getComp(const string& name) const {
     const BPHRecoCandidate* comp = getComp(name.substr(0, pos)).get();
     return (comp == nullptr ? nullptr : comp->getComp(name.substr(pos + 1)));
   }
-  map<const string, BPHRecoConstCandPtr>::const_iterator iter = cMap.find(name);
+  auto iter = cMap.find(name);
   return (iter != cMap.end() ? iter->second : nullptr);
 }
 
@@ -163,8 +163,8 @@ void BPHDecayMomentum::clonesList(const map<string, Component>& daugMap) {
   int i = 0;
   double mass;
   reco::Candidate* dnew;
-  map<string, Component>::const_iterator iter = daugMap.begin();
-  map<string, Component>::const_iterator iend = daugMap.end();
+  auto iter = daugMap.begin();
+  auto iend = daugMap.end();
   while (iter != iend) {
     const pair<string, Component>& entry = *iter++;
     const Component& comp = entry.second;
@@ -192,8 +192,8 @@ void BPHDecayMomentum::dCompList() {
   cList.resize(n);
   nComp.resize(n);
   int i = 0;
-  map<string, BPHRecoConstCandPtr>::const_iterator iter = cMap.begin();
-  map<string, BPHRecoConstCandPtr>::const_iterator iend = cMap.end();
+  auto iter = cMap.begin();
+  auto iend = cMap.end();
   while (iter != iend) {
     const pair<string, BPHRecoConstCandPtr>& entry = *iter++;
     nComp[i] = entry.first;

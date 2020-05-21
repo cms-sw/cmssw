@@ -34,7 +34,7 @@ void HcalPatternSource::produce(edm::Event& e, const edm::EventSetup& es) {
   auto ho = std::make_unique<HODigiCollection>();
 
   int bc = bunches_[e.id().event() - 1];
-  for (std::vector<HcalFiberPattern>::iterator i = patterns_.begin(); i != patterns_.end(); i++) {
+  for (auto i = patterns_.begin(); i != patterns_.end(); i++) {
     std::vector<HcalQIESample> samples;
     for (int fc = 0; fc < 3; fc++) {
       samples = i->getSamples(bc, presamples_, samples_, fc);

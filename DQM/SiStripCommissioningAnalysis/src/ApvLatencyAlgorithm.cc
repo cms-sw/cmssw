@@ -36,7 +36,7 @@ void ApvLatencyAlgorithm::extract(const std::vector<TH1*>& histos) {
   }
 
   // Extract histograms
-  std::vector<TH1*>::const_iterator ihis = histos.begin();
+  auto ihis = histos.begin();
   for (; ihis != histos.end(); ihis++) {
     // Check for NULL pointer
     if (!(*ihis)) {
@@ -65,8 +65,8 @@ void ApvLatencyAlgorithm::analyse() {
     return;
   }
 
-  CommissioningAnalysis* tmp = const_cast<CommissioningAnalysis*>(anal());
-  ApvLatencyAnalysis* anal = dynamic_cast<ApvLatencyAnalysis*>(tmp);
+  auto* tmp = const_cast<CommissioningAnalysis*>(anal());
+  auto* anal = dynamic_cast<ApvLatencyAnalysis*>(tmp);
   if (!anal) {
     edm::LogWarning(mlCommissioning_) << "[ApvLatencyAlgorithm::" << __func__ << "]"
                                       << " NULL pointer to derived Analysis object!";

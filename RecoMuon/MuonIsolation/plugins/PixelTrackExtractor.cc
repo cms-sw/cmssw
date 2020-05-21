@@ -120,7 +120,7 @@ IsoDeposit PixelTrackExtractor::deposit(const Event& event, const EventSetup& ev
 
   double maxPt = -1;
   Direction maxPtDir;
-  TrackSelector::result_type::const_iterator tkI = sel_tracks.begin();
+  auto tkI = sel_tracks.begin();
   for (; tkI != sel_tracks.end(); ++tkI) {
     const reco::Track* tk = *tkI;
     LogTrace(metname) << "This track has: pt= " << tk->pt() << ", eta= " << tk->eta() << ", phi= " << tk->phi();

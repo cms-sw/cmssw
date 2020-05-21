@@ -94,7 +94,7 @@ bool L1GtVhdlWriterCore::returnConditionsOfOneClass(const L1GtConditionType &typ
                                                     ConditionMap &outputMap) {
   bool status = false;
 
-  ConditionMap::const_iterator condIter = map.begin();
+  auto condIter = map.begin();
   while (condIter != map.end()) {
     if (condIter->second->condCategory() == category && condIter->second->condType() == type &&
         (condIter->second->objectType())[0] == object) {
@@ -110,7 +110,7 @@ bool L1GtVhdlWriterCore::returnConditionsOfOneClass(const L1GtConditionType &typ
 bool L1GtVhdlWriterCore::findObjectType(const L1GtObject &object, ConditionMap &map) {
   bool status = false;
 
-  ConditionMap::iterator condIter = map.begin();
+  auto condIter = map.begin();
   while (condIter != map.end()) {
     for (unsigned int i = 0; i < (condIter->second->objectType()).size(); i++) {
       if (condIter->second->objectType()[i] == object) {
@@ -162,12 +162,11 @@ void L1GtVhdlWriterCore::getMuonSetupContentFromTriggerMenu(const unsigned short
     //std::cout<< std::hex << (*myObjectParameter).at(0).etThreshold << std::endl;
     unsigned int counter = 0;
 
-    for (ConditionMap::const_iterator iterCond = MuonConditions1s.begin(); iterCond != MuonConditions1s.end();
-         iterCond++) {
+    for (auto iterCond = MuonConditions1s.begin(); iterCond != MuonConditions1s.end(); iterCond++) {
       // add this condition to name -> integer conversion map
       conditionToIntegerMap_[iterCond->first] = counter;
 
-      L1GtMuonTemplate *m_gtMuonTemplate = static_cast<L1GtMuonTemplate *>(iterCond->second);
+      auto *m_gtMuonTemplate = static_cast<L1GtMuonTemplate *>(iterCond->second);
       const std::vector<L1GtMuonTemplate::ObjectParameter> *op = m_gtMuonTemplate->objectParameter();
 
       if (muonConditionTypes.at(i) == Type1s) {
@@ -283,11 +282,11 @@ bool L1GtVhdlWriterCore::getCaloSetupContentFromTriggerMenu(const unsigned short
     countCondsAndAdd2NumberVec(
         caloConditionTypes.at(i), CondCalo, caloObject, (*conditionMap_).at(condChip - 1), caloConditions, condChip);
 
-    for (ConditionMap::const_iterator iterCond = caloConditions.begin(); iterCond != caloConditions.end(); iterCond++) {
+    for (auto iterCond = caloConditions.begin(); iterCond != caloConditions.end(); iterCond++) {
       // add this condition to name -> integer conversion map
       conditionToIntegerMap_[iterCond->first] = counter;
 
-      L1GtCaloTemplate *m_gtCaloTemplate = static_cast<L1GtCaloTemplate *>(iterCond->second);
+      auto *m_gtCaloTemplate = static_cast<L1GtCaloTemplate *>(iterCond->second);
       const std::vector<L1GtCaloTemplate::ObjectParameter> *op = m_gtCaloTemplate->objectParameter();
 
       if (caloConditionTypes.at(i) == Type1s) {
@@ -375,8 +374,8 @@ bool L1GtVhdlWriterCore::getEsumsSetupContentFromTriggerMenu(const unsigned shor
   // stores all conditions of type given in the first three parameters
   countCondsAndAdd2NumberVec(type, CondEnergySum, object, (*conditionMap_).at(condChip - 1), esumsConditions, condChip);
 
-  for (ConditionMap::const_iterator iterCond = esumsConditions.begin(); iterCond != esumsConditions.end(); iterCond++) {
-    L1GtEnergySumTemplate *energySumTempl = static_cast<L1GtEnergySumTemplate *>(iterCond->second);
+  for (auto iterCond = esumsConditions.begin(); iterCond != esumsConditions.end(); iterCond++) {
+    auto *energySumTempl = static_cast<L1GtEnergySumTemplate *>(iterCond->second);
     const std::vector<L1GtEnergySumTemplate::ObjectParameter> *op = energySumTempl->objectParameter();
 
     if (!bm_.buildPhiEnergySum(op, 1, counter).empty())
@@ -402,7 +401,7 @@ bool L1GtVhdlWriterCore::getSubstParamCommonFromTriggerMenu(const unsigned short
   std::map<L1GtConditionType, std::string> condType2Strcopy = condType2Str_;
 
   // make a copy since types will deleted later after they are processed
-  std::map<L1GtConditionType, std::string>::iterator typeIterator = condType2Strcopy.begin();
+  auto typeIterator = condType2Strcopy.begin();
 
   while (typeIterator != condType2Strcopy.end()) {
     ConditionMap outputMap;
@@ -461,7 +460,7 @@ bool L1GtVhdlWriterCore::getCondChipVhdContentFromTriggerMenu(const unsigned sho
   getSubstParamCommonFromTriggerMenu(condChip, muon, Mu, CondMuon, commonParams["muon_common"]);
 
   // build $(calo_common) - loop over all calo objects
-  std::vector<L1GtObject>::iterator caloObjIter = caloObjects_.begin();
+  auto caloObjIter = caloObjects_.begin();
 
   while (caloObjIter != caloObjects_.end()) {
     getSubstParamCommonFromTriggerMenu(condChip, muon, (*caloObjIter), CondCalo, commonParams["calo_common"]);
@@ -469,7 +468,7 @@ bool L1GtVhdlWriterCore::getCondChipVhdContentFromTriggerMenu(const unsigned sho
   }
 
   // build $(esums_common) - loop over all esums objects
-  std::vector<L1GtObject>::iterator esumObjIter = esumObjects_.begin();
+  auto esumObjIter = esumObjects_.begin();
 
   while (esumObjIter != esumObjects_.end()) {
     getSubstParamCommonFromTriggerMenu(condChip, esums, (*esumObjIter), CondEnergySum, commonParams["esums_common"]);
@@ -479,8 +478,7 @@ bool L1GtVhdlWriterCore::getCondChipVhdContentFromTriggerMenu(const unsigned sho
   //--------------------------------------build the parameter maps----------------------------------------------
 
   // loop over condition map
-  for (ConditionMap::const_iterator iterCond = (*conditionMap_).at(condChip - 1).begin();
-       iterCond != (*conditionMap_).at(condChip - 1).end();
+  for (auto iterCond = (*conditionMap_).at(condChip - 1).begin(); iterCond != (*conditionMap_).at(condChip - 1).end();
        iterCond++) {
     switch ((iterCond->second)->condCategory()) {
       case CondMuon: {
@@ -587,15 +585,14 @@ bool L1GtVhdlWriterCore::getCondChipVhdContentFromTriggerMenu(const unsigned sho
       case CondJetCounts: {
         // build the common parameter for the jet counts
 
-        L1GtJetCountsTemplate *jetsTemplate = static_cast<L1GtJetCountsTemplate *>(iterCond->second);
+        auto *jetsTemplate = static_cast<L1GtJetCountsTemplate *>(iterCond->second);
 
         int nObjects = iterCond->second->nrObjects();
 
         const std::vector<L1GtJetCountsTemplate::ObjectParameter> *op = jetsTemplate->objectParameter();
 
         for (int i = 0; i < nObjects; i++) {
-          std::vector<unsigned int>::iterator p =
-              find(processedTypes.begin(), processedTypes.end(), (*op)[i].countIndex);
+          auto p = find(processedTypes.begin(), processedTypes.end(), (*op)[i].countIndex);
 
           // check, weather this count index was already processed
           // and process it if not
@@ -660,7 +657,7 @@ bool L1GtVhdlWriterCore::getCondChipVhdContentFromTriggerMenu(const unsigned sho
   }
 
   // delete superfluous newlines at the end of common parameters
-  std::map<std::string, std::string>::iterator pIt = commonParams.begin();
+  auto pIt = commonParams.begin();
 
   while (pIt != commonParams.end()) {
     if ((pIt->second)[((pIt->second).length() - 1)] == '\n')
@@ -675,7 +672,7 @@ bool L1GtVhdlWriterCore::processAlgorithmMap(std::vector<std::map<int, std::stri
   std::map<int, std::string> algorithmsChip1;
   std::map<int, std::string> algorithmsChip2;
 
-  AlgorithmMap::const_iterator algoIter = (*algorithmMap_).begin();
+  auto algoIter = (*algorithmMap_).begin();
 
   // loop over algorithm map
   while (algoIter != (*algorithmMap_).end()) {
@@ -784,7 +781,7 @@ bool L1GtVhdlWriterCore::makeFirmware(const std::vector<ConditionMap> &condition
 
     // map containing all calo object types correlated with the strings
     // under which they appear in the firmware
-    std::vector<L1GtObject>::iterator caloObjIter = caloObjects_.begin();
+    auto caloObjIter = caloObjects_.begin();
 
     // loop over all calo objectsbuildMuonSetupVhdl
     while (caloObjIter != caloObjects_.end()) {
@@ -799,7 +796,7 @@ bool L1GtVhdlWriterCore::makeFirmware(const std::vector<ConditionMap> &condition
 
     // map containing all calo object types correlated with the strings
     // under which they appear in the firmware
-    std::vector<L1GtObject>::iterator esumObjIter = esumObjects_.begin();
+    auto esumObjIter = esumObjects_.begin();
 
     while (esumObjIter != esumObjects_.end()) {
       std::string etmParameter;
@@ -865,7 +862,7 @@ void L1GtVhdlWriterCore::buildCommonHeader(std::map<std::string, std::string> &h
                                            const std::vector<std::string> &connectedChannels) {
   commonHeader_.open(vhdlDir_ + "InternalTemplates/header");
 
-  std::map<std::string, std::string>::iterator iter = headerParameters.begin();
+  auto iter = headerParameters.begin();
 
   // loop over the header parameter map and replace all subsitution
   // parameters with their values
@@ -1015,7 +1012,7 @@ void L1GtVhdlWriterCore::writeConditionChipSetup(const std::map<std::string, L1G
   L1GtVhdlTemplateFile myTemplate = openVhdlFileWithCommonHeader(filename, outputFileName);
 
   // map containing the subsitution parameters with their content (as L1GtVhdlTemplateFile file object)
-  std::map<std::string, L1GtVhdlTemplateFile>::const_iterator iter = templates.begin();
+  auto iter = templates.begin();
 
   while (iter != templates.end()) {
     myTemplate.insert("$(" + (iter->first) + ")", iter->second);
@@ -1024,7 +1021,7 @@ void L1GtVhdlWriterCore::writeConditionChipSetup(const std::map<std::string, L1G
   }
 
   // subsitutes common parameters
-  std::map<std::string, std::string>::const_iterator iter2 = common.begin();
+  auto iter2 = common.begin();
 
   while (iter2 != common.end()) {
     myTemplate.substitute((iter2->first), iter2->second);
@@ -1124,7 +1121,7 @@ void L1GtVhdlWriterCore::msg(const std::string &message) { internMessageBuf_.pus
 std::vector<std::string> L1GtVhdlWriterCore::getMsgBuf() { return internMessageBuf_; }
 
 bool L1GtVhdlWriterCore::getIntVal(const std::map<std::string, int> &map, const std::string &searchValue, int &intVal) {
-  std::map<std::string, int>::const_iterator iter = map.find(searchValue);
+  auto iter = map.find(searchValue);
   if (iter == map.end())
     return false;
   intVal = (*iter).second;
@@ -1159,8 +1156,8 @@ void L1GtVhdlWriterCore::addJetCountsToCond2IntMap(const int chip,
   for (unsigned int i = 0; i <= maxJetsCountsIndex; i++) {
     int counter = 0;
 
-    for (ConditionMap::const_iterator iterCond = jetConditions.begin(); iterCond != jetConditions.end(); iterCond++) {
-      L1GtJetCountsTemplate *jetsTemplate = static_cast<L1GtJetCountsTemplate *>(iterCond->second);
+    for (auto iterCond = jetConditions.begin(); iterCond != jetConditions.end(); iterCond++) {
+      auto *jetsTemplate = static_cast<L1GtJetCountsTemplate *>(iterCond->second);
       const std::vector<L1GtJetCountsTemplate::ObjectParameter> *op = jetsTemplate->objectParameter();
 
       conditionToIntegerMap_[iterCond->first] = counter;
@@ -1177,7 +1174,7 @@ void L1GtVhdlWriterCore::addJetCountsToCond2IntMap(const int chip,
 
 void L1GtVhdlWriterCore::writeCond2intMap2File() {
   for (unsigned int i = 0; i <= 1; i++) {
-    ConditionMap::const_iterator iterCond = conditionMap_->at(i).begin();
+    auto iterCond = conditionMap_->at(i).begin();
 
     std::string filename = chip2OutputSubDir(i + 1) + "cond_names_integer.txt";
 
@@ -1234,8 +1231,8 @@ std::string L1GtVhdlWriterCore::getDefValsFromTriggerMenu(const L1GtConditionTyp
   std::string result;
 
   if (category == CondCalo) {
-    for (ConditionMap::const_iterator iterCond = conditions.begin(); iterCond != conditions.end(); iterCond++) {
-      L1GtCaloTemplate *caloTemplate = static_cast<L1GtCaloTemplate *>(iterCond->second);
+    for (auto iterCond = conditions.begin(); iterCond != conditions.end(); iterCond++) {
+      auto *caloTemplate = static_cast<L1GtCaloTemplate *>(iterCond->second);
       const std::vector<L1GtCaloTemplate::ObjectParameter> *op = caloTemplate->objectParameter();
 
       unsigned int nObjects = iterCond->second->nrObjects();
@@ -1507,7 +1504,7 @@ void L1GtVhdlWriterCore::initializeDeltaConditions() {
     std::vector<L1GtObject> caloObjectsCp = caloObjects_;
 
     while (!caloObjectsCp.empty()) {
-      std::vector<L1GtObject>::iterator iter = caloObjectsCp.begin();
+      auto iter = caloObjectsCp.begin();
       L1GtObject firstPartner = (*iter);
       caloObjectsCp.erase(iter);
 
@@ -1542,7 +1539,7 @@ L1GtConditionCategory L1GtVhdlWriterCore::getCategoryFromObject(const L1GtObject
 
 void L1GtVhdlWriterCore::printConditionsOfCategory(const L1GtConditionCategory &category, const ConditionMap &map) {
   int counter = 0;
-  for (ConditionMap::const_iterator iterCond = map.begin(); iterCond != map.end(); iterCond++) {
+  for (auto iterCond = map.begin(); iterCond != map.end(); iterCond++) {
     msg(iterCond->first);
     counter++;
   }

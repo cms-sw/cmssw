@@ -140,8 +140,7 @@ namespace fwlite {
       // Did not find it, try the other files sequentially.
       // Someday I can make this smarter. For now... we get something working.
       Long64_t thisFile = eventIndex_;
-      std::vector<std::string>::const_iterator filesBegin = fileNames_.begin(), filesEnd = fileNames_.end(),
-                                               ifile = filesBegin;
+      auto filesBegin = fileNames_.begin(), filesEnd = fileNames_.end(), ifile = filesBegin;
       for (; ifile != filesEnd; ++ifile) {
         // skip the "first" file that we tried
         if (ifile - filesBegin != thisFile) {

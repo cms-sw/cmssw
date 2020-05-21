@@ -96,7 +96,7 @@ void L1MuDTAssignmentUnit::run(const edm::EventSetup& c) {
   m_sp.tracK(m_id)->setTSphi(m_TSphi);
 
   // set bunch-crossing (use first track segment)
-  vector<const L1MuDTTrackSegPhi*>::const_iterator iter = m_TSphi.begin();
+  auto iter = m_TSphi.begin();
   int bx = (*iter)->bx();
   m_sp.track(m_id)->setBx(bx);
   m_sp.tracK(m_id)->setBx(bx);

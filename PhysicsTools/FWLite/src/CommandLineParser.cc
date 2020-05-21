@@ -205,7 +205,7 @@ void CommandLineParser::printOptionValues() {
   if (!m_integerMap.empty()) {
     cout << endl << "Integer options:" << endl;
   }
-  for (SIMapConstIter iter = m_integerMap.begin(); m_integerMap.end() != iter; ++iter) {
+  for (auto iter = m_integerMap.begin(); m_integerMap.end() != iter; ++iter) {
     const string &description = m_variableDescriptionMap[iter->first];
     cout << "    " << setw(14) << iter->first << " = " << setw(14) << iter->second;
     if (description.length()) {
@@ -218,7 +218,7 @@ void CommandLineParser::printOptionValues() {
   if (!m_doubleMap.empty()) {
     cout << endl << "Double options:" << endl;
   }
-  for (SDMapConstIter iter = m_doubleMap.begin(); m_doubleMap.end() != iter; ++iter) {
+  for (auto iter = m_doubleMap.begin(); m_doubleMap.end() != iter; ++iter) {
     const string &description = m_variableDescriptionMap[iter->first];
     cout << "    " << setw(14) << iter->first << " = " << setw(14) << iter->second;
     if (description.length()) {
@@ -231,7 +231,7 @@ void CommandLineParser::printOptionValues() {
   if (!m_boolMap.empty()) {
     cout << endl << "Bool options:" << endl;
   }
-  for (SBMapConstIter iter = m_boolMap.begin(); m_boolMap.end() != iter; ++iter) {
+  for (auto iter = m_boolMap.begin(); m_boolMap.end() != iter; ++iter) {
     const string &description = m_variableDescriptionMap[iter->first];
     cout << "    " << setw(14) << iter->first << " = " << setw(14);
     if (iter->second) {
@@ -249,7 +249,7 @@ void CommandLineParser::printOptionValues() {
   if (!m_stringMap.empty()) {
     cout << endl << "String options:" << endl;
   }
-  for (SSMapConstIter iter = m_stringMap.begin(); m_stringMap.end() != iter; ++iter) {
+  for (auto iter = m_stringMap.begin(); m_stringMap.end() != iter; ++iter) {
     const string &description = m_variableDescriptionMap[iter->first];
     cout << "    " << setw(14) << iter->first << " = ";
     const string value = "'" + iter->second + "'";
@@ -264,7 +264,7 @@ void CommandLineParser::printOptionValues() {
   if (!m_integerVecMap.empty()) {
     cout << endl << "Integer Vector options:" << endl;
   }
-  for (SIVecMapConstIter iter = m_integerVecMap.begin(); m_integerVecMap.end() != iter; ++iter) {
+  for (auto iter = m_integerVecMap.begin(); m_integerVecMap.end() != iter; ++iter) {
     const string &description = m_variableDescriptionMap[iter->first];
     cout << "    " << setw(14) << iter->first << " = ";
     dumpSTL(iter->second);
@@ -279,7 +279,7 @@ void CommandLineParser::printOptionValues() {
   if (!m_doubleVecMap.empty()) {
     cout << endl << "Double Vector options:" << endl;
   }
-  for (SDVecMapConstIter iter = m_doubleVecMap.begin(); m_doubleVecMap.end() != iter; ++iter) {
+  for (auto iter = m_doubleVecMap.begin(); m_doubleVecMap.end() != iter; ++iter) {
     const string &description = m_variableDescriptionMap[iter->first];
     cout << "    " << setw(14) << iter->first << " = ";
     dumpSTL(iter->second);
@@ -296,7 +296,7 @@ void CommandLineParser::printOptionValues() {
   } else {
     cout << endl;
   }
-  for (SSVecMapConstIter iter = m_stringVecMap.begin(); m_stringVecMap.end() != iter; ++iter) {
+  for (auto iter = m_stringVecMap.begin(); m_stringVecMap.end() != iter; ++iter) {
     const string &description = m_variableDescriptionMap[iter->first];
     cout << "    " << setw(14) << iter->first << " = ";
     if (description.length()) {
@@ -316,7 +316,7 @@ bool CommandLineParser::_setVariableFromString(const string &arg, bool dontOverr
   string value = arg.substr(where + 1);
   lowercaseString(varname);
   // check to make sure this is a valid option
-  SBMapConstIter sbiter = m_variableModifiedMap.find(varname);
+  auto sbiter = m_variableModifiedMap.find(varname);
   if (m_variableModifiedMap.end() == sbiter) {
     // Not found.  Not a valid option
     return false;
@@ -328,7 +328,7 @@ bool CommandLineParser::_setVariableFromString(const string &arg, bool dontOverr
     return true;
   }
   // integers
-  SIMapIter integerIter = m_integerMap.find(varname);
+  auto integerIter = m_integerMap.find(varname);
   if (m_integerMap.end() != integerIter) {
     // we found it
     // use 'atof' instead of 'atoi' to get scientific notation
@@ -337,7 +337,7 @@ bool CommandLineParser::_setVariableFromString(const string &arg, bool dontOverr
     return true;
   }
   // double
-  SDMapIter doubleIter = m_doubleMap.find(varname);
+  auto doubleIter = m_doubleMap.find(varname);
   if (m_doubleMap.end() != doubleIter) {
     // we found it
     doubleIter->second = atof(value.c_str());
@@ -345,7 +345,7 @@ bool CommandLineParser::_setVariableFromString(const string &arg, bool dontOverr
     return true;
   }
   // string
-  SSMapIter stringIter = m_stringMap.find(varname);
+  auto stringIter = m_stringMap.find(varname);
   if (m_stringMap.end() != stringIter) {
     // we found it
     stringIter->second = value;
@@ -353,7 +353,7 @@ bool CommandLineParser::_setVariableFromString(const string &arg, bool dontOverr
     return true;
   }
   // bool
-  SBMapIter boolIter = m_boolMap.find(varname);
+  auto boolIter = m_boolMap.find(varname);
   if (m_boolMap.end() != boolIter) {
     // we found it
     boolIter->second = 0 != atoi(value.c_str());
@@ -361,12 +361,12 @@ bool CommandLineParser::_setVariableFromString(const string &arg, bool dontOverr
     return true;
   }
   // IntegerVec
-  SIVecMapIter integerVecIter = m_integerVecMap.find(varname);
+  auto integerVecIter = m_integerVecMap.find(varname);
   if (m_integerVecMap.end() != integerVecIter) {
     // we found it
     SVec words;
     split(words, value, ",");
-    for (SVecConstIter wordIter = words.begin(); words.end() != wordIter; ++wordIter) {
+    for (auto wordIter = words.begin(); words.end() != wordIter; ++wordIter) {
       integerVecIter->second.push_back((int)atof(wordIter->c_str()));
     }
     // we don't want to mark this as modified because we can add
@@ -375,12 +375,12 @@ bool CommandLineParser::_setVariableFromString(const string &arg, bool dontOverr
     return true;
   }
   // DoubleVec
-  SDVecMapIter doubleVecIter = m_doubleVecMap.find(varname);
+  auto doubleVecIter = m_doubleVecMap.find(varname);
   if (m_doubleVecMap.end() != doubleVecIter) {
     // we found it
     SVec words;
     split(words, value, ",");
-    for (SVecConstIter wordIter = words.begin(); words.end() != wordIter; ++wordIter) {
+    for (auto wordIter = words.begin(); words.end() != wordIter; ++wordIter) {
       doubleVecIter->second.push_back(atof(wordIter->c_str()));
     }
     // we don't want to mark this as modified because we can add
@@ -389,12 +389,12 @@ bool CommandLineParser::_setVariableFromString(const string &arg, bool dontOverr
     return true;
   }
   // StringVec
-  SSVecMapIter stringVecIter = m_stringVecMap.find(varname);
+  auto stringVecIter = m_stringVecMap.find(varname);
   if (m_stringVecMap.end() != stringVecIter) {
     // we found it
     SVec words;
     split(words, value, ",");
-    for (SVecConstIter wordIter = words.begin(); words.end() != wordIter; ++wordIter) {
+    for (auto wordIter = words.begin(); words.end() != wordIter; ++wordIter) {
       stringVecIter->second.push_back(*wordIter);
     }
     // we don't want to mark this as modified because we can add
@@ -606,7 +606,7 @@ void CommandLineParser::_finishDefaultOptions(std::string tag) {
     int matchLen = match.length();
     SVec tempVec;
     SVec &currentFiles = stringVector("inputFiles");
-    for (SVecConstIter iter = currentFiles.begin(); currentFiles.end() != iter; ++iter) {
+    for (auto iter = currentFiles.begin(); currentFiles.end() != iter; ++iter) {
       const string &filename = *iter;
       if ((int)filename.length() > matchLen && filename.substr(0, matchLen) == match) {
         tempVec.push_back(kStorePrepend + filename);

@@ -69,8 +69,8 @@ void DTLocalTriggerSynchTask::bookHistograms(DQMStore::IBooker& ibooker,
 
   tTrigSync->setES(context);
 
-  std::vector<const DTChamber*>::const_iterator chambIt = muonGeom->chambers().begin();
-  std::vector<const DTChamber*>::const_iterator chambEnd = muonGeom->chambers().end();
+  auto chambIt = muonGeom->chambers().begin();
+  auto chambEnd = muonGeom->chambers().end();
 
   for (; chambIt != chambEnd; ++chambIt) {
     bookHistos(ibooker, (*chambIt)->id());
@@ -99,8 +99,8 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
   event.getByToken(tm_Token_, l1DTTPGPh);
   vector<L1MuDTChambPhDigi> const* phTrigs = l1DTTPGPh->getContainer();
 
-  vector<L1MuDTChambPhDigi>::const_iterator iph = phTrigs->begin();
-  vector<L1MuDTChambPhDigi>::const_iterator iphe = phTrigs->end();
+  auto iph = phTrigs->begin();
+  auto iphe = phTrigs->end();
   for (; iph != iphe; ++iph) {
     int phwheel = iph->whNum();
     int phsec = iph->scNum() + 1;  // DTTF[0-11] -> DT[1-12] Sector Numbering
@@ -140,8 +140,8 @@ void DTLocalTriggerSynchTask::analyze(const edm::Event& event, const edm::EventS
   }
 
   // Filling histos
-  vector<const DTRecSegment4D*>::const_iterator bestSegIt = bestSegments4D.begin();
-  vector<const DTRecSegment4D*>::const_iterator bestSegEnd = bestSegments4D.end();
+  auto bestSegIt = bestSegments4D.begin();
+  auto bestSegEnd = bestSegments4D.end();
   for (; bestSegIt != bestSegEnd; ++bestSegIt) {
     float dir = atan((*bestSegIt)->localDirection().x() / (*bestSegIt)->localDirection().z()) * 180 /
                 Geom::pi();  // CB cerca un modo migliore x farlo

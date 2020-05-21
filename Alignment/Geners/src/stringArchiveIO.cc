@@ -56,7 +56,7 @@ namespace gs {
       throw gs::IOInvalidArgument(
           "In gs::writeCompressedStringArchive: "
           "compression mode argument out of range");
-    const CStringStream::CompressionMode m = static_cast<CStringStream::CompressionMode>(inCompressionMode);
+    const auto m = static_cast<CStringStream::CompressionMode>(inCompressionMode);
     bool status = false;
     {
       std::ofstream of(filename, std::ios_base::binary);

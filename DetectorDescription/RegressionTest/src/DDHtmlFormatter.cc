@@ -72,8 +72,8 @@ void DDNsGenerator::doit() {
   DDHtmlFormatter f;
   os_ << f.header(title_, "../style.css");
   os_ << f.h2(title_) << f.p(text_);  // << endl;
-  ns_type::const_iterator it = n_.begin();
-  ns_type::const_iterator ed = n_.end();
+  auto it = n_.begin();
+  auto ed = n_.end();
   os_ << f.ul();
   for (; it != ed; ++it) {
     os_ << f.li(f.lnk(it->first + "/list.html", it->first, target_));
@@ -206,7 +206,7 @@ bool DDHtmlMaDetails::details(ostream& os, const DDName& nm) {
   }
 
   const set<DDLogicalPart>& lps = parts_t::instance()[ma];
-  set<DDLogicalPart>::const_iterator it(lps.begin()), ed(lps.end());
+  auto it(lps.begin()), ed(lps.end());
   if (it != ed) {
     os << f_.h3("Material used in following LogicalParts:") << endl;
     os << "<p>" << endl;
@@ -229,7 +229,7 @@ bool DDHtmlLpDetails::details(ostream& os, const DDName& nm) {
     for (; it != ed; ++it) {
       if (it->isDefined().second) {
         const vector<DDPartSelection>& ps = it->selection();
-        vector<DDPartSelection>::const_iterator pit(ps.begin()), ped(ps.end());
+        auto pit(ps.begin()), ped(ps.end());
         for (; pit != ped; ++pit) {
           if (!pit->empty()) {
             lp_sp_t::instance()[pit->back().lp_].insert(*it);
@@ -259,10 +259,10 @@ bool DDHtmlLpDetails::details(ostream& os, const DDName& nm) {
 
   typedef map<DDLogicalPart, set<DDSpecifics> > lp_sp_type;
   const lp_sp_type& lp_sp = lp_sp_t::instance();
-  lp_sp_type::const_iterator lpspit = lp_sp.find(lp);
+  auto lpspit = lp_sp.find(lp);
   if (lpspit != lp_sp.end()) {
     os << f_.h3("assigned SpecPars (Specifics):");
-    set<DDSpecifics>::const_iterator it(lpspit->second.begin()), ed(lpspit->second.end());
+    auto it(lpspit->second.begin()), ed(lpspit->second.end());
     os << "<p>" << endl;
     for (; it != ed; ++it) {
       os << f_.link("../../sp/" + it->ddname().ns() + "/" + it->ddname().name() + ".html",
@@ -310,7 +310,7 @@ void dd_to_html(DDHtmlDetails& dtls) {
     list_file << f.header(text) << f.p("Instances in Namespace <b>" + ns + "</b><br>");
     list_file << f.ul();
     // loop over all instances of a single namespace
-    set<string>::const_iterator nit(it->second.begin()), ned(it->second.end());
+    auto nit(it->second.begin()), ned(it->second.end());
     for (; nit != ned; ++nit) {
       const string& nm = *nit;
       string result_s = nm;

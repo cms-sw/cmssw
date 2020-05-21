@@ -92,7 +92,7 @@ void CTPPSPixGainCalibsESAnalyzer::analyze(const edm::Event& e, const edm::Event
   edm::LogPrint("CTPPSPixGainCalibsReader") << "Size " << pPixelGainCalibrations->size();
   const CTPPSPixelGainCalibrations::CalibMap& mymap = pPixelGainCalibrations->getCalibMap();  //just to get the keys?
 
-  for (CTPPSPixelGainCalibrations::CalibMap::const_iterator it = mymap.begin(); it != mymap.end(); ++it) {
+  for (auto it = mymap.begin(); it != mymap.end(); ++it) {
     uint32_t detId = it->first;
 
     edm::LogPrint("CTPPSPixGainCalibsReader")

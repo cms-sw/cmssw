@@ -82,7 +82,7 @@ void SiStripCommissioningOfflineClient::beginRun(const edm::Run& run, const edm:
   }
 
   // Check if .root file can be opened
-  std::vector<std::string>::const_iterator ifile = inputFiles_.begin();
+  auto ifile = inputFiles_.begin();
   for (; ifile != inputFiles_.end(); ifile++) {
     std::ifstream root_file;
     root_file.open(ifile->c_str());
@@ -141,7 +141,7 @@ void SiStripCommissioningOfflineClient::beginRun(const edm::Run& run, const edm:
 
   edm::LogVerbatim(mlDqmClient_) << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
                                  << " Opening root files. This may take some time!...";
-  std::vector<std::string>::const_iterator jfile = inputFiles_.begin();
+  auto jfile = inputFiles_.begin();
   for (; jfile != inputFiles_.end(); jfile++) {
     LogTrace(mlDqmClient_) << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
                            << " Opening root file \"" << *jfile << "\"... (This may take some time.)";
@@ -185,7 +185,7 @@ void SiStripCommissioningOfflineClient::beginRun(const edm::Run& run, const edm:
     std::stringstream ss;
     ss << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
        << " Directories found: " << std::endl;
-    std::vector<std::string>::iterator istr = contents.begin();
+    auto istr = contents.begin();
     for (; istr != contents.end(); istr++) {
       ss << " " << *istr << std::endl;
     }
@@ -234,7 +234,7 @@ void SiStripCommissioningOfflineClient::beginRun(const edm::Run& run, const edm:
   if (inputFiles_.empty()) {
     ss << "(none)";
   } else {
-    std::vector<std::string>::const_iterator ifile = inputFiles_.begin();
+    auto ifile = inputFiles_.begin();
     for (; ifile != inputFiles_.end(); ifile++) {
       if (ifile != inputFiles_.begin()) {
         ss << std::setw(25) << std::setfill(' ') << ": ";
@@ -289,7 +289,7 @@ void SiStripCommissioningOfflineClient::beginRun(const edm::Run& run, const edm:
   if (createSummaryPlots_) {
     edm::LogVerbatim(mlDqmClient_) << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
                                    << " Generating summary plots...";
-    std::vector<SummaryPlot>::const_iterator iplot = plots_.begin();
+    auto iplot = plots_.begin();
     for (; iplot != plots_.end(); iplot++) {
       if (histos_) {
         histos_->createSummaryHisto(iplot->monitorable(), iplot->presentation(), iplot->level(), iplot->granularity());
@@ -312,7 +312,7 @@ void SiStripCommissioningOfflineClient::beginRun(const edm::Run& run, const edm:
         else
           histos_->save(outputFileName_, runNumber_, partitionName_);
       } else {
-        CalibrationHistograms* histo = dynamic_cast<CalibrationHistograms*>(histos_);
+        auto* histo = dynamic_cast<CalibrationHistograms*>(histos_);
         histo->save(outputFileName_, runNumber_);
       }
     } else {
@@ -466,8 +466,8 @@ void SiStripCommissioningOfflineClient::setInputFiles(std::vector<std::string>& 
     std::stringstream ss;
     ss << "[SiStripCommissioningOfflineClient::" << __func__ << "]"
        << " Found more than one client file!";
-    std::vector<std::string>::const_iterator ifile = files.begin();
-    std::vector<std::string>::const_iterator jfile = files.end();
+    auto ifile = files.begin();
+    auto jfile = files.end();
     for (; ifile != jfile; ++ifile) {
       ss << std::endl << *ifile;
     }

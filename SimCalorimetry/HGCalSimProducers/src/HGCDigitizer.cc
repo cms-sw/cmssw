@@ -198,7 +198,7 @@ namespace {
                 if (findPos == hitRefs_bx0[detId].begin()) {
                   insertedPos = hitRefs_bx0[detId].emplace(insertedPos, p_charge, p_time);
                 } else {
-                  itr prevPos = findPos - 1;
+                  auto prevPos = findPos - 1;
                   if (prevPos->second == p_time) {
                     prevPos->first = prevPos->first + p_charge;
                     insertedPos = prevPos;
@@ -207,7 +207,7 @@ namespace {
                   }
                 }
 
-                for (itr step = insertedPos; step != hitRefs_bx0[detId].end(); ++step) {
+                for (auto step = insertedPos; step != hitRefs_bx0[detId].end(); ++step) {
                   if (step != insertedPos)
                     step->first += p_charge;
                 }
@@ -530,7 +530,7 @@ void HGCDigitizer::accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> cons
     if (!validIds_.count(id))
       continue;
 
-    HGCPUSimHitDataAccumulator::iterator simHitIt = pusimHitAccumulator_->emplace(id, HGCCellHitInfo()).first;
+    auto simHitIt = pusimHitAccumulator_->emplace(id, HGCCellHitInfo()).first;
     if (id == 0)
       continue;
 
@@ -551,7 +551,7 @@ void HGCDigitizer::accumulate_forPreMix(edm::Handle<edm::PCaloHitContainer> cons
     (simHitIt->second).PUhit_info[0][itime].push_back(charge);
   }
   if (nchits == 0) {
-    HGCPUSimHitDataAccumulator::iterator simHitIt = pusimHitAccumulator_->emplace(0, HGCCellHitInfo()).first;
+    auto simHitIt = pusimHitAccumulator_->emplace(0, HGCCellHitInfo()).first;
     (simHitIt->second).PUhit_info[1][9].push_back(0.0);
     (simHitIt->second).PUhit_info[0][9].push_back(0.0);
   }
@@ -606,7 +606,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
 
     if (!validIds_.count(id))
       continue;
-    HGCSimHitDataAccumulator::iterator simHitIt = simHitAccumulator_->emplace(id, HGCCellInfo()).first;
+    auto simHitIt = simHitAccumulator_->emplace(id, HGCCellInfo()).first;
 
     if (id == 0)
       continue;  // to be ignored at RECO level
@@ -647,13 +647,12 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
 
       } else if (tof <= hitRefs_bx0[id].back().second) {
         //find position to insert new entry preserving time sorting
-        std::vector<std::pair<float, float>>::iterator findPos =
-            std::upper_bound(hitRefs_bx0[id].begin(),
-                             hitRefs_bx0[id].end(),
-                             std::pair<float, float>(0.f, tof),
-                             [](const auto& i, const auto& j) { return i.second <= j.second; });
+        auto findPos = std::upper_bound(hitRefs_bx0[id].begin(),
+                                        hitRefs_bx0[id].end(),
+                                        std::pair<float, float>(0.f, tof),
+                                        [](const auto& i, const auto& j) { return i.second <= j.second; });
 
-        std::vector<std::pair<float, float>>::iterator insertedPos = findPos;
+        auto insertedPos = findPos;
         if (findPos->second == tof) {
           //just merge timestamps with exact timing
           findPos->first += charge;
@@ -667,7 +666,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const& hits,
 
         //cumulate the charge of new entry for all elements that follow in the sorted list
         //and resize list accounting for cases when the inserted element itself crosses the threshold
-        for (std::vector<std::pair<float, float>>::iterator step = insertedPos; step != hitRefs_bx0[id].end(); ++step) {
+        for (auto step = insertedPos; step != hitRefs_bx0[id].end(); ++step) {
           if (step != insertedPos)
             step->first += charge;
           // resize the list stopping with the first timeStamp with cumulative charge above threshold
@@ -790,7 +789,7 @@ void HGCDigitizer::endRun() { std::unordered_set<DetId>().swap(validIds_); }
 
 //
 void HGCDigitizer::resetSimHitDataAccumulator() {
-  for (HGCSimHitDataAccumulator::iterator it = simHitAccumulator_->begin(); it != simHitAccumulator_->end(); it++) {
+  for (auto it = simHitAccumulator_->begin(); it != simHitAccumulator_->end(); it++) {
     it->second.hit_info[0].fill(0.);
     it->second.hit_info[1].fill(0.);
   }

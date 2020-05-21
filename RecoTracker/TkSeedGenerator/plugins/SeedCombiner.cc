@@ -66,7 +66,7 @@ void SeedCombiner::produce(edm::Event& ev, const edm::EventSetup& es) {
     if (reKeing_ && !(clusterRemovalInfos_[iSC] == edm::InputTag(""))) {
       ClusterRemovalRefSetter refSetter(ev, clusterRemovalTokens_[iSC]);
 
-      for (TrajectorySeedCollection::const_iterator iS = collection->begin(); iS != collection->end(); ++iS) {
+      for (auto iS = collection->begin(); iS != collection->end(); ++iS) {
         TrajectorySeed::recHitContainer newRecHitContainer;
         newRecHitContainer.reserve(iS->nHits());
         TrajectorySeed::const_iterator iH = iS->recHits().first;

@@ -151,7 +151,7 @@ void MonMemChConsistencyDat::writeArrayDB(const std::map<EcalLogicID, MonMemChCo
   const MonMemChConsistencyDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, MonMemChConsistencyDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
+  for (auto p = data->begin(); p != data->end(); ++p) {
     channel = &(p->first);
     int logicID = channel->getLogicID();
     if (!logicID) {

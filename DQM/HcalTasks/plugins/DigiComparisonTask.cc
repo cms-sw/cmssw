@@ -154,17 +154,17 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps) : DQTask(ps)
 
   //	assume that coll1 is primary(uTCA) and coll2 is secondary(VME)
   //	uTCA is X and VME is Y axis
-  for (HBHEDigiCollection::const_iterator it1 = chbhe1->begin(); it1 != chbhe1->end(); ++it1) {
+  for (auto it1 = chbhe1->begin(); it1 != chbhe1->end(); ++it1) {
     //	iterate thru the utca collection
     //	get the same detid digi from vme collection
     //	if missing - fill vme missing
     //	else correlate
     HcalDetId did = it1->id();
     HcalElectronicsId eid1 = it1->elecId();
-    HBHEDigiCollection::const_iterator it2 = chbhe2->find(did);
+    auto it2 = chbhe2->find(did);
 
     //	get the eid for vme by did
-    HcalElectronicsId eid2 = HcalElectronicsId(_ehashmapVME.lookup(did));
+    auto eid2 = HcalElectronicsId(_ehashmapVME.lookup(did));
     if (it2 == chbhe2->end()) {
       //	fill the depth plot
       _cMsnVME_depth.fill(did);
@@ -191,14 +191,14 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps) : DQTask(ps)
         }
       }
   }
-  for (HBHEDigiCollection::const_iterator it2 = chbhe2->begin(); it2 != chbhe2->end(); ++it2) {
+  for (auto it2 = chbhe2->begin(); it2 != chbhe2->end(); ++it2) {
     //	itearte thru VME
     //	find utca digi by detid
     //	check if present or missing
     HcalDetId did = it2->id();
-    HBHEDigiCollection::const_iterator it1 = chbhe1->find(did);
+    auto it1 = chbhe1->find(did);
     if (it1 == chbhe1->end()) {
-      HcalElectronicsId eid1 = HcalElectronicsId(_ehashmapuTCA.lookup(did));
+      auto eid1 = HcalElectronicsId(_ehashmapuTCA.lookup(did));
       if (_ptype != fOffline) {  // hidefed2crate
         _cMsn_FEDuTCA.fill(eid1);
       }

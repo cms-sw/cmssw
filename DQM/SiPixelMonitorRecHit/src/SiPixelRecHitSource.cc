@@ -188,7 +188,7 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup &iSetup) {
   LogVerbatim("PixelDQM") << " *** I have " << pDD->dets().size() << " detectors" << std::endl;
   LogVerbatim("PixelDQM") << " *** I have " << pDD->detTypes().size() << " types" << std::endl;
 
-  for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
+  for (auto it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
     if (dynamic_cast<PixelGeomDetUnit const *>((*it)) != nullptr) {
       DetId detId = (*it)->geographicalId();
 
@@ -200,7 +200,7 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup &iSetup) {
           if (isPIB)
             continue;
           LogDebug("PixelDQM") << " ---> Adding Barrel Module " << detId.rawId() << endl;
-          SiPixelRecHitModule *theModule = new SiPixelRecHitModule(id);
+          auto *theModule = new SiPixelRecHitModule(id);
           thePixelStructure.insert(pair<uint32_t, SiPixelRecHitModule *>(id, theModule));
 
         } else if ((detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap))) {
@@ -230,7 +230,7 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup &iSetup) {
           if (isPIB && mask)
             continue;
 
-          SiPixelRecHitModule *theModule = new SiPixelRecHitModule(id);
+          auto *theModule = new SiPixelRecHitModule(id);
           thePixelStructure.insert(pair<uint32_t, SiPixelRecHitModule *>(id, theModule));
         }
       }

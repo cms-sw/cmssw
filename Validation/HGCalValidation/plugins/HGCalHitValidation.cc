@@ -274,7 +274,7 @@ void HGCalHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(bhSimHitToken_, bhSimHits);
   if (bhSimHits.isValid()) {
     if (ifHCALsim_) {
-      for (std::vector<PCaloHit>::const_iterator simHit = bhSimHits->begin(); simHit != bhSimHits->end(); ++simHit) {
+      for (auto simHit = bhSimHits->begin(); simHit != bhSimHits->end(); ++simHit) {
         int subdet, z, depth, eta, phi, lay;
         HcalTestNumbering::unpackHcalIndex(simHit->id(), subdet, z, depth, eta, phi, lay);
 
@@ -325,7 +325,7 @@ void HGCalHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
     for (auto it = theHits->begin(); it != theHits->end(); ++it) {
       double energy = it->energy();
       heeEnRec->Fill(energy);
-      std::map<unsigned int, HGCHitTuple>::const_iterator itr = eeHitRefs.find(it->id().rawId());
+      auto itr = eeHitRefs.find(it->id().rawId());
       if (itr != eeHitRefs.end()) {
         GlobalPoint xyz = hgcGeometry_[0]->getPosition(it->id());
         heeRecVsSimX->Fill(std::get<1>(itr->second), xyz.x());
@@ -355,7 +355,7 @@ void HGCalHitValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
     for (auto it = theHits->begin(); it != theHits->end(); ++it) {
       double energy = it->energy();
       hefEnRec->Fill(energy);
-      std::map<unsigned int, HGCHitTuple>::const_iterator itr = fhHitRefs.find(it->id().rawId());
+      auto itr = fhHitRefs.find(it->id().rawId());
       if (itr != fhHitRefs.end()) {
         GlobalPoint xyz = hgcGeometry_[1]->getPosition(it->id());
 
@@ -405,7 +405,7 @@ void HGCalHitValidation::analyzeHGCalSimHit(edm::Handle<std::vector<PCaloHit>> c
                                             MonitorElement* hist,
                                             std::map<unsigned int, HGCHitTuple>& hitRefs) {
   const HGCalTopology& hTopo = hgcGeometry_[idet]->topology();
-  for (std::vector<PCaloHit>::const_iterator simHit = simHits->begin(); simHit != simHits->end(); ++simHit) {
+  for (auto simHit = simHits->begin(); simHit != simHits->end(); ++simHit) {
     int subdet, zside, layer, wafer, celltype, cell;
     HGCalTestNumbering::unpackHexagonIndex(simHit->id(), subdet, zside, layer, wafer, celltype, cell);
     std::pair<float, float> xy = hgcCons_[idet]->locateCell(cell, layer, wafer, false);
@@ -445,7 +445,7 @@ void HGCalHitValidation::analyzeHGCalRecHit(T1 const& theHits, std::map<unsigned
       hebEnRec->Fill(energy);
       GlobalPoint xyz = hcGeometry_->getGeometry(id)->getPosition();
 
-      std::map<unsigned int, HGCHitTuple>::const_iterator itr = hitRefs.find(id.rawId());
+      auto itr = hitRefs.find(id.rawId());
       if (itr != hitRefs.end()) {
         float ang3 = xyz.phi().value();  // returns the phi in radians
         double fac = sinh(std::get<1>(itr->second));

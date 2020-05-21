@@ -26,7 +26,7 @@ int main() {
   if (!endcapfile.empty())
     endcapreader.parseXMLMiscalibFile(endcapfile);
 
-  EcalIntercalibConstants* constants = new EcalIntercalibConstants(map.get());
+  auto* constants = new EcalIntercalibConstants(map.get());
   const EcalIntercalibConstantMap& imap = constants->getMap();
 
   std::string endcapfile2 = "EEcalib.xml";
@@ -35,7 +35,7 @@ int main() {
   MiscalibReaderFromXMLEcalEndcap endcapreader2(map2);
   if (!endcapfile2.empty())
     endcapreader2.parseXMLMiscalibFile(endcapfile2);
-  EcalIntercalibConstants* constants2 = new EcalIntercalibConstants(map2.get());
+  auto* constants2 = new EcalIntercalibConstants(map2.get());
   const EcalIntercalibConstantMap& imap2 = constants2->getMap();
   for (int x = 1; x <= 100; ++x)
     for (int y = 1; y < 100; ++y) {

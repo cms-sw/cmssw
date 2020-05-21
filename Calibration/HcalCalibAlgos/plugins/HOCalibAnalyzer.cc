@@ -1020,7 +1020,7 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     iEvent.getByToken(tok_allho_, hoht);
     if (hoht.isValid() && !(*hoht).empty()) {
       ho_entry->Fill(-1., -1.);  //Count of total number of entries
-      for (HORecHitCollection::const_iterator ij = (*hoht).begin(); ij != (*hoht).end(); ij++) {
+      for (auto ij = (*hoht).begin(); ij != (*hoht).end(); ij++) {
         HcalDetId id = (*ij).id();
         int tmpeta = id.ieta();
         int tmpphi = id.iphi();
@@ -1049,7 +1049,7 @@ void HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   if (isCosMu && !(*HOCalib).empty()) {
     nmuon = (*HOCalib).size();
-    for (HOCalibVariableCollection::const_iterator hoC = (*HOCalib).begin(); hoC != (*HOCalib).end(); hoC++) {
+    for (auto hoC = (*HOCalib).begin(); hoC != (*HOCalib).end(); hoC++) {
       //      itrg1 = (*hoC).trig1;
       //      itrg2 = (*hoC).trig2;
       trkdr = (*hoC).trkdr;

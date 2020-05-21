@@ -137,8 +137,8 @@ void GflashHadronShowerModel::makeHits(const G4FastTrack &fastTrack) {
   theGflashNavigator->SetWorldVolume(
       G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume());
 
-  std::vector<GflashHit>::const_iterator spotIter = gflashHitList.begin();
-  std::vector<GflashHit>::const_iterator spotIterEnd = gflashHitList.end();
+  auto spotIter = gflashHitList.begin();
+  auto spotIterEnd = gflashHitList.end();
 
   for (; spotIter != spotIterEnd; spotIter++) {
     theGflashNavigator->LocateGlobalPointAndUpdateTouchableHandle(

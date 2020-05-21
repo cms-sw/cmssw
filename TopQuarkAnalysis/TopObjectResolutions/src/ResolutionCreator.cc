@@ -180,7 +180,7 @@ void ResolutionCreator::analyze(const edm::Event &iEvent, const edm::EventSetup 
   } else if (objectType_ == "tau") {
     edm::Handle<std::vector<pat::Tau> > taus;
     iEvent.getByToken(tausToken_, taus);
-    for (std::vector<pat::Tau>::const_iterator tau = taus->begin(); tau != taus->end(); ++tau) {
+    for (auto tau = taus->begin(); tau != taus->end(); ++tau) {
       // find the tau (if any) that matches a MC tau from W
       reco::GenParticle genLepton = *(tau->genLepton());
       if (std::abs(genLepton.pdgId()) == 15 && genLepton.status() == 2 && genLepton.numberOfMothers() > 0 &&

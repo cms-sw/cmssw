@@ -7,16 +7,11 @@ PFTauTagInfo* PFTauTagInfo::clone() const { return new PFTauTagInfo(*this); }
 
 std::vector<reco::CandidatePtr> PFTauTagInfo::PFCands() const {
   std::vector<reco::CandidatePtr> thePFCands;
-  for (std::vector<reco::CandidatePtr>::const_iterator iPFCand = PFChargedHadrCands_.begin();
-       iPFCand != PFChargedHadrCands_.end();
-       iPFCand++)
+  for (auto iPFCand = PFChargedHadrCands_.begin(); iPFCand != PFChargedHadrCands_.end(); iPFCand++)
     thePFCands.push_back(*iPFCand);
-  for (std::vector<reco::CandidatePtr>::const_iterator iPFCand = PFNeutrHadrCands_.begin();
-       iPFCand != PFNeutrHadrCands_.end();
-       iPFCand++)
+  for (auto iPFCand = PFNeutrHadrCands_.begin(); iPFCand != PFNeutrHadrCands_.end(); iPFCand++)
     thePFCands.push_back(*iPFCand);
-  for (std::vector<reco::CandidatePtr>::const_iterator iPFCand = PFGammaCands_.begin(); iPFCand != PFGammaCands_.end();
-       iPFCand++)
+  for (auto iPFCand = PFGammaCands_.begin(); iPFCand != PFGammaCands_.end(); iPFCand++)
     thePFCands.push_back(*iPFCand);
   return thePFCands;
 }

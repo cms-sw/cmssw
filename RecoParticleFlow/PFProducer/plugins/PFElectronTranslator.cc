@@ -477,7 +477,7 @@ void PFElectronTranslator::fillMVAValueMap(edm::Event& iEvent, edm::ValueMap<flo
   std::vector<float> values;
   for (unsigned igsf = 0; igsf < ngsf; ++igsf) {
     reco::GsfTrackRef theTrackRef(gsfTracks, igsf);
-    std::map<reco::GsfTrackRef, float>::const_iterator itcheck = gsfMvaMap_.find(theTrackRef);
+    auto itcheck = gsfMvaMap_.find(theTrackRef);
     if (itcheck == gsfMvaMap_.end()) {
       //	  edm::LogWarning("PFElectronTranslator") << "MVA Map, missing GSF track ref " << std::endl;
       values.push_back(-99.);
@@ -498,7 +498,7 @@ void PFElectronTranslator::fillSCRefValueMap(edm::Event& iEvent,
   std::vector<reco::SuperClusterRef> values;
   for (unsigned igsf = 0; igsf < ngsf; ++igsf) {
     reco::GsfTrackRef theTrackRef(gsfTracks, igsf);
-    std::map<reco::GsfTrackRef, reco::SuperClusterRef>::const_iterator itcheck = scMap_.find(theTrackRef);
+    auto itcheck = scMap_.find(theTrackRef);
     if (itcheck == scMap_.end()) {
       //	  edm::LogWarning("PFElectronTranslator") << "SCRef Map, missing GSF track ref" << std::endl;
       values.push_back(reco::SuperClusterRef());
@@ -561,7 +561,7 @@ void PFElectronTranslator::createSuperClusters(const reco::PFCandidateCollection
       //	  std::cout <<"Adding Ref to SC " << basicClusterPtr_[iGSF][ibc].index() << std::endl;
       const std::vector<std::pair<DetId, float>>& v1 = basicClusters_[iGSF][ibc].hitsAndFractions();
       //	  std::cout << " Number of cells " << v1.size() << std::endl;
-      for (std::vector<std::pair<DetId, float>>::const_iterator diIt = v1.begin(); diIt != v1.end(); ++diIt) {
+      for (auto diIt = v1.begin(); diIt != v1.end(); ++diIt) {
         //	    std::cout << " Adding DetId " << (diIt->first).rawId() << " " << diIt->second << std::endl;
         mySuperCluster.addHitAndFraction(diIt->first, diIt->second);
       }  // loop over rechits
@@ -593,7 +593,7 @@ const reco::PFCandidate& PFElectronTranslator::correspondingDaughterCandidate(co
   reco::PFCandidate::const_iterator itend = cand.end();
 
   for (; myDaughterCandidate != itend; ++myDaughterCandidate) {
-    const reco::PFCandidate* myPFCandidate = (const reco::PFCandidate*)&*myDaughterCandidate;
+    const auto* myPFCandidate = (const reco::PFCandidate*)&*myDaughterCandidate;
     if (myPFCandidate->elementsInBlocks().size() != 1) {
       //	  std::cout << " Daughter with " << myPFCandidate.elementsInBlocks().size()<< " element in block " << std::endl;
       return cand;
@@ -611,7 +611,7 @@ void PFElectronTranslator::createGsfElectronCores(reco::GsfElectronCoreCollectio
   for (unsigned iGSF = 0; iGSF < nGSF; ++iGSF) {
     reco::GsfElectronCore myElectronCore(GsfTrackRef_[iGSF]);
     myElectronCore.setCtfTrack(kfTrackRef_[iGSF], -1.);
-    std::map<reco::GsfTrackRef, reco::SuperClusterRef>::const_iterator itcheck = scMap_.find(GsfTrackRef_[iGSF]);
+    auto itcheck = scMap_.find(GsfTrackRef_[iGSF]);
     if (itcheck != scMap_.end())
       myElectronCore.setParentSuperCluster(itcheck->second);
     gsfElectronCores.push_back(myElectronCore);
@@ -631,7 +631,7 @@ void PFElectronTranslator::createGsfElectronCoreRefs(
 
 void PFElectronTranslator::getAmbiguousGsfTracks(const reco::PFBlockElement& PFBE,
                                                  std::vector<reco::GsfTrackRef>& tracks) const {
-  const reco::PFBlockElementGsfTrack* GsfEl = dynamic_cast<const reco::PFBlockElementGsfTrack*>(&PFBE);
+  const auto* GsfEl = dynamic_cast<const reco::PFBlockElementGsfTrack*>(&PFBE);
   if (GsfEl == nullptr)
     return;
   const std::vector<reco::GsfPFRecTrackRef>& ambPFRecTracks(GsfEl->GsftrackRefPF()->convBremGsfPFRecTrackRef());

@@ -133,8 +133,7 @@ void SimplePi0DiscAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
 
   //  int PhoInd = 0;
 
-  for (reco::PhotonCollection::const_iterator iPho = photons.begin(); iPho != photons.end();
-       iPho++) {  // Loop over Photons
+  for (auto iPho = photons.begin(); iPho != photons.end(); iPho++) {  // Loop over Photons
 
     reco::Photon localPho(*iPho);
 

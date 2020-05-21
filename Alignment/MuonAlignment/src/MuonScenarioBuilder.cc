@@ -64,7 +64,7 @@ align::Scalars MuonScenarioBuilder::extractParameters(const edm::ParameterSet& p
   std::ostringstream error;
   edm::ParameterSet Parameters = this->getParameterSet_((std::string)blockId, pSet);
   std::vector<std::string> parameterNames = Parameters.getParameterNames();
-  for (std::vector<std::string>::iterator iParam = parameterNames.begin(); iParam != parameterNames.end(); iParam++) {
+  for (auto iParam = parameterNames.begin(); iParam != parameterNames.end(); iParam++) {
     if ((*iParam) == "scale")
       scale_ = Parameters.getParameter<double>(*iParam);
     else if ((*iParam) == "distribution")

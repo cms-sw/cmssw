@@ -343,8 +343,7 @@ void AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     edm::View<reco::Muon>::const_iterator muon1;
     if (m_cosmic) {
       int indx(0);
-      for (reco::TrackCollection::const_iterator ncosm = cosmicmuon->begin(); ncosm != cosmicmuon->end();
-           ++ncosm, ++indx) {
+      for (auto ncosm = cosmicmuon->begin(); ncosm != cosmicmuon->end(); ++ncosm, ++indx) {
         if ((*ncosm).ndof() < 15)
           continue;
         if ((*ncosm).normalizedChi2() > 30.0)
@@ -465,8 +464,7 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
 
   if (m_cosmic) {
     int ind(0);
-    for (reco::TrackCollection::const_iterator ncosmcor = cosmicmuon->begin(); ncosmcor != cosmicmuon->end();
-         ++ncosmcor, ++ind) {
+    for (auto ncosmcor = cosmicmuon->begin(); ncosmcor != cosmicmuon->end(); ++ncosmcor, ++ind) {
       if (indx == ind)
         continue;
       CLHEP::Hep3Vector tmpmuon3vcor;
@@ -507,7 +505,7 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
     edm::Handle<CaloTowerCollection> calotower;
     iEvent.getByToken(tok_tower_, calotower);
 
-    for (CaloTowerCollection::const_iterator calt = calotower->begin(); calt != calotower->end(); calt++) {
+    for (auto calt = calotower->begin(); calt != calotower->end(); calt++) {
       //CMSSW_2_1_x	const math::XYZVector towermom = (*calt).momentum();
       double ith = (*calt).momentum().theta();
       double iph = (*calt).momentum().phi();
@@ -765,7 +763,7 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
             if ((*hbheht).empty())
               throw(int)(*hbheht).size();
 
-            for (HBHERecHitCollection::const_iterator jk = (*hbheht).begin(); jk != (*hbheht).end(); jk++) {
+            for (auto jk = (*hbheht).begin(); jk != (*hbheht).end(); jk++) {
               HcalDetId id = (*jk).id();
               int tmpeta = id.ieta();
               int tmpphi = id.iphi();
@@ -820,7 +818,7 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
         iEvent.getByToken(tok_ho_, hoht);
 
         if (!(*hoht).empty()) {
-          for (HORecHitCollection::const_iterator jk = (*hoht).begin(); jk != (*hoht).end(); jk++) {
+          for (auto jk = (*hoht).begin(); jk != (*hoht).end(); jk++) {
             HcalDetId id = (*jk).id();
             int tmpeta = id.ieta();
             int tmpphi = id.iphi();
@@ -899,7 +897,7 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
               if (crphi > 72)
                 crphi -= 72;
 
-              for (HORecHitCollection::const_iterator jcr = (*hoht).begin(); jcr != (*hoht).end(); jcr++) {
+              for (auto jcr = (*hoht).begin(); jcr != (*hoht).end(); jcr++) {
                 const HORecHit reccr = (const HORecHit)(*jcr);
                 HcalDetId idcr = reccr.id();
                 int etacr = idcr.ieta();

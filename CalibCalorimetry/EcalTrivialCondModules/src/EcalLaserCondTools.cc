@@ -178,7 +178,7 @@ void EcalLaserCondTools::processIov(CorrReader& r, int t1, int t2[EcalLaserCondT
     return;
   }
 
-  EcalLaserAPDPNRatios* corrSet = new EcalLaserAPDPNRatios;
+  auto* corrSet = new EcalLaserAPDPNRatios;
 
   EcalLaserAPDPNRatios::EcalLaserTimeStamp t;
   iovStart = uint64_t(t1) << 32;

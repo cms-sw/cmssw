@@ -133,7 +133,7 @@ void FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList*
     double yOfFirstWire = getYOfFirstWire(cscDetId.station(), cscDetId.ring(), length);
 
     for (CSCWireDigiCollection::const_iterator dit = range.first; dit != range.second; ++dit) {
-      TEveStraightLineSet* wireDigiSet = new TEveStraightLineSet();
+      auto* wireDigiSet = new TEveStraightLineSet();
       wireDigiSet->SetLineWidth(3);
       setupAddElement(wireDigiSet, product);
 

@@ -80,7 +80,7 @@ const void metsig::significanceAlgo::subtractObjects(const std::vector<metsig::S
   reco::METCovMatrix v_tot = signifmatrix_;
   //--- Loop over physics objects in the event ---//
   //  for(unsigned int objnum=1; objnum < EventVec.size(); objnum++ ) {
-  for (std::vector<SigInputObj>::const_iterator obj = eventVec.begin(); obj != eventVec.end(); ++obj) {
+  for (auto obj = eventVec.begin(); obj != eventVec.end(); ++obj) {
     double et_tmp = obj->get_energy();
     double phi_tmp = obj->get_phi();
     double sigma_et = obj->get_sigma_e();
@@ -110,7 +110,7 @@ const void metsig::significanceAlgo::addObjects(const std::vector<metsig::SigInp
   reco::METCovMatrix v_tot = signifmatrix_;
   //--- Loop over physics objects in the event ---//
   //  for(unsigned int objnum=1; objnum < EventVec.size(); objnum++ ) {
-  for (std::vector<SigInputObj>::const_iterator obj = eventVec.begin(); obj != eventVec.end(); ++obj) {
+  for (auto obj = eventVec.begin(); obj != eventVec.end(); ++obj) {
     double et_tmp = obj->get_energy();
     double phi_tmp = obj->get_phi();
     double sigma_et = obj->get_sigma_e();

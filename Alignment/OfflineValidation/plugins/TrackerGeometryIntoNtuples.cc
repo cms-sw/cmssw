@@ -203,9 +203,7 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 
   //alignments
   addBranches();
-  for (std::vector<AlignTransform>::const_iterator i = theAlignments->m_align.begin();
-       i != theAlignments->m_align.end();
-       ++i) {
+  for (auto i = theAlignments->m_align.begin(); i != theAlignments->m_align.end(); ++i) {
     m_rawid = i->rawId();
     CLHEP::Hep3Vector translation = i->translation();
     m_x = translation.x();
@@ -231,7 +229,7 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
   delete theAlignments;
 
   std::vector<AlignTransformErrorExtended> alignErrors = alignmentErrors->m_alignError;
-  for (std::vector<AlignTransformErrorExtended>::const_iterator i = alignErrors.begin(); i != alignErrors.end(); ++i) {
+  for (auto i = alignErrors.begin(); i != alignErrors.end(); ++i) {
     m_rawid = i->rawId();
     CLHEP::HepSymMatrix errMatrix = i->matrix();
     DetId detid(m_rawid);
@@ -268,8 +266,7 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
       m_d2 = surfaceDeformParams.at(1);
       m_d3 = surfaceDeformParams.at(2);
       mp_dpar->clear();
-      for (std::vector<double>::const_iterator it = surfaceDeformParams.begin(); it != surfaceDeformParams.end();
-           ++it) {
+      for (auto it = surfaceDeformParams.begin(); it != surfaceDeformParams.end(); ++it) {
         mp_dpar->push_back((*it));
         //edm::LogInfo("surfaceDeformParamsContent") << " surfaceDeformParam = " << (*it) << std::endl ;
       }

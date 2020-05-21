@@ -4,7 +4,7 @@
 template <>
 std::string SiStripConfObject::get<std::string>(const std::string& name) const {
   std::string returnValue;
-  parMap::const_iterator it = parameters.find(name);
+  auto it = parameters.find(name);
   std::stringstream ss;
   if (it != parameters.end()) {
     ss << it->second;
@@ -18,7 +18,7 @@ std::string SiStripConfObject::get<std::string>(const std::string& name) const {
 template <>
 bool SiStripConfObject::put<std::vector<int> >(const std::string& name, const std::vector<int>& inputValue) {
   std::stringstream ss;
-  for (std::vector<int>::const_iterator elem = inputValue.begin(); elem != inputValue.end(); ++elem) {
+  for (auto elem = inputValue.begin(); elem != inputValue.end(); ++elem) {
     ss << *elem << " ";
   }
   if (parameters.insert(std::make_pair(name, ss.str())).second)
@@ -28,14 +28,14 @@ bool SiStripConfObject::put<std::vector<int> >(const std::string& name, const st
 
 template <>
 bool SiStripConfObject::update<std::vector<int> >(const std::string& name, const std::vector<int>& inputValue) {
-  parMap::iterator it = parameters.find(name);
+  auto it = parameters.find(name);
   if (it == parameters.end()) {
     std::cout << "WARNING in SiStripConfObject::update: parameter " << name << " not found, "
               << "so cannot be updated to the vector of int of size'" << inputValue.size() << "'." << std::endl;
     return false;
   } else {
     std::stringstream ss;
-    for (std::vector<int>::const_iterator elem = inputValue.begin(); elem != inputValue.end(); ++elem) {
+    for (auto elem = inputValue.begin(); elem != inputValue.end(); ++elem) {
       ss << *elem << " ";
     }
     it->second = ss.str();
@@ -46,7 +46,7 @@ bool SiStripConfObject::update<std::vector<int> >(const std::string& name, const
 template <>
 std::vector<int> SiStripConfObject::get<std::vector<int> >(const std::string& name) const {
   std::vector<int> returnValue;
-  parMap::const_iterator it = parameters.find(name);
+  auto it = parameters.find(name);
   std::stringstream ss;
   if (it != parameters.end()) {
     ss << it->second;
@@ -63,7 +63,7 @@ template <>
 bool SiStripConfObject::put<std::vector<std::string> >(const std::string& name,
                                                        const std::vector<std::string>& inputValue) {
   std::stringstream ss;
-  for (std::vector<std::string>::const_iterator elem = inputValue.begin(); elem != inputValue.end(); ++elem) {
+  for (auto elem = inputValue.begin(); elem != inputValue.end(); ++elem) {
     ss << *elem << " ";
   }
   if (parameters.insert(std::make_pair(name, ss.str())).second)
@@ -74,14 +74,14 @@ bool SiStripConfObject::put<std::vector<std::string> >(const std::string& name,
 template <>
 bool SiStripConfObject::update<std::vector<std::string> >(const std::string& name,
                                                           const std::vector<std::string>& inputValue) {
-  parMap::iterator it = parameters.find(name);
+  auto it = parameters.find(name);
   if (it == parameters.end()) {
     std::cout << "WARNING in SiStripConfObject::update: parameter " << name << " not found, "
               << "so cannot be updated to the vector of std::string of size'" << inputValue.size() << "'." << std::endl;
     return false;
   } else {
     std::stringstream ss;
-    for (std::vector<std::string>::const_iterator elem = inputValue.begin(); elem != inputValue.end(); ++elem) {
+    for (auto elem = inputValue.begin(); elem != inputValue.end(); ++elem) {
       ss << *elem << " ";
     }
     it->second = ss.str();
@@ -92,7 +92,7 @@ bool SiStripConfObject::update<std::vector<std::string> >(const std::string& nam
 template <>
 std::vector<std::string> SiStripConfObject::get<std::vector<std::string> >(const std::string& name) const {
   std::vector<std::string> returnValue;
-  parMap::const_iterator it = parameters.find(name);
+  auto it = parameters.find(name);
   std::stringstream ss;
   if (it != parameters.end()) {
     ss << it->second;
@@ -106,7 +106,7 @@ std::vector<std::string> SiStripConfObject::get<std::vector<std::string> >(const
 }
 
 void SiStripConfObject::printSummary(std::stringstream& ss, const TrackerTopology* trackerTopo) const {
-  parMap::const_iterator it = parameters.begin();
+  auto it = parameters.begin();
   for (; it != parameters.end(); ++it) {
     ss << "parameter name = " << it->first << " value = " << it->second << std::endl;
   }

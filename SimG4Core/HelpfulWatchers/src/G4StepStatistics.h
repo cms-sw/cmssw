@@ -194,8 +194,7 @@ public:
       std::cout << " G4StatsMap size is: " << G4StatsMap.size() << std::endl;
     }
     int index(0);
-    for (std::map<const StepID, unsigned int *>::const_iterator step = G4StatsMap.begin(); step != G4StatsMap.end();
-         ++step, ++index) {
+    for (auto step = G4StatsMap.begin(); step != G4StatsMap.end(); ++step, ++index) {
       if (m_verbose) {
         std::cout << " G4StatsMap step is: " << step->first.GetRegionName() << " " << step->first.GetProcessName()
                   << " " << step->first.GetParticlePDGID();  //<<" "<<step->first.GetTrackID() ;

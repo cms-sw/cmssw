@@ -65,9 +65,9 @@ void PATConversionProducer::produce(edm::StreamID, edm::Event &iEvent, const edm
   edm::Handle<reco::ConversionCollection> hConversions;
   iEvent.getByToken(conversionsToken_, hConversions);
 
-  std::vector<Conversion> *patConversions = new std::vector<Conversion>();
+  auto *patConversions = new std::vector<Conversion>();
 
-  for (reco::ConversionCollection::const_iterator conv = hConversions->begin(); conv != hConversions->end(); ++conv) {
+  for (auto conv = hConversions->begin(); conv != hConversions->end(); ++conv) {
     reco::Vertex vtx = conv->conversionVertex();
 
     int index = 0;
@@ -82,9 +82,7 @@ void PATConversionProducer::produce(edm::StreamID, edm::Event &iEvent, const edm
         double lxy = (mom.x() * dbsx + mom.y() * dbsy) / mom.rho();
         int nHitsMax = 0;
 
-        for (std::vector<uint8_t>::const_iterator it = conv->nHitsBeforeVtx().begin();
-             it != conv->nHitsBeforeVtx().end();
-             ++it) {
+        for (auto it = conv->nHitsBeforeVtx().begin(); it != conv->nHitsBeforeVtx().end(); ++it) {
           if ((*it) > nHitsMax)
             nHitsMax = (*it);
         }

@@ -95,21 +95,19 @@ bool MCZll::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup&) co
   for (HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin(); p != myGenEvent->particles_end(); ++p) {
     if (!accepted && ((*p)->pdg_id() == 23) && (*p)->status() == 3) {
       accepted = true;
-      HepMC::GenVertex* zVertex = new HepMC::GenVertex();
-      HepMC::GenParticle* myZ = new HepMC::GenParticle(*(*p));
+      auto* zVertex = new HepMC::GenVertex();
+      auto* myZ = new HepMC::GenParticle(*(*p));
       zVertex->add_particle_in(myZ);
       //	  std::cout << (*p)->momentum().invariantMass() << std::endl;
       if ((*p)->momentum().m() < zMassRange_.first || (*p)->momentum().m() > zMassRange_.second)
         accepted = false;
       std::vector<HepMC::GenParticle*> children;
       HepMC::GenVertex* outVertex = (*p)->end_vertex();
-      for (HepMC::GenVertex::particles_out_const_iterator iter = outVertex->particles_out_const_begin();
-           iter != outVertex->particles_out_const_end();
-           iter++)
+      for (auto iter = outVertex->particles_out_const_begin(); iter != outVertex->particles_out_const_end(); iter++)
         children.push_back(*iter);
       std::vector<HepMC::GenParticle*>::const_iterator aDaughter;
       for (aDaughter = children.begin(); aDaughter != children.end(); aDaughter++) {
-        HepMC::GenParticle* myDa = new HepMC::GenParticle(*(*aDaughter));
+        auto* myDa = new HepMC::GenParticle(*(*aDaughter));
         zVertex->add_particle_out(myDa);
         if ((*aDaughter)->status() == 2)
           continue;

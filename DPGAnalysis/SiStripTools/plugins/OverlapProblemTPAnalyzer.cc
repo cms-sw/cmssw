@@ -201,8 +201,8 @@ void OverlapProblemTPAnalyzer::analyze(const edm::Event& iEvent, const edm::Even
       m_nassotk->Fill(trks.size());
 
       // loop on associated tracks and fill TrackingRecHit vector
-      for (reco::SimToRecoCollection::result_type::const_iterator trk = trks.begin(); trk != trks.end(); ++trk) {
-        for (trackingRecHit_iterator rh = trk->first->recHitsBegin(); rh != trk->first->recHitsEnd(); ++rh) {
+      for (auto trk = trks.begin(); trk != trks.end(); ++trk) {
+        for (auto rh = trk->first->recHitsBegin(); rh != trk->first->recHitsEnd(); ++rh) {
           rechits.push_back((*rh)->geographicalId());
         }
       }

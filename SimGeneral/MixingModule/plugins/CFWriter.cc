@@ -40,7 +40,7 @@ namespace edm {
     //register your products
     ParameterSet ps = iConfig.getParameter<ParameterSet>("mixObjects");
     std::vector<std::string> names = ps.getParameterNames();
-    for (std::vector<std::string>::iterator it = names.begin(); it != names.end(); ++it) {
+    for (auto it = names.begin(); it != names.end(); ++it) {
       ParameterSet pset = ps.getParameter<ParameterSet>((*it));
       if (!pset.exists("type"))
         continue;  //to allow replacement by empty pset
@@ -158,7 +158,7 @@ namespace edm {
       gotTracks = iEvent.getByLabel("mix", "g4SimHits", cf_simtrack);
 
       if (gotTracks) {
-        PCrossingFrame<SimTrack>* PCFbis = new PCrossingFrame<SimTrack>(*cf_simtrack.product());
+        auto* PCFbis = new PCrossingFrame<SimTrack>(*cf_simtrack.product());
         std::unique_ptr<PCrossingFrame<SimTrack>> pOutTrack(PCFbis);
         iEvent.put(std::move(pOutTrack), "g4SimHits");
       } else {
@@ -173,7 +173,7 @@ namespace edm {
       gotSimVertex = iEvent.getByLabel("mix", "g4SimHits", cf_simvtx);
 
       if (gotSimVertex) {
-        PCrossingFrame<SimVertex>* PCFvtx = new PCrossingFrame<SimVertex>(*cf_simvtx.product());
+        auto* PCFvtx = new PCrossingFrame<SimVertex>(*cf_simvtx.product());
         std::unique_ptr<PCrossingFrame<SimVertex>> pOutVertex(PCFvtx);
         iEvent.put(std::move(pOutVertex), "g4SimHits");
       } else {
@@ -189,7 +189,7 @@ namespace edm {
         gotPCaloHit = iEvent.getByLabel("mix", labCaloHit[ii], cf_calohit);
 
         if (gotPCaloHit) {
-          PCrossingFrame<PCaloHit>* PCFPhCaloHit = new PCrossingFrame<PCaloHit>(*cf_calohit.product());
+          auto* PCFPhCaloHit = new PCrossingFrame<PCaloHit>(*cf_calohit.product());
           std::unique_ptr<PCrossingFrame<PCaloHit>> pOutHCalo(PCFPhCaloHit);
           iEvent.put(std::move(pOutHCalo), labCaloHit[ii]);
         } else {
@@ -206,7 +206,7 @@ namespace edm {
         gotPSimHit = iEvent.getByLabel("mix", labSimHit[ii], cf_simhit);
 
         if (gotPSimHit) {
-          PCrossingFrame<PSimHit>* PCFSimHit = new PCrossingFrame<PSimHit>(*cf_simhit.product());
+          auto* PCFSimHit = new PCrossingFrame<PSimHit>(*cf_simhit.product());
           std::unique_ptr<PCrossingFrame<PSimHit>> pOutSimHit(PCFSimHit);
           iEvent.put(std::move(pOutSimHit), labSimHit[ii]);
         } else {
@@ -222,7 +222,7 @@ namespace edm {
       edm::Handle<CrossingFrame<edm::HepMCProduct>> cf_hepmc;
       gotHepMCProduct = iEvent.getByLabel("mix", "generatorSmeared", cf_hepmc);
       if (gotHepMCProduct) {
-        PCrossingFrame<edm::HepMCProduct>* PCFHepMC = new PCrossingFrame<edm::HepMCProduct>(*cf_hepmc.product());
+        auto* PCFHepMC = new PCrossingFrame<edm::HepMCProduct>(*cf_hepmc.product());
         std::unique_ptr<PCrossingFrame<edm::HepMCProduct>> pOuthepmcpr(PCFHepMC);
         iEvent.put(std::move(pOuthepmcpr), "generator");
       } else {

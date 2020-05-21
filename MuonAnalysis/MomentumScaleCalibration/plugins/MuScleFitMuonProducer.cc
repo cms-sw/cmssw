@@ -87,7 +87,7 @@ std::unique_ptr<T> MuScleFitMuonProducer::applyCorrection(const edm::Handle<T>& 
   std::unique_ptr<T> pOut(new T);
 
   // Apply the correction and produce the new muons
-  for (typename T::const_iterator muon = allMuons->begin(); muon != allMuons->end(); ++muon) {
+  for (auto muon = allMuons->begin(); muon != allMuons->end(); ++muon) {
     //std::cout << "Pt before correction = " << muon->pt() << std::endl;
     double pt = (*corrector_)(*muon);
     //std::cout << "Pt after correction = " << pt << std::endl;

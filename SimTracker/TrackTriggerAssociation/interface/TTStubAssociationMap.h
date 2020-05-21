@@ -100,7 +100,7 @@ TTStubAssociationMap<T>::TTStubAssociationMap() {
   /// Set default data members
   stubToTrackingParticleMap.clear();
   trackingParticleToStubVectorMap.clear();
-  edm::RefProd<TTClusterAssociationMap<T> >* aRefProd = new edm::RefProd<TTClusterAssociationMap<T> >();
+  auto* aRefProd = new edm::RefProd<TTClusterAssociationMap<T> >();
   theClusterAssociationMap = *aRefProd;
 }
 

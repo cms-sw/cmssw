@@ -243,7 +243,7 @@ void BPHRecoBuilder::add(const std::string& name, const std::vector<T>& collecti
   // of pointer to base objects
   int i;
   int n = collection.size();
-  std::vector<BPHRecoConstCandPtr>* compCandList = new std::vector<BPHRecoConstCandPtr>(n);
+  auto* compCandList = new std::vector<BPHRecoConstCandPtr>(n);
   for (i = 0; i < n; ++i)
     (*compCandList)[i] = collection[i];
   // save the converted list for cleanup

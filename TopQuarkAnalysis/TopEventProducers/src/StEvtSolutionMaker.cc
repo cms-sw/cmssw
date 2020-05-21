@@ -74,7 +74,7 @@ void StEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   if (jets->size() >= 2)
     jetsFound = true;
 
-  std::vector<StEvtSolution>* evtsols = new std::vector<StEvtSolution>();
+  auto* evtsols = new std::vector<StEvtSolution>();
   if (leptonFound && metFound && jetsFound) {
     std::cout << "constructing solutions" << std::endl;
     for (unsigned int b = 0; b < maxJets; b++) {

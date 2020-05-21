@@ -113,7 +113,7 @@ namespace edm {
 
   std::unique_ptr<ParameterSet> ParameterSet::popParameterSet(std::string const& name) {
     assert(!isRegistered());
-    psettable::iterator it = psetTable_.find(name);
+    auto it = psetTable_.find(name);
     assert(it != psetTable_.end());
     auto pset = std::make_unique<ParameterSet>();
     std::swap(*pset, it->second.psetForUpdate());
@@ -123,14 +123,14 @@ namespace edm {
 
   void ParameterSet::eraseSimpleParameter(std::string const& name) {
     assert(!isRegistered());
-    table::iterator it = tbl_.find(name);
+    auto it = tbl_.find(name);
     assert(it != tbl_.end());
     tbl_.erase(it);
   }
 
   void ParameterSet::eraseOrSetUntrackedParameterSet(std::string const& name) {
     assert(!isRegistered());
-    psettable::iterator it = psetTable_.find(name);
+    auto it = psetTable_.find(name);
     assert(it != psetTable_.end());
     ParameterSet& pset = it->second.psetForUpdate();
     if (pset.isRegistered()) {
@@ -142,7 +142,7 @@ namespace edm {
 
   std::vector<ParameterSet> ParameterSet::popVParameterSet(std::string const& name) {
     assert(!isRegistered());
-    vpsettable::iterator it = vpsetTable_.find(name);
+    auto it = vpsetTable_.find(name);
     assert(it != vpsetTable_.end());
     std::vector<ParameterSet> vpset;
     std::swap(vpset, it->second.vpsetForUpdate());
@@ -161,7 +161,7 @@ namespace edm {
     }
 
     // make sure contained tracked vpsets are updated
-    for (vpsettable::iterator i = vpsetTable_.begin(), e = vpsetTable_.end(); i != e; ++i) {
+    for (auto i = vpsetTable_.begin(), e = vpsetTable_.end(); i != e; ++i) {
       i->second.registerPsetsAndUpdateIDs();
     }
     //  The old, string base code is found below. Uncomment this and the assert to check whether
@@ -219,7 +219,7 @@ namespace edm {
   Entry const& ParameterSet::retrieve(char const* name) const { return retrieve(std::string(name)); }
 
   Entry const& ParameterSet::retrieve(std::string const& name) const {
-    table::const_iterator it = tbl_.find(name);
+    auto it = tbl_.find(name);
     if (it == tbl_.end()) {
       throw Exception(errors::Configuration, "MissingParameter:") << "Parameter '" << name << "' not found.";
     }
@@ -240,7 +240,7 @@ namespace edm {
   Entry const* ParameterSet::retrieveUntracked(char const* name) const { return retrieveUntracked(std::string(name)); }
 
   Entry const* ParameterSet::retrieveUntracked(std::string const& name) const {
-    table::const_iterator it = tbl_.find(name);
+    auto it = tbl_.find(name);
 
     if (it == tbl_.end())
       return nullptr;
@@ -259,7 +259,7 @@ namespace edm {
   }  // retrieve()
 
   ParameterSetEntry const& ParameterSet::retrieveParameterSet(std::string const& name) const {
-    psettable::const_iterator it = psetTable_.find(name);
+    auto it = psetTable_.find(name);
     if (it == psetTable_.end()) {
       throw Exception(errors::Configuration, "MissingParameter:") << "ParameterSet '" << name << "' not found.";
     }
@@ -278,7 +278,7 @@ namespace edm {
   }  // retrieve()
 
   ParameterSetEntry const* ParameterSet::retrieveUntrackedParameterSet(std::string const& name) const {
-    psettable::const_iterator it = psetTable_.find(name);
+    auto it = psetTable_.find(name);
 
     if (it == psetTable_.end())
       return nullptr;
@@ -298,7 +298,7 @@ namespace edm {
   }  // retrieve()
 
   VParameterSetEntry const& ParameterSet::retrieveVParameterSet(std::string const& name) const {
-    vpsettable::const_iterator it = vpsetTable_.find(name);
+    auto it = vpsetTable_.find(name);
     if (it == vpsetTable_.end()) {
       throw Exception(errors::Configuration, "MissingParameter:") << "VParameterSet '" << name << "' not found.";
     }
@@ -312,7 +312,7 @@ namespace edm {
   }  // retrieve()
 
   VParameterSetEntry const* ParameterSet::retrieveUntrackedVParameterSet(std::string const& name) const {
-    vpsettable::const_iterator it = vpsetTable_.find(name);
+    auto it = vpsetTable_.find(name);
 
     if (it == vpsetTable_.end())
       return nullptr;
@@ -328,7 +328,7 @@ namespace edm {
   Entry const* ParameterSet::retrieveUnknown(char const* name) const { return retrieveUnknown(std::string(name)); }
 
   Entry const* ParameterSet::retrieveUnknown(std::string const& name) const {
-    table::const_iterator it = tbl_.find(name);
+    auto it = tbl_.find(name);
     if (it == tbl_.end()) {
       return nullptr;
     }
@@ -336,7 +336,7 @@ namespace edm {
   }
 
   ParameterSetEntry const* ParameterSet::retrieveUnknownParameterSet(std::string const& name) const {
-    psettable::const_iterator it = psetTable_.find(name);
+    auto it = psetTable_.find(name);
     if (it == psetTable_.end()) {
       return nullptr;
     }
@@ -344,7 +344,7 @@ namespace edm {
   }
 
   VParameterSetEntry const* ParameterSet::retrieveUnknownVParameterSet(std::string const& name) const {
-    vpsettable::const_iterator it = vpsetTable_.find(name);
+    auto it = vpsetTable_.find(name);
     if (it == vpsetTable_.end()) {
       return nullptr;
     }
@@ -377,7 +377,7 @@ namespace edm {
   void ParameterSet::insert(bool okay_to_replace, std::string const& name, Entry const& value) {
     // We should probably get rid of 'okay_to_replace', which will
     // simplify the logic in this function.
-    table::iterator it = tbl_.find(name);
+    auto it = tbl_.find(name);
 
     if (it == tbl_.end()) {
       if (!tbl_.insert(std::make_pair(name, value)).second)
@@ -390,7 +390,7 @@ namespace edm {
   void ParameterSet::insertParameterSet(bool okay_to_replace, std::string const& name, ParameterSetEntry const& entry) {
     // We should probably get rid of 'okay_to_replace', which will
     // simplify the logic in this function.
-    psettable::iterator it = psetTable_.find(name);
+    auto it = psetTable_.find(name);
 
     if (it == psetTable_.end()) {
       if (!psetTable_.insert(std::make_pair(name, entry)).second)
@@ -405,7 +405,7 @@ namespace edm {
                                          VParameterSetEntry const& entry) {
     // We should probably get rid of 'okay_to_replace', which will
     // simplify the logic in this function.
-    vpsettable::iterator it = vpsetTable_.find(name);
+    auto it = vpsetTable_.find(name);
 
     if (it == vpsetTable_.end()) {
       if (!vpsetTable_.insert(std::make_pair(name, entry)).second)
@@ -423,13 +423,13 @@ namespace edm {
       return;
     }
 
-    for (table::const_iterator b = from.tbl_.begin(), e = from.tbl_.end(); b != e; ++b) {
+    for (auto b = from.tbl_.begin(), e = from.tbl_.end(); b != e; ++b) {
       this->insert(false, b->first, b->second);
     }
-    for (psettable::const_iterator b = from.psetTable_.begin(), e = from.psetTable_.end(); b != e; ++b) {
+    for (auto b = from.psetTable_.begin(), e = from.psetTable_.end(); b != e; ++b) {
       this->insertParameterSet(false, b->first, b->second);
     }
-    for (vpsettable::const_iterator b = from.vpsetTable_.begin(), e = from.vpsetTable_.end(); b != e; ++b) {
+    for (auto b = from.vpsetTable_.begin(), e = from.vpsetTable_.end(); b != e; ++b) {
       this->insertVParameterSet(false, b->first, b->second);
     }
   }  // augment()
@@ -450,7 +450,7 @@ namespace edm {
   ParameterSet* ParameterSet::getPSetForUpdate(std::string const& name, bool& isTracked) {
     assert(!isRegistered());
     isTracked = false;
-    psettable::iterator it = psetTable_.find(name);
+    auto it = psetTable_.find(name);
     if (it == psetTable_.end())
       return nullptr;
     isTracked = it->second.isTracked();
@@ -459,7 +459,7 @@ namespace edm {
 
   VParameterSetEntry* ParameterSet::getPSetVectorForUpdate(std::string const& name) {
     assert(!isRegistered());
-    vpsettable::iterator it = vpsetTable_.find(name);
+    auto it = vpsetTable_.find(name);
     if (it == vpsetTable_.end())
       return nullptr;
     return &it->second;
@@ -480,14 +480,14 @@ namespace edm {
       return;
     }
     size_t size = 1;
-    for (table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
+    for (auto b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
       if (useAll || b->second.isTracked()) {
         size += 2;
         size += b->first.size();
         size += b->second.sizeOfString();
       }
     }
-    for (psettable::const_iterator b = psetTable_.begin(), e = psetTable_.end(); b != e; ++b) {
+    for (auto b = psetTable_.begin(), e = psetTable_.end(); b != e; ++b) {
       if (useAll || b->second.isTracked()) {
         size += 2;
         size += b->first.size();
@@ -496,7 +496,7 @@ namespace edm {
         size += sizeof(ParameterSetID);
       }
     }
-    for (vpsettable::const_iterator b = vpsetTable_.begin(), e = vpsetTable_.end(); b != e; ++b) {
+    for (auto b = vpsetTable_.begin(), e = vpsetTable_.end(); b != e; ++b) {
       if (useAll || b->second.isTracked()) {
         size += 2;
         size += b->first.size();
@@ -508,7 +508,7 @@ namespace edm {
     rep += '<';
     std::string start;
     std::string const between(";");
-    for (table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
+    for (auto b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
       if (useAll || b->second.isTracked()) {
         rep += start;
         rep += b->first;
@@ -517,7 +517,7 @@ namespace edm {
         start = between;
       }
     }
-    for (psettable::const_iterator b = psetTable_.begin(), e = psetTable_.end(); b != e; ++b) {
+    for (auto b = psetTable_.begin(), e = psetTable_.end(); b != e; ++b) {
       if (useAll || b->second.isTracked()) {
         rep += start;
         rep += b->first;
@@ -526,7 +526,7 @@ namespace edm {
         start = between;
       }
     }
-    for (vpsettable::const_iterator b = vpsetTable_.begin(), e = vpsetTable_.end(); b != e; ++b) {
+    for (auto b = vpsetTable_.begin(), e = vpsetTable_.end(); b != e; ++b) {
       if (useAll || b->second.isTracked()) {
         rep += start;
         rep += b->first;
@@ -542,7 +542,7 @@ namespace edm {
   void ParameterSet::toDigest(cms::Digest& digest) const {
     digest.append("<", 1);
     bool started = false;
-    for (table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
+    for (auto b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
       if (b->second.isTracked()) {
         if (started)
           digest.append(";", 1);
@@ -552,7 +552,7 @@ namespace edm {
         started = true;
       }
     }
-    for (psettable::const_iterator b = psetTable_.begin(), e = psetTable_.end(); b != e; ++b) {
+    for (auto b = psetTable_.begin(), e = psetTable_.end(); b != e; ++b) {
       if (b->second.isTracked()) {
         if (started)
           digest.append(";", 1);
@@ -562,7 +562,7 @@ namespace edm {
         started = true;
       }
     }
-    for (vpsettable::const_iterator b = vpsetTable_.begin(), e = vpsetTable_.end(); b != e; ++b) {
+    for (auto b = vpsetTable_.begin(), e = vpsetTable_.end(); b != e; ++b) {
       if (b->second.isTracked()) {
         if (started)
           digest.append(";", 1);
@@ -589,7 +589,7 @@ namespace edm {
       return false;
 
     tbl_.clear();  // precaution
-    for (std::vector<std::string>::const_iterator b = temp.begin(), e = temp.end(); b != e; ++b) {
+    for (auto b = temp.begin(), e = temp.end(); b != e; ++b) {
       // locate required name/value separator
       std::string::const_iterator q = find_in_all(*b, '=');
       if (q == b->end())
@@ -640,8 +640,8 @@ namespace edm {
 
   std::vector<FileInPath>::size_type ParameterSet::getAllFileInPaths(std::vector<FileInPath>& output) const {
     std::vector<FileInPath>::size_type count = 0;
-    table::const_iterator it = tbl_.begin();
-    table::const_iterator end = tbl_.end();
+    auto it = tbl_.begin();
+    auto end = tbl_.end();
     while (it != end) {
       Entry const& e = it->second;
       if (e.typeCode() == 'F') {
@@ -678,23 +678,23 @@ namespace edm {
 
   ParameterSet ParameterSet::trackedPart() const {
     ParameterSet result;
-    for (table::const_iterator tblItr = tbl_.begin(); tblItr != tbl_.end(); ++tblItr) {
+    for (auto tblItr = tbl_.begin(); tblItr != tbl_.end(); ++tblItr) {
       if (tblItr->second.isTracked()) {
         result.tbl_.insert(*tblItr);
       }
     }
-    for (psettable::const_iterator psetItr = psetTable_.begin(); psetItr != psetTable_.end(); ++psetItr) {
+    for (auto psetItr = psetTable_.begin(); psetItr != psetTable_.end(); ++psetItr) {
       if (psetItr->second.isTracked()) {
         result.addParameter<ParameterSet>(psetItr->first, psetItr->second.pset().trackedPart());
       }
     }
-    for (vpsettable::const_iterator vpsetItr = vpsetTable_.begin(); vpsetItr != vpsetTable_.end(); ++vpsetItr) {
+    for (auto vpsetItr = vpsetTable_.begin(); vpsetItr != vpsetTable_.end(); ++vpsetItr) {
       if (vpsetItr->second.isTracked()) {
         VParameterSet vresult;
         std::vector<ParameterSet> const& this_vpset = vpsetItr->second.vpset();
 
         typedef std::vector<ParameterSet>::const_iterator Iter;
-        for (Iter i = this_vpset.begin(), e = this_vpset.end(); i != e; ++i) {
+        for (auto i = this_vpset.begin(), e = this_vpset.end(); i != e; ++i) {
           vresult.push_back(i->trackedPart());
         }
         result.addParameter<VParameterSet>(vpsetItr->first, vresult);
@@ -715,7 +715,7 @@ namespace edm {
 */
 
   size_t ParameterSet::getParameterSetNames(std::vector<std::string>& output, bool trackiness) const {
-    for (psettable::const_iterator psetItr = psetTable_.begin(); psetItr != psetTable_.end(); ++psetItr) {
+    for (auto psetItr = psetTable_.begin(); psetItr != psetTable_.end(); ++psetItr) {
       if (psetItr->second.isTracked() == trackiness) {
         output.push_back(psetItr->first);
       }
@@ -724,7 +724,7 @@ namespace edm {
   }
 
   size_t ParameterSet::getParameterSetVectorNames(std::vector<std::string>& output, bool trackiness) const {
-    for (vpsettable::const_iterator vpsetItr = vpsetTable_.begin(); vpsetItr != vpsetTable_.end(); ++vpsetItr) {
+    for (auto vpsetItr = vpsetTable_.begin(); vpsetItr != vpsetTable_.end(); ++vpsetItr) {
       if (vpsetItr->second.isTracked() == trackiness) {
         output.push_back(vpsetItr->first);
       }
@@ -740,8 +740,8 @@ namespace edm {
     if (code == 'q') {
       return getParameterSetVectorNames(output, trackiness);
     }
-    table::const_iterator it = tbl_.begin();
-    table::const_iterator end = tbl_.end();
+    auto it = tbl_.begin();
+    auto end = tbl_.end();
     while (it != end) {
       Entry const& e = it->second;
       if (e.typeCode() == code && e.isTracked() == trackiness) {  // if it is a vector of ParameterSet
@@ -778,14 +778,14 @@ namespace edm {
       return false;
     }
     typedef ParameterSet::table::const_iterator Ti;
-    for (Ti i = a.tbl().begin(), e = a.tbl().end(), j = b.tbl().begin(), f = b.tbl().end(); i != e && j != f;
+    for (auto i = a.tbl().begin(), e = a.tbl().end(), j = b.tbl().begin(), f = b.tbl().end(); i != e && j != f;
          ++i, ++j) {
       if (*i != *j) {
         return false;
       }
     }
     typedef ParameterSet::psettable::const_iterator Pi;
-    for (Pi i = a.psetTable().begin(), e = a.psetTable().end(), j = b.psetTable().begin(), f = b.psetTable().end();
+    for (auto i = a.psetTable().begin(), e = a.psetTable().end(), j = b.psetTable().begin(), f = b.psetTable().end();
          i != e && j != f;
          ++i, ++j) {
       if (i->first != j->first) {
@@ -799,7 +799,7 @@ namespace edm {
       }
     }
     typedef ParameterSet::vpsettable::const_iterator PVi;
-    for (PVi i = a.vpsetTable().begin(), e = a.vpsetTable().end(), j = b.vpsetTable().begin(), f = b.vpsetTable().end();
+    for (auto i = a.vpsetTable().begin(), e = a.vpsetTable().end(), j = b.vpsetTable().begin(), f = b.vpsetTable().end();
          i != e && j != f;
          ++i, ++j) {
       if (i->first != j->first) {
@@ -827,16 +827,16 @@ namespace edm {
     // indent a bit
     std::string indentation(indent, ' ');
     os << "{" << std::endl;
-    for (table::const_iterator i = tbl_.begin(), e = tbl_.end(); i != e; ++i) {
+    for (auto i = tbl_.begin(), e = tbl_.end(); i != e; ++i) {
       os << indentation << "  " << i->first << ": " << i->second << std::endl;
     }
-    for (psettable::const_iterator i = psetTable_.begin(), e = psetTable_.end(); i != e; ++i) {
+    for (auto i = psetTable_.begin(), e = psetTable_.end(); i != e; ++i) {
       // indent a bit
       std::string n = i->first;
       ParameterSetEntry const& pe = i->second;
       os << indentation << "  " << n << ": " << pe.dump(indent + 2) << std::endl;
     }
-    for (vpsettable::const_iterator i = vpsetTable_.begin(), e = vpsetTable_.end(); i != e; ++i) {
+    for (auto i = vpsetTable_.begin(), e = vpsetTable_.end(); i != e; ++i) {
       // indent a bit
       std::string n = i->first;
       VParameterSetEntry const& pe = i->second;

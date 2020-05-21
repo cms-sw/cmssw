@@ -244,7 +244,7 @@ const L1MuRegionalCand* L1MuGMTPSB::CSCMuon(int index) const {
 //
 int L1MuGMTPSB::numberRPC() const {
   int count = 0;
-  std::vector<L1MuRegionalCand>::const_iterator iter = m_RpcMuons.begin();
+  auto iter = m_RpcMuons.begin();
   while (iter != m_RpcMuons.end()) {
     if (!(*iter).empty())
       count++;
@@ -258,7 +258,7 @@ int L1MuGMTPSB::numberRPC() const {
 //
 int L1MuGMTPSB::numberDTBX() const {
   int count = 0;
-  std::vector<L1MuRegionalCand>::const_iterator iter = m_DtbxMuons.begin();
+  auto iter = m_DtbxMuons.begin();
   while (iter != m_DtbxMuons.end()) {
     if (!(*iter).empty())
       count++;
@@ -272,7 +272,7 @@ int L1MuGMTPSB::numberDTBX() const {
 //
 int L1MuGMTPSB::numberCSC() const {
   int count = 0;
-  std::vector<L1MuRegionalCand>::const_iterator iter = m_CscMuons.begin();
+  auto iter = m_CscMuons.begin();
   while (iter != m_CscMuons.end()) {
     if (!(*iter).empty())
       count++;

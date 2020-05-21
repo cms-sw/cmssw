@@ -62,7 +62,7 @@ void L1TCSCTPG::analyze(const Event& e, const EventSetup& c) {
        cscItr1 != pCSCTPGcorrlcts->end();
        cscItr1++) {
     CSCCorrelatedLCTDigiCollection::Range range1 = pCSCTPGcorrlcts->get((*cscItr1).first);
-    for (CSCCorrelatedLCTDigiCollection::const_iterator lctItr1 = range1.first; lctItr1 != range1.second; lctItr1++) {
+    for (auto lctItr1 = range1.first; lctItr1 != range1.second; lctItr1++) {
       csctpgpattern->Fill(lctItr1->getCLCTPattern());
       if (verbose_) {
         std::cout << "CSC TPG CLCT pattern " << lctItr1->getCLCTPattern() << std::endl;

@@ -37,9 +37,8 @@ CachingVertex<5> GsfVertexUpdator::add(const CachingVertex<5>& oldVertex, const 
   //   cout <<(**trackCompIter).state().globalPosition()<<endl;
   //     }
 
-  for (VSC::iterator vertexCompIter = prevVtxComponents.begin(); vertexCompIter != prevVtxComponents.end();
-       vertexCompIter++) {
-    for (LTC::iterator trackCompIter = ltComponents.begin(); trackCompIter != ltComponents.end(); trackCompIter++) {
+  for (auto vertexCompIter = prevVtxComponents.begin(); vertexCompIter != prevVtxComponents.end(); vertexCompIter++) {
+    for (auto trackCompIter = ltComponents.begin(); trackCompIter != ltComponents.end(); trackCompIter++) {
       newVertexComponents.push_back(createNewComponent(*vertexCompIter, *trackCompIter, trackWeight, +1));
       // return invalid vertex in case one of the updated vertex-components is invalid
       if (!newVertexComponents.back().first.isValid())
@@ -128,9 +127,7 @@ GsfVertexUpdator::VertexChi2Pair GsfVertexUpdator::assembleVertexComponents(
   double totalWeight = 0.;
   double totalChi2 = 0.;
 
-  for (std::vector<VertexComponent>::const_iterator iter = newVertexComponents.begin();
-       iter != newVertexComponents.end();
-       iter++) {
+  for (auto iter = newVertexComponents.begin(); iter != newVertexComponents.end(); iter++) {
     totalWeight += iter->second.first;
   }
   // cout << "totalWeight "<<totalWeight<<endl;
@@ -140,9 +137,7 @@ GsfVertexUpdator::VertexChi2Pair GsfVertexUpdator::assembleVertexComponents(
     return VertexChi2Pair(VertexState(), 0.);
   }
 
-  for (std::vector<VertexComponent>::const_iterator iter = newVertexComponents.begin();
-       iter != newVertexComponents.end();
-       iter++) {
+  for (auto iter = newVertexComponents.begin(); iter != newVertexComponents.end(); iter++) {
     double weight = iter->second.first / totalWeight;
     if (iter->second.first > DBL_MIN) {
       vertexComponents.push_back(VertexState(iter->first.weightTimesPosition(), iter->first.weight(), weight));

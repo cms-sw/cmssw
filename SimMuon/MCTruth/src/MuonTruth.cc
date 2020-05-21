@@ -80,7 +80,7 @@ void MuonTruth::initEvent(const edm::Event &event, const edm::EventSetup &setup)
     event.getByLabel(CSCsimHitsTag, CSCsimhits);
     LogTrace("MuonTruth") << "... size = " << CSCsimhits->size();
 
-    for (edm::PSimHitContainer::const_iterator hitItr = CSCsimhits->begin(); hitItr != CSCsimhits->end(); ++hitItr) {
+    for (auto hitItr = CSCsimhits->begin(); hitItr != CSCsimhits->end(); ++hitItr) {
       theSimHitMap[hitItr->detUnitId()].push_back(*hitItr);
     }
   }
@@ -91,9 +91,7 @@ float MuonTruth::muonFraction() {
     return 0.;
 
   float muonCharge = 0.;
-  for (std::map<SimHitIdpr, float>::const_iterator chargeMapItr = theChargeMap.begin();
-       chargeMapItr != theChargeMap.end();
-       ++chargeMapItr) {
+  for (auto chargeMapItr = theChargeMap.begin(); chargeMapItr != theChargeMap.end(); ++chargeMapItr) {
     if (abs(particleType(chargeMapItr->first)) == 13) {
       muonCharge += chargeMapItr->second;
     }
@@ -104,9 +102,7 @@ float MuonTruth::muonFraction() {
 
 std::vector<PSimHit> MuonTruth::simHits() {
   std::vector<PSimHit> result;
-  for (std::map<SimHitIdpr, float>::const_iterator chargeMapItr = theChargeMap.begin();
-       chargeMapItr != theChargeMap.end();
-       ++chargeMapItr) {
+  for (auto chargeMapItr = theChargeMap.begin(); chargeMapItr != theChargeMap.end(); ++chargeMapItr) {
     std::vector<PSimHit> trackHits = hitsFromSimTrack(chargeMapItr->first);
     result.insert(result.end(), trackHits.begin(), trackHits.end());
   }
@@ -117,7 +113,7 @@ std::vector<PSimHit> MuonTruth::simHits() {
 std::vector<PSimHit> MuonTruth::muonHits() {
   std::vector<PSimHit> result;
   std::vector<PSimHit> allHits = simHits();
-  std::vector<PSimHit>::const_iterator hitItr = allHits.begin(), lastHit = allHits.end();
+  auto hitItr = allHits.begin(), lastHit = allHits.end();
 
   for (; hitItr != lastHit; ++hitItr) {
     if (abs((*hitItr).particleType()) == 13) {
@@ -168,7 +164,7 @@ void MuonTruth::analyze(const CSCRecHit2D &recHit) {
     float weight = recHit.adcs(idigi, 0);  // DL: I think this is wrong before and after...seems to
                                            // assume one time binadcContainer[idigi];
 
-    DigiSimLinks::const_iterator layerLinks = theDigiSimLinks->find(theDetId);
+    auto layerLinks = theDigiSimLinks->find(theDetId);
 
     if (layerLinks != theDigiSimLinks->end()) {
       addChannel(*layerLinks, channel, weight);
@@ -181,7 +177,7 @@ void MuonTruth::analyze(const CSCStripDigi &stripDigi, int rawDetIdCorresponding
   theChargeMap.clear();
   theTotalCharge = 0.;
 
-  DigiSimLinks::const_iterator layerLinks = theDigiSimLinks->find(theDetId);
+  auto layerLinks = theDigiSimLinks->find(theDetId);
   if (layerLinks != theDigiSimLinks->end()) {
     addChannel(*layerLinks, stripDigi.getStrip(), 1.);
   }
@@ -192,7 +188,7 @@ void MuonTruth::analyze(const CSCWireDigi &wireDigi, int rawDetIdCorrespondingTo
   theChargeMap.clear();
   theTotalCharge = 0.;
 
-  WireDigiSimLinks::const_iterator layerLinks = theWireDigiSimLinks->find(theDetId);
+  auto layerLinks = theWireDigiSimLinks->find(theDetId);
 
   if (layerLinks != theDigiSimLinks->end()) {
     // In the simulation digis, the channel labels for wires and strips must be
@@ -204,7 +200,7 @@ void MuonTruth::analyze(const CSCWireDigi &wireDigi, int rawDetIdCorrespondingTo
 }
 
 void MuonTruth::addChannel(const LayerLinks &layerLinks, int channel, float weight) {
-  LayerLinks::const_iterator linkItr = layerLinks.begin(), lastLayerLink = layerLinks.end();
+  auto linkItr = layerLinks.begin(), lastLayerLink = layerLinks.end();
 
   for (; linkItr != lastLayerLink; ++linkItr) {
     int linkChannel = linkItr->channel();
@@ -213,7 +209,7 @@ void MuonTruth::addChannel(const LayerLinks &layerLinks, int channel, float weig
       theTotalCharge += charge;
       // see if it's in the map
       SimHitIdpr truthId(linkItr->SimTrackId(), linkItr->eventId());
-      std::map<SimHitIdpr, float>::const_iterator chargeMapItr = theChargeMap.find(truthId);
+      auto chargeMapItr = theChargeMap.find(truthId);
       if (chargeMapItr == theChargeMap.end()) {
         theChargeMap[truthId] = charge;
       } else {

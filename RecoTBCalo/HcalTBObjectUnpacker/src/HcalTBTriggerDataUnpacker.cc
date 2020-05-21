@@ -58,7 +58,7 @@ namespace hcaltb {
     //
     if (raw.size() == 80) {  // "old" test beam trigger format
 
-      const oldTriggerDataFormat *oldtrgblk = (const oldTriggerDataFormat *)(raw.data());
+      const auto *oldtrgblk = (const oldTriggerDataFormat *)(raw.data());
       htbtd.setStandardData(oldtrgblk->orbitNumber,
                             oldtrgblk->triggerNumber,
                             oldtrgblk->bunchNumber,

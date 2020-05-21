@@ -170,7 +170,7 @@ void CentralityDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   }
 
   if (ep.isValid()) {
-    EvtPlaneCollection::const_iterator rp = ep->begin();
+    auto rp = ep->begin();
 
     h_ep_HFm1->Fill(rp[HFm1].angle(0));
     h_ep_HFp1->Fill(rp[HFp1].angle(0));

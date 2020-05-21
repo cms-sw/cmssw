@@ -286,7 +286,7 @@ void PixelPopConCalibSourceHandler::getNewObjects_file() {
 
   // use online code to parse the file
   pos::PixelCalibConfiguration fancyCalib(inputFilename);
-  SiPixelCalibConfiguration *calibConfig = new SiPixelCalibConfiguration(fancyCalib);
+  auto *calibConfig = new SiPixelCalibConfiguration(fancyCalib);
 
   m_to_transfer.push_back(std::make_pair(calibConfig, _sinceIOV));
 

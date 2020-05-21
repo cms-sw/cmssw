@@ -172,11 +172,11 @@ void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
   //  Pick the leading lepton.
   std::map<float, const reco::Muon*> muonMap;
-  for (reco::MuonCollection::const_iterator recoMu = muons->begin(); recoMu != muons->end(); ++recoMu) {
+  for (auto recoMu = muons->begin(); recoMu != muons->end(); ++recoMu) {
     muonMap[recoMu->pt()] = &*recoMu;
   }
   std::vector<const reco::Muon*> LeadingMuon;
-  for (std::map<float, const reco::Muon*>::reverse_iterator rit = muonMap.rbegin(); rit != muonMap.rend(); ++rit) {
+  for (auto rit = muonMap.rbegin(); rit != muonMap.rend(); ++rit) {
     LeadingMuon.push_back((*rit).second);
   }
 

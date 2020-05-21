@@ -260,7 +260,7 @@ void lumi::Lumi2DB::writeAllLumiData(coral::ISessionProxy* session,
   detailData.extend("BXLUMIQUALITY", typeid(coral::Blob));
   detailData.extend("ALGONAME", typeid(std::string));
 
-  unsigned long long& lumisummary_id = summaryData["LUMISUMMARY_ID"].data<unsigned long long>();
+  auto& lumisummary_id = summaryData["LUMISUMMARY_ID"].data<unsigned long long>();
   unsigned int& lumirunnum = summaryData["RUNNUM"].data<unsigned int>();
   std::string& lumiversion = summaryData["LUMIVERSION"].data<std::string>();
   float& dtnorm = summaryData["DTNORM"].data<float>();
@@ -280,8 +280,8 @@ void lumi::Lumi2DB::writeAllLumiData(coral::ISessionProxy* session,
   coral::Blob& beamintensity_1 = summaryData["BEAMINTENSITYBLOB_1"].data<coral::Blob>();
   coral::Blob& beamintensity_2 = summaryData["BEAMINTENSITYBLOB_2"].data<coral::Blob>();
 
-  unsigned long long& lumidetail_id = detailData["LUMIDETAIL_ID"].data<unsigned long long>();
-  unsigned long long& d2lumisummary_id = detailData["LUMISUMMARY_ID"].data<unsigned long long>();
+  auto& lumidetail_id = detailData["LUMIDETAIL_ID"].data<unsigned long long>();
+  auto& d2lumisummary_id = detailData["LUMISUMMARY_ID"].data<unsigned long long>();
   coral::Blob& bxlumivalue = detailData["BXLUMIVALUE"].data<coral::Blob>();
   coral::Blob& bxlumierror = detailData["BXLUMIERROR"].data<coral::Blob>();
   coral::Blob& bxlumiquality = detailData["BXLUMIQUALITY"].data<coral::Blob>();
@@ -469,7 +469,7 @@ unsigned int lumi::Lumi2DB::writeAllLumiDataToSchema2(coral::ISessionProxy* sess
   summaryData.extend("BXLUMIERROR_ET", typeid(coral::Blob));
   summaryData.extend("BXLUMIQUALITY_ET", typeid(coral::Blob));
 
-  unsigned long long& data_id = summaryData["DATA_ID"].data<unsigned long long>();
+  auto& data_id = summaryData["DATA_ID"].data<unsigned long long>();
   unsigned int& lumirunnum = summaryData["RUNNUM"].data<unsigned int>();
   unsigned int& lumilsnr = summaryData["LUMILSNUM"].data<unsigned int>();
   unsigned int& cmslsnr = summaryData["CMSLSNUM"].data<unsigned int>();
@@ -854,7 +854,7 @@ unsigned long long lumi::Lumi2DB::retrieveData(unsigned int runnumber) {
     //runnumber=lumiheader->runNumber;
     //if(runnumber!=m_run) throw std::runtime_error(std::string("requested run ")+this->int2str(m_run)+" does not match runnumber in the data header "+this->int2str(runnumber));
     h.lumilsnr = lumiheader->sectionNumber;
-    std::map<unsigned int, Lumi2DB::beamData>::iterator beamIt = dipmap.find(h.lumilsnr);
+    auto beamIt = dipmap.find(h.lumilsnr);
     if (beamIt != dipmap.end()) {
       h.beammode = beamIt->second.mode;
       h.beamenergy = beamIt->second.energy;
@@ -951,7 +951,7 @@ unsigned long long lumi::Lumi2DB::retrieveData(unsigned int runnumber) {
   if (!m_nocheckingstablebeam && !hasStableBeam(lumiresult.begin(), lumiresult.end())) {
     throw lumi::noStableBeamException("no LS has STABLE BEAMS", "hasStableBeam", "Lumi2DB");
   }
-  coral::ConnectionService* svc = new coral::ConnectionService;
+  auto* svc = new coral::ConnectionService;
   lumi::DBConfig dbconf(*svc);
   if (!m_authpath.empty()) {
     dbconf.setAuthentication(m_authpath);

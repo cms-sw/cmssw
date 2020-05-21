@@ -43,7 +43,7 @@ string xMLCh2String(const XMLCh* ch) {
 }
 
 const RPCPattern::RPCPatVec& RPCPatternsParser::getPatternsVec(const RPCConst::l1RpcConeCrdnts& coneCrds) const {
-  TPatternsVecsMap::const_iterator patVecIt = m_PatternsVecsMap.find(coneCrds);
+  auto patVecIt = m_PatternsVecsMap.find(coneCrds);
   if (patVecIt == m_PatternsVecsMap.end()) {
     std::stringstream ss;
     ss << coneCrds.m_Tower << " " << coneCrds.m_LogSector << " " << coneCrds.m_LogSegment;

@@ -112,7 +112,7 @@ void CheckOverlap::checkPV(G4VPhysicalVolume* pv, unsigned int leafDepth) {
     }
   } else {
     if (pv->GetParameterisation() != nullptr) {
-      G4PVParameterised* pvparam = dynamic_cast<G4PVParameterised*>(pv);
+      auto* pvparam = dynamic_cast<G4PVParameterised*>(pv);
       G4bool ok = pvparam->CheckOverlaps(nPoints);
       G4cout << "Parametrized PV " << pvparam->GetName() << " in mother " << mother << " at depth " << leafDepth
              << " Status " << ok << G4endl;

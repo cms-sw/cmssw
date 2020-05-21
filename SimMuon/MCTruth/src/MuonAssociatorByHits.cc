@@ -56,7 +56,7 @@ namespace muonAssociatorByHitsDiagnostics {
     edm::LogVerbatim("MuonAssociatorByHits") << "\n"
                                              << "TrackingParticle collection --- size = " << tPC.size();
     int j = 0;
-    for (TrackingParticleCollection::const_iterator ITER = tPC.begin(); ITER != tPC.end(); ITER++, j++) {
+    for (auto ITER = tPC.begin(); ITER != tPC.end(); ITER++, j++) {
       edm::LogVerbatim("MuonAssociatorByHits")
           << "TrackingParticle " << j << ", q = " << ITER->charge() << ", p = " << ITER->p() << ", pT = " << ITER->pt()
           << ", eta = " << ITER->eta() << ", phi = " << ITER->phi();
@@ -65,7 +65,7 @@ namespace muonAssociatorByHitsDiagnostics {
           << "\t pdg code = " << ITER->pdgId() << ", made of " << ITER->numberOfHits() << " PSimHit"
           << " (in " << ITER->numberOfTrackerLayers() << " layers)"
           << " from " << ITER->g4Tracks().size() << " SimTrack:";
-      for (TrackingParticle::g4t_iterator g4T = ITER->g4Track_begin(); g4T != ITER->g4Track_end(); g4T++) {
+      for (auto g4T = ITER->g4Track_begin(); g4T != ITER->g4Track_end(); g4T++) {
         edm::LogVerbatim("MuonAssociatorByHits") << "\t\t Id:" << g4T->trackId() << "/Evt:(" << g4T->eventId().event()
                                                  << "," << g4T->eventId().bunchCrossing() << ")";
       }
@@ -111,7 +111,7 @@ namespace muonAssociatorByHitsDiagnostics {
           << "\n"
           << "SimTrack collection with InputTag = " << simtracksTag << " has size = " << simTC.size() << endl;
       int k = 0;
-      for (edm::SimTrackContainer::const_iterator ITER = simTC.begin(); ITER != simTC.end(); ITER++, k++) {
+      for (auto ITER = simTC.begin(); ITER != simTC.end(); ITER++, k++) {
         edm::LogVerbatim("MuonAssociatorByHits")
             << "SimTrack " << k << " - Id:" << ITER->trackId() << "/Evt:(" << ITER->eventId().event() << ","
             << ITER->eventId().bunchCrossing() << ")"
@@ -126,7 +126,7 @@ namespace muonAssociatorByHitsDiagnostics {
                                                << "g4SimHits"
                                                << " has size = " << simVC.size() << endl;
       int kv = 0;
-      for (edm::SimVertexContainer::const_iterator VITER = simVC.begin(); VITER != simVC.end(); VITER++, kv++) {
+      for (auto VITER = simVC.begin(); VITER != simVC.end(); VITER++, kv++) {
         edm::LogVerbatim("MuonAssociatorByHits") << "SimVertex " << kv << " : " << *VITER << endl;
       }
     }

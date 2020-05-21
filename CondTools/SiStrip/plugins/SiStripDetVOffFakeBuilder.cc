@@ -57,7 +57,7 @@ void SiStripDetVOffFakeBuilder::analyze(const edm::Event& evt, const edm::EventS
 
   // std::vector<uint32_t> TheDetIdHVVector;
 
-  for (std::vector<uint32_t>::const_iterator it = detids.begin(); it != detids.end(); it++) {
+  for (auto it = detids.begin(); it != detids.end(); it++) {
     //Generate HV and LV for each channel, if at least one of the two is off fill the value
     int hv = rand() % 20;
     int lv = rand() % 20;

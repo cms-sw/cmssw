@@ -88,7 +88,7 @@ void CSCTFanalyzer::analyze(edm::Event const& e, edm::EventSetup const& es) {
       int lctId = 0;
 
       CSCCorrelatedLCTDigiCollection::Range range1 = LCTs.product()->get((*csc).first);
-      for (CSCCorrelatedLCTDigiCollection::const_iterator lct = range1.first; lct != range1.second; lct++, lctId++) {
+      for (auto lct = range1.first; lct != range1.second; lct++, lctId++) {
         int station = (*csc).first.station() - 1;
         int cscId = (*csc).first.triggerCscId() - 1;
         int sector = (*csc).first.triggerSector() - 1 + ((*csc).first.endcap() == 1 ? 0 : 6);
@@ -107,7 +107,7 @@ void CSCTFanalyzer::analyze(edm::Event const& e, edm::EventSetup const& es) {
     e.getByLabel(mbProducer.label(), mbProducer.instance(), dtStubs);
     if (dtStubs.isValid()) {
       std::vector<csctf::TrackStub> vstubs = dtStubs->get();
-      for (std::vector<csctf::TrackStub>::const_iterator stub = vstubs.begin(); stub != vstubs.end(); stub++) {
+      for (auto stub = vstubs.begin(); stub != vstubs.end(); stub++) {
         //int dtSector =(stub->sector()-1)*2 + stub->subsector()-1;
         //int dtEndcap = stub->endcap()-1;
         std::cout << "   DT data: tbin=" << stub->BX() << " (CSC) sector=" << stub->sector()
@@ -169,13 +169,13 @@ void CSCTFanalyzer::analyze(edm::Event const& e, edm::EventSetup const& es) {
     // Muon sorter emulation:
     std::vector<csc::L1Track> result;
     CSCTriggerContainer<csc::L1Track> stripped_tracks;
-    for (L1CSCTrackCollection::const_iterator tmp_trk = tracks->begin(); tmp_trk != tracks->end(); tmp_trk++) {
+    for (auto tmp_trk = tracks->begin(); tmp_trk != tracks->end(); tmp_trk++) {
       csc::L1Track qqq(tmp_trk->first);
       qqq.setOutputLink(0);
       CSCCorrelatedLCTDigiCollection qwe = tmp_trk->second;
       for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator csc = qwe.begin(); csc != qwe.end(); csc++) {
         CSCCorrelatedLCTDigiCollection::Range range1 = qwe.get((*csc).first);
-        for (CSCCorrelatedLCTDigiCollection::const_iterator lct = range1.first; lct != range1.second; lct++)
+        for (auto lct = range1.first; lct != range1.second; lct++)
           qqq.setOutputLink(qqq.outputLink() | (1 << (*csc).first.station()));
       }
       stripped_tracks.push_back(qqq);
@@ -186,7 +186,7 @@ void CSCTFanalyzer::analyze(edm::Event const& e, edm::EventSetup const& es) {
       std::sort(tks.begin(), tks.end(), std::greater<csc::L1Track>());
       if (tks.size() > 4)
         tks.resize(4);  // resize to max number of muons the MS can output
-      for (std::vector<csc::L1Track>::iterator itr = tks.begin(); itr != tks.end(); itr++) {
+      for (auto itr = tks.begin(); itr != tks.end(); itr++) {
         unsigned gbl_phi =
             itr->localPhi() + ((itr->sector() - 1) * 24) + 6;  // for now, convert using this.. LUT in the future
         if (gbl_phi > 143)
@@ -202,7 +202,7 @@ void CSCTFanalyzer::analyze(edm::Event const& e, edm::EventSetup const& es) {
       }
     }
     //		for(std::vector<csc::L1Track>::const_iterator trk=result.begin(); trk!=result.end(); trk++){
-    for (L1CSCTrackCollection::const_iterator _trk = tracks->begin(); _trk != tracks->end(); _trk++) {
+    for (auto _trk = tracks->begin(); _trk != tracks->end(); _trk++) {
       const csc::L1Track* trk = &(_trk->first);
       switch (nDataMuons) {
         case 0:
@@ -251,7 +251,7 @@ void CSCTFanalyzer::analyze(edm::Event const& e, edm::EventSetup const& es) {
   if (emulTrackProducer.label() != "null") {
     edm::Handle<L1CSCTrackCollection> tracks;
     e.getByLabel(emulTrackProducer.label(), emulTrackProducer.instance(), tracks);
-    for (L1CSCTrackCollection::const_iterator trk = tracks.product()->begin(); trk != tracks.product()->end(); trk++) {
+    for (auto trk = tracks.product()->begin(); trk != tracks.product()->end(); trk++) {
       switch (nEmulMuons) {
         case 0:
           ephi1 = trk->first.localPhi();

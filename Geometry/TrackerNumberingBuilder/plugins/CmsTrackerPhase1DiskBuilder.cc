@@ -27,13 +27,13 @@ void CmsTrackerPhase1DiskBuilder<FilteredView>::PhiPosNegSplit_innerOuter(
   // also find the average radius (used to split inner and outer disk panels)
   double theRmin = (**begin).rho();
   double theRmax = theRmin;
-  for (vector<const GeometricDet*>::const_iterator it = begin; it != end; it++) {
+  for (auto it = begin; it != end; it++) {
     if ((**it).phi() >= 0)
       theCompsPosNeg.emplace_back(*it);
     theRmin = std::min(theRmin, (**it).rho());
     theRmax = std::max(theRmax, (**it).rho());
   }
-  for (vector<const GeometricDet*>::const_iterator it = begin; it != end; it++) {
+  for (auto it = begin; it != end; it++) {
     if ((**it).phi() < 0)
       theCompsPosNeg.emplace_back(*it);
   }
@@ -44,14 +44,14 @@ void CmsTrackerPhase1DiskBuilder<FilteredView>::PhiPosNegSplit_innerOuter(
   double radius_split = 100.;
   std::vector<const GeometricDet*> theCompsInnerOuter;
   unsigned int num_inner = 0;
-  for (vector<const GeometricDet*>::const_iterator it = theCompsPosNeg.begin(); it != theCompsPosNeg.end(); it++) {
+  for (auto it = theCompsPosNeg.begin(); it != theCompsPosNeg.end(); it++) {
     if ((**it).rho() <= radius_split) {
       theCompsInnerOuter.emplace_back(*it);
       num_inner++;
     }
   }
 
-  for (vector<const GeometricDet*>::const_iterator it = theCompsPosNeg.begin(); it != theCompsPosNeg.end(); it++) {
+  for (auto it = theCompsPosNeg.begin(); it != theCompsPosNeg.end(); it++) {
     if ((**it).rho() > radius_split)
       theCompsInnerOuter.emplace_back(*it);
   }

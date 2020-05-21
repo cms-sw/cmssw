@@ -14,8 +14,7 @@ void IntermediateTrajectoryCleaner::clean(IntermediateTrajectoryCleaner::TempTra
   if (theTrajectories[0].measurements().size() < 4)
     return;
 
-  for (TempTrajectoryContainer::iterator firstTraj = theTrajectories.begin(), firstEnd = theTrajectories.end() - 1;
-       firstTraj != firstEnd;
+  for (auto firstTraj = theTrajectories.begin(), firstEnd = theTrajectories.end() - 1; firstTraj != firstEnd;
        ++firstTraj) {
     if ((!firstTraj->isValid()) || (!firstTraj->lastMeasurement().recHit()->isValid()))
       continue;
@@ -29,9 +28,7 @@ void IntermediateTrajectoryCleaner::clean(IntermediateTrajectoryCleaner::TempTra
 
     bool fh2Valid = first_hit2->isValid();
 
-    for (TempTrajectoryContainer::iterator secondTraj = (firstTraj + 1), secondEnd = theTrajectories.end();
-         secondTraj != secondEnd;
-         ++secondTraj) {
+    for (auto secondTraj = (firstTraj + 1), secondEnd = theTrajectories.end(); secondTraj != secondEnd; ++secondTraj) {
       if ((!secondTraj->isValid()) || (!secondTraj->lastMeasurement().recHit()->isValid()))
         continue;
 

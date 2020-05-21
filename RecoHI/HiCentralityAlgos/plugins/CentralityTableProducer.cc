@@ -125,7 +125,7 @@ void CentralityTableProducer::endJob() {
 
     text_ << "# BinEdge NpartMean NpartVar NcollMean NcollVar NhardMean NhardVar bMean bVar" << endl;
     for (int j = 0; j < CB->getNbins(); j++) {
-      CentralityTable::CBin* thisBin = new CentralityTable::CBin();
+      auto* thisBin = new CentralityTable::CBin();
       thisBin->bin_edge = CB->lowEdgeOfBin(j);
       thisBin->n_part.mean = CB->NpartMeanOfBin(j);
       thisBin->n_part.var = CB->NpartSigmaOfBin(j);

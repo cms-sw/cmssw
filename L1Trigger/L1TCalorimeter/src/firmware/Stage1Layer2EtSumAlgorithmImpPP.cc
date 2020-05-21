@@ -73,7 +73,7 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
   SortJets(&unSortedJets, &SortedJets);
   int dijet_phi = DiJetPhi(&SortedJets);
 
-  for (std::vector<CaloRegion>::const_iterator region = subRegions.begin(); region != subRegions.end(); region++) {
+  for (auto region = subRegions.begin(); region != subRegions.end(); region++) {
     if (region->hwEta() < etSumEtaMinEt || region->hwEta() > etSumEtaMaxEt) {
       continue;
     }
@@ -88,7 +88,7 @@ void l1t::Stage1Layer2EtSumAlgorithmImpPP::processEvent(const std::vector<l1t::C
     }
   }
 
-  for (std::vector<CaloRegion>::const_iterator region = subRegions.begin(); region != subRegions.end(); region++) {
+  for (auto region = subRegions.begin(); region != subRegions.end(); region++) {
     if (region->hwEta() < etSumEtaMinHt || region->hwEta() > etSumEtaMaxHt) {
       continue;
     }

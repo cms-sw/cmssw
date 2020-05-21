@@ -38,7 +38,7 @@ void NoiseAlgorithm::extract(const std::vector<TH1*>& histos) {
   }
 
   // Extract histograms
-  std::vector<TH1*>::const_iterator ihis = histos.begin();
+  auto ihis = histos.begin();
   for (; ihis != histos.end(); ihis++) {
     // Check for NULL pointer
     if (!(*ihis)) {
@@ -90,7 +90,7 @@ void NoiseAlgorithm::analyse() {
     return;
   }
 
-  CommissioningAnalysis* tmp = const_cast<CommissioningAnalysis*>(anal());
+  auto* tmp = const_cast<CommissioningAnalysis*>(anal());
   NoiseAnalysis* anal = dynamic_cast<NoiseAnalysis*>(tmp);
   if (!anal) {
     edm::LogWarning(mlCommissioning_) << "[NoiseAlgorithm::" << __func__ << "]"

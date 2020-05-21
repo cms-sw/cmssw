@@ -178,7 +178,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
       // loop over the vector of taus to find the ones
       // that have the charge opposite to the muon one, and do not match in eta-phi
       std::vector<std::vector<pat::Tau>::const_iterator> subset1;
-      for (std::vector<pat::Tau>::const_iterator tau = taus->begin(); tau < taus->end(); ++tau) {
+      for (auto tau = taus->begin(); tau < taus->end(); ++tau) {
         if (tau->charge() * expectedCharge >= 0 && DeltaR<pat::Particle>()(*tau, *(muons->begin())) > 0.1) {
           *tauIdx = tau - taus->begin();
           leptonFound = true;
@@ -187,9 +187,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
       }
       // if there are more than one tau with ecalIsol==0, take the smallest E/P
       float iso = 999.;
-      for (std::vector<std::vector<pat::Tau>::const_iterator>::const_iterator tau = subset1.begin();
-           tau < subset1.end();
-           ++tau) {
+      for (auto tau = subset1.begin(); tau < subset1.end(); ++tau) {
         if ((*tau)->isPFTau() && (*tau)->isolationPFChargedHadrCandsPtSum() < iso) {
           *tauIdx = *tau - taus->begin();
           iso = (*tau)->isolationPFChargedHadrCandsPtSum();
@@ -203,7 +201,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
       }
       // discard the jet that matches the tau (if one)
       if (leptonFound) {
-        for (std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet < jets->end(); ++jet) {
+        for (auto jet = jets->begin(); jet < jets->end(); ++jet) {
           if (DeltaR<pat::Particle, pat::Jet>()(*(taus->begin() + *tauIdx), *jet) < 0.1) {
             JetVetoByTaus.push_back(jet - jets->begin());
           }
@@ -226,7 +224,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
       // loop over the vector of taus to find the ones
       // that have the charge opposite to the muon one, and do not match in eta-phi
       std::vector<std::vector<pat::Tau>::const_iterator> subset1;
-      for (std::vector<pat::Tau>::const_iterator tau = taus->begin(); tau < taus->end(); ++tau) {
+      for (auto tau = taus->begin(); tau < taus->end(); ++tau) {
         if (tau->charge() * expectedCharge >= 0 && DeltaR<pat::Particle>()(*tau, *(electrons->begin())) > 0.1) {
           *tauIdx = tau - taus->begin();
           leptonFound = true;
@@ -235,9 +233,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
       }
       // if there are more than one tau with ecalIsol==0, take the smallest E/P
       float iso = 999.;
-      for (std::vector<std::vector<pat::Tau>::const_iterator>::const_iterator tau = subset1.begin();
-           tau < subset1.end();
-           ++tau) {
+      for (auto tau = subset1.begin(); tau < subset1.end(); ++tau) {
         if ((*tau)->isPFTau() && (*tau)->isolationPFChargedHadrCandsPtSum() < iso) {
           *tauIdx = *tau - taus->begin();
           iso = (*tau)->isolationPFChargedHadrCandsPtSum();
@@ -251,7 +247,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
       }
       // discard the jet that matches the tau (if one)
       if (leptonFound) {
-        for (std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet < jets->end(); ++jet) {
+        for (auto jet = jets->begin(); jet < jets->end(); ++jet) {
           if (DeltaR<pat::Particle, pat::Jet>()(*(taus->begin() + *tauIdx), *jet) < 0.1) {
             JetVetoByTaus.push_back(jet - jets->begin());
           }
@@ -273,7 +269,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
         selTaum = 0;
       }
     }
-    for (std::vector<pat::Jet>::const_iterator jet = jets->begin(); jet < jets->end(); ++jet) {
+    for (auto jet = jets->begin(); jet < jets->end(); ++jet) {
       if (DeltaR<pat::Particle, pat::Jet>()((*taus)[0], *jet) < 0.1 ||
           DeltaR<pat::Particle, pat::Jet>()((*taus)[1], *jet) < 0.1) {
         JetVetoByTaus.push_back(jet - jets->begin());
@@ -292,7 +288,7 @@ void TtDilepEvtSolutionMaker::produce(edm::Event& iEvent, const edm::EventSetup&
                        (leptonFoundMM && mumuChannel_) || ((leptonFoundMmTp || leptonFoundMpTm) && mutauChannel_) ||
                        ((leptonFoundEmTp || leptonFoundEpTm) && etauChannel_) || (leptonFoundTT && tautauChannel_);
 
-  std::vector<TtDilepEvtSolution>* evtsols = new std::vector<TtDilepEvtSolution>();
+  auto* evtsols = new std::vector<TtDilepEvtSolution>();
   if (correctLepton && METFound && jetsFound) {
     // protect against reading beyond array boundaries while discounting vetoed jets
     unsigned int nrCombJets = 0;

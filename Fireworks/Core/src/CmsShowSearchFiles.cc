@@ -53,7 +53,7 @@ CmsShowSearchFiles::CmsShowSearchFiles(
     : TGTransientFrame(gClient->GetDefaultRoot(), p, w, h) {
   TGVerticalFrame* vf = new TGVerticalFrame(this);
   this->AddFrame(vf, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 5, 5, 5, 5));
-  TGHorizontalFrame* urlFrame = new TGHorizontalFrame(this);
+  auto* urlFrame = new TGHorizontalFrame(this);
   vf->AddFrame(urlFrame, new TGLayoutHints(kLHintsExpandX, 5, 0, 5, 5));
 
   TGLabel* urlLabel = new TGLabel(urlFrame, "URL");
@@ -70,7 +70,7 @@ CmsShowSearchFiles::CmsShowSearchFiles(
   m_webFile->Connect("MouseDown(const char*)", "CmsShowSearchFiles", this, "hyperlinkClicked(const char*)");
   vf->AddFrame(m_webFile, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 1, 1, 1, 1));
 
-  TGHorizontalFrame* buttonFrame = new TGHorizontalFrame(vf);
+  auto* buttonFrame = new TGHorizontalFrame(vf);
   vf->AddFrame(buttonFrame, new TGLayoutHints(kLHintsExpandX, 1, 10, 1, 10));
 
   m_openButton = new TGTextButton(buttonFrame, "Open");

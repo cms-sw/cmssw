@@ -104,7 +104,7 @@ std::vector<float> CalibrationCluster::getEnergyVector(const EBRecHitCollection*
   nXtalsOut = 0;
   for (it = XstalsNxN.begin(); it != XstalsNxN.end(); ++it) {
     if (ReducedMap.find(*it) != ReducedMap.end()) {
-      CalibMap::iterator it2 = ReducedMap.find(*it);
+      auto it2 = ReducedMap.find(*it);
 
       int icry = it2->second;
 

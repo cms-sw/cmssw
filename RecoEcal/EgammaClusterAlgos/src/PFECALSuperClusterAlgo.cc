@@ -433,7 +433,7 @@ void PFECALSuperClusterAlgo::buildSuperCluster(CalibClusterPtr& seed, CalibClust
       case PFLayer::ECAL_BARREL:
         if (isOOTCollection_) {
           DetId seedId = new_sc.seed()->seed();
-          EcalRecHitCollection::const_iterator seedRecHit = barrelRecHits_->find(seedId);
+          auto seedRecHit = barrelRecHits_->find(seedId);
           if (!seedRecHit->checkFlag(EcalRecHit::kOutOfTime))
             break;
         }
@@ -443,7 +443,7 @@ void PFECALSuperClusterAlgo::buildSuperCluster(CalibClusterPtr& seed, CalibClust
       case PFLayer::ECAL_ENDCAP:
         if (isOOTCollection_) {
           DetId seedId = new_sc.seed()->seed();
-          EcalRecHitCollection::const_iterator seedRecHit = endcapRecHits_->find(seedId);
+          auto seedRecHit = endcapRecHits_->find(seedId);
           if (!seedRecHit->checkFlag(EcalRecHit::kOutOfTime))
             break;
         }

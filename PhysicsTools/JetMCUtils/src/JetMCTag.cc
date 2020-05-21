@@ -36,7 +36,7 @@ double JetMCTagUtils::EnergyRatioFromCHadrons(const Candidate &c) {
 bool JetMCTagUtils::decayFromBHadron(const Candidate &c) {
   bool isFromB = false;
   vector<const Candidate *> allParents = getAncestors(c);
-  for (vector<const Candidate *>::const_iterator aParent = allParents.begin(); aParent != allParents.end(); aParent++) {
+  for (auto aParent = allParents.begin(); aParent != allParents.end(); aParent++) {
     if (hasBottom(**aParent))
       isFromB = true;
     /*
@@ -53,7 +53,7 @@ bool JetMCTagUtils::decayFromBHadron(const Candidate &c) {
 bool JetMCTagUtils::decayFromCHadron(const Candidate &c) {
   bool isFromC = false;
   vector<const Candidate *> allParents = getAncestors(c);
-  for (vector<const Candidate *>::const_iterator aParent = allParents.begin(); aParent != allParents.end(); aParent++) {
+  for (auto aParent = allParents.begin(); aParent != allParents.end(); aParent++) {
     if (hasCharm(**aParent))
       isFromC = true;
     /*
@@ -75,8 +75,7 @@ std::string JetMCTagUtils::genTauDecayMode(const CompositePtrCandidate &c) {
   int numPhotons = 0;
 
   const CompositePtrCandidate::daughters &daughters = c.daughterPtrVector();
-  for (CompositePtrCandidate::daughters::const_iterator daughter = daughters.begin(); daughter != daughters.end();
-       ++daughter) {
+  for (auto daughter = daughters.begin(); daughter != daughters.end(); ++daughter) {
     int pdg_id = abs((*daughter)->pdgId());
 
     switch (pdg_id) {

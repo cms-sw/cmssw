@@ -120,8 +120,8 @@ void L1TMuonLegacyConverter::produce(edm::Event& iEvent, const edm::EventSetup& 
       } else {
         // Get GMT candidates from all bunch crossings
         vector<L1MuGMTReadoutRecord> records = simMuCollection->getRecords();
-        vector<L1MuGMTReadoutRecord>::const_iterator rItr = records.begin();
-        vector<L1MuGMTReadoutRecord>::const_iterator rEnd = records.end();
+        auto rItr = records.begin();
+        auto rEnd = records.end();
 
         for (; rItr != rEnd; ++rItr) {
           vector<L1MuGMTExtendedCand> tmpCands = rItr->getGMTCands();
@@ -130,8 +130,8 @@ void L1TMuonLegacyConverter::produce(edm::Event& iEvent, const edm::EventSetup& 
         }
       }
 
-      vector<L1MuGMTExtendedCand>::const_iterator muItr = simMuCands.begin();
-      vector<L1MuGMTExtendedCand>::const_iterator muEnd = simMuCands.end();
+      auto muItr = simMuCands.begin();
+      auto muEnd = simMuCands.end();
       for (int i = 0; muItr != muEnd; ++muItr, ++i) {
         if (!muItr->empty()) {
           // keep x and y components non-zero and protect against roundoff.

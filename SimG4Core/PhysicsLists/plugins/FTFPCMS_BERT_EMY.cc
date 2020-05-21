@@ -33,7 +33,7 @@ FTFPCMS_BERT_EMY::FTFPCMS_BERT_EMY(const edm::ParameterSet& p) : PhysicsList(p) 
     G4EmParameters::Instance()->SetMscStepLimitType(fUseSafetyPlus);
 
     // Synchroton Radiation & GN Physics
-    G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);
+    auto* gn = new G4EmExtraPhysics(ver);
     RegisterPhysics(gn);
   }
 
@@ -57,7 +57,7 @@ FTFPCMS_BERT_EMY::FTFPCMS_BERT_EMY(const edm::ParameterSet& p) : PhysicsList(p) 
 
     // Neutron tracking cut
     if (tracking) {
-      G4NeutronTrackingCut* ncut = new G4NeutronTrackingCut(ver);
+      auto* ncut = new G4NeutronTrackingCut(ver);
       ncut->SetTimeLimit(timeLimit);
       RegisterPhysics(ncut);
     }

@@ -43,9 +43,7 @@ L1GtPrescaleFactorsAlgoTrigTrivialProducer::L1GtPrescaleFactorsAlgoTrigTrivialPr
   std::vector<edm::ParameterSet> prescaleFactorsSet =
       parSet.getParameter<std::vector<edm::ParameterSet> >("PrescaleFactorsSet");
 
-  for (std::vector<edm::ParameterSet>::const_iterator itPfSet = prescaleFactorsSet.begin();
-       itPfSet != prescaleFactorsSet.end();
-       ++itPfSet) {
+  for (auto itPfSet = prescaleFactorsSet.begin(); itPfSet != prescaleFactorsSet.end(); ++itPfSet) {
     // prescale factors
     m_prescaleFactors.push_back(itPfSet->getParameter<std::vector<int> >("PrescaleFactors"));
   }

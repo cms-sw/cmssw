@@ -86,8 +86,7 @@ void AlignmentPrescaler::produce(edm::Event& iEvent, const edm::EventSetup& iSet
   //int npxlhits=0;
 
   //loop on tracks
-  for (std::vector<reco::Track>::const_iterator ittrk = Tracks->begin(), edtrk = Tracks->end(); ittrk != edtrk;
-       ++ittrk) {
+  for (auto ittrk = Tracks->begin(), edtrk = Tracks->end(); ittrk != edtrk; ++ittrk) {
     //loop on tracking rechits
     // std::cout << "Loop on hits of track #" << (ittrk - Tracks->begin()) << std::endl;
     int nhit = 0;

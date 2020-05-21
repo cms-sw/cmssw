@@ -90,8 +90,8 @@ void DTKeyedConfigHandler::getNewObjects() {
     std::cout << "get last full key" << std::endl;
     lastKey = payload->fullKey();
     std::cout << "last key: " << std::endl;
-    std::vector<DTConfigKey>::const_iterator keyIter = lastKey.begin();
-    std::vector<DTConfigKey>::const_iterator keyIend = lastKey.end();
+    auto keyIter = lastKey.begin();
+    auto keyIend = lastKey.end();
     while (keyIter != keyIend) {
       const DTConfigKey& cfgKeyList = *keyIter++;
       std::cout << cfgKeyList.confType << " : " << cfgKeyList.confKey << std::endl;
@@ -221,8 +221,8 @@ void DTKeyedConfigHandler::getNewObjects() {
     int key = row["CONFKEY"].data<int>();
     int cfg = row["CSETTYPEID"].data<int>();
     // ----------- check for used RH relations, skip unused
-    std::map<int, std::vector<DTConfigKey>*>::iterator rhcIter = rhcMap.find(rhc);
-    std::map<int, std::vector<DTConfigKey>*>::iterator rhcIend = rhcMap.end();
+    auto rhcIter = rhcMap.find(rhc);
+    auto rhcIend = rhcMap.end();
     if (rhcIter == rhcIend)
       continue;
     std::vector<DTConfigKey>* keyPtr = rhcIter->second;
@@ -312,8 +312,8 @@ void DTKeyedConfigHandler::getNewObjects() {
   }
 
   // =========== loop over new runs
-  std::map<int, std::vector<int>*>::const_iterator runIter = runMap.begin();
-  std::map<int, std::vector<int>*>::const_iterator runIend = runMap.end();
+  auto runIter = runMap.begin();
+  auto runIend = runMap.end();
   while (runIter != runIend) {
     const std::pair<int, std::vector<int>*>& runEntry = *runIter++;
     // ----------- get full configuration
@@ -321,8 +321,8 @@ void DTKeyedConfigHandler::getNewObjects() {
     std::vector<DTConfigKey> cfl;
     // ----------- get RH relation list
     std::vector<int>* rhlPtr = runEntry.second;
-    std::vector<int>::const_iterator rhlIter = rhlPtr->begin();
-    std::vector<int>::const_iterator rhlIend = rhlPtr->end();
+    auto rhlIter = rhlPtr->begin();
+    auto rhlIend = rhlPtr->end();
     // ----------- loop over RH relations
     while (rhlIter != rhlIend) {
       int rhc = *rhlIter++;
@@ -339,8 +339,8 @@ void DTKeyedConfigHandler::getNewObjects() {
       // ----------- redundant check
       if (listPtr == nullptr)
         continue;
-      std::vector<DTConfigKey>::const_iterator bkiIter = listPtr->begin();
-      std::vector<DTConfigKey>::const_iterator bkiIend = listPtr->end();
+      auto bkiIter = listPtr->begin();
+      auto bkiIend = listPtr->end();
       while (bkiIter != bkiIend)
         cfl.push_back(*bkiIter++);
     }
@@ -352,8 +352,8 @@ void DTKeyedConfigHandler::getNewObjects() {
     fullConf->setStamp(run);
     fullConf->setFullKey(cfl);
 
-    std::vector<DTConfigKey>::const_iterator cfgIter = cfl.begin();
-    std::vector<DTConfigKey>::const_iterator cfgIend = cfl.end();
+    auto cfgIter = cfl.begin();
+    auto cfgIend = cfl.end();
     while (cfgIter != cfgIend) {
       const DTConfigKey& cfgEntry = *cfgIter++;
       int cft = cfgEntry.confType;
@@ -372,8 +372,8 @@ void DTKeyedConfigHandler::getNewObjects() {
         mapPtr = keyIter->second;
       if (mapPtr == nullptr)
         continue;
-      std::map<int, int>::const_iterator ccmIter = mapPtr->begin();
-      std::map<int, int>::const_iterator ccmIend = mapPtr->end();
+      auto ccmIter = mapPtr->begin();
+      auto ccmIend = mapPtr->end();
       while (ccmIter != ccmIend) {
         const std::pair<int, int>& ccmEntry = *ccmIter++;
         // ----------- get ccb config key
@@ -407,8 +407,8 @@ void DTKeyedConfigHandler::getNewObjects() {
         //        std::map<int,int>::const_iterator bktIter = bktMap.begin();
         //        std::map<int,int>::const_iterator bktIend = bktMap.end();
         std::map<int, int>::const_iterator bktIter;
-        std::vector<int>::const_iterator bkiIter = brkPtr->begin();
-        std::vector<int>::const_iterator bkiIend = brkPtr->end();
+        auto bkiIter = brkPtr->begin();
+        auto bkiIend = brkPtr->end();
         while (bkiIter != bkiIend) {
           int brickId = *bkiIter++;
           //          bktIter = bktMap.find( brickId );
@@ -537,8 +537,8 @@ void DTKeyedConfigHandler::chkConfigList() {
     }
   }
 
-  std::vector<int>::const_iterator brickIter = missingList.begin();
-  std::vector<int>::const_iterator brickIend = missingList.end();
+  auto brickIter = missingList.begin();
+  auto brickIend = missingList.end();
   while (brickIter != brickIend) {
     int brickConfigId = *brickIter++;
     //    std::cout << "get data for brick: " << brickConfigId << std::endl;
@@ -574,23 +574,23 @@ bool DTKeyedConfigHandler::sameConfigList(const std::vector<DTConfigKey>& cfgl, 
   if (cfgl.size() != cfgr.size())
     return false;
   std::map<int, int> lmap;
-  std::vector<DTConfigKey>::const_iterator lIter = cfgl.begin();
-  std::vector<DTConfigKey>::const_iterator lIend = cfgl.end();
+  auto lIter = cfgl.begin();
+  auto lIend = cfgl.end();
   while (lIter != lIend) {
     const DTConfigKey& entry = *lIter++;
     lmap.insert(std::pair<int, int>(entry.confType, entry.confKey));
   }
   std::map<int, int> rmap;
-  std::vector<DTConfigKey>::const_iterator rIter = cfgr.begin();
-  std::vector<DTConfigKey>::const_iterator rIend = cfgr.end();
+  auto rIter = cfgr.begin();
+  auto rIend = cfgr.end();
   while (rIter != rIend) {
     const DTConfigKey& entry = *rIter++;
     rmap.insert(std::pair<int, int>(entry.confType, entry.confKey));
   }
-  std::map<int, int>::const_iterator lmIter = lmap.begin();
-  std::map<int, int>::const_iterator lmIend = lmap.end();
-  std::map<int, int>::const_iterator rmIter = rmap.begin();
-  std::map<int, int>::const_iterator rmIend = rmap.end();
+  auto lmIter = lmap.begin();
+  auto lmIend = lmap.end();
+  auto rmIter = rmap.begin();
+  auto rmIend = rmap.end();
   while ((lmIter != lmIend) && (rmIter != rmIend)) {
     const std::pair<int, int>& lEntry = *lmIter++;
     const std::pair<int, int>& rEntry = *rmIter++;

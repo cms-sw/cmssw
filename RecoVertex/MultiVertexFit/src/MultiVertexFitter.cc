@@ -93,7 +93,7 @@ void MultiVertexFitter::createSeed(const vector<TransientTrack> &tracks) {
     CachingVertex<5> vtx = createSeedFromLinPt(theSeeder->getLinearizationPoint(tracks));
     int snr = seedNr();
     theVertexStates.push_back(pair<int, CachingVertex<5> >(snr, vtx));
-    for (vector<TransientTrack>::const_iterator track = tracks.begin(); track != tracks.end(); ++track) {
+    for (auto track = tracks.begin(); track != tracks.end(); ++track) {
       theWeights[*track][snr] = 1.;
       theTracks.push_back(*track);
     };
@@ -102,7 +102,7 @@ void MultiVertexFitter::createSeed(const vector<TransientTrack> &tracks) {
 
 void MultiVertexFitter::createPrimaries(const std::vector<reco::TransientTrack> &tracks) {
   // cout << "[MultiVertexFitter] creating primaries: ";
-  for (vector<reco::TransientTrack>::const_iterator i = tracks.begin(); i != tracks.end(); ++i) {
+  for (auto i = tracks.begin(); i != tracks.end(); ++i) {
     thePrimaries.insert(*i);
     // cout << i->id() << "  ";
   }
@@ -117,7 +117,7 @@ void MultiVertexFitter::createSeed(const vector<TrackAndWeight> &tracks) {
   // create initial seed for every bundle
   vector<RefCountedVertexTrack> newTracks;
 
-  for (vector<TrackAndWeight>::const_iterator track = tracks.begin(); track != tracks.end(); ++track) {
+  for (auto track = tracks.begin(); track != tracks.end(); ++track) {
     double weight = validWeight(track->second);
     const GlobalPoint &pos = track->first.impactPointState().globalPosition();
     GlobalError err;  // FIXME
@@ -137,7 +137,7 @@ void MultiVertexFitter::createSeed(const vector<TrackAndWeight> &tracks) {
 
     // We initialise the weights with the original
     // user supplied weights.
-    for (vector<TrackAndWeight>::const_iterator track = tracks.begin(); track != tracks.end(); ++track) {
+    for (auto track = tracks.begin(); track != tracks.end(); ++track) {
       if (thePrimaries.count(track->first)) {
         /*
         cout << "[MultiVertexFitter] " << track->first.id() << " is a primary."
@@ -168,7 +168,7 @@ void MultiVertexFitter::createSeed(const vector<TrackAndWeight> &tracks) {
   // that have been submitted - attached to a different vertex - already.
   // sort ( theTracks.begin(), theTracks.end(), CompareRaveTracks() );
   sort(theTracks.begin(), theTracks.end());
-  for (vector<TransientTrack>::iterator i = theTracks.begin(); i < theTracks.end(); ++i) {
+  for (auto i = theTracks.begin(); i < theTracks.end(); ++i) {
     if (i != theTracks.begin()) {
       if ((*i) == (*(i - 1))) {
         theTracks.erase(i);
@@ -184,10 +184,10 @@ vector<CachingVertex<5> > MultiVertexFitter::vertices(const vector<TransientVert
     return vector<CachingVertex<5> >();
   };
   vector<vector<TrackAndWeight> > bundles;
-  for (vector<TransientVertex>::const_iterator vtx = vtces.begin(); vtx != vtces.end(); ++vtx) {
+  for (auto vtx = vtces.begin(); vtx != vtces.end(); ++vtx) {
     vector<TransientTrack> trks = vtx->originalTracks();
     vector<TrackAndWeight> tnws;
-    for (vector<TransientTrack>::const_iterator trk = trks.begin(); trk != trks.end(); ++trk) {
+    for (auto trk = trks.begin(); trk != trks.end(); ++trk) {
       float w = vtx->trackWeight(*trk);
       if (w > 1e-5) {
         TrackAndWeight tmp(*trk, w);
@@ -206,12 +206,12 @@ vector<CachingVertex<5> > MultiVertexFitter::vertices(const vector<CachingVertex
   // FIXME if initials size < 1 return sth that includes the primaries
   if (initials.empty())
     return initials;
-  for (vector<CachingVertex<5> >::const_iterator vtx = initials.begin(); vtx != initials.end(); ++vtx) {
+  for (auto vtx = initials.begin(); vtx != initials.end(); ++vtx) {
     int snr = seedNr();
     theVertexStates.push_back(pair<int, CachingVertex<5> >(snr, *vtx));
     TransientVertex rvtx = *vtx;
     const vector<TransientTrack> &trks = rvtx.originalTracks();
-    for (vector<TransientTrack>::const_iterator trk = trks.begin(); trk != trks.end(); ++trk) {
+    for (auto trk = trks.begin(); trk != trks.end(); ++trk) {
       if (!(thePrimaries.count(*trk))) {
         // cout << "[MultiVertexFitter] free track " << trk->id() << endl;
         theTracks.push_back(*trk);
@@ -235,7 +235,7 @@ vector<CachingVertex<5> > MultiVertexFitter::vertices(const vector<vector<Transi
   clear();
   createPrimaries(primaries);
 
-  for (vector<vector<TransientTrack> >::const_iterator cluster = tracks.begin(); cluster != tracks.end(); ++cluster) {
+  for (auto cluster = tracks.begin(); cluster != tracks.end(); ++cluster) {
     createSeed(*cluster);
   };
   if (verbose()) {
@@ -253,7 +253,7 @@ vector<CachingVertex<5> > MultiVertexFitter::vertices(const vector<vector<TrackA
   clear();
   createPrimaries(primaries);
 
-  for (vector<vector<TrackAndWeight> >::const_iterator cluster = tracks.begin(); cluster != tracks.end(); ++cluster) {
+  for (auto cluster = tracks.begin(); cluster != tracks.end(); ++cluster) {
     createSeed(*cluster);
   };
   if (verbose()) {
@@ -290,7 +290,7 @@ void MultiVertexFitter::updateWeights() {
   /** 
    *  add the primary only tracks to primary vertex only.
    */
-  for (set<TransientTrack>::const_iterator trk = thePrimaries.begin(); trk != thePrimaries.end(); ++trk) {
+  for (auto trk = thePrimaries.begin(); trk != thePrimaries.end(); ++trk) {
     int seednr = theVertexStates[0].first;
     CachingVertex<5> seed = theVertexStates[0].second;
     pair<bool, double> result = theComp.estimate(seed, theCache.linTrack(seed.position(), *trk));
@@ -303,12 +303,10 @@ void MultiVertexFitter::updateWeights() {
   /**
    *  now add "free tracks" to all vertices
    */
-  for (vector<TransientTrack>::const_iterator trk = theTracks.begin(); trk != theTracks.end(); ++trk) {
+  for (auto trk = theTracks.begin(); trk != theTracks.end(); ++trk) {
     double tot_weight = theAssComp->phi(theAssComp->cutoff() * theAssComp->cutoff());
 
-    for (vector<pair<int, CachingVertex<5> > >::const_iterator seed = theVertexStates.begin();
-         seed != theVertexStates.end();
-         ++seed) {
+    for (auto seed = theVertexStates.begin(); seed != theVertexStates.end(); ++seed) {
       pair<bool, double> result = theComp.estimate(seed->second, theCache.linTrack(seed->second.position(), *trk));
       double weight = 0.;
       if (result.first)
@@ -322,9 +320,7 @@ void MultiVertexFitter::updateWeights() {
     // normalize to sum of all weights of one track equals 1.
     // (if we include the "cutoff", as well)
     if (tot_weight > 0.0) {
-      for (vector<pair<int, CachingVertex<5> > >::const_iterator seed = theVertexStates.begin();
-           seed != theVertexStates.end();
-           ++seed) {
+      for (auto seed = theVertexStates.begin(); seed != theVertexStates.end(); ++seed) {
         double normedweight = theWeights[*trk][seed->first] / tot_weight;
         if (normedweight > 1.0) {
           cout << "[MultiVertexFitter] he? w["  // << TransientTrackNamer().name(*trk)
@@ -342,9 +338,7 @@ void MultiVertexFitter::updateWeights() {
       cout << "[MultiVertexFitter] track found with no assignment - ";
       cout << "will assign uniformly." << endl;
       float w = .5 / (float)theVertexStates.size();
-      for (vector<pair<int, CachingVertex<5> > >::const_iterator seed = theVertexStates.begin();
-           seed != theVertexStates.end();
-           ++seed) {
+      for (auto seed = theVertexStates.begin(); seed != theVertexStates.end(); ++seed) {
         theWeights[*trk][seed->first] = w;
       };
     };
@@ -361,9 +355,7 @@ bool MultiVertexFitter::updateSeeds() {
 
   vector<pair<int, CachingVertex<5> > > newSeeds;
 
-  for (vector<pair<int, CachingVertex<5> > >::const_iterator seed = theVertexStates.begin();
-       seed != theVertexStates.end();
-       ++seed) {
+  for (auto seed = theVertexStates.begin(); seed != theVertexStates.end(); ++seed) {
     // for each seed get the tracks with the right weights.
     // TransientVertex rv = seed->second;
     // const GlobalPoint & seedpos = seed->second.position();
@@ -371,7 +363,7 @@ bool MultiVertexFitter::updateSeeds() {
     VertexState realseed(seed->second.position(), seed->second.error());
 
     double totweight = 0.;
-    for (vector<TransientTrack>::const_iterator track = theTracks.begin(); track != theTracks.end(); ++track) {
+    for (auto track = theTracks.begin(); track != theTracks.end(); ++track) {
       totweight += theWeights[*track][snr];
     };
 
@@ -381,7 +373,7 @@ bool MultiVertexFitter::updateSeeds() {
     // and not discard the lightweights if that would give us
     // fewer than two tracks ( we would loose a seed, then ).
     if (discardLightWeights()) {
-      for (vector<TransientTrack>::const_iterator track = theTracks.begin(); track != theTracks.end(); ++track) {
+      for (auto track = theTracks.begin(); track != theTracks.end(); ++track) {
         if (theWeights[*track][snr] > totweight * minWeightFraction()) {
           nr_good_trks++;
         };
@@ -389,7 +381,7 @@ bool MultiVertexFitter::updateSeeds() {
     };
 
     vector<RefCountedVertexTrack> newTracks;
-    for (vector<TransientTrack>::const_iterator track = theTracks.begin(); track != theTracks.end(); ++track) {
+    for (auto track = theTracks.begin(); track != theTracks.end(); ++track) {
       double weight = validWeight(theWeights[*track][snr]);
       // Now we add a track, if
       // a. we consider all tracks or
@@ -410,7 +402,7 @@ bool MultiVertexFitter::updateSeeds() {
       };
     };
 
-    for (set<TransientTrack>::const_iterator track = thePrimaries.begin(); track != thePrimaries.end(); ++track) {
+    for (auto track = thePrimaries.begin(); track != thePrimaries.end(); ++track) {
       double weight = validWeight(theWeights[*track][snr]);
 
       RefCountedLinearizedTrackState lTrData = theCache.linTrack(seed->second.position(), *track);
@@ -427,7 +419,7 @@ bool MultiVertexFitter::updateSeeds() {
 
       if (verbose()) {
         cout << "[MultiVertexFitter] now fitting with Kalman: ";
-        for (vector<RefCountedVertexTrack>::const_iterator i = newTracks.begin(); i != newTracks.end(); ++i) {
+        for (auto i = newTracks.begin(); i != newTracks.end(); ++i) {
           cout << (**i).weight() << " ";
         };
         cout << endl;
@@ -492,8 +484,7 @@ vector<CachingVertex<5> > MultiVertexFitter::fit() {
   };
 
   vector<CachingVertex<5> > ret;
-  for (vector<pair<int, CachingVertex<5> > >::const_iterator i = theVertexStates.begin(); i != theVertexStates.end();
-       ++i) {
+  for (auto i = theVertexStates.begin(); i != theVertexStates.end(); ++i) {
     ret.push_back(i->second);
   };
 
@@ -502,9 +493,7 @@ vector<CachingVertex<5> > MultiVertexFitter::fit() {
 
 void MultiVertexFitter::printWeights(const reco::TransientTrack &t) const {
   // cout << "Trk " << t.id();
-  for (vector<pair<int, CachingVertex<5> > >::const_iterator seed = theVertexStates.begin();
-       seed != theVertexStates.end();
-       ++seed) {
+  for (auto seed = theVertexStates.begin(); seed != theVertexStates.end(); ++seed) {
     double val = 0;
     auto a = theWeights.find(t);
     if (a != theWeights.end()) {
@@ -519,10 +508,10 @@ void MultiVertexFitter::printWeights(const reco::TransientTrack &t) const {
 
 void MultiVertexFitter::printWeights() const {
   cout << endl << "Weight table: " << endl << "=================" << endl;
-  for (set<TransientTrack>::const_iterator trk = thePrimaries.begin(); trk != thePrimaries.end(); ++trk) {
+  for (auto trk = thePrimaries.begin(); trk != thePrimaries.end(); ++trk) {
     printWeights(*trk);
   };
-  for (vector<TransientTrack>::const_iterator trk = theTracks.begin(); trk != theTracks.end(); ++trk) {
+  for (auto trk = theTracks.begin(); trk != theTracks.end(); ++trk) {
     printWeights(*trk);
   };
 }
@@ -546,10 +535,9 @@ void MultiVertexFitter::lostVertexClaimer() {
 
   bool has_revived = false;
   // find out about total weight
-  for (vector<pair<int, CachingVertex<5> > >::const_iterator i = theVertexStates.begin(); i != theVertexStates.end();
-       ++i) {
+  for (auto i = theVertexStates.begin(); i != theVertexStates.end(); ++i) {
     double totweight = 0.;
-    for (vector<TransientTrack>::const_iterator trk = theTracks.begin(); trk != theTracks.end(); ++trk) {
+    for (auto trk = theTracks.begin(); trk != theTracks.end(); ++trk) {
       totweight += theWeights[*trk][i->first];
     };
 
@@ -561,7 +549,7 @@ void MultiVertexFitter::lostVertexClaimer() {
       cout << "[MultiVertexFitter] now trying to revive vertex"
            << " revive_below=" << theReviveBelow << endl;
       has_revived = true;
-      for (vector<TransientTrack>::const_iterator trk = theTracks.begin(); trk != theTracks.end(); ++trk) {
+      for (auto trk = theTracks.begin(); trk != theTracks.end(); ++trk) {
         theWeights[*trk][i->first] /= totweight;
       };
     };

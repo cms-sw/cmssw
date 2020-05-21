@@ -218,7 +218,7 @@ void L1MuGMTMerger::merge() {
 }
 
 void L1MuGMTMerger::createDTCSCCand(int idx_dtcsc) {
-  L1MuGMTExtendedCand* tmpmuon = new L1MuGMTExtendedCand();
+  auto* tmpmuon = new L1MuGMTExtendedCand();
 
   tmpmuon->setBx(dtcsc_mu[idx_dtcsc]->bx());
   tmpmuon->setPhiPacked(projectedPhi(dtcsc_mu[idx_dtcsc]));
@@ -258,7 +258,7 @@ void L1MuGMTMerger::createDTCSCCand(int idx_dtcsc) {
 }
 
 void L1MuGMTMerger::createRPCCand(int idx_rpc) {
-  L1MuGMTExtendedCand* tmpmuon = new L1MuGMTExtendedCand();
+  auto* tmpmuon = new L1MuGMTExtendedCand();
 
   tmpmuon->setBx(rpc_mu[idx_rpc]->bx());
   tmpmuon->setPhiPacked(projectedPhi(rpc_mu[idx_rpc]));
@@ -361,7 +361,7 @@ void L1MuGMTMerger::createMergedCand(int idx_dtcsc, int idx_rpc) {
   // in other words: select by minpt if one flag is not set
   int selected_by_combi = (merge_rank_dtcsc < 0 && merge_rank_rpc < 0) ? selected_by_rank : selected_by_pt;
 
-  L1MuGMTExtendedCand* tmpmuon = new L1MuGMTExtendedCand();
+  auto* tmpmuon = new L1MuGMTExtendedCand();
 
   tmpmuon->setBx(dtcsc_mu[idx_dtcsc]->bx());
 

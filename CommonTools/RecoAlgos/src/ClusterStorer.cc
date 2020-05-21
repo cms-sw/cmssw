@@ -34,12 +34,12 @@ namespace helper {
       stripClusterRecords_.push_back(StripClusterHitRecord(static_cast<SiStripRecHit2D &>(newHit), hits, index));
     } else if (hit_type == typeid(SiStripMatchedRecHit2D)) {
       //std::cout << "|   It is a SiStripMatchedRecHit2D hit !!" << std::endl;
-      SiStripMatchedRecHit2D &mhit = static_cast<SiStripMatchedRecHit2D &>(newHit);
+      auto &mhit = static_cast<SiStripMatchedRecHit2D &>(newHit);
       stripClusterRecords_.push_back(StripClusterHitRecord(mhit.monoHit(), hits, index));
       stripClusterRecords_.push_back(StripClusterHitRecord(mhit.stereoHit(), hits, index));
     } else if (hit_type == typeid(ProjectedSiStripRecHit2D)) {
       //std::cout << "|   It is a ProjectedSiStripRecHit2D hit !!" << std::endl;
-      ProjectedSiStripRecHit2D &phit = static_cast<ProjectedSiStripRecHit2D &>(newHit);
+      auto &phit = static_cast<ProjectedSiStripRecHit2D &>(newHit);
       stripClusterRecords_.push_back(StripClusterHitRecord(phit.originalHit(), hits, index));
     } else if (hit_type == typeid(Phase2TrackerRecHit1D)) {
       //FIXME:: this is just temporary solution for phase2,
@@ -94,10 +94,10 @@ namespace helper {
                                       edm::RefProd<edmNew::DetSetVector<ClusterType> > &refprod) {
     std::sort(clusterRecords.begin(), clusterRecords.end());  // this sorts them by detid
     typedef typename std::vector<ClusterHitRecord<typename HitType::ClusterRef> >::const_iterator RIT;
-    RIT it = clusterRecords.begin(), end = clusterRecords.end();
+    auto it = clusterRecords.begin(), end = clusterRecords.end();
     size_t clusters = 0;
     while (it != end) {
-      RIT it2 = it;
+      auto it2 = it;
       uint32_t detid = it->detid();
 
       // first isolate all clusters on the same detid
@@ -159,7 +159,7 @@ namespace helper {
     } else if (typeid(SiStripRecHit2D) == hit_type) {
       cluRef = &static_cast<SiStripRecHit2D &>(genericHit).omniCluster();
     } else if (typeid(SiStripMatchedRecHit2D) == hit_type) {
-      SiStripMatchedRecHit2D &mhit = static_cast<SiStripMatchedRecHit2D &>(genericHit);
+      auto &mhit = static_cast<SiStripMatchedRecHit2D &>(genericHit);
       cluRef = (SiStripDetId(detid_).stereo() ? &mhit.stereoClusterRef() : &mhit.monoClusterRef());
     } else if (typeid(ProjectedSiStripRecHit2D) == hit_type) {
       cluRef = &static_cast<ProjectedSiStripRecHit2D &>(genericHit).originalHit().omniCluster();

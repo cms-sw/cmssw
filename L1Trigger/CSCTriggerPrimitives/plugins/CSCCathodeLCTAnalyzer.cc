@@ -235,8 +235,7 @@ void CSCCathodeLCTAnalyzer::digiSimHitAssociator(CSCCathodeLayerInfo& info, cons
     bool me11 = (layerId.station() == 1) && (layerId.ring() == 1);
 
     // Get simHits in this layer.
-    for (edm::PSimHitContainer::const_iterator simHitIt = allSimHits->begin(); simHitIt != allSimHits->end();
-         simHitIt++) {
+    for (auto simHitIt = allSimHits->begin(); simHitIt != allSimHits->end(); simHitIt++) {
       // Find detId where simHit is located.
       CSCDetId hitId = (CSCDetId)(*simHitIt).detUnitId();
       if (hitId == layerId)
@@ -255,7 +254,7 @@ void CSCCathodeLCTAnalyzer::digiSimHitAssociator(CSCCathodeLayerInfo& info, cons
       }
 
       // Get the strip number for every digi and convert to phi.
-      for (vector<CSCComparatorDigi>::iterator prd = thisLayerDigis.begin(); prd != thisLayerDigis.end(); prd++) {
+      for (auto prd = thisLayerDigis.begin(); prd != thisLayerDigis.end(); prd++) {
         double deltaPhiMin = 999.;
         double bestHitPhi = 999.;
         PSimHit* bestHit = nullptr;
@@ -264,7 +263,7 @@ void CSCCathodeLCTAnalyzer::digiSimHitAssociator(CSCCathodeLayerInfo& info, cons
         double digiPhi = getStripPhi(layerId, strip - 0.5);
 
         const CSCLayer* csclayer = geom_->layer(layerId);
-        for (vector<PSimHit>::iterator psh = simHits.begin(); psh != simHits.end(); psh++) {
+        for (auto psh = simHits.begin(); psh != simHits.end(); psh++) {
           // Get the local phi for the simHit.
           LocalPoint hitLP = psh->localPosition();
           GlobalPoint hitGP = csclayer->toGlobal(hitLP);

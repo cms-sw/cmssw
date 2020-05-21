@@ -87,14 +87,13 @@ namespace reco {
 
     std::multimap<double, unsigned int> sortedMap;
     unsigned int i = 0;
-    for (typename std::vector<SecondaryVertex>::const_iterator iter = svCandidates.begin(); iter != svCandidates.end();
-         iter++) {
+    for (auto iter = svCandidates.begin(); iter != svCandidates.end(); iter++) {
       double value = std::abs((((*iter).*measurementFn)().*valueFn)());
       sortedMap.insert(std::make_pair(value, i++));
     }
 
     std::vector<unsigned int> result;
-    for (std::multimap<double, unsigned int>::const_iterator iter = sortedMap.begin(); iter != sortedMap.end(); iter++)
+    for (auto iter = sortedMap.begin(); iter != sortedMap.end(); iter++)
       result.push_back(iter->second);
 
     return result;

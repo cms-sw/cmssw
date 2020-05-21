@@ -700,7 +700,7 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
   /** STEP ZERO
    *  Remove stubs, which were masked out by kill_fiber or QualityEnable parameters
    */
-  for (std::vector<csctf::TrackStub>::const_iterator itr = stub_vec.begin(); itr != stub_vec.end(); itr++)
+  for (auto itr = stub_vec.begin(); itr != stub_vec.end(); itr++)
     switch (itr->station()) {
       case 5:
         stub_vec_filtered.push_back(*itr);
@@ -806,7 +806,7 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
    *  After this we append the stubs gained from the DT system.
    */
 
-  for (std::vector<csctf::TrackStub>::iterator itr = stub_vec_filtered.begin(); itr != stub_vec_filtered.end(); itr++) {
+  for (auto itr = stub_vec_filtered.begin(); itr != stub_vec_filtered.end(); itr++) {
     if (itr->station() != 5) {
       CSCDetId id(itr->getDetId().rawId());
       unsigned fpga = (id.station() == 1) ? CSCTriggerNumbering::triggerSubSectorFromLabels(id) - 1 : id.station();
@@ -960,7 +960,7 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
      *  we must assign their Pt.
      */
 
-    std::vector<csc::L1Track>::iterator titr = tftks.begin();
+    auto titr = tftks.begin();
 
     for (; titr != tftks.end(); titr++) {
       ptadd thePtAddress(titr->ptLUTAddress());
@@ -987,8 +987,7 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
   // Loop over CSC LCTs if triggering on them:
   if (trigger_on_ME1a || trigger_on_ME1b || trigger_on_ME2 || trigger_on_ME3 || trigger_on_ME4 || trigger_on_MB1a ||
       trigger_on_MB1d)
-    for (std::vector<csctf::TrackStub>::iterator itr = stub_vec_filtered.begin(); itr != stub_vec_filtered.end();
-         itr++) {
+    for (auto itr = stub_vec_filtered.begin(); itr != stub_vec_filtered.end(); itr++) {
       int station = itr->station() - 1;
       if (station != 4) {
         int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(itr->getDetId().rawId()));
@@ -1018,7 +1017,7 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
       bool coreTrackExists = false;
       // tracks are not ordered to be accessible by bx => loop them all
       std::vector<csc::L1Track> tracks = l1_tracks.get();
-      for (std::vector<csc::L1Track>::iterator trk = tracks.begin(); trk < tracks.end(); trk++)
+      for (auto trk = tracks.begin(); trk < tracks.end(); trk++)
         if ((trk->BX() == bx - shift && trk->outputLink() == singlesTrackOutput) ||
             (((trk->ptLUTAddress() >> 16) & 0xf) == 15 && trk->BX() - 2 == bx - shift)) {
           coreTrackExists = true;
@@ -1033,8 +1032,8 @@ int CSCTFSectorProcessor::run(const CSCTriggerContainer<csctf::TrackStub>& stubs
         std::vector<csctf::TrackStub> stubs = myStubContainer[bx].get();
         // Select best quality stub, and assign its eta/phi coordinates to the track
         int qualityME = 0, qualityMB = 0, ME = 100, MB = 100, linkME = 7;
-        std::vector<csctf::TrackStub>::const_iterator bestStub = stubs.end();
-        for (std::vector<csctf::TrackStub>::const_iterator st_iter = stubs.begin(); st_iter != stubs.end(); st_iter++) {
+        auto bestStub = stubs.end();
+        for (auto st_iter = stubs.begin(); st_iter != stubs.end(); st_iter++) {
           int station = st_iter->station() - 1;
           int subSector = CSCTriggerNumbering::triggerSubSectorFromLabels(CSCDetId(st_iter->getDetId().rawId()));
           int mpc = (subSector ? subSector - 1 : station + 1);

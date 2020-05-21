@@ -227,8 +227,8 @@ void HLTPrescaleRecorder::endRun(edm::Run const& iRun, const edm::EventSetup& iS
   oss << endl;
   const map<string, vector<unsigned int> >& table(hlt_.table());
   oss << "PrescaleTable: # of paths = " << table.size() << endl;
-  const map<string, vector<unsigned int> >::const_iterator tb(table.begin());
-  const map<string, vector<unsigned int> >::const_iterator te(table.end());
+  const auto tb(table.begin());
+  const auto te(table.end());
   for (map<string, vector<unsigned int> >::const_iterator ti = tb; ti != te; ++ti) {
     for (unsigned int i = 0; i != n; ++i) {
       oss << " " << ti->second.at(i);

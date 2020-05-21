@@ -125,7 +125,7 @@ namespace Phase2Tracker {
               std::vector<Phase2TrackerDigi> stripsBottom;
 
               // unpacking data
-              Phase2TrackerFEDRawChannelUnpacker unpacker = Phase2TrackerFEDRawChannelUnpacker(channel);
+              auto unpacker = Phase2TrackerFEDRawChannelUnpacker(channel);
               while (unpacker.hasData()) {
                 if (unpacker.stripOn()) {
                   if (unpacker.stripIndex() % 2) {
@@ -171,9 +171,9 @@ namespace Phase2Tracker {
         std::sort(proc_work_registry_.begin(), proc_work_registry_.end());
         std::vector<edm::DetSet<Phase2TrackerDigi>> sorted_and_merged;
 
-        edm::DetSetVector<Phase2TrackerDigi>* pr = new edm::DetSetVector<Phase2TrackerDigi>();
+        auto* pr = new edm::DetSetVector<Phase2TrackerDigi>();
 
-        std::vector<Registry>::iterator it = proc_work_registry_.begin(), it2 = it + 1, end = proc_work_registry_.end();
+        auto it = proc_work_registry_.begin(), it2 = it + 1, end = proc_work_registry_.end();
         while (it < end) {
           sorted_and_merged.push_back(edm::DetSet<Phase2TrackerDigi>(it->detid));
           std::vector<Phase2TrackerDigi>& digis = sorted_and_merged.back().data;

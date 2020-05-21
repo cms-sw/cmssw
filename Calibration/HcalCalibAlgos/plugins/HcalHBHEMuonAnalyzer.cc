@@ -330,8 +330,8 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 #endif
     return;
   }
-  reco::VertexCollection::const_iterator firstGoodVertex = vtx->end();
-  for (reco::VertexCollection::const_iterator it = vtx->begin(); it != vtx->end(); it++) {
+  auto firstGoodVertex = vtx->end();
+  for (auto it = vtx->begin(); it != vtx->end(); it++) {
     if (isGoodVertex(*it)) {
       if (firstGoodVertex == vtx->end())
         firstGoodVertex = it;
@@ -343,7 +343,7 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 
   bool accept(false);
   if (_Muon.isValid() && barrelRecHitsHandle.isValid() && endcapRecHitsHandle.isValid() && hbhe.isValid()) {
-    for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
+    for (auto RecMuon = _Muon->begin(); RecMuon != _Muon->end(); ++RecMuon) {
       muon_is_good_.push_back(RecMuon->isPFMuon());
       muon_global_.push_back(RecMuon->isGlobalMuon());
       muon_tracker_.push_back(RecMuon->isTrackerMuon());

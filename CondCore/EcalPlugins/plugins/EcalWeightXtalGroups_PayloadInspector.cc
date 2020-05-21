@@ -47,7 +47,7 @@ namespace {
         for (int cellid = EBDetId::MIN_HASH; cellid < EBDetId::kSizeForDenseIndexing; ++cellid) {
           uint32_t rawid = EBDetId::unhashIndex(cellid);
 
-          std::vector<EcalXtalGroupId>::const_iterator value_ptr = payload->find(rawid);
+          auto value_ptr = payload->find(rawid);
           // unsigned int id()
           if (value_ptr == payload->end())
             continue;  // cell absent from payload
@@ -75,7 +75,7 @@ namespace {
                 EEDetId myEEId = EEDetId(ix, iy, iz, EEDetId::XYMODE);
                 uint32_t rawid = myEEId.rawId();
 
-                std::vector<EcalXtalGroupId>::const_iterator value_ptr = payload->find(rawid);
+                auto value_ptr = payload->find(rawid);
 
                 if (value_ptr == payload->end())
                   continue;  // cell absent from payload

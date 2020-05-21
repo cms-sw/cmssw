@@ -141,15 +141,13 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
 }
 
 void MuScleFitBase::clearHistoMap() {
-  for (std::map<std::string, Histograms*>::const_iterator histo = mapHisto_.begin(); histo != mapHisto_.end();
-       histo++) {
+  for (auto histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
     delete (*histo).second;
   }
 }
 
 void MuScleFitBase::writeHistoMap(const unsigned int iLoop) {
-  for (std::map<std::string, Histograms*>::const_iterator histo = mapHisto_.begin(); histo != mapHisto_.end();
-       histo++) {
+  for (auto histo = mapHisto_.begin(); histo != mapHisto_.end(); histo++) {
     // This is to avoid writing into subdirs. Need a workaround.
     theFiles_[iLoop]->cd();
     (*histo).second->Write();

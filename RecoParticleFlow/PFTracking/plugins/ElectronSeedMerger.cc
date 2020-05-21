@@ -62,8 +62,8 @@ void ElectronSeedMerger::produce(edm::StreamID, Event& iEvent, const EventSetup&
   }
 
   //LOOP OVER THE ECAL SEED COLLECTION
-  ElectronSeedCollection::const_iterator e_beg = ESeed.begin();
-  ElectronSeedCollection::const_iterator e_end = ESeed.end();
+  auto e_beg = ESeed.begin();
+  auto e_end = ESeed.end();
   for (; e_beg != e_end; ++e_beg) {
     ElectronSeed NewSeed = *(e_beg);
     bool AlreadyMatched = false;

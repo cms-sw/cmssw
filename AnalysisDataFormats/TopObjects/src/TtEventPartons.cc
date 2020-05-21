@@ -1,7 +1,7 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtEventPartons.h"
 
 void TtEventPartons::expand(std::vector<int>& vec) {
-  std::vector<int>::iterator vecIter = vec.begin();
+  auto vecIter = vec.begin();
   for (unsigned i = 0; i < ignorePartons_.size(); i++) {
     if (ignorePartons_[i]) {
       vecIter = vec.insert(vecIter, -3);

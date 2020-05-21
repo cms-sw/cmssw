@@ -313,14 +313,14 @@ void PFClusterEMEnergyCorrector::correctEnergies(const edm::Event &evt,
     int clusFlag = 0;
     if (iseb) {
       auto ecalUnit = readoutTool.readOutUnitOf(static_cast<EBDetId>(cluster.seed()));
-      EBSrFlagCollection::const_iterator srf = ebSrFlags->find(ecalUnit);
+      auto srf = ebSrFlags->find(ecalUnit);
       if (srf != ebSrFlags->end())
         clusFlag = srf->value();
       else
         clusFlag = 3;
     } else {
       auto ecalUnit = readoutTool.readOutUnitOf(static_cast<EEDetId>(cluster.seed()));
-      EESrFlagCollection::const_iterator srf = eeSrFlags->find(ecalUnit);
+      auto srf = eeSrFlags->find(ecalUnit);
       if (srf != eeSrFlags->end())
         clusFlag = srf->value();
       else

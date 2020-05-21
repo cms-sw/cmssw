@@ -46,7 +46,7 @@ void MultiTrajectoryStateAssembler::addStateVector(const MultiTSOS &states) {
   //
   double sum(0.);
   double pzFirst = theStates.empty() ? 0. : theStates.front().localParameters().pzSign();
-  for (MultiTSOS::const_iterator i = states.begin(); i != states.end(); i++) {
+  for (auto i = states.begin(); i != states.end(); i++) {
     if (!(i->isValid()))
       throw cms::Exception("LogicError") << "MultiTrajectoryStateAssembler: trying to add invalid state";
     // weights

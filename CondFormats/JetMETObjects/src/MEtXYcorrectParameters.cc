@@ -360,7 +360,7 @@ void MEtXYcorrectParametersCollection::getSections(std::string inputFile, std::v
   //copy(outputs.begin(),outputs.end(), std::ostream_iterator<std::string>(std::cout, "\n") );
 
   std::string sectionNames;
-  for (std::vector<std::string>::const_iterator it = outputs.begin(); it != outputs.end(); it++) {
+  for (auto it = outputs.begin(); it != outputs.end(); it++) {
     sectionNames += *it;
     sectionNames += "\n";
   }
@@ -410,15 +410,13 @@ MEtXYcorrectParameters const& MEtXYcorrectParametersCollection::operator[](key_t
 // that are aware of all three collections.
 void MEtXYcorrectParametersCollection::validKeys(std::vector<key_type>& keys) const {
   keys.clear();
-  for (collection_type::const_iterator ibegin = correctionsShift_.begin(), iend = correctionsShift_.end(), i = ibegin;
-       i != iend;
-       ++i) {
+  for (auto ibegin = correctionsShift_.begin(), iend = correctionsShift_.end(), i = ibegin; i != iend; ++i) {
     keys.push_back(i->first);
   }
 }
 
 MEtXYcorrectParametersCollection::key_type MEtXYcorrectParametersCollection::getShiftMcFlavBin(std::string const& flav) {
-  std::vector<std::string>::const_iterator found = find(shiftFlavors_.begin(), shiftFlavors_.end(), flav);
+  auto found = find(shiftFlavors_.begin(), shiftFlavors_.end(), flav);
   if (found != shiftFlavors_.end()) {
     return (found - shiftFlavors_.begin() + 1) + (shiftMC + 1) * 100;
   } else {
@@ -428,7 +426,7 @@ MEtXYcorrectParametersCollection::key_type MEtXYcorrectParametersCollection::get
 }
 
 MEtXYcorrectParametersCollection::key_type MEtXYcorrectParametersCollection::getShiftDyFlavBin(std::string const& flav) {
-  std::vector<std::string>::const_iterator found = find(shiftFlavors_.begin(), shiftFlavors_.end(), flav);
+  auto found = find(shiftFlavors_.begin(), shiftFlavors_.end(), flav);
   if (found != shiftFlavors_.end()) {
     return (found - shiftFlavors_.begin() + 1) + (shiftDY + 1) * 100;
   } else {
@@ -438,7 +436,7 @@ MEtXYcorrectParametersCollection::key_type MEtXYcorrectParametersCollection::get
 }
 MEtXYcorrectParametersCollection::key_type MEtXYcorrectParametersCollection::getShiftTTJetsFlavBin(
     std::string const& flav) {
-  std::vector<std::string>::const_iterator found = find(shiftFlavors_.begin(), shiftFlavors_.end(), flav);
+  auto found = find(shiftFlavors_.begin(), shiftFlavors_.end(), flav);
   if (found != shiftFlavors_.end()) {
     return (found - shiftFlavors_.begin() + 1) + (shiftTTJets + 1) * 100;
   } else {
@@ -448,7 +446,7 @@ MEtXYcorrectParametersCollection::key_type MEtXYcorrectParametersCollection::get
 }
 MEtXYcorrectParametersCollection::key_type MEtXYcorrectParametersCollection::getShiftWJetsFlavBin(
     std::string const& flav) {
-  std::vector<std::string>::const_iterator found = find(shiftFlavors_.begin(), shiftFlavors_.end(), flav);
+  auto found = find(shiftFlavors_.begin(), shiftFlavors_.end(), flav);
   if (found != shiftFlavors_.end()) {
     return (found - shiftFlavors_.begin() + 1) + (shiftWJets + 1) * 100;
   } else {
@@ -458,7 +456,7 @@ MEtXYcorrectParametersCollection::key_type MEtXYcorrectParametersCollection::get
 }
 MEtXYcorrectParametersCollection::key_type MEtXYcorrectParametersCollection::getShiftDataFlavBin(
     std::string const& flav) {
-  std::vector<std::string>::const_iterator found = find(shiftFlavors_.begin(), shiftFlavors_.end(), flav);
+  auto found = find(shiftFlavors_.begin(), shiftFlavors_.end(), flav);
   if (found != shiftFlavors_.end()) {
     return (found - shiftFlavors_.begin() + 1) + (shiftData + 1) * 100;
   } else {

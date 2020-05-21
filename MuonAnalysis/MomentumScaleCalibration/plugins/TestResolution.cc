@@ -88,7 +88,7 @@ void TestResolution::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
 
   // Loop on the recMuons
-  std::vector<reco::LeafCandidate>::const_iterator recMuon = muons.begin();
+  auto recMuon = muons.begin();
   for (; recMuon != muons.end(); ++recMuon) {
     // Fill the histogram with uncorrected pt values
     sigmaPt_->Fill(resolutionFunction_->sigmaPt(*recMuon, 0), recMuon->pt());

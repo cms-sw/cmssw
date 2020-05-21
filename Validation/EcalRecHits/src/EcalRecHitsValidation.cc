@@ -429,13 +429,11 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
     }
 
     // 2) loop over RecHits
-    for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EBUncalibRecHit->begin();
-         uncalibRecHit != EBUncalibRecHit->end();
-         ++uncalibRecHit) {
+    for (auto uncalibRecHit = EBUncalibRecHit->begin(); uncalibRecHit != EBUncalibRecHit->end(); ++uncalibRecHit) {
       EBDetId EBid = EBDetId(uncalibRecHit->id());
 
       // Find corresponding recHit
-      EcalRecHitCollection::const_iterator myRecHit = EBRecHit->find(EBid);
+      auto myRecHit = EBRecHit->find(EBid);
       if (myRecHit == EBRecHit->end())
         continue;
       ebRecMap[EBid.rawId()] += myRecHit->energy();
@@ -476,7 +474,7 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
           if (pEcs.isValid())
             ecs = pEcs.product();
           if (ecs != nullptr) {
-            EcalChannelStatusMap::const_iterator csmi = ecs->find(EBid.rawId());
+            auto csmi = ecs->find(EBid.rawId());
             EcalChannelStatusCode csc = 0;
             if (csmi != ecs->end())
               csc = *csmi;
@@ -499,7 +497,7 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
           if (ttMap != nullptr) {
             EcalTrigTowerDetId ttDetId = EBid.tower();
             std::vector<DetId> vid = ttMap->constituentsOf(ttDetId);
-            for (std::vector<DetId>::const_iterator dit = vid.begin(); dit != vid.end(); dit++) {
+            for (auto dit = vid.begin(); dit != vid.end(); dit++) {
               EBDetId ttEBid = EBDetId(*dit);
               ttSimEnergy += ebSimMap[ttEBid.rawId()];
             }
@@ -602,13 +600,11 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
     }
 
     // 2) loop over RecHits
-    for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EEUncalibRecHit->begin();
-         uncalibRecHit != EEUncalibRecHit->end();
-         ++uncalibRecHit) {
+    for (auto uncalibRecHit = EEUncalibRecHit->begin(); uncalibRecHit != EEUncalibRecHit->end(); ++uncalibRecHit) {
       EEDetId EEid = EEDetId(uncalibRecHit->id());
 
       // Find corresponding recHit
-      EcalRecHitCollection::const_iterator myRecHit = EERecHit->find(EEid);
+      auto myRecHit = EERecHit->find(EEid);
       if (myRecHit == EERecHit->end())
         continue;
       eeRecMap[EEid.rawId()] += myRecHit->energy();
@@ -649,7 +645,7 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
           if (pEcs.isValid())
             ecs = pEcs.product();
           if (ecs != nullptr) {
-            EcalChannelStatusMap::const_iterator csmi = ecs->find(EEid.rawId());
+            auto csmi = ecs->find(EEid.rawId());
             EcalChannelStatusCode csc = 0;
             if (csmi != ecs->end())
               csc = *csmi;
@@ -763,7 +759,7 @@ void EcalRecHitsValidation::analyze(const Event &e, const EventSetup &c) {
     }
 
     // 2) loop over RecHits
-    for (EcalRecHitCollection::const_iterator recHit = ESRecHit->begin(); recHit != ESRecHit->end(); ++recHit) {
+    for (auto recHit = ESRecHit->begin(); recHit != ESRecHit->end(); ++recHit) {
       ESDetId ESid = ESDetId(recHit->id());
       if (esSimMap[ESid.rawId()] != 0.) {
         // Fill log10(Energy) stuff...

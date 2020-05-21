@@ -53,7 +53,7 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset)
   }
   const ParameterSet variables = pset.getParameter<ParameterSet>("Variables");
   vector<string> variableNames = variables.getParameterNamesForType<vector<string> >();
-  for (vector<string>::const_iterator name = variableNames.begin(); name != variableNames.end(); name++) {
+  for (auto name = variableNames.begin(); name != variableNames.end(); name++) {
     vector<string> var = variables.getParameter<vector<string> >(*name);
     double lo, hi;
     if (var.size() >= 4 && !(istringstream(var[1]) >> lo).fail() && !(istringstream(var[2]) >> hi).fail()) {
@@ -67,7 +67,7 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset)
 
   const ParameterSet categories = pset.getParameter<ParameterSet>("Categories");
   vector<string> categoryNames = categories.getParameterNamesForType<vector<string> >();
-  for (vector<string>::const_iterator name = categoryNames.begin(); name != categoryNames.end(); name++) {
+  for (auto name = categoryNames.begin(); name != categoryNames.end(); name++) {
     vector<string> cat = categories.getParameter<vector<string> >(*name);
     if (cat.size() == 2) {
       fitter.addCategory(*name, cat[0], cat[1]);
@@ -80,7 +80,7 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset)
   if (pset.existsAs<ParameterSet>("Expressions")) {
     const ParameterSet exprs = pset.getParameter<ParameterSet>("Expressions");
     vector<string> exprNames = exprs.getParameterNamesForType<vector<string> >();
-    for (vector<string>::const_iterator name = exprNames.begin(); name != exprNames.end(); name++) {
+    for (auto name = exprNames.begin(); name != exprNames.end(); name++) {
       vector<string> expr = exprs.getParameter<vector<string> >(*name);
       if (expr.size() >= 2) {
         vector<string> args(expr.begin() + 2, expr.end());
@@ -96,7 +96,7 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset)
   if (pset.existsAs<ParameterSet>("Cuts")) {
     const ParameterSet cuts = pset.getParameter<ParameterSet>("Cuts");
     vector<string> cutNames = cuts.getParameterNamesForType<vector<string> >();
-    for (vector<string>::const_iterator name = cutNames.begin(); name != cutNames.end(); name++) {
+    for (auto name = cutNames.begin(); name != cutNames.end(); name++) {
       vector<string> cat = cuts.getParameter<vector<string> >(*name);
       if (cat.size() == 3) {
         fitter.addThresholdCategory(*name, cat[0], cat[1], atof(cat[2].c_str()));
@@ -110,7 +110,7 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset)
   if (pset.existsAs<ParameterSet>("PDFs")) {
     const ParameterSet pdfs = pset.getParameter<ParameterSet>("PDFs");
     vector<string> pdfNames = pdfs.getParameterNamesForType<vector<string> >();
-    for (vector<string>::const_iterator name = pdfNames.begin(); name != pdfNames.end(); name++) {
+    for (auto name = pdfNames.begin(); name != pdfNames.end(); name++) {
       vector<string> pdf = pdfs.getParameter<vector<string> >(*name);
       fitter.addPdf(*name, pdf);
     }
@@ -118,7 +118,7 @@ TagProbeFitTreeAnalyzer::TagProbeFitTreeAnalyzer(const edm::ParameterSet& pset)
 
   const ParameterSet efficiencies = pset.getParameter<ParameterSet>("Efficiencies");
   vector<string> efficiencyNames = efficiencies.getParameterNamesForType<ParameterSet>();
-  for (vector<string>::const_iterator name = efficiencyNames.begin(); name != efficiencyNames.end(); name++) {
+  for (auto name = efficiencyNames.begin(); name != efficiencyNames.end(); name++) {
     try {
       calculateEfficiency(*name, efficiencies.getParameter<ParameterSet>(*name));
     } catch (std::exception& ex) {
@@ -144,13 +144,13 @@ void TagProbeFitTreeAnalyzer::calculateEfficiency(string name, const edm::Parame
   const ParameterSet binVars = pset.getParameter<ParameterSet>("BinnedVariables");
   map<string, vector<double> > binnedVariables;
   vector<string> variableNames = binVars.getParameterNamesForType<vector<double> >();
-  for (vector<string>::const_iterator var = variableNames.begin(); var != variableNames.end(); var++) {
+  for (auto var = variableNames.begin(); var != variableNames.end(); var++) {
     vector<double> binning = binVars.getParameter<vector<double> >(*var);
     binnedVariables[*var] = binning;
   }
   map<string, vector<string> > mappedCategories;
   vector<string> categoryNames = binVars.getParameterNamesForType<vector<string> >();
-  for (vector<string>::const_iterator var = categoryNames.begin(); var != categoryNames.end(); var++) {
+  for (auto var = categoryNames.begin(); var != categoryNames.end(); var++) {
     vector<string> map = binVars.getParameter<vector<string> >(*var);
     mappedCategories[*var] = map;
   }

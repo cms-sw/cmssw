@@ -11,7 +11,7 @@ BoundDiskSector* ForwardDiskSectorBuilderFromWedges::operator()(const vector<con
   float phiStart = wedges.front()->position().phi();
   float zStart = wedges.front()->position().z();
   float wphimin, wphimax;
-  for (vector<const TECWedge*>::const_iterator i = wedges.begin(); i != wedges.end(); i++) {
+  for (auto i = wedges.begin(); i != wedges.end(); i++) {
     float zdiff = (**i).surface().position().z() - zStart;
     if (std::abs(zdiff) > 5.)
       edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromWedges: Trying to build "
@@ -49,7 +49,7 @@ pair<DiskSectorBounds*, GlobalVector> ForwardDiskSectorBuilderFromWedges::comput
   float phimin((**(wedges.begin())).surface().position().phi());
   float phimax(phimin);
 
-  for (vector<const TECWedge*>::const_iterator iw = wedges.begin(); iw != wedges.end(); iw++) {
+  for (auto iw = wedges.begin(); iw != wedges.end(); iw++) {
     // edm::LogInfo(TkDetLayers) << "---------------------------------------------" ;
     // edm::LogInfo(TkDetLayers) <<   " Builder: Position of wedge     :" << (**iw).position() ;
     float ri = (**iw).specificSurface().innerRadius();

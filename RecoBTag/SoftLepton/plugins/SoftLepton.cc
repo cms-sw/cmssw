@@ -208,9 +208,7 @@ void SoftLepton::produce(edm::Event &event, const edm::EventSetup &setup) {
       event.getByToken(token_pfElectrons, h_electrons);
       if (h_electrons.isValid()) {
         leptonId = SoftLeptonProperties::Quality::egammaElectronId;
-        for (reco::PFCandidateCollection::const_iterator electron = h_electrons->begin();
-             electron != h_electrons->end();
-             ++electron) {
+        for (auto electron = h_electrons->begin(); electron != h_electrons->end(); ++electron) {
           LeptonIds *id;
           if (electron->gsfTrackRef().isNonnull())
             id = &leptons[reco::TrackBaseRef(electron->gsfTrackRef())];
@@ -276,7 +274,7 @@ void SoftLepton::produce(edm::Event &event, const edm::EventSetup &setup) {
     Handle<edm::ValueMap<float> > h_leptonId;
     event.getByToken(token_leptonId, h_leptonId);
 
-    for (Leptons::iterator lepton = leptons.begin(); lepton != leptons.end(); ++lepton)
+    for (auto lepton = leptons.begin(); lepton != leptons.end(); ++lepton)
       lepton->second[leptonId] = (*h_leptonId)[lepton->first];
   }
 
@@ -297,7 +295,7 @@ reco::SoftLeptonTagInfo SoftLepton::tag(const edm::RefToBase<reco::Jet> &jet,
   reco::SoftLeptonTagInfo info;
   info.setJetRef(jet);
 
-  for (Leptons::const_iterator lepton = leptons.begin(); lepton != leptons.end(); ++lepton) {
+  for (auto lepton = leptons.begin(); lepton != leptons.end(); ++lepton) {
     const math::XYZVector &lepton_momentum = lepton->first->momentum();
     if (m_chi2Cut > 0.0 && lepton->first->normalizedChi2() > m_chi2Cut)
       continue;
@@ -324,7 +322,7 @@ reco::SoftLeptonTagInfo SoftLepton::tag(const edm::RefToBase<reco::Jet> &jet,
     properties.ratio = lepton_momentum.R() / axis.R();
     properties.ratioRel = lepton_momentum.Dot(axis) / axis.Mag2();
 
-    for (LeptonIds::const_iterator iter = lepton->second.begin(); iter != lepton->second.end(); ++iter)
+    for (auto iter = lepton->second.begin(); iter != lepton->second.end(); ++iter)
       properties.setQuality(static_cast<SoftLeptonProperties::Quality::Generic>(iter->first), iter->second);
 
     info.insert(lepton->first, properties);

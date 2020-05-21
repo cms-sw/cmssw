@@ -142,8 +142,7 @@ bool SiPixelIsAliveCalibration::doFits(uint32_t detid, std::vector<SiPixelCalibD
 
 void SiPixelIsAliveCalibration::calibrationEnd() {
   // print summary of bad modules:
-  for (std::map<uint32_t, MonitorElement *>::const_iterator idet = bookkeeper_.begin(); idet != bookkeeper_.end();
-       ++idet) {
+  for (auto idet = bookkeeper_.begin(); idet != bookkeeper_.end(); ++idet) {
     float idead = 0;
     float iunderthres = 0;
     float imultiplefill = 0;

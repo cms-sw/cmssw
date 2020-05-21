@@ -225,7 +225,7 @@ void CTPPSRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       for (int i = 0; i < 8; i++) {
         vToFCellWidth.push_back(fToFCellWidth[i]);
       }
-      CTPPSToFDetector* ToFDet = new CTPPSToFDetector(
+      auto* ToFDet = new CTPPSToFDetector(
           fToFNCellX, fToFNCellY, vToFCellWidth, fToFCellHeight, fToFPitchX, fToFPitchY, pos_tof, fTimeSigma);
       cellId = ToFDet->findCellId(x_tof, y_tof);
       if (cellId > 0) {
@@ -245,8 +245,7 @@ void CTPPSRecHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   output_recHits->reserve(simHits->size());
 
   int n = 0;
-  for (std::vector<CTPPSFastRecHit>::const_iterator i = theCTPPSFastRecHit.begin(); i != theCTPPSFastRecHit.end();
-       i++) {
+  for (auto i = theCTPPSFastRecHit.begin(); i != theCTPPSFastRecHit.end(); i++) {
     output_recHits->push_back(*i);
     n += 1;
   }

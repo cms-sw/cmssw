@@ -47,7 +47,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
     int iPV = -1;
     int partType1 = 0;
     int partType2 = 0;
-    std::vector<SimTrack>::const_iterator iFirstSimTk = theSimTracks.begin();
+    auto iFirstSimTk = theSimTracks.begin();
     if (!(*iFirstSimTk).noVertex()) {
       iPV = (*iFirstSimTk).vertIndex();
 
@@ -81,7 +81,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
     //int iPho=0;
     //int iPizero=0;
     //   theSimTracks.reset();
-    for (std::vector<SimTrack>::const_iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk) {
+    for (auto iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk) {
       if ((*iSimTk).noVertex())
         continue;
 
@@ -140,8 +140,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
       //      std::cout << " All gamma found from PV " << (*iPhoTk)->momentum() << " photon track ID " << (*iPhoTk)->trackId() << " vertex index " << (*iPhoTk)->vertIndex() << std::endl;
       //  }
 
-      for (std::vector<SimTrack>::const_iterator iPhoTk = theSimTracks.begin(); iPhoTk != theSimTracks.end();
-           ++iPhoTk) {
+      for (auto iPhoTk = theSimTracks.begin(); iPhoTk != theSimTracks.end(); ++iPhoTk) {
         trkFromConversion.clear();
         electronsFromConversions.clear();
 
@@ -156,7 +155,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
         phoMotherId = -1;
         if (vertex.parentIndex() != -1) {
           unsigned motherGeantId = vertex.parentIndex();
-          std::map<unsigned, unsigned>::iterator association = geantToIndex_.find(motherGeantId);
+          auto association = geantToIndex_.find(motherGeantId);
           if (association != geantToIndex_.end())
             phoMotherId = association->second;
           phoMotherType = phoMotherId == -1 ? 0 : theSimTracks[phoMotherId].type();
@@ -167,8 +166,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
           }
         }
 
-        for (std::vector<SimTrack>::const_iterator iEleTk = theSimTracks.begin(); iEleTk != theSimTracks.end();
-             ++iEleTk) {
+        for (auto iEleTk = theSimTracks.begin(); iEleTk != theSimTracks.end(); ++iEleTk) {
           if ((*iEleTk).noVertex())
             continue;
           if ((*iEleTk).vertIndex() == iPV)
@@ -183,7 +181,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
           //std::cout << " Secondary from photons particle type " << (*iEleTk).type() << " trackId " <<  (*iEleTk).trackId() << " vertex ID " << vertexId << std::endl;
           if (vertex.parentIndex() != -1) {
             unsigned motherGeantId = vertex.parentIndex();
-            std::map<unsigned, unsigned>::iterator association = geantToIndex_.find(motherGeantId);
+            auto association = geantToIndex_.find(motherGeantId);
             if (association != geantToIndex_.end())
               motherId = association->second;
 
@@ -216,8 +214,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
               pBrem.clear();
               xBrem.clear();
 
-              for (std::vector<SimTrack>::const_iterator iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end();
-                   ++iSimTk) {
+              for (auto iSimTk = theSimTracks.begin(); iSimTk != theSimTracks.end(); ++iSimTk) {
                 if ((*iSimTk).noVertex())
                   continue;
                 if ((*iSimTk).vertIndex() == iPV)
@@ -246,7 +243,7 @@ std::vector<PhotonMCTruth> PhotonMCTruthFinder::find(const std::vector<SimTrack>
 
                   if (vertex1.parentIndex() != -1) {
                     unsigned motherGeantId = vertex1.parentIndex();
-                    std::map<unsigned, unsigned>::iterator association = geantToIndex_.find(motherGeantId);
+                    auto association = geantToIndex_.find(motherGeantId);
                     if (association != geantToIndex_.end())
                       motherId = association->second;
 

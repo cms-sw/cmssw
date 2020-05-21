@@ -472,7 +472,7 @@ void CSCGasCollisions::writeSummary(int n_try, int n_steps, double sum_steps, fl
     edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisions] average energy loss/collision = " << dedx / float(nsteps)
                                      << " eV";
 
-  std::vector<int>::const_iterator bigger = find(electrons.begin(), electrons.end(), 0);
+  auto bigger = find(electrons.begin(), electrons.end(), 0);
   if (bigger != electrons.end()) {
     edm::LogVerbatim("CSCDigitizer") << "[CSCGasCollisions] TROUBLE! There is a cluster with 0 electrons.";
   }
@@ -521,7 +521,7 @@ float CSCGasCollisions::lnEnergyLoss(float lnCollisions, const std::vector<float
   float lnE = -1.;
 
   // Find collision[] bin in which lnCollisions falls
-  std::vector<float>::const_iterator it = find(collisions.begin(), collisions.end(), lnCollisions);
+  auto it = find(collisions.begin(), collisions.end(), lnCollisions);
 
   if (it != collisions.end()) {
     // found the value
@@ -531,8 +531,7 @@ float CSCGasCollisions::lnEnergyLoss(float lnCollisions, const std::vector<float
     lnE = theEnergyBins[ihi];
   } else {
     // interpolate the value
-    std::vector<float>::const_iterator loside =
-        find_if(collisions.begin(), collisions.end(), [&lnCollisions](auto c) { return c < lnCollisions; });
+    auto loside = find_if(collisions.begin(), collisions.end(), [&lnCollisions](auto c) { return c < lnCollisions; });
     std::vector<float>::difference_type ilo = loside - collisions.begin();
     if (ilo > 0) {
       LogTrace(me) << ": using energy bin " << ilo - 1 << " and " << ilo;
@@ -549,8 +548,7 @@ float CSCGasCollisions::lnEnergyLoss(float lnCollisions, const std::vector<float
 }
 
 void CSCGasCollisions::fillCollisionsForThisGamma(float logGamma, std::vector<float> &collisions) const {
-  std::vector<float>::const_iterator bigger =
-      find_if(theGammaBins.begin(), theGammaBins.end(), [&logGamma](auto c) { return c > logGamma; });
+  auto bigger = find_if(theGammaBins.begin(), theGammaBins.end(), [&logGamma](auto c) { return c > logGamma; });
 
   if (bigger == theGammaBins.end()) {
     // use highest bin

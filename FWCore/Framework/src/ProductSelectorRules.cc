@@ -157,15 +157,15 @@ namespace edm {
   }
 
   void ProductSelectorRules::Rule::applyToAll(std::vector<BranchSelectState>& branchstates) const {
-    std::vector<BranchSelectState>::iterator it = branchstates.begin();
-    std::vector<BranchSelectState>::iterator end = branchstates.end();
+    auto it = branchstates.begin();
+    auto end = branchstates.end();
     for (; it != end; ++it)
       applyToOne(it->desc, it->selectMe);
   }
 
   void ProductSelectorRules::applyToAll(std::vector<BranchSelectState>& branchstates) const {
-    std::vector<Rule>::const_iterator it = rules_.begin();
-    std::vector<Rule>::const_iterator end = rules_.end();
+    auto it = rules_.begin();
+    auto end = rules_.end();
     for (; it != end; ++it)
       it->applyToAll(branchstates);
   }
@@ -222,7 +222,7 @@ namespace edm {
       commands.push_back(defaultCommands[0]);
     }
     rules_.reserve(commands.size());
-    for (std::vector<std::string>::const_iterator it = commands.begin(), end = commands.end(); it != end; ++it) {
+    for (auto it = commands.begin(), end = commands.end(); it != end; ++it) {
       rules_.push_back(Rule(*it, parameterName, parameterOwnerName));
     }
     keepAll_ = commands.size() == 1 && commands[0] == defaultCommands[0];

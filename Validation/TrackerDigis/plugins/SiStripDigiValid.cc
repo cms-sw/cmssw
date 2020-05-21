@@ -369,12 +369,12 @@ void SiStripDigiValid::analyze(const edm::Event &e, const edm::EventSetup &c) {
   std::string digiProducer = "siStripDigis";
   edm::Handle<edm::DetSetVector<SiStripDigi>> stripDigis;
   e.getByToken(edmDetSetVector_SiStripDigi_Token_, stripDigis);
-  edm::DetSetVector<SiStripDigi>::const_iterator DSViter = stripDigis->begin();
+  auto DSViter = stripDigis->begin();
   for (; DSViter != stripDigis->end(); DSViter++) {
     unsigned int id = DSViter->id;
     DetId detId(id);
-    edm::DetSet<SiStripDigi>::const_iterator begin = DSViter->data.begin();
-    edm::DetSet<SiStripDigi>::const_iterator end = DSViter->data.end();
+    auto begin = DSViter->data.begin();
+    auto end = DSViter->data.end();
     edm::DetSet<SiStripDigi>::const_iterator iter;
 
     if (detId.subdetId() == StripSubdetector::TIB) {

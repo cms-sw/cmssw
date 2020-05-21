@@ -44,10 +44,8 @@ void TrackExtrapolator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   // Get list of tracks we want to extrapolate
   std::vector<reco::TrackRef> goodTracks;
-  for (reco::TrackCollection::const_iterator trkBegin = tracks_h->begin(), trkEnd = tracks_h->end(), itrk = trkBegin;
-       itrk != trkEnd;
-       ++itrk) {
-    reco::TrackBase::TrackQuality trackQuality = reco::TrackBase::TrackQuality(trackQuality_);
+  for (auto trkBegin = tracks_h->begin(), trkEnd = tracks_h->end(), itrk = trkBegin; itrk != trkEnd; ++itrk) {
+    auto trackQuality = reco::TrackBase::TrackQuality(trackQuality_);
 
     // Cut on track quality
     if (itrk->quality(trackQuality)) {
@@ -58,11 +56,7 @@ void TrackExtrapolator::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   std::vector<reco::TrackBase::Vector> vresultMom(1);
 
   // Now loop through the list of tracks and extrapolate them
-  for (std::vector<reco::TrackRef>::const_iterator trkBegin = goodTracks.begin(),
-                                                   trkEnd = goodTracks.end(),
-                                                   itrk = trkBegin;
-       itrk != trkEnd;
-       ++itrk) {
+  for (auto trkBegin = goodTracks.begin(), trkEnd = goodTracks.end(), itrk = trkBegin; itrk != trkEnd; ++itrk) {
     if (propagateTrackToVolume(**itrk, *field_h, *propagator_h, ecalvolume, vresultPos[0], vresultMom[0])) {
       extrapolations->push_back(reco::TrackExtrapolation(*itrk, vresultPos, vresultMom));
     }

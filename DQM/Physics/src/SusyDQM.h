@@ -309,7 +309,7 @@ void SusyDQM<Mu, Ele, Jet, Met>::analyze(const edm::Event& evt, const edm::Event
   //////////////////////////////
 
   float sumPt = 0.;
-  for (typename std::vector<Jet>::const_iterator jet_i = jets.begin(); jet_i != jets.end(); ++jet_i) {
+  for (auto jet_i = jets.begin(); jet_i != jets.end(); ++jet_i) {
     if (jet_i->pt() < RAL_jet_pt_cut_)
       continue;
     if (fabs(jet_i->eta()) > RAL_jet_eta_cut_)
@@ -326,7 +326,7 @@ void SusyDQM<Mu, Ele, Jet, Met>::analyze(const edm::Event& evt, const edm::Event
   hRAL_Sum_pt_jets_->Fill(sumPt);
 
   float MET = 0.;
-  for (typename std::vector<Met>::const_iterator met_i = mets->begin(); met_i != mets->end(); ++met_i) {
+  for (auto met_i = mets->begin(); met_i != mets->end(); ++met_i) {
     MET = met_i->pt();
     break;
   }
@@ -341,7 +341,7 @@ void SusyDQM<Mu, Ele, Jet, Met>::analyze(const edm::Event& evt, const edm::Event
   float inv = 0.;
   float dR = 0.;
 
-  for (typename std::vector<Mu>::const_iterator mu_i = muons->begin(); mu_i != muons->end(); ++mu_i) {
+  for (auto mu_i = muons->begin(); mu_i != muons->end(); ++mu_i) {
     if (!(goodSusyMuon(&(*mu_i)) && mu_i->pt() > RAL_muon_pt_cut_))
       continue;
     ++nMuons;
@@ -354,7 +354,7 @@ void SusyDQM<Mu, Ele, Jet, Met>::analyze(const edm::Event& evt, const edm::Event
     hRAL_Iso_muons_->Fill(muIso.emEt + muIso.hadEt + muIso.sumPt);
 
     // Muon muon pairs
-    for (typename std::vector<Mu>::const_iterator mu_j = muons->begin(); mu_j != muons->end(); ++mu_j) {
+    for (auto mu_j = muons->begin(); mu_j != muons->end(); ++mu_j) {
       if (mu_i >= mu_j)
         continue;
       if (!(goodSusyMuon(&(*mu_j)) && mu_j->pt() > RAL_muon_pt_cut_))
@@ -372,7 +372,7 @@ void SusyDQM<Mu, Ele, Jet, Met>::analyze(const edm::Event& evt, const edm::Event
     }
 
     // Electron muon pairs
-    for (typename std::vector<Ele>::const_iterator ele_j = elecs->begin(); ele_j != elecs->end(); ++ele_j) {
+    for (auto ele_j = elecs->begin(); ele_j != elecs->end(); ++ele_j) {
       if (!(goodSusyElectron(&(*ele_j)) && ele_j->pt() > RAL_elec_pt_cut_))
         continue;
       inv = (mu_i->p4() + ele_j->p4()).M();
@@ -394,7 +394,7 @@ void SusyDQM<Mu, Ele, Jet, Met>::analyze(const edm::Event& evt, const edm::Event
   int nElectrons = 0;
   int nSSee = 0;
   int nOSee = 0;
-  for (typename std::vector<Ele>::const_iterator ele_i = elecs->begin(); ele_i != elecs->end(); ++ele_i) {
+  for (auto ele_i = elecs->begin(); ele_i != elecs->end(); ++ele_i) {
     if (!(goodSusyElectron(&(*ele_i)) && ele_i->pt() > RAL_elec_pt_cut_))
       continue;
     nElectrons++;
@@ -406,7 +406,7 @@ void SusyDQM<Mu, Ele, Jet, Met>::analyze(const edm::Event& evt, const edm::Event
     hRAL_Iso_elecs_->Fill(ele_i->dr03TkSumPt() + ele_i->dr03EcalRecHitSumEt() + ele_i->dr03HcalTowerSumEt());
 
     // Electron electron pairs
-    for (typename std::vector<Ele>::const_iterator ele_j = elecs->begin(); ele_j != elecs->end(); ++ele_j) {
+    for (auto ele_j = elecs->begin(); ele_j != elecs->end(); ++ele_j) {
       if (ele_i >= ele_j)
         continue;
       if (!(goodSusyElectron(&(*ele_j)) && ele_j->pt() > RAL_elec_pt_cut_))

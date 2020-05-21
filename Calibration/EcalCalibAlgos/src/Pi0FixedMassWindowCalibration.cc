@@ -183,7 +183,7 @@ void Pi0FixedMassWindowCalibration::endOfJob() {
 
   Pi0CalibXMLwriter barrelWriter(EcalBarrel, 99);
 
-  std::vector<DetId>::const_iterator barrelIt = barrelCells.begin();
+  auto barrelIt = barrelCells.begin();
   for (; barrelIt != barrelCells.end(); barrelIt++) {
     EBDetId eb(*barrelIt);
     int ieta = eb.ieta();
@@ -231,7 +231,7 @@ edm::EDLooper::Status Pi0FixedMassWindowCalibration::endOfLoop(const edm::EventS
 
   Pi0CalibXMLwriter barrelWriter(EcalBarrel, iLoop + 1);
 
-  std::vector<DetId>::const_iterator barrelIt = barrelCells.begin();
+  auto barrelIt = barrelCells.begin();
   for (; barrelIt != barrelCells.end(); barrelIt++) {
     EBDetId eb(*barrelIt);
     int ieta = eb.ieta();
@@ -313,7 +313,7 @@ edm::EDLooper::Status Pi0FixedMassWindowCalibration::duringLoop(const edm::Event
       EBDetId eb(*barrelIt);
 
       // get the initial calibration constants
-      EcalIntercalibConstantMap::const_iterator itcalib = imap.find(eb.rawId());
+      auto itcalib = imap.find(eb.rawId());
       if (itcalib == imap.end()) {
         // FIXME -- throw error
       }
@@ -336,15 +336,14 @@ edm::EDLooper::Status Pi0FixedMassWindowCalibration::duringLoop(const edm::Event
 
   recHitsEB_map = new std::map<DetId, EcalRecHit>();
 
-  EcalRecHitCollection* recalibEcalRecHitCollection(new EcalRecHitCollection);
+  auto* recalibEcalRecHitCollection(new EcalRecHitCollection);
 
   int nRecHitsEB = 0;
   Handle<EcalRecHitCollection> pEcalRecHitBarrelCollection;
   event.getByLabel(ecalHitsProducer_, barrelHits_, pEcalRecHitBarrelCollection);
   const EcalRecHitCollection* ecalRecHitBarrelCollection = pEcalRecHitBarrelCollection.product();
   cout << " ECAL Barrel RecHits # " << ecalRecHitBarrelCollection->size() << endl;
-  for (EcalRecHitCollection::const_iterator aRecHitEB = ecalRecHitBarrelCollection->begin();
-       aRecHitEB != ecalRecHitBarrelCollection->end();
+  for (auto aRecHitEB = ecalRecHitBarrelCollection->begin(); aRecHitEB != ecalRecHitBarrelCollection->end();
        aRecHitEB++) {
     //cout << " ECAL Barrel RecHit #,E,time,det,subdetid: "<<nRecHitsEB<<" "<<aRecHitEB->energy()<<" "<<aRecHitEB->time()<<" "<<aRecHitEB->detid().det()<<" "<<aRecHitEB->detid().subdetId()<<endl;
 
@@ -364,8 +363,7 @@ edm::EDLooper::Status Pi0FixedMassWindowCalibration::duringLoop(const edm::Event
 
   //  cout<<" Recalib size: "<<recalibEcalRecHitCollection->size()<<endl;
   int irecalib = 0;
-  for (EcalRecHitCollection::const_iterator aRecHitEB = recalibEcalRecHitCollection->begin();
-       aRecHitEB != recalibEcalRecHitCollection->end();
+  for (auto aRecHitEB = recalibEcalRecHitCollection->begin(); aRecHitEB != recalibEcalRecHitCollection->end();
        aRecHitEB++) {
     //cout << " [recalibrated] ECAL Barrel RecHit #,E,time,det,subdetid: "<<irecalib<<" "<<aRecHitEB->energy()<<" "<<aRecHitEB->time()<<" "<<aRecHitEB->detid().det()<<" "<<aRecHitEB->detid().subdetId()<<endl;
 
@@ -483,8 +481,7 @@ edm::EDLooper::Status Pi0FixedMassWindowCalibration::duringLoop(const edm::Event
   }
 
   int iClus_recalib = 0;
-  for (reco::BasicClusterCollection::const_iterator aClus = clusters_recalib.begin(); aClus != clusters_recalib.end();
-       aClus++) {
+  for (auto aClus = clusters_recalib.begin(); aClus != clusters_recalib.end(); aClus++) {
     cout << " CLUSTER [recalibration] : #,NHits,e,et,eta,phi,e2x2,e3x3,e5x5: " << iClus_recalib << " " << aClus->size()
          << " " << aClus->energy() << " " << aClus->energy() * sin(aClus->position().theta()) << " "
          << aClus->position().eta() << " " << aClus->position().phi() << " "

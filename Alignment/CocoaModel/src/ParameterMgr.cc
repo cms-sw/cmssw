@@ -122,7 +122,7 @@ ALIint ParameterMgr::getParameterValue(const ALIstring& name, ALIdouble& val) {
   }
 
   //---------- Find Parameter by name
-  msd::iterator ite = theParameters.find(namet);
+  auto ite = theParameters.find(namet);
   if (ite == theParameters.end()) {
     /*    msd::iterator ite2 = theParameters.find( name );
     for( ite2 = theParameters.begin(); ite2 != theParameters.end(); ite2++ ) {

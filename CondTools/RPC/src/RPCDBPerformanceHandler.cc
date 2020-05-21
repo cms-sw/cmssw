@@ -75,9 +75,7 @@ void RPCDBPerformanceHandler::getNewObjects() {
   RPCStripNoises::NoiseItem tipoprova;
 
   int i = 0;
-  for (std::map<uint32_t, std::vector<float> >::iterator it = (theRPCSimSetUp->_mapDetIdNoise).begin();
-       it != (theRPCSimSetUp->_mapDetIdNoise).end();
-       it++) {
+  for (auto it = (theRPCSimSetUp->_mapDetIdNoise).begin(); it != (theRPCSimSetUp->_mapDetIdNoise).end(); it++) {
     tipoprova.dpid = it->first;
     tipoprova.time = theRPCSimSetUp->getTime(it->first);
 

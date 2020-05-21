@@ -66,7 +66,7 @@ void FWPhotonProxyBuilder::buildViewType(const reco::Photon& photon,
     boxset->UseSingleColor();
     boxset->SetPickable(true);
 
-    for (std::vector<std::pair<DetId, float> >::iterator id = detIds.begin(), ide = detIds.end(); id != ide; ++id) {
+    for (auto id = detIds.begin(), ide = detIds.end(); id != ide; ++id) {
       const float* corners = geom->getCorners(id->first.rawId());
 
       if (corners == nullptr) {

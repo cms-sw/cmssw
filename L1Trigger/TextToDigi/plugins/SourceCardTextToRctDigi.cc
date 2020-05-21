@@ -217,11 +217,11 @@ void SourceCardTextToRctDigi::produce(edm::Event &iEvent, const edm::EventSetup 
   }
 
   // Debug info
-  for (L1CaloEmCollection::const_iterator iem = em->begin(); iem != em->end(); iem++) {
+  for (auto iem = em->begin(); iem != em->end(); iem++) {
     LogDebug("Electrons") << (*iem);
   }
 
-  for (L1CaloRegionCollection::const_iterator irgn = rgn->begin(); irgn != rgn->end(); irgn++) {
+  for (auto irgn = rgn->begin(); irgn != rgn->end(); irgn++) {
     LogDebug("HFRegions") << (*irgn);
   }
 

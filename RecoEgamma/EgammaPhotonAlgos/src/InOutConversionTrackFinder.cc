@@ -56,7 +56,7 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
 
   // Loop over the seeds
   int goodSeed = 0;
-  for (TrajectorySeedCollection::const_iterator iSeed = inOutSeeds.begin(); iSeed != inOutSeeds.end(); iSeed++) {
+  for (auto iSeed = inOutSeeds.begin(); iSeed != inOutSeeds.end(); iSeed++) {
     if (!theSeedCleaner_ || theSeedCleaner_->good(&(*iSeed))) {
       goodSeed++;
 
@@ -80,8 +80,7 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
 
       theTrajectoryCleaner_->clean(theTmpTrajectories);
 
-      for (std::vector<Trajectory>::const_iterator it = theTmpTrajectories.begin(); it != theTmpTrajectories.end();
-           it++) {
+      for (auto it = theTmpTrajectories.begin(); it != theTmpTrajectories.end(); it++) {
         if (it->isValid()) {
           rawResult.push_back(*it);
           if (theSeedCleaner_)
@@ -106,7 +105,7 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
                                          << rawResult.size() << "\n";
 
   int tra = 0;
-  for (std::vector<Trajectory>::const_iterator itraw = rawResult.begin(); itraw != rawResult.end(); itraw++) {
+  for (auto itraw = rawResult.begin(); itraw != rawResult.end(); itraw++) {
     tra++;
     LogDebug("InOutConversionTrackFinder")
         << " InOutConversionTrackFinder looping of rawResult after cleaning " << tra << "\n";
@@ -146,7 +145,7 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
 
   // Convert to TrackCandidates and fill in the output_p
   Traj2TrackHits t2t(theCkfTrajectoryBuilder_->hitBuilder(), true);
-  for (std::vector<Trajectory>::const_iterator it = unsmoothedResult.begin(); it != unsmoothedResult.end(); it++) {
+  for (auto it = unsmoothedResult.begin(); it != unsmoothedResult.end(); it++) {
     edm::OwnVector<TrackingRecHit> recHits;
     if (it->direction() != alongMomentum)
       LogDebug("InOutConversionTrackFinder") << "InOutConv not along momentum... " << std::endl;

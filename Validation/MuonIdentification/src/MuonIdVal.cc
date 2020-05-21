@@ -428,7 +428,7 @@ void MuonIdVal::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
   iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
 
   unsigned int muonIdx = 0;
-  for (MuonCollection::const_iterator muon = muonCollectionH_->begin(); muon != muonCollectionH_->end(); ++muon) {
+  for (auto muon = muonCollectionH_->begin(); muon != muonCollectionH_->end(); ++muon) {
     // trackerMuon == 0; globalMuon == 1; trackerMuon && !globalMuon == 2;
     // globalMuon && !trackerMuon == 3
     for (unsigned int i = 0; i < 4; i++) {
@@ -595,9 +595,7 @@ void MuonIdVal::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
       continue;
     if (makeAllChamberPlots_) {
       // by chamber
-      for (std::vector<MuonChamberMatch>::const_iterator chamberMatch = muon->matches().begin();
-           chamberMatch != muon->matches().end();
-           ++chamberMatch) {
+      for (auto chamberMatch = muon->matches().begin(); chamberMatch != muon->matches().end(); ++chamberMatch) {
         int station = chamberMatch->station();
 
         if (chamberMatch->detector() == MuonSubdetId::DT) {
@@ -612,7 +610,7 @@ void MuonIdVal::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
             Fill(hDTChamberEdgeXWithSegment[station - 1][wheel + 2][sector - 1], chamberMatch->edgeX);
             Fill(hDTChamberEdgeYWithSegment[station - 1][wheel + 2][sector - 1], chamberMatch->edgeY);
 
-            for (std::vector<MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
+            for (auto segmentMatch = chamberMatch->segmentMatches.begin();
                  segmentMatch != chamberMatch->segmentMatches.end();
                  ++segmentMatch) {
               if (segmentMatch->isMask(MuonSegmentMatch::BestInChamberByDR)) {
@@ -640,7 +638,7 @@ void MuonIdVal::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
             Fill(hCSCChamberEdgeXWithSegment[endcap - 1][station - 1][ring - 1][chamber - 1], chamberMatch->edgeX);
             Fill(hCSCChamberEdgeYWithSegment[endcap - 1][station - 1][ring - 1][chamber - 1], chamberMatch->edgeY);
 
-            for (std::vector<MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
+            for (auto segmentMatch = chamberMatch->segmentMatches.begin();
                  segmentMatch != chamberMatch->segmentMatches.end();
                  ++segmentMatch) {
               if (segmentMatch->isMask(MuonSegmentMatch::BestInChamberByDR)) {
@@ -671,14 +669,12 @@ void MuonIdVal::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     bool segmentFound = false;
     bool segmentBestDrFound = false;
 
-    for (MuonCollection::const_iterator muon = muonCollectionH_->begin(); muon != muonCollectionH_->end(); ++muon) {
+    for (auto muon = muonCollectionH_->begin(); muon != muonCollectionH_->end(); ++muon) {
       if (!muon->isMatchesValid())
         continue;
 
-      for (std::vector<MuonChamberMatch>::const_iterator chamberMatch = muon->matches().begin();
-           chamberMatch != muon->matches().end();
-           ++chamberMatch) {
-        for (std::vector<MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
+      for (auto chamberMatch = muon->matches().begin(); chamberMatch != muon->matches().end(); ++chamberMatch) {
+        for (auto segmentMatch = chamberMatch->segmentMatches.begin();
              segmentMatch != chamberMatch->segmentMatches.end();
              ++segmentMatch) {
           if (fabs(segmentMatch->x - segmentLocalPosition.x()) < 1E-6 &&
@@ -730,14 +726,12 @@ void MuonIdVal::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup)
     bool segmentFound = false;
     bool segmentBestDrFound = false;
 
-    for (MuonCollection::const_iterator muon = muonCollectionH_->begin(); muon != muonCollectionH_->end(); ++muon) {
+    for (auto muon = muonCollectionH_->begin(); muon != muonCollectionH_->end(); ++muon) {
       if (!muon->isMatchesValid())
         continue;
 
-      for (std::vector<MuonChamberMatch>::const_iterator chamberMatch = muon->matches().begin();
-           chamberMatch != muon->matches().end();
-           ++chamberMatch) {
-        for (std::vector<MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
+      for (auto chamberMatch = muon->matches().begin(); chamberMatch != muon->matches().end(); ++chamberMatch) {
+        for (auto segmentMatch = chamberMatch->segmentMatches.begin();
              segmentMatch != chamberMatch->segmentMatches.end();
              ++segmentMatch) {
           if (fabs(segmentMatch->x - segmentLocalPosition.x()) < 1E-6 &&

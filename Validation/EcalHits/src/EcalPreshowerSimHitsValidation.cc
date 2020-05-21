@@ -113,7 +113,7 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event &e, const edm::Eve
   // endcap
   double EEetzp_ = 0.;
   double EEetzm_ = 0.;
-  for (std::vector<PCaloHit>::iterator isim = theEECaloHits.begin(); isim != theEECaloHits.end(); ++isim) {
+  for (auto isim = theEECaloHits.begin(); isim != theEECaloHits.end(); ++isim) {
     EEDetId eeid(isim->id());
     if (eeid.zside() > 0)
       EEetzp_ += isim->energy();
@@ -131,7 +131,7 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event &e, const edm::Eve
   double ESet2zm_ = 0.;
   std::vector<double> econtr(140, 0.);
 
-  for (std::vector<PCaloHit>::iterator isim = theESCaloHits.begin(); isim != theESCaloHits.end(); ++isim) {
+  for (auto isim = theESCaloHits.begin(); isim != theESCaloHits.end(); ++isim) {
     // CaloHitMap[(*isim).id()].push_back((*isim));
 
     ESDetId esid(isim->id());

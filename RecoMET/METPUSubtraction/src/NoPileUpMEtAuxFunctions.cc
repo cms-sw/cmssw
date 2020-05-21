@@ -21,8 +21,7 @@ namespace noPuUtils {
            ++pfCandToVertexAssociation) {
         const noPuUtils::CandQualityPairVector& pfCandidates_vertex = pfCandToVertexAssociation->val;
 
-        for (noPuUtils::CandQualityPairVector::const_iterator pfCandidate_vertex = pfCandidates_vertex.begin();
-             pfCandidate_vertex != pfCandidates_vertex.end();
+        for (auto pfCandidate_vertex = pfCandidates_vertex.begin(); pfCandidate_vertex != pfCandidates_vertex.end();
              ++pfCandidate_vertex) {
           const reco::PFCandidatePtr pfcVtx = edm::refToPtr(pfCandidate_vertex->first);  //<reco::PFCandidatePtr>
           //std::cout<<pfCandidate<<"   "<<test<<std::endl;
@@ -51,8 +50,7 @@ namespace noPuUtils {
       const reco::VertexRef& vertex = pfCandToVertexAssociation->key;
 
       const noPuUtils::CandQualityPairVector& pfCandidates_vertex = pfCandToVertexAssociation->val;
-      for (noPuUtils::CandQualityPairVector::const_iterator pfCandidate_vertex = pfCandidates_vertex.begin();
-           pfCandidate_vertex != pfCandidates_vertex.end();
+      for (auto pfCandidate_vertex = pfCandidates_vertex.begin(); pfCandidate_vertex != pfCandidates_vertex.end();
            ++pfCandidate_vertex) {
         revPfCandToVtxAssoc.insert(pfCandidate_vertex->first, std::make_pair(vertex, pfCandidate_vertex->second));
       }
@@ -88,9 +86,7 @@ namespace noPuUtils {
         }
       }
       if (pfCandAssocVtxs != nullptr) {
-        for (noPuUtils::VertexQualityPairVector::const_iterator pfcAssVtx = pfCandAssocVtxs->begin();
-             pfcAssVtx != pfCandAssocVtxs->end();
-             ++pfcAssVtx) {
+        for (auto pfcAssVtx = pfCandAssocVtxs->begin(); pfcAssVtx != pfCandAssocVtxs->end(); ++pfcAssVtx) {
           double z = pfcAssVtx->first->position().z();
           int quality = pfcAssVtx->second;
           promoteAssocToHSAssoc(quality, z, vertices, dZ, vtxAssociationType, false);
@@ -108,7 +104,7 @@ namespace noPuUtils {
                              int& vtxAssociationType,
                              bool checkdR2) {
     if (quality >= noPuUtils::kChHSAssoc) {
-      for (reco::VertexCollection::const_iterator vertex = vertices.begin(); vertex != vertices.end(); ++vertex) {
+      for (auto vertex = vertices.begin(); vertex != vertices.end(); ++vertex) {
         if (std::abs(z - vertex->position().z()) < dZ) {
           if (vtxAssociationType < noPuUtils::kChHSAssoc)
             vtxAssociationType = noPuUtils::kChHSAssoc;

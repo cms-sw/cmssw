@@ -263,10 +263,10 @@ void TestOutliers::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
       for (unsigned int p = 0; p < outtest.size(); ++p) {
         edm::RefToBase<reco::Track> tmpOut = edm::RefToBase<reco::Track>(tracksOut, outtest[p]);
         bool allhits = true;
-        for (trackingRecHit_iterator itOut = tmpOut->recHitsBegin(); itOut != tmpOut->recHitsEnd(); itOut++) {
+        for (auto itOut = tmpOut->recHitsBegin(); itOut != tmpOut->recHitsEnd(); itOut++) {
           if ((*itOut)->isValid()) {
             bool thishit = false;
-            for (trackingRecHit_iterator itOld = trackOld->recHitsBegin(); itOld != trackOld->recHitsEnd(); itOld++) {
+            for (auto itOld = trackOld->recHitsBegin(); itOld != trackOld->recHitsEnd(); itOld++) {
               if ((*itOld)->isValid()) {
                 const TrackingRecHit *kt = &(**itOld);
                 if ((*itOut)->sharesInput(kt, TrackingRecHit::some)) {
@@ -347,7 +347,7 @@ void TestOutliers::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
         countOutA->Fill(1);
         tprOut = tpOut.begin()->first;
         fracOut = tpOut.begin()->second;
-        for (TrackingParticle::g4t_iterator g4T = tprOut->g4Track_begin(); g4T != tprOut->g4Track_end(); ++g4T) {
+        for (auto g4T = tprOut->g4Track_begin(); g4T != tprOut->g4Track_end(); ++g4T) {
           tpids.push_back(g4T->trackId());
         }
       }
@@ -361,7 +361,7 @@ void TestOutliers::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
         // 				 << " and fraction=" << tpOld.begin()->second;
         // 	if (tpOld.begin()->second>0.5) hitsPerTrackLost->Fill(trackOld->numberOfValidHits());//deve essere un plot diverso tipo LostAssoc
         if (tpOut.empty()) {
-          for (TrackingParticle::g4t_iterator g4T = tprOld->g4Track_begin(); g4T != tprOld->g4Track_end(); ++g4T) {
+          for (auto g4T = tprOld->g4Track_begin(); g4T != tprOld->g4Track_end(); ++g4T) {
             tpids.push_back(g4T->trackId());
           }
         }
@@ -481,21 +481,21 @@ void TestOutliers::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
         //if (selectRecoTracks(*trackOld,beamSpot.product())) okcutsOld->Fill(1); else okcutsOld->Fill(0);
 
         LogTrace("TestOutliers") << "track old";
-        for (trackingRecHit_iterator itOld = trackOld->recHitsBegin(); itOld != trackOld->recHitsEnd(); itOld++) {
+        for (auto itOld = trackOld->recHitsBegin(); itOld != trackOld->recHitsEnd(); itOld++) {
           LogTrace("TestOutliers") << (*itOld)->isValid() << " " << (*itOld)->geographicalId().rawId();
         }
         LogTrace("TestOutliers") << "track out";
-        for (trackingRecHit_iterator itOut = trackOut->recHitsBegin(); itOut != trackOut->recHitsEnd(); itOut++) {
+        for (auto itOut = trackOut->recHitsBegin(); itOut != trackOut->recHitsEnd(); itOut++) {
           LogTrace("TestOutliers") << (*itOut)->isValid() << " " << (*itOut)->geographicalId().rawId();
         }
         //LogTrace("TestOutliers") << "itOut";
 
         vector<pair<int, trackingRecHit_iterator> > gainedlostoutliers;
         //look for gained hits
-        for (trackingRecHit_iterator itOut = trackOut->recHitsBegin(); itOut != trackOut->recHitsEnd(); itOut++) {
+        for (auto itOut = trackOut->recHitsBegin(); itOut != trackOut->recHitsEnd(); itOut++) {
           bool gained = true;
           if ((*itOut)->isValid()) {
-            for (trackingRecHit_iterator itOld = trackOld->recHitsBegin(); itOld != trackOld->recHitsEnd(); itOld++) {
+            for (auto itOld = trackOld->recHitsBegin(); itOld != trackOld->recHitsEnd(); itOld++) {
               if ((*itOld)->geographicalId().rawId() == (*itOut)->geographicalId().rawId())
                 gained = false;
             }
@@ -509,11 +509,11 @@ void TestOutliers::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
         }
 
         //look for outliers and lost hits
-        for (trackingRecHit_iterator itOld = trackOld->recHitsBegin(); itOld != trackOld->recHitsEnd(); itOld++) {
+        for (auto itOld = trackOld->recHitsBegin(); itOld != trackOld->recHitsEnd(); itOld++) {
           bool outlier = false;
           bool lost = true;
 
-          for (trackingRecHit_iterator itOut = trackOut->recHitsBegin(); itOut != trackOut->recHitsEnd(); itOut++) {
+          for (auto itOut = trackOut->recHitsBegin(); itOut != trackOut->recHitsEnd(); itOut++) {
             if ((*itOld)->geographicalId().rawId() == (*itOut)->geographicalId().rawId()) {
               lost = false;
               if ((*itOld)->isValid() && !(*itOut)->isValid() &&
@@ -533,11 +533,9 @@ void TestOutliers::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
             gainedlostoutliers.push_back(pair<int, trackingRecHit_iterator>(3, itOld));
         }
 
-        for (std::vector<pair<int, trackingRecHit_iterator> >::iterator it = gainedlostoutliers.begin();
-             it != gainedlostoutliers.end();
-             ++it) {
+        for (auto it = gainedlostoutliers.begin(); it != gainedlostoutliers.end(); ++it) {
           LogTrace("TestOutliers") << "type of processed hit:" << it->first;
-          trackingRecHit_iterator itHit = it->second;
+          auto itHit = it->second;
           bool gained = false;
           bool lost = false;
           bool outlier = false;
@@ -635,7 +633,7 @@ void TestOutliers::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
             energyLossS.clear();
             energyLossM.clear();
             //LogTrace("TestOutliers") << "energyLossM";
-            for (std::vector<PSimHit>::const_iterator m = assSimHits.begin(); m < assSimHits.end(); m++) {
+            for (auto m = assSimHits.begin(); m < assSimHits.end(); m++) {
               if (outlier)
                 energyLoss->Fill(m->energyLoss());
               unsigned int tId = m->trackId();
@@ -679,7 +677,7 @@ void TestOutliers::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
             if (idc == trackIds.size()) {
               shared = false;
             }
-            for (std::vector<PSimHit>::const_iterator m = assSimHits.begin() + 1; m < assSimHits.end(); m++) {
+            for (auto m = assSimHits.begin() + 1; m < assSimHits.end(); m++) {
               if ((m->processType() != 7 && m->processType() != 8 && m->processType() != 9) &&
                   abs(m->particleType()) != 11) {
                 ioniOnly = false;
@@ -761,7 +759,7 @@ void TestOutliers::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
                 }
 
                 LogTrace("TestOutliers") << "before merged";
-                const SiStripMatchedRecHit2D *tmp = dynamic_cast<const SiStripMatchedRecHit2D *>(&**itHit);
+                const auto *tmp = dynamic_cast<const SiStripMatchedRecHit2D *>(&**itHit);
                 LogTrace("TestOutliers") << "tmp=" << tmp;
                 LogTrace("TestOutliers") << "assSimHits.size()=" << assSimHits.size();
                 if ((assSimHits.size() > 1 && tmp == nullptr) || (assSimHits.size() > 2 && tmp != nullptr)) {
@@ -771,7 +769,7 @@ void TestOutliers::analyze(const edm::Event &iEvent, const edm::EventSetup &iSet
                   mergedcluster->Fill(clustersize);
                   mergedhittype->Fill(hittypeval);
 
-                  for (std::vector<PSimHit>::const_iterator m = assSimHits.begin(); m < assSimHits.end(); m++) {
+                  for (auto m = assSimHits.begin(); m < assSimHits.end(); m++) {
                     unsigned int tId = m->trackId();
                     LogTrace("TestOutliers") << "component with id=" << tId << " eLoss=" << m->energyLoss()
                                              << " proc=" << m->processType() << " part=" << m->particleType();

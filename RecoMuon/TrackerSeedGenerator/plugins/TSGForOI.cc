@@ -271,7 +271,7 @@ void TSGForOI::produce(edm::StreamID sid, edm::Event& iEvent, const edm::EventSe
       }
     }
 
-    for (std::vector<TrajectorySeed>::iterator it = out->begin(); it != out->end(); ++it) {
+    for (auto it = out->begin(); it != out->end(); ++it) {
       result->push_back(*it);
     }
   }  //L2Collection
@@ -404,7 +404,7 @@ int TSGForOI::makeSeedsFromHits(const TrackerTopology* tTopo,
   //	Find Measurements on each DetWithState:
   LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: find measurements on each detWithState  " << dets.size() << endl;
   std::vector<TrajectoryMeasurement> meas;
-  for (std::vector<GeometricSearchDet::DetWithState>::iterator it = dets.begin(); it != dets.end(); ++it) {
+  for (auto it = dets.begin(); it != dets.end(); ++it) {
     MeasurementDetWithData det = measurementTracker.idToDet(it->first->geographicalId());
     if (det.isNull()) {
       continue;
@@ -414,8 +414,7 @@ int TSGForOI::makeSeedsFromHits(const TrackerTopology* tTopo,
 
     std::vector<TrajectoryMeasurement> mymeas =
         det.fastMeasurements(it->second, onLayer, propagatorAlong, *estimatorH);  //Second TSOS is not used
-    for (std::vector<TrajectoryMeasurement>::const_iterator it2 = mymeas.begin(), ed2 = mymeas.end(); it2 != ed2;
-         ++it2) {
+    for (auto it2 = mymeas.begin(), ed2 = mymeas.end(); it2 != ed2; ++it2) {
       if (it2->recHit()->isValid())
         meas.push_back(*it2);  //Only save those which are valid
     }
@@ -427,7 +426,7 @@ int TSGForOI::makeSeedsFromHits(const TrackerTopology* tTopo,
       << meas.size() << endl;
   unsigned int found = 0;
   std::sort(meas.begin(), meas.end(), TrajMeasLessEstim());
-  for (std::vector<TrajectoryMeasurement>::const_iterator it = meas.begin(); it != meas.end(); ++it) {
+  for (auto it = meas.begin(); it != meas.end(); ++it) {
     TrajectoryStateOnSurface updatedTSOS = updator_->update(it->forwardPredictedState(), *it->recHit());
     LogTrace("TSGForOI") << "TSGForOI::findSeedsOnLayer: TSOS for TM " << found << endl;
     if (not updatedTSOS.isValid())

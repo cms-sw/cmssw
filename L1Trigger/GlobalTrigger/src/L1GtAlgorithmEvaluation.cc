@@ -72,7 +72,7 @@ void L1GtAlgorithmEvaluation::evaluateAlgorithm(const int chipNumber,
 
   int opNumber = 0;
 
-  for (RpnVector::const_iterator it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
+  for (auto it = m_rpnVector.begin(); it != m_rpnVector.end(); it++) {
     // LogTrace("L1GlobalTrigger")
     //<< "\nit->operation = " << it->operation
     //<< "\nit->operand =   '" << it->operand << "'\n"

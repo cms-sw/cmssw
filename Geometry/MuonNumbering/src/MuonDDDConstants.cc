@@ -33,8 +33,8 @@ MuonDDDConstants::MuonDDDConstants(const DDCompactView& cpv) {
     throw cms::Exception("GeometryBuildFailure", msg);
   }
 
-  DDsvalues_type::const_iterator bit = mySpecs.begin();
-  DDsvalues_type::const_iterator eit = mySpecs.end();
+  auto bit = mySpecs.begin();
+  auto eit = mySpecs.end();
   for (; bit != eit; ++bit) {
     if (bit->second.isEvaluated()) {
       this->addValue(bit->second.name(), int(bit->second.doubles()[0]));
@@ -55,7 +55,7 @@ int MuonDDDConstants::getValue(const std::string& name) const {
     throw cms::Exception("GeometryBuildFailure", "MuonDDDConstants does not have requested value for " + name);
   }
 
-  std::map<std::string, int>::const_iterator findIt = namesAndValues_.find(name);
+  auto findIt = namesAndValues_.find(name);
 
   if (findIt == namesAndValues_.end()) {
     edm::LogWarning("Geometry") << "MuonDDDConstants::getValue was asked for " << name << " and had NO clue!";

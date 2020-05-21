@@ -52,7 +52,7 @@ std::vector<std::pair<std::pair<DetId, LocalPoint>, float> > SiStripFineDelayTLA
   for (itm = TMeas.begin(); itm != TMeas.end(); itm++) {
     TrajectoryStateOnSurface tsos = itm->updatedState();
     auto thit = itm->recHit();
-    const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>((*thit).hit());
+    const auto* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>((*thit).hit());
     const SiStripRecHit2D* hit = dynamic_cast<const SiStripRecHit2D*>((*thit).hit());
     LocalVector trackdirection = tsos.localDirection();
     if (matchedhit) {  //if matched hit...

@@ -12,7 +12,7 @@ namespace l1t {
   void calibrateAndRankJets(CaloParamsHelper const *params,
                             const std::vector<l1t::Jet> *input,
                             std::vector<l1t::Jet> *output) {
-    for (std::vector<l1t::Jet>::const_iterator itJet = input->begin(); itJet != input->end(); ++itJet) {
+    for (auto itJet = input->begin(); itJet != input->end(); ++itJet) {
       unsigned int pt = itJet->hwPt();
       if (pt > ((1 << 10) - 1))
         pt = ((1 << 10) - 1);
@@ -34,7 +34,7 @@ namespace l1t {
   void calibrateAndRankTaus(CaloParamsHelper const *params,
                             const std::vector<l1t::Tau> *input,
                             std::vector<l1t::Tau> *output) {
-    for (std::vector<l1t::Tau>::const_iterator itTau = input->begin(); itTau != input->end(); ++itTau) {
+    for (auto itTau = input->begin(); itTau != input->end(); ++itTau) {
       unsigned int pt = itTau->hwPt();
       if (pt > ((1 << 10) - 1))
         pt = ((1 << 10) - 1);
@@ -52,7 +52,7 @@ namespace l1t {
   void JetToGtEtaScales(CaloParamsHelper const *params,
                         const std::vector<l1t::Jet> *input,
                         std::vector<l1t::Jet> *output) {
-    for (std::vector<l1t::Jet>::const_iterator itJet = input->begin(); itJet != input->end(); ++itJet) {
+    for (auto itJet = input->begin(); itJet != input->end(); ++itJet) {
       unsigned newPhi = itJet->hwPhi();
       unsigned newEta = gtEta(itJet->hwEta());
 
@@ -73,7 +73,7 @@ namespace l1t {
   void JetToGtPtScales(CaloParamsHelper const *params,
                        const std::vector<l1t::Jet> *input,
                        std::vector<l1t::Jet> *output) {
-    for (std::vector<l1t::Jet>::const_iterator itJet = input->begin(); itJet != input->end(); ++itJet) {
+    for (auto itJet = input->begin(); itJet != input->end(); ++itJet) {
       uint16_t linPt = (uint16_t)itJet->hwPt();
       if (linPt > params->jetScale().linScaleMax())
         linPt = params->jetScale().linScaleMax();
@@ -89,7 +89,7 @@ namespace l1t {
   void EGammaToGtScales(CaloParamsHelper const *params,
                         const std::vector<l1t::EGamma> *input,
                         std::vector<l1t::EGamma> *output) {
-    for (std::vector<l1t::EGamma>::const_iterator itEGamma = input->begin(); itEGamma != input->end(); ++itEGamma) {
+    for (auto itEGamma = input->begin(); itEGamma != input->end(); ++itEGamma) {
       unsigned newEta = gtEta(itEGamma->hwEta());
       unsigned newPhi = itEGamma->hwPhi();
       const uint16_t rankPt = (uint16_t)itEGamma->hwPt();  //max value?
@@ -110,7 +110,7 @@ namespace l1t {
   void TauToGtEtaScales(CaloParamsHelper const *params,
                         const std::vector<l1t::Tau> *input,
                         std::vector<l1t::Tau> *output) {
-    for (std::vector<l1t::Tau>::const_iterator itTau = input->begin(); itTau != input->end(); ++itTau) {
+    for (auto itTau = input->begin(); itTau != input->end(); ++itTau) {
       unsigned newPhi = itTau->hwPhi();
       unsigned newEta = gtEta(itTau->hwEta());
 
@@ -131,7 +131,7 @@ namespace l1t {
   void TauToGtPtScales(CaloParamsHelper const *params,
                        const std::vector<l1t::Tau> *input,
                        std::vector<l1t::Tau> *output) {
-    for (std::vector<l1t::Tau>::const_iterator itTau = input->begin(); itTau != input->end(); ++itTau) {
+    for (auto itTau = input->begin(); itTau != input->end(); ++itTau) {
       uint16_t linPt = (uint16_t)itTau->hwPt();
       if (linPt > params->jetScale().linScaleMax())
         linPt = params->jetScale().linScaleMax();
@@ -147,7 +147,7 @@ namespace l1t {
   void EtSumToGtScales(CaloParamsHelper const *params,
                        const std::vector<l1t::EtSum> *input,
                        std::vector<l1t::EtSum> *output) {
-    for (std::vector<l1t::EtSum>::const_iterator itEtSum = input->begin(); itEtSum != input->end(); ++itEtSum) {
+    for (auto itEtSum = input->begin(); itEtSum != input->end(); ++itEtSum) {
       uint16_t rankPt;
       // Hack for now to make sure they come out with the right scale
       //rankPt = params->jetScale().rank((uint16_t)itEtSum->hwPt());

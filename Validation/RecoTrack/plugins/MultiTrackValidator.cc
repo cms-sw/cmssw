@@ -887,8 +887,8 @@ void MultiTrackValidator::dqmAnalyze(const edm::Event& event,
           momentumTP = tp.momentum();
           vertexTP = tp.vertex();
           //Calcualte the impact parameters w.r.t. PCA
-          const TrackingParticle::Vector& momentum = std::get<TrackingParticle::Vector>(momVert);
-          const TrackingParticle::Point& vertex = std::get<TrackingParticle::Point>(momVert);
+          const auto& momentum = std::get<TrackingParticle::Vector>(momVert);
+          const auto& vertex = std::get<TrackingParticle::Point>(momVert);
           dxySim = TrackingParticleIP::dxy(vertex, momentum, bs.position());
           dzSim = TrackingParticleIP::dz(vertex, momentum, bs.position());
 

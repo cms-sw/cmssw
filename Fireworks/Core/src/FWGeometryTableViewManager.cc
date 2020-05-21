@@ -60,8 +60,7 @@ FWViewBase* FWGeometryTableViewManager::buildView(TEveWindowSlot* iParent, const
 }
 
 void FWGeometryTableViewManager::beingDestroyed(const FWViewBase* iView) {
-  for (std::vector<std::shared_ptr<FWGeometryTableViewBase> >::iterator it = m_views.begin(); it != m_views.end();
-       ++it) {
+  for (auto it = m_views.begin(); it != m_views.end(); ++it) {
     if (it->get() == iView) {
       m_views.erase(it);
       return;
@@ -70,7 +69,7 @@ void FWGeometryTableViewManager::beingDestroyed(const FWViewBase* iView) {
 }
 
 void FWGeometryTableViewManager::colorsChanged() {
-  for (std::vector<std::shared_ptr<FWGeometryTableViewBase> >::iterator it = m_views.begin(); it != m_views.end(); ++it)
+  for (auto it = m_views.begin(); it != m_views.end(); ++it)
     (*it)->setBackgroundColor();
 }
 

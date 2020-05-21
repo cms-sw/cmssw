@@ -91,20 +91,18 @@ void ClusterCompatibilityProducer::produce(edm::Event &iEvent, const edm::EventS
     // loop over pixel rechits
     int nPxlHits = 0;
     std::vector<VertexHit> vhits;
-    for (SiPixelRecHitCollection::DataContainer::const_iterator hit = hits->data().begin(), end = hits->data().end();
-         hit != end;
-         ++hit) {
+    for (auto hit = hits->data().begin(), end = hits->data().end(); hit != end; ++hit) {
       if (!hit->isValid())
         continue;
       ++nPxlHits;
       DetId id(hit->geographicalId());
       if (id.subdetId() != int(PixelSubdetector::PixelBarrel))
         continue;
-      const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit *>(tgeo->idToDet(id));
+      const auto *pgdu = static_cast<const PixelGeomDetUnit *>(tgeo->idToDet(id));
       const PixelTopology *pixTopo = &(pgdu->specificTopology());
       std::vector<SiPixelCluster::Pixel> pixels(hit->cluster()->pixels());
       bool pixelOnEdge = false;
-      for (std::vector<SiPixelCluster::Pixel>::const_iterator pixel = pixels.begin(); pixel != pixels.end(); ++pixel) {
+      for (auto pixel = pixels.begin(); pixel != pixels.end(); ++pixel) {
         int pixelX = pixel->x;
         int pixelY = pixel->y;
         if (pixTopo->isItEdgePixelInX(pixelX) || pixTopo->isItEdgePixelInY(pixelY)) {
@@ -141,7 +139,7 @@ ClusterCompatibilityProducer::ContainedHits ClusterCompatibilityProducer::getCon
   int n = 0;
   double chi = 0.;
 
-  for (std::vector<VertexHit>::const_iterator hit = hits.begin(); hit != hits.end(); hit++) {
+  for (auto hit = hits.begin(); hit != hits.end(); hit++) {
     // the calculation of the predicted cluster width p was
     // marked 'FIXME' in the HLTPixelClusterShapeFilter. It should
     // be revisited but is retained as it was for compatibility with the

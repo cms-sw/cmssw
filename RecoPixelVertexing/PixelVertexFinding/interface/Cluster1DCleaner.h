@@ -54,7 +54,7 @@ namespace pixeltemp {
     if (clust.empty())
       return;
     float oldPos = average(clust);
-    for (typename std::vector<Cluster1D<T> >::const_iterator ic = clust.begin(); ic != clust.end(); ic++) {
+    for (auto ic = clust.begin(); ic != clust.end(); ic++) {
       float discr = theUseError ? fabs(((*ic).position().value() - oldPos) / (*ic).position().error())
                                 : fabs(((*ic).position().value() - oldPos));
       if (discr < theZOffSet) {
@@ -84,7 +84,7 @@ namespace pixeltemp {
     float sumUp = 0;
     float sumDown = 0;
     float err = 0;
-    for (typename std::vector<Cluster1D<T> >::const_iterator ic = (clust.begin()) + 1; ic != clust.end(); ic++) {
+    for (auto ic = (clust.begin()) + 1; ic != clust.end(); ic++) {
       float err2 = ic->position().error();
       err2 *= err2;
       if (err2 != 0) {

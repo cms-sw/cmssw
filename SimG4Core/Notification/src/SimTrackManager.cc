@@ -78,7 +78,7 @@ void SimTrackManager::saveTrackAndItsBranch(TrackWithHistory* trkWHist) {
   trkH->save();
   unsigned int parent = trkH->parentID();
 
-  TrackContainer::const_iterator tk_itr = std::lower_bound(
+  auto tk_itr = std::lower_bound(
       (*m_trksForThisEvent).begin(), (*m_trksForThisEvent).end(), parent, SimTrackManager::StrictWeakOrdering());
 
   TrackWithHistory* tempTk = *tk_itr;
@@ -130,8 +130,7 @@ void SimTrackManager::reallyStoreTracks(G4SimEvent* simEvent) {
     }
     ig = trkH->genParticleID();
     ivertex = getOrCreateVertex(trkH, iParentID, simEvent);
-    std::map<uint32_t, std::pair<math::XYZVectorD, math::XYZTLorentzVectorD> >::const_iterator cit =
-        mapTkCaloStateInfo.find(trkH->trackID());
+    auto cit = mapTkCaloStateInfo.find(trkH->trackID());
     std::pair<math::XYZVectorD, math::XYZTLorentzVectorD> tcinfo;
     if (cit != mapTkCaloStateInfo.end()) {
       tcinfo = cit->second;
@@ -152,9 +151,7 @@ int SimTrackManager::getOrCreateVertex(TrackWithHistory* trkH, int iParentID, G4
   int parent = iParentID;
   int check = -1;
 
-  for (std::vector<TrackWithHistory*>::const_iterator it = (*m_trksForThisEvent).begin();
-       it != (*m_trksForThisEvent).end();
-       it++) {
+  for (auto it = (*m_trksForThisEvent).begin(); it != (*m_trksForThisEvent).end(); it++) {
     if ((*it)->trackID() == uint32_t(parent)) {
       check = 0;
       break;
@@ -165,7 +162,7 @@ int SimTrackManager::getOrCreateVertex(TrackWithHistory* trkH, int iParentID, G4
     parent = -1;
   }
 
-  VertexMap::const_iterator iterator = m_vertexMap.find(parent);
+  auto iterator = m_vertexMap.find(parent);
   if (iterator != m_vertexMap.end()) {
     // loop over saved vertices
     for (unsigned int k = 0; k < m_vertexMap[parent].size(); k++) {

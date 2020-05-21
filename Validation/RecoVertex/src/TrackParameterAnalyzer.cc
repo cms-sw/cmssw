@@ -132,7 +132,7 @@ void TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
   iEvent.getByToken(edmSimVertexContainerToken_, simVtcs);
   if (verbose_) {
     std::cout << "SimVertex " << simVtcs->size() << std::endl;
-    for (edm::SimVertexContainer::const_iterator v = simVtcs->begin(); v != simVtcs->end(); ++v) {
+    for (auto v = simVtcs->begin(); v != simVtcs->end(); ++v) {
       std::cout << "simvtx " << std::setw(10) << std::setprecision(4) << v->position().x() << " " << v->position().y()
                 << " " << v->position().z() << " " << v->parentIndex() << " " << v->noParent() << " " << std::endl;
     }
@@ -146,7 +146,7 @@ void TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
     std::cout << "simtrks " << simTrks->size() << std::endl;
   }
   std::vector<ParameterVector> tsim;
-  for (edm::SimTrackContainer::const_iterator t = simTrks->begin(); t != simTrks->end(); ++t) {
+  for (auto t = simTrks->begin(); t != simTrks->end(); ++t) {
     if (t->noVertex()) {
       std::cout << "simtrk  has no vertex" << std::endl;
       return;
@@ -213,13 +213,13 @@ void TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
   edm::Handle<reco::TrackCollection> recTracks;
   iEvent.getByToken(recoTrackCollectionToken_, recTracks);
 
-  for (reco::TrackCollection::const_iterator t = recTracks->begin(); t != recTracks->end(); ++t) {
+  for (auto t = recTracks->begin(); t != recTracks->end(); ++t) {
     reco::TrackBase::ParameterVector p = t->parameters();
     reco::TrackBase::CovarianceMatrix c = t->covariance();
     if (verbose_) {
       std::cout << "reco pars= " << p << std::endl;
     }
-    for (std::vector<ParameterVector>::const_iterator s = tsim.begin(); s != tsim.end(); ++s) {
+    for (auto s = tsim.begin(); s != tsim.end(); ++s) {
       if (match(*s, p)) {
         h1_pull0_->Fill((p(0) - (*s)(0)) / sqrt(c(0, 0)));
         h1_pull1_->Fill((p(1) - (*s)(1)) / sqrt(c(1, 1)));

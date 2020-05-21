@@ -16,7 +16,7 @@ vector<const DetLayer*> LayerCollector::allLayers(const FTS& aFts) const {
   bool inside = true;
   while (inside) {
     inside = false;
-    for (vector<const DetLayer*>::iterator ilay = nextLayers.begin(); ilay != nextLayers.end(); ilay++) {
+    for (auto ilay = nextLayers.begin(); ilay != nextLayers.end(); ilay++) {
       TSOS pTsos = propagator()->propagate(myFts, (**ilay).surface());
 
       if (pTsos.isValid()) {
@@ -55,7 +55,7 @@ vector<const BarrelDetLayer*> LayerCollector::barrelLayers(const FTS& aFts) cons
   vector<const DetLayer*> all = allLayers(aFts);
   vector<const BarrelDetLayer*> barrelLayers;
 
-  for (vector<const DetLayer*>::iterator ilay = all.begin(); ilay != all.end(); ilay++) {
+  for (auto ilay = all.begin(); ilay != all.end(); ilay++) {
     if (const BarrelDetLayer* myBarrel = dynamic_cast<const BarrelDetLayer*>(*ilay))
       barrelLayers.push_back(myBarrel);
   }
@@ -67,7 +67,7 @@ vector<const ForwardDetLayer*> LayerCollector::forwardLayers(const FTS& aFts) co
   vector<const DetLayer*> all = allLayers(aFts);
   vector<const ForwardDetLayer*> fwdLayers;
 
-  for (vector<const DetLayer*>::iterator ilay = all.begin(); ilay != all.end(); ilay++) {
+  for (auto ilay = all.begin(); ilay != all.end(); ilay++) {
     if (const ForwardDetLayer* myFwd = dynamic_cast<const ForwardDetLayer*>(*ilay))
       fwdLayers.push_back(myFwd);
   }

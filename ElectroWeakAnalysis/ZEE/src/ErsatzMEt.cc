@@ -58,7 +58,7 @@ ErsatzMEt::ErsatzMEt(const edm::ParameterSet& ps) {
   CutVector_[EE_EcalIso_] = CEE_EcalIso;
   CutVector_[EE_HcalIso_] = CEE_HcalIso;
 
-  for (std::vector<double>::const_iterator it = CutVector_.begin(); it != CutVector_.end(); ++it) {
+  for (auto it = CutVector_.begin(); it != CutVector_.end(); ++it) {
     edm::LogDebug_("", "", 101) << "CutVector_ = " << *it;
   }
 }
@@ -383,7 +383,7 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es) {
     edm::LogDebug_("", "", 289) << "Analysing MC properties.";
     const reco::GenParticleCollection* McCand = pGenPart.product();
     math::XYZTLorentzVector Zboson, RescZboson, McElec1, McElec2;
-    for (reco::GenParticleCollection::const_iterator McP = McCand->begin(); McP != McCand->end(); ++McP) {
+    for (auto McP = McCand->begin(); McP != McCand->end(); ++McP) {
       const reco::Candidate* mum = McP->mother();
       if (std::abs(McP->pdgId()) == 11 && abs(mum->pdgId()) == 23) {
         McElecs.push_back(McP->p4());
@@ -483,9 +483,7 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es) {
     if (Zevent_) {
       //Match MC electrons to the selected electrons and store some of their properties in the tree.
       //The properties of the other MC electron (i.e. that not selected) are also stored.
-      for (std::vector<reco::GsfElectronRef>::const_iterator elec = SelectedElectrons.begin();
-           elec != SelectedElectrons.end();
-           ++elec) {
+      for (auto elec = SelectedElectrons.begin(); elec != SelectedElectrons.end(); ++elec) {
         for (int m = 0; m < 2; ++m) {
           double dRLimit = 99.;
           double dR = reco::deltaR(McElecs[m], *(*elec));
@@ -528,9 +526,7 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es) {
 
       reco::MET ersatzMEt;
 
-      for (std::map<reco::GsfElectronRef, reco::GsfElectronRef>::const_iterator it = TagProbePairs.begin();
-           it != TagProbePairs.end();
-           ++it) {
+      for (auto it = TagProbePairs.begin(); it != TagProbePairs.end(); ++it) {
         edm::LogDebug_("", "DelendumLoop", 293) << "iComb_ = " << iComb_;
         tag_q_[iComb_] = it->first->charge();
         edm::LogDebug_("", "", 360) << "tag charge = " << tag_q_[iComb_];
@@ -686,13 +682,12 @@ std::map<reco::GsfElectronRef, reco::GsfElectronRef> ErsatzMEt::probeFinder(
     const std::vector<reco::GsfElectronRef>& tags, const edm::Handle<reco::GsfElectronCollection> pElectrons) {
   const reco::GsfElectronCollection* probeCands = pElectrons.product();
   std::map<reco::GsfElectronRef, reco::GsfElectronRef> TagProbes;
-  for (std::vector<reco::GsfElectronRef>::const_iterator tagelec = tags.begin(); tagelec != tags.end(); ++tagelec) {
+  for (auto tagelec = tags.begin(); tagelec != tags.end(); ++tagelec) {
     reco::GsfElectronRef tag = *tagelec;
     std::pair<reco::GsfElectronRef, reco::GsfElectronRef> TagProbePair;
     int nProbesPerTag = 0;
     int index = 0;
-    for (reco::GsfElectronCollection::const_iterator probeelec = probeCands->begin(); probeelec != probeCands->end();
-         ++probeelec) {
+    for (auto probeelec = probeCands->begin(); probeelec != probeCands->end(); ++probeelec) {
       reco::GsfElectronRef probe(pElectrons, index);
       double probeScEta = probe->superCluster()->eta();
       if (probe->superCluster() != tag->superCluster() && fabs(probeScEta) < 2.5) {

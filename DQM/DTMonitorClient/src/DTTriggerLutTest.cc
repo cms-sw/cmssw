@@ -47,10 +47,10 @@ DTTriggerLutTest::~DTTriggerLutTest() {}
 void DTTriggerLutTest::Bookings(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
   bookingdone = true;
 
-  vector<string>::const_iterator iTr = trigSources.begin();
-  vector<string>::const_iterator trEnd = trigSources.end();
-  vector<string>::const_iterator iHw = hwSources.begin();
-  vector<string>::const_iterator hwEnd = hwSources.end();
+  auto iTr = trigSources.begin();
+  auto trEnd = trigSources.end();
+  auto iHw = hwSources.begin();
+  auto hwEnd = hwSources.end();
 
   //Booking
   if (parameters.getUntrackedParameter<bool>("staticBooking")) {
@@ -104,12 +104,12 @@ void DTTriggerLutTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStore:
   }
 
   // Loop over Trig & Hw sources
-  for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr) {
+  for (auto iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr) {
     trigSource = (*iTr);
-    for (vector<string>::const_iterator iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw) {
+    for (auto iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw) {
       hwSource = (*iHw);
-      vector<const DTChamber*>::const_iterator chIt = muonGeom->chambers().begin();
-      vector<const DTChamber*>::const_iterator chEnd = muonGeom->chambers().end();
+      auto chIt = muonGeom->chambers().begin();
+      auto chEnd = muonGeom->chambers().end();
       for (; chIt != chEnd; ++chIt) {
         DTChamberId chId((*chIt)->id());
         int wh = chId.wheel();
@@ -231,9 +231,9 @@ void DTTriggerLutTest::runClientDiagnostic(DQMStore::IBooker& ibooker, DQMStore:
   }
 
   // Barrel Summary Plots
-  for (vector<string>::const_iterator iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr) {
+  for (auto iTr = trigSources.begin(); iTr != trigSources.end(); ++iTr) {
     trigSource = (*iTr);
-    for (vector<string>::const_iterator iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw) {
+    for (auto iHw = hwSources.begin(); iHw != hwSources.end(); ++iHw) {
       hwSource = (*iHw);
       for (int wh = -2; wh <= 2; ++wh) {
         std::map<std::string, MonitorElement*>* innerME = &(whME[wh]);

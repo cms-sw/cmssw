@@ -655,7 +655,7 @@ void GoodSeedProducer::fillPreIdRefValueMap(Handle<TrackCollection> tracks,
   unsigned ntracks = tracks->size();
   for (unsigned itrack = 0; itrack < ntracks; ++itrack) {
     reco::TrackRef theTrackRef(tracks, itrack);
-    std::map<reco::TrackRef, unsigned>::const_iterator itcheck = refMap_.find(theTrackRef);
+    auto itcheck = refMap_.find(theTrackRef);
     if (itcheck == refMap_.end()) {
       // the track has been early discarded
       values.push_back(reco::PreIdRef());

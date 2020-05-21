@@ -20,7 +20,7 @@ L1CondDBIOVWriterExt::L1CondDBIOVWriterExt(const edm::ParameterSet& iConfig)
   //now do what ever initialization is needed
   typedef std::vector<edm::ParameterSet> ToSave;
   ToSave toSave = iConfig.getParameter<ToSave>("toPut");
-  for (ToSave::const_iterator it = toSave.begin(); it != toSave.end(); it++) {
+  for (auto it = toSave.begin(); it != toSave.end(); it++) {
     std::string record = it->getParameter<std::string>("record");
     std::string type = it->getParameter<std::string>("type");
     m_recordTypes.push_back(record + "@" + type);
@@ -92,8 +92,8 @@ void L1CondDBIOVWriterExt::analyze(const edm::Event& iEvent, const edm::EventSet
       recordTypeToKeyMap = esKey->recordToKeyMap();
     }
   } else {
-    std::vector<std::string>::const_iterator recordTypeItr = m_recordTypes.begin();
-    std::vector<std::string>::const_iterator recordTypeEnd = m_recordTypes.end();
+    auto recordTypeItr = m_recordTypes.begin();
+    auto recordTypeEnd = m_recordTypes.end();
 
     for (; recordTypeItr != recordTypeEnd; ++recordTypeItr) {
       recordTypeToKeyMap.insert(std::make_pair(*recordTypeItr, m_Key));
@@ -106,8 +106,8 @@ void L1CondDBIOVWriterExt::analyze(const edm::Event& iEvent, const edm::EventSet
 
   if (triggerKeyIOVUpdated || m_forceUpdate) {
     // Loop over record@type in L1TriggerKeyExt
-    L1TriggerKeyExt::RecordToKey::const_iterator itr = recordTypeToKeyMap.begin();
-    L1TriggerKeyExt::RecordToKey::const_iterator end = recordTypeToKeyMap.end();
+    auto itr = recordTypeToKeyMap.begin();
+    auto end = recordTypeToKeyMap.end();
 
     for (; itr != end; ++itr) {
       std::string recordType = itr->first;

@@ -36,7 +36,7 @@ public:
   }
 
   int getVarIndex(const std::string &name) {
-    std::map<std::string, int>::iterator it = indexMap_.find(name);
+    auto it = indexMap_.find(name);
     if (it == indexMap_.end()) {
       return -1;
     } else {

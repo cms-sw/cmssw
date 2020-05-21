@@ -88,7 +88,7 @@ void PFDisplacedVertexCandidateFinder::findDisplacedVertexCandidates() {
     vertexCandidates_.reset(new PFDisplacedVertexCandidateCollection);
 
   vertexCandidates_->reserve(vertexCandidatesSize_);
-  for (IE ie = eventTracks_.begin(); ie != eventTracks_.end();) {
+  for (auto ie = eventTracks_.begin(); ie != eventTracks_.end();) {
     // Run the recursive procedure to find all tracks link together
     // In one blob called Candidate
 
@@ -156,7 +156,7 @@ PFDisplacedVertexCandidateFinder::IE PFDisplacedVertexCandidateFinder::associate
   }
 #endif
 
-  for (IE ie = eventTracks_.begin(); ie != eventTracks_.end();) {
+  for (auto ie = eventTracks_.begin(); ie != eventTracks_.end();) {
     if (ie == last || ie == next) {
       ++ie;
       continue;
@@ -181,7 +181,7 @@ PFDisplacedVertexCandidateFinder::IE PFDisplacedVertexCandidateFinder::associate
   }
 #endif
 
-  IE iteratorToNextFreeElement = eventTracks_.erase(next);
+  auto iteratorToNextFreeElement = eventTracks_.erase(next);
 
 #ifdef PFLOW_DEBUG
   if (debug_)
@@ -358,7 +358,7 @@ ostream& operator<<(std::ostream& out, const PFDisplacedVertexCandidateFinder& a
 
   out << endl;
 
-  for (PFDisplacedVertexCandidateFinder::IEC ie = a.eventTracks_.begin(); ie != a.eventTracks_.end(); ie++) {
+  for (auto ie = a.eventTracks_.begin(); ie != a.eventTracks_.end(); ie++) {
     double pt = (*ie).get()->pt();
 
     math::XYZPoint Pi = (*ie).get()->innerPosition();
@@ -382,7 +382,7 @@ ostream& operator<<(std::ostream& out, const PFDisplacedVertexCandidateFinder& a
     out << "number of vertexCandidates : " << vertexCandidates->size() << endl;
     out << endl;
 
-    for (PFDisplacedVertexCandidateFinder::IBC ib = vertexCandidates->begin(); ib != vertexCandidates->end(); ib++)
+    for (auto ib = vertexCandidates->begin(); ib != vertexCandidates->end(); ib++)
       ib->Dump();
   }
 

@@ -22,7 +22,7 @@ CSCDMBHeader::CSCDMBHeader(const uint16_t *buf, uint16_t firmware_version)
 }
 
 CSCDMBHeader2005 CSCDMBHeader::dmbHeader2005() const {
-  const CSCDMBHeader2005 *result = dynamic_cast<const CSCDMBHeader2005 *>(theHeaderFormat.get());
+  const auto *result = dynamic_cast<const CSCDMBHeader2005 *>(theHeaderFormat.get());
   if (result == nullptr) {
     throw cms::Exception("Could not get 2005 DMB header format");
   }
@@ -30,7 +30,7 @@ CSCDMBHeader2005 CSCDMBHeader::dmbHeader2005() const {
 }
 
 CSCDMBHeader2013 CSCDMBHeader::dmbHeader2013() const {
-  const CSCDMBHeader2013 *result = dynamic_cast<const CSCDMBHeader2013 *>(theHeaderFormat.get());
+  const auto *result = dynamic_cast<const CSCDMBHeader2013 *>(theHeaderFormat.get());
   if (result == nullptr) {
     throw cms::Exception("Could not get 2013 DMB header format");
   }

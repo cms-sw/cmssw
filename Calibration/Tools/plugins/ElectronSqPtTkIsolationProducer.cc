@@ -41,7 +41,7 @@ void ElectronSqPtTkIsolationProducer::produce(edm::Event& iEvent, const edm::Eve
   iEvent.getByLabel(trackProducer_, tracks);
   const reco::TrackCollection* trackCollection = tracks.product();
 
-  reco::CandViewDoubleAssociations* isoMap =
+  auto* isoMap =
       new reco::CandViewDoubleAssociations(reco::CandidateBaseRefProd(reco::GsfElectronRefProd(electronHandle)));
 
   ElectronSqPtTkIsolation myTkIsolation(extRadius_, intRadius_, ptMin_, maxVtxDist_, trackCollection);

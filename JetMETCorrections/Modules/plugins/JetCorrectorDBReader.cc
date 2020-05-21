@@ -63,11 +63,7 @@ void JetCorrectorDBReader::analyze(const edm::Event& iEvent, const edm::EventSet
   iSetup.get<JetCorrectionsRecord>().get(mPayloadName, JetCorParamsColl);
   std::vector<JetCorrectorParametersCollection::key_type> keys;
   JetCorParamsColl->validKeys(keys);
-  for (std::vector<JetCorrectorParametersCollection::key_type>::const_iterator ibegin = keys.begin(),
-                                                                               iend = keys.end(),
-                                                                               ikey = ibegin;
-       ikey != iend;
-       ++ikey) {
+  for (auto ibegin = keys.begin(), iend = keys.end(), ikey = ibegin; ikey != iend; ++ikey) {
     std::cout << "-------------------------------------------------" << std::endl;
     std::cout << "Processing key = " << *ikey << std::endl;
     std::cout << "object label: " << JetCorParamsColl->findLabel(*ikey) << std::endl;

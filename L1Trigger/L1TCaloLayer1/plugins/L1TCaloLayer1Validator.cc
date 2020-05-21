@@ -170,17 +170,13 @@ void L1TCaloLayer1Validator::analyze(const edm::Event& iEvent, const edm::EventS
     // Test towers will be available for spy and fat events only
     edm::Handle<CaloTowerBxCollection> testTowers;
     iEvent.getByToken(testTowerToken, testTowers);
-    for (std::vector<CaloTower>::const_iterator testTower = testTowers->begin(theBX);
-         testTower != testTowers->end(theBX);
-         ++testTower) {
+    for (auto testTower = testTowers->begin(theBX); testTower != testTowers->end(theBX); ++testTower) {
       int test_iEta = testTower->hwEta();
       int test_iPhi = testTower->hwPhi();
       int test_et = testTower->hwPt();
       int test_er = testTower->hwEtRatio();
       int test_fb = testTower->hwQual();
-      for (std::vector<CaloTower>::const_iterator emulTower = emulTowers->begin(theBX);
-           emulTower != emulTowers->end(theBX);
-           ++emulTower) {
+      for (auto emulTower = emulTowers->begin(theBX); emulTower != emulTowers->end(theBX); ++emulTower) {
         int emul_iEta = emulTower->hwEta();
         int emul_iPhi = emulTower->hwPhi();
         int emul_et = emulTower->hwPt();
@@ -239,8 +235,7 @@ void L1TCaloLayer1Validator::analyze(const edm::Event& iEvent, const edm::EventS
     UCTGeometry g;
     uint32_t testRegionTotET = 0;
     uint32_t emulRegionTotET = 0;
-    for (std::vector<L1CaloRegion>::const_iterator testRegion = testRegions->begin(); testRegion != testRegions->end();
-         ++testRegion) {
+    for (auto testRegion = testRegions->begin(); testRegion != testRegions->end(); ++testRegion) {
       //       uint16_t test_raw = testRegion->raw();
       uint32_t test_et = testRegion->et();
       testRegionTotET += test_et;
@@ -258,9 +253,7 @@ void L1TCaloLayer1Validator::analyze(const edm::Event& iEvent, const edm::EventS
       uint32_t test_crate = g.getCrate(test_cEta, test_cPhi);
       uint32_t test_card = g.getCard(test_cEta, test_cPhi);
       uint32_t test_region = g.getRegion(test_cEta, test_cPhi);
-      for (std::vector<L1CaloRegion>::const_iterator emulRegion = emulRegions->begin();
-           emulRegion != emulRegions->end();
-           ++emulRegion) {
+      for (auto emulRegion = emulRegions->begin(); emulRegion != emulRegions->end(); ++emulRegion) {
         //	 uint16_t emul_raw = emulRegion->raw();
         uint32_t emul_et = emulRegion->et();
         if (testRegion == testRegions->begin())
@@ -348,9 +341,7 @@ void L1TCaloLayer1Validator::analyze(const edm::Event& iEvent, const edm::EventS
       }
     }
     uint32_t emulTowerTotET = 0;
-    for (std::vector<CaloTower>::const_iterator emulTower = emulTowers->begin(theBX);
-         emulTower != emulTowers->end(theBX);
-         ++emulTower) {
+    for (auto emulTower = emulTowers->begin(theBX); emulTower != emulTowers->end(theBX); ++emulTower) {
       int twr_et = emulTower->hwPt();
       int twr_cEta = emulTower->hwEta();
       int twr_cPhi = emulTower->hwPhi();

@@ -33,10 +33,10 @@ eSector::eSector(handles::const_iterator begin, handles::const_iterator end, boo
   if (debug)
     cout << "     Z layers: " << zmin << " " << zmax << endl;
 
-  handles::const_iterator first = theVolumes.begin();
-  handles::const_iterator last = theVolumes.end();
+  auto first = theVolumes.begin();
+  auto last = theVolumes.end();
 
-  for (handles::const_iterator i = first; i != last; ++i) {
+  for (auto i = first; i != last; ++i) {
     hisZ.fill((*i)->center().z());
   }
   vector<float> zClust = hisZ.clusterize(resolution);
@@ -45,8 +45,8 @@ eSector::eSector(handles::const_iterator begin, handles::const_iterator end, boo
     cout << "     Found " << zClust.size() << " clusters in Z, "
          << " layers: " << endl;
 
-  handles::const_iterator layStart = first;
-  handles::const_iterator separ = first;
+  auto layStart = first;
+  auto separ = first;
 
   for (unsigned int i = 0; i < zClust.size() - 1; ++i) {
     float zSepar = (zClust[i] + zClust[i + 1]) / 2.f;
@@ -74,7 +74,7 @@ eSector::eSector(handles::const_iterator begin, handles::const_iterator end, boo
 MagESector* eSector::buildMagESector() const {
   if (msector == nullptr) {
     vector<MagELayer*> mLayers;
-    for (vector<eLayer>::const_iterator lay = layers.begin(); lay != layers.end(); ++lay) {
+    for (auto lay = layers.begin(); lay != layers.end(); ++lay) {
       mLayers.push_back((*lay).buildMagELayer());
     }
     msector = new MagESector(mLayers, theVolumes.front()->minPhi());  //FIXME

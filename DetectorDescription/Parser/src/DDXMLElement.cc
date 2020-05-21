@@ -85,7 +85,7 @@ const DDName DDXMLElement::getDDName(const std::string& defaultNS, const std::st
 const std::string& DDXMLElement::get(const std::string& name, const size_t aIndex) const {
   static const std::string sts;
   if (aIndex < attributes_.size()) {
-    DDXMLAttribute::const_iterator it = attributes_[aIndex].find(name);
+    auto it = attributes_[aIndex].find(name);
     if (attributes_[aIndex].end() == it) {
       return sts;
     } else
@@ -106,7 +106,7 @@ std::vector<std::string> DDXMLElement::getVectorAttribute(const std::string& nam
   //  on-the-fly generation from the std::vector<DDXMLAttribute> and the
   //  reason is simply to speed things up if it is requested more than once.
   std::vector<std::string> tv;
-  AttrAccumType::const_iterator ita = attributeAccumulator_.find(name);
+  auto ita = attributeAccumulator_.find(name);
   if (ita != attributeAccumulator_.end()) {
     tv = attributeAccumulator_[name];
     if (tv.size() < attributes_.size()) {
@@ -164,7 +164,7 @@ std::ostream& operator<<(std::ostream& os, const DDXMLElement& element) {
 void DDXMLElement::stream(std::ostream& os) const {
   os << "Output of current element attributes:" << std::endl;
   for (const auto& attribute : attributes_) {
-    for (DDXMLAttribute::const_iterator it = attribute.begin(); it != attribute.end(); ++it)
+    for (auto it = attribute.begin(); it != attribute.end(); ++it)
       os << it->first << " = " << it->second << "\t";
     os << std::endl;
   }
@@ -172,7 +172,7 @@ void DDXMLElement::stream(std::ostream& os) const {
 
 void DDXMLElement::appendAttributes(std::vector<std::string>& tv, const std::string& name) {
   for (size_t i = tv.size(); i < attributes_.size(); ++i) {
-    DDXMLAttribute::const_iterator itnv = attributes_[i].find(name);
+    auto itnv = attributes_[i].find(name);
     if (itnv != attributes_[i].end())
       tv.emplace_back(itnv->second);
     else

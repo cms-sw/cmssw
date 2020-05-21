@@ -327,7 +327,7 @@ void L1GlobalTriggerFDL::run(edm::Event &iEvent,
   // fill everything we know in the L1GtFdlWord
 
   typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
-  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
+  for (auto itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
     if ((itBoard->gtBoardType() == FDL)) {
       m_gtFdlWord->setBoardId(itBoard->gtBoardId());
 
@@ -392,7 +392,7 @@ void L1GlobalTriggerFDL::fillDaqFdlBlock(const int iBxInEvent,
                                          const std::vector<L1GtBoard> &boardMaps,
                                          L1GlobalTriggerReadoutRecord *gtDaqReadoutRecord) {
   typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
-  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
+  for (auto itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
     int iPosition = itBoard->gtPositionDaqRecord();
     if (iPosition > 0) {
       int iActiveBit = itBoard->gtBitDaqActiveBoards();
@@ -436,7 +436,7 @@ void L1GlobalTriggerFDL::fillEvmFdlBlock(const int iBxInEvent,
                                          const std::vector<L1GtBoard> &boardMaps,
                                          L1GlobalTriggerEvmReadoutRecord *gtEvmReadoutRecord) {
   typedef std::vector<L1GtBoard>::const_iterator CItBoardMaps;
-  for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
+  for (auto itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
     int iPosition = itBoard->gtPositionEvmRecord();
     if (iPosition > 0) {
       int iActiveBit = itBoard->gtBitEvmActiveBoards();

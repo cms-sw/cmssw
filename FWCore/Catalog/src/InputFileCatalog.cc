@@ -59,7 +59,7 @@ namespace edm {
       }
     }
 
-    for (iter it = fileNames_.begin(), lt = logicalFileNames_.begin(), itEnd = fileNames_.end(); it != itEnd;
+    for (auto it = fileNames_.begin(), lt = logicalFileNames_.begin(), itEnd = fileNames_.end(); it != itEnd;
          ++it, ++lt) {
       boost::trim(*it);
       std::vector<std::string> pfns;

@@ -11,7 +11,7 @@
 
 struct PdgIdSelector {
   PdgIdSelector(const std::vector<int>& pdgId) {
-    for (std::vector<int>::const_iterator i = pdgId.begin(); i != pdgId.end(); ++i)
+    for (auto i = pdgId.begin(); i != pdgId.end(); ++i)
       pdgId_.push_back(abs(*i));
     begin_ = pdgId_.begin();
     end_ = pdgId_.end();

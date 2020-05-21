@@ -110,8 +110,7 @@ private:
       jecUncertainty_ = new JetCorrectionUncertainty(jetCorrParameters);
     }
 
-    for (typename JetCollection::const_iterator originalJet = originalJets->begin(); originalJet != originalJets->end();
-         ++originalJet) {
+    for (auto originalJet = originalJets->begin(); originalJet != originalJets->end(); ++originalJet) {
       reco::Candidate::LorentzVector originalJetP4 = originalJet->p4();
       if (verbosity_) {
         std::cout << "originalJet: Pt = " << originalJetP4.pt() << ", eta = " << originalJetP4.eta()

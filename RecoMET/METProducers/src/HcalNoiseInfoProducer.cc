@@ -702,10 +702,10 @@ void HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
   // select those RBXs which are interesting
   // also look for the highest energy RBX
-  HcalNoiseRBXArray::iterator maxit = rbxarray.begin();
+  auto maxit = rbxarray.begin();
   double maxenergy = -999;
   bool maxwritten = false;
-  for (HcalNoiseRBXArray::iterator rit = rbxarray.begin(); rit != rbxarray.end(); ++rit) {
+  for (auto rit = rbxarray.begin(); rit != rbxarray.end(); ++rit) {
     HcalNoiseRBX& rbx = (*rit);
     CommonHcalNoiseRBXData data(rbx,
                                 minRecHitE_,
@@ -898,7 +898,7 @@ void HcalNoiseInfoProducer::filldigis(edm::Event& iEvent,
   }
 
   // loop over all of the digi information
-  for (HBHEDigiCollection::const_iterator it = handle->begin(); it != handle->end(); ++it) {
+  for (auto it = handle->begin(); it != handle->end(); ++it) {
     const HBHEDataFrame& digi = (*it);
     HcalDetId cell = digi.id();
     DetId detcell = (DetId)cell;
@@ -979,7 +979,7 @@ void HcalNoiseInfoProducer::filldigis(edm::Event& iEvent,
 
   // get total charge in calibration channels
   if (hCalib.isValid() == true) {
-    for (HcalCalibDigiCollection::const_iterator digi = hCalib->begin(); digi != hCalib->end(); digi++) {
+    for (auto digi = hCalib->begin(); digi != hCalib->end(); digi++) {
       if (digi->id().hcalSubdet() == 0)
         continue;
 
@@ -1155,7 +1155,7 @@ void HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent,
   summary.energyInNonLaserRegion_ = 0;
 
   // loop over all of the rechit information
-  for (HBHERecHitCollection::const_iterator it = handle->begin(); it != handle->end(); ++it) {
+  for (auto it = handle->begin(); it != handle->end(); ++it) {
     const HBHERecHit& rechit = (*it);
 
     // skip bad rechits (other than those flagged by the isolated noise, triangle, flat, and spike algorithms)
@@ -1272,13 +1272,10 @@ void HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent,
   }  // end loop over rechits
 
   // loop over all HPDs and transfer the information from refrechitset_ to rechits_;
-  for (HcalNoiseRBXArray::iterator rbxit = array.begin(); rbxit != array.end(); ++rbxit) {
-    for (std::vector<HcalNoiseHPD>::iterator hpdit = rbxit->hpds_.begin(); hpdit != rbxit->hpds_.end(); ++hpdit) {
+  for (auto rbxit = array.begin(); rbxit != array.end(); ++rbxit) {
+    for (auto hpdit = rbxit->hpds_.begin(); hpdit != rbxit->hpds_.end(); ++hpdit) {
       // loop over all of the entries in the set and add them to rechits_
-      for (std::set<edm::Ref<HBHERecHitCollection>, RefHBHERecHitEnergyComparison>::const_iterator it =
-               hpdit->refrechitset_.begin();
-           it != hpdit->refrechitset_.end();
-           ++it) {
+      for (auto it = hpdit->refrechitset_.begin(); it != hpdit->refrechitset_.end(); ++it) {
         hpdit->rechits_.push_back(*it);
       }
     }
@@ -1307,7 +1304,7 @@ void HcalNoiseInfoProducer::fillcalotwrs(edm::Event& iEvent,
   summary.emenergy_ = summary.hadenergy_ = 0.0;
 
   // loop over all of the calotower information
-  for (CaloTowerCollection::const_iterator it = handle->begin(); it != handle->end(); ++it) {
+  for (auto it = handle->begin(); it != handle->end(); ++it) {
     const CaloTower& twr = (*it);
 
     // create a persistent reference to the tower
@@ -1318,8 +1315,7 @@ void HcalNoiseInfoProducer::fillcalotwrs(edm::Event& iEvent,
     array.findHPD(twr, hpditervec);
 
     // loop over the hpd's and add the reference to the RefVectors
-    for (std::vector<std::vector<HcalNoiseHPD>::iterator>::iterator it = hpditervec.begin(); it != hpditervec.end();
-         ++it)
+    for (auto it = hpditervec.begin(); it != hpditervec.end(); ++it)
       (*it)->calotowers_.push_back(myRef);
 
     // skip over anything with |ieta|>maxCaloTowerIEta
@@ -1345,7 +1341,7 @@ void HcalNoiseInfoProducer::filljetinfo(edm::Event& iEvent,
 
     if (pfjet_h.isValid()) {
       int jetindex = 0;
-      for (reco::PFJetCollection::const_iterator jet = pfjet_h->begin(); jet != pfjet_h->end(); ++jet) {
+      for (auto jet = pfjet_h->begin(); jet != pfjet_h->end(); ++jet) {
         if (jetindex > maxjetindex_)
           break;  // only look at jets with
                   // indices up to maxjetindex_
@@ -1383,7 +1379,7 @@ void HcalNoiseInfoProducer::filltracks(edm::Event& iEvent,
   }
 
   summary.trackenergy_ = 0.0;
-  for (reco::TrackCollection::const_iterator iTrack = handle->begin(); iTrack != handle->end(); ++iTrack) {
+  for (auto iTrack = handle->begin(); iTrack != handle->end(); ++iTrack) {
     reco::Track trk = *iTrack;
     if (trk.pt() < minTrackPt_ || fabs(trk.eta()) > maxTrackEta_)
       continue;

@@ -98,7 +98,7 @@ TauJetCorrector::TauJetCorrector(const edm::ParameterSet& fConfig) {
 }
 
 TauJetCorrector::~TauJetCorrector() {
-  for (ParametersMap::iterator ip = parametrization.begin(); ip != parametrization.end(); ip++)
+  for (auto ip = parametrization.begin(); ip != parametrization.end(); ip++)
     delete ip->second;
 }
 
@@ -191,7 +191,7 @@ double TauJetCorrector::correction(const LorentzVector& fJet) const {
   //cout<<" Et and eta of jet "<<et<<" "<<eta<<endl;
 
   double etnew;
-  std::map<double, ParametrizationTauJet*>::const_iterator ip = parametrization.upper_bound(eta);
+  auto ip = parametrization.upper_bound(eta);
   etnew = (--ip)->second->value(et, eta);
 
   //cout<<" The new energy found "<<etnew<<" "<<et<<endl;

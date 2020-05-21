@@ -73,8 +73,8 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
 
   LogDebug("TSGFromL1Muon") << l1muon->size() << " l1 muons to seed from.";
 
-  L1MuonParticleCollection::const_iterator muItr = l1muon->begin();
-  L1MuonParticleCollection::const_iterator muEnd = l1muon->end();
+  auto muItr = l1muon->begin();
+  auto muEnd = l1muon->end();
   for (size_t iL1 = 0; muItr < muEnd; ++muItr, ++iL1) {
     if (muItr->gmtMuonCand().empty())
       continue;
@@ -87,7 +87,7 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
 
     typedef std::vector<std::unique_ptr<TrackingRegion> > Regions;
     Regions regions = theRegionProducer->regions();
-    for (Regions::const_iterator ir = regions.begin(); ir != regions.end(); ++ir) {
+    for (auto ir = regions.begin(); ir != regions.end(); ++ir) {
       L1MuonSeedsMerger::TracksAndHits tracks;
       const TrackingRegion& region = **ir;
       const OrderedSeedingHits& candidates = theHitGenerator->run(region, ev, es);
@@ -113,7 +113,7 @@ void TSGFromL1Muon::produce(edm::Event& ev, const edm::EventSetup& es) {
 
       if (theMerger)
         theMerger->resolve(tracks);
-      for (L1MuonSeedsMerger::TracksAndHits::const_iterator it = tracks.begin(); it != tracks.end(); ++it) {
+      for (auto it = tracks.begin(); it != tracks.end(); ++it) {
         SeedFromProtoTrack seed(*(it->first), it->second, es);
         if (seed.isValid())
           (*result).push_back(L3MuonTrajectorySeed(seed.trajectorySeed(), l1Ref));

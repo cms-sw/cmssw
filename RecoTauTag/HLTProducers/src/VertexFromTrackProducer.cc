@@ -176,7 +176,7 @@ void VertexFromTrackProducer::produce(edm::StreamID iStreamId,
   if (fVerbose) {
     int ivtx = 0;
     edm::LogInfo("PVDebugInfo") << "Vertices by VertexFromTrackProducer: \n";
-    for (reco::VertexCollection::const_iterator v = vColl.begin(); v != vColl.end(); ++v) {
+    for (auto v = vColl.begin(); v != vColl.end(); ++v) {
       edm::LogInfo("PVDebugInfo") << "\t"
                                   << "recvtx " << ivtx++ << " x " << std::setw(6) << v->position().x() << " dx "
                                   << std::setw(6) << v->xError() << " y " << std::setw(6) << v->position().y() << " dy "

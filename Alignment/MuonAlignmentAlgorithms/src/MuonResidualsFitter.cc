@@ -163,7 +163,7 @@ MuonResidualsFitter::MuonResidualsFitter(int residualsModel, int minHits, int us
 }
 
 MuonResidualsFitter::~MuonResidualsFitter() {
-  for (std::vector<double *>::const_iterator residual = residuals_begin(); residual != residuals_end(); ++residual) {
+  for (auto residual = residuals_begin(); residual != residuals_end(); ++residual) {
     delete[](*residual);
   }
 }
@@ -197,7 +197,7 @@ double MuonResidualsFitter::covarianceElement(int parNum1, int parNum2) {
 
 long MuonResidualsFitter::numsegments() {
   long num = 0;
-  for (std::vector<double *>::const_iterator resiter = residuals_begin(); resiter != residuals_end(); ++resiter)
+  for (auto resiter = residuals_begin(); resiter != residuals_end(); ++resiter)
     num++;
   return num;
 }
@@ -276,7 +276,7 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int &, double *, double &, double *,
                                 std::vector<double> &step,
                                 std::vector<double> &low,
                                 std::vector<double> &high) {
-  MuonResidualsFitterFitInfo *fitinfo = new MuonResidualsFitterFitInfo(this);
+  auto *fitinfo = new MuonResidualsFitterFitInfo(this);
 
   MuonResidualsFitter_TMinuit = new TMinuit(npar());
   // MuonResidualsFitter_TMinuit->SetPrintLevel(m_printLevel);
@@ -285,12 +285,12 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int &, double *, double &, double *,
   MuonResidualsFitter_TMinuit->SetFCN(fcn);
   inform(MuonResidualsFitter_TMinuit);
 
-  std::vector<int>::const_iterator iNum = parNum.begin();
-  std::vector<std::string>::const_iterator iName = parName.begin();
-  std::vector<double>::const_iterator istart = start.begin();
-  std::vector<double>::const_iterator istep = step.begin();
-  std::vector<double>::const_iterator ilow = low.begin();
-  std::vector<double>::const_iterator ihigh = high.begin();
+  auto iNum = parNum.begin();
+  auto iName = parName.begin();
+  auto istart = start.begin();
+  auto istep = step.begin();
+  auto ilow = low.begin();
+  auto ihigh = high.begin();
 
   //MuonResidualsFitter_TMinuit->SetPrintLevel(-1);
 
@@ -396,7 +396,7 @@ void MuonResidualsFitter::write(FILE *file, int which) {
     likeAChecksum2[i] = 0.;
   }
 
-  for (std::vector<double *>::const_iterator residual = residuals_begin(); residual != residuals_end(); ++residual) {
+  for (auto residual = residuals_begin(); residual != residuals_end(); ++residual) {
     fwrite((*residual), sizeof(double), cols, file);
     for (int i = 0; i < cols; i++) {
       if (fabs((*residual)[i]) > likeAChecksum[i])
@@ -483,7 +483,7 @@ void MuonResidualsFitter::plotsimple(std::string name, TFileDirectory *dir, int 
     window = 2. * 50.;
 
   TH1F *hist = dir->make<TH1F>(name.c_str(), "", 200, -window, window);
-  for (std::vector<double *>::const_iterator r = residuals_begin(); r != residuals_end(); ++r)
+  for (auto r = residuals_begin(); r != residuals_end(); ++r)
     hist->Fill(multiplier * (*r)[which]);
 }
 
@@ -500,7 +500,7 @@ void MuonResidualsFitter::plotweighted(
     window = 2. * 50.;
 
   TH1F *hist = dir->make<TH1F>(name.c_str(), "", 200, -window, window);
-  for (std::vector<double *>::const_iterator r = residuals_begin(); r != residuals_end(); ++r) {
+  for (auto r = residuals_begin(); r != residuals_end(); ++r) {
     double weight = 1. / (*r)[whichredchi2];
     if (TMath::Prob(1. / weight * 12, 12) < 0.99)
       hist->Fill(multiplier * (*r)[which], weight);
@@ -511,7 +511,7 @@ void MuonResidualsFitter::computeHistogramRangeAndBinning(int which, int &nbins,
   // first, make a numeric array while discarding some crazy outliers
   double *data = new double[numResiduals()];
   int n = 0;
-  for (std::vector<double *>::const_iterator r = m_residuals.begin(); r != m_residuals.end(); r++)
+  for (auto r = m_residuals.begin(); r != m_residuals.end(); r++)
     if (fabs((*r)[which]) < 50.) {
       data[n] = (*r)[which];
       n++;
@@ -554,7 +554,7 @@ void MuonResidualsFitter::histogramChi2GaussianFit(int which, double &fit_mean, 
   }
 
   TH1D *hist = new TH1D("htmp", "", nbins, a, b);
-  for (std::vector<double *>::const_iterator r = m_residuals.begin(); r != m_residuals.end(); ++r)
+  for (auto r = m_residuals.begin(); r != m_residuals.end(); ++r)
     hist->Fill((*r)[which]);
 
   // do simple chi2 gaussian fit
@@ -594,7 +594,7 @@ void MuonResidualsFitter::selectPeakResiduals(double nsigma, int nvar, int *vars
   }
 
   // filter out residuals that don't fit into the ellipsoid
-  std::vector<double *>::iterator r = m_residuals.begin();
+  auto r = m_residuals.begin();
   while (r != m_residuals.end()) {
     double ellipsoid_sum = 0;
     for (int v = 0; v < nvar; v++) {
@@ -635,7 +635,7 @@ void MuonResidualsFitter::selectPeakResiduals_simple(double nsigma, int nvar, in
   //just to be sure (can't see why it might ever be more then 10)
   assert(nvar <= 10 && nvar > 0);
 
-  std::vector<double *>::iterator r = m_residuals.begin();
+  auto r = m_residuals.begin();
 
   // it's awkward, but the 1D case has to be handled separately
   if (nvar == 1) {
@@ -729,7 +729,7 @@ void MuonResidualsFitter::fiducialCuts(double xMin, double xMax, double yMin, do
   double chambw = 9999.;
   double chambl = 9999.;
 
-  for (std::vector<double *>::const_iterator r = residuals_begin(); r != residuals_end(); ++r) {
+  for (auto r = residuals_begin(); r != residuals_end(); ++r) {
     iResidual++;
     if (!m_residuals_ok[iResidual])
       continue;
@@ -823,7 +823,7 @@ void MuonResidualsFitter::correctBField(int idx_momentum, int idx_q) {
   const int Nbin = 17;
   // find max 1/pt and bin width
   double min_pt = 9999.;
-  for (std::vector<double *>::const_iterator r = residuals_begin(); r != residuals_end(); ++r) {
+  for (auto r = residuals_begin(); r != residuals_end(); ++r) {
     double pt = fabs((*r)[idx_momentum]);
     if (pt < min_pt)
       min_pt = pt;
@@ -854,18 +854,18 @@ void MuonResidualsFitter::correctBField(int idx_momentum, int idx_q) {
     if (psize > nsize) {
       while (idx_set.size() < psize - nsize)
         idx_set.insert(gRandom->Integer(psize));
-      for (std::set<int>::iterator it = idx_set.begin(); it != idx_set.end(); it++)
+      for (auto it = idx_set.begin(); it != idx_set.end(); it++)
         to_erase.push_back(pos[j][*it]);
     } else {
       while (idx_set.size() < nsize - psize)
         idx_set.insert(gRandom->Integer(nsize));
-      for (std::set<int>::iterator it = idx_set.begin(); it != idx_set.end(); it++)
+      for (auto it = idx_set.begin(); it != idx_set.end(); it++)
         to_erase.push_back(neg[j][*it]);
     }
   }
   // sort in descending order, so we safely go from higher to lower indices:
   std::sort(to_erase.begin(), to_erase.end(), std::greater<int>());
-  for (std::vector<size_t>::const_iterator e = to_erase.begin(); e != to_erase.end(); ++e) {
+  for (auto e = to_erase.begin(); e != to_erase.end(); ++e) {
     m_residuals_ok[*e] = false;
     //delete[] *(m_residuals.begin() + *e);
     //m_residuals.erase(m_residuals.begin() + *e);

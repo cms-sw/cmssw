@@ -79,7 +79,7 @@ FromClusterSummaryMultiplicityProducer::FromClusterSummaryMultiplicityProducer(c
   m_subdetenums.reserve(wantedsubds.size());
   m_subdetsel.reserve(wantedsubds.size());
 
-  for (std::vector<edm::ParameterSet>::iterator ps = wantedsubds.begin(); ps != wantedsubds.end(); ++ps) {
+  for (auto ps = wantedsubds.begin(); ps != wantedsubds.end(); ++ps) {
     m_subdetenums.push_back((ClusterSummary::CMSTracker)ps->getParameter<int>("subDetEnum"));
     m_subdetsel.push_back(ps->getParameter<int>("subDetEnum"));
   }
@@ -128,7 +128,7 @@ void FromClusterSummaryMultiplicityProducer::produce(edm::Event& iEvent, const e
     LogDebug("Multiplicity") << "GetModuleLocation result: " << m_subdetenums[iS] << " "
                              << clustsumm->getModuleLocation(m_subdetenums[iS]);
 
-  for (std::map<unsigned int, int>::const_iterator it = mults->begin(); it != mults->end(); ++it) {
+  for (auto it = mults->begin(); it != mults->end(); ++it) {
     LogDebug("Multiplicity") << " Found " << it->second << " digis/clusters in " << it->first;
   }
 

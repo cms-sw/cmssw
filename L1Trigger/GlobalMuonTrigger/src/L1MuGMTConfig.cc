@@ -273,7 +273,7 @@ void L1MuGMTConfig::dumpLUTs(std::string dir) {
   theLUTs.push_back(m_MIAUPhiPro2LUT);
   theLUTs.push_back(m_MIAUEtaProLUT);
 
-  std::vector<L1MuGMTLUT*>::iterator it = theLUTs.begin();
+  auto it = theLUTs.begin();
   for (; it != theLUTs.end(); it++) {
     edm::LogVerbatim("GMT_LUTGen_info") << "**** Generating " << (*it)->Name() << " LUT ****" << endl
                                         << "saving" << endl;
@@ -301,7 +301,7 @@ void L1MuGMTConfig::dumpRegs(std::string dir) {
 
   ofstream of((dir + "/LogicFPGARegs.cfg").c_str());
 
-  std::vector<L1MuGMTReg*>::iterator it = theRegs.begin();
+  auto it = theRegs.begin();
   for (; it != theRegs.end(); it++) {
     for (unsigned int i = 0; i < (*it)->getNumberOfInstances(); i++)
       of << (*it)->getName() << "[" << i << "] = " << (*it)->getValue(i) << endl;

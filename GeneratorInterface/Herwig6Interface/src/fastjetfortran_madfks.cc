@@ -385,8 +385,7 @@ void fastjetconstituents_(const int & ijet,
 //
 double fastjetarea_(const int & ijet) {
   assert(ijet > 0 && ijet <= int(jets.size()));
-  const ClusterSequenceAreaBase * csab =
-                    dynamic_cast<const ClusterSequenceAreaBase *>(cs.get());
+  const auto *csab = dynamic_cast<const ClusterSequenceAreaBase *>(cs.get());
   if (csab != nullptr) {
     // we have areas and can use csab to access all the area-related info
     return csab->area(jets[ijet-1]);
@@ -443,8 +442,7 @@ double fastjetdmergemax_(const int & n) {
 void fastjetglobalrhoandsigma_(const double & rapmin, const double & rapmax,
                                const double & phimin, const double & phimax,
 			       double & rho, double & sigma, double & meanarea) {
-  const ClusterSequenceAreaBase * csab =
-                    dynamic_cast<const ClusterSequenceAreaBase *>(cs.get());
+  const auto *csab = dynamic_cast<const ClusterSequenceAreaBase *>(cs.get());
   if (csab != nullptr) {
       // we have areas and can use csab to access all the area-related info
     Selector range =  SelectorRapRange(rapmin,rapmax) && SelectorPhiRange(phimin,phimax);

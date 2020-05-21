@@ -173,8 +173,7 @@ namespace reco {
         int totalNumberOfHits = measurements.size();
         int numberOfHits = 0;
         double previousDotProduct = 0;
-        for (trackingRecHit_iterator ith = trackFromMap->recHitsBegin(), edh = trackFromMap->recHitsEnd(); ith != edh;
-             ++ith) {
+        for (auto ith = trackFromMap->recHitsBegin(), edh = trackFromMap->recHitsEnd(); ith != edh; ++ith) {
           GlobalVector stateMomentum = measurements[numberOfHits].forwardPredictedState().globalMomentum();
           GlobalPoint statePosition = measurements[numberOfHits].forwardPredictedState().globalPosition();
           double dotProduct = stateMomentum.x() * statePosition.x() + stateMomentum.y() * statePosition.y();
@@ -189,8 +188,8 @@ namespace reco {
         LogDebug("CosmicTrackSplitter") << "number of rechits: " << numberOfHits;
 
         // check if the trajectories and rechits are in reverse order...
-        trackingRecHit_iterator bIt = trackFromMap->recHitsBegin();
-        trackingRecHit_iterator fIt = trackFromMap->recHitsEnd() - 1;
+        auto bIt = trackFromMap->recHitsBegin();
+        auto fIt = trackFromMap->recHitsEnd() - 1;
         const TrackingRecHit *bHit = (*bIt);
         const TrackingRecHit *fHit = (*fIt);
         // hit type valid = 0, missing = 1, inactive = 2, bad = 3
@@ -244,7 +243,7 @@ namespace reco {
 
       totalTracks_ = totalTracks_ + tracks->size();
       // loop on tracks
-      for (std::vector<reco::Track>::const_iterator itt = tracks->begin(), edt = tracks->end(); itt != edt; ++itt) {
+      for (auto itt = tracks->begin(), edt = tracks->end(); itt != edt; ++itt) {
         hits.clear();  // extra safety
 
         LogDebug("CosmicTrackSplitter") << "ntracks: " << tracks->size();
@@ -267,7 +266,7 @@ namespace reco {
           LogDebug("CosmicTrackSplitter") << "   loop on hits of track #" << (itt - tracks->begin());
           int usedHitCtr = 0;
           int hitCtr = 0;
-          for (trackingRecHit_iterator ith = itt->recHitsBegin(), edh = itt->recHitsEnd(); ith != edh; ++ith) {
+          for (auto ith = itt->recHitsBegin(), edh = itt->recHitsEnd(); ith != edh; ++ith) {
             //hitCtr++;
             const TrackingRecHit *hit = (*ith);  // ith is an iterator on edm::Ref to rechit
             LogDebug("CosmicTrackSplitter") << "         hit number " << (ith - itt->recHitsBegin());
@@ -335,7 +334,7 @@ namespace reco {
           }  // loop on hits
           LogDebug("CosmicTrackSplitter") << "   end of loop on hits of track #" << (itt - tracks->begin());
 
-          std::vector<TrackingRecHit *>::iterator begin = hits.begin(), end = hits.end();
+          auto begin = hits.begin(), end = hits.end();
 
           LogDebug("CosmicTrackSplitter") << "   selected " << hits.size() << " hits ";
 

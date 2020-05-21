@@ -64,9 +64,7 @@ TauDiscriminationProducerBase<TauType, TauDiscriminator, TauDiscriminatorDataTyp
   // get the list of prediscriminants
   std::vector<std::string> prediscriminantsNames = prediscriminantConfig.getParameterNamesForType<edm::ParameterSet>();
 
-  for (std::vector<std::string>::const_iterator iDisc = prediscriminantsNames.begin();
-       iDisc != prediscriminantsNames.end();
-       ++iDisc) {
+  for (auto iDisc = prediscriminantsNames.begin(); iDisc != prediscriminantsNames.end(); ++iDisc) {
     const edm::ParameterSet& iPredisc = prediscriminantConfig.getParameter<edm::ParameterSet>(*iDisc);
     const edm::InputTag& label = iPredisc.getParameter<edm::InputTag>("Producer");
     double cut = iPredisc.getParameter<double>("cut");
@@ -152,7 +150,7 @@ void TauDiscriminationProducerBase<TauType, TauDiscriminator, TauDiscriminatorDa
       }
     }
 
-    TauDiscriminatorDataType result = TauDiscriminatorDataType(prediscriminantFailValue_);
+    auto result = TauDiscriminatorDataType(prediscriminantFailValue_);
     if (passesPrediscriminants) {
       // this tau passes the prereqs, call our implemented discrimination function
       result = discriminate(tauRef);

@@ -67,7 +67,7 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
   }
   int noOfAnonParams = 0;
   std::vector<const DDsvalues_type*> spec = fv.specifics();
-  std::vector<const DDsvalues_type*>::const_iterator spit = spec.begin();
+  auto spit = spec.begin();
   std::vector<double> uparvals;
   std::vector<double> fpar;
   std::vector<double> dpar;
@@ -123,7 +123,7 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
       chSpecsAlreadyExist = true;
     } else {
       for (; spit != spec.end(); spit++) {
-        DDsvalues_type::const_iterator it = (**spit).begin();
+        auto it = (**spit).begin();
         for (; it != (**spit).end(); it++) {
           LogDebug(myName) << "it->second.name()=" << it->second.name();
           if (it->second.name() == "upar") {
@@ -175,14 +175,10 @@ bool CSCGeometryParsFromDD::build(const DDCompactView* cview,
       uparvals.emplace_back(wg.wideWidthOfWirePlane);
       uparvals.emplace_back(wg.lengthOfWirePlane);
       uparvals.emplace_back(wg.wiresInEachGroup.size());
-      for (CSCWireGroupPackage::Container::const_iterator it = wg.wiresInEachGroup.begin();
-           it != wg.wiresInEachGroup.end();
-           ++it) {
+      for (auto it = wg.wiresInEachGroup.begin(); it != wg.wiresInEachGroup.end(); ++it) {
         uparvals.emplace_back(*it);
       }
-      for (CSCWireGroupPackage::Container::const_iterator it = wg.consecutiveGroups.begin();
-           it != wg.consecutiveGroups.end();
-           ++it) {
+      for (auto it = wg.consecutiveGroups.begin(); it != wg.consecutiveGroups.end(); ++it) {
         uparvals.emplace_back(*it);
       }
 
@@ -465,14 +461,10 @@ bool CSCGeometryParsFromDD::build(const cms::DDCompactView* cview,
       uparvals.emplace_back(wg.lengthOfWirePlane);
       uparvals.emplace_back(wg.wiresInEachGroup.size());
 
-      for (CSCWireGroupPackage::Container::const_iterator it = wg.wiresInEachGroup.begin();
-           it != wg.wiresInEachGroup.end();
-           ++it) {
+      for (auto it = wg.wiresInEachGroup.begin(); it != wg.wiresInEachGroup.end(); ++it) {
         uparvals.emplace_back(*it);
       }
-      for (CSCWireGroupPackage::Container::const_iterator it = wg.consecutiveGroups.begin();
-           it != wg.consecutiveGroups.end();
-           ++it) {
+      for (auto it = wg.consecutiveGroups.begin(); it != wg.consecutiveGroups.end(); ++it) {
         uparvals.emplace_back(*it);
       }
 

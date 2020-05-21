@@ -127,16 +127,14 @@ void DTVDriftSegmentCalibration::endJob() {
 
   LogVerbatim("Calibration") << "[DTVDriftSegmentCalibration] Writing histos to file!" << endl;
 
-  for (ChamberHistosMapTH1F::const_iterator itChHistos = theVDriftHistoMapTH1F_.begin();
-       itChHistos != theVDriftHistoMapTH1F_.end();
-       ++itChHistos) {
-    vector<TH1F*>::const_iterator itHistTH1F = (*itChHistos).second.begin();
-    vector<TH1F*>::const_iterator itHistTH1F_end = (*itChHistos).second.end();
+  for (auto itChHistos = theVDriftHistoMapTH1F_.begin(); itChHistos != theVDriftHistoMapTH1F_.end(); ++itChHistos) {
+    auto itHistTH1F = (*itChHistos).second.begin();
+    auto itHistTH1F_end = (*itChHistos).second.end();
     for (; itHistTH1F != itHistTH1F_end; ++itHistTH1F)
       (*itHistTH1F)->Write();
 
-    vector<TH2F*>::const_iterator itHistTH2F = theVDriftHistoMapTH2F_[(*itChHistos).first].begin();
-    vector<TH2F*>::const_iterator itHistTH2F_end = theVDriftHistoMapTH2F_[(*itChHistos).first].end();
+    auto itHistTH2F = theVDriftHistoMapTH2F_[(*itChHistos).first].begin();
+    auto itHistTH2F_end = theVDriftHistoMapTH2F_[(*itChHistos).first].end();
     for (; itHistTH2F != itHistTH2F_end; ++itHistTH2F)
       (*itHistTH2F)->Write();
   }

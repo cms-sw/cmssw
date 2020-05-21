@@ -274,9 +274,7 @@ void L1TDTTPG::analyze(const Event &e, const EventSetup &c) {
   int ndttpgthtrack = 0;
   int NumberOfSegmentsPhi[3] = {0, 0, 0};
 
-  for (L1MuDTChambPhContainer::Phi_Container::const_iterator DTPhDigiItr = myPhContainer->begin();
-       DTPhDigiItr != myPhContainer->end();
-       ++DTPhDigiItr) {
+  for (auto DTPhDigiItr = myPhContainer->begin(); DTPhDigiItr != myPhContainer->end(); ++DTPhDigiItr) {
     int bx = DTPhDigiItr->bxNum() - DTPhDigiItr->Ts2Tag();
     if (bx == -1)
       NumberOfSegmentsPhi[0]++;
@@ -321,9 +319,7 @@ void L1TDTTPG::analyze(const Event &e, const EventSetup &c) {
   const L1MuDTChambPhDigi *bestPhQualMap[5][12][4];
   memset(bestPhQualMap, 0, 240 * sizeof(L1MuDTChambPhDigi *));
 
-  for (L1MuDTChambPhContainer::Phi_Container::const_iterator DTPhDigiItr = myPhContainer->begin();
-       DTPhDigiItr != myPhContainer->end();
-       ++DTPhDigiItr) {
+  for (auto DTPhDigiItr = myPhContainer->begin(); DTPhDigiItr != myPhContainer->end(); ++DTPhDigiItr) {
     ndttpgphtrack++;
 
     int bxindex = DTPhDigiItr->bxNum() - DTPhDigiItr->Ts2Tag() + 1;
@@ -380,9 +376,7 @@ void L1TDTTPG::analyze(const Event &e, const EventSetup &c) {
   int bestThQualMap[5][12][3];
   memset(bestThQualMap, 0, 180 * sizeof(int));
   //for( vector<L1MuDTChambThDigi>::const_iterator
-  for (L1MuDTChambThContainer::The_Container::const_iterator DTThDigiItr = myThContainer->begin();
-       DTThDigiItr != myThContainer->end();
-       ++DTThDigiItr) {
+  for (auto DTThDigiItr = myThContainer->begin(); DTThDigiItr != myThContainer->end(); ++DTThDigiItr) {
     ndttpgthtrack++;
 
     int bxindex = DTThDigiItr->bxNum() + 1;
@@ -466,7 +460,7 @@ void L1TDTTPG::analyze(const Event &e, const EventSetup &c) {
   L1MuDTTrackContainer::TrackContainer const *t = myL1MuDTTrackContainer->getContainer();
 
   int NumberOfSegmentsOut[3] = {0, 0, 0};
-  for (L1MuDTTrackContainer::TrackContainer::const_iterator i = t->begin(); i != t->end(); ++i) {
+  for (auto i = t->begin(); i != t->end(); ++i) {
     if (i->bx() == -1)
       NumberOfSegmentsOut[0]++;
     if (i->bx() == 0)
@@ -513,7 +507,7 @@ void L1TDTTPG::analyze(const Event &e, const EventSetup &c) {
   // the 2-DIM histo with phi.input vs. output
   dttpgphbxcomp->Fill(bxCodePhi, bxCodeOut);
 
-  for (L1MuDTTrackContainer::TrackContainer::const_iterator i = t->begin(); i != t->end(); ++i) {
+  for (auto i = t->begin(); i != t->end(); ++i) {
     if (verbose_) {
       std::cout << "bx = " << i->bx() << std::endl;
       std::cout << "quality (packed) = " << i->quality_packed() << std::endl;

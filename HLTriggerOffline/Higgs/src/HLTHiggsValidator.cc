@@ -41,7 +41,7 @@ HLTHiggsValidator::~HLTHiggsValidator() {
 
 void HLTHiggsValidator::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
   // Call the Plotter beginRun (which stores the triggers paths..:)
-  for (std::vector<HLTHiggsSubAnalysis>::iterator iter = _analyzers.begin(); iter != _analyzers.end(); ++iter) {
+  for (auto iter = _analyzers.begin(); iter != _analyzers.end(); ++iter) {
     iter->beginRun(iRun, iSetup);
   }
 }
@@ -50,7 +50,7 @@ void HLTHiggsValidator::bookHistograms(DQMStore::IBooker& ibooker,
                                        const edm::Run& iRun,
                                        const edm::EventSetup& iSetup) {
   // Call the Plotter bookHistograms (which stores the triggers paths..:)
-  for (std::vector<HLTHiggsSubAnalysis>::iterator iter = _analyzers.begin(); iter != _analyzers.end(); ++iter) {
+  for (auto iter = _analyzers.begin(); iter != _analyzers.end(); ++iter) {
     iter->bookHistograms(ibooker);
   }
 }
@@ -59,7 +59,7 @@ void HLTHiggsValidator::analyze(const edm::Event& iEvent, const edm::EventSetup&
   // Initialize the event collections
   this->_collections->reset();
 
-  for (std::vector<HLTHiggsSubAnalysis>::iterator iter = _analyzers.begin(); iter != _analyzers.end(); ++iter) {
+  for (auto iter = _analyzers.begin(); iter != _analyzers.end(); ++iter) {
     iter->analyze(iEvent, iSetup, this->_collections);
   }
 }

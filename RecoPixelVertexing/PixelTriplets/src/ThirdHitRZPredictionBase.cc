@@ -31,7 +31,7 @@ void ThirdHitRZPredictionBase::initLayer(const DetLayer* layer) {
     float halfThickness = fl.surface().bounds().thickness() / 2;
     float zLayer = fl.position().z();
     theDetRange = Range(zLayer - halfThickness, zLayer + halfThickness);
-    const SimpleDiskBounds& diskRadialBounds = static_cast<const SimpleDiskBounds&>(fl.surface().bounds());
+    const auto& diskRadialBounds = static_cast<const SimpleDiskBounds&>(fl.surface().bounds());
     theDetSize = Range(diskRadialBounds.innerRadius(), diskRadialBounds.outerRadius());
   } else {
     theBarrel = theForward = false;

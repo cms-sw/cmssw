@@ -63,8 +63,7 @@ void TrackMergeremb<T1>::merg_and_put(edm::Event& iEvent,
     iEvent.getByToken(akt_collection, track_col_in);
 
     size_t sedref_it = 0;
-    for (typename TrackCollectionemb::const_iterator it = track_col_in->begin(); it != track_col_in->end();
-         ++it, ++sedref_it) {
+    for (auto it = track_col_in->begin(); it != track_col_in->end(); ++it, ++sedref_it) {
       outTracks->push_back(typename T1::value_type(*it));
     }
 
@@ -102,8 +101,7 @@ void TrackMergeremb<reco::TrackCollection>::merg_and_put(
     iEvent.getByToken(akt_collection, track_col_in);
 
     unsigned sedref_it = 0;
-    for (reco::TrackCollection::const_iterator it = track_col_in->begin(); it != track_col_in->end();
-         ++it, ++sedref_it) {
+    for (auto it = track_col_in->begin(); it != track_col_in->end(); ++it, ++sedref_it) {
       outTracks->push_back(reco::Track(*it));
       outTracks_ex->push_back(reco::TrackExtra(*it->extra()));
       outTracks->back().setExtra(reco::TrackExtraRef(rTrackExtras, outTracks_ex->size() - 1));
@@ -157,8 +155,7 @@ void TrackMergeremb<reco::GsfTrackCollection>::merg_and_put(
     iEvent.getByToken(akt_collection, track_col_in);
 
     size_t sedref_it = 0;
-    for (reco::GsfTrackCollection::const_iterator it = track_col_in->begin(); it != track_col_in->end();
-         ++it, ++sedref_it) {
+    for (auto it = track_col_in->begin(); it != track_col_in->end(); ++it, ++sedref_it) {
       outTracks->push_back(reco::GsfTrack(*it));
       outTracks_ex->push_back(reco::TrackExtra(*it->extra()));
       outTracks_exgsf->push_back(reco::GsfTrackExtra(*it->gsfExtra()));
@@ -225,8 +222,7 @@ void TrackMergeremb<reco::MuonCollection>::merg_and_put(
     edm::Handle<reco::MuonCollection> track_col_in;
     iEvent.getByToken(akt_collection, track_col_in);
     unsigned old_idx = 0;
-    for (reco::MuonCollection::const_iterator it = track_col_in->begin(); it != track_col_in->end();
-         ++it, ++old_idx, ++new_idx) {
+    for (auto it = track_col_in->begin(); it != track_col_in->end(); ++it, ++old_idx, ++new_idx) {
       outTracks->push_back(reco::Muon(*it));
       reco::MuonRef muRefold(track_col_in, old_idx);
       muonRefColl.push_back(muRefold);
@@ -324,7 +320,7 @@ void TrackMergeremb<reco::PFCandidateCollection>::merg_and_put(
   for (auto akt_collection : to_merge) {
     edm::Handle<reco::PFCandidateCollection> track_col_in;
     iEvent.getByToken(akt_collection, track_col_in);
-    for (reco::PFCandidateCollection::const_iterator it = track_col_in->begin(); it != track_col_in->end(); ++it) {
+    for (auto it = track_col_in->begin(); it != track_col_in->end(); ++it) {
       outTracks->push_back(reco::PFCandidate(*it));
       //if (fabs(it->pdgId()) == 13){
       if (it->trackRef().isNonnull() && outTracks->back().charge()) {

@@ -104,12 +104,11 @@ OwnVector<DTRecSegment4D> DTRefitAndCombineReco4D::reconstruct() {
 
   // Now I want to build the concrete DTRecSegment4D.
   if (!resultPhi.empty()) {
-    for (vector<DTChamberRecSegment2D>::const_iterator phi = resultPhi.begin(); phi != resultPhi.end(); ++phi) {
+    for (auto phi = resultPhi.begin(); phi != resultPhi.end(); ++phi) {
       if (hasZed) {
         // Create all the 4D-segment combining the Z view with the Phi one
         // loop over the Z segments
-        for (vector<DTSLRecSegment2D>::const_iterator zed = theSegments2DTheta.begin(); zed != theSegments2DTheta.end();
-             ++zed) {
+        for (auto zed = theSegments2DTheta.begin(); zed != theSegments2DTheta.end(); ++zed) {
           //>> Important!!
           DTSuperLayerId ZedSegSLId(zed->geographicalId().rawId());
 
@@ -138,8 +137,7 @@ OwnVector<DTRecSegment4D> DTRefitAndCombineReco4D::reconstruct() {
   } else {
     // DTRecSegment4D from zed projection only (unlikely, not so useful, but...)
     if (hasZed) {
-      for (vector<DTSLRecSegment2D>::const_iterator zed = theSegments2DTheta.begin(); zed != theSegments2DTheta.end();
-           ++zed) {
+      for (auto zed = theSegments2DTheta.begin(); zed != theSegments2DTheta.end(); ++zed) {
         // Important!!
         DTSuperLayerId ZedSegSLId(zed->geographicalId().rawId());
 
@@ -165,12 +163,8 @@ vector<DTChamberRecSegment2D> DTRefitAndCombineReco4D::refitSuperSegments() {
   vector<DTChamberRecSegment2D> result;
 
   //double-loop over all the DTSLRecSegment2D in order to make all the possible pairs
-  for (vector<DTSLRecSegment2D>::const_iterator segment2DPhi1 = theSegments2DPhi1.begin();
-       segment2DPhi1 != theSegments2DPhi1.end();
-       ++segment2DPhi1) {
-    for (vector<DTSLRecSegment2D>::const_iterator segment2DPhi2 = theSegments2DPhi2.begin();
-         segment2DPhi2 != theSegments2DPhi2.end();
-         ++segment2DPhi2) {
+  for (auto segment2DPhi1 = theSegments2DPhi1.begin(); segment2DPhi1 != theSegments2DPhi1.end(); ++segment2DPhi1) {
+    for (auto segment2DPhi2 = theSegments2DPhi2.begin(); segment2DPhi2 != theSegments2DPhi2.end(); ++segment2DPhi2) {
       // check the id
       if (segment2DPhi1->chamberId() != segment2DPhi2->chamberId())
         throw cms::Exception("refitSuperSegments") << "he phi segments have different chamber id" << std::endl;

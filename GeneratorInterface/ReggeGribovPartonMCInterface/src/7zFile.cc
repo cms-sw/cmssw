@@ -236,7 +236,7 @@ WRes File_GetLength(CSzFile *p, UInt64 *length) {
 /* ---------- FileSeqInStream ---------- */
 
 static SRes FileSeqInStream_Read(void *pp, void *buf, size_t *size) {
-  CFileSeqInStream *p = (CFileSeqInStream *)pp;
+  auto *p = (CFileSeqInStream *)pp;
   return File_Read(&p->file, buf, size) == 0 ? SZ_OK : SZ_ERROR_READ;
 }
 

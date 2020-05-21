@@ -34,7 +34,7 @@ void RPCSeedFinder::setOutput(std::vector<weightedTrajectorySeed> *goodweightedR
 
 void RPCSeedFinder::setrecHits(ConstMuonRecHitContainer &recHits) {
   oneSeed.clear();
-  for (ConstMuonRecHitContainer::const_iterator iter = recHits.begin(); iter != recHits.end(); iter++)
+  for (auto iter = recHits.begin(); iter != recHits.end(); iter++)
     oneSeed.add(*iter);
   isrecHitsset = true;
 }

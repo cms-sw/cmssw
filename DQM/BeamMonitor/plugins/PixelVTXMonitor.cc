@@ -43,10 +43,9 @@ void PixelVTXMonitor::bookHistograms() {
 
   const std::vector<std::string>& pathList = hltConfig_.triggerNames();
   std::vector<std::string> selectedPaths;
-  for (std::vector<std::string>::const_iterator it = pathList.begin(); it != pathList.end(); ++it) {
+  for (auto it = pathList.begin(); it != pathList.end(); ++it) {
     int nmatch = 0;
-    for (std::vector<std::string>::const_iterator kt = hltPathsOfInterest.begin(); kt != hltPathsOfInterest.end();
-         ++kt) {
+    for (auto kt = hltPathsOfInterest.begin(); kt != hltPathsOfInterest.end(); ++kt) {
       nmatch += TPRegexp(*kt).Match(*it);
     }
     if (!nmatch)
@@ -62,9 +61,9 @@ void PixelVTXMonitor::bookHistograms() {
   dbe_->setCurrentFolder(currentFolder);
 
   PixelMEs local_MEs;
-  for (std::vector<std::string>::iterator it = selectedPaths.begin(); it != selectedPaths.end(); it++) {
+  for (auto it = selectedPaths.begin(); it != selectedPaths.end(); it++) {
     std::string tag = (*it);
-    std::map<std::string, PixelMEs>::iterator iPos = histoMap_.find(tag);
+    auto iPos = histoMap_.find(tag);
     if (iPos == histoMap_.end()) {
       std::string hname, htitle;
 
@@ -133,7 +132,7 @@ void PixelVTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   }
 
   int nVtx = 0;
-  for (reco::VertexCollection::const_iterator ivtx = pixelVertices->begin(); ivtx != pixelVertices->end(); ++ivtx) {
+  for (auto ivtx = pixelVertices->begin(); ivtx != pixelVertices->end(); ++ivtx) {
     if (minVtxDoF_ == -1)
       nVtx++;
     else {
@@ -148,7 +147,7 @@ void PixelVTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   if (!triggerResults.isValid())
     return;
 
-  for (std::map<std::string, PixelMEs>::iterator it = histoMap_.begin(); it != histoMap_.end(); ++it) {
+  for (auto it = histoMap_.begin(); it != histoMap_.end(); ++it) {
     std::string path = it->first;
     MonitorElement* me_clus = it->second.clusME;
     MonitorElement* me_vtx = it->second.vtxME;

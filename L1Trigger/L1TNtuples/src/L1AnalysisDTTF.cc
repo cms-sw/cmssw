@@ -13,9 +13,7 @@ void L1Analysis::L1AnalysisDTTF::SetDTPH(const edm::Handle<L1MuDTChambPhContaine
   dttf_.phSize = PhContainer->size();
   int iphtr = 0;
   double pig = acos(-1);
-  for (L1MuDTChambPhContainer::Phi_Container::const_iterator DTPhDigiItr = PhContainer->begin();
-       DTPhDigiItr != PhContainer->end();
-       ++DTPhDigiItr) {
+  for (auto DTPhDigiItr = PhContainer->begin(); DTPhDigiItr != PhContainer->end(); ++DTPhDigiItr) {
     if ((unsigned int)iphtr > maxDTPH - 1)
       continue;
     dttf_.phBx.push_back(DTPhDigiItr->bxNum() - DTPhDigiItr->Ts2Tag() + 1);
@@ -48,9 +46,7 @@ void L1Analysis::L1AnalysisDTTF::SetDTTH(const edm::Handle<L1MuDTChambThContaine
   dttf_.thTheta.ResizeTo(dttf_.thSize, 7);
   dttf_.thCode.ResizeTo(dttf_.thSize, 7);
 
-  for (L1MuDTChambThContainer::The_Container::const_iterator DTThDigiItr = ThContainer->begin();
-       DTThDigiItr != ThContainer->end();
-       ++DTThDigiItr) {
+  for (auto DTThDigiItr = ThContainer->begin(); DTThDigiItr != ThContainer->end(); ++DTThDigiItr) {
     if ((unsigned int)ithtr > maxDTTH - 1)
       continue;
     dttf_.thBx.push_back(DTThDigiItr->bxNum() + 1);
@@ -77,7 +73,7 @@ void L1Analysis::L1AnalysisDTTF::SetDTTR(const edm::Handle<L1MuDTTrackContainer>
   const L1MuDTTrackContainer::TrackContainer *tr = L1MuDTTrackContainer->getContainer();
   int idttr = 0;
   dttf_.trSize = tr->size();
-  for (L1MuDTTrackContainer::TrackContainer::const_iterator i = tr->begin(); i != tr->end(); ++i) {
+  for (auto i = tr->begin(); i != tr->end(); ++i) {
     if ((unsigned int)idttr > maxDTTR - 1)
       continue;
     dttf_.trBx.push_back(i->bx() + 1);

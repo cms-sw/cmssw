@@ -37,7 +37,7 @@ int SiPixelFrameReverter::toCabling(sipixelobjects::ElectronicIndex& cabling,
     return -1;
   std::vector<CablingPathToDetUnit> path = DetToFedMap.find(detector.rawId)->second;
   typedef std::vector<CablingPathToDetUnit>::const_iterator IT;
-  for (IT it = path.begin(); it != path.end(); ++it) {
+  for (auto it = path.begin(); it != path.end(); ++it) {
     const PixelROC* roc = map_->findItem(*it);
     if (!roc)
       return -3;
@@ -69,7 +69,7 @@ short SiPixelFrameReverter::findLinkInFed(uint32_t detId, GlobalPixel global) {
     return -1;
   std::vector<CablingPathToDetUnit> path = DetToFedMap.find(detId)->second;
   typedef std::vector<CablingPathToDetUnit>::const_iterator IT;
-  for (IT it = path.begin(); it != path.end(); ++it) {
+  for (auto it = path.begin(); it != path.end(); ++it) {
     const PixelROC* roc = map_->findItem(*it);
     if (!roc)
       continue;
@@ -89,7 +89,7 @@ short SiPixelFrameReverter::findRocInLink(uint32_t detId, GlobalPixel global) {
     return -1;
   std::vector<CablingPathToDetUnit> path = DetToFedMap.find(detId)->second;
   typedef std::vector<CablingPathToDetUnit>::const_iterator IT;
-  for (IT it = path.begin(); it != path.end(); ++it) {
+  for (auto it = path.begin(); it != path.end(); ++it) {
     const PixelROC* roc = map_->findItem(*it);
     if (!roc)
       continue;
@@ -109,7 +109,7 @@ short SiPixelFrameReverter::findRocInDet(uint32_t detId, GlobalPixel global) {
     return -1;
   std::vector<CablingPathToDetUnit> path = DetToFedMap.find(detId)->second;
   typedef std::vector<CablingPathToDetUnit>::const_iterator IT;
-  for (IT it = path.begin(); it != path.end(); ++it) {
+  for (auto it = path.begin(); it != path.end(); ++it) {
     const PixelROC* roc = map_->findItem(*it);
     if (!roc)
       continue;
@@ -132,7 +132,7 @@ LocalPixel SiPixelFrameReverter::findPixelInRoc(uint32_t detId, GlobalPixel glob
   }
   std::vector<CablingPathToDetUnit> path = DetToFedMap.find(detId)->second;
   typedef std::vector<CablingPathToDetUnit>::const_iterator IT;
-  for (IT it = path.begin(); it != path.end(); ++it) {
+  for (auto it = path.begin(); it != path.end(); ++it) {
     const PixelROC* roc = map_->findItem(*it);
     if (!roc)
       continue;

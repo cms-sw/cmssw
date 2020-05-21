@@ -181,7 +181,7 @@ void DDTokenize2(const std::string& sel, std::vector<DDPartSelRegExpLevel>& path
 }
 
 std::ostream& operator<<(std::ostream& o, const DDPartSelection& p) {
-  DDPartSelection::const_iterator it(p.begin()), ed(p.end());
+  auto it(p.begin()), ed(p.end());
   for (; it != ed; ++it) {
     const DDPartSelectionLevel lv = *it;
     switch (lv.selectionType_) {
@@ -205,7 +205,7 @@ std::ostream& operator<<(std::ostream& o, const DDPartSelection& p) {
 }
 
 std::ostream& operator<<(std::ostream& os, const std::vector<DDPartSelection>& v) {
-  std::vector<DDPartSelection>::const_iterator it(v.begin()), ed(v.end());
+  auto it(v.begin()), ed(v.end());
   for (; it != (ed - 1); ++it) {
     os << *it << std::endl;
   }

@@ -16,7 +16,7 @@ std::vector<reco::GsfElectronRef> electronSelector(const std::vector<reco::GsfEl
   //const edm::ValueMap<double>& eIsoMapEcal = *eIsoMap[1];
   //const edm::ValueMap<double>& eIsoMapHcal = *eIsoMap[2];
   edm::LogDebug_("electronSelector", "", 16) << "Number of electrons to select from = " << electrons.size();
-  for (std::vector<reco::GsfElectronRef>::const_iterator Relec = electrons.begin(); Relec != electrons.end(); ++Relec) {
+  for (auto Relec = electrons.begin(); Relec != electrons.end(); ++Relec) {
     reco::GsfElectronRef elec = *Relec;
     edm::LogDebug_("electronSelector", "", 17) << "Analysing elec, id = " << elec.id() << "\tkey = " << elec.key();
     double scEta = elec->superCluster()->eta();

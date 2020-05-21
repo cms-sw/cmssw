@@ -22,7 +22,7 @@ CSCTFConfigProducer::CSCTFConfigProducer(const edm::ParameterSet& pset) {
 
   for (int sp = 0; sp < 12; sp++) {
     std::vector<std::string> regs = pset.getParameter<std::vector<std::string> >(name[sp]);
-    for (std::vector<std::string>::const_iterator line = regs.begin(); line != regs.end(); line++)
+    for (auto line = regs.begin(); line != regs.end(); line++)
       registers[sp] += *line + "\n";
   }
 

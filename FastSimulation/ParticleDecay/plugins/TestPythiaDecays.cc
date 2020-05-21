@@ -309,7 +309,7 @@ void TestPythiaDecays::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
   }
 
-  for (std::map<size_t, std::vector<size_t> >::iterator it = childMap.begin(); it != childMap.end(); ++it) {
+  for (auto it = childMap.begin(); it != childMap.end(); ++it) {
     // fill ctau hist
     size_t parentIndex = it->first;
     const SimTrack& parent = simtracks->at(parentIndex);

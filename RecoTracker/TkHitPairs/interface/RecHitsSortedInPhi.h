@@ -76,7 +76,7 @@ public:
   std::vector<Hit> hits() const {
     std::vector<Hit> result;
     result.reserve(theHits.size());
-    for (HitIter i = theHits.begin(); i != theHits.end(); i++)
+    for (auto i = theHits.begin(); i != theHits.end(); i++)
       result.push_back(i->hit());
     return result;
   }

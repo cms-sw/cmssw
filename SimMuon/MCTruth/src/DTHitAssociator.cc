@@ -182,11 +182,9 @@ void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup 
       int jwire = 0;
       int ihit = 0;
 
-      for (SimHitMap::const_iterator mapIT = mapOfSimHit.begin(); mapIT != mapOfSimHit.end(); ++mapIT, jwire++) {
+      for (auto mapIT = mapOfSimHit.begin(); mapIT != mapOfSimHit.end(); ++mapIT, jwire++) {
         DTWireId wireid = (*mapIT).first;
-        for (vector<PSimHit_withFlag>::const_iterator hitIT = mapOfSimHit[wireid].begin();
-             hitIT != mapOfSimHit[wireid].end();
-             hitIT++, ihit++) {
+        for (auto hitIT = mapOfSimHit[wireid].begin(); hitIT != mapOfSimHit[wireid].end(); hitIT++, ihit++) {
           PSimHit hit = hitIT->first;
           LogTrace("DTHitAssociator") << "PSimHit " << ihit << ", wire " << wireid  //<<", detID = "<<hit.detUnitId()
                                       << ", SimTrack Id:" << hit.trackId() << "/Evt:(" << hit.eventId().event() << ","
@@ -202,12 +200,11 @@ void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup 
       int jwire = 0;
       int ihit = 0;
 
-      for (DigiMap::const_iterator mapIT = mapOfDigi.begin(); mapIT != mapOfDigi.end(); ++mapIT, jwire++) {
+      for (auto mapIT = mapOfDigi.begin(); mapIT != mapOfDigi.end(); ++mapIT, jwire++) {
         LogTrace("DTHitAssociator") << "\n *** Dump DT digis ***";
 
         DTWireId wireid = (*mapIT).first;
-        for (vector<DTDigi>::const_iterator hitIT = mapOfDigi[wireid].begin(); hitIT != mapOfDigi[wireid].end();
-             hitIT++, ihit++) {
+        for (auto hitIT = mapOfDigi[wireid].begin(); hitIT != mapOfDigi[wireid].end(); hitIT++, ihit++) {
           LogTrace("DTHitAssociator") << "DTDigi " << ihit << ", wire " << wireid << ", number = " << hitIT->number()
                                       << ", TDC counts = " << hitIT->countsTDC();
         }
@@ -220,7 +217,7 @@ void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup 
       LogTrace("DTHitAssociator") << "\n *** Analyze DTRecHitCollection by DTWireId ***";
 
     int iwire = 0;
-    for (RecHitMap::const_iterator mapIT = mapOfRecHit.begin(); mapIT != mapOfRecHit.end(); ++mapIT, iwire++) {
+    for (auto mapIT = mapOfRecHit.begin(); mapIT != mapOfRecHit.end(); ++mapIT, iwire++) {
       DTWireId wireid = (*mapIT).first;
       LogTrace("DTHitAssociator") << "\n======================================="
                                      "============================";
@@ -230,9 +227,7 @@ void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup 
       if (mapOfSimHit.find(wireid) != mapOfSimHit.end()) {
         LogTrace("DTHitAssociator") << "\n" << mapOfSimHit[wireid].size() << " SimHits (PSimHit):";
 
-        for (vector<PSimHit_withFlag>::const_iterator hitIT = mapOfSimHit[wireid].begin();
-             hitIT != mapOfSimHit[wireid].end();
-             ++hitIT) {
+        for (auto hitIT = mapOfSimHit[wireid].begin(); hitIT != mapOfSimHit[wireid].end(); ++hitIT) {
           stringstream tId;
           tId << (hitIT->first).trackId();
           string simhitlog = "\t SimTrack Id = " + tId.str();
@@ -247,9 +242,7 @@ void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup 
       if (mapOfLinks.find(wireid) != mapOfLinks.end()) {
         LogTrace("DTHitAssociator") << "\n" << mapOfLinks[wireid].size() << " Links (DTDigiSimLink):";
 
-        for (vector<DTDigiSimLink>::const_iterator hitIT = mapOfLinks[wireid].begin();
-             hitIT != mapOfLinks[wireid].end();
-             ++hitIT) {
+        for (auto hitIT = mapOfLinks[wireid].begin(); hitIT != mapOfLinks[wireid].end(); ++hitIT) {
           LogTrace("DTHitAssociator") << "\t digi number = " << hitIT->number() << ", time = " << hitIT->time()
                                       << ", SimTrackId = " << hitIT->SimTrackId();
         }
@@ -257,14 +250,13 @@ void DTHitAssociator::initEvent(const edm::Event &iEvent, const edm::EventSetup 
 
       if (mapOfDigi.find(wireid) != mapOfDigi.end()) {
         LogTrace("DTHitAssociator") << "\n" << mapOfDigi[wireid].size() << " Digis (DTDigi):";
-        for (vector<DTDigi>::const_iterator hitIT = mapOfDigi[wireid].begin(); hitIT != mapOfDigi[wireid].end();
-             ++hitIT) {
+        for (auto hitIT = mapOfDigi[wireid].begin(); hitIT != mapOfDigi[wireid].end(); ++hitIT) {
           LogTrace("DTHitAssociator") << "\t digi number = " << hitIT->number() << ", time = " << hitIT->time();
         }
       }
 
       LogTrace("DTHitAssociator") << "\n" << (*mapIT).second.size() << " RecHits (DTRecHit1DPair):";
-      for (vector<DTRecHit1DPair>::const_iterator vIT = (*mapIT).second.begin(); vIT != (*mapIT).second.end(); ++vIT) {
+      for (auto vIT = (*mapIT).second.begin(); vIT != (*mapIT).second.end(); ++vIT) {
         LogTrace("DTHitAssociator") << "\t digi time = " << vIT->digiTime();
       }
     }
@@ -296,8 +288,7 @@ std::vector<DTHitAssociator::SimHitIdpr> DTHitAssociator::associateDTHitId(const
 
     auto found = mapOfSimHit.find(wireid);
     if (found != mapOfSimHit.end()) {
-      for (vector<PSimHit_withFlag>::const_iterator hitIT = found->second.begin(); hitIT != found->second.end();
-           ++hitIT) {
+      for (auto hitIT = found->second.begin(); hitIT != found->second.end(); ++hitIT) {
         bool valid_hit = hitIT->second;
         PSimHit this_hit = hitIT->first;
 
@@ -324,8 +315,7 @@ std::vector<DTHitAssociator::SimHitIdpr> DTHitAssociator::associateDTHitId(const
       // the same DTDigiSimLink::number()
 
       // first find the associated digi Number
-      for (vector<DTDigiSimLink>::const_iterator linkIT = found->second.begin(); linkIT != found->second.end();
-           ++linkIT) {
+      for (auto linkIT = found->second.begin(); linkIT != found->second.end(); ++linkIT) {
         float digitime = linkIT->time();
         if (fabs(digitime - theTime) < 0.1) {
           theNumber = linkIT->number();
@@ -336,8 +326,7 @@ std::vector<DTHitAssociator::SimHitIdpr> DTHitAssociator::associateDTHitId(const
       // valid SimHits
       //  within a time window of the order of the time resolution, specified in
       //  the DTDigitizer)
-      for (vector<DTDigiSimLink>::const_iterator linkIT = found->second.begin(); linkIT != found->second.end();
-           ++linkIT) {
+      for (auto linkIT = found->second.begin(); linkIT != found->second.end(); ++linkIT) {
         int digiNr = linkIT->number();
         if (digiNr == theNumber) {
           SimHitIdpr currentId(linkIT->SimTrackId(), linkIT->eventId());
@@ -370,8 +359,7 @@ std::vector<PSimHit> DTHitAssociator::associateHit(const TrackingRecHit &hit) co
 
       auto found = mapOfSimHit.find(wireid);
       if (found != mapOfSimHit.end()) {
-        for (vector<PSimHit_withFlag>::const_iterator hitIT = found->second.begin(); hitIT != found->second.end();
-             ++hitIT) {
+        for (auto hitIT = found->second.begin(); hitIT != found->second.end(); ++hitIT) {
           bool valid_hit = hitIT->second;
           if (valid_hit)
             simhits.push_back(hitIT->first);
@@ -382,14 +370,13 @@ std::vector<PSimHit> DTHitAssociator::associateHit(const TrackingRecHit &hit) co
 
       simtrackids = associateDTHitId(dtrechit);
 
-      for (vector<SimHitIdpr>::const_iterator idIT = simtrackids.begin(); idIT != simtrackids.end(); ++idIT) {
+      for (auto idIT = simtrackids.begin(); idIT != simtrackids.end(); ++idIT) {
         uint32_t trId = idIT->first;
         EncodedEventId evId = idIT->second;
 
         auto found = mapOfSimHit.find(wireid);
         if (found != mapOfSimHit.end()) {
-          for (vector<PSimHit_withFlag>::const_iterator hitIT = found->second.begin(); hitIT != found->second.end();
-               ++hitIT) {
+          for (auto hitIT = found->second.begin(); hitIT != found->second.end(); ++hitIT) {
             if (hitIT->first.trackId() == trId && hitIT->first.eventId() == evId)
               simhits.push_back(hitIT->first);
           }

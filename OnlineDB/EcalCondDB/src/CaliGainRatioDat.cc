@@ -133,7 +133,7 @@ void CaliGainRatioDat::writeArrayDB(const std::map<EcalLogicID, CaliGainRatioDat
   const CaliGainRatioDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, CaliGainRatioDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
+  for (auto p = data->begin(); p != data->end(); ++p) {
     channel = &(p->first);
     int logicID = channel->getLogicID();
     if (!logicID) {

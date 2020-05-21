@@ -38,7 +38,7 @@ bool CmsMTDConstruction<FilteredView>::mtdOrderPhi(const GeometricTimingDet* a, 
 template <>
 void CmsMTDConstruction<DDFilteredView>::buildBTLModule(DDFilteredView& fv, GeometricTimingDet* mother) {
   std::string nodeName(fv.name());
-  GeometricTimingDet* det =
+  auto* det =
       new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(nodeName.substr(0, CmsMTDStringToEnum::kModStrLen)));
 
   const auto& copyNumbers = fv.copyNumbers();
@@ -72,7 +72,7 @@ void CmsMTDConstruction<DDFilteredView>::buildBTLModule(DDFilteredView& fv, Geom
 template <>
 void CmsMTDConstruction<cms::DDFilteredView>::buildBTLModule(cms::DDFilteredView& fv, GeometricTimingDet* mother) {
   std::string nodeName(fv.name());
-  GeometricTimingDet* det =
+  auto* det =
       new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(nodeName.substr(0, CmsMTDStringToEnum::kModStrLen)));
 
   const auto& copyNumbers = fv.copyNumbers();
@@ -106,7 +106,7 @@ void CmsMTDConstruction<cms::DDFilteredView>::buildBTLModule(cms::DDFilteredView
 template <>
 void CmsMTDConstruction<DDFilteredView>::buildETLModule(DDFilteredView& fv, GeometricTimingDet* mother) {
   std::string nodeName(fv.name());
-  GeometricTimingDet* det =
+  auto* det =
       new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(nodeName.substr(0, CmsMTDStringToEnum::kModStrLen)));
 
   if (isETLtdr(fv)) {
@@ -153,7 +153,7 @@ void CmsMTDConstruction<DDFilteredView>::buildETLModule(DDFilteredView& fv, Geom
 template <>
 void CmsMTDConstruction<cms::DDFilteredView>::buildETLModule(cms::DDFilteredView& fv, GeometricTimingDet* mother) {
   std::string nodeName(fv.name());
-  GeometricTimingDet* det =
+  auto* det =
       new GeometricTimingDet(&fv, theCmsMTDStringToEnum.type(nodeName.substr(0, CmsMTDStringToEnum::kModStrLen)));
 
   baseNumber_.reset();
@@ -178,7 +178,7 @@ template <class FilteredView>
 GeometricTimingDet* CmsMTDConstruction<FilteredView>::buildSubdet(FilteredView& fv) {
   std::string nodeName(fv.name());
   auto thisDet = theCmsMTDStringToEnum.type(nodeName);
-  GeometricTimingDet* subdet = new GeometricTimingDet(&fv, thisDet);
+  auto* subdet = new GeometricTimingDet(&fv, thisDet);
 
   if (thisDet == GeometricTimingDet::BTL) {
     subdet->setGeographicalID(BTLDetId(0, 0, 0, 0, 0));
@@ -196,7 +196,7 @@ template <class FilteredView>
 GeometricTimingDet* CmsMTDConstruction<FilteredView>::buildLayer(FilteredView& fv) {
   std::string nodeName(fv.name());
   auto thisDet = theCmsMTDStringToEnum.type(nodeName);
-  GeometricTimingDet* layer = new GeometricTimingDet(&fv, thisDet);
+  auto* layer = new GeometricTimingDet(&fv, thisDet);
 
   if (thisDet != GeometricTimingDet::BTLLayer && thisDet != GeometricTimingDet::ETLDisc) {
     throw cms::Exception("CmsMTDConstruction") << " ERROR - I was expecting a SubDet, I got a " << fv.name();

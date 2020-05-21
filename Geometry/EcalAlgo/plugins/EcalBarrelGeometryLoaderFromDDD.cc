@@ -120,7 +120,7 @@ void EcalBGL::fillNamedParams(const cms::DDFilteredView& fv, EcalBarrelGeometry*
   const std::string specName = "ecal_eb";
 
   //nxtalEta
-  std::vector<double> tempD = fv.get<std::vector<double> >(specName, "nxtalEta");
+  auto tempD = fv.get<std::vector<double> >(specName, "nxtalEta");
   assert(tempD.size() == 1);
   geom->setNumXtalsEtaDirection((int)tempD[0]);
 

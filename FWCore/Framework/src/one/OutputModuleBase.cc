@@ -321,8 +321,7 @@ namespace edm {
         for (BranchIDList& branchIDList : *branchIDLists_) {
           for (BranchID::value_type& branchID : branchIDList) {
             // Replace BranchID of each dropped branch with that of the kept alias, so the alias branch will have the product ID of the original branch.
-            std::map<BranchID::value_type, BranchID::value_type>::const_iterator iter =
-                droppedBranchIDToKeptBranchID_.find(branchID);
+            auto iter = droppedBranchIDToKeptBranchID_.find(branchID);
             if (iter != droppedBranchIDToKeptBranchID_.end()) {
               branchID = iter->second;
             }

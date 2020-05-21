@@ -185,7 +185,7 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup) {
   const HcalHaloData HcalData = (*TheHcalHaloData.product());
   const std::vector<PhiWedge>& HcalWedges = HcalData.GetPhiWedges();
   bool HcalLooseId = false, HcalTightId = false;
-  for (std::vector<PhiWedge>::const_iterator iWedge = HcalWedges.begin(); iWedge != HcalWedges.end(); iWedge++) {
+  for (auto iWedge = HcalWedges.begin(); iWedge != HcalWedges.end(); iWedge++) {
     bool HcaliPhi = false;
     //Loose Id
     if (iWedge->Energy() > L_HcalPhiWedgeEnergy && iWedge->NumberOfConstituents() > L_HcalPhiWedgeConstituents &&
@@ -240,16 +240,14 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     GlobalLooseId = true;
 
   //Tight Id
-  for (std::vector<PhiWedge>::const_iterator iWedge = MatchedEcalWedges.begin(); iWedge != MatchedEcalWedges.end();
-       iWedge++) {
+  for (auto iWedge = MatchedEcalWedges.begin(); iWedge != MatchedEcalWedges.end(); iWedge++) {
     if (iWedge->NumberOfConstituents() > T_EcalPhiWedgeConstituents)
       GlobalTightId = true;
     if (std::abs(iWedge->ZDirectionConfidence()) > T_EcalPhiWedgeConfidence)
       GlobalTightId = true;
   }
 
-  for (std::vector<PhiWedge>::const_iterator iWedge = MatchedHcalWedges.begin(); iWedge != MatchedHcalWedges.end();
-       iWedge++) {
+  for (auto iWedge = MatchedHcalWedges.begin(); iWedge != MatchedHcalWedges.end(); iWedge++) {
     if (iWedge->NumberOfConstituents() > T_HcalPhiWedgeConstituents)
       GlobalTightId = true;
     if (std::abs(iWedge->ZDirectionConfidence()) > T_HcalPhiWedgeConfidence)

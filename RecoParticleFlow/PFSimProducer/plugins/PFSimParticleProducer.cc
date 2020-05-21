@@ -142,8 +142,8 @@ void PFSimParticleProducer::produce(Event& iEvent, const EventSetup& iSetup) {
     } else {
       assert(pcalohits.isValid());
 
-      edm::PCaloHitContainer::const_iterator it = pcalohits.product()->begin();
-      edm::PCaloHitContainer::const_iterator itend = pcalohits.product()->end();
+      auto it = pcalohits.product()->begin();
+      auto itend = pcalohits.product()->end();
 
       //loop on the PCaloHit from FastSim Calorimetry
       for (; it != itend; ++it) {
@@ -239,15 +239,15 @@ void PFSimParticleProducer::produce(Event& iEvent, const EventSetup& iSetup) {
         } else {
           assert(rhcHandle.isValid());
 
-          EBRecHitCollection::const_iterator it_rh = rhcHandle.product()->begin();
-          EBRecHitCollection::const_iterator itend_rh = rhcHandle.product()->end();
+          auto it_rh = rhcHandle.product()->begin();
+          auto itend_rh = rhcHandle.product()->end();
 
           for (; it_rh != itend_rh; ++it_rh) {
             unsigned rhit_hi = EBDetId(it_rh->id()).hashedIndex();
             EBDetId detid(it_rh->id());
 
-            ITM it_phit = caloHitsEBID[rhit_hi].begin();
-            ITM itend_phit = caloHitsEBID[rhit_hi].end();
+            auto it_phit = caloHitsEBID[rhit_hi].begin();
+            auto itend_phit = caloHitsEBID[rhit_hi].end();
             for (; it_phit != itend_phit; ++it_phit) {
               if (i == it_phit->second) {
                 //Alex (08/10/08) TO BE REMOVED, eliminating

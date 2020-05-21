@@ -180,7 +180,7 @@ void initialize(HLTPerformanceInfo hltPerf,
 
   //mIdxInt is a list of index where each modInterested is located
   for (unsigned i = 0; i < mInt.size(); i++) {
-    std::vector<std::string>::iterator modpointer = std::find(mNames->begin(), mNames->end(), mInt.at(i));
+    auto modpointer = std::find(mNames->begin(), mNames->end(), mInt.at(i));
     if (modpointer != mNames->end()) {
       std::vector<std::string>::size_type indexValue = (modpointer - mNames->begin());
       mIdxInt->push_back(indexValue);
@@ -969,7 +969,7 @@ int main(int argc, char** argv) {
   //--- Additions necessary to get the actual run/event number ---//
   TBranch* TBEvtAux = events->GetBranch("EventAuxiliary");
   assert(TBEvtAux);
-  edm::EventAuxiliary* EvtAuxWrapper = new edm::EventAuxiliary;
+  auto* EvtAuxWrapper = new edm::EventAuxiliary;
   TBEvtAux->SetAddress((void*)&EvtAuxWrapper);
 
   //--- Prepare the output ---//

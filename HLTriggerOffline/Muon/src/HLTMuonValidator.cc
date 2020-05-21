@@ -83,7 +83,7 @@ HLTMuonValidator::HLTMuonValidator(const ParameterSet &pset)
 
 vector<string> HLTMuonValidator::moduleLabels(string path) {
   vector<string> modules = hltConfig_.moduleLabels(path);
-  vector<string>::iterator iter = modules.begin();
+  auto iter = modules.begin();
 
   while (iter != modules.end())
     if (iter->find("Filtered") == string::npos)

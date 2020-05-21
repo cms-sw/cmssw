@@ -57,7 +57,7 @@ TauDQMFileLoader::cfgEntryFileSet::cfgEntryFileSet(const std::string& name, cons
   name_ = name;
 
   vstring inputFileList = cfg.getParameter<vstring>("inputFileNames");
-  for (vstring::const_iterator inputFile = inputFileList.begin(); inputFile != inputFileList.end(); ++inputFile) {
+  for (auto inputFile = inputFileList.begin(); inputFile != inputFileList.end(); ++inputFile) {
     if (inputFile->find(rangeKeyword) != std::string::npos) {
       size_t posRangeStart = inputFile->find(rangeKeyword) + rangeKeyword.length();
       size_t posRangeEnd = inputFile->find('#', posRangeStart);
@@ -130,8 +130,7 @@ TauDQMFileLoader::TauDQMFileLoader(const edm::ParameterSet& cfg) {
   //    unless there is only one fileSet to be loaded
   //    (otherwise histograms of different fileSets get overwritten,
   //     once histograms of the next fileSet are loaded)
-  for (std::map<std::string, cfgEntryFileSet>::const_iterator fileSet = fileSets_.begin(); fileSet != fileSets_.end();
-       ++fileSet) {
+  for (auto fileSet = fileSets_.begin(); fileSet != fileSets_.end(); ++fileSet) {
     if (fileSet->second.dqmDirectory_store_.empty() && fileSets_.size() > 1) {
       edm::LogError("TauDQMFileLoader") << " dqmDirectory_store undefined for fileSet = " << fileSet->second.name_
                                         << " !!";
@@ -175,9 +174,8 @@ void TauDQMFileLoader::endRun(const edm::Run& r, const edm::EventSetup& c) {
   //    store list of directories existing in inputFile,
   //    in order to separate histogram directories existing in the inputFile from directories existing in DQMStore
   //    when calling recursive function dqmCopyRecursively
-  for (std::map<std::string, cfgEntryFileSet>::const_iterator fileSet = fileSets_.begin(); fileSet != fileSets_.end();
-       ++fileSet) {
-    for (vstring::const_iterator inputFileName = fileSet->second.inputFileNames_.begin();
+  for (auto fileSet = fileSets_.begin(); fileSet != fileSets_.end(); ++fileSet) {
+    for (auto inputFileName = fileSet->second.inputFileNames_.begin();
          inputFileName != fileSet->second.inputFileNames_.end();
          ++inputFileName) {
       //std::cout << " checking inputFile = " << (*inputFileName) << std::endl;
@@ -214,9 +212,8 @@ void TauDQMFileLoader::endRun(const edm::Run& r, const edm::EventSetup& c) {
   //--- load histograms from file
   //std::cout << "--> loading histograms from file..." << std::endl;
   DQMStore& dqmStore = (*edm::Service<DQMStore>());
-  for (std::map<std::string, cfgEntryFileSet>::const_iterator fileSet = fileSets_.begin(); fileSet != fileSets_.end();
-       ++fileSet) {
-    for (vstring::const_iterator inputFileName = fileSet->second.inputFileNames_.begin();
+  for (auto fileSet = fileSets_.begin(); fileSet != fileSets_.end(); ++fileSet) {
+    for (auto inputFileName = fileSet->second.inputFileNames_.begin();
          inputFileName != fileSet->second.inputFileNames_.end();
          ++inputFileName) {
       if (verbosity)
@@ -236,8 +233,7 @@ void TauDQMFileLoader::endRun(const edm::Run& r, const edm::EventSetup& c) {
 
         dqmStore.setCurrentFolder(inputDirectory);
         std::vector<std::string> dirNames = dqmStore.getSubdirs();
-        for (std::vector<std::string>::const_iterator dirName = dirNames.begin(); dirName != dirNames.end();
-             ++dirName) {
+        for (auto dirName = dirNames.begin(); dirName != dirNames.end(); ++dirName) {
           std::string subDirName = dqmSubDirectoryName_merged(inputDirectory, *dirName);
           //std::cout << " subDirName = " << subDirName << std::endl;
 

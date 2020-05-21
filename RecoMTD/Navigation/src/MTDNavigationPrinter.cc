@@ -154,7 +154,7 @@ void MTDNavigationPrinter::printLayer(const DetLayer* layer) const {
 
 /// print next layers
 void MTDNavigationPrinter::printLayers(const vector<const DetLayer*>& nextLayers) const {
-  for (vector<const DetLayer*>::const_iterator inext = nextLayers.begin(); inext != nextLayers.end(); inext++) {
+  for (auto inext = nextLayers.begin(); inext != nextLayers.end(); inext++) {
     PRINT("MTDNavigationPrinter") << " --> " << std::endl;
     if ((*inext)->location() == GeomDetEnumerators::barrel) {
       const BarrelDetLayer* l = dynamic_cast<const BarrelDetLayer*>(&(**inext));

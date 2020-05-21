@@ -38,7 +38,7 @@ LMFColoredTable::LMFColoredTable(oracle::occi::Environment* env, oracle::occi::C
 
 std::string LMFColoredTable::getColor() const {
   std::string ret = "";
-  std::map<int, std::string>::const_iterator i = COLOR.find(m_color);
+  auto i = COLOR.find(m_color);
   if (i != COLOR.end()) {
     ret = i->second;
   }
@@ -47,7 +47,7 @@ std::string LMFColoredTable::getColor() const {
 
 std::string LMFColoredTable::getSystem() const {
   std::string ret = "";
-  std::map<int, std::string>::const_iterator i = SYSTEM.find(m_system);
+  auto i = SYSTEM.find(m_system);
   if (i != SYSTEM.end()) {
     ret = i->second;
   }
@@ -56,8 +56,8 @@ std::string LMFColoredTable::getSystem() const {
 
 LMFColoredTable& LMFColoredTable::setColor(std::string color) {
   std::transform(color.begin(), color.end(), color.begin(), toupper);
-  std::map<int, std::string>::const_iterator i = COLOR.begin();
-  std::map<int, std::string>::const_iterator e = COLOR.end();
+  auto i = COLOR.begin();
+  auto e = COLOR.end();
   bool loop = true;
   while ((loop) && (i != e)) {
     if (i->second == color) {
@@ -71,8 +71,8 @@ LMFColoredTable& LMFColoredTable::setColor(std::string color) {
 
 LMFColoredTable& LMFColoredTable::setSystem(std::string system) {
   std::transform(system.begin(), system.end(), system.begin(), toupper);
-  std::map<int, std::string>::const_iterator i = SYSTEM.begin();
-  std::map<int, std::string>::const_iterator e = SYSTEM.end();
+  auto i = SYSTEM.begin();
+  auto e = SYSTEM.end();
   bool loop = true;
   while ((loop) && (i != e)) {
     if (i->second == system) {
@@ -87,8 +87,8 @@ LMFColoredTable& LMFColoredTable::setSystem(std::string system) {
 int LMFColoredTable::writeDB() noexcept(false) {
   // check if the VMIN version has been properly set, otherwise
   // change it to the default value
-  std::map<int, std::vector<float> >::iterator i = m_data.begin();
-  std::map<int, std::vector<float> >::iterator e = m_data.end();
+  auto i = m_data.begin();
+  auto e = m_data.end();
   std::list<int> versions;  // the list of different versions
   while (i != e) {
     int s = i->second.size();

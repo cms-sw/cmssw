@@ -82,7 +82,7 @@ AntiElectronIDMVA6::~AntiElectronIDMVA6() {
     delete mva_wGwGSF_EC_;
   }
 
-  for (std::vector<TFile*>::iterator it = inputFilesToDelete_.begin(); it != inputFilesToDelete_.end(); ++it) {
+  for (auto it = inputFilesToDelete_.begin(); it != inputFilesToDelete_.end(); ++it) {
     delete (*it);
   }
 }

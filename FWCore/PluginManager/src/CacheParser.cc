@@ -134,7 +134,7 @@ namespace edmplugin {
       iOut[pluginType].push_back(info);
     }
     //now do a sort which preserves any previous order for files
-    for (CacheParser::CategoryToInfos::iterator it = iOut.begin(), itEnd = iOut.end(); it != itEnd; ++it) {
+    for (auto it = iOut.begin(), itEnd = iOut.end(); it != itEnd; ++it) {
       std::stable_sort(it->second.begin(), it->second.end(), CompPluginInfos());
     }
   }
@@ -143,9 +143,9 @@ namespace edmplugin {
     //order the data more to our liking: library then object then type
     LoadableToPlugins ordered;
 
-    for (CategoryToInfos::const_iterator it = iInfos.begin(); it != iInfos.end(); ++it) {
+    for (auto it = iInfos.begin(); it != iInfos.end(); ++it) {
       std::string type(it->first);
-      for (std::vector<PluginInfo>::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
+      for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
         //remove any directory specification
 #if (BOOST_VERSION / 100000) >= 1 && ((BOOST_VERSION / 100) % 1000) >= 47
         std::string loadable(it2->loadable_.filename().string());
@@ -160,14 +160,12 @@ namespace edmplugin {
   }
 
   void CacheParser::write(LoadableToPlugins& iIn, std::ostream& oOut) {
-    for (LoadableToPlugins::iterator it = iIn.begin(); it != iIn.end(); ++it) {
+    for (auto it = iIn.begin(); it != iIn.end(); ++it) {
       std::string loadable(it->first.string());
       replaceSpaces(loadable);
       edm::sort_all(it->second);
 
-      for (std::vector<std::pair<std::string, std::string> >::iterator it2 = it->second.begin();
-           it2 != it->second.end();
-           ++it2) {
+      for (auto it2 = it->second.begin(); it2 != it->second.end(); ++it2) {
         oOut << loadable << " " << replaceSpaces(it2->first) << " " << replaceSpaces(it2->second) << "\n";
       }
     }

@@ -240,7 +240,7 @@ void V0Monitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     edm::Handle<LumiScalersCollection> lumiScalers;
     iEvent.getByToken(lumiscalersToken_, lumiScalers);
     if (lumiScalers.isValid() && !lumiScalers->empty()) {
-      LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
+      auto scalit = lumiScalers->begin();
       lumi = scalit->instantLumi();
     }
   } else {

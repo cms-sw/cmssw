@@ -202,8 +202,7 @@ namespace edm {
 
     assert(1 == loopers.size());
 
-    for (std::vector<std::string>::iterator itName = loopers.begin(), itNameEnd = loopers.end(); itName != itNameEnd;
-         ++itName) {
+    for (auto itName = loopers.begin(), itNameEnd = loopers.end(); itName != itNameEnd; ++itName) {
       ParameterSet* providerPSet = params.getPSetForUpdate(*itName);
       providerPSet->registerIt();
       vLooper = eventsetup::LooperFactory::get()->addTo(esController, cp, *providerPSet);

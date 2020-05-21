@@ -71,7 +71,7 @@ void TotemTestGem::update(const EndOfEvent* evt) {
   int nhit = 0;
   for (unsigned int in = 0; in < names.size(); in++) {
     int HCid = G4SDManager::GetSDMpointer()->GetCollectionID(names[in]);
-    TotemG4HitCollection* theHC = (TotemG4HitCollection*)allHC->GetHC(HCid);
+    auto* theHC = (TotemG4HitCollection*)allHC->GetHC(HCid);
     LogDebug("ForwardSim") << "TotemTestGem :: Hit Collection for " << names[in] << " of ID " << HCid
                            << " is obtained at " << theHC;
 

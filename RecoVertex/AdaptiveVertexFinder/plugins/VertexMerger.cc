@@ -51,13 +51,13 @@ void TemplatedVertexMerger<VTX>::produce(edm::Event &event, const edm::EventSetu
 
   VertexDistance3D dist;
   auto recoVertices = std::make_unique<Product>();
-  for (typename Product::const_iterator sv = secondaryVertices->begin(); sv != secondaryVertices->end(); ++sv) {
+  for (auto sv = secondaryVertices->begin(); sv != secondaryVertices->end(); ++sv) {
     recoVertices->push_back(*sv);
   }
-  for (typename Product::iterator sv = recoVertices->begin(); sv != recoVertices->end(); ++sv) {
+  for (auto sv = recoVertices->begin(); sv != recoVertices->end(); ++sv) {
     bool shared = false;
     VertexState s1(RecoVertex::convertPos(sv->position()), RecoVertex::convertError(sv->error()));
-    for (typename Product::iterator sv2 = recoVertices->begin(); sv2 != recoVertices->end(); ++sv2) {
+    for (auto sv2 = recoVertices->begin(); sv2 != recoVertices->end(); ++sv2) {
       VertexState s2(RecoVertex::convertPos(sv2->position()), RecoVertex::convertError(sv2->error()));
       double fr = vertexTools::computeSharedTracks(*sv2, *sv);
       //        std::cout << sv2-recoVertices->begin() << " vs " << sv-recoVertices->begin() << " : " << fr << " "  <<  computeSharedTracks(*sv, *sv2) << " sig " << dist.distance(*sv,*sv2).significance() << std::endl;

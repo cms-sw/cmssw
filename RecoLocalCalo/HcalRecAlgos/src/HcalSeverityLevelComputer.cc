@@ -190,7 +190,7 @@ HcalSeverityLevelComputer::HcalSeverityLevelComputer(const edm::ParameterSet& iC
   unsigned int phase_ = iConfig.getParameter<unsigned int>("phase");
 
   // now run through the parameter set vector:
-  for (myParameters::iterator itLevels = myLevels.begin(); itLevels != myLevels.end(); ++itLevels) {
+  for (auto itLevels = myLevels.begin(); itLevels != myLevels.end(); ++itLevels) {
     // create the basic object
     HcalSeverityDefinition mydef;
 
@@ -236,7 +236,7 @@ HcalSeverityLevelComputer::HcalSeverityLevelComputer(const edm::ParameterSet& iC
     }
 
     // finally, append the masks to the mask vectors, sorting them according to level
-    std::vector<HcalSeverityDefinition>::iterator it = SevDef.begin();
+    auto it = SevDef.begin();
 
     do {
       if (it == SevDef.end()) {
@@ -262,7 +262,7 @@ HcalSeverityLevelComputer::HcalSeverityLevelComputer(const edm::ParameterSet& iC
   }  //for (myParameters::iterator itLevels=myLevels.begin(); itLevels != myLevels.end(); ++itLevels)
 
   edm::LogInfo("HcalSeverityLevelComputer") << "HcalSeverityLevelComputer - Summary of Severity Levels:" << std::endl;
-  for (std::vector<HcalSeverityDefinition>::iterator it = SevDef.begin(); it != SevDef.end(); it++) {
+  for (auto it = SevDef.begin(); it != SevDef.end(); it++) {
     // debug: write the levels definitions on screen:
     edm::LogInfo("HcalSeverityLevelComputer") << (*it) << std::endl;
   }

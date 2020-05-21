@@ -122,7 +122,7 @@ void SimpleSAXParser::parse(void) {
           // Save the attributes in order, replacing those that are
           // specified more than once.
           Attribute attr(attributeName, attributeValue);
-          Attributes::iterator i = std::lower_bound(m_attributes.begin(), m_attributes.end(), attr);
+          auto i = std::lower_bound(m_attributes.begin(), m_attributes.end(), attr);
           if (i != m_attributes.end() && i->key == attr.key)
             throw ParserError("Attribute " + i->key + " defined more than once");
           m_attributes.insert(i, attr);

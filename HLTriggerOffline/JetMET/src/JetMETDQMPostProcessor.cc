@@ -38,7 +38,7 @@ void JetMETDQMPostProcessor::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGe
   }
 
   std::vector<std::string> subdirectories = igetter.getSubdirs();
-  for (std::vector<std::string>::iterator dir = subdirectories.begin(); dir != subdirectories.end(); dir++) {
+  for (auto dir = subdirectories.begin(); dir != subdirectories.end(); dir++) {
     ibooker.cd(*dir);
 
     isJetDir = false;

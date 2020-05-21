@@ -21,7 +21,7 @@ TH1Store::TH1Store() : m_deleteOnDestruction(false) {}
 
 TH1Store::~TH1Store() {
   if (m_deleteOnDestruction) {
-    for (STH1PtrMapIter iter = m_ptrMap.begin(); m_ptrMap.end() != iter; ++iter) {
+    for (auto iter = m_ptrMap.begin(); m_ptrMap.end() != iter; ++iter) {
       delete iter->second;
     }  // for iter
   }    // if destroying pointers
@@ -46,7 +46,7 @@ void TH1Store::add(TH1 *histPtr, const std::string &directory) {
 }
 
 TH1 *TH1Store::hist(const string &name) {
-  STH1PtrMapIter iter = m_ptrMap.find(name);
+  auto iter = m_ptrMap.find(name);
   if (m_ptrMap.end() == iter) {
     //  D'oh
     cerr << "TH1Store::hist() Error: '" << name << "' does not exists.  Aborting." << endl;
@@ -68,8 +68,8 @@ void TH1Store::write(const string &filename, const SVec &argsVec, const SVec &in
 void TH1Store::write(TFile *filePtr, const SVec &argsVec, const SVec &inputFilesVec) const {
   filePtr->cd();
   // write out all histograms
-  for (STH1PtrMapConstIter iter = m_ptrMap.begin(); m_ptrMap.end() != iter; ++iter) {
-    SSMapConstIter nameDirIter = m_nameDirMap.find(iter->first);
+  for (auto iter = m_ptrMap.begin(); m_ptrMap.end() != iter; ++iter) {
+    auto nameDirIter = m_nameDirMap.find(iter->first);
     if (m_nameDirMap.end() != nameDirIter) {
       // we want a subdirectory for this one
       _createDir(nameDirIter->second, filePtr);

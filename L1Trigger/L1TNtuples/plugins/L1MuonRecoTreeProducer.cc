@@ -493,7 +493,7 @@ void L1MuonRecoTreeProducer::analyze(const edm::Event &iEvent, const edm::EventS
   iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAny", propagatorAlong);
   iSetup.get<TrackingComponentsRecord>().get("SmartPropagatorAnyOpposite", propagatorOpposite);
 
-  for (reco::MuonCollection::const_iterator imu = mucand->begin();
+  for (auto imu = mucand->begin();
        // for(pat::MuonCollection::const_iterator imu = mucand->begin();
        imu != mucand->end() && (unsigned)muonData->nMuons < maxMuon_;
        imu++) {
@@ -613,8 +613,8 @@ void L1MuonRecoTreeProducer::analyze(const edm::Event &iEvent, const edm::EventS
       float globalPhiRCH = -999999;
 
       if (isSA || isGL) {
-        trackingRecHit_iterator hit = imu->outerTrack()->recHitsBegin();
-        trackingRecHit_iterator hitEnd = imu->outerTrack()->recHitsEnd();
+        auto hit = imu->outerTrack()->recHitsBegin();
+        auto hitEnd = imu->outerTrack()->recHitsEnd();
 
         for (; hit != hitEnd; ++hit) {
           if (!((*hit)->isValid()))

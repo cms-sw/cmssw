@@ -346,7 +346,7 @@ void OverlapValidation::analyze(const Trajectory& trajectory,
   //
 
   vector<TrajectoryMeasurement> measurements(trajectory.measurements());
-  for (vector<TrajectoryMeasurement>::const_iterator itm = measurements.begin(); itm != measurements.end(); ++itm) {
+  for (auto itm = measurements.begin(); itm != measurements.end(); ++itm) {
     //
     // skip "invalid" (i.e. missing) hits
     //
@@ -371,9 +371,7 @@ void OverlapValidation::analyze(const Trajectory& trajectory,
     //
     ++overlapCounts_[1];
     if ((layer != -1) && (acceptLayer[subDet])) {
-      for (vector<TrajectoryMeasurement>::const_iterator itmCompare = itm - 1;
-           itmCompare >= measurements.begin() && itmCompare > itm - 4;
-           --itmCompare) {
+      for (auto itmCompare = itm - 1; itmCompare >= measurements.begin() && itmCompare > itm - 4; --itmCompare) {
         DetId compareId = itmCompare->recHit()->geographicalId();
 
         if (subDet != compareId.subdetId() || layer != layerFromId(compareId, tTopo))
@@ -707,7 +705,7 @@ void OverlapValidation::analyze(const Trajectory& trajectory,
         clusterWidthY_[0] = cluster1->sizeY();
 
         // check for cluster at edge
-        const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>((*trackerGeometry_).idToDet(id1));
+        const auto* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>((*trackerGeometry_).idToDet(id1));
         const PixelTopology* topol = (&(theGeomDet->specificTopology()));
 
         int minPixelRow = cluster1->minPixelRow();  //x
@@ -739,7 +737,7 @@ void OverlapValidation::analyze(const Trajectory& trajectory,
         clusterWidthY_[1] = cluster2->sizeY();
         //cout << "second pixel cluster is " << clusterSize_[1] << " pixels with x width = " << clusterWidthX_[1] << " and y width = " << clusterWidthY_[1] << endl;
 
-        const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>((*trackerGeometry_).idToDet(id2));
+        const auto* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>((*trackerGeometry_).idToDet(id2));
         const PixelTopology* topol = (&(theGeomDet->specificTopology()));
 
         int minPixelRow = cluster2->minPixelRow();  //x
@@ -780,8 +778,8 @@ void OverlapValidation::analyze(const Trajectory& trajectory,
       edm::LogVerbatim("OverlapValidation") << "length of psimHits1: " << psimHits1.size();
       if (!psimHits1.empty()) {
         float closest_dist = 99999.9;
-        std::vector<PSimHit>::const_iterator closest_simhit = psimHits1.begin();
-        for (std::vector<PSimHit>::const_iterator m = psimHits1.begin(); m < psimHits1.end(); m++) {
+        auto closest_simhit = psimHits1.begin();
+        for (auto m = psimHits1.begin(); m < psimHits1.end(); m++) {
           //find closest simHit to the recHit
           float simX = (*m).localPosition().x();
           float dist = fabs(simX - (overlapHit.first->recHit()->localPosition().x()));
@@ -826,8 +824,8 @@ void OverlapValidation::analyze(const Trajectory& trajectory,
       psimHits2 = associator.associateHit(*(secondRecHit->hit()));
       if (!psimHits2.empty()) {
         float closest_dist = 99999.9;
-        std::vector<PSimHit>::const_iterator closest_simhit = psimHits2.begin();
-        for (std::vector<PSimHit>::const_iterator m = psimHits2.begin(); m < psimHits2.end(); m++) {
+        auto closest_simhit = psimHits2.begin();
+        for (auto m = psimHits2.begin(); m < psimHits2.end(); m++) {
           float simX = (*m).localPosition().x();
           float dist = fabs(simX - (overlapHit.second->recHit()->localPosition().x()));
           if (dist < closest_dist) {

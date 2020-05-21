@@ -25,7 +25,7 @@ RawDataCollectorByLabel::RawDataCollectorByLabel(const edm::ParameterSet &pset) 
   verbose_ = pset.getUntrackedParameter<int>("verbose", 0);
 
   inputTokens_.reserve(inputTags_.size());
-  for (tag_iterator_t inputTag = inputTags_.begin(); inputTag != inputTags_.end(); ++inputTag) {
+  for (auto inputTag = inputTags_.begin(); inputTag != inputTags_.end(); ++inputTag) {
     inputTokens_.push_back(consumes<FEDRawDataCollection>(*inputTag));
   }
   produces<FEDRawDataCollection>();
@@ -37,7 +37,7 @@ void RawDataCollectorByLabel::produce(Event &e, const EventSetup &c) {
   /// Get Data from all FEDs
   std::vector<Handle<FEDRawDataCollection> > rawData;
   rawData.reserve(inputTokens_.size());
-  for (tok_iterator_t inputTok = inputTokens_.begin(); inputTok != inputTokens_.end(); ++inputTok) {
+  for (auto inputTok = inputTokens_.begin(); inputTok != inputTokens_.end(); ++inputTok) {
     Handle<FEDRawDataCollection> input;
     if (e.getByToken(*inputTok, input)) {
       rawData.push_back(input);

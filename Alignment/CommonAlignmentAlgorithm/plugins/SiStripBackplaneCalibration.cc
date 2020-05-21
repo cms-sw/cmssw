@@ -330,7 +330,7 @@ void SiStripBackplaneCalibration::endOfJob() {
 
   for (unsigned int iIOV = 0; iIOV < moduleGroupSelector_->numIovs(); ++iIOV) {
     cond::Time_t firstRunOfIOV = moduleGroupSelector_->firstRunOfIOV(iIOV);
-    SiStripBackPlaneCorrection *output = new SiStripBackPlaneCorrection;
+    auto *output = new SiStripBackPlaneCorrection;
     // Loop on map of values from input and add (possible) parameter results
     for (auto iterIdValue = input->getBackPlaneCorrections().begin();
          iterIdValue != input->getBackPlaneCorrections().end();

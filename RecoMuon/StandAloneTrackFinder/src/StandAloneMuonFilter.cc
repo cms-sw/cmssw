@@ -268,9 +268,7 @@ void StandAloneMuonFilter::refit(const TrajectoryStateOnSurface& initialTSOS,
     if (!bestMeasurements.empty()) {
       incrementCompatibleChamberCounters(*layer);
       bool added = false;
-      for (std::vector<TrajectoryMeasurement>::const_iterator tmItr = bestMeasurements.begin();
-           tmItr != bestMeasurements.end();
-           ++tmItr) {
+      for (auto tmItr = bestMeasurements.begin(); tmItr != bestMeasurements.end(); ++tmItr) {
         added |= update(*layer, &(*tmItr), trajectory);
         lastTSOS = theLastUpdatedTSOS;
       }
@@ -310,9 +308,7 @@ std::vector<TrajectoryMeasurement> StandAloneMuonFilter::findBestMeasurements(co
       // RecoMuon/DetLayers/MuRingForwardDoubleLayer
     }
 
-    for (std::vector<TrajectoryMeasurementGroup>::const_iterator tmGroupItr = measurementGroups.begin();
-         tmGroupItr != measurementGroups.end();
-         ++tmGroupItr) {
+    for (auto tmGroupItr = measurementGroups.begin(); tmGroupItr != measurementGroups.end(); ++tmGroupItr) {
       measurements = tmGroupItr->measurements();
       LogTrace(metname) << "Number of Trajectory Measurement: " << measurements.size();
 
@@ -359,7 +355,7 @@ void StandAloneMuonFilter::createDefaultTrajectory(const Trajectory& oldTraj, Tr
   Trajectory::DataContainer const& oldMeas = oldTraj.measurements();
   defTraj.reserve(oldMeas.size());
 
-  for (Trajectory::DataContainer::const_iterator itm = oldMeas.begin(); itm != oldMeas.end(); itm++) {
+  for (auto itm = oldMeas.begin(); itm != oldMeas.end(); itm++) {
     if (!(*itm).recHit()->isValid())
       defTraj.push(*itm, (*itm).estimate());
     else {

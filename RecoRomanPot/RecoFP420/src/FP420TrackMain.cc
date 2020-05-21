@@ -248,8 +248,8 @@ void FP420TrackMain::run(edm::Handle<ClusterCollectionFP420> &input, TrackCollec
         TrackCollectionFP420::Range outputRange;
         outputRange = toutput->get(StID);
         // fill output in collector vector (for may be sorting? or other checks)
-        TrackCollectionFP420::ContainerIterator sort_begin = outputRange.first;
-        TrackCollectionFP420::ContainerIterator sort_end = outputRange.second;
+        auto sort_begin = outputRange.first;
+        auto sort_end = outputRange.second;
         for (; sort_begin != sort_end; ++sort_begin) {
           collector.push_back(*sort_begin);
         }  // for
@@ -258,8 +258,8 @@ void FP420TrackMain::run(edm::Handle<ClusterCollectionFP420> &input, TrackCollec
         std::cout << "=======FP420TrackMain:check size = " << collector.size() << "  det = " << det << std::endl;
         std::cout << " ===" << std::endl;
         std::cout << " ===" << std::endl;
-        vector<TrackFP420>::const_iterator simHitIter = collector.begin();
-        vector<TrackFP420>::const_iterator simHitIterEnd = collector.end();
+        auto simHitIter = collector.begin();
+        auto simHitIterEnd = collector.end();
         // loop in #tracks
         for (; simHitIter != simHitIterEnd; ++simHitIter) {
           const TrackFP420 itrack = *simHitIter;

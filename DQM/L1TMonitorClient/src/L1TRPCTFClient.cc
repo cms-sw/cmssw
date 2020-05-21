@@ -95,8 +95,7 @@ void L1TRPCTFClient::processHistograms(DQMStore::IGetter &igetter) {
       qreport = me->getQReport("DeadChannels_RPCTF_2D");
       if (qreport) {
         vector<dqm::me_util::Channel> badChannels = qreport->getBadChannels();
-        for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-             ++channel) {
+        for (auto channel = badChannels.begin(); channel != badChannels.end(); ++channel) {
           m_deadChannels->setBinContent((*channel).getBinX(), (*channel).getBinY(), 100);
         }  // for(badchannels)
       }    //if (qreport)
@@ -104,8 +103,7 @@ void L1TRPCTFClient::processHistograms(DQMStore::IGetter &igetter) {
       qreport = me->getQReport("HotChannels_RPCTF_2D");
       if (qreport) {
         vector<dqm::me_util::Channel> badChannels = qreport->getBadChannels();
-        for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-             ++channel) {
+        for (auto channel = badChannels.begin(); channel != badChannels.end(); ++channel) {
           // (*channel).getBinY() == 0 for NoisyChannels QTEST
           m_noisyChannels->setBinContent((*channel).getBinX(), 100);
         }  // for(badchannels)
@@ -116,7 +114,7 @@ void L1TRPCTFClient::processHistograms(DQMStore::IGetter &igetter) {
 
   if (verbose_) {
     std::vector<string> meVec = igetter.getMEs();
-    for (vector<string>::const_iterator it = meVec.begin(); it != meVec.end(); it++) {
+    for (auto it = meVec.begin(); it != meVec.end(); it++) {
       std::string full_path = input_dir_ + "/" + (*it);
       MonitorElement *me = igetter.get(full_path);
 
@@ -125,12 +123,12 @@ void L1TRPCTFClient::processHistograms(DQMStore::IGetter &igetter) {
 
       if (!Qtest_map.empty()) {
         std::cout << "Test: " << full_path << std::endl;
-        for (std::vector<QReport *>::const_iterator it = Qtest_map.begin(); it != Qtest_map.end(); ++it) {
+        for (auto it = Qtest_map.begin(); it != Qtest_map.end(); ++it) {
           std::cout << " Name " << (*it)->getQRName() << " Status " << (*it)->getStatus() << std::endl;
 
           std::vector<dqm::me_util::Channel> badChannels = (*it)->getBadChannels();
 
-          vector<dqm::me_util::Channel>::iterator badchsit = badChannels.begin();
+          auto badchsit = badChannels.begin();
           while (badchsit != badChannels.end()) {
             int ix = (*badchsit).getBinX();
             int iy = (*badchsit).getBinY();

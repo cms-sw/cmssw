@@ -58,7 +58,7 @@ void popcon::EcalTPGPhysicsConstfromFile::getNewObjects() {
   item.FG_highThreshold = FG_highThreshold;
   item.FG_lowRatio = FG_lowRatio;
   item.FG_highRatio = FG_highRatio;
-  EcalTPGPhysicsConst* physC = new EcalTPGPhysicsConst;
+  auto* physC = new EcalTPGPhysicsConst;
   physC->setValue(eb.rawId(), item);
 
   // Ecal endcap detector

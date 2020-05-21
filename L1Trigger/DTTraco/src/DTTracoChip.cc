@@ -472,7 +472,7 @@ DTTracoCand *DTTracoChip::bestCand(int itk, std::vector<DTTracoCand> &tclist) {
     std::cout << "DTTracoChip::findBest - Looking for track number " << itk + 1 << std::endl;
     std::cout << "Sorted std::vector of usable track candidates is:" << std::endl;
     int i = 1;
-    for (std::vector<DTTracoCand>::iterator p = tclist.begin(); p < tclist.end(); p++) {
+    for (auto p = tclist.begin(); p < tclist.end(); p++) {
       if ((*p).usable()) {
         std::cout << " DTTracoChip Candidate # " << i++;
         (*p).print();
@@ -1060,7 +1060,7 @@ DTTracoTrig *DTTracoChip::trigger(int step, unsigned n) const {
     std::cout << " empty pointer returned!" << std::endl;
     return nullptr;
   }
-  std::vector<DTTracoTrig *>::const_iterator p = _tracotrig[step - DTConfigTraco::NSTEPF].begin() + n - 1;
+  auto p = _tracotrig[step - DTConfigTraco::NSTEPF].begin() + n - 1;
   return *p;
 }
 
@@ -1075,7 +1075,7 @@ DTTracoTrigData DTTracoChip::triggerData(int step, unsigned n) const {
     std::cout << " dummy trigger returned!" << std::endl;
     return DTTracoTrigData();
   }
-  std::vector<DTTracoTrig *>::const_iterator p = _tracotrig[step - DTConfigTraco::NSTEPF].begin() + n - 1;
+  auto p = _tracotrig[step - DTConfigTraco::NSTEPF].begin() + n - 1;
   return (*p)->data();
 }
 

@@ -52,7 +52,7 @@ bool LaserAlignmentEventFilter::filter(edm::StreamID sid, edm::Event& iEvent, co
   edm::ESHandle<SiStripFedCabling> cabling;
   iSetup.get<SiStripFedCablingRcd>().get(cabling);
 
-  std::vector<uint16_t>::const_iterator ifed = las_fed_ids.begin();
+  auto ifed = las_fed_ids.begin();
   for (; ifed != las_fed_ids.end(); ifed++) {
     // Retrieve FED raw data for given FED
     const FEDRawData& input = buffers->FEDData(static_cast<int>(*ifed));
@@ -85,7 +85,7 @@ bool LaserAlignmentEventFilter::filter(edm::StreamID sid, edm::Event& iEvent, co
     auto const& conns = cabling->fedConnections(*ifed);
 
     // Iterate through FED channels, extract payload and create Digis
-    std::vector<FedChannelConnection>::const_iterator iconn = conns.begin();
+    auto iconn = conns.begin();
     for (; iconn != conns.end(); iconn++) {
       if (std::binary_search(las_signal_ids.begin(), las_signal_ids.end(), iconn->detId())) {
         LogDebug("LaserAlignmentEventFilter")

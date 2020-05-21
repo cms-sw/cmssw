@@ -155,7 +155,7 @@ bool APVShotsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   APVShotFinder apvsf(*digis, _zs);
   const std::vector<APVShot>& shots = apvsf.getShots();
 
-  for (std::vector<APVShot>::const_iterator shot = shots.begin(); shot != shots.end(); ++shot) {
+  for (auto shot = shots.begin(); shot != shots.end(); ++shot) {
     if (!shot->isGenuine())
       continue;
     ++nshots;

@@ -365,8 +365,8 @@ bool L1TdeStage2CaloLayer2::compareJets(const edm::Handle<l1t::JetBxCollection>&
                                         const edm::Handle<l1t::JetBxCollection>& emulCol) {
   bool eventGood = true;
 
-  l1t::JetBxCollection::const_iterator dataIt = dataCol->begin(currBx);
-  l1t::JetBxCollection::const_iterator emulIt = emulCol->begin(currBx);
+  auto dataIt = dataCol->begin(currBx);
+  auto emulIt = emulCol->begin(currBx);
 
   // process jets
   if (dataCol->size(currBx) != emulCol->size(currBx)) {
@@ -501,8 +501,8 @@ bool L1TdeStage2CaloLayer2::compareEGs(const edm::Handle<l1t::EGammaBxCollection
                                        const edm::Handle<l1t::EGammaBxCollection>& emulCol) {
   bool eventGood = true;
 
-  l1t::EGammaBxCollection::const_iterator dataIt = dataCol->begin(currBx);
-  l1t::EGammaBxCollection::const_iterator emulIt = emulCol->begin(currBx);
+  auto dataIt = dataCol->begin(currBx);
+  auto emulIt = emulCol->begin(currBx);
 
   // check length of collections
   if (dataCol->size(currBx) != emulCol->size(currBx)) {
@@ -685,8 +685,8 @@ bool L1TdeStage2CaloLayer2::compareTaus(const edm::Handle<l1t::TauBxCollection>&
                                         const edm::Handle<l1t::TauBxCollection>& emulCol) {
   bool eventGood = true;
 
-  l1t::TauBxCollection::const_iterator dataIt = dataCol->begin(currBx);
-  l1t::TauBxCollection::const_iterator emulIt = emulCol->begin(currBx);
+  auto dataIt = dataCol->begin(currBx);
+  auto emulIt = emulCol->begin(currBx);
 
   // check length of collections
   if (dataCol->size(currBx) != emulCol->size(currBx)) {
@@ -886,7 +886,7 @@ bool L1TdeStage2CaloLayer2::compareSums(const edm::Handle<l1t::EtSumBxCollection
   int emulCentr = 0;
 
   l1t::EtSumBxCollection::const_iterator dataIt;
-  l1t::EtSumBxCollection::const_iterator emulIt = emulCol->begin(currBx);
+  auto emulIt = emulCol->begin(currBx);
 
   // if either data or emulator collections are empty mark the event as bad (this should never occur in normal running)
   // matching data/emul collections by type before proceeding with the checks

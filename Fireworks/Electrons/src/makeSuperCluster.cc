@@ -37,8 +37,7 @@ namespace fireworks {
     if (detids.empty())
       return false;
     std::vector<double> phis;
-    for (std::vector<std::pair<DetId, float> >::const_iterator id = detids.begin(), end = detids.end(); id != end;
-         ++id) {
+    for (auto id = detids.begin(), end = detids.end(); id != end; ++id) {
       const float* corners = pb->context().getGeom()->getCorners(id->first.rawId());
       if (corners != nullptr) {
         std::vector<float> centre(3, 0);
@@ -77,8 +76,7 @@ namespace fireworks {
     std::vector<std::pair<DetId, float> > detids = iCluster->hitsAndFractions();
     if (detids.empty())
       return false;
-    for (std::vector<std::pair<DetId, float> >::const_iterator id = detids.begin(), end = detids.end(); id != end;
-         ++id) {
+    for (auto id = detids.begin(), end = detids.end(); id != end; ++id) {
       const float* corners = pb->context().getGeom()->getCorners(id->first.rawId());
       if (corners != nullptr) {
         std::vector<float> centre(3, 0);

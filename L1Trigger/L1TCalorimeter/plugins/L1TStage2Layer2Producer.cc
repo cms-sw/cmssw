@@ -173,7 +173,7 @@ void L1TStage2Layer2Producer::produce(edm::Event& iEvent, const edm::EventSetup&
 
     LogDebug("L1TDebug") << "BX=" << ibx << ", N(Towers)=" << towers->size(ibx) << std::endl;
 
-    for (std::vector<CaloTower>::const_iterator tower = towers->begin(ibx); tower != towers->end(ibx); ++tower) {
+    for (auto tower = towers->begin(ibx); tower != towers->end(ibx); ++tower) {
       CaloTower tow(tower->p4(),
                     tower->etEm(),
                     tower->etHad(),

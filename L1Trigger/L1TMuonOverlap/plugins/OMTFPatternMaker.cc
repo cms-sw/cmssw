@@ -298,7 +298,7 @@ const SimTrack* OMTFPatternMaker::findSimMuon(const edm::Event& ev,
   edm::Handle<edm::SimTrackContainer> simTks;
   ev.getByToken(inputTokenSimHit, simTks);
 
-  for (std::vector<SimTrack>::const_iterator it = simTks->begin(); it < simTks->end(); it++) {
+  for (auto it = simTks->begin(); it < simTks->end(); it++) {
     const SimTrack& aTrack = *it;
     if (!(aTrack.type() == 13 || aTrack.type() == -13))
       continue;

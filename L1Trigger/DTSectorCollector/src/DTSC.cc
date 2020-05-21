@@ -170,7 +170,7 @@ DTSectCollPhCand* DTSC::DTSectCollsort2() {
   }
   // If a first track at the following BX is present, ignore second tracks of any kind
   if (_ignoreSecondTrack) {
-    for (std::vector<DTSectCollPhCand*>::iterator p = _incand_ph[1].begin(); p != _incand_ph[1].end(); p++) {
+    for (auto p = _incand_ph[1].begin(); p != _incand_ph[1].end(); p++) {
     }
     return nullptr;
   }
@@ -220,7 +220,7 @@ DTSectCollPhCand* DTSC::getDTSectCollPhCand(int ifs, unsigned n) const {
     return nullptr;
   }
 
-  std::vector<DTSectCollPhCand*>::const_iterator p = _incand_ph[ifs - 1].begin() + n - 1;
+  auto p = _incand_ph[ifs - 1].begin() + n - 1;
   return (*p);
 }
 
@@ -231,7 +231,7 @@ DTSectCollThCand* DTSC::getDTSectCollThCand(unsigned n) const {
     return nullptr;
   }
 
-  std::vector<DTSectCollThCand*>::const_iterator p = _cand_th.begin() + n - 1;
+  auto p = _cand_th.begin() + n - 1;
   return (*p);
 }
 
@@ -248,7 +248,7 @@ DTSectCollPhCand* DTSC::getTrackPh(int n) const {
     return nullptr;
   }
 
-  std::vector<DTSectCollPhCand*>::const_iterator p = _outcand_ph.begin() + n - 1;
+  auto p = _outcand_ph.begin() + n - 1;
 
   return (*p);
 }
@@ -260,7 +260,7 @@ DTSectCollThCand* DTSC::getTrackTh(int n) const {
     return nullptr;
   }
 
-  std::vector<DTSectCollThCand*>::const_iterator p = _cand_th.begin() + n - 1;
+  auto p = _cand_th.begin() + n - 1;
 
   return (*p);
 }

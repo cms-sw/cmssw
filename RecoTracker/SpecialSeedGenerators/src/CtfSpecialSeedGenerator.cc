@@ -166,7 +166,7 @@ bool CtfSpecialSeedGenerator::buildSeeds(const edm::EventSetup& iSetup,
     SeedingHitSet shs = osh[i];
     if (preliminaryCheck(shs, iSetup)) {
       std::vector<TrajectorySeed*> seeds = theSeedBuilder->seed(shs, dir, navdir, iSetup);
-      for (std::vector<TrajectorySeed*>::const_iterator iSeed = seeds.begin(); iSeed != seeds.end(); iSeed++) {
+      for (auto iSeed = seeds.begin(); iSeed != seeds.end(); iSeed++) {
         if (!*iSeed) {
           edm::LogError("CtfSpecialSeedGenerator") << "a seed pointer is null. skipping.";
           continue;

@@ -67,7 +67,7 @@ void SusyPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
     if (size_t(Dirs[i].find("pfMet")) != string::npos)
       prefix = "pfMET";
 
-    for (std::vector<std::string>::const_iterator ic = metFolders.begin(); ic != metFolders.end(); ic++) {
+    for (auto ic = metFolders.begin(); ic != metFolders.end(); ic++) {
       std::string dirName = Dirs[i] + "/" + *ic;
 
       MEx = iget_.get(dirName + "/" + "MEx");

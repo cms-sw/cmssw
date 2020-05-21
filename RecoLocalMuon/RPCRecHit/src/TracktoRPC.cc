@@ -86,7 +86,7 @@ TracktoRPC::TracktoRPC(const reco::TrackCollection *alltracks,
   std::vector<uint32_t> rpcput;
   double MaxD = 999.;
 
-  for (TrackCollection::const_iterator track = alltracks->begin(); track != alltracks->end(); track++) {
+  for (auto track = alltracks->begin(); track != alltracks->end(); track++) {
     Trajectories trajectories = theTrackTransformer->transform(*track);
     if (debug)
       std::cout << "Building Trajectory from Track. " << std::endl;
@@ -121,7 +121,7 @@ TracktoRPC::TracktoRPC(const reco::TrackCollection *alltracks,
 
     if (debug)
       std::cout << "1. Search expeted RPC roll detid !!" << std::endl;
-    for (trackingRecHit_iterator hit = track->recHitsBegin(); hit != track->recHitsEnd(); hit++) {
+    for (auto hit = track->recHitsBegin(); hit != track->recHitsEnd(); hit++) {
       if ((*hit)->isValid()) {
         DetId id = (*hit)->geographicalId();
 
@@ -129,8 +129,7 @@ TracktoRPC::TracktoRPC(const reco::TrackCollection *alltracks,
           const GeomDet *geomDet = dtGeo->idToDet((*hit)->geographicalId());
           const DTLayer *dtlayer = dynamic_cast<const DTLayer *>(geomDet);
           if (dtlayer)
-            for (Trajectories::const_iterator trajectory = trajectories.begin(); trajectory != trajectories.end();
-                 ++trajectory) {
+            for (auto trajectory = trajectories.begin(); trajectory != trajectories.end(); ++trajectory) {
               const BoundPlane &DTSurface = dtlayer->surface();
               const GlobalPoint dcPoint = DTSurface.toGlobal(LocalPoint(0., 0., 0.));
 
@@ -151,8 +150,7 @@ TracktoRPC::TracktoRPC(const reco::TrackCollection *alltracks,
                   dtS = 10;
                 DTStationIndex theindex(0, dtW, dtS, dtT);
                 std::set<RPCDetId> rollsForThisDT = dtMap->getRolls(theindex);
-                for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisDT.begin(); iteraRoll != rollsForThisDT.end();
-                     iteraRoll++) {
+                for (auto iteraRoll = rollsForThisDT.begin(); iteraRoll != rollsForThisDT.end(); iteraRoll++) {
                   const RPCRoll *rollasociated = rpcGeo->roll(*iteraRoll);
 
                   TrajectoryStateOnSurface ptss =
@@ -182,8 +180,7 @@ TracktoRPC::TracktoRPC(const reco::TrackCollection *alltracks,
 
           CSCDetId cscid(geomDet->geographicalId().rawId());
           if (csclayer)
-            for (Trajectories::const_iterator trajectory = trajectories.begin(); trajectory != trajectories.end();
-                 ++trajectory) {
+            for (auto trajectory = trajectories.begin(); trajectory != trajectories.end(); ++trajectory) {
               const BoundPlane &CSCSurface = csclayer->surface();
               const GlobalPoint dcPoint = CSCSurface.toGlobal(LocalPoint(0., 0., 0.));
 
@@ -206,9 +203,7 @@ TracktoRPC::TracktoRPC(const reco::TrackCollection *alltracks,
 
                 CSCStationIndex theindex(En, St, Ri, rpcSegment);
                 std::set<RPCDetId> rollsForThisCSC = cscMap->getRolls(theindex);
-                for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();
-                     iteraRoll != rollsForThisCSC.end();
-                     iteraRoll++) {
+                for (auto iteraRoll = rollsForThisCSC.begin(); iteraRoll != rollsForThisCSC.end(); iteraRoll++) {
                   const RPCRoll *rollasociated = rpcGeo->roll(*iteraRoll);
 
                   TrajectoryStateOnSurface ptss =
@@ -256,7 +251,7 @@ TracktoRPC::TracktoRPC(const reco::TrackCollection *alltracks,
       // if(rSt ==2 && rEn==0) MaxD=100;
       // else if(rSt ==3 && rEn==0) MaxD=100;
       // else if(rSt ==4 && rEn==0) MaxD =150;
-      for (trackingRecHit_iterator hit = track->recHitsBegin(); hit != track->recHitsEnd(); hit++) {
+      for (auto hit = track->recHitsBegin(); hit != track->recHitsEnd(); hit++) {
         if ((*hit)->isValid()) {
           DetId id = (*hit)->geographicalId();
           if (id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::DT) {
@@ -329,8 +324,7 @@ TracktoRPC::TracktoRPC(const reco::TrackCollection *alltracks,
           const DTLayer *dtlayer = dynamic_cast<const DTLayer *>(geomDet);
 
           if (dtlayer)
-            for (Trajectories::const_iterator trajectory = trajectories.begin(); trajectory != trajectories.end();
-                 ++trajectory) {
+            for (auto trajectory = trajectories.begin(); trajectory != trajectories.end(); ++trajectory) {
               const BoundPlane &DTSurface = dtlayer->surface();
               const GlobalPoint dcPoint = DTSurface.toGlobal(LocalPoint(0., 0., 0.));
 
@@ -353,8 +347,7 @@ TracktoRPC::TracktoRPC(const reco::TrackCollection *alltracks,
 
                     const GeomDet *geomDet2 = rpcGeo->idToDet(*rpcroll2);
                     const RPCRoll *aroll = dynamic_cast<const RPCRoll *>(geomDet2);
-                    const RectangularStripTopology *top_ =
-                        dynamic_cast<const RectangularStripTopology *>(&(aroll->topology()));
+                    const auto *top_ = dynamic_cast<const RectangularStripTopology *>(&(aroll->topology()));
                     LocalPoint xmin = top_->localPosition(0.);
                     LocalPoint xmax = top_->localPosition((float)aroll->nstrips());
                     float rsize = fabs(xmax.x() - xmin.x());
@@ -385,8 +378,7 @@ TracktoRPC::TracktoRPC(const reco::TrackCollection *alltracks,
           const CSCLayer *csclayer = dynamic_cast<const CSCLayer *>(geomDet4);
 
           if (csclayer)
-            for (Trajectories::const_iterator trajectory = trajectories.begin(); trajectory != trajectories.end();
-                 ++trajectory) {
+            for (auto trajectory = trajectories.begin(); trajectory != trajectories.end(); ++trajectory) {
               const BoundPlane &CSCSurface = csclayer->surface();
               const GlobalPoint dcPoint = CSCSurface.toGlobal(LocalPoint(0., 0., 0.));
 
@@ -410,8 +402,7 @@ TracktoRPC::TracktoRPC(const reco::TrackCollection *alltracks,
                     RPCDetId rpcid(*rpcroll2);
                     const GeomDet *geomDet3 = rpcGeo->idToDet(*rpcroll2);
                     const RPCRoll *aroll = dynamic_cast<const RPCRoll *>(geomDet3);
-                    const TrapezoidalStripTopology *top_ =
-                        dynamic_cast<const TrapezoidalStripTopology *>(&(aroll->topology()));
+                    const auto *top_ = dynamic_cast<const TrapezoidalStripTopology *>(&(aroll->topology()));
                     LocalPoint xmin = top_->localPosition(0.);
                     LocalPoint xmax = top_->localPosition((float)aroll->nstrips());
                     float rsize = fabs(xmax.x() - xmin.x());

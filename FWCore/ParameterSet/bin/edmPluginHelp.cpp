@@ -359,7 +359,7 @@ int main(int argc, char** argv) try {
     CatToInfos const& catToInfos = edmplugin::PluginManager::get()->categoryToInfos();
     factory = edm::ParameterSetDescriptionFillerPluginFactory::get();
 
-    CatToInfos::const_iterator itPlugins = catToInfos.find(factory->category());
+    auto itPlugins = catToInfos.find(factory->category());
     if (itPlugins == catToInfos.end()) {
       return 0;
     }

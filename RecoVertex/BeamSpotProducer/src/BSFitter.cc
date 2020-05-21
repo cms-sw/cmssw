@@ -328,7 +328,7 @@ reco::BeamSpot BSFitter::Fit_z_chi2(double *inipar) {
   // ==> add protection and z0 cut
   h1z = new TH1F("h1z", "z distribution", 200, -fMaxZ, fMaxZ);
 
-  std::vector<BSTrkParameters>::const_iterator iparam = fBSvector.begin();
+  auto iparam = fBSvector.begin();
 
   // HERE check size of track vector
 
@@ -433,7 +433,7 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
   TMatrixD g(4, 1);
   TMatrixDSym temp(4);
 
-  std::vector<BSTrkParameters>::iterator iparam = fBSvector.begin();
+  auto iparam = fBSvector.begin();
   ftmprow = 0;
 
   //edm::LogInfo ("BSFitter") << " test";
@@ -648,7 +648,7 @@ double BSFitter::scanPDF(double *init_pars, int &tracksfixed, int option) {
     DeltadCut = 0.0700;
   }  //just a guesss for 7 TeV but one should scan for actual values
 
-  std::vector<BSTrkParameters>::const_iterator iparam = fBSvector.begin();
+  auto iparam = fBSvector.begin();
 
   if (option == 1)
     iters = 500;
@@ -729,7 +729,7 @@ reco::BeamSpot BSFitter::Fit_d_z_likelihood(double *inipar, double *error_par) {
 
   //Refill the fBSVector again with new sets of tracks
   fBSvector.clear();
-  std::vector<BSTrkParameters>::const_iterator iparamBW = fBSvectorBW.begin();
+  auto iparamBW = fBSvectorBW.begin();
   for (iparamBW = fBSvectorBW.begin(); iparamBW != fBSvectorBW.end(); ++iparamBW) {
     fBSvector.push_back(*iparamBW);
   }

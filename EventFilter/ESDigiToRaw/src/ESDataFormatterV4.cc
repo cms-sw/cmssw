@@ -217,7 +217,7 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis& digis, FEDRawData& fedRawDat
     cout << "ESDataFormatterV4::DigiToRaw : FEDID : " << fedId << " size of detDigis : " << detDigis.size() << endl;
   }
 
-  for (DetDigis::const_iterator it = detDigis.begin(); it != detDigis.end(); ++it) {
+  for (auto it = detDigis.begin(); it != detDigis.end(); ++it) {
     const ESDataFrame& dataframe = (*it);
     const ESDetId& detId = dataframe.id();
 
@@ -280,7 +280,7 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis& digis, FEDRawData& fedRawDat
              << "] : " << theSet.size() << endl;
       }
 
-      set<pair<int, int>, ltfiber>::const_iterator kit = theSet.begin();
+      auto kit = theSet.begin();
 
       int ikchip = 0;
 

@@ -83,7 +83,7 @@ void FWParameterSetterBase::update() const {
 std::shared_ptr<FWParameterSetterBase> FWParameterSetterBase::makeSetterFor(FWParameterBase* iParam) {
   static std::map<edm::TypeID, edm::TypeWithDict> s_paramToSetterMap;
   edm::TypeID paramType(typeid(*iParam));
-  std::map<edm::TypeID, edm::TypeWithDict>::iterator itFind = s_paramToSetterMap.find(paramType);
+  auto itFind = s_paramToSetterMap.find(paramType);
   if (itFind == s_paramToSetterMap.end()) {
     edm::TypeWithDict paramClass(typeid(*iParam));
     if (paramClass == edm::TypeWithDict()) {
@@ -128,7 +128,7 @@ std::shared_ptr<FWParameterSetterBase> FWParameterSetterBase::makeSetterFor(FWPa
   edm::ObjectWithDict setterObj = itFind->second.construct();
 
   //make it into the base class
-  FWParameterSetterBase* p = static_cast<FWParameterSetterBase*>(setterObj.address());
+  auto* p = static_cast<FWParameterSetterBase*>(setterObj.address());
   //Make a shared pointer to the base class that uses a destructor for the derived class, in order to match the above construct call.
   std::shared_ptr<FWParameterSetterBase> ptr(
       p, boost::bind(&edm::TypeWithDict::destruct, itFind->second, setterObj.address(), true));

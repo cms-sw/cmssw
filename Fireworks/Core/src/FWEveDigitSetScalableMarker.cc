@@ -15,7 +15,7 @@ void FWEveDigitSetScalableMarkerGL::DirectDraw(TGLRnrCtx& rnrCtx) const {
 
   glPointSize(((FWEveDigitSetScalableMarker*)fM)->GetMarkerSize());
   while (qi.next()) {
-    TEveQuadSet::QFreeQuad_t* q = (TEveQuadSet::QFreeQuad_t*)qi();
+    auto* q = (TEveQuadSet::QFreeQuad_t*)qi();
     if (q->fValue < 0)
       continue;
     TGLUtil::ColorAlpha(Color_t(q->fValue));

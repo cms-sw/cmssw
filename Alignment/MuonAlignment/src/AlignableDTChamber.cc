@@ -16,7 +16,7 @@ AlignableDTChamber::AlignableDTChamber(const GeomDet* geomDet) : AlignableDet(ge
   // The unique thing about DT chambers is that they are Dets that contain Dets (superlayers)
   // The superlayer Dets contain DetUnits (layers), as usual
   const std::vector<const GeomDet*>& geomDets = geomDet->components();
-  for (std::vector<const GeomDet*>::const_iterator idet = geomDets.begin(); idet != geomDets.end(); ++idet) {
+  for (auto idet = geomDets.begin(); idet != geomDets.end(); ++idet) {
     addComponent(new AlignableDTSuperLayer(*idet));
   }
 

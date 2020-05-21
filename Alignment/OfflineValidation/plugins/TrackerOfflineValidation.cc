@@ -384,8 +384,7 @@ private:
 template <class OBJECT_TYPE>
 int TrackerOfflineValidation::GetIndex(const std::vector<OBJECT_TYPE*>& vec, const TString& name) {
   int result = 0;
-  for (typename std::vector<OBJECT_TYPE*>::const_iterator iter = vec.begin(), iterEnd = vec.end(); iter != iterEnd;
-       ++iter, ++result) {
+  for (auto iter = vec.begin(), iterEnd = vec.end(); iter != iterEnd; ++iter, ++result) {
     if (*iter && (*iter)->GetName() == name)
       return result;
   }
@@ -487,7 +486,7 @@ TrackerOfflineValidation::TrackerOfflineValidation(const edm::ParameterSet& iCon
 TrackerOfflineValidation::~TrackerOfflineValidation() {
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-  for (std::vector<TH1*>::const_iterator it = vDeleteObjects_.begin(), itEnd = vDeleteObjects_.end(); it != itEnd; ++it)
+  for (auto it = vDeleteObjects_.begin(), itEnd = vDeleteObjects_.end(); it != itEnd; ++it)
     delete *it;
 }
 
@@ -1120,9 +1119,7 @@ void TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::Even
   std::vector<TrackerValidationVariables::AVTrackStruct> vTrackstruct;
   avalidator_.fillTrackQuantities(iEvent, iSetup, vTrackstruct);
 
-  for (std::vector<TrackerValidationVariables::AVTrackStruct>::const_iterator itT = vTrackstruct.begin();
-       itT != vTrackstruct.end();
-       ++itT) {
+  for (auto itT = vTrackstruct.begin(); itT != vTrackstruct.end(); ++itT) {
     if (itT->charge * chargeCut_ < 0)
       continue;
 
@@ -1224,9 +1221,7 @@ void TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::Even
     vTrack2DHistos_[normchi2kappa_2d]->Fill(itT->normchi2, itT->kappa);
 
     // hit quantities: residuals, normalized residuals
-    for (std::vector<TrackerValidationVariables::AVHitStruct>::const_iterator itH = itT->hits.begin();
-         itH != itT->hits.end();
-         ++itH) {
+    for (auto itH = itT->hits.begin(); itH != itT->hits.end(); ++itH) {
       DetId detid(itH->rawDetId);
       ModuleHistos& histStruct = this->getHistStructFromMap(detid);
 
@@ -1370,7 +1365,7 @@ void TrackerOfflineValidation::endJob() {
   edm::Service<TFileService> fs;
   TTree* tree = fs->make<TTree>("TkOffVal", "TkOffVal");
 
-  TkOffTreeVariables* treeMemPtr = new TkOffTreeVariables;
+  auto* treeMemPtr = new TkOffTreeVariables;
   // We create branches for all members of 'TkOffTreeVariables' (even if not needed).
   // This works because we have a dictionary for 'TkOffTreeVariables'
   // (see src/classes_def.xml and src/classes.h):
@@ -1453,16 +1448,13 @@ void TrackerOfflineValidation::prepareSummaryHists(
 }
 
 void TrackerOfflineValidation::collateSummaryHists() {
-  for (std::vector<std::pair<TH1*, TH1*> >::const_iterator it = sumHistStructure_.begin();
-       it != sumHistStructure_.end();
-       ++it)
+  for (auto it = sumHistStructure_.begin(); it != sumHistStructure_.end(); ++it)
     it->first->Add(it->second);
 
-  for (std::vector<std::tuple<int, TH1*, TH1*> >::const_iterator it = summaryBins_.begin(); it != summaryBins_.end();
-       ++it)
+  for (auto it = summaryBins_.begin(); it != summaryBins_.end(); ++it)
     setSummaryBin(std::get<0>(*it), std::get<1>(*it), std::get<2>(*it));
 
-  for (std::vector<TH1*>::const_iterator it = toFit_.begin(); it != toFit_.end(); ++it)
+  for (auto it = toFit_.begin(); it != toFit_.end(); ++it)
     fitResiduals(*it);
 }
 
@@ -1693,10 +1685,7 @@ float TrackerOfflineValidation::Fwhm(const TH1* hist) const {
 void TrackerOfflineValidation::setUpTreeMembers(const std::map<int, TrackerOfflineValidation::ModuleHistos>& moduleHist_,
                                                 const TrackerGeometry& tkgeom,
                                                 const TrackerTopology* tTopo) {
-  for (std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator it = moduleHist_.begin(),
-                                                                             itEnd = moduleHist_.end();
-       it != itEnd;
-       ++it) {
+  for (auto it = moduleHist_.begin(), itEnd = moduleHist_.end(); it != itEnd; ++it) {
     TkOffTreeVariables& treeMem = mTreeMembers_[it->first];
 
     //variables concerning the tracker components/hierarchy levels
@@ -1830,10 +1819,7 @@ void TrackerOfflineValidation::setUpTreeMembers(const std::map<int, TrackerOffli
 void TrackerOfflineValidation::fillTree(TTree& tree,
                                         TkOffTreeVariables& treeMem,
                                         const std::map<int, TrackerOfflineValidation::ModuleHistos>& moduleHist_) {
-  for (std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator it = moduleHist_.begin(),
-                                                                             itEnd = moduleHist_.end();
-       it != itEnd;
-       ++it) {
+  for (auto it = moduleHist_.begin(), itEnd = moduleHist_.end(); it != itEnd; ++it) {
     treeMem = mTreeMembers_[it->first];
 
     //mean and RMS values (extracted from histograms(Xprime on module level)

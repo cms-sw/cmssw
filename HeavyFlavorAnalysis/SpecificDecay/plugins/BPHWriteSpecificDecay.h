@@ -196,17 +196,17 @@ private:
   edm::OrphanHandle<pat::CompositeCandidateCollection> write(edm::Event& ev,
                                                              const std::vector<T>& list,
                                                              const std::string& name) {
-    pat::CompositeCandidateCollection* ccList = new pat::CompositeCandidateCollection;
+    auto* ccList = new pat::CompositeCandidateCollection;
     int i;
     int n = list.size();
     std::map<const BPHRecoCandidate*, const BPHRecoCandidate*>::const_iterator dauIter;
-    std::map<const BPHRecoCandidate*, const BPHRecoCandidate*>::const_iterator dauIend = daughMap.end();
+    auto dauIend = daughMap.end();
     std::map<const BPHRecoCandidate*, const BPHRecoCandidate*>::const_iterator jpoIter;
-    std::map<const BPHRecoCandidate*, const BPHRecoCandidate*>::const_iterator jpoIend = jPsiOMap.end();
+    auto jpoIend = jPsiOMap.end();
     std::map<const BPHRecoCandidate*, vertex_ref>::const_iterator pvrIter;
-    std::map<const BPHRecoCandidate*, vertex_ref>::const_iterator pvrIend = pvRefMap.end();
+    auto pvrIend = pvRefMap.end();
     std::map<const BPHRecoCandidate*, compcc_ref>::const_iterator ccrIter;
-    std::map<const BPHRecoCandidate*, compcc_ref>::const_iterator ccrIend = ccRefMap.end();
+    auto ccrIend = ccRefMap.end();
     for (i = 0; i < n; ++i) {
       const T& ptr = list[i];
       ccList->push_back(ptr->composite());
@@ -231,7 +231,7 @@ private:
             cc.addUserData("refTo" + compName, cref);
         }
       }
-      const BPHPlusMinusCandidate* pmp = dynamic_cast<const BPHPlusMinusCandidate*>(ptr.get());
+      const auto* pmp = dynamic_cast<const BPHPlusMinusCandidate*>(ptr.get());
       if (pmp != nullptr) {
         cc.addUserData("cowboy", pmp->isCowboy());
         //        cc.addUserFloat(    "dca", pmp->cAppInRPhi().distance() );

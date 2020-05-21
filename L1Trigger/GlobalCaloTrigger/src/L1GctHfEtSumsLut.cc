@@ -29,7 +29,7 @@ std::vector<double> L1GctHfEtSumsLut::getThresholdsGeV() const { return m_lutFun
 std::vector<unsigned> L1GctHfEtSumsLut::getThresholdsGct() const {
   std::vector<unsigned> result;
   std::vector<double> thresholdsGeV = m_lutFunction->getThresholds();
-  for (std::vector<double>::const_iterator thr = thresholdsGeV.begin(); thr != thresholdsGeV.end(); thr++) {
+  for (auto thr = thresholdsGeV.begin(); thr != thresholdsGeV.end(); thr++) {
     result.push_back(static_cast<unsigned>((*thr) / (m_lutFunction->linearLsb())));
   }
   return result;
@@ -43,7 +43,7 @@ L1GctHfEtSumsLut L1GctHfEtSumsLut::operator=(const L1GctHfEtSumsLut& lut) {
 std::ostream& operator<<(std::ostream& os, const L1GctHfEtSumsLut& lut) {
   os << "===L1GctHfEtSumsLut===" << std::endl;
   std::vector<double> thresholds = lut.m_lutFunction->getThresholds();
-  std::vector<double>::const_iterator thr = thresholds.begin();
+  auto thr = thresholds.begin();
   os << "Thresholds are: " << *(thr++);
   for (; thr != thresholds.end(); thr++) {
     os << ", " << *thr;

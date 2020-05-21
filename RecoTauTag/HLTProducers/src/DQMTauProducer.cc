@@ -22,7 +22,7 @@ void DQMTauProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES) {
   using namespace edm;
   using namespace std;
 
-  HLTTauCollection* jetCollection = new HLTTauCollection;
+  auto* jetCollection = new HLTTauCollection;
 
   edm::Handle<IsolatedTauTagInfoCollection> tauL25Jets;
   iEvent.getByToken(trackIsolatedJets_, tauL25Jets);

@@ -610,7 +610,7 @@ namespace {
 
       // book the intermediate histograms
       for (int r = AlignmentPI::BPixL1o; r != AlignmentPI::StripDoubleSide; r++) {
-        AlignmentPI::regions part = static_cast<AlignmentPI::regions>(r);
+        auto part = static_cast<AlignmentPI::regions>(r);
         std::string s_part = AlignmentPI::getStringFromRegionEnum(part);
 
         FirstSurfDef_spectraByRegion[part] =
@@ -767,7 +767,7 @@ namespace {
       // fill the summary plots
       int bin = 1;
       for (int r = AlignmentPI::BPixL1o; r != AlignmentPI::StripDoubleSide; r++) {
-        AlignmentPI::regions part = static_cast<AlignmentPI::regions>(r);
+        auto part = static_cast<AlignmentPI::regions>(r);
 
         summaryFirst->GetXaxis()->SetBinLabel(bin, AlignmentPI::getStringFromRegionEnum(part).c_str());
         // avoid filling the histogram with numerical noise

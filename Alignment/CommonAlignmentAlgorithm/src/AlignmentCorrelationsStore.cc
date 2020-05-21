@@ -25,18 +25,18 @@ void AlignmentCorrelationsStore::correlations(
     std::swap(ap1, ap2);
 
   if (ap1 == previousAlignable) {
-    CorrelationsTable::const_iterator itC2 = previousCorrelations->find(ap2);
+    auto itC2 = previousCorrelations->find(ap2);
     if (itC2 != previousCorrelations->end()) {
       transpose ? fillCovarianceT(ap1, ap2, (*itC2).second, cov, row, col)
                 : fillCovariance(ap1, ap2, (*itC2).second, cov, row, col);
     }
   } else {
-    Correlations::const_iterator itC1 = theCorrelations.find(ap1);
+    auto itC1 = theCorrelations.find(ap1);
     if (itC1 != theCorrelations.end()) {
       previousAlignable = ap1;
       previousCorrelations = (*itC1).second;
 
-      CorrelationsTable::const_iterator itC2 = (*itC1).second->find(ap2);
+      auto itC2 = (*itC1).second->find(ap2);
       if (itC2 != (*itC1).second->end()) {
         transpose ? fillCovarianceT(ap1, ap2, (*itC2).second, cov, row, col)
                   : fillCovariance(ap1, ap2, (*itC2).second, cov, row, col);
@@ -66,13 +66,13 @@ void AlignmentCorrelationsStore::setCorrelations(
   if (ap1 == previousAlignable) {
     fillCorrelationsTable(ap1, ap2, previousCorrelations, cov, row, col, transpose);
   } else {
-    Correlations::iterator itC = theCorrelations.find(ap1);
+    auto itC = theCorrelations.find(ap1);
     if (itC != theCorrelations.end()) {
       fillCorrelationsTable(ap1, ap2, itC->second, cov, row, col, transpose);
       previousAlignable = ap1;
       previousCorrelations = itC->second;
     } else {
-      CorrelationsTable* newTable = new CorrelationsTable;
+      auto* newTable = new CorrelationsTable;
       fillCorrelationsTable(ap1, ap2, newTable, cov, row, col, transpose);
 
       theCorrelations[ap1] = newTable;
@@ -87,11 +87,11 @@ void AlignmentCorrelationsStore::setCorrelations(Alignable* ap1, Alignable* ap2,
   if (transpose)
     std::swap(ap1, ap2);
 
-  Correlations::iterator itC1 = theCorrelations.find(ap1);
+  auto itC1 = theCorrelations.find(ap1);
   if (itC1 != theCorrelations.end()) {
     (*itC1->second)[ap2] = transpose ? mat.T() : mat;
   } else {
-    CorrelationsTable* newTable = new CorrelationsTable;
+    auto* newTable = new CorrelationsTable;
     (*newTable)[ap2] = transpose ? mat.T() : mat;
     theCorrelations[ap1] = newTable;
   }
@@ -102,9 +102,9 @@ bool AlignmentCorrelationsStore::correlationsAvailable(Alignable* ap1, Alignable
   if (transpose)
     std::swap(ap1, ap2);
 
-  Correlations::const_iterator itC1 = theCorrelations.find(ap1);
+  auto itC1 = theCorrelations.find(ap1);
   if (itC1 != theCorrelations.end()) {
-    CorrelationsTable::const_iterator itC2 = itC1->second->find(ap2);
+    auto itC2 = itC1->second->find(ap2);
     if (itC2 != itC1->second->end())
       return true;
   }
@@ -139,7 +139,7 @@ void AlignmentCorrelationsStore::fillCorrelationsTable(Alignable* ap1,
                                                        int row,
                                                        int col,
                                                        bool transpose) {
-  CorrelationsTable::iterator itC = table->find(ap2);
+  auto itC = table->find(ap2);
 
   if (itC != table->end()) {
     transpose ? readFromCovarianceT(ap1, ap2, itC->second, cov, row, col)

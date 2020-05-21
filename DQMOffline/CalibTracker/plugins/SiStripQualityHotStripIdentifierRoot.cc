@@ -96,8 +96,8 @@ std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifierRoot::getNewObj
 
         std::stringstream ss;
 
-        SiStripBadStrip::RegistryIterator rIter = qobj->getRegistryVectorBegin();
-        SiStripBadStrip::RegistryIterator rIterEnd = qobj->getRegistryVectorEnd();
+        auto rIter = qobj->getRegistryVectorBegin();
+        auto rIterEnd = qobj->getRegistryVectorEnd();
         for (; rIter != rIterEnd; ++rIter) {
           SiStripBadStrip::Range range(qobj->getDataVectorBegin() + rIter->ibegin,
                                        qobj->getDataVectorBegin() + rIter->iend);
@@ -138,8 +138,8 @@ std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifierRoot::getNewObj
 
         std::stringstream ss;
 
-        SiStripBadStrip::RegistryIterator rIter = qobj->getRegistryVectorBegin();
-        SiStripBadStrip::RegistryIterator rIterEnd = qobj->getRegistryVectorEnd();
+        auto rIter = qobj->getRegistryVectorBegin();
+        auto rIterEnd = qobj->getRegistryVectorEnd();
         for (; rIter != rIterEnd; ++rIter) {
           SiStripBadStrip::Range range(qobj->getDataVectorBegin() + rIter->ibegin,
                                        qobj->getDataVectorBegin() + rIter->iend);
@@ -192,8 +192,8 @@ std::unique_ptr<SiStripBadStrip> SiStripQualityHotStripIdentifierRoot::getNewObj
 
         std::stringstream ss;
 
-        SiStripBadStrip::RegistryIterator rIter = qobj->getRegistryVectorBegin();
-        SiStripBadStrip::RegistryIterator rIterEnd = qobj->getRegistryVectorEnd();
+        auto rIter = qobj->getRegistryVectorBegin();
+        auto rIterEnd = qobj->getRegistryVectorEnd();
         for (; rIter != rIterEnd; ++rIter) {
           SiStripBadStrip::Range range(qobj->getDataVectorBegin() + rIter->ibegin,
                                        qobj->getDataVectorBegin() + rIter->iend);
@@ -267,8 +267,8 @@ void SiStripQualityHotStripIdentifierRoot::bookHistos() {
   edm::LogInfo("SiStripQualityHotStripIdentifierRoot")
       << " [SiStripQualityHotStripIdentifierRoot::bookHistos] vector size " << MEs.size() << std::endl;
 
-  std::vector<MonitorElement*>::const_iterator iter = MEs.begin();
-  std::vector<MonitorElement*>::const_iterator iterEnd = MEs.end();
+  auto iter = MEs.begin();
+  auto iterEnd = MEs.end();
 
   edm::ParameterSet parameters = conf_.getParameter<edm::ParameterSet>("AlgoParameters");
   bool gotNentries = true;

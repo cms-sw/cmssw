@@ -117,7 +117,7 @@ CSCAnalogSignal CSCBaseElectronicsSim::makeNoiseSignal(int element, CLHEP::HepRa
 }
 
 void CSCBaseElectronicsSim::addNoise(CLHEP::HepRandomEngine *engine) {
-  for (CSCSignalMap::iterator mapI = theSignalMap.begin(); mapI != theSignalMap.end(); ++mapI) {
+  for (auto mapI = theSignalMap.begin(); mapI != theSignalMap.end(); ++mapI) {
     // superimpose electronics noise
     (*mapI).second.superimpose(makeNoiseSignal((*mapI).first, engine));
     // DON'T do amp gain variations.  Handled in strips by calibration code
@@ -134,7 +134,7 @@ CSCAnalogSignal &CSCBaseElectronicsSim::find(int element, CLHEP::HepRandomEngine
                                       << nElements << " elements.";
     edm::LogError("Error in CSCBaseElectronicsSim:  element out of bounds");
   }
-  CSCSignalMap::iterator signalMapItr = theSignalMap.find(element);
+  auto signalMapItr = theSignalMap.find(element);
   if (signalMapItr == theSignalMap.end()) {
     CSCAnalogSignal newSignal;
     if (theNoiseWasAdded) {
@@ -172,13 +172,13 @@ void CSCBaseElectronicsSim::addLinks(int channelIndex) {
   std::map<int, float> simTrackChargeMap;
   std::map<int, EncodedEventId> eventIdMap;
   float totalCharge = 0;
-  for (DetectorHitMap::iterator hitItr = channelHitItr.first; hitItr != channelHitItr.second; ++hitItr) {
+  for (auto hitItr = channelHitItr.first; hitItr != channelHitItr.second; ++hitItr) {
     const PSimHit *hit = hitItr->second.getSimHit();
     // might be zero for unit tests and such
     if (hit != nullptr) {
       int simTrackId = hitItr->second.getSimHit()->trackId();
       float charge = hitItr->second.getCharge();
-      std::map<int, float>::iterator chargeItr = simTrackChargeMap.find(simTrackId);
+      auto chargeItr = simTrackChargeMap.find(simTrackId);
       if (chargeItr == simTrackChargeMap.end()) {
         simTrackChargeMap[simTrackId] = charge;
         eventIdMap[simTrackId] = hit->eventId();
@@ -189,8 +189,7 @@ void CSCBaseElectronicsSim::addLinks(int channelIndex) {
     }
   }
 
-  for (std::map<int, float>::iterator chargeItr = simTrackChargeMap.begin(); chargeItr != simTrackChargeMap.end();
-       ++chargeItr) {
+  for (auto chargeItr = simTrackChargeMap.begin(); chargeItr != simTrackChargeMap.end(); ++chargeItr) {
     int simTrackId = chargeItr->first;
     theDigiSimLinks.push_back(
         StripDigiSimLink(channelIndex, simTrackId, eventIdMap[simTrackId], chargeItr->second / totalCharge));

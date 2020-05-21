@@ -35,10 +35,7 @@ coral_bridge::AuthenticationCredentialSet::AuthenticationCredentialSet() : m_dat
 coral_bridge::AuthenticationCredentialSet::~AuthenticationCredentialSet() { reset(); }
 
 void coral_bridge::AuthenticationCredentialSet::reset() {
-  for (std::map<std::pair<std::string, std::string>, coral::AuthenticationCredentials*>::iterator iData =
-           m_data.begin();
-       iData != m_data.end();
-       ++iData)
+  for (auto iData = m_data.begin(); iData != m_data.end(); ++iData)
     delete iData->second;
   m_data.clear();
 }
@@ -54,8 +51,7 @@ void coral_bridge::AuthenticationCredentialSet::registerItem(const std::string& 
                                                              const std::string& itemName,
                                                              const std::string& itemValue) {
   std::pair<std::string, std::string> connKey(connectionString, role);
-  std::map<std::pair<std::string, std::string>, coral::AuthenticationCredentials*>::iterator iData =
-      m_data.find(connKey);
+  auto iData = m_data.find(connKey);
   if (iData == m_data.end()) {
     iData = m_data.insert(std::make_pair(connKey, new coral::AuthenticationCredentials(serviceName))).first;
   }
@@ -74,8 +70,7 @@ void coral_bridge::AuthenticationCredentialSet::registerCredentials(const std::s
                                                                     const std::string& userName,
                                                                     const std::string& password) {
   std::pair<std::string, std::string> connKey(connectionString, role);
-  std::map<std::pair<std::string, std::string>, coral::AuthenticationCredentials*>::iterator iData =
-      m_data.find(connKey);
+  auto iData = m_data.find(connKey);
   if (iData != m_data.end()) {
     delete iData->second;
     m_data.erase(connKey);
@@ -86,10 +81,7 @@ void coral_bridge::AuthenticationCredentialSet::registerCredentials(const std::s
 }
 
 void coral_bridge::AuthenticationCredentialSet::import(const AuthenticationCredentialSet& data) {
-  for (std::map<std::pair<std::string, std::string>, coral::AuthenticationCredentials*>::const_iterator iData =
-           data.m_data.begin();
-       iData != data.m_data.end();
-       ++iData) {
+  for (auto iData = data.m_data.begin(); iData != data.m_data.end(); ++iData) {
     registerCredentials(iData->first.first,
                         iData->first.second,
                         iData->second->valueForItem(coral::IAuthenticationCredentials::userItem()),
@@ -106,8 +98,7 @@ const coral::IAuthenticationCredentials* coral_bridge::AuthenticationCredentialS
     const std::string& connectionString, const std::string& role) const {
   const coral::IAuthenticationCredentials* ret = nullptr;
   std::pair<std::string, std::string> connKey(connectionString, role);
-  std::map<std::pair<std::string, std::string>, coral::AuthenticationCredentials*>::const_iterator iData =
-      m_data.find(connKey);
+  auto iData = m_data.find(connKey);
   if (iData != m_data.end()) {
     ret = iData->second;
   }
@@ -700,7 +691,7 @@ std::string cond::CredentialStore::setUpForService(const std::string& serviceNam
 
   m_key.init(fullPath.string(), auth::COND_KEY);
 
-  std::map<std::string, auth::ServiceCredentials>::const_iterator iK = m_key.services().find(serviceName);
+  auto iK = m_key.services().find(serviceName);
   if (iK == m_key.services().end()) {
     std::string msg("");
     msg += "Service \"" + serviceName + "\" can't be open with the current key.";
@@ -1261,10 +1252,7 @@ bool cond::CredentialStore::importForPrincipal(const std::string& principal,
   std::string princKey = cipher.b64decrypt(princData.adminKey);
 
   const std::map<std::pair<std::string, std::string>, coral::AuthenticationCredentials*>& creds = dataSource.data();
-  for (std::map<std::pair<std::string, std::string>, coral::AuthenticationCredentials*>::const_iterator iConn =
-           creds.begin();
-       iConn != creds.end();
-       ++iConn) {
+  for (auto iConn = creds.begin(); iConn != creds.end(); ++iConn) {
     const std::string& connectionString = iConn->first.first;
     coral::URIParser parser;
     parser.setURI(connectionString);

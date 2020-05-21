@@ -216,11 +216,7 @@ namespace fwlite {
     // Second, assume that the secondary files are each in run/event
     // order.  So, let's loop over all files and see if we can figure
     // out where the event ought to be.
-    for (sec_file_range_index_map::const_iterator mBegin = secFileMapSorted_.begin(),
-                                                  mEnd = secFileMapSorted_.end(),
-                                                  mit = mBegin;
-         mit != mEnd;
-         ++mit) {
+    for (auto mBegin = secFileMapSorted_.begin(), mEnd = secFileMapSorted_.end(), mit = mBegin; mit != mEnd; ++mit) {
       if (id < mit->first.first || id > mit->first.second) {
         // We don't expect this event to be in this file, so don't
         // bother checking it right now.

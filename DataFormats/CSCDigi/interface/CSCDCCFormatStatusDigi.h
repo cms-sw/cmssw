@@ -125,7 +125,7 @@ enum CSCStatusFlag {
 template <class TKey, class TVal>
 bool nextInMap(uint32_t& it, TKey& key, const std::map<TKey, TVal>& m) {
   uint32_t c = 0;
-  typename std::map<TKey, TVal>::const_iterator itr = m.begin();
+  auto itr = m.begin();
   while (itr != m.end()) {
     if (c == it) {
       it++;
@@ -333,7 +333,7 @@ public:
   ExaminerStatusType getDDUSummaryErrors() const { return fDDU_SUMMARY_ERRORS; }
 
   ExaminerStatusType getDDUErrors(const DDUIdType DDUId) const {
-    std::map<DDUIdType, ExaminerStatusType>::const_iterator item = mDDU_ERRORS.find(DDUId);
+    auto item = mDDU_ERRORS.find(DDUId);
     if (item != mDDU_ERRORS.end())
       return item->second;
     else
@@ -341,7 +341,7 @@ public:
   }
 
   ExaminerStatusType getCSCErrors(const CSCIdType CSCId) const {
-    std::map<CSCIdType, ExaminerStatusType>::const_iterator item = mCSC_ERRORS.find(CSCId);
+    auto item = mCSC_ERRORS.find(CSCId);
     if (item != mCSC_ERRORS.end())
       return item->second;
     else
@@ -353,7 +353,7 @@ public:
   }
 
   ExaminerStatusType getCSCPayload(const CSCIdType CSCId) const {
-    std::map<CSCIdType, ExaminerStatusType>::const_iterator item = mCSC_PAYLOADS.find(CSCId);
+    auto item = mCSC_PAYLOADS.find(CSCId);
     if (item != mCSC_PAYLOADS.end())
       return item->second;
     else
@@ -365,7 +365,7 @@ public:
   }
 
   ExaminerStatusType getCSCStatus(const CSCIdType CSCId) const {
-    std::map<CSCIdType, ExaminerStatusType>::const_iterator item = mCSC_STATUS.find(CSCId);
+    auto item = mCSC_STATUS.find(CSCId);
     if (item != mCSC_STATUS.end())
       return item->second;
     else

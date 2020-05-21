@@ -61,7 +61,7 @@ void SiPixelTrackResidualModule::book(const edm::ParameterSet &iConfig,
   std::string hisID;
 
   if (type == 0) {
-    SiPixelHistogramId *theHistogramId = new SiPixelHistogramId(src.label());
+    auto *theHistogramId = new SiPixelHistogramId(src.label());
     hisID = theHistogramId->setHistoId("residualX", id_);
     meResidualX_ = iBooker.book1D(hisID, "Hit-to-Track Residual in r-phi", 100, -150, 150);
     meResidualX_->setAxisTitle("hit-to-track residual in r-phi (um)", 1);

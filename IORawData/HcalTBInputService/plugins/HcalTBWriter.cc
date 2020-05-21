@@ -57,7 +57,7 @@ void HcalTBWriter::analyze(const edm::Event& e, const edm::EventSetup& es) {
   }
 
   // adopt the buffers for writing
-  for (std::map<int, int>::const_iterator i = chunkMap_.begin(); i != chunkMap_.end(); i++) {
+  for (auto i = chunkMap_.begin(); i != chunkMap_.end(); i++) {
     CDFChunk* c = chunkList_[i->second];
     const FEDRawData& frd = raw->FEDData(i->first);
     c->adoptBuffer((ULong64_t*)frd.data(), frd.size() / 8);
@@ -69,7 +69,7 @@ void HcalTBWriter::analyze(const edm::Event& e, const edm::EventSetup& es) {
   // fill the tree
   tree_->Fill();
   // release all the buffers
-  for (std::map<int, int>::const_iterator i = chunkMap_.begin(); i != chunkMap_.end(); i++) {
+  for (auto i = chunkMap_.begin(); i != chunkMap_.end(); i++) {
     CDFChunk* c = chunkList_[i->second];
     c->releaseBuffer();
   }
@@ -141,8 +141,8 @@ void HcalTBWriter::extractEventInfo(const FEDRawDataCollection& raw, const edm::
   int bunchNo = 0;
 
   if (trigChunk_ >= 0) {
-    const newExtendedTrgMsgBlk* tinfo = (const newExtendedTrgMsgBlk*)(chunkList_[trigChunk_]->getData() +
-                                                                      2);  // assume 2 64-bit words for the CDF header
+    const auto* tinfo = (const newExtendedTrgMsgBlk*)(chunkList_[trigChunk_]->getData() +
+                                                      2);  // assume 2 64-bit words for the CDF header
     orbitNo = tinfo->stdBlock.orbitNumber;
     seqid = tinfo->runNumberSequenceId;
     FEDHeader head((const unsigned char*)chunkList_[trigChunk_]->getData());

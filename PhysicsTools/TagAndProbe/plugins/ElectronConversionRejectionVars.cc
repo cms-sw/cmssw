@@ -81,7 +81,7 @@ void ElectronConversionRejectionVars::produce(edm::Event& iEvent, const edm::Eve
 
   View<reco::Candidate>::const_iterator probe, endprobes = probes->end();
   const reco::GsfElectronCollection* electronCollection = elHandle.product();
-  reco::GsfElectronCollection::const_iterator eleIt = electronCollection->begin();
+  auto eleIt = electronCollection->begin();
 
   for (probe = probes->begin(); probe != endprobes; ++probe) {
     for (eleIt = electronCollection->begin(); eleIt != electronCollection->end(); eleIt++) {

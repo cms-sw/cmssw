@@ -17,8 +17,8 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
 
   try {
     if (!dbParams_.usingDbCache()) {
-      SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
-      SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
+      auto iter = dbParams_.partitions().begin();
+      auto jter = dbParams_.partitions().end();
       for (; iter != jter; ++iter) {
         if (partition.empty() || partition == iter->second.partitionName()) {
           if (iter->second.partitionName() == SiStripPartition::defaultPartitionName_) {
@@ -217,8 +217,8 @@ void SiStripConfigDb::addDeviceDescriptions(std::string partition, DeviceDescrip
     return;
   }
 
-  SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
-  SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
+  auto iter = dbParams_.partitions().begin();
+  auto jter = dbParams_.partitions().end();
   for (; iter != jter; ++iter) {
     if (partition == iter->second.partitionName()) {
       break;
@@ -281,8 +281,8 @@ void SiStripConfigDb::uploadDeviceDescriptions(std::string partition) {
   }
 
   try {
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
+    auto iter = dbParams_.partitions().begin();
+    auto jter = dbParams_.partitions().end();
     for (; iter != jter; ++iter) {
       if (partition.empty() || partition == iter->second.partitionName()) {
         DeviceDescriptionsRange range = devices_.find(iter->second.partitionName());
@@ -348,8 +348,8 @@ void SiStripConfigDb::clearDeviceDescriptions(std::string partition) {
   if (partition.empty()) {
     temporary_cache = DeviceDescriptions();
   } else {
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
+    auto iter = dbParams_.partitions().begin();
+    auto jter = dbParams_.partitions().end();
     for (; iter != jter; ++iter) {
       if (partition != iter->second.partitionName()) {
         DeviceDescriptionsRange range = devices_.find(iter->second.partitionName());
@@ -376,8 +376,8 @@ void SiStripConfigDb::clearDeviceDescriptions(std::string partition) {
       devs = devices_.emptyRange();
     }
   } else {
-    SiStripDbParams::SiStripPartitions::const_iterator iter = dbParams_.partitions().begin();
-    SiStripDbParams::SiStripPartitions::const_iterator jter = dbParams_.partitions().end();
+    auto iter = dbParams_.partitions().begin();
+    auto jter = dbParams_.partitions().end();
     for (; iter != jter; ++iter) {
       if (partition == iter->second.partitionName()) {
         break;
@@ -387,8 +387,8 @@ void SiStripConfigDb::clearDeviceDescriptions(std::string partition) {
   }
 
   if (devs != devices_.emptyRange()) {
-    DeviceDescriptionsV::const_iterator ifed = devs.begin();
-    DeviceDescriptionsV::const_iterator jfed = devs.end();
+    auto ifed = devs.begin();
+    auto jfed = devs.end();
     for (; ifed != jfed; ++ifed) {
       if (*ifed) {
         delete *ifed;
@@ -430,8 +430,8 @@ void SiStripConfigDb::printDeviceDescriptions(std::string partition) {
 
       // Extract FEC crate, slot, etc
       std::map<uint32_t, vector<std::string> > devices;
-      DeviceDescriptionsV::const_iterator iter = idev->second.begin();
-      DeviceDescriptionsV::const_iterator jter = idev->second.end();
+      auto iter = idev->second.begin();
+      auto jter = idev->second.end();
       for (; iter != jter; ++iter) {
         if (*iter) {
           DeviceAddress addr = deviceAddress(**iter);
@@ -454,13 +454,13 @@ void SiStripConfigDb::printDeviceDescriptions(std::string partition) {
 
       // Sort contents
       std::map<uint32_t, std::vector<std::string> > tmp;
-      std::map<uint32_t, std::vector<std::string> >::const_iterator ii = devices.begin();
-      std::map<uint32_t, std::vector<std::string> >::const_iterator jj = devices.end();
+      auto ii = devices.begin();
+      auto jj = devices.end();
       for (; ii != jj; ++ii) {
         std::vector<std::string> temp = ii->second;
         std::sort(temp.begin(), temp.end());
-        std::vector<std::string>::const_iterator iii = temp.begin();
-        std::vector<std::string>::const_iterator jjj = temp.end();
+        auto iii = temp.begin();
+        auto jjj = temp.end();
         for (; iii != jjj; ++iii) {
           tmp[ii->first].push_back(*iii);
         }
@@ -469,8 +469,8 @@ void SiStripConfigDb::printDeviceDescriptions(std::string partition) {
       devices = tmp;
 
       // Print FEC crate, slot, etc...
-      std::map<uint32_t, std::vector<std::string> >::const_iterator idev = devices.begin();
-      std::map<uint32_t, std::vector<std::string> >::const_iterator jdev = devices.end();
+      auto idev = devices.begin();
+      auto jdev = devices.end();
       for (; idev != jdev; ++idev) {
         SiStripFecKey key(idev->first);
         ss << "  Found " << std::setw(3) << idev->second.size() << " devices for FEC crate/slot/ring " << key.fecCrate()
@@ -501,7 +501,7 @@ void SiStripConfigDb::printDeviceDescriptions(std::string partition) {
 // -----------------------------------------------------------------------------
 //
 SiStripConfigDb::DeviceAddress SiStripConfigDb::deviceAddress(const deviceDescription& description) {
-  deviceDescription& desc = const_cast<deviceDescription&>(description);
+  auto& desc = const_cast<deviceDescription&>(description);
 
   DeviceAddress addr;
   try {

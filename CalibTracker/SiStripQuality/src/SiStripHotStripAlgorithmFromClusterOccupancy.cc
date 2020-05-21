@@ -199,7 +199,7 @@ void SiStripHotStripAlgorithmFromClusterOccupancy::extractBadStrips(SiStripQuali
       delete phisto._th1f;
     }
 
-    const StripGeomDetUnit* theStripDet = dynamic_cast<const StripGeomDetUnit*>((TkGeom->idToDet(detectorId)));
+    const auto* theStripDet = dynamic_cast<const StripGeomDetUnit*>((TkGeom->idToDet(detectorId)));
     const StripTopology* theStripTopol = dynamic_cast<const StripTopology*>(&(theStripDet->specificTopology()));
 
     for (int strip = 0; strip < number_strips; strip++) {

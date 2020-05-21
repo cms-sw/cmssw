@@ -104,8 +104,8 @@ void FP420RecoMain::run(
     //
     // fill output in collector vector (for may be sorting? or other checks)
     //
-    TrackCollectionFP420::ContainerIterator sort_begin = outputRange.first;
-    TrackCollectionFP420::ContainerIterator sort_end = outputRange.second;
+    auto sort_begin = outputRange.first;
+    auto sort_end = outputRange.second;
     //
     for (; sort_begin != sort_end; ++sort_begin) {
       collector.push_back(*sort_begin);
@@ -113,8 +113,8 @@ void FP420RecoMain::run(
     if (verbosity > 1) {
       std::cout << "FP420RecoMain: track collector.size=" << collector.size() << std::endl;
     }
-    std::vector<TrackFP420>::const_iterator simHitIter = collector.begin();
-    std::vector<TrackFP420>::const_iterator simHitIterEnd = collector.end();
+    auto simHitIter = collector.begin();
+    auto simHitIterEnd = collector.end();
     for (; simHitIter != simHitIterEnd; ++simHitIter) {
       const TrackFP420 itrack = *simHitIter;
       double x1 = (itrack.bx() * z1 + (itrack.ax() - VtxXcur)) * 1000.;  //um
@@ -196,16 +196,16 @@ void FP420RecoMain::run(
       RecoCollectionFP420::Range zoutputRange;
       zoutputRange = toutput->get(StID);
       // fill output in zcollector vector (for may be sorting? or other checks)
-      RecoCollectionFP420::ContainerIterator sort_begin = zoutputRange.first;
-      RecoCollectionFP420::ContainerIterator sort_end = zoutputRange.second;
+      auto sort_begin = zoutputRange.first;
+      auto sort_end = zoutputRange.second;
       for (; sort_begin != sort_end; ++sort_begin) {
         zcollector.push_back(*sort_begin);
       }  // for
       std::cout << "=======FP420RecoMain:check of re-new zcollector size = " << zcollector.size() << std::endl;
       std::cout << " ===" << std::endl;
       std::cout << " ===" << std::endl;
-      std::vector<RecoFP420>::const_iterator simHitIter = zcollector.begin();
-      std::vector<RecoFP420>::const_iterator simHitIterEnd = zcollector.end();
+      auto simHitIter = zcollector.begin();
+      auto simHitIterEnd = zcollector.end();
       // loop in recoess
       for (; simHitIter != simHitIterEnd; ++simHitIter) {
         const RecoFP420 itrack = *simHitIter;

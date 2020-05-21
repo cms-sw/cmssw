@@ -65,7 +65,7 @@ void popcon::EcalLaser_weekly_Handler::getNewObjects() {
   std::cout << "Its tmin is " << Tm(t_min.value()) << std::endl;
 
   //  for(int week = 0; week < 1; week++) {
-  EcalLaserAPDPNRatios* corrSet = new EcalLaserAPDPNRatios;
+  auto* corrSet = new EcalLaserAPDPNRatios;
 
   EcalLaserAPDPNRatios::EcalLaserAPDPNpair corr;
   int fileIOV;

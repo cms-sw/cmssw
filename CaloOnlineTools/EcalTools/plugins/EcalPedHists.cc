@@ -32,7 +32,7 @@ EcalPedHists::EcalPedHists(const edm::ParameterSet& ps)
     //if "actual" EB id given, then convert to FEDid and put in listFEDs_
     if (!listEBs_.empty()) {
       listFEDs_.clear();
-      for (vector<string>::const_iterator itr = listEBs_.begin(); itr != listEBs_.end(); ++itr) {
+      for (auto itr = listEBs_.begin(); itr != listEBs_.end(); ++itr) {
         listFEDs_.push_back(fedMap_->getFedFromSlice(*itr));
       }
     }
@@ -51,7 +51,7 @@ EcalPedHists::EcalPedHists(const edm::ParameterSet& ps)
 
   if (!allFEDsSelected_) {
     // Verify FED numbers are valid
-    for (vector<int>::const_iterator intIter = listFEDs_.begin(); intIter != listFEDs_.end(); intIter++) {
+    for (auto intIter = listFEDs_.begin(); intIter != listFEDs_.end(); intIter++) {
       if (((*intIter) < 601) || (654 < (*intIter))) {
         cout << "[EcalPedHists] FED value: " << (*intIter) << " found in listFEDs. "
              << " Valid range is 601-654. Returning." << endl;
@@ -118,7 +118,7 @@ void EcalPedHists::endJob(void) {
 
     TFile root_file_(fileName_.c_str(), "RECREATE");
     //Loop over FEDs first
-    for (set<int>::const_iterator FEDitr = theRealFedSet_.begin(); FEDitr != theRealFedSet_.end(); ++FEDitr) {
+    for (auto FEDitr = theRealFedSet_.begin(); FEDitr != theRealFedSet_.end(); ++FEDitr) {
       if (!histsFilled_)
         break;
       string dir = fedMap_->getSliceFromFed(*FEDitr);
@@ -129,7 +129,7 @@ void EcalPedHists::endJob(void) {
       map<string, TH1F*> mapHistos = FEDsAndHistMaps_[*FEDitr];
 
       //Loop over channels; write histos and directory structure
-      for (vector<int>::const_iterator itr = listChannels_.begin(); itr != listChannels_.end(); itr++) {
+      for (auto itr = listChannels_.begin(); itr != listChannels_.end(); itr++) {
         //debug
         //cout << "loop over channels" << endl;
 
@@ -184,15 +184,14 @@ void EcalPedHists::analyze(const edm::Event& e, const edm::EventSetup& c) {
       return;
     }
 
-    for (EcalRawDataCollection::const_iterator headerItr = DCCHeaders->begin(); headerItr != DCCHeaders->end();
-         ++headerItr) {
+    for (auto headerItr = DCCHeaders->begin(); headerItr != DCCHeaders->end(); ++headerItr) {
       int FEDid = 600 + headerItr->id();
       theRealFedSet_.insert(FEDid);
     }
   }
 
   // loop over fed list and make sure that there are histo maps
-  for (set<int>::const_iterator fedItr = theRealFedSet_.begin(); fedItr != theRealFedSet_.end(); ++fedItr) {
+  for (auto fedItr = theRealFedSet_.begin(); fedItr != theRealFedSet_.end(); ++fedItr) {
     if (FEDsAndHistMaps_.find(*fedItr) == FEDsAndHistMaps_.end())
       initHists(*fedItr);
   }
@@ -242,7 +241,7 @@ void EcalPedHists::initHists(int FED) {
   std::map<string, TH1F*> histMap;
   //debug
   //cout << "Initializing map for FED:" << *FEDitr << endl;
-  for (vector<int>::const_iterator intIter = listChannels_.begin(); intIter != listChannels_.end(); ++intIter) {
+  for (auto intIter = listChannels_.begin(); intIter != listChannels_.end(); ++intIter) {
     //Put 3 histos (1 per gain) for the channel into the map
     string FEDid = intToString(FED);
     string chnl = intToString(*intIter);
@@ -285,7 +284,7 @@ void EcalPedHists::readEBdigis(edm::Handle<EBDigiCollection> digis) {
     //cout << "FEDid:" << FEDid << " cryId:" << crystalId << endl;
     //cout << "FEDid:" << FEDid << endl;
     //Select desired supermodules only
-    set<int>::const_iterator fedIter = find(theRealFedSet_.begin(), theRealFedSet_.end(), FEDid);
+    auto fedIter = find(theRealFedSet_.begin(), theRealFedSet_.end(), FEDid);
     if (fedIter == theRealFedSet_.end())
       continue;
 
@@ -297,7 +296,7 @@ void EcalPedHists::readEBdigis(edm::Handle<EBDigiCollection> digis) {
 
     // Get the adc counts from the selected samples and fill the corresponding histogram
     // Must subtract 1 from user-given sample list (e.g., user's sample 1 -> sample 0)
-    for (vector<int>::iterator itr = listSamples_.begin(); itr != listSamples_.end(); itr++) {
+    for (auto itr = listSamples_.begin(); itr != listSamples_.end(); itr++) {
       histsFilled_ = true;
       map<string, TH1F*> mapHistos = FEDsAndHistMaps_[FEDid];
       string chnl = intToString(crystalId);
@@ -336,7 +335,7 @@ void EcalPedHists::readEEdigis(edm::Handle<EEDigiCollection> digis) {
     int crystalId = 10000 * FEDid + 100 * elecId.towerId() + 5 * (elecId.stripId() - 1) + elecId.xtalId();
 
     //Select desired FEDs only
-    set<int>::const_iterator fedIter = find(theRealFedSet_.begin(), theRealFedSet_.end(), FEDid);
+    auto fedIter = find(theRealFedSet_.begin(), theRealFedSet_.end(), FEDid);
     if (fedIter == theRealFedSet_.end())
       continue;
 
@@ -348,7 +347,7 @@ void EcalPedHists::readEEdigis(edm::Handle<EEDigiCollection> digis) {
 
     // Get the adc counts from the selected samples and fill the corresponding histogram
     // Must subtract 1 from user-given sample list (e.g., user's sample 1 -> sample 0)
-    for (vector<int>::iterator itr = listSamples_.begin(); itr != listSamples_.end(); itr++) {
+    for (auto itr = listSamples_.begin(); itr != listSamples_.end(); itr++) {
       histsFilled_ = true;
       map<string, TH1F*> mapHistos = FEDsAndHistMaps_[FEDid];
       string chnl = intToString(crystalId);

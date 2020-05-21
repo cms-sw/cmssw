@@ -55,7 +55,7 @@ namespace {
       unsigned int run = std::get<0>(iov);
       if (payload.get()) {
         const std::map<uint32_t, EcalTPGFineGrainConstEB>& towerMap = (*payload).getMap();
-        std::map<uint32_t, EcalTPGFineGrainConstEB>::const_iterator it = towerMap.begin();
+        auto it = towerMap.begin();
 
         for (int iphi = MIN_IPHI - 1; iphi <= MAX_IPHI; iphi++) {
           for (int ieta = -1 * MAX_IETA; ieta < MAX_IETA; ieta++) {

@@ -136,7 +136,7 @@ PixelLowVoltageMap::PixelLowVoltageMap(std::string filename) : PixelConfigBase("
 
 std::string PixelLowVoltageMap::dpNameIana(const PixelModuleName &module) const {
   std::string mthn = "[PixelLowVoltageMap::dpNameIana()]\t\t\t    ";
-  std::map<PixelModuleName, pair<string, pair<string, string> > >::const_iterator i = dpNameMap_.find(module);
+  auto i = dpNameMap_.find(module);
 
   if (i == dpNameMap_.end()) {
     cout << __LINE__ << "]\t" << mthn << "Could not find module: " << module << endl;
@@ -147,7 +147,7 @@ std::string PixelLowVoltageMap::dpNameIana(const PixelModuleName &module) const 
 
 std::string PixelLowVoltageMap::dpNameIdigi(const PixelModuleName &module) const {
   std::string mthn = "[PixelLowVoltageMap::dpNameIdigi()]\t\t\t    ";
-  std::map<PixelModuleName, pair<string, pair<string, string> > >::const_iterator i = dpNameMap_.find(module);
+  auto i = dpNameMap_.find(module);
 
   if (i == dpNameMap_.end()) {
     cout << __LINE__ << "]\t" << mthn << "Could not find module: " << module << endl;
@@ -167,7 +167,7 @@ void PixelLowVoltageMap::writeASCII(std::string dir) const {
     std::cout << __LINE__ << "]\t" << mthn << "Could not open file " << filename << " for write" << std::endl;
     exit(1);
   }
-  std::map<PixelModuleName, pair<string, pair<string, string> > >::const_iterator imodule = dpNameMap_.begin();
+  auto imodule = dpNameMap_.begin();
 
   for (; imodule != dpNameMap_.end(); ++imodule) {
     out << imodule->first << " " << imodule->second.first << " " << imodule->second.second.first << " "
@@ -227,7 +227,7 @@ void PixelLowVoltageMap::writeXML(std::ofstream *outstream,
                                   std::ofstream *out2stream) const {
   std::string mthn = "[PixelLowVoltageMap::writeXML()]\t\t\t    ";
 
-  std::map<PixelModuleName, pair<string, pair<string, string> > >::const_iterator imodule = dpNameMap_.begin();
+  auto imodule = dpNameMap_.begin();
 
   for (; imodule != dpNameMap_.end(); ++imodule) {
     *outstream << "  <DATA>" << std::endl;

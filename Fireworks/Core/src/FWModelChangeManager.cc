@@ -86,8 +86,7 @@ void FWModelChangeManager::endChanges() {
   bool guard(false);
   if (0 == --m_depth) {
     unsigned int index = 0;
-    for (std::set<const FWEventItem*>::iterator itChanges = m_itemChanges.begin(); itChanges != m_itemChanges.end();
-         ++itChanges, ++index) {
+    for (auto itChanges = m_itemChanges.begin(); itChanges != m_itemChanges.end(); ++itChanges, ++index) {
       if (!guard) {
         // std::shared_ptr<FWModelChangeManager> done(this, &sendChangeSignalsAreDone);
         guard = true;

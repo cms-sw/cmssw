@@ -44,7 +44,7 @@ ConversionTrackPairFinder::run(const std::vector<reco::TransientTrack>& outInTrk
   bool noTrack = false;
 
   int iTrk = 0;
-  for (std::vector<reco::TransientTrack>::const_iterator iTk = outInTrk.begin(); iTk != outInTrk.end(); iTk++) {
+  for (auto iTk = outInTrk.begin(); iTk != outInTrk.end(); iTk++) {
     edm::Ref<reco::TrackCollection> trackRef(outInTrkHandle, iTrk);
     iTrk++;
 
@@ -56,7 +56,7 @@ ConversionTrackPairFinder::run(const std::vector<reco::TransientTrack>& outInTrk
       continue;
 
     //    std::cout  << " Out In Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner pt  " << sqrt(iTk->track().innerMomentum().perp2()) << "\n";
-    const reco::TrackTransientTrack* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
+    const auto* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
     reco::TrackRef myTkRef = ttt->persistentTrackRef();
     //std::cout <<  " ConversionTrackPairFinder persistent track ref hits " << myTkRef->recHitsSize() << " inner pt  " << sqrt(iTk->track().innerMomentum().perp2()) << "\n";
     //    std::cout <<  " ConversionTrackPairFinder track from handle hits " << trackRef->recHitsSize() << " inner pt  " << sqrt(iTk->track().innerMomentum().perp2()) << "\n";
@@ -74,7 +74,7 @@ ConversionTrackPairFinder::run(const std::vector<reco::TransientTrack>& outInTrk
   }
 
   iTrk = 0;
-  for (std::vector<reco::TransientTrack>::const_iterator iTk = inOutTrk.begin(); iTk != inOutTrk.end(); iTk++) {
+  for (auto iTk = inOutTrk.begin(); iTk != inOutTrk.end(); iTk++) {
     edm::Ref<reco::TrackCollection> trackRef(inOutTrkHandle, iTrk);
     iTrk++;
 
@@ -86,7 +86,7 @@ ConversionTrackPairFinder::run(const std::vector<reco::TransientTrack>& outInTrk
       continue;
 
     //    std::cout << " In Out Track charge " << iTk->charge() << " Num of RecHits " << iTk->recHitsSize() << " inner pt  " << sqrt(iTk->track().innerMomentum().perp2()) << "\n";
-    const reco::TrackTransientTrack* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
+    const auto* ttt = dynamic_cast<const reco::TrackTransientTrack*>(iTk->basicTransientTrack());
     reco::TrackRef myTkRef = ttt->persistentTrackRef();
     // std::cout <<  " ConversionTrackPairFinder persistent track ref hits " << myTkRef->recHitsSize() << " inner pt  " << sqrt(iTk->track().innerMomentum().perp2()) << "\n";
     //    std::cout <<  " ConversionTrackPairFinder track from handle hits " << trackRef->recHitsSize() << " inner pt  " << sqrt(iTk->track().innerMomentum().perp2()) << "\n";
@@ -249,9 +249,7 @@ ConversionTrackPairFinder::run(const std::vector<reco::TransientTrack>& outInTrk
   /// all cases above failed and some track-SC association is still missing
   for (iMap1 = scTrkAssocMap.begin(); iMap1 != scTrkAssocMap.end(); ++iMap1) {
     int nFound = 0;
-    for (std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>::const_iterator iPair = allPairSCAss.begin();
-         iPair != allPairSCAss.end();
-         ++iPair) {
+    for (auto iPair = allPairSCAss.begin(); iPair != allPairSCAss.end(); ++iPair) {
       if ((iMap1->second) == (iPair->second))
         nFound++;
     }
@@ -272,9 +270,7 @@ ConversionTrackPairFinder::run(const std::vector<reco::TransientTrack>& outInTrk
   }
 
   // order the tracks in the pair in order of decreasing pt
-  for (std::map<std::vector<reco::TransientTrack>, reco::CaloClusterPtr>::const_iterator iPair = allPairSCAss.begin();
-       iPair != allPairSCAss.end();
-       ++iPair) {
+  for (auto iPair = allPairSCAss.begin(); iPair != allPairSCAss.end(); ++iPair) {
     thePair.clear();
     if ((iPair->first).size() == 2) {
       if (sqrt((iPair->first)[0].track().innerMomentum().perp2()) >

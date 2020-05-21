@@ -126,7 +126,7 @@ double candIsolation(const reco::Candidate *c,
                      alpha,
                      beta,
                      relativeIsolation);
-  const pat::GenericParticle *trk = dynamic_cast<const pat::GenericParticle *>(c);
+  const auto *trk = dynamic_cast<const pat::GenericParticle *>(c);
   if (trk != nullptr)
     return isolation(trk,
                      ptThreshold,
@@ -147,7 +147,7 @@ double candIsolation(const reco::Candidate *c,
 ZToLLEdmNtupleDumper::ZToLLEdmNtupleDumper(const ParameterSet &cfg) {
   string alias;
   vector<ParameterSet> psets = cfg.getParameter<vector<ParameterSet> >("zBlocks");
-  for (std::vector<edm::ParameterSet>::const_iterator i = psets.begin(); i != psets.end(); ++i) {
+  for (auto i = psets.begin(); i != psets.end(); ++i) {
     string zName = i->getParameter<string>("zName");
     edm::EDGetTokenT<CandidateView> zToken = consumes<CandidateView>(i->getParameter<InputTag>("z"));
     edm::EDGetTokenT<GenParticleMatch> zGenParticlesMatchToken =
@@ -634,7 +634,7 @@ void ZToLLEdmNtupleDumper::produce(Event &evt, const EventSetup &) {
       } else {
         // for ZMuTk case...
         // it's a track......
-        const pat::GenericParticle *trk2 = dynamic_cast<const pat::GenericParticle *>(m2);
+        const auto *trk2 = dynamic_cast<const pat::GenericParticle *>(m2);
         TrackRef mu2TrkRef = trk2->track();
         zDau2NofHit->push_back(mu2TrkRef->numberOfValidHits());
         zDau2NofHitTk->push_back(mu2TrkRef->numberOfValidHits());

@@ -61,7 +61,7 @@ L1MuDTDataBuffer::~L1MuDTDataBuffer() { delete m_tsphi; }
 // clear buffer
 //
 void L1MuDTDataBuffer::reset() {
-  TSPhivector::iterator iter = m_tsphi->begin();
+  auto iter = m_tsphi->begin();
   while (iter != m_tsphi->end()) {
     if (*iter) {
       delete *iter;
@@ -83,7 +83,7 @@ const L1MuDTTrackSegPhi* L1MuDTDataBuffer::getTSphi(int station, int reladr) con
 // add new phi track segment to the buffer
 //
 void L1MuDTDataBuffer::addTSphi(int adr, const L1MuDTTrackSegPhi& ts) {
-  L1MuDTTrackSegPhi* tmpts = new L1MuDTTrackSegPhi(ts);
+  auto* tmpts = new L1MuDTTrackSegPhi(ts);
   (*m_tsphi)[adr] = tmpts;
 }
 
@@ -91,7 +91,7 @@ void L1MuDTDataBuffer::addTSphi(int adr, const L1MuDTTrackSegPhi& ts) {
 // print all phi track segments in the buffer
 //
 void L1MuDTDataBuffer::printTSphi() const {
-  TSPhivector::const_iterator iter = m_tsphi->begin();
+  auto iter = m_tsphi->begin();
   while (iter != m_tsphi->end()) {
     if (*iter)
       cout << *(*iter) << endl;
@@ -104,7 +104,7 @@ void L1MuDTDataBuffer::printTSphi() const {
 //
 int L1MuDTDataBuffer::numberTSphi() const {
   int count = 0;
-  TSPhivector::iterator iter = m_tsphi->begin();
+  auto iter = m_tsphi->begin();
   while (iter != m_tsphi->end()) {
     if (*iter && !(*iter)->empty())
       count++;

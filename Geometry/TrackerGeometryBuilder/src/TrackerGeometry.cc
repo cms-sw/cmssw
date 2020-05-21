@@ -181,7 +181,7 @@ const TrackerGeometry::DetContainer& TrackerGeometry::detsTOB() const { return t
 const TrackerGeometry::DetContainer& TrackerGeometry::detsTEC() const { return theTECDets; }
 
 const TrackerGeomDet* TrackerGeometry::idToDetUnit(DetId s) const {
-  mapIdToDetUnit::const_iterator p = theMapUnit.find(s.rawId());
+  auto p = theMapUnit.find(s.rawId());
   if (p != theMapUnit.end()) {
     return static_cast<const TrackerGeomDet*>(p->second);
   } else {
@@ -191,7 +191,7 @@ const TrackerGeomDet* TrackerGeometry::idToDetUnit(DetId s) const {
 }
 
 const TrackerGeomDet* TrackerGeometry::idToDet(DetId s) const {
-  mapIdToDet::const_iterator p = theMap.find(s.rawId());
+  auto p = theMap.find(s.rawId());
   if (p != theMap.end()) {
     return static_cast<const TrackerGeomDet*>(p->second);
   } else {

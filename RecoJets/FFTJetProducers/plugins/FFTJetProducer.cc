@@ -1031,14 +1031,14 @@ void FFTJetProducer::determinePileup() {
 
     // Make sure we are using 2-d membership functions.
     // Pile-up subtraction scheme for 3-d functions should be different.
-    fftjet::AbsMembershipFunction* m3d = dynamic_cast<fftjet::AbsMembershipFunction*>(peak.membershipFunction());
+    auto* m3d = dynamic_cast<fftjet::AbsMembershipFunction*>(peak.membershipFunction());
     if (m3d == nullptr)
       m3d = dynamic_cast<fftjet::AbsMembershipFunction*>(jetMembershipFunction.get());
     if (m3d) {
       assert(!"Pile-up subtraction for 3-d membership functions "
                    "is not implemented yet");
     } else {
-      fftjet::AbsKernel2d* m2d = dynamic_cast<fftjet::AbsKernel2d*>(peak.membershipFunction());
+      auto* m2d = dynamic_cast<fftjet::AbsKernel2d*>(peak.membershipFunction());
       if (m2d == nullptr)
         m2d = dynamic_cast<fftjet::AbsKernel2d*>(jetMembershipFunction.get());
       assert(m2d);

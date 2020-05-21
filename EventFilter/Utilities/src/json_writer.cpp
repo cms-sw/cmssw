@@ -200,7 +200,7 @@ namespace Json {
       case objectValue: {
         Value::Members members(value.getMemberNames());
         document_ += "{";
-        for (Value::Members::iterator it = members.begin(); it != members.end(); ++it) {
+        for (auto it = members.begin(); it != members.end(); ++it) {
           const std::string &name = *it;
           if (it != members.begin())
             document_ += ",";
@@ -259,7 +259,7 @@ namespace Json {
         else {
           writeWithIndent("{");
           indent();
-          Value::Members::iterator it = members.begin();
+          auto it = members.begin();
           while (true) {
             const std::string &name = *it;
             const Value &childValue = value[name];
@@ -467,7 +467,7 @@ namespace Json {
         else {
           writeWithIndent("{");
           indent();
-          Value::Members::iterator it = members.begin();
+          auto it = members.begin();
           while (true) {
             const std::string &name = *it;
             const Value &childValue = value[name];

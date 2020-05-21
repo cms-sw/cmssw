@@ -8,7 +8,7 @@ bool SiStripMatchedRecHit2D::sharesInput(const TrackingRecHit* other, SharedInpu
     return false;
 
   if (trackerHitRTTI::isMatched(*other)) {
-    const SiStripMatchedRecHit2D* otherMatched = static_cast<const SiStripMatchedRecHit2D*>(other);
+    const auto* otherMatched = static_cast<const SiStripMatchedRecHit2D*>(other);
     return sharesClusters(*this, *otherMatched, what);
   }
 

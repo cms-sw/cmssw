@@ -55,9 +55,7 @@ void FWHGCalMultiClusterProxyBuilder::build(const reco::HGCalMultiCluster &iData
   for (const auto &c : clusters) {
     std::vector<std::pair<DetId, float>> clusterDetIds = c->hitsAndFractions();
 
-    for (std::vector<std::pair<DetId, float>>::iterator it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
-         it != itEnd;
-         ++it) {
+    for (auto it = clusterDetIds.begin(), itEnd = clusterDetIds.end(); it != itEnd; ++it) {
       if (heatmap && hitmap.find(it->first) == hitmap.end())
         continue;
 

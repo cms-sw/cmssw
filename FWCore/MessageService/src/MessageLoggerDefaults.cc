@@ -23,12 +23,12 @@ namespace edm {
 
     std::string MessageLoggerDefaults::threshold(std::string const& dest) {
       std::string thr = "";
-      std::map<std::string, Destination>::iterator d = destination.find(dest);
+      auto d = destination.find(dest);
       if (d != destination.end()) {
         Destination& destin = d->second;
         thr = destin.threshold;
       }
-      std::map<std::string, Destination>::iterator dd = destination.find("default");
+      auto dd = destination.find("default");
       if (thr.empty()) {
         if (dd != destination.end()) {
           Destination& def_destin = dd->second;
@@ -40,7 +40,7 @@ namespace edm {
 
     std::string MessageLoggerDefaults::output(std::string const& dest) {
       std::string otpt = "";
-      std::map<std::string, Destination>::iterator d = destination.find(dest);
+      auto d = destination.find(dest);
       if (d != destination.end()) {
         Destination& destin = d->second;
         otpt = destin.output;
@@ -51,19 +51,19 @@ namespace edm {
 
     int MessageLoggerDefaults::limit(std::string const& dest, std::string const& cat) {
       int lim = NO_VALUE_SET;
-      std::map<std::string, Destination>::iterator d = destination.find(dest);
+      auto d = destination.find(dest);
       if (d != destination.end()) {
         Destination& destin = d->second;
-        std::map<std::string, Category>::iterator c = destin.category.find(cat);
+        auto c = destin.category.find(cat);
         if (c != destin.category.end()) {
           lim = c->second.limit;
         }
       }
-      std::map<std::string, Destination>::iterator dd = destination.find("default");
+      auto dd = destination.find("default");
       if (lim == NO_VALUE_SET) {
         if (dd != destination.end()) {
           Destination& def_destin = dd->second;
-          std::map<std::string, Category>::iterator c = def_destin.category.find(cat);
+          auto c = def_destin.category.find(cat);
           if (c != def_destin.category.end()) {
             lim = c->second.limit;
           }
@@ -72,7 +72,7 @@ namespace edm {
       if (lim == NO_VALUE_SET) {
         if (d != destination.end()) {
           Destination& destin = d->second;
-          std::map<std::string, Category>::iterator cd = destin.category.find("default");
+          auto cd = destin.category.find("default");
           if (cd != destin.category.end()) {
             lim = cd->second.limit;
           }
@@ -81,7 +81,7 @@ namespace edm {
       if (lim == NO_VALUE_SET) {
         if (dd != destination.end()) {
           Destination& def_destin = dd->second;
-          std::map<std::string, Category>::iterator cdd = def_destin.category.find("default");
+          auto cdd = def_destin.category.find("default");
           if (cdd != def_destin.category.end()) {
             lim = cdd->second.limit;
           }
@@ -92,19 +92,19 @@ namespace edm {
 
     int MessageLoggerDefaults::reportEvery(std::string const& dest, std::string const& cat) {
       int re = NO_VALUE_SET;
-      std::map<std::string, Destination>::iterator d = destination.find(dest);
+      auto d = destination.find(dest);
       if (d != destination.end()) {
         Destination& destin = d->second;
-        std::map<std::string, Category>::iterator c = destin.category.find(cat);
+        auto c = destin.category.find(cat);
         if (c != destin.category.end()) {
           re = c->second.reportEvery;
         }
       }
-      std::map<std::string, Destination>::iterator dd = destination.find("default");
+      auto dd = destination.find("default");
       if (re == NO_VALUE_SET) {
         if (dd != destination.end()) {
           Destination& def_destin = dd->second;
-          std::map<std::string, Category>::iterator c = def_destin.category.find(cat);
+          auto c = def_destin.category.find(cat);
           if (c != def_destin.category.end()) {
             re = c->second.reportEvery;
           }
@@ -113,7 +113,7 @@ namespace edm {
       if (re == NO_VALUE_SET) {
         if (d != destination.end()) {
           Destination& destin = d->second;
-          std::map<std::string, Category>::iterator cd = destin.category.find("default");
+          auto cd = destin.category.find("default");
           if (cd != destin.category.end()) {
             re = cd->second.reportEvery;
           }
@@ -122,7 +122,7 @@ namespace edm {
       if (re == NO_VALUE_SET) {
         if (dd != destination.end()) {
           Destination& def_destin = dd->second;
-          std::map<std::string, Category>::iterator cdd = def_destin.category.find("default");
+          auto cdd = def_destin.category.find("default");
           if (cdd != def_destin.category.end()) {
             re = cdd->second.reportEvery;
           }
@@ -133,19 +133,19 @@ namespace edm {
 
     int MessageLoggerDefaults::timespan(std::string const& dest, std::string const& cat) {
       int tim = NO_VALUE_SET;
-      std::map<std::string, Destination>::iterator d = destination.find(dest);
+      auto d = destination.find(dest);
       if (d != destination.end()) {
         Destination& destin = d->second;
-        std::map<std::string, Category>::iterator c = destin.category.find(cat);
+        auto c = destin.category.find(cat);
         if (c != destin.category.end()) {
           tim = c->second.timespan;
         }
       }
-      std::map<std::string, Destination>::iterator dd = destination.find("default");
+      auto dd = destination.find("default");
       if (tim == NO_VALUE_SET) {
         if (dd != destination.end()) {
           Destination& def_destin = dd->second;
-          std::map<std::string, Category>::iterator c = def_destin.category.find(cat);
+          auto c = def_destin.category.find(cat);
           if (c != def_destin.category.end()) {
             tim = c->second.timespan;
           }
@@ -154,7 +154,7 @@ namespace edm {
       if (tim == NO_VALUE_SET) {
         if (d != destination.end()) {
           Destination& destin = d->second;
-          std::map<std::string, Category>::iterator cd = destin.category.find("default");
+          auto cd = destin.category.find("default");
           if (cd != destin.category.end()) {
             tim = cd->second.timespan;
           }
@@ -163,7 +163,7 @@ namespace edm {
       if (tim == NO_VALUE_SET) {
         if (dd != destination.end()) {
           Destination& def_destin = dd->second;
-          std::map<std::string, Category>::iterator cdd = def_destin.category.find("default");
+          auto cdd = def_destin.category.find("default");
           if (cdd != def_destin.category.end()) {
             tim = cdd->second.timespan;
           }
@@ -174,19 +174,19 @@ namespace edm {
 
     int MessageLoggerDefaults::sev_limit(std::string const& dest, std::string const& cat) {
       int lim = NO_VALUE_SET;
-      std::map<std::string, Destination>::iterator d = destination.find(dest);
+      auto d = destination.find(dest);
       if (d != destination.end()) {
         Destination& destin = d->second;
-        std::map<std::string, Category>::iterator c = destin.sev.find(cat);
+        auto c = destin.sev.find(cat);
         if (c != destin.sev.end()) {
           lim = c->second.limit;
         }
       }
-      std::map<std::string, Destination>::iterator dd = destination.find("default");
+      auto dd = destination.find("default");
       if (lim == NO_VALUE_SET) {
         if (dd != destination.end()) {
           Destination& def_destin = dd->second;
-          std::map<std::string, Category>::iterator c = def_destin.sev.find(cat);
+          auto c = def_destin.sev.find(cat);
           if (c != def_destin.sev.end()) {
             lim = c->second.limit;
           }
@@ -195,7 +195,7 @@ namespace edm {
       if (lim == NO_VALUE_SET) {
         if (d != destination.end()) {
           Destination& destin = d->second;
-          std::map<std::string, Category>::iterator cd = destin.sev.find("default");
+          auto cd = destin.sev.find("default");
           if (cd != destin.sev.end()) {
             lim = cd->second.limit;
           }
@@ -204,7 +204,7 @@ namespace edm {
       if (lim == NO_VALUE_SET) {
         if (dd != destination.end()) {
           Destination& def_destin = dd->second;
-          std::map<std::string, Category>::iterator cdd = def_destin.sev.find("default");
+          auto cdd = def_destin.sev.find("default");
           if (cdd != def_destin.sev.end()) {
             lim = cdd->second.limit;
           }
@@ -215,19 +215,19 @@ namespace edm {
 
     int MessageLoggerDefaults::sev_reportEvery(std::string const& dest, std::string const& cat) {
       int re = NO_VALUE_SET;
-      std::map<std::string, Destination>::iterator d = destination.find(dest);
+      auto d = destination.find(dest);
       if (d != destination.end()) {
         Destination& destin = d->second;
-        std::map<std::string, Category>::iterator c = destin.sev.find(cat);
+        auto c = destin.sev.find(cat);
         if (c != destin.sev.end()) {
           re = c->second.reportEvery;
         }
       }
-      std::map<std::string, Destination>::iterator dd = destination.find("default");
+      auto dd = destination.find("default");
       if (re == NO_VALUE_SET) {
         if (dd != destination.end()) {
           Destination& def_destin = dd->second;
-          std::map<std::string, Category>::iterator c = def_destin.sev.find(cat);
+          auto c = def_destin.sev.find(cat);
           if (c != def_destin.sev.end()) {
             re = c->second.reportEvery;
           }
@@ -236,7 +236,7 @@ namespace edm {
       if (re == NO_VALUE_SET) {
         if (d != destination.end()) {
           Destination& destin = d->second;
-          std::map<std::string, Category>::iterator cd = destin.sev.find("default");
+          auto cd = destin.sev.find("default");
           if (cd != destin.sev.end()) {
             re = cd->second.reportEvery;
           }
@@ -245,7 +245,7 @@ namespace edm {
       if (re == NO_VALUE_SET) {
         if (dd != destination.end()) {
           Destination& def_destin = dd->second;
-          std::map<std::string, Category>::iterator cdd = def_destin.sev.find("default");
+          auto cdd = def_destin.sev.find("default");
           if (cdd != def_destin.sev.end()) {
             re = cdd->second.reportEvery;
           }
@@ -256,19 +256,19 @@ namespace edm {
 
     int MessageLoggerDefaults::sev_timespan(std::string const& dest, std::string const& cat) {
       int tim = NO_VALUE_SET;
-      std::map<std::string, Destination>::iterator d = destination.find(dest);
+      auto d = destination.find(dest);
       if (d != destination.end()) {
         Destination& destin = d->second;
-        std::map<std::string, Category>::iterator c = destin.sev.find(cat);
+        auto c = destin.sev.find(cat);
         if (c != destin.sev.end()) {
           tim = c->second.timespan;
         }
       }
-      std::map<std::string, Destination>::iterator dd = destination.find("default");
+      auto dd = destination.find("default");
       if (tim == NO_VALUE_SET) {
         if (dd != destination.end()) {
           Destination& def_destin = dd->second;
-          std::map<std::string, Category>::iterator c = def_destin.sev.find(cat);
+          auto c = def_destin.sev.find(cat);
           if (c != def_destin.sev.end()) {
             tim = c->second.timespan;
           }
@@ -277,7 +277,7 @@ namespace edm {
       if (tim == NO_VALUE_SET) {
         if (d != destination.end()) {
           Destination& destin = d->second;
-          std::map<std::string, Category>::iterator cd = destin.sev.find("default");
+          auto cd = destin.sev.find("default");
           if (cd != destin.sev.end()) {
             tim = cd->second.timespan;
           }
@@ -286,7 +286,7 @@ namespace edm {
       if (tim == NO_VALUE_SET) {
         if (dd != destination.end()) {
           Destination& def_destin = dd->second;
-          std::map<std::string, Category>::iterator cdd = def_destin.sev.find("default");
+          auto cdd = def_destin.sev.find("default");
           if (cdd != def_destin.sev.end()) {
             tim = cdd->second.timespan;
           }

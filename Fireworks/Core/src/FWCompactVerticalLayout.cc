@@ -116,7 +116,7 @@ void FWCompactVerticalLayout::Layout() {
 
   std::sort(expandSizes.begin(), expandSizes.end(), std::less<int>());
   //Now see if expanded widgets exceed their max sizes
-  for (std::vector<int>::iterator it = expandSizes.begin(), itEnd = expandSizes.end(); it != itEnd; ++it) {
+  for (auto it = expandSizes.begin(), itEnd = expandSizes.end(); it != itEnd; ++it) {
     if (*it > size_expand) {
       break;
     }

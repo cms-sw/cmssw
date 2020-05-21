@@ -3239,8 +3239,7 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
     int nHits = 0;
     for (View<reco::Track>::const_iterator iTk = outInTrkHandle->begin(); iTk != outInTrkHandle->end(); iTk++) {
       h_OIinnermostHitR_->Fill(sqrt(iTk->innerPosition().Perp2()));
-      for (trackingRecHit_iterator itHits = iTk->extra()->recHitsBegin(); itHits != iTk->extra()->recHitsEnd();
-           ++itHits) {
+      for (auto itHits = iTk->extra()->recHitsBegin(); itHits != iTk->extra()->recHitsEnd(); ++itHits) {
         if ((*itHits)->isValid()) {
           nHits++;
         }
@@ -3254,8 +3253,7 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
     for (View<reco::Track>::const_iterator iTk = inOutTrkHandle->begin(); iTk != inOutTrkHandle->end(); iTk++) {
       h_IOinnermostHitR_->Fill(sqrt(iTk->innerPosition().Perp2()));
       nHits = 0;
-      for (trackingRecHit_iterator itHits = iTk->extra()->recHitsBegin(); itHits != iTk->extra()->recHitsEnd();
-           ++itHits) {
+      for (auto itHits = iTk->extra()->recHitsBegin(); itHits != iTk->extra()->recHitsEnd(); ++itHits) {
         if ((*itHits)->isValid()) {
           nHits++;
         }
@@ -3573,7 +3571,7 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
   }
   // }
 
-  for (std::vector<PhotonMCTruth>::const_iterator mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
+  for (auto mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
     if ((*mcPho).fourMomentum().et() < minPhoEtCut_)
       continue;
 
@@ -3801,8 +3799,7 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
            bcIt != matchingPho->superCluster()->clustersEnd();
            ++bcIt) {
         for (rhIt = (*bcIt)->hitsAndFractions().begin(); rhIt != (*bcIt)->hitsAndFractions().end(); ++rhIt) {
-          for (EcalRecHitCollection::const_iterator it = ecalRecHitCollection.begin(); it != ecalRecHitCollection.end();
-               ++it) {
+          for (auto it = ecalRecHitCollection.begin(); it != ecalRecHitCollection.end(); ++it) {
             if (rhIt->first == (*it).id()) {
               if ((*it).recoFlag() == 9) {
                 atLeastOneDeadChannel = true;
@@ -4192,7 +4189,7 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
             }
             ////////// acces the value map to access the PFCandidates in overlap with the photon which need to be excluded from the isolation
             bool skip = false;
-            for (std::vector<reco::PFCandidateRef>::const_iterator i = phoToParticleBasedIsoMap[matchingPho].begin();
+            for (auto i = phoToParticleBasedIsoMap[matchingPho].begin();
                  i != phoToParticleBasedIsoMap[matchingPho].end();
                  ++i) {
               if ((*i) == pfCandRef) {
@@ -4834,8 +4831,7 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
 
   if (!fastSim_) {
     ///////////////////  Measure fake rate
-    for (reco::PhotonCollection::const_iterator iPho = photonCollection.begin(); iPho != photonCollection.end();
-         iPho++) {
+    for (auto iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
       reco::Photon aPho = reco::Photon(*iPho);
       //    float et= aPho.superCluster()->energy()/cosh( aPho.superCluster()->eta()) ;
       reco::ConversionRefVector conversions = aPho.conversions();
@@ -4878,7 +4874,7 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
         h_RecoConvTwoTracks_[4]->Fill(aPho.et());
 
         int nAssT2 = 0;
-        for (std::vector<PhotonMCTruth>::const_iterator mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
+        for (auto mcPho = mcPhotons.begin(); mcPho != mcPhotons.end(); mcPho++) {
           // mcConvPt_= (*mcPho).fourMomentum().et();
           float mcPhi = (*mcPho).fourMomentum().phi();
           //simPV_Z = (*mcPho).primaryVertex().z();
@@ -5009,9 +5005,7 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
 
   ///////////////// histograms for background
   float nPho = 0;
-  for (reco::GenJetCollection::const_iterator genJetIter = genJetCollection.begin();
-       genJetIter != genJetCollection.end();
-       ++genJetIter) {
+  for (auto genJetIter = genJetCollection.begin(); genJetIter != genJetCollection.end(); ++genJetIter) {
     if (genJetIter->pt() < minPhoEtCut_)
       continue;
     if (fabs(genJetIter->eta()) > 2.5)
@@ -5030,8 +5024,7 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
     bool matched = false;
 
     reco::Photon matchingPho;
-    for (reco::PhotonCollection::const_iterator iPho = photonCollection.begin(); iPho != photonCollection.end();
-         iPho++) {
+    for (auto iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
       reco::Photon aPho = reco::Photon(*iPho);
       float phiPho = aPho.phi();
       float etaPho = aPho.eta();
@@ -5106,8 +5099,7 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
          bcIt != matchingPho.superCluster()->clustersEnd();
          ++bcIt) {
       for (rhIt = (*bcIt)->hitsAndFractions().begin(); rhIt != (*bcIt)->hitsAndFractions().end(); ++rhIt) {
-        for (EcalRecHitCollection::const_iterator it = ecalRecHitCollection.begin(); it != ecalRecHitCollection.end();
-             ++it) {
+        for (auto it = ecalRecHitCollection.begin(); it != ecalRecHitCollection.end(); ++it) {
           if (rhIt->first == (*it).id()) {
             if ((*it).recoFlag() == 9) {
               atLeastOneDeadChannel = true;
@@ -5299,8 +5291,7 @@ void PhotonValidator::analyze(const edm::Event& e, const edm::EventSetup& esup) 
   }      // end loop over sim jets
 
   /////// separate loop to compare with miniAOD
-  for (reco::GenParticleCollection::const_iterator mcIter = genParticles->begin(); mcIter != genParticles->end();
-       mcIter++) {
+  for (auto mcIter = genParticles->begin(); mcIter != genParticles->end(); mcIter++) {
     if (!(mcIter->pdgId() == 22))
       continue;
     if (mcIter->mother() != nullptr and !(mcIter->mother()->pdgId() == 25))

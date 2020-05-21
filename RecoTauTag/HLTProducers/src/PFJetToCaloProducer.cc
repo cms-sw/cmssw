@@ -24,7 +24,7 @@ void PFJetToCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES
   iEvent.getByToken(tauSrc_, tauJets);
 
   CaloJet::Specific specific;
-  for (PFJetCollection::const_iterator i = tauJets->begin(); i != tauJets->end(); ++i) {
+  for (auto i = tauJets->begin(); i != tauJets->end(); ++i) {
     CaloJet jet(i->p4(), i->vertex(), specific);
     jet.setPdgId(15);
     selectedTaus->push_back(jet);

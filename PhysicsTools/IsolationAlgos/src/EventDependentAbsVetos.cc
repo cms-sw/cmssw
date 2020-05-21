@@ -5,7 +5,7 @@
 #include "DataFormats/Math/interface/deltaR.h"
 
 bool reco::isodeposit::OtherCandidatesDeltaRVeto::veto(double eta, double phi, float value) const {
-  for (std::vector<Direction>::const_iterator it = items_.begin(), ed = items_.end(); it != ed; ++it) {
+  for (auto it = items_.begin(), ed = items_.end(); it != ed; ++it) {
     if (::deltaR2(it->eta(), it->phi(), eta, phi) < deltaR2_)
       return true;
   }
@@ -22,7 +22,7 @@ void reco::isodeposit::OtherCandidatesDeltaRVeto::setEvent(const edm::Event &iEv
 }
 
 bool reco::isodeposit::OtherCandVeto::veto(double eta, double phi, float value) const {
-  for (std::vector<Direction>::const_iterator it = items_.begin(), ed = items_.end(); it != ed; ++it) {
+  for (auto it = items_.begin(), ed = items_.end(); it != ed; ++it) {
     veto_->centerOn(it->eta(), it->phi());
     if (veto_->veto(eta, phi, value))
       return true;
@@ -40,7 +40,7 @@ void reco::isodeposit::OtherCandVeto::setEvent(const edm::Event &iEvent, const e
 }
 
 bool reco::isodeposit::OtherJetConstituentsDeltaRVeto::veto(double eta, double phi, float value) const {
-  for (std::vector<Direction>::const_iterator it = items_.begin(), ed = items_.end(); it != ed; ++it) {
+  for (auto it = items_.begin(), ed = items_.end(); it != ed; ++it) {
     if (::deltaR2(it->eta(), it->phi(), eta, phi) < dR2constituent_)
       return true;
   }

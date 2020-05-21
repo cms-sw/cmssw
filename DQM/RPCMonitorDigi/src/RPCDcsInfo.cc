@@ -60,8 +60,7 @@ void RPCDcsInfo::makeDcsInfo(const edm::Event& e) {
     return;
   }
 
-  for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); dcsStatusItr != dcsStatus->end();
-       ++dcsStatusItr) {
+  for (auto dcsStatusItr = dcsStatus->begin(); dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) {
     if (!dcsStatusItr->ready(DcsStatus::RPC))
       dcs = false;
   }

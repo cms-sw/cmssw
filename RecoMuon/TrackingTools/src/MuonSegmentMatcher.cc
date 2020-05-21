@@ -139,7 +139,7 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track& muo
         if ((chamberSegIdT == dtDetIdHitT) && (dtDetLayerIdHitT.superlayer() == 2))
           countMuonDTHits++;
 
-        for (vector<DTRecHit1D>::const_iterator hiti = hits1d.begin(); hiti != hits1d.end(); hiti++) {
+        for (auto hiti = hits1d.begin(); hiti != hits1d.end(); hiti++) {
           if (!hiti->isValid())
             continue;
 
@@ -192,7 +192,7 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track& muo
             ((dtDetLayerIdHitT.superlayer() == 1) || (dtDetLayerIdHitT.superlayer() == 3)))
           countMuonDTHits++;
 
-        for (vector<DTRecHit1D>::const_iterator hiti = hits1d.begin(); hiti != hits1d.end(); hiti++) {
+        for (auto hiti = hits1d.begin(); hiti != hits1d.end(); hiti++) {
           if (!hiti->isValid())
             continue;
 
@@ -304,7 +304,7 @@ vector<const CSCSegment*> MuonSegmentMatcher::matchCSC(const reco::Track& muon, 
 
       LocalPoint positionLocalCSC = hitC->localPosition();
 
-      for (vector<CSCRecHit2D>::const_iterator hiti = CSCRechits2D.begin(); hiti != CSCRechits2D.end(); hiti++) {
+      for (auto hiti = CSCRechits2D.begin(); hiti != CSCRechits2D.end(); hiti++) {
         if (!hiti->isValid())
           continue;
         CSCDetId cscDetId((hiti->geographicalId()).rawId());

@@ -39,7 +39,7 @@ void MixCollectionValidation::bookHistograms(DQMStore::IBooker &iBooker,
 
   std::vector<std::string> names = mixObjextsSet_.getParameterNames();
 
-  for (std::vector<std::string>::iterator it = names.begin(); it != names.end(); ++it) {
+  for (auto it = names.begin(); it != names.end(); ++it) {
     ParameterSet pset = mixObjextsSet_.getParameter<ParameterSet>((*it));
     if (!pset.exists("type"))
       continue;  // to allow replacement by empty pset

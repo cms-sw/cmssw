@@ -973,7 +973,7 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
     if (!genJets.isValid())
       return;
 
-    for (GenJetCollection::const_iterator gjet = genJets->begin(); gjet != genJets->end(); gjet++) {
+    for (auto gjet = genJets->begin(); gjet != genJets->end(); gjet++) {
       // for MiniAOD we have here intrinsic thresholds, introduce also threshold
       // for RECO
       if (gjet->pt() > mMatchGenPtThreshold) {
@@ -993,7 +993,7 @@ void JetTester::analyze(const edm::Event &mEvent, const edm::EventSetup &mSetup)
     }
 
     if (!(mInputGenCollection.label().empty())) {
-      for (GenJetCollection::const_iterator gjet = genJets->begin(); gjet != genJets->end(); gjet++) {
+      for (auto gjet = genJets->begin(); gjet != genJets->end(); gjet++) {
         if (fabs(gjet->eta()) > 6.)
           continue;  // Out of the detector
         if (gjet->pt() < mMatchGenPtThreshold)

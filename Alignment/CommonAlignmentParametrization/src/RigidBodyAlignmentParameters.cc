@@ -47,7 +47,7 @@ RigidBodyAlignmentParameters::RigidBodyAlignmentParameters(Alignable *alignable,
 //__________________________________________________________________________________________________
 RigidBodyAlignmentParameters *RigidBodyAlignmentParameters::clone(const AlgebraicVector &parameters,
                                                                   const AlgebraicSymMatrix &covMatrix) const {
-  RigidBodyAlignmentParameters *rbap = new RigidBodyAlignmentParameters(alignable(), parameters, covMatrix, selector());
+  auto *rbap = new RigidBodyAlignmentParameters(alignable(), parameters, covMatrix, selector());
 
   if (userVariables())
     rbap->setUserVariables(userVariables()->clone());
@@ -59,7 +59,7 @@ RigidBodyAlignmentParameters *RigidBodyAlignmentParameters::clone(const Algebrai
 //__________________________________________________________________________________________________
 RigidBodyAlignmentParameters *RigidBodyAlignmentParameters::cloneFromSelected(
     const AlgebraicVector &parameters, const AlgebraicSymMatrix &covMatrix) const {
-  RigidBodyAlignmentParameters *rbap = new RigidBodyAlignmentParameters(
+  auto *rbap = new RigidBodyAlignmentParameters(
       alignable(), expandVector(parameters, selector()), expandSymMatrix(covMatrix, selector()), selector());
 
   if (userVariables())

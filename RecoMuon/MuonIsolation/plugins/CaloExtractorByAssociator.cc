@@ -163,7 +163,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits(const Event& event,
     eventSetup.get<CaloGeometryRecord>().get(caloGeom);
 
     //Ecal
-    std::vector<const EcalRecHit*>::const_iterator eHitCI = mInfo.ecalRecHits.begin();
+    auto eHitCI = mInfo.ecalRecHits.begin();
     for (; eHitCI != mInfo.ecalRecHits.end(); ++eHitCI) {
       const EcalRecHit* eHitCPtr = *eHitCI;
       GlobalPoint eHitPos = caloGeom->getPosition(eHitCPtr->detid());
@@ -204,7 +204,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits(const Event& event,
     }
 
     //Hcal
-    std::vector<const HBHERecHit*>::const_iterator hHitCI = mInfo.hcalRecHits.begin();
+    auto hHitCI = mInfo.hcalRecHits.begin();
     for (; hHitCI != mInfo.hcalRecHits.end(); ++hHitCI) {
       const HBHERecHit* hHitCPtr = *hHitCI;
       GlobalPoint hHitPos = caloGeom->getPosition(hHitCPtr->detid());
@@ -245,7 +245,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits(const Event& event,
     }
 
     //HOcal
-    std::vector<const HORecHit*>::const_iterator hoHitCI = mInfo.hoRecHits.begin();
+    auto hoHitCI = mInfo.hoRecHits.begin();
     for (; hoHitCI != mInfo.hoRecHits.end(); ++hoHitCI) {
       const HORecHit* hoHitCPtr = *hoHitCI;
       GlobalPoint hoHitPos = caloGeom->getPosition(hoHitCPtr->detid());
@@ -287,7 +287,7 @@ std::vector<IsoDeposit> CaloExtractorByAssociator::deposits(const Event& event,
 
   } else {
     //! use calo towers
-    std::vector<const CaloTower*>::const_iterator calCI = mInfo.towers.begin();
+    auto calCI = mInfo.towers.begin();
     for (; calCI != mInfo.towers.end(); ++calCI) {
       const CaloTower* calCPtr = *calCI;
       double deltar0 = reco::deltaR(muon, *calCPtr);

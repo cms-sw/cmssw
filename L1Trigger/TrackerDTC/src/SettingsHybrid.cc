@@ -177,9 +177,8 @@ namespace trackerDTC {
         for (const auto& window : windows)
           maxWindowSize = max(maxWindowSize, (int)(window / baseWindowSize_));
     // create bend encodings
-    const TTStubAlgorithm_official<Ref_Phase2TrackerDigi_>* ttStubAlgorithm =
-        dynamic_cast<const TTStubAlgorithm_official<Ref_Phase2TrackerDigi_>*>(
-            settings->handleTTStubAlgorithm_.product());
+    const auto* ttStubAlgorithm = dynamic_cast<const TTStubAlgorithm_official<Ref_Phase2TrackerDigi_>*>(
+        settings->handleTTStubAlgorithm_.product());
     bendEncodingsPS_.reserve(maxWindowSize);
     bendEncodings2S_.reserve(maxWindowSize);
     for (const bool& ps : {false, true}) {

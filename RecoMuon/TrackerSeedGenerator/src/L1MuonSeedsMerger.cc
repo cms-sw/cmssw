@@ -11,9 +11,9 @@ L1MuonSeedsMerger::L1MuonSeedsMerger(const edm::ParameterSet& cfg) {
 void L1MuonSeedsMerger::resolve(std::vector<TrackAndHits>& tracks) const {
   sort(tracks.begin(), tracks.end(), Less());
   typedef std::vector<TrackAndHits>::iterator Tracks_Itr;
-  Tracks_Itr it1 = tracks.begin();
+  auto it1 = tracks.begin();
   while (it1 != tracks.end()) {
-    for (Tracks_Itr it2 = it1 + 1; it1->first && it2 < tracks.end(); it2++) {
+    for (auto it2 = it1 + 1; it1->first && it2 < tracks.end(); it2++) {
       if (!it2->first)
         continue;
       if (it2->first->eta() - it1->first->eta() > theDeltaEtaCut)

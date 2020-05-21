@@ -63,7 +63,7 @@ bool PFMuonAlgo::isMuon(const reco::PFBlockElement& elt) {
 }
 
 bool PFMuonAlgo::isLooseMuon(const reco::PFBlockElement& elt) {
-  const reco::PFBlockElementTrack* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
+  const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
 
   assert(eltTrack);
 
@@ -73,7 +73,7 @@ bool PFMuonAlgo::isLooseMuon(const reco::PFBlockElement& elt) {
 }
 
 bool PFMuonAlgo::isGlobalTightMuon(const reco::PFBlockElement& elt) {
-  const reco::PFBlockElementTrack* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
+  const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
 
   assert(eltTrack);
   reco::MuonRef muonRef = eltTrack->muonRef();
@@ -82,7 +82,7 @@ bool PFMuonAlgo::isGlobalTightMuon(const reco::PFBlockElement& elt) {
 }
 
 bool PFMuonAlgo::isGlobalLooseMuon(const reco::PFBlockElement& elt) {
-  const reco::PFBlockElementTrack* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
+  const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
 
   assert(eltTrack);
   reco::MuonRef muonRef = eltTrack->muonRef();
@@ -91,7 +91,7 @@ bool PFMuonAlgo::isGlobalLooseMuon(const reco::PFBlockElement& elt) {
 }
 
 bool PFMuonAlgo::isTrackerTightMuon(const reco::PFBlockElement& elt) {
-  const reco::PFBlockElementTrack* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
+  const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
 
   assert(eltTrack);
   reco::MuonRef muonRef = eltTrack->muonRef();
@@ -100,7 +100,7 @@ bool PFMuonAlgo::isTrackerTightMuon(const reco::PFBlockElement& elt) {
 }
 
 bool PFMuonAlgo::isIsolatedMuon(const reco::PFBlockElement& elt) {
-  const reco::PFBlockElementTrack* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
+  const auto* eltTrack = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
 
   assert(eltTrack);
   reco::MuonRef muonRef = eltTrack->muonRef();
@@ -637,7 +637,7 @@ void PFMuonAlgo::estimateEventQuantities(const reco::PFCandidateCollection* pfc)
   METX_ = 0.;
   METY_ = 0.;
   sumet_ = 0.0;
-  for (reco::PFCandidateCollection::const_iterator i = pfc->begin(); i != pfc->end(); ++i) {
+  for (auto i = pfc->begin(); i != pfc->end(); ++i) {
     sumet_ += i->pt();
     METX_ += i->px();
     METY_ += i->py();

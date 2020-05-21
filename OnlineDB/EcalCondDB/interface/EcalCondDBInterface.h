@@ -277,7 +277,7 @@ public:
       const EcalLogicID* channel;
       const DATT* dataitem;
       typedef typename std::map<EcalLogicID, DATT>::const_iterator CI;
-      for (CI p = data->begin(); p != data->end(); ++p) {
+      for (auto p = data->begin(); p != data->end(); ++p) {
         channel = &(p->first);
         dataitem = &(p->second);
         dataIface.writeDB(channel, dataitem, iov);

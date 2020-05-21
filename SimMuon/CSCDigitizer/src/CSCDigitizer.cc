@@ -51,8 +51,7 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> &simHits,
 
   // count how many layers on each chamber are hit
   std::map<int, std::set<int>> layersInChamberHit;
-  for (std::map<int, edm::PSimHitContainer>::const_iterator hitMapItr = hitMap.begin(); hitMapItr != hitMap.end();
-       ++hitMapItr) {
+  for (auto hitMapItr = hitMap.begin(); hitMapItr != hitMap.end(); ++hitMapItr) {
     CSCDetId cscDetId(hitMapItr->first);
     int chamberId = cscDetId.chamberId();
     layersInChamberHit[chamberId].insert(cscDetId.layer());
@@ -64,8 +63,7 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> &simHits,
   }
 
   // now loop over layers and run the simulation for each one
-  for (std::map<int, edm::PSimHitContainer>::const_iterator hitMapItr = hitMap.begin(); hitMapItr != hitMap.end();
-       ++hitMapItr) {
+  for (auto hitMapItr = hitMap.begin(); hitMapItr != hitMap.end(); ++hitMapItr) {
     CSCDetId detId = CSCDetId(hitMapItr->first);
     int chamberId = detId.chamberId();
     int endc = detId.endcap();
@@ -129,8 +127,7 @@ void CSCDigitizer::doAction(MixCollection<PSimHit> &simHits,
 
   // fill in the layers were missing from this chamber
   std::list<int> missingLayers = layersMissing(stripDigis);
-  for (std::list<int>::const_iterator missingLayerItr = missingLayers.begin(); missingLayerItr != missingLayers.end();
-       ++missingLayerItr) {
+  for (auto missingLayerItr = missingLayers.begin(); missingLayerItr != missingLayers.end(); ++missingLayerItr) {
     const CSCLayer *layer = findLayer(*missingLayerItr);
     theStripElectronicsSim->fillMissingLayer(layer, comparators, stripDigis, engine);
   }
@@ -153,18 +150,17 @@ std::list<int> CSCDigitizer::layersMissing(const CSCStripDigiCollection &stripDi
   for (int i = 1; i <= 6; ++i)
     oneThruSix.push_back(i);
 
-  for (std::map<int, std::list<int>>::iterator layersInChamberWithDigiItr = layersInChamberWithDigi.begin();
+  for (auto layersInChamberWithDigiItr = layersInChamberWithDigi.begin();
        layersInChamberWithDigiItr != layersInChamberWithDigi.end();
        ++layersInChamberWithDigiItr) {
     std::list<int> &layersHit = layersInChamberWithDigiItr->second;
     if (layersHit.size() < 6 && layersHit.size() >= theLayersNeeded) {
       layersHit.sort();
       std::list<int> missingLayers(6);
-      std::list<int>::iterator lastLayerMissing = set_difference(
+      auto lastLayerMissing = set_difference(
           oneThruSix.begin(), oneThruSix.end(), layersHit.begin(), layersHit.end(), missingLayers.begin());
       int chamberId = layersInChamberWithDigiItr->first;
-      for (std::list<int>::iterator layerMissingItr = missingLayers.begin(); layerMissingItr != lastLayerMissing;
-           ++layerMissingItr) {
+      for (auto layerMissingItr = missingLayers.begin(); layerMissingItr != lastLayerMissing; ++layerMissingItr) {
         // got from layer 1-6 to layer ID
         result.push_back(chamberId + *layerMissingItr);
       }

@@ -14,8 +14,8 @@ namespace gs {
     typedef NameMap::const_iterator Nameiter;
 
     if (namePattern.useRegex()) {
-      const Nameiter itend = m.end();
-      for (Nameiter it = m.begin(); it != itend; ++it)
+      const auto itend = m.end();
+      for (auto it = m.begin(); it != itend; ++it)
         if (namePattern.matches(it->first))
           found->push_back(it->second);
     } else {
@@ -46,13 +46,13 @@ namespace gs {
     assert(found);
     found->clear();
 
-    const Mapiter endMap = recordMap_.end();
+    const auto endMap = recordMap_.end();
     if (categoryPattern.useRegex()) {
-      for (Mapiter it = recordMap_.begin(); it != endMap; ++it)
+      for (auto it = recordMap_.begin(); it != endMap; ++it)
         if (categoryPattern.matches(it->first))
           findByName(it->second, namePattern, found);
     } else {
-      Mapiter it = recordMap_.find(categoryPattern.pattern());
+      auto it = recordMap_.find(categoryPattern.pattern());
       if (it != endMap)
         findByName(it->second, namePattern, found);
     }
@@ -62,7 +62,7 @@ namespace gs {
   bool ContiguousCatalog::isEqual(const AbsCatalog &other) const {
     if ((void *)this == (void *)(&other))
       return true;
-    const ContiguousCatalog &r = static_cast<const ContiguousCatalog &>(other);
+    const auto &r = static_cast<const ContiguousCatalog &>(other);
     if (firstId_ != r.firstId_)
       return false;
     if (recordMap_ != r.recordMap_)

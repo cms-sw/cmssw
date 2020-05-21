@@ -185,9 +185,7 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
                      (*vertexes)[i].ndof(),
                      (*vertexes)[i].tracksSize());
       //Copy also the tracks
-      for (std::vector<reco::TrackBaseRef>::const_iterator it = (*vertexes)[i].tracks_begin();
-           it != (*vertexes)[i].tracks_end();
-           it++) {
+      for (auto it = (*vertexes)[i].tracks_begin(); it != (*vertexes)[i].tracks_end(); it++) {
         v.add(*it);
       }
       (*vertexes)[i] = v;

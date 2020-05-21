@@ -27,7 +27,7 @@ edm::OwnVector<GEMRecHit> GEMRecHitBaseAlgo::reconstruct(const GEMEtaPartition& 
   GEMMaskReClusterizer mrclizer;
   GEMClusterContainer cls = mrclizer.doAction(gemId, tcls, mask);
 
-  for (GEMClusterContainer::const_iterator cl = cls.begin(); cl != cls.end(); cl++) {
+  for (auto cl = cls.begin(); cl != cls.end(); cl++) {
     LocalError tmpErr;
     LocalPoint point;
     // Call the compute method

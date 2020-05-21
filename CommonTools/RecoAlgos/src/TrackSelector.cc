@@ -38,7 +38,7 @@ namespace helper {
     TrackExtra& tx = selTrackExtras_->back();
     auto const firstHitIndex = hidx_;
     unsigned int nHitsAdded = 0;
-    for (trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++hit, ++hidx_) {
+    for (auto hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++hit, ++hidx_) {
       selHits_->push_back((*hit)->clone());
       TrackingRecHit* newHit = &(selHits_->back());
       ++nHitsAdded;

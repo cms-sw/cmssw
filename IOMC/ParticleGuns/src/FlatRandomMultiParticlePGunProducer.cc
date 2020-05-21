@@ -68,7 +68,7 @@ void FlatRandomMultiParticlePGunProducer::produce(edm::Event& e, const edm::Even
 
   // 1st, primary vertex
   //
-  HepMC::GenVertex* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
+  auto* Vtx = new HepMC::GenVertex(HepMC::FourVector(0., 0., 0.));
 
   // loop over particles
   //
@@ -96,7 +96,7 @@ void FlatRandomMultiParticlePGunProducer::produce(edm::Event& e, const edm::Even
   double pz = mom * cos(theta);
 
   HepMC::FourVector p(px, py, pz, energy);
-  HepMC::GenParticle* Part = new HepMC::GenParticle(p, PartID, 1);
+  auto* Part = new HepMC::GenParticle(p, PartID, 1);
   barcode++;
   Part->suggest_barcode(barcode);
   Vtx->add_particle_out(Part);
@@ -104,7 +104,7 @@ void FlatRandomMultiParticlePGunProducer::produce(edm::Event& e, const edm::Even
   if (fAddAntiParticle) {
     HepMC::FourVector ap(-px, -py, -pz, energy);
     int APartID = (PartID == 22 || PartID == 23) ? PartID : -PartID;
-    HepMC::GenParticle* APart = new HepMC::GenParticle(ap, APartID, 1);
+    auto* APart = new HepMC::GenParticle(ap, APartID, 1);
     barcode++;
     APart->suggest_barcode(barcode);
     Vtx->add_particle_out(APart);

@@ -205,7 +205,7 @@ namespace edm {
   template <typename C>
   T const* Ptr<T>::getItem_(C const* iProduct, key_type iKey) {
     assert(iProduct != nullptr);
-    typename C::const_iterator it = iProduct->begin();
+    auto it = iProduct->begin();
     std::advance(it, iKey);
     T const* address = detail::GetProduct<C>::address(it);
     return address;

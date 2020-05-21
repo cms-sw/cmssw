@@ -229,8 +229,7 @@ bool WZInterestingEventSelector::filter(edm::Event& iEvent, const edm::EventSetu
   std::vector<const GsfElectron*> goodElectrons;
   float ptMax = -999.;
   const GsfElectron* ptMaxEle = nullptr;
-  for (reco::GsfElectronCollection::const_iterator myEle = gsfElectrons->begin(); myEle != gsfElectrons->end();
-       ++myEle) {
+  for (auto myEle = gsfElectrons->begin(); myEle != gsfElectrons->end(); ++myEle) {
     //Apply a minimal isolated electron selection
     if (!electronSelection(&(*myEle), bspotPosition))
       continue;

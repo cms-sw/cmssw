@@ -61,7 +61,7 @@ RawTask::RawTask(edm::ParameterSet const& ps) : DQTask(ps) {
     std::vector<uint32_t> vhashFEDsVME;
     std::vector<uint32_t> vhashFEDsuTCA;
 
-    for (std::vector<int>::const_iterator it = vFEDsVME.begin(); it != vFEDsVME.end(); ++it) {
+    for (auto it = vFEDsVME.begin(); it != vFEDsVME.end(); ++it) {
       vhashFEDsVME.push_back(
           HcalElectronicsId(
               constants::FIBERCH_MIN, constants::FIBER_VME_MIN, SPIGOT_MIN, (*it) - constants::FED_VME_MIN)
@@ -71,7 +71,7 @@ RawTask::RawTask(edm::ParameterSet const& ps) : DQTask(ps) {
               constants::FIBERCH_MIN, constants::FIBER_VME_MIN, SPIGOT_MIN, (*it) - constants::FED_VME_MIN)
               .rawId());
     }
-    for (std::vector<int>::const_iterator it = vFEDsuTCA.begin(); it != vFEDsuTCA.end(); ++it) {
+    for (auto it = vFEDsuTCA.begin(); it != vFEDsuTCA.end(); ++it) {
       std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
       vhashFEDsuTCA.push_back(
           HcalElectronicsId(cspair.first, cspair.second, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
@@ -256,7 +256,7 @@ RawTask::RawTask(edm::ParameterSet const& ps) : DQTask(ps) {
   //	TODO: Include for Online Calibration Channels marked as bad
   //	a comment below is left on purpose!
   //_cBadQualityvsBX.fill(bx, creport->badQualityDigis());
-  for (std::vector<DetId>::const_iterator it = creport->bad_quality_begin(); it != creport->bad_quality_end(); ++it) {
+  for (auto it = creport->bad_quality_begin(); it != creport->bad_quality_end(); ++it) {
     //	skip non HCAL det ids
     if (!HcalGenericDetId(*it).isHcalDetId())
       continue;
@@ -270,7 +270,7 @@ RawTask::RawTask(edm::ParameterSet const& ps) : DQTask(ps) {
     }
 
     nn++;
-    HcalElectronicsId eid = HcalElectronicsId(_ehashmap.lookup(*it));
+    auto eid = HcalElectronicsId(_ehashmap.lookup(*it));
     _cBadQuality_depth.fill(HcalDetId(*it));
     //	ONLINE ONLY!
     if (_ptype == fOnline)
@@ -357,7 +357,7 @@ RawTask::RawTask(edm::ParameterSet const& ps) : DQTask(ps) {
         }
       } else  // uTCA
       {
-        hcal::AMC13Header const* hamc13 = (hcal::AMC13Header const*)raw.data();
+        auto const* hamc13 = (hcal::AMC13Header const*)raw.data();
         if (!hamc13)
           continue;
 
@@ -432,11 +432,11 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
   //
   //	GENERATE STATUS ONLY FOR ONLINE!
   //
-  for (std::vector<uint32_t>::const_iterator it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
+  for (auto it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
     flag::Flag fSum("RAW");
-    HcalElectronicsId eid = HcalElectronicsId(*it);
+    auto eid = HcalElectronicsId(*it);
 
-    std::vector<uint32_t>::const_iterator cit = std::find(_vcdaqEids.begin(), _vcdaqEids.end(), *it);
+    auto cit = std::find(_vcdaqEids.begin(), _vcdaqEids.end(), *it);
     if (cit == _vcdaqEids.end()) {
       // not @cDAQ
       for (uint32_t iflag = 0; iflag < _vflags.size(); iflag++)
@@ -471,7 +471,7 @@ std::shared_ptr<hcaldqm::Cache> RawTask::globalBeginLuminosityBlock(edm::Luminos
     //	iterate over all flags:
     //	- sum them all up in summary flag for this FED
     //	- reset each flag right after using it
-    for (std::vector<flag::Flag>::iterator ft = _vflags.begin(); ft != _vflags.end(); ++ft) {
+    for (auto ft = _vflags.begin(); ft != _vflags.end(); ++ft) {
       _cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag), ft->_state);
       fSum += (*ft);
       iflag++;

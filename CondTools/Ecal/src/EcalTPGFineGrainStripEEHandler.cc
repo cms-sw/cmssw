@@ -174,14 +174,14 @@ void popcon::EcalTPGFineGrainStripEEHandler::getNewObjects() {
             std::map<EcalLogicID, FEConfigFgrEEStripDat> dataset_TpgFineGrainStripEE;
             econn->fetchDataSet(&dataset_TpgFineGrainStripEE, &fe_fgr_info);
 
-            EcalTPGFineGrainStripEE* fgrStripEE = new EcalTPGFineGrainStripEE;
+            auto* fgrStripEE = new EcalTPGFineGrainStripEE;
             typedef std::map<EcalLogicID, FEConfigFgrEEStripDat>::const_iterator CIfefgr;
             EcalLogicID ecid_xt;
             FEConfigFgrEEStripDat rd_fgr;
 
             int icells = 0;
 
-            for (CIfefgr p = dataset_TpgFineGrainStripEE.begin(); p != dataset_TpgFineGrainStripEE.end(); p++) {
+            for (auto p = dataset_TpgFineGrainStripEE.begin(); p != dataset_TpgFineGrainStripEE.end(); p++) {
               ecid_xt = p->first;
               rd_fgr = p->second;
 

@@ -31,7 +31,7 @@ void sumDepths(vector<TCell>& selectCells) {
   //
   // In some documents it is described as having depth 1, the mapping in CMSSW uses depth 3.
 
-  for (vector<TCell>::iterator i_it = selectCells.begin(); i_it != selectCells.end(); ++i_it) {
+  for (auto i_it = selectCells.begin(); i_it != selectCells.end(); ++i_it) {
     if (HcalDetId(i_it->id()).depth() == 1) {
       selectCellsDepth1.push_back(*i_it);
     } else {
@@ -41,7 +41,7 @@ void sumDepths(vector<TCell>& selectCells) {
 
   // case where depth 1 has zero energy, but higher depths with same (iEta, iPhi) have energy.
   // For iEta<15 there is one depth -> selectCellsHighDepth is empty and we do not get in the loop.
-  for (vector<TCell>::iterator i_it2 = selectCellsHighDepth.begin(); i_it2 != selectCellsHighDepth.end(); ++i_it2) {
+  for (auto i_it2 = selectCellsHighDepth.begin(); i_it2 != selectCellsHighDepth.end(); ++i_it2) {
     // protect against corrupt data
     if (HcalDetId(i_it2->id()).ietaAbs() < 15 && HcalDetId(i_it2->id()).depth() > 1) {
       cout << "ERROR!!! there are no HB cells with depth>1 for iEta<15!\n"
@@ -51,7 +51,7 @@ void sumDepths(vector<TCell>& selectCells) {
     }
 
     bool foundDepthOne = false;
-    for (vector<TCell>::iterator i_it = selectCellsDepth1.begin(); i_it != selectCellsDepth1.end(); ++i_it) {
+    for (auto i_it = selectCellsDepth1.begin(); i_it != selectCellsDepth1.end(); ++i_it) {
       if (HcalDetId(i_it->id()).ieta() == HcalDetId(i_it2->id()).ieta() &&
           HcalDetId(i_it->id()).iphi() == HcalDetId(i_it2->id()).iphi())
         foundDepthOne = true;
@@ -71,8 +71,8 @@ void sumDepths(vector<TCell>& selectCells) {
     }
   }
 
-  for (vector<TCell>::iterator i_it = selectCellsDepth1.begin(); i_it != selectCellsDepth1.end(); ++i_it) {
-    for (vector<TCell>::iterator i_it2 = selectCellsHighDepth.begin(); i_it2 != selectCellsHighDepth.end(); ++i_it2) {
+  for (auto i_it = selectCellsDepth1.begin(); i_it != selectCellsDepth1.end(); ++i_it) {
+    for (auto i_it2 = selectCellsHighDepth.begin(); i_it2 != selectCellsHighDepth.end(); ++i_it2) {
       if (HcalDetId(i_it->id()).ieta() == HcalDetId(i_it2->id()).ieta() &&
           HcalDetId(i_it->id()).iphi() == HcalDetId(i_it2->id()).iphi()) {
         i_it->SetE(i_it->e() + i_it2->e());
@@ -102,14 +102,14 @@ void combinePhi(vector<TCell>& selectCells) {
   map<UInt_t, vector<Float_t> > etaSliceE;  // keyed by id of cell with iEta and **iPhi=1**
 
   // map the cells to the eta ring
-  vector<TCell>::iterator i_it = selectCells.begin();
+  auto i_it = selectCells.begin();
   for (; i_it != selectCells.end(); ++i_it) {
     DetId id = HcalDetId(i_it->id());
     UInt_t thisKey = HcalDetId(HcalDetId(id).subdet(), HcalDetId(id).ieta(), 1, HcalDetId(id).depth());
     etaSliceE[thisKey].push_back(i_it->e());
   }
 
-  map<UInt_t, vector<Float_t> >::iterator m_it = etaSliceE.begin();
+  auto m_it = etaSliceE.begin();
   for (; m_it != etaSliceE.end(); ++m_it) {
     combinedCells.push_back(TCell(m_it->first, accumulate(m_it->second.begin(), m_it->second.end(), 0.0)));
   }
@@ -128,14 +128,14 @@ void combinePhi(vector<TCell>& selectCells, vector<TCell>& combinedCells) {
   map<UInt_t, vector<Float_t> > etaSliceE;  // keyed by id of cell with iEta and **iPhi=1**
 
   // map the cells to the eta ring
-  vector<TCell>::iterator i_it = selectCells.begin();
+  auto i_it = selectCells.begin();
   for (; i_it != selectCells.end(); ++i_it) {
     DetId id = HcalDetId(i_it->id());
     UInt_t thisKey = HcalDetId(HcalDetId(id).subdet(), HcalDetId(id).ieta(), 1, HcalDetId(id).depth());
     etaSliceE[thisKey].push_back(i_it->e());
   }
 
-  map<UInt_t, vector<Float_t> >::iterator m_it = etaSliceE.begin();
+  auto m_it = etaSliceE.begin();
   for (; m_it != etaSliceE.end(); ++m_it) {
     combinedCells.push_back(TCell(m_it->first, accumulate(m_it->second.begin(), m_it->second.end(), 0.0)));
   }
@@ -145,13 +145,13 @@ void getIEtaIPhiForHighestE(vector<TCell>& selectCells, Int_t& iEtaMostE, UInt_t
   vector<TCell> summedDepthsCells = selectCells;
 
   sumDepths(summedDepthsCells);
-  vector<TCell>::iterator highCell = summedDepthsCells.begin();
+  auto highCell = summedDepthsCells.begin();
 
   // sum depths locally to get highest energy tower
 
   Float_t highE = -999;
 
-  for (vector<TCell>::iterator it = summedDepthsCells.begin(); it != summedDepthsCells.end(); ++it) {
+  for (auto it = summedDepthsCells.begin(); it != summedDepthsCells.end(); ++it) {
     if (highE < it->e()) {
       highCell = it;
       highE = it->e();
@@ -175,7 +175,7 @@ void filterCells3x3(vector<TCell>& selectCells, Int_t iEtaMaxE, UInt_t iPhiMaxE)
 
   Int_t dEta, dPhi;
 
-  for (vector<TCell>::iterator it = selectCells.begin(); it != selectCells.end(); ++it) {
+  for (auto it = selectCells.begin(); it != selectCells.end(); ++it) {
     Bool_t passDEta = false;
     Bool_t passDPhi = false;
 
@@ -239,7 +239,7 @@ void filterCells5x5(vector<TCell>& selectCells, Int_t iEtaMaxE, UInt_t iPhiMaxE)
 
   Int_t dEta, dPhi;
 
-  for (vector<TCell>::iterator it = selectCells.begin(); it != selectCells.end(); ++it) {
+  for (auto it = selectCells.begin(); it != selectCells.end(); ++it) {
     dEta = HcalDetId(it->id()).ieta() - iEtaMaxE;
     dPhi = HcalDetId(it->id()).iphi() - iPhiMaxE;
 
@@ -272,7 +272,7 @@ void sumSmallDepths(vector<TCell>& selectCells) {
   vector<TCell> newCells;          // holds unaffected cells to which the modified ones are added
   vector<TCell> manipulatedCells;  // the ones that are combined
 
-  for (vector<TCell>::iterator i_it = selectCells.begin(); i_it != selectCells.end(); ++i_it) {
+  for (auto i_it = selectCells.begin(); i_it != selectCells.end(); ++i_it) {
     if ((HcalDetId(i_it->id()).ietaAbs() == 15 && HcalDetId(i_it->id()).depth() <= 2) ||
         (HcalDetId(i_it->id()).ietaAbs() == 16 && HcalDetId(i_it->id()).depth() <= 2)) {
       manipulatedCells.push_back(*i_it);
@@ -295,7 +295,7 @@ void sumSmallDepths(vector<TCell>& selectCells) {
   vector<UInt_t> dummyIds;     // to keep track of kreated cells
   vector<TCell> createdCells;  // cells that need to be added or they exists;
 
-  for (vector<TCell>::iterator i_it = manipulatedCells.begin(); i_it != manipulatedCells.end(); ++i_it) {
+  for (auto i_it = manipulatedCells.begin(); i_it != manipulatedCells.end(); ++i_it) {
     UInt_t dummyId =
         HcalDetId(HcalDetId(i_it->id()).subdet(), HcalDetId(i_it->id()).ieta(), HcalDetId(i_it->id()).iphi(), 1);
     if (find(dummyIds.begin(), dummyIds.end(), dummyId) == dummyIds.end()) {
@@ -304,8 +304,8 @@ void sumSmallDepths(vector<TCell>& selectCells) {
     }
   }
 
-  for (vector<TCell>::iterator i_it = createdCells.begin(); i_it != createdCells.end(); ++i_it) {
-    for (vector<TCell>::iterator i_it2 = manipulatedCells.begin(); i_it2 != manipulatedCells.end(); ++i_it2) {
+  for (auto i_it = createdCells.begin(); i_it != createdCells.end(); ++i_it) {
+    for (auto i_it2 = manipulatedCells.begin(); i_it2 != manipulatedCells.end(); ++i_it2) {
       if (HcalDetId(i_it->id()).ieta() == HcalDetId(i_it2->id()).ieta() &&
           HcalDetId(i_it->id()).iphi() == HcalDetId(i_it2->id()).iphi() && HcalDetId(i_it2->id()).depth() <= 2) {
         i_it->SetE(i_it->e() + i_it2->e());
@@ -313,7 +313,7 @@ void sumSmallDepths(vector<TCell>& selectCells) {
     }
   }
 
-  for (vector<TCell>::iterator i_it = createdCells.begin(); i_it != createdCells.end(); ++i_it) {
+  for (auto i_it = createdCells.begin(); i_it != createdCells.end(); ++i_it) {
     newCells.push_back(*i_it);
   }
 
@@ -329,7 +329,7 @@ void filterCellsInCone(std::vector<TCell>& selectCells,
                        const CaloGeometry* theCaloGeometry) {
   vector<TCell> filteredCells;
 
-  for (vector<TCell>::iterator it = selectCells.begin(); it != selectCells.end(); ++it) {
+  for (auto it = selectCells.begin(); it != selectCells.end(); ++it) {
     GlobalPoint recHitPoint;
     DetId id = it->id();
     if (id.det() == DetId::Hcal) {

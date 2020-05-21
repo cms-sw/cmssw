@@ -97,8 +97,8 @@ MuRingForwardDoubleLayer* MuonRPCDetLayerGeometryBuilder::buildLayer(
 
   vector<const ForwardDetRing*> frontRings, backRings;
 
-  for (std::vector<int>::const_iterator ring = rings.begin(); ring < rings.end(); ++ring) {
-    for (vector<int>::iterator roll = rolls.begin(); roll != rolls.end(); ++roll) {
+  for (auto ring = rings.begin(); ring < rings.end(); ++ring) {
+    for (auto roll = rolls.begin(); roll != rolls.end(); ++roll) {
       vector<const GeomDet*> frontDets, backDets;
       for (int sector = RPCDetId::minSectorForwardId; sector <= RPCDetId::maxSectorForwardId; ++sector) {
         for (int subsector = RPCDetId::minSubSectorForwardId; subsector <= RPCDetId::maxSectorForwardId; ++subsector) {
@@ -177,7 +177,7 @@ vector<DetLayer*> MuonRPCDetLayerGeometryBuilder::buildBarrelLayers(const RPCGeo
     makeBarrelLayers(geomDets, result);
   }
 
-  for (vector<MuRodBarrelLayer*>::const_iterator it = result.begin(); it != result.end(); it++)
+  for (auto it = result.begin(); it != result.end(); it++)
     detlayers.push_back((DetLayer*)(*it));
 
   return detlayers;
@@ -198,10 +198,10 @@ void MuonRPCDetLayerGeometryBuilder::makeBarrelLayers(vector<const GeomDet*>& ge
 
   ClusterizingHistogram hisR(int((rMax - rMin) / resolution) + 1, rMin, rMax);
 
-  vector<const GeomDet*>::iterator first = geomDets.begin();
-  vector<const GeomDet*>::iterator last = geomDets.end();
+  auto first = geomDets.begin();
+  auto last = geomDets.end();
 
-  for (vector<const GeomDet*>::iterator i = first; i != last; i++) {
+  for (auto i = first; i != last; i++) {
     hisR.fill(float((*i)->position().perp()) - r0);
     LogTrace(metname) << "R " << float((*i)->position().perp()) - r0;
   }
@@ -209,8 +209,8 @@ void MuonRPCDetLayerGeometryBuilder::makeBarrelLayers(vector<const GeomDet*>& ge
 
   // LogTrace(metname) << "     Found " << phiClust.size() << " clusters in Phi, ";
 
-  vector<const GeomDet*>::iterator layerStart = first;
-  vector<const GeomDet*>::iterator separ = first;
+  auto layerStart = first;
+  auto separ = first;
 
   for (unsigned int i = 0; i < rClust.size(); i++) {
     float rSepar;
@@ -257,10 +257,10 @@ void MuonRPCDetLayerGeometryBuilder::makeBarrelRods(vector<const GeomDet*>& geom
 
   ClusterizingHistogram hisPhi(int((phiMax - phiMin) / resolution) + 1, phiMin, phiMax);
 
-  vector<const GeomDet*>::iterator first = geomDets.begin();
-  vector<const GeomDet*>::iterator last = geomDets.end();
+  auto first = geomDets.begin();
+  auto last = geomDets.end();
 
-  for (vector<const GeomDet*>::iterator i = first; i != last; i++) {
+  for (auto i = first; i != last; i++) {
     hisPhi.fill(float((*i)->position().phi()) - phi0);
     LogTrace(metname) << "C " << float((*i)->position().phi()) - phi0;
   }
@@ -268,8 +268,8 @@ void MuonRPCDetLayerGeometryBuilder::makeBarrelRods(vector<const GeomDet*>& geom
 
   // LogTrace(metname) << "     Found " << phiClust.size() << " clusters in Phi, ";
 
-  vector<const GeomDet*>::iterator rodStart = first;
-  vector<const GeomDet*>::iterator separ = first;
+  auto rodStart = first;
+  auto separ = first;
 
   for (unsigned int i = 0; i < phiClust.size(); i++) {
     float phiSepar;

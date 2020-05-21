@@ -45,7 +45,7 @@ FWGUIEventFilter::FWGUIEventFilter(CmsShowNavigator* n)
     v1->AddFrame(m_eventSelectionFrameParent, new TGLayoutHints(kLHintsExpandX | kLHintsTop, 2, 2, 0, 0));
 
     // headers
-    TGHorizontalFrame* selH = new TGHorizontalFrame(m_eventSelectionFrameParent);
+    auto* selH = new TGHorizontalFrame(m_eventSelectionFrameParent);
     m_eventSelectionFrameParent->AddFrame(selH, new TGLayoutHints(kLHintsExpandX));
 
     {
@@ -65,7 +65,7 @@ FWGUIEventFilter::FWGUIEventFilter(CmsShowNavigator* n)
       cfr->AddFrame(new TGLabel(cfr, "Pass:"), new TGLayoutHints(kLHintsLeft | kLHintsBottom, 2, 2, 2, 0));
     }
 
-    TGHorizontalFrame* addBtnFrame = new TGHorizontalFrame(v1);
+    auto* addBtnFrame = new TGHorizontalFrame(v1);
     v1->AddFrame(addBtnFrame, new TGLayoutHints(kLHintsExpandX));
     addBtnFrame->AddFrame(new TGHorizontal3DLine(addBtnFrame),
                           new TGLayoutHints(kLHintsExpandX | kLHintsCenterY, 4, 8, 2, 2));
@@ -86,7 +86,7 @@ FWGUIEventFilter::FWGUIEventFilter(CmsShowNavigator* n)
     v1->AddFrame(m_triggerSelectionFrameParent, new TGLayoutHints(kLHintsExpandX | kLHintsTop, 2, 2, 0, 0));
 
     // headers
-    TGHorizontalFrame* selH = new TGHorizontalFrame(m_triggerSelectionFrameParent);
+    auto* selH = new TGHorizontalFrame(m_triggerSelectionFrameParent);
     m_triggerSelectionFrameParent->AddFrame(selH, new TGLayoutHints(kLHintsExpandX));
 
     {
@@ -108,7 +108,7 @@ FWGUIEventFilter::FWGUIEventFilter(CmsShowNavigator* n)
 
     //-------------------- adding new selection
 
-    TGHorizontalFrame* addBtnFrame = new TGHorizontalFrame(v1);
+    auto* addBtnFrame = new TGHorizontalFrame(v1);
     v1->AddFrame(addBtnFrame, new TGLayoutHints(kLHintsExpandX));
 
     addBtnFrame->AddFrame(new TGHorizontal3DLine(addBtnFrame),
@@ -124,10 +124,10 @@ FWGUIEventFilter::FWGUIEventFilter(CmsShowNavigator* n)
 
   //-------------------- logical operations
 
-  TGHorizontalFrame* headerFrame = new TGHorizontalFrame(v1 /*, 360, 61, kHorizontalFrame | kFixedSize*/);
+  auto* headerFrame = new TGHorizontalFrame(v1 /*, 360, 61, kHorizontalFrame | kFixedSize*/);
 
   {
-    TGHorizontalFrame* xx = new TGHorizontalFrame(v1);
+    auto* xx = new TGHorizontalFrame(v1);
     fireworks_root_gui::makeLabel(xx, "Combine Expression Width:", 152, 2, 2, 2, 2);
     m_rad1 = new TGRadioButton(xx, "OR", 81);
     xx->AddFrame(m_rad1, new TGLayoutHints(kLHintsNormal, 2, 10, 0, 0));
@@ -143,7 +143,7 @@ FWGUIEventFilter::FWGUIEventFilter(CmsShowNavigator* n)
 
   //-------------------- status
   {
-    TGHorizontalFrame* hf = new TGHorizontalFrame(v1);
+    auto* hf = new TGHorizontalFrame(v1);
     v1->AddFrame(hf, new TGLayoutHints(kLHintsExpandX, 2, 2, 2, 20));
     fireworks_root_gui::makeLabel(hf, "Status:", 37, 2, 2, 2, 2);
     {
@@ -156,7 +156,7 @@ FWGUIEventFilter::FWGUIEventFilter(CmsShowNavigator* n)
       gval.fFont = font->GetFontHandle();
       fTextGC = gClient->GetGC(&gval, kTRUE);
 
-      TGHorizontalFrame* labFrame = new TGHorizontalFrame(hf, 380, 22, kHorizontalFrame | kFixedWidth);
+      auto* labFrame = new TGHorizontalFrame(hf, 380, 22, kHorizontalFrame | kFixedWidth);
       hf->AddFrame(labFrame, new TGLayoutHints(kLHintsNormal));
 
       m_stateLabel = new TGLabel(labFrame, "x", fTextGC->GetGC());
@@ -165,7 +165,7 @@ FWGUIEventFilter::FWGUIEventFilter(CmsShowNavigator* n)
   }
   //-------------------- external actions
 
-  TGHorizontalFrame* btnFrame = new TGHorizontalFrame(v1, 280, 30);
+  auto* btnFrame = new TGHorizontalFrame(v1, 280, 30);
   v1->AddFrame(btnFrame, new TGLayoutHints(kLHintsCenterX | kLHintsExpandX | kLHintsBottom, 0, 0, 2, 4));
 
   TGTextButton* cancel = new TGTextButton(btnFrame, " Close ");
@@ -173,7 +173,7 @@ FWGUIEventFilter::FWGUIEventFilter(CmsShowNavigator* n)
   cancel->Connect("Clicked()", "FWGUIEventFilter", this, "CloseWindow()");
 
   {
-    TGHorizontalFrame* f = new TGHorizontalFrame(btnFrame);
+    auto* f = new TGHorizontalFrame(btnFrame);
     btnFrame->AddFrame(f, new TGLayoutHints(kLHintsRight, 4, 18, 2, 4));
     m_disableFilteringBtn = new TGTextButton(f, " Disable Filtering ");
     f->AddFrame(m_disableFilteringBtn, new TGLayoutHints(kLHintsLeft | kLHintsCenterY, 4, 10, 2, 4));
@@ -190,7 +190,7 @@ FWGUIEventFilter::~FWGUIEventFilter() {}
 
 void FWGUIEventFilter::addSelector(FWEventSelector* sel) {
   TGCompositeFrame* parent = sel->m_triggerProcess.empty() ? m_eventSelectionFrame : m_triggerSelectionFrame;
-  FWGUIEventSelector* es = new FWGUIEventSelector(parent, sel, m_navigator->getProcessList());
+  auto* es = new FWGUIEventSelector(parent, sel, m_navigator->getProcessList());
   parent->AddFrame(es, new TGLayoutHints(kLHintsExpandX));
   TQObject::Connect(
       es, "removeSelector(FWGUIEventSelector*)", "FWGUIEventFilter", this, "deleteEntry(FWGUIEventSelector*)");
@@ -233,7 +233,7 @@ void FWGUIEventFilter::show(std::list<FWEventSelector*>* sels, int filterMode, i
   m_triggerSelectionFrame = new TGVerticalFrame(m_triggerSelectionFrameParent);
   m_triggerSelectionFrameParent->AddFrame(m_triggerSelectionFrame, new TGLayoutHints(kLHintsExpandX));
 
-  for (std::list<FWEventSelector*>::iterator i = sels->begin(); i != sels->end(); ++i)
+  for (auto i = sels->begin(); i != sels->end(); ++i)
     addSelector(*i);
 
   updateFilterStateLabel(filterState);
@@ -254,7 +254,7 @@ void FWGUIEventFilter::reset() {
     m_triggerSelectionFrame = nullptr;
   }
 
-  for (std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin(); i != m_guiSelectors.end(); ++i)
+  for (auto i = m_guiSelectors.begin(); i != m_guiSelectors.end(); ++i)
     delete *i;
 
   m_guiSelectors.clear();
@@ -327,7 +327,7 @@ void FWGUIEventFilter::CloseWindow() {
   m_triggerSelectionFrame = nullptr;
 
   FWGUIEventSelector* gs;
-  for (std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin(); i != m_guiSelectors.end(); ++i) {
+  for (auto i = m_guiSelectors.begin(); i != m_guiSelectors.end(); ++i) {
     gs = *i;
     delete gs;
   }
@@ -343,7 +343,7 @@ void FWGUIEventFilter::checkApplyButton() {
   bool changed = (m_filtersRemoved || (getFilterMode() != m_origFilterMode));
 
   if (!changed) {
-    std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin();
+    auto i = m_guiSelectors.begin();
     while (i != m_guiSelectors.end()) {
       if ((*i)->origSelector() == nullptr || (*i)->guiSelector()->m_enabled != (*i)->origSelector()->m_enabled ||
           (*i)->guiSelector()->m_expression != (*i)->origSelector()->m_expression) {

@@ -290,7 +290,7 @@ void EveService::createEventNavigationGUI() {
 
   TGMainFrame* mf = new TGMainFrame(gClient->GetRoot(), 400, 100, kVerticalFrame);
 
-  TGHorizontalFrame* f = new TGHorizontalFrame(mf);
+  auto* f = new TGHorizontalFrame(mf);
   mf->AddFrame(f, new TGLayoutHints(kLHintsExpandX, 0, 0, 2, 2));
 
   MkTxtButton(f, "Exit", 100, 2, 2)->Connect("Clicked()", cls, this, "slotExit()");

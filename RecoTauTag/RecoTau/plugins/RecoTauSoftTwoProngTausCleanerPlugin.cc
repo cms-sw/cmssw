@@ -34,9 +34,7 @@ namespace reco {
       double result = 0.;
       const std::vector<PFRecoTauChargedHadron>& chargedHadrons = tau->signalTauChargedHadronCandidates();
       if (chargedHadrons.size() == 2) {
-        for (std::vector<PFRecoTauChargedHadron>::const_iterator chargedHadron = chargedHadrons.begin();
-             chargedHadron != chargedHadrons.end();
-             ++chargedHadron) {
+        for (auto chargedHadron = chargedHadrons.begin(); chargedHadron != chargedHadrons.end(); ++chargedHadron) {
           const reco::Track* track = getTrackFromChargedHadron(*chargedHadron);
           if (!(track != nullptr && track->pt() > minTrackPt_))
             result += 1.e+3;

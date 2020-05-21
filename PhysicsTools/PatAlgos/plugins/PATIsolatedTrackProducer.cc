@@ -553,7 +553,7 @@ void pat::PATIsolatedTrackProducer::getIsolation(const PolarLorentzVector& p4,
   float chiso = 0, nhiso = 0, phiso = 0, puiso = 0;      // standard isolation
   float chmiso = 0, nhmiso = 0, phmiso = 0, pumiso = 0;  // mini isolation
   float miniDR = std::max(miniIsoParams_[0], std::min(miniIsoParams_[1], miniIsoParams_[2] / p4.pt()));
-  for (pat::PackedCandidateCollection::const_iterator pf_it = pc->begin(); pf_it != pc->end(); pf_it++) {
+  for (auto pf_it = pc->begin(); pf_it != pc->end(); pf_it++) {
     if (int(pf_it - pc->begin()) == pc_idx)  //don't count itself
       continue;
     int id = std::abs(pf_it->pdgId());
@@ -634,7 +634,7 @@ void pat::PATIsolatedTrackProducer::getNearestPCRef(const PolarLorentzVector& p4
   float dr_min = pcRefNearest_DR_;
   float dr_min_pu = pcRefNearest_DR_;
   int pc_ref_idx_pu = -1;
-  for (pat::PackedCandidateCollection::const_iterator pf_it = pc->begin(); pf_it != pc->end(); pf_it++) {
+  for (auto pf_it = pc->begin(); pf_it != pc->end(); pf_it++) {
     if (int(pf_it - pc->begin()) == pc_idx)  //don't count itself
       continue;
     int charge = std::abs(pf_it->charge());
@@ -672,7 +672,7 @@ float pat::PATIsolatedTrackProducer::getPFNeutralSum(const PolarLorentzVector& p
                                                      int pc_idx) const {
   float nsum = 0;
   float nhsum = 0, phsum = 0;
-  for (pat::PackedCandidateCollection::const_iterator pf_it = pc->begin(); pf_it != pc->end(); pf_it++) {
+  for (auto pf_it = pc->begin(); pf_it != pc->end(); pf_it++) {
     if (int(pf_it - pc->begin()) == pc_idx)  //don't count itself
       continue;
     int id = std::abs(pf_it->pdgId());

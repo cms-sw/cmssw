@@ -114,7 +114,7 @@ void RHStopTracer::produce(edm::Event& fEvent, const edm::EventSetup&) {
   std::unique_ptr<std::vector<float> > masses(new std::vector<float>);
   std::unique_ptr<std::vector<float> > charges(new std::vector<float>);
 
-  std::vector<StopPoint>::const_iterator stopPoint = mStopPoints.begin();
+  auto stopPoint = mStopPoints.begin();
   for (; stopPoint != mStopPoints.end(); ++stopPoint) {
     names->push_back(stopPoint->name);
     xs->push_back(stopPoint->x);

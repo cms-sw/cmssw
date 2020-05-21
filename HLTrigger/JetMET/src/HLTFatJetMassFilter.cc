@@ -81,7 +81,7 @@ bool HLTFatJetMassFilter<jetType>::hltFilter(edm::Event& iEvent,
 
   // Selected jets
   CaloJetCollection recojets;
-  typename JetCollection::const_iterator i(objects->begin());
+  auto i(objects->begin());
   for (; i != objects->end(); i++) {
     if (std::abs(i->eta()) < maxJetEta_ && i->pt() >= minJetPt_) {
       reco::CaloJet jet(i->p4(), i->vertex(), reco::CaloJet::Specific());

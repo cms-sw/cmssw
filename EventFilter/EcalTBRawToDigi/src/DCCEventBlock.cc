@@ -344,10 +344,10 @@ std::pair<bool, std::string> DCCTBEventBlock::compare(DCCTBEventBlock *block) {
         << "\n =====================================================================";
   }
 
-  std::vector<DCCTBTCCBlock *>::iterator it1Tcc = tccBlocks_.begin();
-  std::vector<DCCTBTCCBlock *>::iterator it1TccEnd = tccBlocks_.end();
-  std::vector<DCCTBTCCBlock *>::iterator it2Tcc = block->tccBlocks().begin();
-  std::vector<DCCTBTCCBlock *>::iterator it2TccEnd = block->tccBlocks().end();
+  auto it1Tcc = tccBlocks_.begin();
+  auto it1TccEnd = tccBlocks_.end();
+  auto it2Tcc = block->tccBlocks().begin();
+  auto it2TccEnd = block->tccBlocks().end();
 
   for (; it1Tcc != it1TccEnd && it2Tcc != it2TccEnd; it1Tcc++, it2Tcc++) {
     std::pair<bool, std::string> temp((*it1Tcc)->compare(*it2Tcc));
@@ -369,10 +369,10 @@ std::pair<bool, std::string> DCCTBEventBlock::compare(DCCTBEventBlock *block) {
         << "\n =====================================================================";
   }
 
-  std::vector<DCCTBTowerBlock *>::iterator it1Tower = towerBlocks_.begin();
-  std::vector<DCCTBTowerBlock *>::iterator it1TowerEnd = towerBlocks_.end();
-  std::vector<DCCTBTowerBlock *>::iterator it2Tower = (block->towerBlocks()).begin();
-  std::vector<DCCTBTowerBlock *>::iterator it2TowerEnd = (block->towerBlocks()).end();
+  auto it1Tower = towerBlocks_.begin();
+  auto it1TowerEnd = towerBlocks_.end();
+  auto it2Tower = (block->towerBlocks()).begin();
+  auto it2TowerEnd = (block->towerBlocks()).end();
 
   for (; it1Tower != it1TowerEnd && it2Tower != it2TowerEnd; it1Tower++, it2Tower++) {
     std::pair<bool, std::string> temp((*it1Tower)->compare(*it2Tower));
@@ -394,10 +394,10 @@ std::pair<bool, std::string> DCCTBEventBlock::compare(DCCTBEventBlock *block) {
           << "\n =====================================================================";
     }
 
-    std::vector<DCCTBXtalBlock *>::iterator it1Xtal = xtalBlocks1.begin();
-    std::vector<DCCTBXtalBlock *>::iterator it1XtalEnd = xtalBlocks1.end();
-    std::vector<DCCTBXtalBlock *>::iterator it2Xtal = xtalBlocks1.begin();
-    std::vector<DCCTBXtalBlock *>::iterator it2XtalEnd = xtalBlocks2.end();
+    auto it1Xtal = xtalBlocks1.begin();
+    auto it1XtalEnd = xtalBlocks1.end();
+    auto it2Xtal = xtalBlocks1.begin();
+    auto it2XtalEnd = xtalBlocks2.end();
 
     for (; it1Xtal != it1XtalEnd && it2Xtal != it2XtalEnd; it1Xtal++, it2Xtal++) {
       std::pair<bool, std::string> temp((*it1Xtal)->compare(*it2Xtal));

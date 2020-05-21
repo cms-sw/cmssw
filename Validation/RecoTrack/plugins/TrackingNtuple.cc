@@ -2934,7 +2934,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
         TransientTrackingRecHit::RecHitPointer recHit = theTTRHBuilder.build(&*hit);
         int subid = recHit->geographicalId().subdetId();
         if (subid == (int)PixelSubdetector::PixelBarrel || subid == (int)PixelSubdetector::PixelEndcap) {
-          const BaseTrackerRecHit* bhit = dynamic_cast<const BaseTrackerRecHit*>(&*recHit);
+          const auto* bhit = dynamic_cast<const BaseTrackerRecHit*>(&*recHit);
           const auto& clusterRef = bhit->firstClusterRef();
           const auto clusterKey = clusterRef.cluster_pixel().key();
           if (includeAllHits_) {
@@ -2946,7 +2946,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
         } else if (subid == (int)StripSubdetector::TOB || subid == (int)StripSubdetector::TID ||
                    subid == (int)StripSubdetector::TIB || subid == (int)StripSubdetector::TEC) {
           if (trackerHitRTTI::isMatched(*recHit)) {
-            const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(&*recHit);
+            const auto* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(&*recHit);
             if (includeAllHits_) {
               checkProductID(hitProductIds, matchedHit->monoClusterRef().id(), "seed");
               checkProductID(hitProductIds, matchedHit->stereoClusterRef().id(), "seed");
@@ -2954,7 +2954,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
             int monoIdx = matchedHit->monoClusterRef().key();
             int stereoIdx = matchedHit->stereoClusterRef().key();
 
-            std::vector<std::pair<int, int>>::iterator pos =
+            auto pos =
                 find(monoStereoClusterList.begin(), monoStereoClusterList.end(), std::make_pair(monoIdx, stereoIdx));
             size_t gluedIndex = -1;
             if (pos != monoStereoClusterList.end()) {
@@ -2972,7 +2972,7 @@ void TrackingNtuple::fillSeeds(const edm::Event& iEvent,
             hitIdx.push_back(gluedIndex);
             hitType.push_back(static_cast<int>(HitType::Glued));
           } else {
-            const BaseTrackerRecHit* bhit = dynamic_cast<const BaseTrackerRecHit*>(&*recHit);
+            const auto* bhit = dynamic_cast<const BaseTrackerRecHit*>(&*recHit);
             const auto& clusterRef = bhit->firstClusterRef();
             unsigned int clusterKey;
             if (clusterRef.isPhase2()) {
@@ -3325,7 +3325,7 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
 
       if (hit->isValid()) {
         //ugly... but works
-        const BaseTrackerRecHit* bhit = dynamic_cast<const BaseTrackerRecHit*>(&*hit);
+        const auto* bhit = dynamic_cast<const BaseTrackerRecHit*>(&*hit);
         const auto& clusterRef = bhit->firstClusterRef();
         unsigned int clusterKey;
         if (clusterRef.isPixel()) {

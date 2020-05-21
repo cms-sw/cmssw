@@ -63,7 +63,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
   veff.clear();
   vvnoise.clear();
 
-  for (std::vector<RPCStripNoises::NoiseItem>::const_iterator it = vnoise.begin(); it != vnoise.end(); ++it) {
+  for (auto it = vnoise.begin(); it != vnoise.end(); ++it) {
     if (n % 96 == 0) {
       if (n > 0) {
         _mapDetIdNoise[temp] = vvnoise;
@@ -126,7 +126,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       _mapDetClsMap[detId] = clsVect;
       std::stringstream LogDebugClsVectString;
       LogDebugClsVectString << "[";
-      for (std::vector<double>::iterator itClsVect = clsVect.begin(); itClsVect != clsVect.end(); ++itClsVect) {
+      for (auto itClsVect = clsVect.begin(); itClsVect != clsVect.end(); ++itClsVect) {
         LogDebugClsVectString << *itClsVect << ",";
       }
       LogDebugClsVectString << "]";
@@ -162,7 +162,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
       _mapDetClsMapLegacy[detId] = clsVect;
       std::stringstream LogDebugClsVectString;
       LogDebugClsVectString << "[";
-      for (std::vector<double>::iterator itClsVect = clsVect.begin(); itClsVect != clsVect.end(); ++itClsVect) {
+      for (auto itClsVect = clsVect.begin(); itClsVect != clsVect.end(); ++itClsVect) {
         LogDebugClsVectString << *itClsVect << ",";
       }
       LogDebugClsVectString << "]";
@@ -201,8 +201,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
   bool quitLoop = false;
   current_detId = 0;
   current_nStrips = 0;  // current_rpcId = 0; current_roll = 0;
-  for (std::vector<RPCStripNoises::NoiseItem>::const_iterator it = vnoise.begin(); it != vnoise.end() && !quitLoop;
-       ++it) {
+  for (auto it = vnoise.begin(); it != vnoise.end() && !quitLoop; ++it) {
     // roll associated to the conditions of this strip (iterator)
     current_detId = it->dpid;
     current_rpcId = RPCDetId(current_detId);
@@ -229,7 +228,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
   sslognoiseitem << " -------------------------------------------------------------------------------------------------"
                     "------------------------------------ "
                  << std::endl;
-  for (std::vector<RPCStripNoises::NoiseItem>::const_iterator it = vnoise.begin(); it != vnoise.end(); ++it) {
+  for (auto it = vnoise.begin(); it != vnoise.end(); ++it) {
     // roll associated to the conditions of this strip (iterator)
     this_detId = it->dpid;
     this_rpcId = RPCDetId(this_detId);
@@ -300,13 +299,13 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
 
       std::stringstream LogDebugNoiVectString, LogDebugEffVectString;
       LogDebugNoiVectString << "[";
-      for (std::vector<float>::iterator itNoiVect = vvnoise.begin(); itNoiVect != vvnoise.end(); ++itNoiVect) {
+      for (auto itNoiVect = vvnoise.begin(); itNoiVect != vvnoise.end(); ++itNoiVect) {
         LogDebugNoiVectString << (*itNoiVect) << ",";
       }
       LogDebugNoiVectString << "]";
       std::string LogDebugNoiVectStr = LogDebugNoiVectString.str();
       LogDebugEffVectString << "[";
-      for (std::vector<float>::iterator itEffVect = vveff.begin(); itEffVect != vveff.end(); ++itEffVect) {
+      for (auto itEffVect = vveff.begin(); itEffVect != vveff.end(); ++itEffVect) {
         LogDebugEffVectString << (*itEffVect) << ",";
       }
       LogDebugEffVectString << "]";
@@ -368,7 +367,7 @@ void RPCSimSetUp::setRPCSetUp(const std::vector<RPCStripNoises::NoiseItem>& vnoi
 }
 
 const std::vector<float>& RPCSimSetUp::getNoise(uint32_t id) {
-  map<uint32_t, std::vector<float> >::iterator iter = _mapDetIdNoise.find(id);
+  auto iter = _mapDetIdNoise.find(id);
   if (iter == _mapDetIdNoise.end()) {
     throw cms::Exception("DataCorrupt") << "Exception from RPCSimSetUp - no noise information for DetId\t" << id
                                         << std::endl;
@@ -378,7 +377,7 @@ const std::vector<float>& RPCSimSetUp::getNoise(uint32_t id) {
 }
 
 const std::vector<float>& RPCSimSetUp::getEff(uint32_t id) {
-  map<uint32_t, std::vector<float> >::iterator iter = _mapDetIdEff.find(id);
+  auto iter = _mapDetIdEff.find(id);
   if (iter == _mapDetIdEff.end()) {
     throw cms::Exception("DataCorrupt") << "Exception from RPCSimSetUp - no efficiency information for DetId\t" << id
                                         << std::endl;
@@ -402,7 +401,7 @@ const std::vector<float>& RPCSimSetUp::getEff(uint32_t id) {
 
 float RPCSimSetUp::getTime(uint32_t id) {
   RPCDetId rpcid(id);
-  std::map<RPCDetId, float>::iterator iter = _bxmap.find(rpcid);
+  auto iter = _bxmap.find(rpcid);
   if (iter == _bxmap.end()) {
     throw cms::Exception("DataCorrupt") << "Exception from RPCSimSetUp - no timing information for rpcid.rawId()\t"
                                         << rpcid.rawId() << std::endl;
@@ -422,7 +421,7 @@ const std::vector<double>& RPCSimSetUp::getCls(uint32_t id)  //legacy member fun
 {
   LogDebug("RPCSimSetupChecks") << "RPCSimSetUp::getCls" << std::endl;
 
-  map<uint32_t, std::vector<double> >::iterator iter = _mapDetClsMapLegacy.find(id);
+  auto iter = _mapDetClsMapLegacy.find(id);
   if (iter == _mapDetClsMapLegacy.end()) {
     throw cms::Exception("DataCorrupt") << "Exception from RPCSimSetUp - no cluster size information for DetId\t" << id
                                         << std::endl;
@@ -440,7 +439,7 @@ const std::vector<double>& RPCSimSetUp::getCls(uint32_t id)  //legacy member fun
 const std::vector<double>& RPCSimSetUp::getAsymmetricClsDistribution(uint32_t id, uint32_t slice) {
   LogDebug("RPCSimSetupChecks") << "RPCSimSetUp::getAsymmetricClsDistribution" << std::endl;
 
-  map<uint32_t, std::vector<double> >::const_iterator iter = _mapDetClsMap.find(id);
+  auto iter = _mapDetClsMap.find(id);
   if (iter == _mapDetClsMap.end()) {
     throw cms::Exception("DataCorrupt")
         << "Exception from RPCSimSetUp - _mapDetClsMap - no cluster size information for DetId\t" << id << std::endl;
@@ -504,7 +503,7 @@ const std::vector<double>& RPCSimSetUp::getAsymmetricClsDistribution(uint32_t id
 const std::vector<double>& RPCSimSetUp::getAsymmetryForCls(uint32_t id, uint32_t slice, uint32_t cls) {
   LogDebug("RPCSimSetupChecks") << "RPCSimSetUp::getAsymmetryForCls" << std::endl;
 
-  map<uint32_t, std::vector<double> >::const_iterator iter = _mapDetClsMap.find(id);
+  auto iter = _mapDetClsMap.find(id);
   if (iter == _mapDetClsMap.end()) {
     throw cms::Exception("DataCorrupt")
         << "Exception from RPCSimSetUp - _mapDetClsMap - no cluster size information for DetId\t" << id << std::endl;

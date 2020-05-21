@@ -135,8 +135,8 @@ std::vector<GlobalMuonTrackMatcher::TrackCand>::const_iterator GlobalMuonTrackMa
     return tracks.end();
 
   double minChi2 = 1000.0;
-  vector<TrackCand>::const_iterator result = tracks.end();
-  for (vector<TrackCand>::const_iterator is = tracks.begin(); is != tracks.end(); ++is) {
+  auto result = tracks.end();
+  for (auto is = tracks.begin(); is != tracks.end(); ++is) {
     // propagate to common surface
     std::pair<TrajectoryStateOnSurface, TrajectoryStateOnSurface> tsosPair = convertToTSOSMuHit(sta, *is);
 
@@ -174,7 +174,7 @@ vector<GlobalMuonTrackMatcher::TrackCand> GlobalMuonTrackMatcher::match(const Tr
   LogTrace(category) << "   ***" << endl << "STA Muon pT " << sta.second->pt();
   LogTrace(category) << "   Tk in Region " << tracks.size() << endl;
 
-  for (vector<TrackCand>::const_iterator is = tracks.begin(); is != tracks.end(); ++is, iiTk++) {
+  for (auto is = tracks.begin(); is != tracks.end(); ++is, iiTk++) {
     // propagate to a common surface
     std::pair<TrajectoryStateOnSurface, TrajectoryStateOnSurface> tsosPair = convertToTSOSMuHit(sta, *is);
     LogTrace(category) << "    Tk " << iiTk << " of " << tracks.size() << "  ConvertToMuHitSurface muon isValid "
@@ -193,7 +193,7 @@ vector<GlobalMuonTrackMatcher::TrackCand> GlobalMuonTrackMatcher::match(const Tr
   int jj = 0;
 
   int iTkCand = 1;
-  for (vector<TrackCandWithTSOS>::const_iterator ii = cands.begin(); ii != cands.end(); ++ii, jj++, iTkCand++) {
+  for (auto ii = cands.begin(); ii != cands.end(); ++ii, jj++, iTkCand++) {
     // tracks that are able not able propagate to a common surface
     if (!muonTSOS.isValid() || !(*ii).second.isValid())
       continue;
@@ -259,7 +259,7 @@ vector<GlobalMuonTrackMatcher::TrackCand> GlobalMuonTrackMatcher::match(const Tr
 
   if (result.empty()) {
     LogTrace(category) << "   Stage 1 returned 0 results";
-    for (vector<TrackCandWithTSOS>::const_iterator is = cands.begin(); is != cands.end(); ++is, jj++) {
+    for (auto is = cands.begin(); is != cands.end(); ++is, jj++) {
       double deltaR = match_Rpos(muonTSOS, (*is).second);
 
       if (muonTSOS.isValid() && (*is).second.isValid()) {
@@ -296,7 +296,7 @@ vector<GlobalMuonTrackMatcher::TrackCand> GlobalMuonTrackMatcher::match(const Tr
     }
   }
 
-  for (vector<TrackCand>::const_iterator iTk = result.begin(); iTk != result.end(); ++iTk) {
+  for (auto iTk = result.begin(); iTk != result.end(); ++iTk) {
     LogTrace(category) << "   -----" << endl
                        << "selected pt " << iTk->second->pt() << " eta " << iTk->second->eta() << " phi "
                        << iTk->second->phi() << endl;
@@ -312,7 +312,7 @@ vector<GlobalMuonTrackMatcher::TrackCand> GlobalMuonTrackMatcher::match(const Tr
   // re-initialize mask counter
   jj = 0;
 
-  for (vector<TrackCandWithTSOS>::const_iterator is = cands.begin(); is != cands.end(); ++is, jj++) {
+  for (auto is = cands.begin(); is != cands.end(); ++is, jj++) {
     if (!passes[jj])
       continue;
 
@@ -344,7 +344,7 @@ vector<GlobalMuonTrackMatcher::TrackCand> GlobalMuonTrackMatcher::match(const Tr
     }
   }
 
-  for (vector<TrackCand>::const_iterator iTk = result.begin(); iTk != result.end(); ++iTk) {
+  for (auto iTk = result.begin(); iTk != result.end(); ++iTk) {
     LogTrace(category) << "   -----" << endl
                        << "selected pt " << iTk->second->pt() << " eta " << iTk->second->eta() << " phi "
                        << iTk->second->phi() << endl;

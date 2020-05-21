@@ -85,7 +85,7 @@ void SoftPFMuonTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
       const reco::Muon* muon(nullptr);
       // Step 1: try to access the muon from reco::PFCandidate
-      const reco::PFCandidate* pfcand = dynamic_cast<const reco::PFCandidate*>(lepPtr.get());
+      const auto* pfcand = dynamic_cast<const reco::PFCandidate*>(lepPtr.get());
       if (pfcand) {
         muon = pfcand->muonRef().get();
       }

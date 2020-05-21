@@ -41,7 +41,7 @@ void popcon::EcalPulseSymmCovariancesHandler::getNewObjects() {
   std::cout << "------- Ecal - > getNewObjects\n";
 
   // create the object pukse shapes
-  EcalPulseSymmCovariances* pulsecovs = new EcalPulseSymmCovariances();
+  auto* pulsecovs = new EcalPulseSymmCovariances();
 
   // read the templates from a text file
   std::ifstream inputfile;
@@ -116,7 +116,7 @@ void popcon::EcalPulseSymmCovariancesHandler::getNewObjects() {
       if (EBDetId::validDetId(iEta, iPhi)) {
         EBDetId ebdetid(iEta, iPhi, EBDetId::ETAPHIMODE);
 
-        std::vector<EBDetId>::iterator it = find(ebgood.begin(), ebgood.end(), ebdetid);
+        auto it = find(ebgood.begin(), ebgood.end(), ebdetid);
         if (it == ebgood.end()) {
           EcalPulseSymmCovariances::Item item;
           fillSimPulseSymmCovariance(&item, true);
@@ -132,7 +132,7 @@ void popcon::EcalPulseSymmCovariancesHandler::getNewObjects() {
         if (EEDetId::validDetId(iX, iY, iZ)) {
           EEDetId eedetid(iX, iY, iZ);
 
-          std::vector<EEDetId>::iterator it = find(eegood.begin(), eegood.end(), eedetid);
+          auto it = find(eegood.begin(), eegood.end(), eedetid);
           if (it == eegood.end()) {
             EcalPulseSymmCovariances::Item item;
             fillSimPulseSymmCovariance(&item, false);

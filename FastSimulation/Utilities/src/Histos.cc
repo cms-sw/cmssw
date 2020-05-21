@@ -55,7 +55,7 @@ void Histos::put(const std::string& file, std::string name) {
     (*ho).second->Write((*ho).first.c_str());
   }
 
-  HistoItr hh = theHistos.find(name);
+  auto hh = theHistos.find(name);
   if (name.empty())
     for (hh = theHistos.begin(); hh != theHistos.end(); ++hh) {
       if (theTypes[(*hh).first] == 1)
@@ -83,9 +83,9 @@ void Histos::put(const std::string& file, std::string name) {
 }
 
 void Histos::divide(const std::string& h1, const std::string& h2, const std::string& h3) {
-  HistoItr hh1 = theHistos.find(h1);
-  HistoItr hh2 = theHistos.find(h2);
-  HistoItr hh3 = theHistos.find(h3);
+  auto hh1 = theHistos.find(h1);
+  auto hh2 = theHistos.find(h2);
+  auto hh3 = theHistos.find(h3);
 
   if (hh1 == theHistos.end() || hh2 == theHistos.end() || hh3 != theHistos.end()) {
     if (hh1 == theHistos.end())
@@ -113,7 +113,7 @@ void Histos::divide(const std::string& h1, const std::string& h2, const std::str
 }
 
 void Histos::addObject(const std::string& name, TObject* obj) {
-  HistoItr hh = theObjects.find(name);
+  auto hh = theObjects.find(name);
   if (hh != theObjects.end()) {
     std::cout << "FamosHistos::addObject() : Object " << name << " already exists" << std::endl;
     return;
@@ -125,7 +125,7 @@ void Histos::addObject(const std::string& name, TObject* obj) {
 void Histos::fill(const std::string& name, float val1, float val2, float val3) {
   //  std::cout << " Fill " << name << " " << val1 << " " << val2 << " " << val3 << std::endl;
   //  std::cout << &theHistos << std::endl;
-  HistoItr hh = theHistos.find(name);
+  auto hh = theHistos.find(name);
   //  std::cout << " Fill done " << std::endl;
   if (hh == theHistos.end()) {
     std::cout << "Histos::fill() : Histogram " << name << " does not exist" << std::endl;

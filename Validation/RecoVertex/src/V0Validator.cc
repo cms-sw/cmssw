@@ -185,9 +185,7 @@ void V0Validator::doFakeRates(const reco::VertexCompositeCandidateCollection& co
   int CandidateStatus = 0;
   const unsigned int NUM_DAUGHTERS = 2;
   if (!collection.empty()) {
-    for (reco::VertexCompositeCandidateCollection::const_iterator iCandidate = collection.begin();
-         iCandidate != collection.end();
-         iCandidate++) {
+    for (auto iCandidate = collection.begin(); iCandidate != collection.end(); iCandidate++) {
       // Fill values to be histogrammed
       mass = iCandidate->mass();
       CandidatepT = (sqrt(iCandidate->momentum().perp2()));
@@ -308,9 +306,7 @@ void V0Validator::doEfficiencies(const TrackingVertexCollection& gen_vertices,
 
   std::set<V0Couple> reconstructed_V0_couples;
   if (!collection.empty()) {
-    for (reco::VertexCompositeCandidateCollection::const_iterator iCandidate = collection.begin();
-         iCandidate != collection.end();
-         iCandidate++) {
+    for (auto iCandidate = collection.begin(); iCandidate != collection.end(); iCandidate++) {
       reconstructed_V0_couples.insert(
           V0Couple((dynamic_cast<const reco::RecoChargedCandidate*>(iCandidate->daughter(0)))->track(),
                    (dynamic_cast<const reco::RecoChargedCandidate*>(iCandidate->daughter(1)))->track()));
@@ -406,10 +402,8 @@ void V0Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   edm::Handle<std::vector<reco::Vertex> > primaryVtxCollectionH;
   iEvent.getByToken(vec_recoVertex_Token_, primaryVtxCollectionH);
 
-  std::vector<reco::Vertex>::const_iterator iVtxPH = primaryVtxCollectionH->begin();
-  for (std::vector<reco::Vertex>::const_iterator iVtx = primaryVtxCollectionH->begin();
-       iVtx < primaryVtxCollectionH->end();
-       iVtx++) {
+  auto iVtxPH = primaryVtxCollectionH->begin();
+  for (auto iVtx = primaryVtxCollectionH->begin(); iVtx < primaryVtxCollectionH->end(); iVtx++) {
     if (primaryVtxCollectionH->size() > 1) {
       if (iVtx->tracksSize() > iVtxPH->tracksSize()) {
         iVtxPH = iVtx;

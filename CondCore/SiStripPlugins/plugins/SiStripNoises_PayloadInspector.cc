@@ -123,7 +123,7 @@ namespace {
         TCanvas canvas("ByDetId", "ByDetId", 1200, 1000);
 
         edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-        SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+        auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
         unsigned int nAPVs = reader->getNumberOfApvsAndStripLength(the_detid).first;
 
         auto hnoise = std::unique_ptr<TH1F>(
@@ -738,7 +738,7 @@ namespace {
       // storage of info
       std::map<unsigned int, float> info_per_detid;
 
-      SiStripNoises::RegistryIterator rit = payload->getRegistryVectorBegin(), erit = payload->getRegistryVectorEnd();
+      auto rit = payload->getRegistryVectorBegin(), erit = payload->getRegistryVectorEnd();
       uint16_t Nstrips;
       std::vector<float> vstripnoise;
       double mean, rms, min, max;
@@ -831,7 +831,7 @@ namespace {
 
     std::map<unsigned int, float> computeEstimator(std::shared_ptr<SiStripNoises> payload) {
       std::map<unsigned int, float> info_per_detid;
-      SiStripNoises::RegistryIterator rit = payload->getRegistryVectorBegin(), erit = payload->getRegistryVectorEnd();
+      auto rit = payload->getRegistryVectorBegin(), erit = payload->getRegistryVectorEnd();
       uint16_t Nstrips;
       std::vector<float> vstripnoise;
       double mean, rms, min, max;
@@ -1325,7 +1325,7 @@ namespace {
       std::shared_ptr<SiStripNoises> payload = fetchPayload(std::get<1>(iov));
 
       edm::FileInPath fp_ = edm::FileInPath("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
-      SiStripDetInfoFileReader* reader = new SiStripDetInfoFileReader(fp_.fullPath());
+      auto* reader = new SiStripDetInfoFileReader(fp_.fullPath());
 
       std::vector<uint32_t> detid;
       payload->getDetIds(detid);

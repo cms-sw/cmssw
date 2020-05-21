@@ -17,7 +17,7 @@ void L1Analysis::L1AnalysisGCT::SetJet(const edm::Handle<L1GctJetCandCollection>
     edm::LogInfo("L1Prompt") << "L1NtupleProducer: number of central jets = " << l1CenJets->size() << std::endl;
   }
   gct_.CJetSize = l1CenJets->size();  //1
-  for (L1GctJetCandCollection::const_iterator cj = l1CenJets->begin(); cj != l1CenJets->end(); cj++) {
+  for (auto cj = l1CenJets->begin(); cj != l1CenJets->end(); cj++) {
     gct_.CJetEta.push_back(cj->regionId().ieta());  //2
     gct_.CJetPhi.push_back(cj->regionId().iphi());  //3
     gct_.CJetRnk.push_back(cj->rank());             //4
@@ -33,7 +33,7 @@ void L1Analysis::L1AnalysisGCT::SetJet(const edm::Handle<L1GctJetCandCollection>
     edm::LogInfo("L1Prompt") << "L1NtupleProducer: number of forward jets = " << l1ForJets->size() << std::endl;
   }
   gct_.FJetSize = l1ForJets->size();  //5
-  for (L1GctJetCandCollection::const_iterator fj = l1ForJets->begin(); fj != l1ForJets->end(); fj++) {
+  for (auto fj = l1ForJets->begin(); fj != l1ForJets->end(); fj++) {
     gct_.FJetEta.push_back(fj->regionId().ieta());  //6
     gct_.FJetPhi.push_back(fj->regionId().iphi());  //7
     gct_.FJetRnk.push_back(fj->rank());             //8
@@ -49,7 +49,7 @@ void L1Analysis::L1AnalysisGCT::SetJet(const edm::Handle<L1GctJetCandCollection>
     edm::LogInfo("L1Prompt") << "L1NtupleProducer: number of tau jets = " << l1TauJets->size() << std::endl;
   }
   gct_.TJetSize = l1TauJets->size();  //9
-  for (L1GctJetCandCollection::const_iterator tj = l1TauJets->begin(); tj != l1TauJets->end(); tj++) {
+  for (auto tj = l1TauJets->begin(); tj != l1TauJets->end(); tj++) {
     //if ( tj->rank() == 0 ) continue;
     gct_.TJetEta.push_back(tj->regionId().ieta());  //10
     gct_.TJetPhi.push_back(tj->regionId().iphi());  //11
@@ -67,7 +67,7 @@ void L1Analysis::L1AnalysisGCT::SetJet(const edm::Handle<L1GctJetCandCollection>
       edm::LogInfo("L1Prompt") << "L1NtupleProducer: number of isoTau jets = " << l1IsoTauJets->size() << std::endl;
     }
     gct_.IsoTJetSize = l1IsoTauJets->size();  //9
-    for (L1GctJetCandCollection::const_iterator tj = l1IsoTauJets->begin(); tj != l1IsoTauJets->end(); tj++) {
+    for (auto tj = l1IsoTauJets->begin(); tj != l1IsoTauJets->end(); tj++) {
       //if ( tj->rank() == 0 ) continue;
       gct_.IsoTJetEta.push_back(tj->regionId().ieta());  //10
       gct_.IsoTJetPhi.push_back(tj->regionId().iphi());  //11
@@ -86,7 +86,7 @@ void L1Analysis::L1AnalysisGCT::SetES(const edm::Handle<L1GctEtMissCollection> l
                                       const edm::Handle<L1GctEtHadCollection> l1EtHad,
                                       const edm::Handle<L1GctEtTotalCollection> l1EtTotal) {
   // Energy sums
-  for (L1GctEtMissCollection::const_iterator etm = l1EtMiss->begin(); etm != l1EtMiss->end(); ++etm) {
+  for (auto etm = l1EtMiss->begin(); etm != l1EtMiss->end(); ++etm) {
     gct_.EtMiss.push_back(etm->et());
     gct_.EtMissPhi.push_back(etm->phi());
     gct_.EtMissBX.push_back(etm->bx());
@@ -98,7 +98,7 @@ void L1Analysis::L1AnalysisGCT::SetES(const edm::Handle<L1GctEtMissCollection> l
     }
   }
 
-  for (L1GctHtMissCollection::const_iterator htm = l1HtMiss->begin(); htm != l1HtMiss->end(); ++htm) {
+  for (auto htm = l1HtMiss->begin(); htm != l1HtMiss->end(); ++htm) {
     gct_.HtMiss.push_back(htm->et());
     gct_.HtMissPhi.push_back(htm->phi());
     gct_.HtMissBX.push_back(htm->bx());
@@ -110,7 +110,7 @@ void L1Analysis::L1AnalysisGCT::SetES(const edm::Handle<L1GctEtMissCollection> l
     }
   }
 
-  for (L1GctEtHadCollection::const_iterator ht = l1EtHad->begin(); ht != l1EtHad->end(); ++ht) {
+  for (auto ht = l1EtHad->begin(); ht != l1EtHad->end(); ++ht) {
     gct_.EtHad.push_back(ht->et());
     gct_.EtHadBX.push_back(ht->bx());
     gct_.EtHadSize++;
@@ -120,7 +120,7 @@ void L1Analysis::L1AnalysisGCT::SetES(const edm::Handle<L1GctEtMissCollection> l
     }
   }
 
-  for (L1GctEtTotalCollection::const_iterator ett = l1EtTotal->begin(); ett != l1EtTotal->end(); ++ett) {
+  for (auto ett = l1EtTotal->begin(); ett != l1EtTotal->end(); ++ett) {
     gct_.EtTot.push_back(ett->et());
     gct_.EtTotBX.push_back(ett->bx());
     gct_.EtTotSize++;
@@ -136,7 +136,7 @@ void L1Analysis::L1AnalysisGCT::SetHFminbias(const edm::Handle<L1GctHFRingEtSums
   //Fill HF Ring Histograms
   gct_.HFRingEtSumSize = l1HFSums->size();
   int ies = 0;
-  for (L1GctHFRingEtSumsCollection::const_iterator hfs = l1HFSums->begin(); hfs != l1HFSums->end(); hfs++) {
+  for (auto hfs = l1HFSums->begin(); hfs != l1HFSums->end(); hfs++) {
     gct_.HFRingEtSumEta.push_back(hfs->etSum(ies));
     if (verbose_) {
       edm::LogInfo("L1Prompt") << "L1NtupleProducer: HF Sums " << l1HFSums->size() << ", " << hfs->etSum(ies)
@@ -147,7 +147,7 @@ void L1Analysis::L1AnalysisGCT::SetHFminbias(const edm::Handle<L1GctHFRingEtSums
 
   int ibc = 0;
   gct_.HFBitCountsSize = l1HFCounts->size();
-  for (L1GctHFBitCountsCollection::const_iterator hfc = l1HFCounts->begin(); hfc != l1HFCounts->end(); hfc++) {
+  for (auto hfc = l1HFCounts->begin(); hfc != l1HFCounts->end(); hfc++) {
     gct_.HFBitCountsEta.push_back(hfc->bitCount(ibc));
     if (verbose_) {
       edm::LogInfo("L1Prompt") << "L1NtupleProducer: HF Counts " << l1HFCounts->size() << ", " << hfc->bitCount(ibc)
@@ -165,7 +165,7 @@ void L1Analysis::L1AnalysisGCT::SetEm(const edm::Handle<L1GctEmCandCollection> l
   }
 
   gct_.IsoEmSize = l1IsoEm->size();
-  for (L1GctEmCandCollection::const_iterator ie = l1IsoEm->begin(); ie != l1IsoEm->end(); ie++) {
+  for (auto ie = l1IsoEm->begin(); ie != l1IsoEm->end(); ie++) {
     gct_.IsoEmEta.push_back(ie->regionId().ieta());
     gct_.IsoEmPhi.push_back(ie->regionId().iphi());
     gct_.IsoEmRnk.push_back(ie->rank());
@@ -178,7 +178,7 @@ void L1Analysis::L1AnalysisGCT::SetEm(const edm::Handle<L1GctEmCandCollection> l
   }
   gct_.NonIsoEmSize = l1NonIsoEm->size();
 
-  for (L1GctEmCandCollection::const_iterator ne = l1NonIsoEm->begin(); ne != l1NonIsoEm->end(); ne++) {
+  for (auto ne = l1NonIsoEm->begin(); ne != l1NonIsoEm->end(); ne++) {
     gct_.NonIsoEmEta.push_back(ne->regionId().ieta());
     gct_.NonIsoEmPhi.push_back(ne->regionId().iphi());
     gct_.NonIsoEmRnk.push_back(ne->rank());

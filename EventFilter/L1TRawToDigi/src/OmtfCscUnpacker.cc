@@ -17,7 +17,7 @@ namespace omtf {
                            const CscDataWord64& data,
                            CSCCorrelatedLCTDigiCollection* prod) {
     EleIndex omtfEle(fed, amc, data.linkNum());
-    std::map<EleIndex, CSCDetId>::const_iterator icsc = theOmtf2CscDet.find(omtfEle);
+    auto icsc = theOmtf2CscDet.find(omtfEle);
     if (icsc == theOmtf2CscDet.end()) {
       LogTrace(" ") << " CANNOT FIND key: " << omtfEle << std::endl;
       return;

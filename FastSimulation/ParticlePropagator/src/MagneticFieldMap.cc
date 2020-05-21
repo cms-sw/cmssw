@@ -17,8 +17,8 @@ MagneticFieldMap::MagneticFieldMap(const MagneticField* pMF, const TrackerIntera
 
 {
   std::list<TrackerLayer>::const_iterator cyliter;
-  std::list<TrackerLayer>::const_iterator cylitBeg = geometry_->cylinderBegin();
-  std::list<TrackerLayer>::const_iterator cylitEnd = geometry_->cylinderEnd();
+  auto cylitBeg = geometry_->cylinderBegin();
+  auto cylitEnd = geometry_->cylinderEnd();
 
   // Prepare the histograms
   // std::cout << "Prepare magnetic field local database for FAMOS speed-up" << std::endl;

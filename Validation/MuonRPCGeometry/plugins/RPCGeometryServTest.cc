@@ -56,7 +56,7 @@ void RPCGeometryServTest::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   int iRPCCHcount = 0;
   LocalPoint a(0., 0., 0.);
-  for (TrackingGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
+  for (auto it = pDD->dets().begin(); it != pDD->dets().end(); it++) {
     //----------------------- RPCCHAMBER TEST ---------------------------
 
     if (dynamic_cast<const RPCChamber*>(*it) != nullptr) {
@@ -64,7 +64,7 @@ void RPCGeometryServTest::analyze(const edm::Event& iEvent, const edm::EventSetu
       const RPCChamber* ch = dynamic_cast<const RPCChamber*>(*it);
 
       std::vector<const RPCRoll*> rollsRaf = (ch->rolls());
-      for (std::vector<const RPCRoll*>::iterator r = rollsRaf.begin(); r != rollsRaf.end(); ++r) {
+      for (auto r = rollsRaf.begin(); r != rollsRaf.end(); ++r) {
         std::cout << dashedLine_ << " NEW ROLL" << std::endl;
         std::cout << "Region = " << (*r)->id().region() << "  Ring = " << (*r)->id().ring()
                   << "  Station = " << (*r)->id().station() << "  Sector = " << (*r)->id().sector()

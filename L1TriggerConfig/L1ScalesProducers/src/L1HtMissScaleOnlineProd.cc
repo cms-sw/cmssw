@@ -243,7 +243,7 @@ std::unique_ptr<L1CaloEtScale> L1HtMissScaleOnlineProd::newObject(const std::str
   {
     edm::LogError("L1-O2O") << "Problem with L1HtMissScale key : when reading scale.";
   } else {
-    for (std::vector<std::string>::iterator thresh = queryStrings.begin(); thresh != queryStrings.end(); ++thresh) {
+    for (auto thresh = queryStrings.begin(); thresh != queryStrings.end(); ++thresh) {
       float tempScale = 0.;
       scaleResults.fillVariable(*thresh, tempScale);
       thresholds.push_back(tempScale);

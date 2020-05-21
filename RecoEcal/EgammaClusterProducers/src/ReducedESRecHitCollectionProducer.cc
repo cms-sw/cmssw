@@ -64,8 +64,7 @@ void ReducedESRecHitCollectionProducer::produce(edm::Event& e, const edm::EventS
   {
     const reco::SuperClusterCollection* eeSuperClusters = pEndcapSuperClusters.product();
 
-    for (reco::SuperClusterCollection::const_iterator isc = eeSuperClusters->begin(); isc != eeSuperClusters->end();
-         ++isc) {
+    for (auto isc = eeSuperClusters->begin(); isc != eeSuperClusters->end(); ++isc) {
       if (isc->energy() < scEtThresh_)
         continue;
       if (fabs(isc->eta()) < 1.65 || fabs(isc->eta()) > 2.6)

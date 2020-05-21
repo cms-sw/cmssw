@@ -90,7 +90,7 @@ void JetTagProducer::produce(Event &iEvent, const EventSetup &iSetup) {
       std::string message(
           "VInputTag size mismatch - the following taginfo "
           "labels are needed:\n");
-      for (vector<string>::const_iterator iter = inputLabels.begin(); iter != inputLabels.end(); ++iter)
+      for (auto iter = inputLabels.begin(); iter != inputLabels.end(); ++iter)
         message += "\"" + *iter + "\"\n";
       throw edm::Exception(errors::Configuration) << message;
     }
@@ -130,7 +130,7 @@ void JetTagProducer::produce(Event &iEvent, const EventSetup &iSetup) {
     jetTagCollection = std::make_unique<JetTagCollection>();
 
   // now loop over the map and compute all JetTags
-  for (JetToTagInfoMap::const_iterator iter = jetToTagInfos.begin(); iter != jetToTagInfos.end(); iter++) {
+  for (auto iter = jetToTagInfos.begin(); iter != jetToTagInfos.end(); iter++) {
     const TagInfoPtrs &tagInfoPtrs = iter->second;
 
     JetTagComputer::TagInfoHelper helper(tagInfoPtrs);

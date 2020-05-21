@@ -178,7 +178,7 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup &eventSetup,
   std::vector<int> caloFeds;  // pare down the feds to the interesting ones
   // is this unneccesary?
   // Mike B : This will decrease the find speed so better do it
-  for (std::vector<int>::const_iterator cf = Feds.begin(); cf != Feds.end(); ++cf) {
+  for (auto cf = Feds.begin(); cf != Feds.end(); ++cf) {
     int fedNum = *cf;
     if ((fedNum > 600 && fedNum < 724) || fedNum == 1118 || fedNum == 1120 || fedNum == 1122)
       caloFeds.push_back(fedNum);
@@ -192,7 +192,7 @@ void L1RCTProducer::updateFedVector(const edm::EventSetup &eventSetup,
       bool fedFound = false;
 
       // Try to find the FED
-      std::vector<int>::iterator fv = std::find(caloFeds.begin(), caloFeds.end(), crateFED[cr][cs]);
+      auto fv = std::find(caloFeds.begin(), caloFeds.end(), crateFED[cr][cs]);
       if (fv != caloFeds.end())
         fedFound = true;
 

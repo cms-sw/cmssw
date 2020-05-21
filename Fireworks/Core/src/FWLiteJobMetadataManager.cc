@@ -28,7 +28,7 @@ bool FWLiteJobMetadataManager::hasModuleLabel(std::string& moduleLabel) {
     item.
  */
 bool FWLiteJobMetadataManager::doUpdate(FWJobMetadataUpdateRequest* request) {
-  FWLiteJobMetadataUpdateRequest* liteRequest = dynamic_cast<FWLiteJobMetadataUpdateRequest*>(request);
+  auto* liteRequest = dynamic_cast<FWLiteJobMetadataUpdateRequest*>(request);
   // There is no way we are going to get a non-FWLite updated request for
   // this class.
   assert(liteRequest);
@@ -110,8 +110,7 @@ bool FWLiteJobMetadataManager::doUpdate(FWJobMetadataUpdateRequest* request) {
     if (purposes.empty())
       purposes.insert("Table");
 
-    for (Purposes::const_iterator itPurpose = purposes.begin(), itEnd = purposes.end(); itPurpose != itEnd;
-         ++itPurpose) {
+    for (auto itPurpose = purposes.begin(), itEnd = purposes.end(); itPurpose != itEnd; ++itPurpose) {
       // Determine whether or not the class can be iterated
       // either by using a TVirtualCollectionProxy (of the class
       // itself or on one of its members), or by using a

@@ -75,8 +75,8 @@ void L1CondDBPayloadWriterExt::analyze(const edm::Event& iEvent, const edm::Even
 
     if (m_writeConfigData) {
       // Loop over record@type in L1TriggerKeyExt
-      L1TriggerKeyExt::RecordToKey::const_iterator it = key->recordToKeyMap().begin();
-      L1TriggerKeyExt::RecordToKey::const_iterator end = key->recordToKeyMap().end();
+      auto it = key->recordToKeyMap().begin();
+      auto end = key->recordToKeyMap().end();
 
       for (; it != end; ++it) {
         // Do nothing if object key is null.

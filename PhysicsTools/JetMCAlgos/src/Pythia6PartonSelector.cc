@@ -14,7 +14,7 @@ Pythia6PartonSelector::~Pythia6PartonSelector() {}
 void Pythia6PartonSelector::run(const edm::Handle<reco::GenParticleCollection>& particles,
                                 std::unique_ptr<reco::GenParticleRefVector>& partons) {
   // loop over particles and select partons
-  for (reco::GenParticleCollection::const_iterator it = particles->begin(); it != particles->end(); ++it) {
+  for (auto it = particles->begin(); it != particles->end(); ++it) {
     if (it->status() != 2)
       continue;  // only accept status==2 particles
     if (!CandMCTagUtils::isParton(*it))

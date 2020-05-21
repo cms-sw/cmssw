@@ -67,7 +67,7 @@ void pat::PATSecondaryVertexSlimmer::produce(edm::StreamID, edm::Event& iEvent, 
       std::vector<reco::CandidatePtr> daughters = v.daughterPtrVector();
       v.clearDaughters();
 
-      for (std::vector<reco::CandidatePtr>::const_iterator it = daughters.begin(); it != daughters.end(); ++it) {
+      for (auto it = daughters.begin(); it != daughters.end(); ++it) {
         if ((*pf2pc)[*it].isNonnull() && (*pf2pc)[*it]->numberOfHits() > 0)
           v.addDaughter(reco::CandidatePtr(edm::refToPtr((*pf2pc)[*it])));
       }
@@ -89,7 +89,7 @@ void pat::PATSecondaryVertexSlimmer::produce(edm::StreamID, edm::Event& iEvent, 
         const reco::Vertex& v = (*vertices)[i];
         outPtr->push_back(reco::VertexCompositePtrCandidate(0, v.p4(), v.position(), v.error(), v.chi2(), v.ndof()));
 
-        for (reco::Vertex::trackRef_iterator it = v.tracks_begin(); it != v.tracks_end(); it++) {
+        for (auto it = v.tracks_begin(); it != v.tracks_end(); it++) {
           if (v.trackWeight(*it) > 0.5) {
             if ((*pf2pc)[*it].isNonnull() && (*pf2pc)[*it]->numberOfHits() > 0) {
               outPtr->back().addDaughter(reco::CandidatePtr(edm::refToPtr((*pf2pc)[*it])));

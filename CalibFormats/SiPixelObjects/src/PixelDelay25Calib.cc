@@ -270,7 +270,7 @@ void PixelDelay25Calib::writeASCII(std::string dir) const {
 
   out << "Portcards:" << endl;
 
-  std::set<std::string>::const_iterator i = portcardNames_.begin();
+  auto i = portcardNames_.begin();
   while (i != portcardNames_.end()) {
     out << *i << endl;
     ++i;

@@ -512,7 +512,7 @@ namespace cms {
       //      return;
     }
 
-    for (HBHERecHitCollection::const_iterator hbheItr = HithbheNS.begin(); hbheItr != HithbheNS.end(); hbheItr++) {
+    for (auto hbheItr = HithbheNS.begin(); hbheItr != HithbheNS.end(); hbheItr++) {
       // Recalibration of energy
       float icalconst = 1.;
       DetId mydetid = hbheItr->id().rawId();
@@ -573,7 +573,7 @@ namespace cms {
 
     // Signal part for HB HE
 
-    for (HBHERecHitCollection::const_iterator hbheItr = HithbheMB.begin(); hbheItr != HithbheMB.end(); hbheItr++) {
+    for (auto hbheItr = HithbheMB.begin(); hbheItr != HithbheMB.end(); hbheItr++) {
       // Recalibration of energy
       float icalconst = 1.;
       DetId mydetid = hbheItr->id().rawId();
@@ -633,7 +633,7 @@ namespace cms {
 
     // HF
 
-    for (HFRecHitCollection::const_iterator hbheItr = HithfNS.begin(); hbheItr != HithfNS.end(); hbheItr++) {
+    for (auto hbheItr = HithfNS.begin(); hbheItr != HithfNS.end(); hbheItr++) {
       // Recalibration of energy
       float icalconst = 1.;
       DetId mydetid = hbheItr->id().rawId();
@@ -695,7 +695,7 @@ namespace cms {
 
     // Signal part for HB HE
 
-    for (HFRecHitCollection::const_iterator hbheItr = HithfMB.begin(); hbheItr != HithfMB.end(); hbheItr++) {
+    for (auto hbheItr = HithfMB.begin(); hbheItr != HithfMB.end(); hbheItr++) {
       // Recalibration of energy
       float icalconst = 1.;
       DetId mydetid = hbheItr->id().rawId();

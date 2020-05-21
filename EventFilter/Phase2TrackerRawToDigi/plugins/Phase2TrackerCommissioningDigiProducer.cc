@@ -48,8 +48,7 @@ void Phase2Tracker::Phase2TrackerCommissioningDigiProducer::produce(edm::Event& 
       }
       LogTrace("Phase2TrackerCommissioningDigiProducer") << "----------------------------" << std::endl;
       // store it into digis
-      edm::DetSet<Phase2TrackerCommissioningDigi>* cond_data_digi =
-          new edm::DetSet<Phase2TrackerCommissioningDigi>(fedIndex);
+      auto* cond_data_digi = new edm::DetSet<Phase2TrackerCommissioningDigi>(fedIndex);
       for (it = cond_data.begin(); it != cond_data.end(); it++) {
         cond_data_digi->push_back(Phase2TrackerCommissioningDigi(it->first, it->second));
       }

@@ -13,7 +13,7 @@ StripTopology* StripTopologyBuilder::build(const Bounds* bs, double apvnumb, con
   if (part == "barrel") {
     result = constructBarrel(bs->length(), bs->width());
   } else {
-    const TrapezoidalPlaneBounds* topo = dynamic_cast<const TrapezoidalPlaneBounds*>(bs);
+    const auto* topo = dynamic_cast<const TrapezoidalPlaneBounds*>(bs);
     if (topo) {
       int yAx = topo->yAxisOrientation();
       result = constructForward(bs->length(), bs->width(), bs->widthAtHalfLength(), yAx);

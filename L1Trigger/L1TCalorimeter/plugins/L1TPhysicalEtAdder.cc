@@ -154,8 +154,7 @@ void L1TPhysicalEtAdder::produce(edm::StreamID, edm::Event& iEvent, const edm::E
   new_hfcounts->setBXRange(firstBX, lastBX);
 
   for (int bx = firstBX; bx <= lastBX; ++bx) {
-    for (EGammaBxCollection::const_iterator itEGamma = old_egammas->begin(bx); itEGamma != old_egammas->end(bx);
-         ++itEGamma) {
+    for (auto itEGamma = old_egammas->begin(bx); itEGamma != old_egammas->end(bx); ++itEGamma) {
       //const double pt = itEGamma->hwPt() * emScale->linearLsb();
       const double et = emScale->et(itEGamma->hwPt());
       const double eta = getPhysicalEta(itEGamma->hwEta());
@@ -166,7 +165,7 @@ void L1TPhysicalEtAdder::produce(edm::StreamID, edm::Event& iEvent, const edm::E
       new_egammas->push_back(bx, *&eg);
     }
 
-    for (TauBxCollection::const_iterator itTau = old_rlxtaus->begin(bx); itTau != old_rlxtaus->end(bx); ++itTau) {
+    for (auto itTau = old_rlxtaus->begin(bx); itTau != old_rlxtaus->end(bx); ++itTau) {
       // use the full-circle conversion to match l1extra, accounts for linearLsb and max value automatically
       //const uint16_t rankPt = jetScale->rank((uint16_t)itTau->hwPt());
       //const double et = jetScale->et( rankPt ) ;
@@ -185,7 +184,7 @@ void L1TPhysicalEtAdder::produce(edm::StreamID, edm::Event& iEvent, const edm::E
       new_rlxtaus->push_back(bx, *&tau);
     }
 
-    for (TauBxCollection::const_iterator itTau = old_isotaus->begin(bx); itTau != old_isotaus->end(bx); ++itTau) {
+    for (auto itTau = old_isotaus->begin(bx); itTau != old_isotaus->end(bx); ++itTau) {
       // use the full-circle conversion to match l1extra, accounts for linearLsb and max value automatically
       //const uint16_t rankPt = jetScale->rank((uint16_t)itTau->hwPt());
       //const double et = jetScale->et( rankPt ) ;
@@ -204,7 +203,7 @@ void L1TPhysicalEtAdder::produce(edm::StreamID, edm::Event& iEvent, const edm::E
       new_isotaus->push_back(bx, *&tau);
     }
 
-    for (JetBxCollection::const_iterator itJet = old_jets->begin(bx); itJet != old_jets->end(bx); ++itJet) {
+    for (auto itJet = old_jets->begin(bx); itJet != old_jets->end(bx); ++itJet) {
       // use the full-circle conversion to match l1extra, accounts for linearLsb and max value automatically
       //const uint16_t rankPt = jetScale->rank((uint16_t)itJet->hwPt());
       //const double et = jetScale->et( rankPt ) ;
@@ -224,7 +223,7 @@ void L1TPhysicalEtAdder::produce(edm::StreamID, edm::Event& iEvent, const edm::E
       new_jets->push_back(bx, *&jet);
     }
 
-    for (JetBxCollection::const_iterator itJet = old_preGtJets->begin(bx); itJet != old_preGtJets->end(bx); ++itJet) {
+    for (auto itJet = old_preGtJets->begin(bx); itJet != old_preGtJets->end(bx); ++itJet) {
       // use the full-circle conversion to match l1extra, accounts for linearLsb and max value automatically
       //const uint16_t rankPt = jetScale->rank((uint16_t)itJet->hwPt());
       //const double et = jetScale->et( rankPt ) ;
@@ -244,7 +243,7 @@ void L1TPhysicalEtAdder::produce(edm::StreamID, edm::Event& iEvent, const edm::E
       new_preGtJets->push_back(bx, *&jet);
     }
 
-    for (EtSumBxCollection::const_iterator itEtSum = old_etsums->begin(bx); itEtSum != old_etsums->end(bx); ++itEtSum) {
+    for (auto itEtSum = old_etsums->begin(bx); itEtSum != old_etsums->end(bx); ++itEtSum) {
       double et = itEtSum->hwPt() * emScale->linearLsb();
       //hack while we figure out the right scales
       //double et = emScale->et( itEtSum->hwPt() );
@@ -264,16 +263,13 @@ void L1TPhysicalEtAdder::produce(edm::StreamID, edm::Event& iEvent, const edm::E
       new_etsums->push_back(bx, *&eg);
     }
 
-    for (CaloSpareBxCollection::const_iterator itCaloSpare = old_hfsums->begin(bx); itCaloSpare != old_hfsums->end(bx);
-         ++itCaloSpare) {
+    for (auto itCaloSpare = old_hfsums->begin(bx); itCaloSpare != old_hfsums->end(bx); ++itCaloSpare) {
       //just pass through for now
       //a different scale is needed depending on the type
       new_hfsums->push_back(bx, *itCaloSpare);
     }
 
-    for (CaloSpareBxCollection::const_iterator itCaloSpare = old_hfcounts->begin(bx);
-         itCaloSpare != old_hfcounts->end(bx);
-         ++itCaloSpare) {
+    for (auto itCaloSpare = old_hfcounts->begin(bx); itCaloSpare != old_hfcounts->end(bx); ++itCaloSpare) {
       //just pass through for now
       //a different scale is needed depending on the type
       new_hfcounts->push_back(bx, *itCaloSpare);

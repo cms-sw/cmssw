@@ -54,7 +54,7 @@ void HcalTimeSlewSim::delay(CaloSamples& cs,
     double smearns = 0.;
     double cut = minFCToDelay_;  //5. fC (above mean) for signal to be delayed
 
-    const HcalSimParameters& params = static_cast<const HcalSimParameters&>(theParameterMap->simParameters(detId));
+    const auto& params = static_cast<const HcalSimParameters&>(theParameterMap->simParameters(detId));
     if (params.doTimeSmear()) {
       double rms = params.timeSmearRMS(scale);
       smearns = CLHEP::RandGaussQ::shoot(engine) * rms;

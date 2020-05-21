@@ -94,8 +94,7 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
   double cory = 0.;
 
   // check DB
-  for (std::vector<MEtXYcorrectParametersCollection::key_type>::const_iterator ikey = keys.begin(); ikey != keys.end();
-       ++ikey) {
+  for (auto ikey = keys.begin(); ikey != keys.end(); ++ikey) {
     if (mIsData) {
       if (!MEtXYcorParaColl->isShiftData(*ikey))
         throw cms::Exception("MultShiftMETcorrDBInputProducer::produce")
@@ -107,8 +106,7 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
     }
   }
 
-  for (std::vector<MEtXYcorrectParametersCollection::key_type>::const_iterator ikey = keys.begin(); ikey != keys.end();
-       ++ikey) {
+  for (auto ikey = keys.begin(); ikey != keys.end(); ++ikey) {
     if (!mIsData) {
       if (mSampleType == "MC") {
         if (!MEtXYcorParaColl->isShiftMC(*ikey))

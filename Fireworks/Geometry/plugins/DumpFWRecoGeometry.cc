@@ -56,8 +56,7 @@ void DumpFWRecoGeometry::analyze(const edm::Event& event, const edm::EventSetup&
   tree->Branch("translation", &v_translation, "translation[3]/F");
   tree->Branch("matrix", &v_matrix, "matrix[9]/F");
 
-  for (FWRecoGeom::InfoMapItr it = geoh.product()->idToName.begin(), end = geoh.product()->idToName.end(); it != end;
-       ++it) {
+  for (auto it = geoh.product()->idToName.begin(), end = geoh.product()->idToName.end(); it != end; ++it) {
     v_id = it->id;
     for (unsigned int i = 0; i < 24; ++i)
       v_vertex[i] = it->points[i];

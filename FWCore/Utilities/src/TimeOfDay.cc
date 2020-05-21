@@ -33,7 +33,7 @@ namespace edm {
     struct tm timebuf;
     localtime_r(&tod.tv_.tv_sec, &timebuf);
     typedef std::ostreambuf_iterator<char, std::char_traits<char> > Iter;
-    std::time_put<char, Iter> const& tp = std::use_facet<std::time_put<char, Iter> >(std::locale());
+    auto const& tp = std::use_facet<std::time_put<char, Iter> >(std::locale());
     int precision = os.precision();
     Iter begin(os);
     if (precision == 0) {

@@ -105,7 +105,7 @@ void SimAnalyzerMinbias::beginJob() {
 //
 void SimAnalyzerMinbias::endJob() {
   cells = 0;
-  for (std::map<HcalDetId, myInfo>::const_iterator itr = myMap_.begin(); itr != myMap_.end(); ++itr) {
+  for (auto itr = myMap_.begin(); itr != myMap_.end(); ++itr) {
     mysubd = itr->first.subdet();
     depth = itr->first.depth();
     iphi = itr->first.iphi();
@@ -157,12 +157,12 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
 
   const edm::PCaloHitContainer* HitHcal = hcalHits.product();
   std::map<HcalDetId, double> hitMap;
-  for (std::vector<PCaloHit>::const_iterator hcalItr = HitHcal->begin(); hcalItr != HitHcal->end(); ++hcalItr) {
+  for (auto hcalItr = HitHcal->begin(); hcalItr != HitHcal->end(); ++hcalItr) {
     double time = hcalItr->time();
     if (time < timeCut_) {
       double energyhit = hcalItr->energy();
       HcalDetId hid = HcalDetId(hcalItr->id());
-      std::map<HcalDetId, double>::iterator itr1 = hitMap.find(hid);
+      auto itr1 = hitMap.find(hid);
       if (itr1 == hitMap.end()) {
         hitMap[hid] = 0;
         itr1 = hitMap.find(hid);
@@ -173,10 +173,10 @@ void SimAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
   edm::LogInfo("AnalyzerMB") << "extract information of " << hitMap.size() << " towers from " << HitHcal->size()
                              << " hits";
 
-  for (std::map<HcalDetId, double>::const_iterator hcalItr = hitMap.begin(); hcalItr != hitMap.end(); ++hcalItr) {
+  for (auto hcalItr = hitMap.begin(); hcalItr != hitMap.end(); ++hcalItr) {
     HcalDetId hid = hcalItr->first;
     double energyhit = hcalItr->second;
-    std::map<HcalDetId, myInfo>::iterator itr1 = myMap_.find(hid);
+    auto itr1 = myMap_.find(hid);
     if (itr1 == myMap_.end()) {
       myInfo info;
       myMap_[hid] = info;

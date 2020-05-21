@@ -156,7 +156,7 @@ namespace edm {
     BCMap& childLookup = const_cast<BCMap&>(branchChildren.childLookup());
     // First fix any old branchID's in the key.
     {
-      BCMap::iterator i = childLookup.find(oldBranchID_);
+      auto i = childLookup.find(oldBranchID_);
       if (i != childLookup.end()) {
         childLookup.insert(std::make_pair(newBranchID_, i->second));
         childLookup.erase(i);
@@ -172,7 +172,7 @@ namespace edm {
 
   // Replace process history ID.
   ProcessHistoryID const& DaqProvenanceHelper::mapProcessHistoryID(ProcessHistoryID const& phid) {
-    ProcessHistoryIDMap::const_iterator it = phidMap_.find(phid);
+    auto it = phidMap_.find(phid);
     assert(it != phidMap_.end());
     oldProcessHistoryID_ = &it->first;
     return it->second;

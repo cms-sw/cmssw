@@ -59,8 +59,8 @@ void CSCTFTrackBuilder::buildTracks(
   CSCCorrelatedLCTDigiCollection::DigiRangeIterator Citer;
 
   for (Citer = lcts->begin(); Citer != lcts->end(); Citer++) {
-    CSCCorrelatedLCTDigiCollection::const_iterator Diter = (*Citer).second.first;
-    CSCCorrelatedLCTDigiCollection::const_iterator Dend = (*Citer).second.second;
+    auto Diter = (*Citer).second.first;
+    auto Dend = (*Citer).second.second;
 
     for (; Diter != Dend; Diter++) {
       csctf::TrackStub theStub((*Diter), (*Citer).first);
@@ -95,13 +95,13 @@ void CSCTFTrackBuilder::buildTracks(
 
   // Now to combine tracks with their track stubs and send them off.
   trkcoll->resize(trks.size());
-  std::vector<csc::L1Track>::const_iterator titr = trks.begin();
-  L1CSCTrackCollection::iterator tcitr = trkcoll->begin();
+  auto titr = trks.begin();
+  auto tcitr = trkcoll->begin();
 
   for (; titr != trks.end(); titr++) {
     tcitr->first = (*titr);
     std::vector<csctf::TrackStub> possible_stubs = my_SPs[titr->endcap() - 1][titr->sector() - 1]->filteredStubs();
-    std::vector<csctf::TrackStub>::const_iterator tkstbs = possible_stubs.begin();
+    auto tkstbs = possible_stubs.begin();
 
     int me1ID = titr->me1ID();
     int me2ID = titr->me2ID();
@@ -127,7 +127,7 @@ void CSCTFTrackBuilder::buildTracks(
       timeline[me4delay].push_back(4);
     int earliest_tbin = 0, second_earliest_tbin = 0;
     for (int bx = 7; bx >= 0; bx--) {
-      std::list<int>::const_iterator iter = timeline[bx].begin();
+      auto iter = timeline[bx].begin();
       while (iter != timeline[bx].end()) {
         if (earliest_tbin == 0)
           earliest_tbin = bx;

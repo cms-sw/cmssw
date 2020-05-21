@@ -26,7 +26,7 @@ QGSPCMS_BERT::QGSPCMS_BERT(const edm::ParameterSet& p) : PhysicsList(p) {
     RegisterPhysics(new G4EmStandardPhysics(ver));
 
     // Synchroton Radiation & GN Physics
-    G4EmExtraPhysics* gn = new G4EmExtraPhysics(ver);
+    auto* gn = new G4EmExtraPhysics(ver);
     RegisterPhysics(gn);
   }
 

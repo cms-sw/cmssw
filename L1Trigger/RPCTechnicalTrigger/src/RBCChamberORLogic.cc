@@ -28,7 +28,7 @@ RBCChamberORLogic::RBCChamberORLogic() {
   m_rbname.emplace_back("RB3Bk");
   m_rbname.emplace_back("RB4Bk");
 
-  itr2names itr = m_rbname.begin();
+  auto itr = m_rbname.begin();
 
   while (itr != m_rbname.end()) {
     m_chamber.insert(make_pair((*itr), 0));
@@ -152,7 +152,7 @@ void RBCChamberORLogic::reset() {
   //... Reset map for next sector analysis
   m_chamber.clear();
 
-  itr2names itr = m_rbname.begin();
+  auto itr = m_rbname.begin();
 
   while (itr != m_rbname.end()) {
     m_chamber.insert(make_pair((*itr), 0));
@@ -164,8 +164,8 @@ void RBCChamberORLogic::reset() {
 }
 
 bool RBCChamberORLogic::evaluateLayerOR(const char *_chA, const char *_chB) {
-  itr2chambers ptr1 = m_chamber.find(std::string(_chA));
-  itr2chambers ptr2 = m_chamber.find(std::string(_chB));
+  auto ptr1 = m_chamber.find(std::string(_chA));
+  auto ptr2 = m_chamber.find(std::string(_chB));
 
   if (ptr1 == m_chamber.end() || ptr2 == m_chamber.end()) {
     //handle error...

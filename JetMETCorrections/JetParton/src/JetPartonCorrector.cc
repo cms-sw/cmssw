@@ -147,7 +147,7 @@ JetPartonCorrector::JetPartonCorrector(const edm::ParameterSet& fConfig) {
 }
 
 JetPartonCorrector::~JetPartonCorrector() {
-  for (ParametersMap::iterator ip = parametrization.begin(); ip != parametrization.end(); ip++)
+  for (auto ip = parametrization.begin(); ip != parametrization.end(); ip++)
     delete ip->second;
 }
 
@@ -205,7 +205,7 @@ double JetPartonCorrector::correction(const LorentzVector& fJet) const {
   //if(eta<10) { eta=abs(fJet.getY()); }
 
   double etnew;
-  std::map<double, JetPartonNamespace::ParametrizationJetParton*>::const_iterator ip = parametrization.upper_bound(eta);
+  auto ip = parametrization.upper_bound(eta);
   if (ip == parametrization.begin()) {
     etnew = ip->second->value(et, eta);
   } else if (ip == parametrization.end()) {

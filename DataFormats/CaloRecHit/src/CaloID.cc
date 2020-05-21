@@ -22,7 +22,7 @@ CaloID::Detectors CaloID::detector() const {
 
   int pos = leastSignificantBitPosition(detectors_);
 
-  CaloID::Detectors det = static_cast<CaloID::Detectors>(pos);
+  auto det = static_cast<CaloID::Detectors>(pos);
 
   return det;
 }

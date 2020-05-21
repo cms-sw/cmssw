@@ -10,7 +10,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 void OptoScanSummaryFactory::extract(Iterator iter) {
-  OptoScanAnalysis* anal = dynamic_cast<OptoScanAnalysis*>(iter->second);
+  auto* anal = dynamic_cast<OptoScanAnalysis*>(iter->second);
   if (!anal) {
     return;
   }

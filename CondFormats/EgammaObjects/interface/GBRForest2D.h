@@ -50,7 +50,7 @@ inline void GBRForest2D::GetResponse(const float *vector, double &x, double &y) 
   x = fInitialResponseX;
   y = fInitialResponseY;
   double tx, ty;
-  for (std::vector<GBRTree2D>::const_iterator it = fTrees.begin(); it != fTrees.end(); ++it) {
+  for (auto it = fTrees.begin(); it != fTrees.end(); ++it) {
     it->GetResponse(vector, tx, ty);
     x += tx;
     y += ty;

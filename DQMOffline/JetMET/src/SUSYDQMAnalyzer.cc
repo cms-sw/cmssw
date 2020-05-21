@@ -151,7 +151,7 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     return;
 
   std::vector<math::XYZTLorentzVector> Ps;
-  for (reco::CaloJetCollection::const_iterator jet = CaloJetcoll->begin(); jet != CaloJetcoll->end(); ++jet) {
+  for (auto jet = CaloJetcoll->begin(); jet != CaloJetcoll->end(); ++jet) {
     if ((jet->pt() > _ptThreshold) && (abs(jet->eta()) < _maxAbsEta)) {
       if (Ps.size() > _maxNJets) {
         edm::LogInfo(messageLoggerCatregory) << "NMax Jets exceded..";
@@ -179,7 +179,7 @@ void SUSYDQMAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     return;
 
   Ps.clear();
-  for (reco::PFJetCollection::const_iterator jet = PFjetcoll->begin(); jet != PFjetcoll->end(); ++jet) {
+  for (auto jet = PFjetcoll->begin(); jet != PFjetcoll->end(); ++jet) {
     if ((jet->pt() > _ptThreshold) && (abs(jet->eta()) < _maxAbsEta)) {
       if (Ps.size() > _maxNJets) {
         edm::LogInfo(messageLoggerCatregory) << "NMax Jets exceded..";

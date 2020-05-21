@@ -100,7 +100,7 @@ RefCountedKinematicVertex KinematicConstrainedVertexUpdatorT<nTrk, nConstraint>:
   delta_alpha(1) -= lPoint.y();
   delta_alpha(2) -= lPoint.z();
   int cst = 3;
-  for (std::vector<KinematicState>::const_iterator i = lStates.begin(); i != lStates.end(); i++)
+  for (auto i = lStates.begin(); i != lStates.end(); i++)
     for (int j = 0; j < 7; j++) {
       delta_alpha(cst) -= i->kinematicParameters()(j);
       cst++;
@@ -168,7 +168,7 @@ RefCountedKinematicVertex KinematicConstrainedVertexUpdatorT<nTrk, nConstraint>:
   //making refitted states of Kinematic Particles
   AlgebraicVector7 newPar;
   int i_int = 0;
-  for (std::vector<KinematicState>::iterator i_st = lStates.begin(); i_st != lStates.end(); i_st++) {
+  for (auto i_st = lStates.begin(); i_st != lStates.end(); i_st++) {
     for (int i = 0; i < 7; i++) {
       newPar(i) = finPar(3 + i_int * 7 + i);
     }

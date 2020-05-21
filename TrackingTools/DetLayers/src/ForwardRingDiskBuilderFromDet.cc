@@ -34,7 +34,7 @@ pair<SimpleDiskBounds*, float> ForwardRingDiskBuilderFromDet::computeBounds(cons
   float rmax(rmin);
   float zmin((**(dets.begin())).surface().position().z());
   float zmax(zmin);
-  for (vector<const GeomDet*>::const_iterator idet = dets.begin(); idet != dets.end(); idet++) {
+  for (auto idet = dets.begin(); idet != dets.end(); idet++) {
     /* ---- original implementation. Is it obsolete?
     vector<DetUnit*> detUnits = (**idet).detUnits();
     for (vector<DetUnit*>::const_iterator detu=detUnits.begin();
@@ -44,7 +44,7 @@ pair<SimpleDiskBounds*, float> ForwardRingDiskBuilderFromDet::computeBounds(cons
     }
     ----- */
     vector<GlobalPoint> corners = BoundingBox().corners((**idet).specificSurface());
-    for (vector<GlobalPoint>::const_iterator i = corners.begin(); i != corners.end(); i++) {
+    for (auto i = corners.begin(); i != corners.end(); i++) {
       float r = i->perp();
       float z = i->z();
       rmin = min(rmin, r);

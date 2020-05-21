@@ -305,7 +305,7 @@ void PixelDataFormatter::formatRawData(unsigned int lvl1_ID,
   std::map<int, vector<Word32> > words;
 
   // translate digis into 32-bit raw words and store in map indexed by Fed
-  for (Digis::const_iterator im = digis.begin(); im != digis.end(); im++) {
+  for (auto im = digis.begin(); im != digis.end(); im++) {
     allDetDigis++;
     cms_uint32_t rawId = im->first;
     int layer = 0;
@@ -314,11 +314,11 @@ void PixelDataFormatter::formatRawData(unsigned int lvl1_ID,
       layer = PixelROC::bpixLayerPhase1(rawId);
     //if(DANEK) cout<<" layer "<<layer<<" "<<phase1<<endl;
 
-    BadChannels::const_iterator detBadChannels = badChannels.find(rawId);
+    auto detBadChannels = badChannels.find(rawId);
 
     hasDetDigis++;
     const DetDigis& detDigis = im->second;
-    for (DetDigis::const_iterator it = detDigis.begin(); it != detDigis.end(); it++) {
+    for (auto it = detDigis.begin(); it != detDigis.end(); it++) {
       theDigiCounter++;
       const PixelDigi& digi = (*it);
       int fedId = 0;
@@ -359,7 +359,7 @@ void PixelDataFormatter::formatRawData(unsigned int lvl1_ID,
   }
 
   typedef std::map<int, vector<Word32> >::const_iterator RI;
-  for (RI feddata = words.begin(); feddata != words.end(); feddata++) {
+  for (auto feddata = words.begin(); feddata != words.end(); feddata++) {
     int fedId = feddata->first;
     // since raw words are written in the form of 64-bit packets
     // add extra 32-bit word to make number of words even if necessary

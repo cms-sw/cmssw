@@ -47,8 +47,8 @@ void GeometricDetLoader::beginRun(edm::Run const& /* iEvent */, edm::EventSetup 
   putOne(tracker, pgd, 0);
   std::vector<const GeometricDet*> tc = tracker->components();
   std::cout << "Tracker has " << tc.size() << " components." << std::endl;  //, lets go through them." << std::endl;
-  std::vector<const GeometricDet*>::const_iterator git = tc.begin();
-  std::vector<const GeometricDet*>::const_iterator egit = tc.end();
+  auto git = tc.begin();
+  auto egit = tc.end();
   int count = 0;
   int lev = 1;
   for (; git != egit; ++git) {  // one level below "tracker"
@@ -58,8 +58,8 @@ void GeometricDetLoader::beginRun(edm::Run const& /* iEvent */, edm::EventSetup 
     //    std::cout << lev << " type " << (*git)->type() << " " << int((*git)->geographicalId()) << std::endl; // << " has " << inone.size() << " components." << std::endl;
     if (inone.empty())
       ++count;
-    std::vector<const GeometricDet*>::const_iterator git2 = inone.begin();
-    std::vector<const GeometricDet*>::const_iterator egit2 = inone.end();
+    auto git2 = inone.begin();
+    auto egit2 = inone.end();
     ++lev;
     for (; git2 != egit2; ++git2) {  // level 2
       putOne(*git2, pgd, lev);
@@ -67,8 +67,8 @@ void GeometricDetLoader::beginRun(edm::Run const& /* iEvent */, edm::EventSetup 
       //      std::cout << lev << "\ttype " << (*git2)->type() << " " << int((*git2)->geographicalId()) << std::endl; // << " has " << intwo.size() << " components." << std::endl;
       if (intwo.empty())
         ++count;
-      std::vector<const GeometricDet*>::const_iterator git3 = intwo.begin();
-      std::vector<const GeometricDet*>::const_iterator egit3 = intwo.end();
+      auto git3 = intwo.begin();
+      auto egit3 = intwo.end();
       ++lev;
       for (; git3 != egit3; ++git3) {  // level 3
         putOne(*git3, pgd, lev);
@@ -76,8 +76,8 @@ void GeometricDetLoader::beginRun(edm::Run const& /* iEvent */, edm::EventSetup 
         //	std::cout << lev << "\t\ttype " << (*git3)->type() << " " << int((*git3)->geographicalId()) << std::endl; // << " has " << inthree.size() << " components." << std::endl;
         if (inthree.empty())
           ++count;
-        std::vector<const GeometricDet*>::const_iterator git4 = inthree.begin();
-        std::vector<const GeometricDet*>::const_iterator egit4 = inthree.end();
+        auto git4 = inthree.begin();
+        auto egit4 = inthree.end();
         ++lev;
         for (; git4 != egit4; ++git4) {  //level 4
           putOne(*git4, pgd, lev);
@@ -85,8 +85,8 @@ void GeometricDetLoader::beginRun(edm::Run const& /* iEvent */, edm::EventSetup 
           //	  std::cout << lev << "\t\t\ttype " << (*git4)->type() << " " << int((*git4)->geographicalId()) << std::endl; // << " has " << infour.size() << " components." << std::endl;
           if (infour.empty())
             ++count;
-          std::vector<const GeometricDet*>::const_iterator git5 = infour.begin();
-          std::vector<const GeometricDet*>::const_iterator egit5 = infour.end();
+          auto git5 = infour.begin();
+          auto egit5 = infour.end();
           ++lev;
           for (; git5 != egit5; ++git5) {  // level 5
             putOne(*git5, pgd, lev);
@@ -94,8 +94,8 @@ void GeometricDetLoader::beginRun(edm::Run const& /* iEvent */, edm::EventSetup 
             //	    std::cout << lev << "\t\t\t\ttype " << (*git5)->type() << " " << int((*git5)->geographicalId()) << std::endl; // << " has " << infive.size() << " components." << std::endl;
             if (infive.empty())
               ++count;
-            std::vector<const GeometricDet*>::const_iterator git6 = infive.begin();
-            std::vector<const GeometricDet*>::const_iterator egit6 = infive.end();
+            auto git6 = infive.begin();
+            auto egit6 = infive.end();
             ++lev;
             for (; git6 != egit6; ++git6) {  //level 6
               putOne(*git6, pgd, lev);

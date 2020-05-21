@@ -486,7 +486,7 @@ int EcalDeadCellDeltaRFilter::isCloseToBadEcalChannel(const reco::Jet &jet,
     if (chnStatus < 0 && status < abs(chnStatus))
       continue;
 
-    std::map<DetId, std::vector<double> >::iterator valItor = EcalAllDeadChannelsValMap.find(maskedDetId);
+    auto valItor = EcalAllDeadChannelsValMap.find(maskedDetId);
     if (valItor == EcalAllDeadChannelsValMap.end()) {
       std::cout << "Error cannot find maskedDetId in EcalAllDeadChannelsValMap ?!" << std::endl;
       continue;
@@ -521,7 +521,7 @@ int EcalDeadCellDeltaRFilter::getChannelStatusMaps() {
         continue;
 
       const EBDetId detid = EBDetId(ieta, iphi, EBDetId::ETAPHIMODE);
-      EcalChannelStatus::const_iterator chit = ecalStatus->find(detid);
+      auto chit = ecalStatus->find(detid);
       // refer https://twiki.cern.ch/twiki/bin/viewauth/CMS/EcalChannelStatus
       int status = (chit != ecalStatus->end()) ? chit->getStatusCode() & 0x1F : -1;
 
@@ -557,7 +557,7 @@ int EcalDeadCellDeltaRFilter::getChannelStatusMaps() {
           continue;
 
         const EEDetId detid = EEDetId(ix, iy, iz, EEDetId::XYMODE);
-        EcalChannelStatus::const_iterator chit = ecalStatus->find(detid);
+        auto chit = ecalStatus->find(detid);
         int status = (chit != ecalStatus->end()) ? chit->getStatusCode() & 0x1F : -1;
 
         const CaloSubdetectorGeometry *subGeom = geometry->getSubdetectorGeometry(detid);

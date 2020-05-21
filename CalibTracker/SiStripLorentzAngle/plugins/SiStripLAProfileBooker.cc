@@ -168,7 +168,7 @@ void SiStripLAProfileBooker::beginRun(const edm::Run&, const edm::EventSetup& c)
 
   //get all detids
 
-  for (std::vector<uint32_t>::const_iterator Id = activeDets.begin(); Id != activeDets.end(); Id++) {
+  for (auto Id = activeDets.begin(); Id != activeDets.end(); Id++) {
     //  for(Iditer=Id.begin();Iditer!=Id.end();Iditer++){ //loop on detids
     DetId Iditero = DetId(*Id);
     DetId* Iditer = &Iditero;
@@ -359,8 +359,8 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
         const TransientTrackingRecHit::ConstRecHitPointer thit = itm->recHit();
         if ((thit->geographicalId().subdetId() == int(StripSubdetector::TIB)) ||
             thit->geographicalId().subdetId() == int(StripSubdetector::TOB)) {  //include only barrel
-          const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>((*thit).hit());
-          const ProjectedSiStripRecHit2D* phit = dynamic_cast<const ProjectedSiStripRecHit2D*>((*thit).hit());
+          const auto* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>((*thit).hit());
+          const auto* phit = dynamic_cast<const ProjectedSiStripRecHit2D*>((*thit).hit());
           const SiStripRecHit2D* hit = dynamic_cast<const SiStripRecHit2D*>((*thit).hit());
           if (phit) {
             lhit = phit->originalHit();
@@ -438,7 +438,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
               float tanangle = monotkdir.x() / monotkdir.z();
               TanTrackAngleParallel = monotkdir.y() / monotkdir.z();
               TanTrackAngle = tanangle;
-              detparmap::iterator TheDet = detmap.find(detid.rawId());
+              auto TheDet = detmap.find(detid.rawId());
               LocalVector localmagdir;
               if (TheDet != detmap.end())
                 localmagdir = TheDet->second->magfield;
@@ -450,8 +450,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
                   SignCorrection = 1 / signcorrection;
               }
 
-              std::map<const SiStripRecHit2D*, std::pair<float, float>, DetIdLess>::iterator alreadystored =
-                  hitangleassociation.find(monohit);
+              auto alreadystored = hitangleassociation.find(monohit);
 
               if (alreadystored != hitangleassociation.end()) {  //decide which hit take
                 if (itm->estimate() > alreadystored->second.first) {
@@ -530,7 +529,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
                 float tanangle = stereotkdir.x() / stereotkdir.z();
                 TanTrackAngleParallel = stereotkdir.y() / stereotkdir.z();
                 TanTrackAngle = tanangle;
-                detparmap::iterator TheDet = detmap.find(detid.rawId());
+                auto TheDet = detmap.find(detid.rawId());
                 LocalVector localmagdir;
                 if (TheDet != detmap.end())
                   localmagdir = TheDet->second->magfield;
@@ -542,8 +541,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
                     SignCorrection = 1 / signcorrection;
                 }
 
-                std::map<const SiStripRecHit2D*, std::pair<float, float>, DetIdLess>::iterator alreadystored =
-                    hitangleassociation.find(stereohit);
+                auto alreadystored = hitangleassociation.find(stereohit);
 
                 if (alreadystored != hitangleassociation.end()) {  //decide which hit take
                   if (itm->estimate() > alreadystored->second.first) {
@@ -619,7 +617,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
               float tanangle = trackdirection.x() / trackdirection.z();
               TanTrackAngleParallel = trackdirection.y() / trackdirection.z();
               TanTrackAngle = tanangle;
-              detparmap::iterator TheDet = detmap.find(detid.rawId());
+              auto TheDet = detmap.find(detid.rawId());
               LocalVector localmagdir;
               if (TheDet != detmap.end())
                 localmagdir = TheDet->second->magfield;
@@ -631,8 +629,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
                   SignCorrection = 1 / signcorrection;
               }
 
-              std::map<const SiStripRecHit2D*, std::pair<float, float>, DetIdLess>::iterator alreadystored =
-                  hitangleassociation.find(hit);
+              auto alreadystored = hitangleassociation.find(hit);
 
               if (alreadystored != hitangleassociation.end()) {  //decide which hit take
                 if (itm->estimate() > alreadystored->second.first) {
@@ -669,7 +666,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 
     //Sign and XZ plane projection correction applied in TrackLocalAngle (TIB|TOB layers)
 
-    detparmap::iterator thedet = detmap.find(detid.rawId());
+    auto thedet = detmap.find(detid.rawId());
     LocalVector localmagdir;
     if (thedet != detmap.end())
       localmagdir = thedet->second->magfield;
@@ -691,7 +688,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
 
     //Filling histograms
 
-    histomap::iterator thehisto = histos.find(detid.rawId());
+    auto thehisto = histos.find(detid.rawId());
 
     if (thehisto == histos.end())
       edm::LogError("SiStripLAProfileBooker::analyze")
@@ -703,7 +700,7 @@ void SiStripLAProfileBooker::analyze(const edm::Event& e, const edm::EventSetup&
     std::string name;
     unsigned int layerid;
     getlayer(detid, tTopo, name, layerid);
-    histomap::iterator thesummaryhisto = summaryhisto.find(layerid);
+    auto thesummaryhisto = summaryhisto.find(layerid);
     if (thesummaryhisto == summaryhisto.end())
       edm::LogError("SiStripLAProfileBooker::analyze")
           << "Error: the profile associated to subdet " << name << "does not exist! ";

@@ -37,7 +37,7 @@ PATSingleVertexSelector::PATSingleVertexSelector(const edm::ParameterSet &iConfi
   modes_.push_back(parseMode(iConfig.getParameter<std::string>("mode")));
   if (iConfig.exists("fallbacks")) {
     vector<string> modes = iConfig.getParameter<vector<string>>("fallbacks");
-    for (vector<string>::const_iterator it = modes.begin(), ed = modes.end(); it != ed; ++it) {
+    for (auto it = modes.begin(), ed = modes.end(); it != ed; ++it) {
       modes_.push_back(parseMode(*it));
     }
   }
@@ -78,7 +78,7 @@ bool PATSingleVertexSelector::filter(edm::Event &iEvent, const edm::EventSetup &
   if (hasMode_(First) || hasMode_(NearestToCand)) {
     Handle<vector<reco::Vertex>> vertices;
     iEvent.getByToken(verticesToken_, vertices);
-    for (vector<reco::Vertex>::const_iterator itv = vertices->begin(), edv = vertices->end(); itv != edv; ++itv) {
+    for (auto itv = vertices->begin(), edv = vertices->end(); itv != edv; ++itv) {
       if (!(vtxPreselection_(*itv)))
         continue;
       selVtxs_.push_back(reco::VertexRef(vertices, std::distance(vertices->begin(), itv)));
@@ -87,10 +87,7 @@ bool PATSingleVertexSelector::filter(edm::Event &iEvent, const edm::EventSetup &
   // -- candidate data --
   if (hasMode_(NearestToCand) || hasMode_(FromCand)) {
     vector<pair<double, reco::CandidatePtr>> cands;
-    for (vector<edm::EDGetTokenT<edm::View<reco::Candidate>>>::const_iterator itt = candidatesToken_.begin(),
-                                                                              edt = candidatesToken_.end();
-         itt != edt;
-         ++itt) {
+    for (auto itt = candidatesToken_.begin(), edt = candidatesToken_.end(); itt != edt; ++itt) {
       Handle<View<reco::Candidate>> theseCands;
       iEvent.getByToken(*itt, theseCands);
       for (View<reco::Candidate>::const_iterator itc = theseCands->begin(), edc = theseCands->end(); itc != edc;
@@ -108,7 +105,7 @@ bool PATSingleVertexSelector::filter(edm::Event &iEvent, const edm::EventSetup &
   bool passes = false;
   std::unique_ptr<vector<reco::Vertex>> result;
   // Run main mode + possible fallback modes
-  for (std::vector<Mode>::const_iterator itm = modes_.begin(), endm = modes_.end(); itm != endm; ++itm) {
+  for (auto itm = modes_.begin(), endm = modes_.end(); itm != endm; ++itm) {
     result = filter_(*itm, iEvent, iSetup);
     // Check if we got any vertices.  If so, take them.
     if (!result->empty()) {

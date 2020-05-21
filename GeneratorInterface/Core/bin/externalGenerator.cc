@@ -169,7 +169,7 @@ int main(int argc, char* argv[]) {
         configuration += c + "\n";
       }
 
-      edm::ExternalRandomNumberGeneratorService* randomService = new edm::ExternalRandomNumberGeneratorService;
+      auto* randomService = new edm::ExternalRandomNumberGeneratorService;
       auto serviceToken =
           edm::ServiceRegistry::createContaining(std::unique_ptr<edm::RandomNumberGenerator>(randomService));
       Harness harness(configuration, serviceToken);

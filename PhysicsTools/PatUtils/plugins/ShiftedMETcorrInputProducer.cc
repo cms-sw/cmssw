@@ -7,8 +7,8 @@ ShiftedMETcorrInputProducer::ShiftedMETcorrInputProducer(const edm::ParameterSet
 
   //--- check that all InputTags refer to the same module label
   //   (i.e. differ by instance label only)
-  for (vInputTag::const_iterator src_ref = src_.begin(); src_ref != src_.end(); ++src_ref) {
-    for (vInputTag::const_iterator src_test = src_ref; src_test != src_.end(); ++src_test) {
+  for (auto src_ref = src_.begin(); src_ref != src_.end(); ++src_ref) {
+    for (auto src_test = src_ref; src_test != src_.end(); ++src_test) {
       if (src_test->label() != src_ref->label())
         throw cms::Exception("ShiftedMETcorrInputProducer")
             << "InputTags specified by 'src' Configuration parameter must not refer to different module labels !!\n";
@@ -20,8 +20,7 @@ ShiftedMETcorrInputProducer::ShiftedMETcorrInputProducer(const edm::ParameterSet
   if (cfg.exists("binning")) {
     typedef std::vector<edm::ParameterSet> vParameterSet;
     vParameterSet cfgBinning = cfg.getParameter<vParameterSet>("binning");
-    for (vParameterSet::const_iterator cfgBinningEntry = cfgBinning.begin(); cfgBinningEntry != cfgBinning.end();
-         ++cfgBinningEntry) {
+    for (auto cfgBinningEntry = cfgBinning.begin(); cfgBinningEntry != cfgBinning.end(); ++cfgBinningEntry) {
       binning_.push_back(new binningEntryType(*cfgBinningEntry));
     }
   } else {
@@ -29,9 +28,8 @@ ShiftedMETcorrInputProducer::ShiftedMETcorrInputProducer(const edm::ParameterSet
     binning_.push_back(new binningEntryType(uncertainty));
   }
 
-  for (vInputTag::const_iterator src_i = src_.begin(); src_i != src_.end(); ++src_i) {
-    for (std::vector<binningEntryType*>::const_iterator binningEntry = binning_.begin(); binningEntry != binning_.end();
-         ++binningEntry) {
+  for (auto src_i = src_.begin(); src_i != src_.end(); ++src_i) {
+    for (auto binningEntry = binning_.begin(); binningEntry != binning_.end(); ++binningEntry) {
       srcTokens_.push_back(consumes<CorrMETData>(
           edm::InputTag(src_i->label(), (*binningEntry)->getInstanceLabel_full(src_i->instance()))));
       produces<CorrMETData>((*binningEntry)->getInstanceLabel_full(src_i->instance()));
@@ -40,16 +38,15 @@ ShiftedMETcorrInputProducer::ShiftedMETcorrInputProducer(const edm::ParameterSet
 }
 
 ShiftedMETcorrInputProducer::~ShiftedMETcorrInputProducer() {
-  for (std::vector<binningEntryType*>::const_iterator it = binning_.begin(); it != binning_.end(); ++it) {
+  for (auto it = binning_.begin(); it != binning_.end(); ++it) {
     delete (*it);
   }
 }
 
 void ShiftedMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
   unsigned countToken(0);
-  for (vInputTag::const_iterator src_i = src_.begin(); src_i != src_.end(); ++src_i) {
-    for (std::vector<binningEntryType*>::iterator binningEntry = binning_.begin(); binningEntry != binning_.end();
-         ++binningEntry) {
+  for (auto src_i = src_.begin(); src_i != src_.end(); ++src_i) {
+    for (auto binningEntry = binning_.begin(); binningEntry != binning_.end(); ++binningEntry) {
       edm::Handle<CorrMETData> originalObject;
       evt.getByToken(srcTokens_.at(countToken), originalObject);
       ++countToken;

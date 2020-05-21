@@ -60,7 +60,7 @@ Trajectory KFTrajectorySmoother::trajectory(const Trajectory& aTraj) const {
     TSOS currTsos;
 
     auto hitCounter = hitSize;
-    for (std::vector<TM>::const_reverse_iterator itm = start; itm != (avtm.rend()); ++itm, --hitCounter) {
+    for (auto itm = start; itm != (avtm.rend()); ++itm, --hitCounter) {
       TransientTrackingRecHit::ConstRecHitPointer hit = itm->recHit();
 
       //check surface just for safety: should never be ==0 because they are skipped in the fitter

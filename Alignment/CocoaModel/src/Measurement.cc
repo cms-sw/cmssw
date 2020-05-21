@@ -566,8 +566,7 @@ Measurement::~Measurement() {
 //@@ get the ':X' that determines how the behaviour of the OptO w.r.t. this Measurement
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ALIstring Measurement::getMeasuringBehaviour(const std::vector<OpticalObject*>::const_iterator vocite) {
-  std::vector<ALIstring>::const_iterator vscite =
-      _OptONameList.begin() + (vocite - _OptOList.begin());  // point to corresponding name of this OptO
+  auto vscite = _OptONameList.begin() + (vocite - _OptOList.begin());  // point to corresponding name of this OptO
   ALIint colon = (*vscite).find(':');
   ALIstring behav;
   if (colon != -1) {
@@ -672,6 +671,6 @@ void Measurement::setName() {
         << std::endl;
     exit(9);
   }
-  std::vector<ALIstring>::iterator vsite = (_OptONameList.end() - 1);
+  auto vsite = (_OptONameList.end() - 1);
   theName = type() + ":" + (*vsite);
 }

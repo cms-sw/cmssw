@@ -34,7 +34,7 @@ public:
 
 protected:
   inline bool isEqual(const AbsHcalFunctor& other) const override {
-    const HcalLinearCompositionFunctor& r = static_cast<const HcalLinearCompositionFunctor&>(other);
+    const auto& r = static_cast<const HcalLinearCompositionFunctor&>(other);
     return *other_ == *r.other_ && a_ == r.a_ && b_ == r.b_;
   }
 

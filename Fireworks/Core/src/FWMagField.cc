@@ -168,7 +168,7 @@ void FWMagField::checkFieldInfo(const edm::EventBase* event) {
 
       if (dcsStatus.isValid() && !dcsStatus->empty()) {
         float sum = 0;
-        for (std::vector<DcsStatus>::const_iterator i = dcsStatus->begin(); i < dcsStatus->end(); ++i)
+        for (auto i = dcsStatus->begin(); i < dcsStatus->end(); ++i)
           sum += (*i).magnetCurrent();
 
         available = true;

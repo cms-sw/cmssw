@@ -21,7 +21,7 @@ TOBRod* TOBRodBuilder::build(const GeometricDet* negTOBRod,
   vector<const GeomDet*> outerGeomDets;
 
   double meanR = (allGeometricDets[0]->positionBounds().perp() + allGeometricDets[1]->positionBounds().perp()) / 2;
-  for (vector<const GeometricDet*>::iterator it = allGeometricDets.begin(); it != allGeometricDets.end(); it++) {
+  for (auto it = allGeometricDets.begin(); it != allGeometricDets.end(); it++) {
     const GeomDet* theGeomDet = theGeomDetGeometry->idToDet((*it)->geographicalID());
 
     if ((*it)->positionBounds().perp() < meanR)

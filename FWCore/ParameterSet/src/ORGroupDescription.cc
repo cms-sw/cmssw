@@ -189,9 +189,7 @@ namespace edm {
     std::set_intersection(labelsLeft.begin(), labelsLeft.end(), labelsRight.begin(), labelsRight.end(), insertIter);
     if (!duplicateLabels.empty()) {
       std::stringstream ss;
-      for (std::set<std::string>::const_iterator iter = duplicateLabels.begin(), iEnd = duplicateLabels.end();
-           iter != iEnd;
-           ++iter) {
+      for (auto iter = duplicateLabels.begin(), iEnd = duplicateLabels.end(); iter != iEnd; ++iter) {
         ss << " \"" << *iter << "\"\n";
       }
       throw edm::Exception(errors::LogicError) << "Labels used in a node of a ParameterSetDescription\n"
@@ -210,9 +208,7 @@ namespace edm {
       std::set_intersection(types1.begin(), types1.end(), types2.begin(), types2.end(), insertIter);
       if (!duplicateTypes.empty()) {
         std::stringstream ss;
-        for (std::set<ParameterTypes>::const_iterator iter = duplicateTypes.begin(), iEnd = duplicateTypes.end();
-             iter != iEnd;
-             ++iter) {
+        for (auto iter = duplicateTypes.begin(), iEnd = duplicateTypes.end(); iter != iEnd; ++iter) {
           ss << " \"" << parameterTypeEnumToString(*iter) << "\"\n";
         }
         throw edm::Exception(errors::LogicError)

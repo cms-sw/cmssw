@@ -29,13 +29,12 @@ struct DefaultFFTJetObjectFactory : public std::map<std::string, AbsFFTJetObject
   inline DefaultFFTJetObjectFactory() : std::map<std::string, AbsFFTJetObjectFactory<Base>*>() {}
 
   virtual ~DefaultFFTJetObjectFactory() {
-    for (typename std::map<std::string, AbsFFTJetObjectFactory<Base>*>::iterator it = this->begin(); it != this->end();
-         ++it)
+    for (auto it = this->begin(); it != this->end(); ++it)
       delete it->second;
   }
 
   inline Base* create(const std::string& derivedType, const edm::ParameterSet& ps) const {
-    typename std::map<std::string, AbsFFTJetObjectFactory<Base>*>::const_iterator it = this->find(derivedType);
+    auto it = this->find(derivedType);
     if (it == this->end())
       throw cms::Exception("KeyNotFound")
           << "Derived type \"" << derivedType << "\" is not registered with the factory\n";

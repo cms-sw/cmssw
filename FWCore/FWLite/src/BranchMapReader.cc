@@ -140,7 +140,7 @@ namespace fwlite {
 
     edm::BranchDescription const& Strategy::productToBranch(edm::ProductID const& pid) {
       edm::BranchID bid = productToBranchID(pid);
-      bidToDesc::const_iterator bdi = branchDescriptionMap_.find(bid);
+      auto bdi = branchDescriptionMap_.find(bid);
       if (branchDescriptionMap_.end() == bdi) {
         return kDefaultBranchDescription;
       }
@@ -148,7 +148,7 @@ namespace fwlite {
     }
 
     edm::BranchDescription const& Strategy::branchIDToBranch(edm::BranchID const& bid) const {
-      bidToDesc::const_iterator bdi = branchDescriptionMap_.find(bid);
+      auto bdi = branchDescriptionMap_.find(bid);
       if (branchDescriptionMap_.end() == bdi) {
         return kDefaultBranchDescription;
       }

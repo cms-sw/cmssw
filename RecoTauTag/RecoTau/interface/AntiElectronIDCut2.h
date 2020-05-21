@@ -49,9 +49,7 @@ public:
     float TauLeadChargedPFCandEtaAtEcalEntrance = -99.;
     float TauLeadChargedPFCandPt = -99.;
     const std::vector<reco::PFCandidatePtr>& signalPFCands = thePFTau.signalPFCands();
-    for (std::vector<reco::PFCandidatePtr>::const_iterator pfCandidate = signalPFCands.begin();
-         pfCandidate != signalPFCands.end();
-         ++pfCandidate) {
+    for (auto pfCandidate = signalPFCands.begin(); pfCandidate != signalPFCands.end(); ++pfCandidate) {
       const reco::Track* track = nullptr;
       if ((*pfCandidate)->trackRef().isNonnull())
         track = (*pfCandidate)->trackRef().get();

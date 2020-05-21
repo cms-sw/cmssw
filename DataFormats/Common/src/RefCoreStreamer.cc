@@ -43,7 +43,7 @@ namespace edm {
       cl_->ReadBuffer(R__b, objp);
     } else {
       //If transient, throw
-      RefCoreWithIndex* obj = static_cast<RefCoreWithIndex*>(objp);
+      auto* obj = static_cast<RefCoreWithIndex*>(objp);
       if (obj->isTransient()) {
         throw Exception(errors::InvalidReference, "Inconsistency")
             << "RefCoreStreamer: transient Ref or Ptr cannot be made persistent.";

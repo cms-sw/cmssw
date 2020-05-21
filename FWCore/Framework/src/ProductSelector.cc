@@ -26,8 +26,8 @@ namespace edm {
     {
       branchstates.reserve(branchDescriptions.size());
 
-      VCBDP::const_iterator it = branchDescriptions.begin();
-      VCBDP::const_iterator end = branchDescriptions.end();
+      auto it = branchDescriptions.begin();
+      auto end = branchDescriptions.end();
       for (; it != end; ++it)
         branchstates.emplace_back(*it);
     }
@@ -41,8 +41,8 @@ namespace edm {
     // names must be sorted, for the implementation of 'selected' to
     // work.
     {
-      std::vector<BranchSelectState>::const_iterator it = branchstates.begin();
-      std::vector<BranchSelectState>::const_iterator end = branchstates.end();
+      auto it = branchstates.begin();
+      auto end = branchstates.end();
       for (; it != end; ++it) {
         if (it->selectMe)
           productsToSelect_.push_back(it->desc->branchName());
@@ -105,7 +105,7 @@ namespace edm {
       if (!desc.produced() || desc.isAlias())
         continue;
       BranchID const& branchID = desc.branchID();
-      std::map<BranchID, BranchDescription const*>::const_iterator iter = trueBranchIDToKeptBranchDesc.find(branchID);
+      auto iter = trueBranchIDToKeptBranchDesc.find(branchID);
       if (iter != trueBranchIDToKeptBranchDesc.end()) {
         // This branch, produced in this process, or an alias of it, was persisted.
         BranchID const& keptBranchID = iter->second->branchID();

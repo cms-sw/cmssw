@@ -48,13 +48,12 @@ struct DefaultFFTJetRcdMapper : public std::map<std::string, AbsFFTJetRcdMapper<
   inline DefaultFFTJetRcdMapper() : std::map<std::string, AbsFFTJetRcdMapper<DataType>*>() {}
 
   virtual ~DefaultFFTJetRcdMapper() {
-    for (typename std::map<std::string, AbsFFTJetRcdMapper<DataType>*>::iterator it = this->begin(); it != this->end();
-         ++it)
+    for (auto it = this->begin(); it != this->end(); ++it)
       delete it->second;
   }
 
   inline void load(const edm::EventSetup& iSetup, const std::string& record, edm::ESHandle<DataType>& handle) const {
-    typename std::map<std::string, AbsFFTJetRcdMapper<DataType>*>::const_iterator it = this->find(record);
+    auto it = this->find(record);
     if (it == this->end())
       throw cms::Exception("KeyNotFound") << "Record \"" << record << "\" is not registered\n";
     it->second->load(iSetup, handle);

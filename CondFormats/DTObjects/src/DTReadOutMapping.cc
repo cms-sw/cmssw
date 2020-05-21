@@ -224,8 +224,8 @@ int DTReadOutMapping::geometryToReadOut(int wheelId,
       return searchStatus;
     if (!(robMLgr->size()))
       return 1;
-    std::vector<int>::const_iterator tdc_iter = robMLgr->begin();
-    std::vector<int>::const_iterator tdc_iend = robMLgr->end();
+    auto tdc_iter = robMLgr->begin();
+    auto tdc_iend = robMLgr->end();
     while (tdc_iter != tdc_iend) {
       loop1++;
       const DTReadOutGeometryLink& ltdc(readOutChannelDriftTubeMap[*tdc_iter++]);
@@ -241,8 +241,8 @@ int DTReadOutMapping::geometryToReadOut(int wheelId,
         continue;
       if (!(rosMLgr->size()))
         continue;
-      std::vector<int>::const_iterator ros_iter = rosMLgr->begin();
-      std::vector<int>::const_iterator ros_iend = rosMLgr->end();
+      auto ros_iter = rosMLgr->begin();
+      auto ros_iend = rosMLgr->end();
       while (ros_iter != ros_iend) {
         loop2++;
         const DTReadOutGeometryLink& lros(readOutChannelDriftTubeMap[*ros_iter++]);
@@ -269,8 +269,8 @@ int DTReadOutMapping::geometryToReadOut(int wheelId,
         if (!(dduMLgr->size()))
           return 1;
         loop0++;
-        std::vector<int>::const_iterator ddu_iter = dduMLgr->begin();
-        std::vector<int>::const_iterator ddu_iend = dduMLgr->end();
+        auto ddu_iter = dduMLgr->begin();
+        auto ddu_iend = dduMLgr->end();
         while (ddu_iter != ddu_iend) {
           loop3++;
           const DTReadOutGeometryLink& lddu(readOutChannelDriftTubeMap[*ddu_iter++]);
@@ -415,8 +415,8 @@ const DTReadOutMapping* DTReadOutMapping::fullMap() const {
 // CondCore/DTPlugins/src/DTCompactMapPluginHandler.c
 DTReadOutMapping* DTReadOutMapping::expandMap(const DTReadOutMapping& compMap) {
   std::vector<DTReadOutGeometryLink> entryList;
-  DTReadOutMapping::const_iterator compIter = compMap.begin();
-  DTReadOutMapping::const_iterator compIend = compMap.end();
+  auto compIter = compMap.begin();
+  auto compIend = compMap.end();
   while (compIter != compIend)
     entryList.push_back(*compIter++);
 
@@ -424,7 +424,7 @@ DTReadOutMapping* DTReadOutMapping::expandMap(const DTReadOutMapping& compMap) {
   rosMap += compMap.mapRobRos();
   std::string tdcMap = "expand_";
   tdcMap += compMap.mapCellTdc();
-  DTReadOutMapping* fullMap = new DTReadOutMapping(tdcMap, rosMap);
+  auto* fullMap = new DTReadOutMapping(tdcMap, rosMap);
   int ddu;
   int ros;
   int rch;
@@ -444,10 +444,10 @@ DTReadOutMapping* DTReadOutMapping::expandMap(const DTReadOutMapping& compMap) {
   int def;
   int wha;
   int sea;
-  std::vector<DTReadOutGeometryLink>::const_iterator iter = entryList.begin();
-  std::vector<DTReadOutGeometryLink>::const_iterator iend = entryList.end();
-  std::vector<DTReadOutGeometryLink>::const_iterator iros = entryList.end();
-  std::vector<DTReadOutGeometryLink>::const_iterator irob = entryList.end();
+  auto iter = entryList.begin();
+  auto iend = entryList.end();
+  auto iros = entryList.end();
+  auto irob = entryList.end();
   while (iter != iend) {
     const DTReadOutGeometryLink& rosEntry(*iter++);
     if (rosEntry.dduId > 0x3fffffff)
@@ -609,7 +609,7 @@ void DTReadOutMapping::cacheMap() const {
 
       int mapId = link.cellId;
       std::vector<int>* dduMLgr;
-      std::map<int, std::vector<int>*>::const_iterator dduEntIter = dduEntries.find(mapId);
+      auto dduEntIter = dduEntries.find(mapId);
       if (dduEntIter == dduEntries.end())
         dduEntries.insert(std::pair<int, std::vector<int>*>(mapId, dduMLgr = new std::vector<int>));
       else
@@ -629,13 +629,13 @@ void DTReadOutMapping::cacheMap() const {
       int secchkId = link.sectorId;
 
       std::vector<int>* dduMLgr;
-      std::map<int, std::vector<int>*>::const_iterator dduEntIter = dduEntries.find(mapId);
+      auto dduEntIter = dduEntries.find(mapId);
       if (dduEntIter != dduEntries.end())
         dduMLgr = dduEntIter->second;
       else
         continue;
-      std::vector<int>::const_iterator dduIter = dduMLgr->begin();
-      std::vector<int>::const_iterator dduIend = dduMLgr->end();
+      auto dduIter = dduMLgr->begin();
+      auto dduIend = dduMLgr->end();
       while (dduIter != dduIend) {
         int ientry = *dduIter++;
         const DTReadOutGeometryLink& lros(readOutChannelDriftTubeMap[ientry]);
@@ -660,8 +660,8 @@ void DTReadOutMapping::cacheMap() const {
       }
     }
 
-    std::map<int, std::vector<int>*>::const_iterator dduEntIter = dduEntries.begin();
-    std::map<int, std::vector<int>*>::const_iterator dduEntIend = dduEntries.end();
+    auto dduEntIter = dduEntries.begin();
+    auto dduEntIend = dduEntries.end();
     while (dduEntIter != dduEntIend) {
       const std::pair<int, std::vector<int>*>& dduEntry = *dduEntIter++;
       delete dduEntry.second;

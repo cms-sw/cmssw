@@ -32,7 +32,7 @@ void MethodSetter::operator()(const char* begin, const char* end) const {
     if (intStack_.empty()) {
       throw Exception(begin) << "expected method argument, but non given.";
     }
-    for (vector<AnyMethodArgument>::const_iterator i = intStack_.begin(); i != intStack_.end(); ++i) {
+    for (auto i = intStack_.begin(); i != intStack_.end(); ++i) {
       args.push_back(*i);
     }
     intStack_.clear();

@@ -60,7 +60,7 @@ void BetaCalculatorECAL::addInfoToCandidate(HSCParticle& candidate,
 
   // compute the track isolation
   result.trkIsoDr = 100;
-  for (reco::TrackCollection::const_iterator ndTrack = tracks->begin(); ndTrack != tracks->end(); ++ndTrack) {
+  for (auto ndTrack = tracks->begin(); ndTrack != tracks->end(); ++ndTrack) {
     double dr =
         sqrt(pow((track.outerEta() - ndTrack->outerEta()), 2) + pow((track.outerPhi() - ndTrack->outerPhi()), 2));
     if (dr > 0.00001 && dr < result.trkIsoDr)
@@ -102,10 +102,8 @@ void BetaCalculatorECAL::addInfoToCandidate(HSCParticle& candidate,
   std::vector<EcalRecHit> crossedRecHits;
   EcalRecHitCollection::const_iterator thisHit;
 
-  std::map<int, GlobalPoint>::const_iterator trackExitMapIt = trackExitPositionMap.begin();
-  for (std::map<int, float>::const_iterator mapIt = trackCrossedXtalCurvedMap.begin();
-       mapIt != trackCrossedXtalCurvedMap.end();
-       ++mapIt) {
+  auto trackExitMapIt = trackExitPositionMap.begin();
+  for (auto mapIt = trackCrossedXtalCurvedMap.begin(); mapIt != trackCrossedXtalCurvedMap.end(); ++mapIt) {
     if (DetId(mapIt->first).subdetId() == EcalBarrel) {
       EBDetId ebDetId(mapIt->first);
       thisHit = ebRecHits->find(ebDetId);
@@ -211,7 +209,7 @@ std::vector<SteppingHelixStateInfo> BetaCalculatorECAL::calcEcalDeposit(const Fr
   SteppingHelixStateInfo trackOrigin(*tkInnerState);
 
   // Define Propagator
-  SteppingHelixPropagator* prop = new SteppingHelixPropagator(&*bField_, alongMomentum);
+  auto* prop = new SteppingHelixPropagator(&*bField_, alongMomentum);
   prop->setMaterialMode(false);
   prop->applyRadX0Correction(true);
 
@@ -236,7 +234,7 @@ int BetaCalculatorECAL::getDetailedTrackLengthInXtals(std::map<int, GlobalPoint>
   const CaloSubdetectorGeometry* theBarrelSubdetGeometry = theGeometry->getSubdetectorGeometry(DetId::Ecal, 1);
   const CaloSubdetectorGeometry* theEndcapSubdetGeometry = theGeometry->getSubdetectorGeometry(DetId::Ecal, 2);
 
-  for (std::vector<SteppingHelixStateInfo>::const_iterator itr = (neckLace.begin() + 1); itr != neckLace.end(); ++itr) {
+  for (auto itr = (neckLace.begin() + 1); itr != neckLace.end(); ++itr) {
     GlobalPoint probe_gp = (*itr).position();
     std::vector<DetId> surroundingMatrix;
 
@@ -322,13 +320,13 @@ void BetaCalculatorECAL::addStepToXtal(std::map<int, GlobalPoint>& trackExitPosi
   GlobalPoint p = cell_p->getPosition(23);
   GlobalPoint diff(point.x() - p.x(), point.y() - p.y(), point.z() - p.z());
 
-  std::map<int, GlobalPoint>::iterator xtal = trackExitPositionMap.find(aDetId.rawId());
+  auto xtal = trackExitPositionMap.find(aDetId.rawId());
   if (xtal != trackExitPositionMap.end())
     ((*xtal).second) = diff;
   else
     trackExitPositionMap.insert(std::pair<int, GlobalPoint>(aDetId.rawId(), diff));
 
-  std::map<int, float>::iterator xtal2 = trackCrossedXtalMap.find(aDetId.rawId());
+  auto xtal2 = trackCrossedXtalMap.find(aDetId.rawId());
   if (xtal2 != trackCrossedXtalMap.end())
     ((*xtal2).second) += step;
   else

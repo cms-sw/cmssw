@@ -203,8 +203,7 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   Handle<reco::TrackCollection> glbTracks;
   iEvent.getByToken(theMuTrackCollectionLabel_, glbTracks);
 
-  for (reco::TrackCollection::const_iterator recoTrack = glbTracks->begin(); recoTrack != glbTracks->end();
-       ++recoTrack) {
+  for (auto recoTrack = glbTracks->begin(); recoTrack != glbTracks->end(); ++recoTrack) {
     MuonTransientTrackingRecHit::MuonRecHitContainer segments =
         theSegmentsAssociator->associate(iEvent, iSetup, *recoTrack);
 
@@ -224,9 +223,7 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
     int segmFromDt = 0;
     int segmFromCsc = 0;
 
-    for (MuonTransientTrackingRecHit::MuonRecHitContainer::const_iterator segment = segments.begin();
-         segment != segments.end();
-         segment++) {
+    for (auto segment = segments.begin(); segment != segments.end(); segment++) {
       DetId id = (*segment)->geographicalId();
 
       // hits from DT segments
@@ -247,7 +244,7 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
     }
 
     // hits from track
-    for (trackingRecHit_iterator recHit = recoTrack->recHitsBegin(); recHit != recoTrack->recHitsEnd(); ++recHit) {
+    for (auto recHit = recoTrack->recHitsBegin(); recHit != recoTrack->recHitsEnd(); ++recHit) {
       hitsFromTrack++;
       DetId id = (*recHit)->geographicalId();
       // hits from DT

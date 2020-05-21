@@ -96,7 +96,7 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) : FWViewManagerBase() 
                    boost::bind(&edmplugin::PluginInfo::name_, _1));
   }
 
-  for (std::set<std::string>::iterator it = builders.begin(), itEnd = builders.end(); it != itEnd; ++it) {
+  for (auto it = builders.begin(), itEnd = builders.end(); it != itEnd; ++it) {
     std::string::size_type first = it->find_first_of('@') + 1;
     std::string purpose = it->substr(first, it->find_last_of('@') - first);
 
@@ -172,7 +172,7 @@ void addElements(const FWEventItem* item, FWEveView* view, int viewType, TEveEle
   */
 
 void FWEveViewManager::newItem(const FWEventItem* iItem) {
-  TypeToBuilder::iterator itFind = m_typeToBuilder.find(iItem->purpose());
+  auto itFind = m_typeToBuilder.find(iItem->purpose());
 
   if (itFind == m_typeToBuilder.end())
     return;
@@ -244,7 +244,7 @@ void FWEveViewManager::newItem(const FWEventItem* iItem) {
       if (((1 << viewType) & builderViewBit) == 0)
         continue;
 
-      FWViewType::EType type = (FWViewType::EType)viewType;
+      auto type = (FWViewType::EType)viewType;
 
       // printf("%s builder %s supportsd view %s \n",  iItem->name().c_str(), builderName.c_str(), FWViewType::idToName(viewType).c_str());
       if (builder->havePerViewProduct((FWViewType::EType)viewType)) {
@@ -318,11 +318,11 @@ FWEveView* FWEveViewManager::finishViewCreate(std::shared_ptr<FWEveView> view) {
   // set proxies have a window falg
   int viewerBit = 1 << view->typeId();
   if (m_views[view->typeId()].size() == 1) {
-    for (std::map<int, BuilderVec>::iterator i = m_builders.begin(); i != m_builders.end(); ++i) {
+    for (auto i = m_builders.begin(); i != m_builders.end(); ++i) {
       int builderViewBit = i->first;
       BuilderVec& bv = i->second;
       if (viewerBit == (builderViewBit & viewerBit)) {
-        for (BuilderVec_it bIt = bv.begin(); bIt != bv.end(); ++bIt) {
+        for (auto bIt = bv.begin(); bIt != bv.end(); ++bIt) {
           (*bIt)->setHaveWindow(true);
         }
       }
@@ -330,11 +330,11 @@ FWEveView* FWEveViewManager::finishViewCreate(std::shared_ptr<FWEveView> view) {
   }
 
   FWRPZView* rpzView = dynamic_cast<FWRPZView*>(view.get());
-  for (std::map<int, BuilderVec>::iterator i = m_builders.begin(); i != m_builders.end(); ++i) {
+  for (auto i = m_builders.begin(); i != m_builders.end(); ++i) {
     int builderViewBit = i->first;
     BuilderVec& bv = i->second;
     if (viewerBit == (builderViewBit & viewerBit)) {
-      for (BuilderVec_it bIt = bv.begin(); bIt != bv.end(); ++bIt) {
+      for (auto bIt = bv.begin(); bIt != bv.end(); ++bIt) {
         // it is ok to call create even for shared productsm since
         // builder map key garanties that
         TEveElementList* product = (*bIt)->createProduct(view->typeId(), view->viewContext());
@@ -376,7 +376,7 @@ void FWEveViewManager::beingDestroyed(const FWViewBase* vb) {
 
   int viewerBit = 1 << typeId;
   int nviews = m_views[typeId].size();
-  for (std::map<int, BuilderVec>::iterator i = m_builders.begin(); i != m_builders.end(); ++i) {
+  for (auto i = m_builders.begin(); i != m_builders.end(); ++i) {
     int builderBit = i->first;
     if (viewerBit == (builderBit & viewerBit))  // check only in case if connected
     {
@@ -384,7 +384,7 @@ void FWEveViewManager::beingDestroyed(const FWViewBase* vb) {
 
       // remove view-owned product
       if (viewerBit == (builderBit & viewerBit)) {
-        for (BuilderVec_it bIt = bv.begin(); bIt != bv.end(); ++bIt)
+        for (auto bIt = bv.begin(); bIt != bv.end(); ++bIt)
           (*bIt)->removePerViewProduct(view->typeId(), view->viewContext());
       }
 
@@ -392,7 +392,7 @@ void FWEveViewManager::beingDestroyed(const FWViewBase* vb) {
       if (nviews == 1) {
         if (!haveViewForBit(builderBit)) {
           if (viewerBit == (builderBit & viewerBit)) {
-            for (BuilderVec_it bIt = bv.begin(); bIt != bv.end(); ++bIt)
+            for (auto bIt = bv.begin(); bIt != bv.end(); ++bIt)
               (*bIt)->setHaveWindow(false);
           }
         }
@@ -400,7 +400,7 @@ void FWEveViewManager::beingDestroyed(const FWViewBase* vb) {
     }
   }
 
-  for (EveViewVec_it i = m_views[typeId].begin(); i != m_views[typeId].end(); ++i) {
+  for (auto i = m_views[typeId].begin(); i != m_views[typeId].end(); ++i) {
     if (i->get() == vb) {
       m_views[typeId].erase(i);
       break;
@@ -422,7 +422,7 @@ void FWEveViewManager::modelChanges(const FWModelIds& iIds) {
   // in standard case new elements can be build in case of change of visibility
   // and in non-standard case (e.g. calo towers) PB's modelChages handles all changes
   bool itemHaveWindow = false;
-  for (std::map<int, BuilderVec>::iterator i = m_builders.begin(); i != m_builders.end(); ++i) {
+  for (auto i = m_builders.begin(); i != m_builders.end(); ++i) {
     for (size_t bi = 0, be = i->second.size(); bi != be; ++bi) {
       FWProxyBuilderBase* builder = i->second[bi].get();
       if (builder->getHaveWindow() && builder->item() == item) {
@@ -437,7 +437,7 @@ void FWEveViewManager::modelChanges(const FWModelIds& iIds) {
 
   EveSelectionSentry();
 
-  std::map<const FWEventItem*, FWInteractionList*>::iterator it = m_interactionLists.find(item);
+  auto it = m_interactionLists.find(item);
   if (it != m_interactionLists.end()) {
     if (!it->second->empty())
       it->second->modelChanges(iIds);
@@ -455,7 +455,7 @@ void FWEveViewManager::itemChanged(const FWEventItem* item) {
 
   bool itemHaveWindow = false;
 
-  for (std::map<int, BuilderVec>::iterator i = m_builders.begin(); i != m_builders.end(); ++i) {
+  for (auto i = m_builders.begin(); i != m_builders.end(); ++i) {
     for (size_t bi = 0, be = i->second.size(); bi != be; ++bi) {
       FWProxyBuilderBase* builder = i->second[bi].get();
 
@@ -470,7 +470,7 @@ void FWEveViewManager::itemChanged(const FWEventItem* item) {
   if (!itemHaveWindow)
     return;
 
-  std::map<const FWEventItem*, FWInteractionList*>::iterator it = m_interactionLists.find(item);
+  auto it = m_interactionLists.find(item);
   if (it != m_interactionLists.end()) {
     if (!it->second->empty())
       it->second->itemChanged();
@@ -482,14 +482,14 @@ void FWEveViewManager::itemChanged(const FWEventItem* item) {
 void FWEveViewManager::removeItem(const FWEventItem* item) {
   EveSelectionSentry();
 
-  std::map<const FWEventItem*, FWInteractionList*>::iterator it = m_interactionLists.find(item);
+  auto it = m_interactionLists.find(item);
   if (it != m_interactionLists.end()) {
     delete it->second;
     m_interactionLists.erase(it);
   }
 
-  for (std::map<int, BuilderVec>::iterator i = m_builders.begin(); i != m_builders.end(); ++i) {
-    BuilderVec_it bIt = i->second.begin();
+  for (auto i = m_builders.begin(); i != m_builders.end(); ++i) {
+    auto bIt = i->second.begin();
     while (bIt != i->second.end()) {
       if ((*bIt)->item() == item) {
         // TODO caching of proxy builders
@@ -511,7 +511,7 @@ void FWEveViewManager::setContext(const fireworks::Context* x) {
 
 void FWEveViewManager::globalEnergyScaleChanged() {
   for (int t = 0; t < FWViewType::kTypeSize; ++t) {
-    for (EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i) {
+    for (auto i = m_views[t].begin(); i != m_views[t].end(); ++i) {
       if ((*i)->isEnergyScaleGlobal()) {
         (*i)->setupEnergyScale();
       }
@@ -521,7 +521,7 @@ void FWEveViewManager::globalEnergyScaleChanged() {
 
 void FWEveViewManager::eventCenterChanged() {
   for (int t = 0; t < FWViewType::kTypeSize; ++t) {
-    for (EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i) {
+    for (auto i = m_views[t].begin(); i != m_views[t].end(); ++i) {
       (*i)->setupEventCenter();
     }
   }
@@ -529,7 +529,7 @@ void FWEveViewManager::eventCenterChanged() {
 
 void FWEveViewManager::colorsChanged() {
   for (int t = 0; t < FWViewType::kTypeSize; ++t) {
-    for (EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i)
+    for (auto i = m_views[t].begin(); i != m_views[t].end(); ++i)
       (*i)->setBackgroundColor(colorManager().background());
   }
 }
@@ -544,14 +544,14 @@ void FWEveViewManager::eventBegin() {
   context().resetMaxEtAndEnergy();
 
   for (int t = 0; t < FWViewType::kTypeSize; ++t) {
-    for (EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i)
+    for (auto i = m_views[t].begin(); i != m_views[t].end(); ++i)
       (*i)->eventBegin();
   }
 }
 
 void FWEveViewManager::eventEnd() {
   for (int t = 0; t < FWViewType::kTypeSize; ++t) {
-    for (EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i)
+    for (auto i = m_views[t].begin(); i != m_views[t].end(); ++i)
       (*i)->eventEnd();
   }
 
@@ -584,14 +584,14 @@ void FWEveViewManager::eventEnd() {
 
   // Loop over viewers, swap buffers if swap_on_render is true.
   for (int t = 0; t < FWViewType::kTypeSize; ++t) {
-    for (EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i)
+    for (auto i = m_views[t].begin(); i != m_views[t].end(); ++i)
       (*i)->fwViewerGL()->DrawHiLod(swap_on_render);
   }
 
   // Swap buffers if they were not swapped before.
   if (!swap_on_render) {
     for (int t = 0; t < FWViewType::kTypeSize; ++t) {
-      for (EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i)
+      for (auto i = m_views[t].begin(); i != m_views[t].end(); ++i)
         (*i)->fwViewerGL()->JustSwap();
     }
   }
@@ -660,7 +660,7 @@ FWTypeToRepresentations FWEveViewManager::supportedTypesAndRepresentations() con
   // needed for add collection GUI
   FWTypeToRepresentations returnValue;
   const static std::string kFullFrameWorkPBExtension = "FullFramework";
-  for (TypeToBuilder::const_iterator it = m_typeToBuilder.begin(), itEnd = m_typeToBuilder.end(); it != itEnd; ++it) {
+  for (auto it = m_typeToBuilder.begin(), itEnd = m_typeToBuilder.end(); it != itEnd; ++it) {
     std::vector<BuilderInfo> blist = it->second;
     for (size_t bii = 0, bie = blist.size(); bii != bie; ++bii) {
       BuilderInfo& info = blist[bii];
@@ -733,7 +733,7 @@ void FWEveViewManager::highlightAdded(TEveElement* iElement) {
     TAxis* etaAxis = hist->GetXaxis();
     int nBinsX = etaAxis->GetNbins() + 2;
 
-    for (TEveCaloData::vCellId_i i = hlist.begin(); i != hlist.end(); ++i) {
+    for (auto i = hlist.begin(); i != hlist.end(); ++i) {
       hist->GetBinXYZ((*i).fTower, etaBin, phiBin, w);
       if (TMath::Abs(etaAxis->GetBinCenter(etaBin)) > 4.71475) {
         newPhiBin = ((phiBin + 1) / 4) * 4 - 1;
@@ -765,7 +765,7 @@ void FWEveViewManager::highlightAdded(TEveElement* iElement) {
 
     // edit calo data list
     hlist.clear();
-    for (std::set<TEveCaloData::CellId_t>::iterator it = hset.begin(); it != hset.end(); ++it) {
+    for (auto it = hset.begin(); it != hset.end(); ++it) {
       hlist.push_back(*it);
     }
     context().getCaloData()->CellSelectionChanged();

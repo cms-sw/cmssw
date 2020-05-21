@@ -98,10 +98,8 @@ void SiStripMonitorRawData::analyze(edm::Event const &iEvent, edm::EventSetup co
   edm::Handle<edm::DetSetVector<SiStripRawDigi>> digi_collection;
   iEvent.getByToken(digiToken_, digi_collection);
 
-  for (std::vector<uint32_t>::const_iterator idetid = SelectedDetIds.begin(), iEnd = SelectedDetIds.end();
-       idetid != iEnd;
-       ++idetid) {
-    std::vector<edm::DetSet<SiStripRawDigi>>::const_iterator digis = digi_collection->find((*idetid));
+  for (auto idetid = SelectedDetIds.begin(), iEnd = SelectedDetIds.end(); idetid != iEnd; ++idetid) {
+    auto digis = digi_collection->find((*idetid));
     if (digis == digi_collection->end() || digis->data.empty() || digis->data.size() > 768) {
       std::vector<const FedChannelConnection *> fed_conns = detcabling->getConnections((*idetid));
       for (unsigned int k = 0; k < fed_conns.size(); k++) {

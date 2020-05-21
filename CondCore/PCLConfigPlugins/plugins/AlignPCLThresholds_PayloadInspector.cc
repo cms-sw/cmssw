@@ -85,7 +85,7 @@ namespace {
         Thresholds->GetXaxis()->SetBinLabel(xBin, (xLabel).c_str());
         unsigned int yBin = 24;
         for (int foo = AlignPCLThresholds::X; foo != AlignPCLThresholds::extra_DOF; foo++) {
-          AlignPCLThresholds::coordType coord = static_cast<AlignPCLThresholds::coordType>(foo);
+          auto coord = static_cast<AlignPCLThresholds::coordType>(foo);
           for (int bar = types::DELTA; bar != types::END_OF_TYPES; bar++) {
             types type = static_cast<types>(bar);
             std::string theLabel = getStringFromTypeEnum(type) + getStringFromCoordEnum(coord);

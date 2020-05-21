@@ -287,10 +287,10 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
     std::vector<int> vFEDs = hcaldqm::utilities::getFEDList(_emap);
     std::vector<int> vFEDsVME = hcaldqm::utilities::getFEDVMEList(_emap);
     std::vector<int> vFEDsuTCA = hcaldqm::utilities::getFEDuTCAList(_emap);
-    for (std::vector<int>::const_iterator it = vFEDsVME.begin(); it != vFEDsVME.end(); ++it)
+    for (auto it = vFEDsVME.begin(); it != vFEDsVME.end(); ++it)
       _vhashFEDs.push_back(
           HcalElectronicsId(constants::FIBERCH_MIN, FIBER_VME_MIN, SPIGOT_MIN, (*it) - FED_VME_MIN).rawId());
-    for (std::vector<int>::const_iterator it = vFEDsuTCA.begin(); it != vFEDsuTCA.end(); ++it) {
+    for (auto it = vFEDsuTCA.begin(); it != vFEDsuTCA.end(); ++it) {
       std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
       _vhashFEDs.push_back(HcalElectronicsId(cspair.first, cspair.second, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
     }
@@ -574,7 +574,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
   //	load conditions pedestals
   std::vector<HcalGenericDetId> dids = _emap->allPrecisionId();
-  for (std::vector<HcalGenericDetId>::const_iterator it = dids.begin(); it != dids.end(); ++it) {
+  for (auto it = dids.begin(); it != dids.end(); ++it) {
     //	skip if calib or whatever
     if (!it->isHcalDetId())
       continue;
@@ -698,7 +698,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
   // - FIND THE ONES WITH BAD PEDESTAL MEANs
   // - FIND THE ONES WITH BAD PEDESTAL RMSs
   std::vector<HcalGenericDetId> dids = _emap->allPrecisionId();
-  for (std::vector<HcalGenericDetId>::const_iterator it = dids.begin(); it != dids.end(); ++it) {
+  for (auto it = dids.begin(); it != dids.end(); ++it) {
     if (!it->isHcalDetId())
       continue;
     HcalElectronicsId eid(_ehashmap.lookup(*it));
@@ -869,11 +869,11 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
   //	SET THE FLAGS FOR THIS LS
   if (_ptype != fOffline) {  // hidefed2crate
-    for (std::vector<uint32_t>::const_iterator it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
+    for (auto it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
       hcaldqm::flag::Flag fSum("PED");
-      HcalElectronicsId eid = HcalElectronicsId(*it);
+      auto eid = HcalElectronicsId(*it);
 
-      std::vector<uint32_t>::const_iterator jt = std::find(_vcdaqEids.begin(), _vcdaqEids.end(), (*it));
+      auto jt = std::find(_vcdaqEids.begin(), _vcdaqEids.end(), (*it));
       if (jt == _vcdaqEids.end()) {
         //	not @cDAQ
         for (uint32_t iflag = 0; iflag < _vflags.size(); iflag++)
@@ -906,7 +906,7 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps) : DQTask(ps) {
       }
 
       int iflag = 0;
-      for (std::vector<hcaldqm::flag::Flag>::iterator ft = _vflags.begin(); ft != _vflags.end(); ++ft) {
+      for (auto ft = _vflags.begin(); ft != _vflags.end(); ++ft) {
         _cSummaryvsLS_FED.setBinContent(eid, _currentLS, iflag, int(ft->_state));
         fSum += (*ft);
         iflag++;
@@ -992,7 +992,7 @@ std::shared_ptr<hcaldqm::Cache> PedestalTask::globalBeginLuminosityBlock(edm::Lu
   _cOccupancyEAvsLS_Subdet.fill(HcalDetId(HcalBarrel, 1, 1, 1), _currentLS, nHB);
   _cOccupancyEAvsLS_Subdet.fill(HcalDetId(HcalEndcap, 1, 1, 1), _currentLS, nHE);
 
-  for (HODigiCollection::const_iterator it = c_ho->begin(); it != c_ho->end(); ++it) {
+  for (auto it = c_ho->begin(); it != c_ho->end(); ++it) {
     const HODataFrame digi = (const HODataFrame)(*it);
     HcalDetId did = digi.id();
     int digiSizeToUse = floor(digi.size() / constants::CAPS_NUM) * constants::CAPS_NUM - 1;

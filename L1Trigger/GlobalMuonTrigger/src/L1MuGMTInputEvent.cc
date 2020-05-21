@@ -74,7 +74,7 @@ void L1MuGMTInputEvent::reset() {
   m_runnr = 0L;
   m_evtnr = 0L;
 
-  std::map<std::string, std::vector<L1MuRegionalCand> >::iterator it = m_inputmuons.begin();
+  auto it = m_inputmuons.begin();
   for (; it != m_inputmuons.end(); it++) {
     it->second.clear();
   }

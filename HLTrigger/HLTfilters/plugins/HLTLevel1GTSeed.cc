@@ -677,9 +677,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
   // loop over the list of required algorithms for seeding
   int iAlgo = -1;
 
-  for (std::vector<L1GtLogicParser::OperandToken>::const_iterator itSeed = m_l1AlgoSeeds.begin();
-       itSeed != m_l1AlgoSeeds.end();
-       ++itSeed) {
+  for (auto itSeed = m_l1AlgoSeeds.begin(); itSeed != m_l1AlgoSeeds.end(); ++itSeed) {
     //
     iAlgo++;
     //
@@ -732,9 +730,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
       LogTrace("HLTLevel1GTSeed") << std::endl;
     }
 
-    for (std::vector<L1GtLogicParser::OperandToken>::const_iterator itCond = condSeeds.begin();
-         itCond != condSeeds.end();
-         itCond++) {
+    for (auto itCond = condSeeds.begin(); itCond != condSeeds.end(); itCond++) {
       std::string cndName = (*itCond).tokenName;
       int cndNumber = (*itCond).tokenNumber;
       bool cndResult = (*itCond).tokenResult;
@@ -915,7 +911,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                                          << "\nNo muon added to filterproduct." << std::endl;
 
     } else {
-      for (std::list<int>::const_iterator itObj = listMuon.begin(); itObj != listMuon.end(); ++itObj) {
+      for (auto itObj = listMuon.begin(); itObj != listMuon.end(); ++itObj) {
         filterproduct.addObject(trigger::TriggerL1Mu, l1extra::L1MuonParticleRef(l1Muon, *itObj));
       }
     }
@@ -932,7 +928,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                                          << "\nNo IsoEG added to filterproduct." << std::endl;
 
     } else {
-      for (std::list<int>::const_iterator itObj = listIsoEG.begin(); itObj != listIsoEG.end(); ++itObj) {
+      for (auto itObj = listIsoEG.begin(); itObj != listIsoEG.end(); ++itObj) {
         filterproduct.addObject(trigger::TriggerL1IsoEG, l1extra::L1EmParticleRef(l1IsoEG, *itObj));
       }
     }
@@ -949,7 +945,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                                          << "\nNo NoIsoEG added to filterproduct." << std::endl;
 
     } else {
-      for (std::list<int>::const_iterator itObj = listNoIsoEG.begin(); itObj != listNoIsoEG.end(); ++itObj) {
+      for (auto itObj = listNoIsoEG.begin(); itObj != listNoIsoEG.end(); ++itObj) {
         filterproduct.addObject(trigger::TriggerL1NoIsoEG, l1extra::L1EmParticleRef(l1NoIsoEG, *itObj));
       }
     }
@@ -966,7 +962,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                                          << "\nNo CenJet added to filterproduct." << std::endl;
 
     } else {
-      for (std::list<int>::const_iterator itObj = listCenJet.begin(); itObj != listCenJet.end(); ++itObj) {
+      for (auto itObj = listCenJet.begin(); itObj != listCenJet.end(); ++itObj) {
         filterproduct.addObject(trigger::TriggerL1CenJet, l1extra::L1JetParticleRef(l1CenJet, *itObj));
       }
     }
@@ -983,7 +979,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                                          << "\nNo ForJet added to filterproduct." << std::endl;
 
     } else {
-      for (std::list<int>::const_iterator itObj = listForJet.begin(); itObj != listForJet.end(); ++itObj) {
+      for (auto itObj = listForJet.begin(); itObj != listForJet.end(); ++itObj) {
         filterproduct.addObject(trigger::TriggerL1ForJet, l1extra::L1JetParticleRef(l1ForJet, *itObj));
       }
     }
@@ -1000,7 +996,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                                          << "\nNo TauJet added to filterproduct." << std::endl;
 
     } else {
-      for (std::list<int>::const_iterator itObj = listTauJet.begin(); itObj != listTauJet.end(); ++itObj) {
+      for (auto itObj = listTauJet.begin(); itObj != listTauJet.end(); ++itObj) {
         filterproduct.addObject(trigger::TriggerL1TauJet, l1extra::L1JetParticleRef(l1TauJet, *itObj));
       }
     }
@@ -1017,7 +1013,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                                          << "\nNo IsoTauJet added to filterproduct." << std::endl;
 
     } else {
-      for (std::list<int>::const_iterator itObj = listIsoTauJet.begin(); itObj != listIsoTauJet.end(); ++itObj) {
+      for (auto itObj = listIsoTauJet.begin(); itObj != listIsoTauJet.end(); ++itObj) {
         filterproduct.addObject(trigger::TriggerL1TauJet, l1extra::L1JetParticleRef(l1IsoTauJet, *itObj));
       }
     }
@@ -1038,7 +1034,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                                          << "\nNo ETM added to filterproduct." << std::endl;
 
     } else {
-      for (std::list<int>::const_iterator itObj = listETM.begin(); itObj != listETM.end(); ++itObj) {
+      for (auto itObj = listETM.begin(); itObj != listETM.end(); ++itObj) {
         filterproduct.addObject(trigger::TriggerL1ETM, l1extra::L1EtMissParticleRef(l1EnergySums, *itObj));
       }
     }
@@ -1058,7 +1054,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                                          << "\nNo ETT added to filterproduct." << std::endl;
 
     } else {
-      for (std::list<int>::const_iterator itObj = listETT.begin(); itObj != listETT.end(); ++itObj) {
+      for (auto itObj = listETT.begin(); itObj != listETT.end(); ++itObj) {
         filterproduct.addObject(trigger::TriggerL1ETT, l1extra::L1EtMissParticleRef(l1EnergySums, *itObj));
       }
     }
@@ -1079,7 +1075,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                                          << "\nNo HTT added to filterproduct." << std::endl;
 
     } else {
-      for (std::list<int>::const_iterator itObj = listHTT.begin(); itObj != listHTT.end(); ++itObj) {
+      for (auto itObj = listHTT.begin(); itObj != listHTT.end(); ++itObj) {
         filterproduct.addObject(trigger::TriggerL1HTT, l1extra::L1EtMissParticleRef(l1EnergySums, *itObj));
       }
     }
@@ -1100,7 +1096,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
                                          << "\nNo HTM added to filterproduct." << std::endl;
 
     } else {
-      for (std::list<int>::const_iterator itObj = listHTM.begin(); itObj != listHTM.end(); ++itObj) {
+      for (auto itObj = listHTM.begin(); itObj != listHTM.end(); ++itObj) {
         filterproduct.addObject(trigger::TriggerL1HTM, l1extra::L1EtMissParticleRef(l1EnergySums, *itObj));
       }
     }

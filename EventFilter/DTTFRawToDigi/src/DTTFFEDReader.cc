@@ -421,7 +421,7 @@ void DTTFFEDReader::process(edm::Event &e) {
 }
 
 void DTTFFEDReader::match() {
-  for (L1MuDTTrackContainer::TrackIterator i = dtTracks.begin(); i != dtTracks.end(); i++) {
+  for (auto i = dtTracks.begin(); i != dtTracks.end(); i++) {
     int bxTh = i->bx() + 1;
     int sectorTh = i->scNum();
     int wheelTh = i->whNum() + 3;

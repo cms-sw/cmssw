@@ -29,8 +29,7 @@ double NAStrangePotential::CalculateStrangePotential() {
     return 0.;
   }
 
-  NAEquationSolver<NAStrangePotential>* theSolver =
-      new NAEquationSolver<NAStrangePotential>(fNSolverIteration, fTolerance);
+  auto* theSolver = new NAEquationSolver<NAStrangePotential>(fNSolverIteration, fTolerance);
 
   theSolver->SetIntervalLimits(fMinStrangePotential, fMaxStrangePotential);
 

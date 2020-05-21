@@ -68,7 +68,7 @@ void LowPtGsfElectronSeedValueMapsProducer::produce(edm::Event& event, const edm
   for (unsigned int igsf = 0; igsf < gsfTracks->size(); igsf++) {
     reco::GsfTrackRef gsf(gsfTracks, igsf);
     if (gsf.isNonnull() && gsf->extra().isNonnull() && gsf->extra()->seedRef().isNonnull()) {
-      reco::ElectronSeedRef seed = gsf->extra()->seedRef().castTo<reco::ElectronSeedRef>();
+      auto seed = gsf->extra()->seedRef().castTo<reco::ElectronSeedRef>();
       if (seed.isNonnull() && seed->ctfTrack().isNonnull()) {
         const reco::PreIdRef preid = (*preIdsValueMap)[seed->ctfTrack()];
         if (preid.isNonnull()) {

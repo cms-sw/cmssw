@@ -357,7 +357,7 @@ namespace ecaldqm {
     MESet const &pnQualityME(source_.at("PNQuality"));
     MESet const &pnPedestalME(source_.at("PNPedestal"));
 
-    for (std::map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr) {
+    for (auto wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr) {
       int wl(wlItr->first);
       unsigned iM(wlItr->second);
 
@@ -619,7 +619,7 @@ namespace ecaldqm {
     MESet const &pnPedestalME(source_.at("PNPedestal"));
     MESet const &pnQualityME(source_.at("PNQuality"));
 
-    for (std::map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr) {
+    for (auto gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr) {
       int gain(gainItr->first);
       int iM(gainItr->second);
 
@@ -675,7 +675,7 @@ namespace ecaldqm {
       }
     }
 
-    for (std::map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr) {
+    for (auto gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr) {
       int gain(gainItr->first);
       int iM(gainItr->second);
 
@@ -849,7 +849,7 @@ namespace ecaldqm {
     MESet const &pnPedestalME(source_.at("PNPedestal"));
     MESet const &pnQualityME(source_.at("PNQuality"));
 
-    for (std::map<int, unsigned>::iterator gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr) {
+    for (auto gainItr(gainToME_.begin()); gainItr != gainToME_.end(); ++gainItr) {
       int gain(gainItr->first);
       int iM(gainItr->second);
 
@@ -945,7 +945,7 @@ namespace ecaldqm {
       }
     }
 
-    for (std::map<int, unsigned>::iterator gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr) {
+    for (auto gainItr(pnGainToME_.begin()); gainItr != pnGainToME_.end(); ++gainItr) {
       int gain(gainItr->first);
       int iM(gainItr->second);
 
@@ -1128,7 +1128,7 @@ x      PNDiodeTask.Pedestal (i13, i14)
     //     MESet const& pnQualityME(source_.at("PNQuality"));
     //     MESet const& pnPedestalME(source_.at("PNPedestal"));
 
-    for (std::map<int, unsigned>::iterator wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr) {
+    for (auto wlItr(wlToME_.begin()); wlItr != wlToME_.end(); ++wlItr) {
       int wl(wlItr->first);
       unsigned iM(wlItr->second);
 

@@ -141,7 +141,7 @@ void TrackQuality::evaluate(SimParticleTrail const &spt, reco::TrackBaseRef cons
   std::vector<MatchedHit> matchedHits;
 
   // iterate over reconstructed hits
-  for (trackingRecHit_iterator hit = tr->recHitsBegin(); hit != tr->recHitsEnd(); ++hit) {
+  for (auto hit = tr->recHitsBegin(); hit != tr->recHitsEnd(); ++hit) {
     // on which module the hit lies
     DetId detId = (*hit)->geographicalId();
 
@@ -185,7 +185,7 @@ void TrackQuality::evaluate(SimParticleTrail const &spt, reco::TrackBaseRef cons
     }
 
     // register all simulated tracks contributing
-    for (std::vector<SimHitIdpr>::const_iterator i = simIds.begin(); i != simIds.end(); ++i) {
+    for (auto i = simIds.begin(); i != simIds.end(); ++i) {
       MatchedHit matchedHit;
       matchedHit.detId = detId;
       matchedHit.simTrackId = i->first;
@@ -212,7 +212,7 @@ void TrackQuality::evaluate(SimParticleTrail const &spt, reco::TrackBaseRef cons
   LayerHitMap layerHitMap;
 
   // iterate over all simulated/reconstructed hits again
-  for (std::vector<MatchedHit>::const_iterator hit = matchedHits.begin(); hit != matchedHits.end();) {
+  for (auto hit = matchedHits.begin(); hit != matchedHits.end();) {
     // we can have multiple reco-to-sim matches per module, find best one
     const MatchedHit *best = nullptr;
 
@@ -238,7 +238,7 @@ void TrackQuality::evaluate(SimParticleTrail const &spt, reco::TrackBaseRef cons
   std::cout << "---------------------" << std::endl;
 #endif
   // now prepare final collection
-  for (LayerHitMap::const_iterator hit = layerHitMap.begin(); hit != layerHitMap.end(); ++hit) {
+  for (auto hit = layerHitMap.begin(); hit != layerHitMap.end(); ++hit) {
 #ifdef DEBUG_TRACK_QUALITY
     std::cout << "detLayer (" << hit->first.first << ", " << hit->first.second << ")"
               << " [" << (uint32_t)hit->second->detId << "] sim(" << (int)hit->second->simTrackId << ")"

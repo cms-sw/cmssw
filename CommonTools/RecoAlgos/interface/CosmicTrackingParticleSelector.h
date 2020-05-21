@@ -76,7 +76,7 @@ public:
     selected_.clear();
     edm::Handle<reco::BeamSpot> beamSpot;
     event.getByToken(beamSpotToken_, beamSpot);
-    for (TrackingParticleCollection::const_iterator itp = c->begin(); itp != c->end(); ++itp)
+    for (auto itp = c->begin(); itp != c->end(); ++itp)
       if (operator()(TrackingParticleRef(c, itp - c->begin()), beamSpot.product(), event, setup)) {
         selected_.push_back(&*itp);
       }

@@ -123,7 +123,7 @@ void DCUIDarkPedDat::writeArrayDB(const std::map<EcalLogicID, DCUIDarkPedDat>* d
   const DCUIDarkPedDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, DCUIDarkPedDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
+  for (auto p = data->begin(); p != data->end(); ++p) {
     channel = &(p->first);
     int logicID = channel->getLogicID();
     if (!logicID) {

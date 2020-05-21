@@ -32,7 +32,7 @@ void CastorCtdcUnpacker::unpack(const FEDRawData& raw,
   }
 
   // get the CTDC header
-  const CastorCTDCHeader* ctdcHeader = (const CastorCTDCHeader*)(raw.data());
+  const auto* ctdcHeader = (const CastorCTDCHeader*)(raw.data());
   int ctdcid = ctdcHeader->getSourceId() - sourceIdOffset_;
 
   // space for unpacked data from one COR

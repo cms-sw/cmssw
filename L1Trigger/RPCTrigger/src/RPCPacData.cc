@@ -123,7 +123,7 @@ bool RPCPacData::getTPatternsGroupShape(int logPlane, int logStripNum) {
  * 
 */
 bool RPCPacData::getEPatternsGroupShape(int groupNum, int logPlane, int bitNum) {
-  TEPatternsGroupList::const_iterator iEGroup = m_EnergeticPatternsGroupList.begin();
+  auto iEGroup = m_EnergeticPatternsGroupList.begin();
   int i = 0;
   for (; iEGroup != m_EnergeticPatternsGroupList.end(); iEGroup++, i++) {
     if (i == groupNum)
@@ -141,7 +141,7 @@ std::string RPCPacData::getPatternsGroupDescription(int patternGroupNum) {
   if (patternGroupNum == -1)
     ret = m_TrackPatternsGroup.getGroupDescription();
   else {
-    TEPatternsGroupList::iterator iEGroup = m_EnergeticPatternsGroupList.begin();
+    auto iEGroup = m_EnergeticPatternsGroupList.begin();
     int i = 0;
     for (; iEGroup != m_EnergeticPatternsGroupList.end(); iEGroup++, i++) {
       if (i == patternGroupNum)
@@ -184,7 +184,7 @@ void RPCPacData::insertPatterns(const RPCPattern::RPCPatVec& patternsVec,
 
   RPCConst rpcconst;
 
-  for (RPCPattern::RPCPatVec::const_iterator patIt = patternsVec.begin(); patIt != patternsVec.end(); patIt++) {
+  for (auto patIt = patternsVec.begin(); patIt != patternsVec.end(); patIt++) {
     if (!ignorePos &&
         (patIt->getTower() != tower || patIt->getLogSector() != sector || patIt->getLogSegment() != segment))
       continue;

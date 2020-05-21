@@ -109,7 +109,7 @@ void Vx3DHLTAnalyzer::analyze(const Event& iEvent, const EventSetup& iSetup) {
       cout << "[Vx3DHLTAnalyzer]::\tIn this event there are " << Vx3DCollection->size() << " vertex cadidates" << endl;
     }
 
-    for (vector<Vertex>::const_iterator it3DVx = Vx3DCollection->begin(); it3DVx != Vx3DCollection->end(); it3DVx++) {
+    for (auto it3DVx = Vx3DCollection->begin(); it3DVx != Vx3DCollection->end(); it3DVx++) {
       if (internalDebug == true) {
         cout << "[Vx3DHLTAnalyzer]::\tVertex selections:" << endl;
         cout << "[Vx3DHLTAnalyzer]::\tEvent ID = " << iEvent.id() << endl;
@@ -298,7 +298,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
 
     double edm;
 
-    vector<double>::const_iterator it = vals->begin();
+    auto it = vals->begin();
 
     ROOT::Math::Minimizer* Gauss3D = ROOT::Math::Factory::CreateMinimizer("Minuit2", "Migrad");
     Gauss3D->SetErrorDef(1.0);
@@ -790,7 +790,7 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
   outputFile.open(fileName.c_str(), ios::out);
 
   if ((outputFile.is_open() == true) && (vals != nullptr) && (vals->size() == (nParams - 1) * 2)) {
-    vector<double>::const_iterator it = vals->begin();
+    auto it = vals->begin();
 
     outputFile << "Runnumber " << runNumber << endl;
     outputFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " " << (beginTimeOfFit >> 32) << endl;
@@ -850,7 +850,7 @@ void Vx3DHLTAnalyzer::writeToFile(vector<double>* vals,
 
   if ((debugMode == true) && (outputDebugFile.is_open() == true) && (vals != nullptr) &&
       (vals->size() == (nParams - 1) * 2)) {
-    vector<double>::const_iterator it = vals->begin();
+    auto it = vals->begin();
 
     outputDebugFile << "Runnumber " << runNumber << endl;
     outputDebugFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " " << (beginTimeOfFit >> 32) << endl;

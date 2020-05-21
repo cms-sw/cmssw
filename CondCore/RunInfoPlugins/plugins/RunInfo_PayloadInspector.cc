@@ -128,7 +128,7 @@ namespace {
 
       unsigned int yBin = 11;
       for (int foo = RunInfoPI::m_run; foo != RunInfoPI::END_OF_TYPES; foo++) {
-        RunInfoPI::parameters param = static_cast<RunInfoPI::parameters>(foo);
+        auto param = static_cast<RunInfoPI::parameters>(foo);
         std::string theLabel = RunInfoPI::getStringFromTypeEnum(param);
         h2_RunInfoState->GetYaxis()->SetBinLabel(yBin, theLabel.c_str());
         h2_RunInfoParameters->GetYaxis()->SetBinLabel(yBin, theLabel.c_str());

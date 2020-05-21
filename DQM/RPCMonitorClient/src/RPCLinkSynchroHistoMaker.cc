@@ -45,8 +45,8 @@ void RPCLinkSynchroHistoMaker::fill(TH1F* hDelay, TH2F* hDelaySpread, TH2F* hTop
 
     std::pair<unsigned int, unsigned int> canOccup = std::make_pair(sum, idx);
     std::pair<double, unsigned int> canSpread = std::make_pair(rms, idx);
-    TopOccup::iterator io = upper_bound(topOccup.begin(), topOccup.end(), canOccup, OrderLbOccup());
-    TopSpread::iterator is = upper_bound(topSpread.begin(), topSpread.end(), canSpread, OrderLbSpread());
+    auto io = upper_bound(topOccup.begin(), topOccup.end(), canOccup, OrderLbOccup());
+    auto is = upper_bound(topSpread.begin(), topSpread.end(), canSpread, OrderLbSpread());
     if (io != topOccup.end()) {
       topOccup.insert(io, canOccup);
       topOccup.erase(topOccup.end() - 1);

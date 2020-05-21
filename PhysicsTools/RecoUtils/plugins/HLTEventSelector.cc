@@ -42,7 +42,7 @@ bool HLTEventSelector::select(const edm::Event& event) const {
   //
   // example for OR of all specified triggers
   //
-  for (std::vector<std::string>::const_iterator i = pathNames_.begin(); i != pathNames_.end(); ++i) {
+  for (auto i = pathNames_.begin(); i != pathNames_.end(); ++i) {
     // get index
     unsigned int index = trgNames.triggerIndex(*i);
     if (index == trgSize) {

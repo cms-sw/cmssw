@@ -160,7 +160,7 @@ void PiZeroAnalyzer::makePizero(const edm::EventSetup& es,
   }  // Eb rechits
 
   sort(seeds.begin(), seeds.end(), [](auto& x, auto& y) { return (x.energy() > y.energy()); });
-  for (std::vector<EcalRecHit>::iterator itseed = seeds.begin(); itseed != seeds.end(); itseed++) {
+  for (auto itseed = seeds.begin(); itseed != seeds.end(); itseed++) {
     EBDetId seed_id = itseed->id();
     std::vector<EBDetId>::const_iterator usedIds;
 
@@ -183,7 +183,7 @@ void PiZeroAnalyzer::makePizero(const edm::EventSetup& es,
 
     double simple_energy = 0;
 
-    for (std::vector<DetId>::iterator det = clus_v.begin(); det != clus_v.end(); det++) {
+    for (auto det = clus_v.begin(); det != clus_v.end(); det++) {
       // EBDetId EBdet = *det;
       //      cout<<" det "<< EBdet<<" ieta "<<EBdet.ieta()<<" iphi "<<EBdet.iphi()<<endl;
       bool HitAlreadyUsed = false;

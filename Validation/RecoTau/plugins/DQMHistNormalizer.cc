@@ -84,15 +84,13 @@ void DQMHistNormalizer::endRun(const edm::Run& r, const edm::EventSetup& c) {
   vector<MonitorElement*> allOurMEs = dqmStore.getAllContents("RecoTauV/");
   lat::Regexp* refregex = buildRegex("*RecoTauV/*/" + reference_);
   vector<lat::Regexp*> toNormRegex;
-  for (std::vector<string>::const_iterator toNorm = plotNamesToNormalize_.begin();
-       toNorm != plotNamesToNormalize_.end();
-       ++toNorm)
+  for (auto toNorm = plotNamesToNormalize_.begin(); toNorm != plotNamesToNormalize_.end(); ++toNorm)
     toNormRegex.push_back(buildRegex("*RecoTauV/*/" + *toNorm));
 
   map<string, MonitorElement*> refsMap;
   vector<MonitorElement*> toNormElements;
 
-  for (vector<MonitorElement*>::const_iterator element = allOurMEs.begin(); element != allOurMEs.end(); ++element) {
+  for (auto element = allOurMEs.begin(); element != allOurMEs.end(); ++element) {
     string pathname = (*element)->getFullname();
     //cout << pathname << endl;
     //Matches reference
@@ -110,7 +108,7 @@ void DQMHistNormalizer::endRun(const edm::Run& r, const edm::EventSetup& c) {
     }
 
     //Matches targets
-    for (vector<lat::Regexp*>::const_iterator reg = toNormRegex.begin(); reg != toNormRegex.end(); ++reg) {
+    for (auto reg = toNormRegex.begin(); reg != toNormRegex.end(); ++reg) {
       if ((*reg)->match(pathname)) {
         //cout << "Matched to target" << endl;
         toNormElements.push_back(*element);
@@ -120,12 +118,10 @@ void DQMHistNormalizer::endRun(const edm::Run& r, const edm::EventSetup& c) {
   }
 
   delete refregex;
-  for (vector<lat::Regexp*>::const_iterator reg = toNormRegex.begin(); reg != toNormRegex.end(); ++reg)
+  for (auto reg = toNormRegex.begin(); reg != toNormRegex.end(); ++reg)
     delete *reg;
 
-  for (vector<MonitorElement*>::const_iterator matchingElement = toNormElements.begin();
-       matchingElement != toNormElements.end();
-       ++matchingElement) {
+  for (auto matchingElement = toNormElements.begin(); matchingElement != toNormElements.end(); ++matchingElement) {
     string meName = (*matchingElement)->getFullname();
     string dir = meName.substr(0, meName.rfind("/"));
 

@@ -120,8 +120,7 @@ void DTOccupancyTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   // Get all the DT chambers
   vector<const DTChamber*> chambers = muonGeom->chambers();
 
-  for (vector<const DTChamber*>::const_iterator chamber = chambers.begin(); chamber != chambers.end();
-       ++chamber) {  // Loop over all chambers
+  for (auto chamber = chambers.begin(); chamber != chambers.end(); ++chamber) {  // Loop over all chambers
     DTChamberId chId = (*chamber)->id();
 
     MonitorElement* chamberOccupancyHisto = igetter.get(getMEName(nameMonitoredHisto, chId));

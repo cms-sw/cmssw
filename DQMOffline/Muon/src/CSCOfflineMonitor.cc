@@ -900,8 +900,8 @@ void CSCOfflineMonitor::doOccupancies(edm::Handle<CSCStripDigiCollection> strips
     int kRing = id.ring();
     int kStation = id.station();
     int kChamber = id.chamber();
-    std::vector<CSCWireDigi>::const_iterator wireIt = (*wi).second.first;
-    std::vector<CSCWireDigi>::const_iterator lastWire = (*wi).second.second;
+    auto wireIt = (*wi).second.first;
+    auto lastWire = (*wi).second.second;
     for (; wireIt != lastWire; ++wireIt) {
       if (!wireo[kEndcap - 1][kStation - 1][kRing - 1][kChamber - 1]) {
         wireo[kEndcap - 1][kStation - 1][kRing - 1][kChamber - 1] = true;
@@ -926,8 +926,8 @@ void CSCOfflineMonitor::doOccupancies(edm::Handle<CSCStripDigiCollection> strips
     int kRing = id.ring();
     int kStation = id.station();
     int kChamber = id.chamber();
-    std::vector<CSCStripDigi>::const_iterator stripIt = (*si).second.first;
-    std::vector<CSCStripDigi>::const_iterator lastStrip = (*si).second.second;
+    auto stripIt = (*si).second.first;
+    auto lastStrip = (*si).second.second;
     for (; stripIt != lastStrip; ++stripIt) {
       std::vector<int> myADCVals = stripIt->getADCCounts();
       bool thisStripFired = false;
@@ -1014,8 +1014,8 @@ void CSCOfflineMonitor::doWireDigis(edm::Handle<CSCWireDigiCollection> wires) {
   int nWireGroupsTotal = 0;
   for (CSCWireDigiCollection::DigiRangeIterator dWDiter = wires->begin(); dWDiter != wires->end(); dWDiter++) {
     CSCDetId id = (CSCDetId)(*dWDiter).first;
-    std::vector<CSCWireDigi>::const_iterator wireIter = (*dWDiter).second.first;
-    std::vector<CSCWireDigi>::const_iterator lWire = (*dWDiter).second.second;
+    auto wireIter = (*dWDiter).second.first;
+    auto lWire = (*dWDiter).second.second;
     for (; wireIter != lWire; ++wireIter) {
       int myWire = wireIter->getWireGroup();
       int myTBin = wireIter->getTimeBin();
@@ -1041,8 +1041,8 @@ void CSCOfflineMonitor::doStripDigis(edm::Handle<CSCStripDigiCollection> strips)
   int nStripsFired = 0;
   for (CSCStripDigiCollection::DigiRangeIterator dSDiter = strips->begin(); dSDiter != strips->end(); dSDiter++) {
     CSCDetId id = (CSCDetId)(*dSDiter).first;
-    std::vector<CSCStripDigi>::const_iterator stripIter = (*dSDiter).second.first;
-    std::vector<CSCStripDigi>::const_iterator lStrip = (*dSDiter).second.second;
+    auto stripIter = (*dSDiter).second.first;
+    auto lStrip = (*dSDiter).second.second;
     for (; stripIter != lStrip; ++stripIter) {
       int myStrip = stripIter->getStrip();
       std::vector<int> myADCVals = stripIter->getADCCounts();
@@ -1083,8 +1083,8 @@ void CSCOfflineMonitor::doPedestalNoise(edm::Handle<CSCStripDigiCollection> stri
     CSCDetId id = (CSCDetId)(*dPNiter).first;
     int kStation = id.station();
     int kRing = id.ring();
-    std::vector<CSCStripDigi>::const_iterator pedIt = (*dPNiter).second.first;
-    std::vector<CSCStripDigi>::const_iterator lStrip = (*dPNiter).second.second;
+    auto pedIt = (*dPNiter).second.first;
+    auto lStrip = (*dPNiter).second.second;
     for (; pedIt != lStrip; ++pedIt) {
       int myStrip = pedIt->getStrip();
       std::vector<int> myADCVals = pedIt->getADCCounts();
@@ -1218,7 +1218,7 @@ void CSCOfflineMonitor::doSegments(edm::Handle<CSCSegmentCollection> cscSegments
     std::vector<float> anodeTimes;
     // Get the CSC recHits that contribute to this segment.
     std::vector<CSCRecHit2D> theseRecHits = (*dSiter).specificRecHits();
-    for (vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
+    for (auto iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
       if (!((*iRH).isValid()))
         continue;  // only interested in valid hits
       cathodeTimes.push_back((*iRH).tpeak());
@@ -1330,7 +1330,7 @@ void CSCOfflineMonitor::doResolution(edm::Handle<CSCSegmentCollection> cscSegmen
     int jRH = 0;
     CLHEP::HepMatrix sp(6, 1);
     CLHEP::HepMatrix se(6, 1);
-    for (vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
+    for (auto iRH = theseRecHits.begin(); iRH != theseRecHits.end(); iRH++) {
       jRH++;
       CSCDetId idRH = (CSCDetId)(*iRH).cscDetId();
       //int kEndcap  = idRH.endcap();
@@ -1427,8 +1427,8 @@ float CSCOfflineMonitor::getSignal(const CSCStripDigiCollection& stripdigis, CSC
     CSCDetId id = (CSCDetId)(*sIt).first;
     if (id == idCS) {
       // First, find the Signal-Pedestal for center strip
-      vector<CSCStripDigi>::const_iterator digiItr = (*sIt).second.first;
-      vector<CSCStripDigi>::const_iterator last = (*sIt).second.second;
+      auto digiItr = (*sIt).second.first;
+      auto last = (*sIt).second.second;
       for (; digiItr != last; ++digiItr) {
         int thisStrip = digiItr->getStrip();
         if (thisStrip == (centerStrip)) {
@@ -1504,8 +1504,8 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
   // Wires
   for (CSCWireDigiCollection::DigiRangeIterator dWDiter = wires->begin(); dWDiter != wires->end(); dWDiter++) {
     CSCDetId idrec = (CSCDetId)(*dWDiter).first;
-    std::vector<CSCWireDigi>::const_iterator wireIter = (*dWDiter).second.first;
-    std::vector<CSCWireDigi>::const_iterator lWire = (*dWDiter).second.second;
+    auto wireIter = (*dWDiter).second.first;
+    auto lWire = (*dWDiter).second.second;
     for (; wireIter != lWire; ++wireIter) {
       allWires[idrec.endcap() - 1][idrec.station() - 1][idrec.ring() - 1][idrec.chamber() - 1][idrec.layer() - 1] =
           true;
@@ -1516,8 +1516,8 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
   //---- STRIPS
   for (CSCStripDigiCollection::DigiRangeIterator dSDiter = strips->begin(); dSDiter != strips->end(); dSDiter++) {
     CSCDetId idrec = (CSCDetId)(*dSDiter).first;
-    std::vector<CSCStripDigi>::const_iterator stripIter = (*dSDiter).second.first;
-    std::vector<CSCStripDigi>::const_iterator lStrip = (*dSDiter).second.second;
+    auto stripIter = (*dSDiter).second.first;
+    auto lStrip = (*dSDiter).second.second;
     for (; stripIter != lStrip; ++stripIter) {
       std::vector<int> myADCVals = stripIter->getADCCounts();
       bool thisStripFired = false;

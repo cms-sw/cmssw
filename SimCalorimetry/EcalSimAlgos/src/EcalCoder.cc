@@ -257,7 +257,7 @@ void EcalCoder::findPedestal(const DetId& detId, int gainId, double& ped, double
 	width = item.rms(gainId);
    */
 
-  EcalPedestalsMap::const_iterator itped = m_peds->getMap().find(detId);
+  auto itped = m_peds->getMap().find(detId);
   ped = (*itped).mean(gainId);
   width = (*itped).rms(gainId);
 
@@ -309,7 +309,7 @@ void EcalCoder::findGains(const DetId& detId, double Gains[]) const {
     }
   */
 
-  EcalGainRatioMap::const_iterator grit = m_gainRatios->getMap().find(detId);
+  auto grit = m_gainRatios->getMap().find(detId);
   Gains[0] = 0.;
   Gains[3] = 1.;
   Gains[2] = (*grit).gain6Over1();
@@ -325,7 +325,7 @@ void EcalCoder::findIntercalibConstant(const DetId& detId, double& icalconst) co
   EcalIntercalibConstantMC thisconst = 1.;
   // find intercalib constant for this xtal
   const EcalIntercalibConstantMCMap& icalMap = m_intercals->getMap();
-  EcalIntercalibConstantMCMap::const_iterator icalit = icalMap.find(detId);
+  auto icalit = icalMap.find(detId);
   if (icalit != icalMap.end()) {
     thisconst = (*icalit);
     if (icalconst == 0.) {

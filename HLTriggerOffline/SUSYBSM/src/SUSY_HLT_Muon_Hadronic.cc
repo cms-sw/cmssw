@@ -169,7 +169,7 @@ void SUSY_HLT_Muon_Hadronic::analyze(edm::Event const &e, edm::EventSetup const 
 
   if (hasFiredAuxiliaryForMuonLeg || hasFiredAuxiliaryForHadronicLeg || !e.isRealData()) {
     std::vector<Lepton> offlineMuons;
-    for (reco::MuonCollection::const_iterator muon = MuonCollection->begin(); muon != MuonCollection->end(); ++muon) {
+    for (auto muon = MuonCollection->begin(); muon != MuonCollection->end(); ++muon) {
       if (fabs(muon->eta()) > etaMuonOffline_)
         continue;
       Lepton theMuon;
@@ -196,11 +196,9 @@ void SUSY_HLT_Muon_Hadronic::analyze(edm::Event const &e, edm::EventSetup const 
     // Matching the muon
     int indexOfMatchedMuon = -1;
     int offlineCounter = 0;
-    for (std::vector<Lepton>::iterator offline_muon = offlineMuons.begin();
-         (offline_muon != offlineMuons.end() && indexOfMatchedMuon == -1);
+    for (auto offline_muon = offlineMuons.begin(); (offline_muon != offlineMuons.end() && indexOfMatchedMuon == -1);
          offline_muon++) {
-      for (std::vector<Lepton>::iterator online_muon = onlineMuons.begin(); online_muon != onlineMuons.end();
-           online_muon++) {
+      for (auto online_muon = onlineMuons.begin(); online_muon != onlineMuons.end(); online_muon++) {
         if (sqrt((offline_muon->phi - online_muon->phi) * (offline_muon->phi - online_muon->phi) +
                  (offline_muon->eta - online_muon->eta) * (offline_muon->eta - online_muon->eta)) < 0.5) {
           indexOfMatchedMuon = offlineCounter;
@@ -213,17 +211,14 @@ void SUSY_HLT_Muon_Hadronic::analyze(edm::Event const &e, edm::EventSetup const 
     }
     float caloHT = 0.0;
     float pfHT = 0.0;
-    for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end();
-         ++i_pfjet) {
+    for (auto i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end(); ++i_pfjet) {
       if (i_pfjet->pt() < ptThrJet_)
         continue;
       if (fabs(i_pfjet->eta()) > etaThrJet_)
         continue;
       pfHT += i_pfjet->pt();
     }
-    for (reco::CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin();
-         i_calojet != caloJetCollection->end();
-         ++i_calojet) {
+    for (auto i_calojet = caloJetCollection->begin(); i_calojet != caloJetCollection->end(); ++i_calojet) {
       if (i_calojet->pt() < ptThrJet_)
         continue;
       if (fabs(i_calojet->eta()) > etaThrJet_)

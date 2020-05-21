@@ -580,7 +580,7 @@ namespace gen {
       for (int iprt1 = 1; iprt1 < pyjets.n; iprt1++) {
         part->set_status(2);
 
-        HepMC::GenVertex* DecVtx = new HepMC::GenVertex(
+        auto* DecVtx = new HepMC::GenVertex(
             HepMC::FourVector(pyjets.v[0][iprt1], pyjets.v[1][iprt1], pyjets.v[2][iprt1], pyjets.v[3][iprt1]));
         DecVtx->add_particle_in(part);  // this will cleanup end_vertex if exists, replace with the new one
                                         // I presume (vtx) barcode will be given automatically
@@ -597,8 +597,7 @@ namespace gen {
         } else if (pyjets.k[0][iprt1] >= 31 && pyjets.k[0][iprt1] <= 100) {
           dstatus = pyjets.k[0][iprt1];
         }
-        HepMC::GenParticle* daughter =
-            new HepMC::GenParticle(pmom, HepPID::translatePythiatoPDT(pyjets.k[1][iprt1]), dstatus);
+        auto* daughter = new HepMC::GenParticle(pmom, HepPID::translatePythiatoPDT(pyjets.k[1][iprt1]), dstatus);
         barcode++;
         daughter->suggest_barcode(barcode);
         DecVtx->add_particle_out(daughter);
@@ -623,8 +622,7 @@ namespace gen {
           } else if (pyjets.k[0][iprt2] >= 31 && pyjets.k[0][iprt2] <= 100) {
             dstatus = pyjets.k[0][iprt2];
           }
-          HepMC::GenParticle* daughterN =
-              new HepMC::GenParticle(pmomN, HepPID::translatePythiatoPDT(pyjets.k[1][iprt2]), dstatus);
+          auto* daughterN = new HepMC::GenParticle(pmomN, HepPID::translatePythiatoPDT(pyjets.k[1][iprt2]), dstatus);
           barcode++;
           daughterN->suggest_barcode(barcode);
           DecVtx->add_particle_out(daughterN);
@@ -883,7 +881,7 @@ namespace gen {
           }
         }
 
-        HepMC::GenVertex* vdec = new HepMC::GenVertex(HepMC::FourVector(x, y, z, t));
+        auto* vdec = new HepMC::GenVertex(HepMC::FourVector(x, y, z, t));
         event()->add_vertex(vdec);
         vdec->add_particle_in((*pitr));
       }

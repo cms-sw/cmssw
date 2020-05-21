@@ -116,7 +116,7 @@ void listbadmodule(std::string filename, std::string pclfilename) {
   outfile << std::endl << "List of bad modules per partition:" << std::endl;
   outfile << "----------------------------------" << std::endl;
 
-  std::set<unsigned int>::const_iterator pclbadmod = pclbadmods.begin();
+  auto pclbadmod = pclbadmods.begin();
 
   for (unsigned int i = 0; i < subdet.size(); i++) {
     std::string badmodule_dir = subdet[i] + "/BadModuleList";

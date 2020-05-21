@@ -130,7 +130,7 @@ std::vector<RefCountedKinematicTree> LagrangeParentParticleFitter::fit(
   AlgebraicVector chi_in(nStates, 0);
   AlgebraicVector ndf_in(nStates, 0);
   int l_c = 0;
-  for (std::vector<RefCountedKinematicParticle>::const_iterator i = prt.begin(); i != prt.end(); i++) {
+  for (auto i = prt.begin(); i != prt.end(); i++) {
     AlgebraicVector7 lp = (*i)->currentState().kinematicParameters().vector();
     for (int j = 1; j != 8; j++) {
       part(7 * l_c + j) = lp(j - 1);
@@ -241,8 +241,8 @@ std::vector<RefCountedKinematicTree> LagrangeParentParticleFitter::fit(
   std::vector<RefCountedKinematicTree> refTrees = trees;
 
   int j = 1;
-  std::vector<RefCountedKinematicTree>::const_iterator tr = refTrees.begin();
-  for (std::vector<RefCountedKinematicParticle>::const_iterator i = prt.begin(); i != prt.end(); i++) {
+  auto tr = refTrees.begin();
+  for (auto i = prt.begin(); i != prt.end(); i++) {
     AlgebraicVector7 lRefPar;
     for (int k = 1; k < 8; k++) {
       lRefPar(k - 1) = refPar((j - 1) * 7 + k);

@@ -17,9 +17,7 @@ void L1Analysis::L1AnalysisRecoElectron::SetElectron(
 {
   recoElectron_.nElectrons = 0;
 
-  for (reco::GsfElectronCollection::const_iterator el = electrons->begin();
-       el != electrons->end() && recoElectron_.nElectrons < maxElectron;
-       ++el) {
+  for (auto el = electrons->begin(); el != electrons->end() && recoElectron_.nElectrons < maxElectron; ++el) {
     recoElectron_.e.push_back(el->energy());
     recoElectron_.pt.push_back(el->pt());
     recoElectron_.et.push_back(el->et());

@@ -149,7 +149,7 @@ std::unique_ptr<L1CaloEtScale> L1EmEtScaleOnlineProd::newObject(const std::strin
   }
   std::vector<double> m_thresholds;
 
-  for (std::vector<std::string>::iterator thresh = queryStrings.begin(); thresh != queryStrings.end(); ++thresh) {
+  for (auto thresh = queryStrings.begin(); thresh != queryStrings.end(); ++thresh) {
     float tempScale = 0.0;
     scaleResults.fillVariable(*thresh, tempScale);
     m_thresholds.push_back(tempScale);

@@ -95,8 +95,8 @@ bool StatisticsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   std::vector<MonitorElement*> MEs = dqmStore_->getAllContents(dirpath);
 
-  std::vector<MonitorElement*>::const_iterator iter = MEs.begin();
-  std::vector<MonitorElement*>::const_iterator iterEnd = MEs.end();
+  auto iter = MEs.begin();
+  auto iterEnd = MEs.end();
 
   for (; iter != iterEnd; ++iter) {
     std::string me_name = (*iter)->getName();

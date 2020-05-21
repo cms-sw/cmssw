@@ -98,8 +98,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
     short int n_tracks_small_beta = 0;
     short int n_tracks_small_dT = 0;
     short int n_tracks_small_dT_and_beta = 0;
-    for (reco::MuonCollection::const_iterator iMuon = TheCosmicMuons->begin(); iMuon != TheCosmicMuons->end();
-         iMuon++, imucount++) {
+    for (auto iMuon = TheCosmicMuons->begin(); iMuon != TheCosmicMuons->end(); iMuon++, imucount++) {
       reco::TrackRef Track = iMuon->outerTrack();
       if (!Track)
         continue;
@@ -145,9 +144,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
       float OuterSegmentTime[2] = {0, 0};
       float innermost_seg_z[2] = {1500, 1500};
       float outermost_seg_z[2] = {0, 0};
-      for (std::vector<const CSCSegment*>::const_iterator segment = MatchedSegments.begin();
-           segment != MatchedSegments.end();
-           ++segment) {
+      for (auto segment = MatchedSegments.begin(); segment != MatchedSegments.end(); ++segment) {
         CSCDetId TheCSCDetId((*segment)->cscDetId());
         const CSCChamber* TheCSCChamber = TheCSCGeometry.chamber(TheCSCDetId);
         LocalPoint TheLocalPosition = (*segment)->localPosition();
@@ -327,9 +324,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 
       //avoid segments from collision muons
       if (TheMuons.isValid()) {
-        for (reco::MuonCollection::const_iterator mu = TheMuons->begin();
-             mu != TheMuons->end() && (Segment1IsGood || !trkmuunvetoisdefault);
-             mu++) {
+        for (auto mu = TheMuons->begin(); mu != TheMuons->end() && (Segment1IsGood || !trkmuunvetoisdefault); mu++) {
           bool lowpttrackmu = false;
           if (!mu->isTrackerMuon() && !mu->isGlobalMuon() && mu->isStandAloneMuon())
             continue;
@@ -338,12 +333,10 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
           if (!mu->isGlobalMuon() && mu->isTrackerMuon() && mu->pt() < 3)
             lowpttrackmu = true;
           const std::vector<MuonChamberMatch> chambers = mu->matches();
-          for (std::vector<MuonChamberMatch>::const_iterator kChamber = chambers.begin(); kChamber != chambers.end();
-               kChamber++) {
+          for (auto kChamber = chambers.begin(); kChamber != chambers.end(); kChamber++) {
             if (kChamber->detector() != MuonSubdetId::CSC)
               continue;
-            for (std::vector<reco::MuonSegmentMatch>::const_iterator kSegment = kChamber->segmentMatches.begin();
-                 kSegment != kChamber->segmentMatches.end();
+            for (auto kSegment = kChamber->segmentMatches.begin(); kSegment != kChamber->segmentMatches.end();
                  kSegment++) {
               edm::Ref<CSCSegmentCollection> cscSegRef = kSegment->cscSegmentRef;
               CSCDetId kCscDetID = cscSegRef->cscDetId();
@@ -446,8 +439,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
             (jTheta < max_segment_theta || jTheta > TMath::Pi() - max_segment_theta)) {
           //// Check if Segment matches to a colision muon
           if (TheMuons.isValid()) {
-            for (reco::MuonCollection::const_iterator mu = TheMuons->begin();
-                 mu != TheMuons->end() && (Segment2IsGood || !trkmuunvetoisdefault);
+            for (auto mu = TheMuons->begin(); mu != TheMuons->end() && (Segment2IsGood || !trkmuunvetoisdefault);
                  mu++) {
               bool lowpttrackmu = false;
               if (!mu->isTrackerMuon() && !mu->isGlobalMuon() && mu->isStandAloneMuon())
@@ -455,13 +447,10 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
               if (!mu->isGlobalMuon() && mu->isTrackerMuon() && mu->pt() < 3)
                 lowpttrackmu = true;
               const std::vector<MuonChamberMatch> chambers = mu->matches();
-              for (std::vector<MuonChamberMatch>::const_iterator kChamber = chambers.begin();
-                   kChamber != chambers.end();
-                   kChamber++) {
+              for (auto kChamber = chambers.begin(); kChamber != chambers.end(); kChamber++) {
                 if (kChamber->detector() != MuonSubdetId::CSC)
                   continue;
-                for (std::vector<reco::MuonSegmentMatch>::const_iterator kSegment = kChamber->segmentMatches.begin();
-                     kSegment != kChamber->segmentMatches.end();
+                for (auto kSegment = kChamber->segmentMatches.begin(); kSegment != kChamber->segmentMatches.end();
                      kSegment++) {
                   edm::Ref<CSCSegmentCollection> cscSegRef = kSegment->cscSegmentRef;
                   CSCDetId kCscDetID = cscSegRef->cscDetId();

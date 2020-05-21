@@ -63,7 +63,7 @@ void HGCHEbackDigitizer::runEmptyDigitizer(std::unique_ptr<HGCalDigiCollection>&
   for (const auto& id : validIds) {
     chargeColl.fill(0.f);
     toa.fill(0.f);
-    HGCSimHitDataAccumulator::iterator it = simData.find(id);
+    auto it = simData.find(id);
     HGCCellInfo& cell = (simData.end() == it ? zeroData : it->second);
     addCellMetadata(cell, theGeom, id);
 
@@ -104,7 +104,7 @@ void HGCHEbackDigitizer::runRealisticDigitizer(std::unique_ptr<HGCalDigiCollecti
   for (const auto& id : validIds) {
     chargeColl.fill(0.f);
     toa.fill(0.f);
-    HGCSimHitDataAccumulator::iterator it = simData.find(id);
+    auto it = simData.find(id);
     HGCCellInfo& cell = (simData.end() == it ? zeroData : it->second);
     addCellMetadata(cell, theGeom, id);
 
@@ -215,7 +215,7 @@ void HGCHEbackDigitizer::runCaliceLikeDigitizer(std::unique_ptr<HGCalDigiCollect
 
   for (const auto& id : validIds) {
     chargeColl.fill(0.f);
-    HGCSimHitDataAccumulator::iterator it = simData.find(id);
+    auto it = simData.find(id);
     HGCCellInfo& cell = (simData.end() == it ? zeroData : it->second);
     addCellMetadata(cell, theGeom, id);
 

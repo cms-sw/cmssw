@@ -449,8 +449,7 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
     // const ConstTrajTrackPairCollection &trajtracks = eventInfo.trajTrackPairs_; // trajTrackPairs_ now private
     const ConstTrajTrackPairCollection& trajtracks = eventInfo.trajTrackPairs();
 
-    for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin(); trajtrack != trajtracks.end();
-         ++trajtrack) {
+    for (auto trajtrack = trajtracks.begin(); trajtrack != trajtracks.end(); ++trajtrack) {
       m_counter_tracks++;
 
       const Trajectory* traj = (*trajtrack).first;
@@ -537,8 +536,7 @@ void MuonAlignmentFromReference::processMuonResidualsFromTrack(MuonResidualsFrom
 
           char charge = (mrft.getTrack()->charge() > 0 ? 1 : -1);
 
-          for (std::vector<DetId>::const_iterator chamberId = chamberIds.begin(); chamberId != chamberIds.end();
-               ++chamberId) {
+          for (auto chamberId = chamberIds.begin(); chamberId != chamberIds.end(); ++chamberId) {
             if (chamberId->det() != DetId::Muon)
               continue;
             m_counter_totchambers++;
@@ -555,8 +553,7 @@ void MuonAlignmentFromReference::processMuonResidualsFromTrack(MuonResidualsFrom
                   m_counter_station123dt13hits++;
                   if (dt2->numHits() >= m_minDT2Hits) {
                     m_counter_station123dt2hits++;
-                    std::map<Alignable*, MuonResidualsTwoBin*>::const_iterator fitter =
-                        m_fitters.find(dt13->chamberAlignable());
+                    auto fitter = m_fitters.find(dt13->chamberAlignable());
                     if (fitter != m_fitters.end()) {
                       m_counter_station123aligning++;
                       if (fabs(dt2->resslope()) < m_maxResSlopeY && (dt2->chi2() / double(dt2->ndof())) < 2.0) {
@@ -620,8 +617,7 @@ void MuonAlignmentFromReference::processMuonResidualsFromTrack(MuonResidualsFrom
                 if (dt13->numHits() >= m_minDT13Hits) {
                   m_counter_station4hits++;
 
-                  std::map<Alignable*, MuonResidualsTwoBin*>::const_iterator fitter =
-                      m_fitters.find(dt13->chamberAlignable());
+                  auto fitter = m_fitters.find(dt13->chamberAlignable());
                   if (fitter != m_fitters.end()) {
                     m_counter_station4aligning++;
 
@@ -678,7 +674,7 @@ void MuonAlignmentFromReference::processMuonResidualsFromTrack(MuonResidualsFrom
                   if (m_combineME11 && id.station() == 1 && id.ring() == 4)
                     ali = m_me11map[ali];
 
-                  std::map<Alignable*, MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(ali);
+                  auto fitter = m_fitters.find(ali);
                   if (fitter != m_fitters.end()) {
                     m_counter_cscaligning++;
                     double* residdata = new double[MuonResiduals6DOFrphiFitter::kNData];
@@ -975,7 +971,7 @@ void MuonAlignmentFromReference::fitAndAlign() {
 
     //if(! ( strcmp(cname,"MBwhCst3sec12")==0 || strcmp(cname,"MBwhCst3sec06")==0)) continue;
 
-    std::map<Alignable*, MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(thisali);
+    auto fitter = m_fitters.find(thisali);
 
     if (m_debug)
       std::cout << "***** loop over alignables 3" << std::endl;
@@ -1598,9 +1594,7 @@ void MuonAlignmentFromReference::fitAndAlign() {
 }
 
 void MuonAlignmentFromReference::readTmpFiles() {
-  for (std::vector<std::string>::const_iterator fileName = m_readTemporaryFiles.begin();
-       fileName != m_readTemporaryFiles.end();
-       ++fileName) {
+  for (auto fileName = m_readTemporaryFiles.begin(); fileName != m_readTemporaryFiles.end(); ++fileName) {
     FILE* file;
     int size;
     file = fopen((*fileName).c_str(), "r");
@@ -1615,7 +1609,7 @@ void MuonAlignmentFromReference::readTmpFiles() {
           << " fitters (probably corresponds to the wrong alignment job)" << std::endl;
 
     int i = 0;
-    for (std::vector<unsigned int>::const_iterator index = m_indexes.begin(); index != m_indexes.end(); ++index, ++i) {
+    for (auto index = m_indexes.begin(); index != m_indexes.end(); ++index, ++i) {
       MuonResidualsTwoBin* fitter = m_fitterOrder[*index];
       unsigned int index_toread;
       fread(&index_toread, sizeof(unsigned int), 1, file);
@@ -1638,7 +1632,7 @@ void MuonAlignmentFromReference::writeTmpFiles() {
   fwrite(&size, sizeof(int), 1, file);
 
   int i = 0;
-  for (std::vector<unsigned int>::const_iterator index = m_indexes.begin(); index != m_indexes.end(); ++index, ++i) {
+  for (auto index = m_indexes.begin(); index != m_indexes.end(); ++index, ++i) {
     MuonResidualsTwoBin* fitter = m_fitterOrder[*index];
     unsigned int index_towrite = *index;
     fwrite(&index_towrite, sizeof(unsigned int), 1, file);
@@ -1651,7 +1645,7 @@ void MuonAlignmentFromReference::writeTmpFiles() {
 void MuonAlignmentFromReference::correctBField() {
   bool m_debug = false;
 
-  for (std::vector<unsigned int>::const_iterator index = m_indexes.begin(); index != m_indexes.end(); ++index) {
+  for (auto index = m_indexes.begin(); index != m_indexes.end(); ++index) {
     if (m_debug)
       std::cout << "correcting B in " << chamberPrettyNameFromId(*index) << std::endl;
     MuonResidualsTwoBin* fitter = m_fitterOrder[*index];
@@ -1660,7 +1654,7 @@ void MuonAlignmentFromReference::correctBField() {
 }
 
 void MuonAlignmentFromReference::fiducialCuts() {
-  for (std::vector<unsigned int>::const_iterator index = m_indexes.begin(); index != m_indexes.end(); ++index) {
+  for (auto index = m_indexes.begin(); index != m_indexes.end(); ++index) {
     if (m_debug)
       std::cout << "applying fiducial cuts in " << chamberPrettyNameFromId(*index) << std::endl;
     MuonResidualsTwoBin* fitter = m_fitterOrder[*index];
@@ -1669,7 +1663,7 @@ void MuonAlignmentFromReference::fiducialCuts() {
 }
 
 void MuonAlignmentFromReference::eraseNotSelectedResiduals() {
-  for (std::vector<unsigned int>::const_iterator index = m_indexes.begin(); index != m_indexes.end(); ++index) {
+  for (auto index = m_indexes.begin(); index != m_indexes.end(); ++index) {
     if (m_debug)
       std::cout << "erasing in " << chamberPrettyNameFromId(*index) << std::endl;
     MuonResidualsTwoBin* fitter = m_fitterOrder[*index];
@@ -1681,7 +1675,7 @@ void MuonAlignmentFromReference::selectResidualsPeaks() {
   // should not be called with negative peakNSigma
   assert(m_peakNSigma > 0.);
 
-  for (std::vector<unsigned int>::const_iterator index = m_indexes.begin(); index != m_indexes.end(); ++index) {
+  for (auto index = m_indexes.begin(); index != m_indexes.end(); ++index) {
     MuonResidualsTwoBin* fitter = m_fitterOrder[*index];
 
     int nvar = 2;
@@ -1767,7 +1761,7 @@ std::string MuonAlignmentFromReference::chamberPrettyNameFromId(unsigned int idx
 void MuonAlignmentFromReference::fillNtuple() {
   // WARNING: does not support two bin option!!!
 
-  for (std::vector<unsigned int>::const_iterator index = m_indexes.begin(); index != m_indexes.end(); ++index) {
+  for (auto index = m_indexes.begin(); index != m_indexes.end(); ++index) {
     DetId detid(*index);
     if (detid.det() != DetId::Muon || !(detid.subdetId() == MuonSubdetId::DT || detid.subdetId() == MuonSubdetId::CSC))
       assert(false);
@@ -1790,8 +1784,8 @@ void MuonAlignmentFromReference::fillNtuple() {
 
     MuonResidualsTwoBin* fitter = m_fitterOrder[*index];
 
-    std::vector<double*>::const_iterator residual = fitter->residualsPos_begin();
-    std::vector<bool>::const_iterator residual_ok = fitter->residualsPos_ok_begin();
+    auto residual = fitter->residualsPos_begin();
+    auto residual_ok = fitter->residualsPos_ok_begin();
     for (; residual != fitter->residualsPos_end(); ++residual, ++residual_ok) {
       if (fitter->type() == MuonResidualsFitter::k5DOF || fitter->type() == MuonResidualsFitter::k6DOFrphi) {
         m_tree_row.res_x = (Float_t)(*residual)[MuonResiduals5DOFFitter::kResid];
@@ -1832,7 +1826,7 @@ void MuonAlignmentFromReference::parseReference(align::Alignables& reference,
                                                 const align::Alignables& all_CSC_chambers) {
   std::map<Alignable*, bool> already_seen;
 
-  for (std::vector<std::string>::const_iterator name = m_reference.begin(); name != m_reference.end(); ++name) {
+  for (auto name = m_reference.begin(); name != m_reference.end(); ++name) {
     bool parsing_error = false;
 
     bool barrel = (name->substr(0, 2) == std::string("MB"));
@@ -1918,7 +1912,7 @@ void MuonAlignmentFromReference::parseReference(align::Alignables& reference,
         DTChamberId id(wheel, station, sector);
         for (const auto& ali : all_DT_chambers) {
           if (ali->geomDetId().rawId() == id.rawId()) {
-            std::map<Alignable*, bool>::const_iterator trial = already_seen.find(ali);
+            auto trial = already_seen.find(ali);
             if (trial == already_seen.end()) {
               reference.push_back(ali);
               already_seen[ali] = true;
@@ -2012,7 +2006,7 @@ void MuonAlignmentFromReference::parseReference(align::Alignables& reference,
         CSCDetId id(endcap, station, ring, chamber);
         for (const auto& ali : all_CSC_chambers) {
           if (ali->geomDetId().rawId() == id.rawId()) {
-            std::map<Alignable*, bool>::const_iterator trial = already_seen.find(ali);
+            auto trial = already_seen.find(ali);
             if (trial == already_seen.end()) {
               reference.push_back(ali);
               already_seen[ali] = true;

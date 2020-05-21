@@ -94,7 +94,7 @@ void Phase2TrackerClusterizerAlgorithm::clusterizeDetUnit(const edm::DetSet<Phas
 
 void Phase2TrackerClusterizerAlgorithm::fillMatrix(edm::DetSet<Phase2TrackerDigi>::const_iterator begin,
                                                    edm::DetSet<Phase2TrackerDigi>::const_iterator end) {
-  for (edm::DetSet<Phase2TrackerDigi>::const_iterator di(begin); di != end; ++di)
+  for (auto di(begin); di != end; ++di)
     matrix_.set(di->row(), di->column(), true, di->overThreshold());
 }
 
@@ -104,6 +104,6 @@ void Phase2TrackerClusterizerAlgorithm::fillMatrix(edm::DetSet<Phase2TrackerDigi
 
 void Phase2TrackerClusterizerAlgorithm::clearMatrix(edm::DetSet<Phase2TrackerDigi>::const_iterator begin,
                                                     edm::DetSet<Phase2TrackerDigi>::const_iterator end) {
-  for (edm::DetSet<Phase2TrackerDigi>::const_iterator di(begin); di != end; ++di)
+  for (auto di(begin); di != end; ++di)
     matrix_.set(di->row(), di->column(), false, false);
 }

@@ -28,7 +28,7 @@ std::pair<std::vector<reco::TransientTrack>, GlobalPoint> TracksClusteringFromDi
   float sumWeights = 0;
   std::pair<bool, Measurement1D> ipSeed = IPTools::absoluteImpactParameter3D(seed, primaryVertex);
   float pvDistance = ipSeed.second.value();
-  for (std::vector<reco::TransientTrack>::const_iterator tt = tracks.begin(); tt != tracks.end(); ++tt) {
+  for (auto tt = tracks.begin(); tt != tracks.end(); ++tt) {
     if (*tt == seed)
       continue;
 
@@ -101,7 +101,7 @@ std::vector<TracksClusteringFromDisplacedSeed::Cluster> TracksClusteringFromDisp
     const reco::Vertex &pv, const std::vector<reco::TransientTrack> &selectedTracks) {
   using namespace reco;
   std::vector<TransientTrack> seeds;
-  for (std::vector<TransientTrack>::const_iterator it = selectedTracks.begin(); it != selectedTracks.end(); it++) {
+  for (auto it = selectedTracks.begin(); it != selectedTracks.end(); it++) {
     std::pair<bool, Measurement1D> ip = IPTools::absoluteImpactParameter3D(*it, pv);
     if (ip.first && ip.second.value() >= min3DIPValue && ip.second.significance() >= min3DIPSignificance &&
         ip.second.value() <= max3DIPValue && ip.second.significance() <= max3DIPSignificance) {
@@ -117,7 +117,7 @@ std::vector<TracksClusteringFromDisplacedSeed::Cluster> TracksClusteringFromDisp
 
   std::vector<Cluster> clusters;
   int i = 0;
-  for (std::vector<TransientTrack>::const_iterator s = seeds.begin(); s != seeds.end(); ++s, ++i) {
+  for (auto s = seeds.begin(); s != seeds.end(); ++s, ++i) {
 #ifdef VTXDEBUG
     std::cout << "Seed N. " << i << std::endl;
 #endif  // VTXDEBUG

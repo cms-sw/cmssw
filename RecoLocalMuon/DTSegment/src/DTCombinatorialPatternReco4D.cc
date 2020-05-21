@@ -160,7 +160,7 @@ OwnVector<DTRecSegment4D> DTCombinatorialPatternReco4D::reconstruct() {
   if (debug)
     cout << "Building of the concrete DTRecSegment4D" << endl;
   if (!resultPhi.empty()) {
-    for (vector<DTSegmentCand*>::const_iterator phi = resultPhi.begin(); phi != resultPhi.end(); ++phi) {
+    for (auto phi = resultPhi.begin(); phi != resultPhi.end(); ++phi) {
       std::unique_ptr<DTChamberRecSegment2D> superPhi(**phi);
 
       theUpdator->update(superPhi.get(), false);
@@ -170,8 +170,7 @@ OwnVector<DTRecSegment4D> DTCombinatorialPatternReco4D::reconstruct() {
       if (hasZed) {
         // Create all the 4D-segment combining the Z view with the Phi one
         // loop over the Z segments
-        for (vector<DTSLRecSegment2D>::const_iterator zed = theSegments2DTheta.begin(); zed != theSegments2DTheta.end();
-             ++zed) {
+        for (auto zed = theSegments2DTheta.begin(); zed != theSegments2DTheta.end(); ++zed) {
           if (debug)
             cout << "Theta: " << *zed << endl;
           // Important!!
@@ -226,8 +225,7 @@ OwnVector<DTRecSegment4D> DTCombinatorialPatternReco4D::reconstruct() {
   } else {
     // DTRecSegment4D from zed projection only (unlikely, not so useful, but...)
     if (hasZed) {
-      for (vector<DTSLRecSegment2D>::const_iterator zed = theSegments2DTheta.begin(); zed != theSegments2DTheta.end();
-           ++zed) {
+      for (auto zed = theSegments2DTheta.begin(); zed != theSegments2DTheta.end(); ++zed) {
         if (debug)
           cout << "Theta: " << *zed << endl;
 
@@ -254,7 +252,7 @@ OwnVector<DTRecSegment4D> DTCombinatorialPatternReco4D::reconstruct() {
     }
   }
   // finally delete the candidates!
-  for (vector<DTSegmentCand*>::iterator phi = resultPhi.begin(); phi != resultPhi.end(); ++phi)
+  for (auto phi = resultPhi.begin(); phi != resultPhi.end(); ++phi)
     delete *phi;
 
   return result;

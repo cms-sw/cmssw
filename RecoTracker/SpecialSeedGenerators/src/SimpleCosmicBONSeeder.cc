@@ -104,7 +104,7 @@ void SimpleCosmicBONSeeder::produce(edm::Event &ev, const edm::EventSetup &es) {
         }
 
         if (writeTriplets_) {
-          for (OrderedHitTriplets::const_iterator it = hitTriplets.begin(); it != hitTriplets.end(); ++it) {
+          for (auto it = hitTriplets.begin(); it != hitTriplets.end(); ++it) {
             const TrackingRecHit *hit1 = it->inner()->hit();
             const TrackingRecHit *hit2 = it->middle()->hit();
             const TrackingRecHit *hit3 = it->outer()->hit();
@@ -316,7 +316,7 @@ bool SimpleCosmicBONSeeder::checkCharge(const TrackingRecHit *hit) const {
     return true;
   } else {
     if (typeid(*hit) == typeid(SiStripMatchedRecHit2D)) {
-      const SiStripMatchedRecHit2D *mhit = static_cast<const SiStripMatchedRecHit2D *>(hit);
+      const auto *mhit = static_cast<const SiStripMatchedRecHit2D *>(hit);
       if (matchedRecHitUsesAnd_) {
         return checkCharge(mhit->monoHit(), subdet) && checkCharge(mhit->stereoHit(), subdet);
       } else {
@@ -347,8 +347,8 @@ bool SimpleCosmicBONSeeder::checkCharge(const SiStripRecHit2D &hit, int subdetid
 void SimpleCosmicBONSeeder::checkNoisyModules(const std::vector<SeedingHitSet::ConstRecHitPointer> &hits,
                                               std::vector<bool> &oks) const {
   typedef SeedingHitSet::ConstRecHitPointer TTRH;
-  std::vector<TTRH>::const_iterator it = hits.begin(), start = it, end = hits.end();
-  std::vector<bool>::iterator ok = oks.begin(), okStart = ok;
+  auto it = hits.begin(), start = it, end = hits.end();
+  auto ok = oks.begin(), okStart = ok;
   while (start < end) {
     DetId lastid = (*start)->geographicalId();
     for (it = start + 1; (it < end) && ((*it)->geographicalId() == lastid); ++it) {

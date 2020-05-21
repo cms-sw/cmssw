@@ -36,7 +36,7 @@ void ApvAnalysis::updateCalibration(edm::DetSet<SiStripRawDigi>& in) {
     PedestalType pedestal = theTkPedestalCalculator->pedestal();
     PedestalType tmp;
     tmp.clear();
-    edm::DetSet<SiStripRawDigi>::const_iterator it = in.data.begin();
+    auto it = in.data.begin();
     int i = 0;
     for (; it != in.data.end(); it++) {
       tmp.push_back((*it).adc() - pedestal[i]);

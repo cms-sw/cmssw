@@ -90,7 +90,7 @@ string FastPrunePlugin::description() const {
        << "Pruning parameters: "
        << "zcut = " << _cut_setter->zcut << ", "
        << "Rcut_factor = ";
-  if (DefaultCutSetter* cs = dynamic_cast<DefaultCutSetter*>(_cut_setter))
+  if (auto* cs = dynamic_cast<DefaultCutSetter*>(_cut_setter))
     desc << cs->Rcut_factor;
   else
     desc << "[dynamic]";
@@ -172,7 +172,7 @@ void FastPrunePlugin::_output_mergings(ClusterSequence& in_seq,
 
   // get the history from in_seq
   const vector<ClusterSequence::history_element>& hist = in_seq.history();
-  vector<ClusterSequence::history_element>::const_iterator iter = hist.begin();
+  auto iter = hist.begin();
 
   // skip particle input elements
   while (iter->parent1 == ClusterSequence::InexistentParent)

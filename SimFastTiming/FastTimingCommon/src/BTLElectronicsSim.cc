@@ -49,7 +49,7 @@ void BTLElectronicsSim::run(const mtd::MTDSimHitDataAccumulator& input,
                             CLHEP::HepRandomEngine* hre) const {
   MTDSimHitData chargeColl, toa1, toa2;
 
-  for (MTDSimHitDataAccumulator::const_iterator it = input.begin(); it != input.end(); it++) {
+  for (auto it = input.begin(); it != input.end(); it++) {
     // --- Digitize only the in-time bucket:
     const unsigned int iBX = mtd_digitizer::kInTimeBX;
 

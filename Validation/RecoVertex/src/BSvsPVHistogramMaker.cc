@@ -218,7 +218,7 @@ void BSvsPVHistogramMaker::fill(const unsigned int orbit,
                                 const int bx,
                                 const reco::VertexCollection& vertices,
                                 const reco::BeamSpot& bs) {
-  for (reco::VertexCollection::const_iterator vtx = vertices.begin(); vtx != vertices.end(); ++vtx) {
+  for (auto vtx = vertices.begin(); vtx != vertices.end(); ++vtx) {
     if (!(_trueOnly && vtx->isFake())) {
       /*
       double deltax = vtx->x()-bs.x0();

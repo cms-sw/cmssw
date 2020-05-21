@@ -176,8 +176,8 @@ void PreshowerPhiClusterProducer::produce(edm::Event& evt, const edm::EventSetup
 
         if (nBC == 0) {
           if (strip1 != ESDetId(0) && strip2 != ESDetId(0)) {
-            ESChannelStatusMap::const_iterator status_p1 = channelStatus->getMap().find(strip1);
-            ESChannelStatusMap::const_iterator status_p2 = channelStatus->getMap().find(strip2);
+            auto status_p1 = channelStatus->getMap().find(strip1);
+            auto status_p2 = channelStatus->getMap().find(strip2);
             if (status_p1->getStatusCode() == 1)
               condP1 = 0;
             if (status_p2->getStatusCode() == 1)

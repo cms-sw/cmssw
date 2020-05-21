@@ -55,7 +55,7 @@ std::shared_ptr<LHEProxy> LHEProxy::find(ProxyID id) {
   if (!map)
     return std::shared_ptr<LHEProxy>();
 
-  ProxyMap::const_iterator pos = map->find(id);
+  auto pos = map->find(id);
   if (pos == map->end())
     return std::shared_ptr<LHEProxy>();
 

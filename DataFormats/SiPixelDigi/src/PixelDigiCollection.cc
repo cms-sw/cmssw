@@ -13,16 +13,16 @@ void PixelDigiCollection::put(Range input, unsigned int detID) {
 
   // fill input in temporary vector for sorting
   std::vector<PixelDigi> temporary;
-  PixelDigiCollection::ContainerIterator sort_begin = input.first;
-  PixelDigiCollection::ContainerIterator sort_end = input.second;
+  auto sort_begin = input.first;
+  auto sort_end = input.second;
   for (; sort_begin != sort_end; ++sort_begin) {
     temporary.push_back(*sort_begin);
   }
   std::sort(temporary.begin(), temporary.end());
 
   // iterators over input
-  PixelDigiCollection::ContainerIterator begin = temporary.begin();
-  PixelDigiCollection::ContainerIterator end = temporary.end();
+  auto begin = temporary.begin();
+  auto end = temporary.end();
   for (; begin != end; ++begin) {
     container_.push_back(*begin);
     if (first) {
@@ -55,8 +55,8 @@ const PixelDigiCollection::Range PixelDigiCollection::get(unsigned int detID) co
 const std::vector<unsigned int> PixelDigiCollection::detIDs() const {
   // returns vector of detIDs in map
 
-  PixelDigiCollection::RegistryIterator begin = map_.begin();
-  PixelDigiCollection::RegistryIterator end = map_.end();
+  auto begin = map_.begin();
+  auto end = map_.end();
 
   std::vector<unsigned int> output;
 

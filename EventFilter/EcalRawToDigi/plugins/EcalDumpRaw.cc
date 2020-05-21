@@ -205,7 +205,7 @@ void EcalDumpRaw::analyze(const edm::Event& event, const edm::EventSetup& es) {
       cout << "L1A history is empty.\n";
     } else {
       cout << "L1A history: \n";
-      for (L1AcceptBunchCrossingCollection::const_iterator it = l1aHist->begin(); it != l1aHist->end(); ++it) {
+      for (auto it = l1aHist->begin(); it != l1aHist->end(); ++it) {
         cout << "L1A offset: " << it->l1AcceptOffset() << "\t"
              << "BX: " << it->bunchCrossing() << "\t"
              << "Orbit ID: " << it->orbitNumber() << "\t"

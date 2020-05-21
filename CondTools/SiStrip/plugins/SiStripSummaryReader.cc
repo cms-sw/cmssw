@@ -32,7 +32,7 @@ void SiStripSummaryReader::analyze(const edm::Event& e, const edm::EventSetup& i
       SiStripSummary::Range range = SiStripSummary_->getRange(detid[id]);
 
       size_t c = 0;
-      for (SiStripSummary::ContainerIterator it = range.first; it != range.second; ++it) {
+      for (auto it = range.first; it != range.second; ++it) {
         ss << "\n\t\t " << userDB[c++] << " " << *it;
       }
     }

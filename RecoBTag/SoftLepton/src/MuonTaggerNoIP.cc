@@ -9,7 +9,7 @@ float MuonTaggerNoIP::discriminator(const TagInfoHelper& tagInfo) const {
   MuonTaggerNoIPMLP theNet{};
   // default value, used if there are no leptons associated to this jet
   float bestTag = -std::numeric_limits<float>::infinity();
-  const reco::SoftLeptonTagInfo& info = tagInfo.get<reco::SoftLeptonTagInfo>();
+  const auto& info = tagInfo.get<reco::SoftLeptonTagInfo>();
   // if there are multiple leptons, look for the highest tag result
   for (unsigned int i = 0; i < info.leptons(); i++) {
     const reco::SoftLeptonProperties& properties = info.properties(i);

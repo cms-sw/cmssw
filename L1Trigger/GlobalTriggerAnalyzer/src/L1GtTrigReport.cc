@@ -132,7 +132,7 @@ L1GtTrigReport::L1GtTrigReport(const edm::ParameterSet& pSet)
 
 // destructor
 L1GtTrigReport::~L1GtTrigReport() {
-  for (ItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
+  for (auto itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
     if (*itEntry != nullptr) {
       delete *itEntry;
       *itEntry = nullptr;
@@ -141,7 +141,7 @@ L1GtTrigReport::~L1GtTrigReport() {
 
   m_entryList.clear();
 
-  for (ItEntry itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
+  for (auto itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
     if (*itEntry != nullptr) {
       delete *itEntry;
       *itEntry = nullptr;
@@ -413,7 +413,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
 
   if (validRecord) {
     // loop over algorithms and increase the corresponding counters
-    for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
+    for (auto itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
       std::string algName = itAlgo->first;
       int algBitNumber = (itAlgo->second).algoBitNumber();
 
@@ -450,12 +450,11 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
           }
         }
 
-        L1GtTrigReportEntry* entryRep =
-            new L1GtTrigReportEntry(menuName, algName, prescaleFactor, triggerMask, iDaqPartition);
+        auto* entryRep = new L1GtTrigReportEntry(menuName, algName, prescaleFactor, triggerMask, iDaqPartition);
 
         int iCount = 0;
 
-        for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
+        for (auto itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
           if ((*entryRep) == *(*itEntry)) {
             iCount++;
             // increase the corresponding counter in the list entry
@@ -475,7 +474,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
     }
 
     // loop over technical triggers and increase the corresponding counters
-    for (CItAlgo itAlgo = technicalTriggerMap.begin(); itAlgo != technicalTriggerMap.end(); itAlgo++) {
+    for (auto itAlgo = technicalTriggerMap.begin(); itAlgo != technicalTriggerMap.end(); itAlgo++) {
       //for (unsigned int iTechTrig = 0; iTechTrig < m_numberTechnicalTriggers; ++iTechTrig) {
 
       std::string ttName = itAlgo->first;
@@ -516,12 +515,11 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
           }
         }
 
-        L1GtTrigReportEntry* entryRep =
-            new L1GtTrigReportEntry(menuName, ttName, prescaleFactor, triggerMask, iDaqPartition);
+        auto* entryRep = new L1GtTrigReportEntry(menuName, ttName, prescaleFactor, triggerMask, iDaqPartition);
 
         int iCount = 0;
 
-        for (CItEntry itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
+        for (auto itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
           if ((*entryRep) == *(*itEntry)) {
             iCount++;
             // increase the corresponding counter in the list entry
@@ -542,7 +540,7 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
 
   } else {
     // loop over algorithms and increase the error counters
-    for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
+    for (auto itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
       std::string algName = itAlgo->first;
       int algBitNumber = (itAlgo->second).algoBitNumber();
 
@@ -551,12 +549,11 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
       for (unsigned int iDaqPartition = 0; iDaqPartition < m_numberDaqPartitions; ++iDaqPartition) {
         unsigned int triggerMask = (m_triggerMaskAlgoTrig.at(algBitNumber)) & (1 << iDaqPartition);
 
-        L1GtTrigReportEntry* entryRep =
-            new L1GtTrigReportEntry(menuName, algName, prescaleFactor, triggerMask, iDaqPartition);
+        auto* entryRep = new L1GtTrigReportEntry(menuName, algName, prescaleFactor, triggerMask, iDaqPartition);
 
         int iCount = 0;
 
-        for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
+        for (auto itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
           if ((*entryRep) == *(*itEntry)) {
             iCount++;
             // increase the corresponding counter in the list entry
@@ -589,12 +586,11 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
       for (unsigned int iDaqPartition = 0; iDaqPartition < m_numberDaqPartitions; ++iDaqPartition) {
         unsigned int triggerMask = (m_triggerMaskTechTrig.at(ttBitNumber)) & (1 << iDaqPartition);
 
-        L1GtTrigReportEntry* entryRep =
-            new L1GtTrigReportEntry(menuName, ttName, prescaleFactor, triggerMask, iDaqPartition);
+        auto* entryRep = new L1GtTrigReportEntry(menuName, ttName, prescaleFactor, triggerMask, iDaqPartition);
 
         int iCount = 0;
 
-        for (CItEntry itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
+        for (auto itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
           if ((*entryRep) == *(*itEntry)) {
             iCount++;
             // increase the corresponding counter in the list entry
@@ -655,12 +651,12 @@ void L1GtTrigReport::endJob() {
   std::set<std::string> menuList;
   typedef std::set<std::string>::const_iterator CItL1Menu;
 
-  for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
+  for (auto itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
     menuList.insert((*itEntry)->gtTriggerMenuName());
   }
 
   myCout << "\nThe following L1 menus were used for this sample: " << std::endl;
-  for (CItL1Menu itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
+  for (auto itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
     myCout << "  " << (*itMenu) << std::endl;
   }
   myCout << "\n" << std::endl;
@@ -674,7 +670,7 @@ void L1GtTrigReport::endJob() {
              << " and trigger masks\n"
              << " if not explicitly mentioned.\n\n";
 
-      for (CItL1Menu itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
+      for (auto itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
         myCout << "\nReport for L1 menu:  " << (*itMenu) << "\n" << std::endl;
 
         myCout << std::right << std::setw(45) << "Algorithm Key"
@@ -683,7 +679,7 @@ void L1GtTrigReport::endJob() {
                << " " << std::right << std::setw(10) << "Error"
                << "\n";
 
-        for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
+        for (auto itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
           if (((*itEntry)->gtDaqPartition() == m_physicsDaqPartition) && ((*itEntry)->gtTriggerMenuName() == *itMenu)) {
             myCout << std::right << std::setw(45) << (*itEntry)->gtAlgoName() << " " << std::right << std::setw(10)
                    << (*itEntry)->gtNrEventsAccept() << " " << std::right << std::setw(10)
@@ -699,7 +695,7 @@ void L1GtTrigReport::endJob() {
                << " " << std::right << std::setw(10) << "Error"
                << "\n";
 
-        for (CItEntry itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
+        for (auto itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
           if (((*itEntry)->gtDaqPartition() == m_physicsDaqPartition) && ((*itEntry)->gtTriggerMenuName() == *itMenu)) {
             myCout << std::right << std::setw(45) << (*itEntry)->gtAlgoName() << " " << std::right << std::setw(10)
                    << (*itEntry)->gtNrEventsAccept() << " " << std::right << std::setw(10)
@@ -720,7 +716,7 @@ void L1GtTrigReport::endJob() {
              << " and trigger masks\n"
              << " if not explicitly mentioned.\n\n";
 
-      for (CItL1Menu itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
+      for (auto itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
         myCout << "\nReport for L1 menu:  " << (*itMenu) << "\n" << std::endl;
         myCout << std::right << std::setw(45) << "Algorithm Key"
                << " " << std::right << std::setw(10) << "Prescale"
@@ -730,7 +726,7 @@ void L1GtTrigReport::endJob() {
                << " " << std::right << std::setw(10) << "Error" << std::setw(2) << " "
                << "\n";
 
-        for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
+        for (auto itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
           if (((*itEntry)->gtDaqPartition() == m_physicsDaqPartition) && ((*itEntry)->gtTriggerMenuName() == *itMenu)) {
             myCout << std::right << std::setw(45) << (*itEntry)->gtAlgoName() << " " << std::right << std::setw(10)
                    << (*itEntry)->gtPrescaleFactor() << "    " << std::right << std::setw(2)  //<< std::setfill('0')
@@ -751,7 +747,7 @@ void L1GtTrigReport::endJob() {
                << " " << std::right << std::setw(10) << "Error" << std::setw(2) << " "
                << "\n";
 
-        for (CItEntry itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
+        for (auto itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
           if (((*itEntry)->gtDaqPartition() == m_physicsDaqPartition) && ((*itEntry)->gtTriggerMenuName() == *itMenu)) {
             myCout << std::right << std::setw(45) << (*itEntry)->gtAlgoName() << " " << std::right << std::setw(10)
                    << (*itEntry)->gtPrescaleFactor() << "    " << std::right << std::setw(2)  //<< std::setfill('0')
@@ -768,7 +764,7 @@ void L1GtTrigReport::endJob() {
 
     break;
     case 2: {
-      for (CItL1Menu itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
+      for (auto itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
         myCout << "\nReport for L1 menu:  " << (*itMenu) << "\n" << std::endl;
 
         myCout << std::right << std::setw(45) << "Algorithm Key"
@@ -777,7 +773,7 @@ void L1GtTrigReport::endJob() {
                << " " << std::right << std::setw(10) << "Error"
                << "\n";
 
-        for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
+        for (auto itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
           if (((*itEntry)->gtDaqPartition() == m_physicsDaqPartition) && ((*itEntry)->gtTriggerMenuName() == *itMenu)) {
             int nrEventsAccept = (*itEntry)->gtNrEventsAccept();
             int nrEventsReject = (*itEntry)->gtNrEventsReject();
@@ -797,7 +793,7 @@ void L1GtTrigReport::endJob() {
                << " " << std::right << std::setw(10) << "Stat error (%)"
                << "\n";
 
-        for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
+        for (auto itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
           if (((*itEntry)->gtDaqPartition() == 0) && ((*itEntry)->gtTriggerMenuName() == *itMenu)) {
             int nrEventsAccept = (*itEntry)->gtNrEventsAccept();
             int nrEventsReject = (*itEntry)->gtNrEventsReject();
@@ -827,7 +823,7 @@ void L1GtTrigReport::endJob() {
                << " " << std::right << std::setw(10) << "Error"
                << "\n";
 
-        for (CItEntry itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
+        for (auto itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
           if (((*itEntry)->gtDaqPartition() == m_physicsDaqPartition) && ((*itEntry)->gtTriggerMenuName() == *itMenu)) {
             int nrEventsAccept = (*itEntry)->gtNrEventsAccept();
             int nrEventsReject = (*itEntry)->gtNrEventsReject();
@@ -847,7 +843,7 @@ void L1GtTrigReport::endJob() {
                << " " << std::right << std::setw(10) << "Stat error (%)"
                << "\n";
 
-        for (CItEntry itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
+        for (auto itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
           if (((*itEntry)->gtDaqPartition() == 0) && ((*itEntry)->gtTriggerMenuName() == *itMenu)) {
             int nrEventsAccept = (*itEntry)->gtNrEventsAccept();
             int nrEventsReject = (*itEntry)->gtNrEventsReject();
@@ -877,7 +873,7 @@ void L1GtTrigReport::endJob() {
       myCout << "\nL1T-Report "
              << "---------- L1 Trigger Global Summary - DAQ Partition " << m_physicsDaqPartition << "----------\n\n";
 
-      for (CItL1Menu itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
+      for (auto itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
         myCout << "\nReport for L1 menu:  " << (*itMenu) << "\n" << std::endl;
         myCout << std::right << std::setw(45) << "Algorithm Key"
                << " " << std::right << std::setw(10) << "Prescale"
@@ -891,7 +887,7 @@ void L1GtTrigReport::endJob() {
                << std::right << std::setw(1) << " " << std::setw(15) << "Rejected"
                << "\n";
 
-        for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
+        for (auto itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
           if (((*itEntry)->gtDaqPartition() == m_physicsDaqPartition) && ((*itEntry)->gtTriggerMenuName() == *itMenu)) {
             myCout << std::right << std::setw(45) << (*itEntry)->gtAlgoName() << " " << std::right << std::setw(10)
                    << (*itEntry)->gtPrescaleFactor() << " " << std::right << std::setw(5) << " " << std::hex
@@ -917,7 +913,7 @@ void L1GtTrigReport::endJob() {
                << std::right << std::setw(1) << " " << std::setw(15) << "Rejected"
                << "\n";
 
-        for (CItEntry itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
+        for (auto itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
           if (((*itEntry)->gtDaqPartition() == m_physicsDaqPartition) && ((*itEntry)->gtTriggerMenuName() == *itMenu)) {
             myCout << std::right << std::setw(45) << (*itEntry)->gtAlgoName() << " " << std::right << std::setw(10)
                    << (*itEntry)->gtPrescaleFactor() << " " << std::right << std::setw(5) << " " << std::hex
@@ -945,7 +941,7 @@ void L1GtTrigReport::endJob() {
                << " " << std::right << std::setw(10) << "Error" << std::setw(2) << " "
                << "\n";
 
-        for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
+        for (auto itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
           if (((*itEntry)->gtDaqPartition() == 0)) {
             myCout << std::right << std::setw(45) << (*itEntry)->gtAlgoName() << " " << std::right << std::setw(10)
                    << (*itEntry)->gtNrEventsAccept() << " " << std::right << std::setw(10)
@@ -962,7 +958,7 @@ void L1GtTrigReport::endJob() {
                << " " << std::right << std::setw(10) << "Error" << std::setw(2) << " "
                << "\n";
 
-        for (CItEntry itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
+        for (auto itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
           if ((*itEntry)->gtDaqPartition() == 0) {
             myCout << std::right << std::setw(45) << (*itEntry)->gtAlgoName() << " " << std::right << std::setw(10)
                    << (*itEntry)->gtNrEventsAccept() << " " << std::right << std::setw(10)
@@ -989,7 +985,7 @@ void L1GtTrigReport::endJob() {
                << " " << std::right << std::setw(10) << "Error" << std::setw(2) << " "
                << "\n";
 
-        for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
+        for (auto itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
           if ((*itEntry)->gtDaqPartition() == 0) {
             myCout << std::right << std::setw(45) << (*itEntry)->gtAlgoName() << " " << std::right << std::setw(10)
                    << (*itEntry)->gtPrescaleFactor() << "   " << std::right << std::setw(2)  //<< std::setfill('0')
@@ -1010,7 +1006,7 @@ void L1GtTrigReport::endJob() {
                << " " << std::right << std::setw(10) << "Error" << std::setw(2) << " "
                << "\n";
 
-        for (CItEntry itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
+        for (auto itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
           if ((*itEntry)->gtDaqPartition() == 0) {
             myCout << std::right << std::setw(45) << (*itEntry)->gtAlgoName() << " " << std::right << std::setw(10)
                    << (*itEntry)->gtPrescaleFactor() << "   " << std::right << std::setw(2)  //<< std::setfill('0')

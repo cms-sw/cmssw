@@ -46,8 +46,8 @@ void L1ComparatorRun2::produce(Event& iEvent, const EventSetup& iSetup) {
       int good = 0;
       int compared = 0;
 
-      for (JetBxCollection::const_iterator itd = jet_data->begin(bx); itd != jet_data->end(bx); itd++) {
-        for (JetBxCollection::const_iterator ite = jet_emul->begin(bx); ite != jet_emul->end(bx); ite++) {
+      for (auto itd = jet_data->begin(bx); itd != jet_data->end(bx); itd++) {
+        for (auto ite = jet_emul->begin(bx); ite != jet_emul->end(bx); ite++) {
           if (distance(jet_data->begin(bx), itd) == distance(jet_emul->begin(bx), ite)) {
             compared += 1;
             if (itd->hwPt() == ite->hwPt())
@@ -90,8 +90,8 @@ void L1ComparatorRun2::produce(Event& iEvent, const EventSetup& iSetup) {
       int good = 0;
       int compared = 0;
 
-      for (EGammaBxCollection::const_iterator itd = eg_data->begin(bx); itd != eg_data->end(bx); itd++) {
-        for (EGammaBxCollection::const_iterator ite = eg_emul->begin(bx); ite != eg_emul->end(bx); ite++) {
+      for (auto itd = eg_data->begin(bx); itd != eg_data->end(bx); itd++) {
+        for (auto ite = eg_emul->begin(bx); ite != eg_emul->end(bx); ite++) {
           if (distance(eg_data->begin(bx), itd) == distance(eg_emul->begin(bx), ite)) {
             compared += 1;
             if (itd->hwPt() == ite->hwPt())
@@ -135,8 +135,8 @@ void L1ComparatorRun2::produce(Event& iEvent, const EventSetup& iSetup) {
       int good = 0;
       int compared = 0;
 
-      for (TauBxCollection::const_iterator itd = tau_data->begin(bx); itd != tau_data->end(bx); itd++) {
-        for (TauBxCollection::const_iterator ite = tau_emul->begin(bx); ite != tau_emul->end(bx); ite++) {
+      for (auto itd = tau_data->begin(bx); itd != tau_data->end(bx); itd++) {
+        for (auto ite = tau_emul->begin(bx); ite != tau_emul->end(bx); ite++) {
           if (distance(tau_data->begin(bx), itd) == distance(tau_emul->begin(bx), ite)) {
             compared += 1;
             if (itd->hwPt() == ite->hwPt())
@@ -180,8 +180,8 @@ void L1ComparatorRun2::produce(Event& iEvent, const EventSetup& iSetup) {
       int good = 0;
       int compared = 0;
 
-      for (EtSumBxCollection::const_iterator itd = et_data->begin(bx); itd != et_data->end(bx); itd++) {
-        for (EtSumBxCollection::const_iterator ite = et_emul->begin(bx); ite != et_emul->end(bx); ite++) {
+      for (auto itd = et_data->begin(bx); itd != et_data->end(bx); itd++) {
+        for (auto ite = et_emul->begin(bx); ite != et_emul->end(bx); ite++) {
           if (distance(et_data->begin(bx), itd) == distance(et_emul->begin(bx), ite)) {
             compared += 1;
             if (itd->hwPt() == ite->hwPt())
@@ -227,8 +227,8 @@ void L1ComparatorRun2::produce(Event& iEvent, const EventSetup& iSetup) {
       int hcalgood = 0;
       int ecalgood = 0;
 
-      for (CaloTowerBxCollection::const_iterator itd = tower_data->begin(bx); itd != tower_data->end(bx); itd++) {
-        for (CaloTowerBxCollection::const_iterator ite = tower_emul->begin(bx); ite != tower_emul->end(bx); ite++) {
+      for (auto itd = tower_data->begin(bx); itd != tower_data->end(bx); itd++) {
+        for (auto ite = tower_emul->begin(bx); ite != tower_emul->end(bx); ite++) {
           if (distance(tower_data->begin(bx), itd) == distance(tower_emul->begin(bx), ite)) {
             compared += 1;
             if (itd->hwPt() == ite->hwPt())

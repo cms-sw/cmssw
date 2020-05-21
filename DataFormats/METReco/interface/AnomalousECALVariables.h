@@ -79,7 +79,7 @@ public:
       for (int cs = 0; cs < (int)limitDeadCellToChannelStatusEB.size(); ++cs) {
         int channelAllowed = limitDeadCellToChannelStatusEB[cs];
 
-        for (std::vector<int>::iterator st_it = status.begin(); st_it != status.end(); ++st_it) {
+        for (auto st_it = status.begin(); st_it != status.end(); ++st_it) {
           if (channelAllowed == *st_it || (channelAllowed < 0 && abs(channelAllowed) <= *st_it)) {
             passChannelLimitation = true;
             break;
@@ -105,7 +105,7 @@ public:
       for (int cs = 0; cs < (int)limitDeadCellToChannelStatusEE.size(); ++cs) {
         int channelAllowed = limitDeadCellToChannelStatusEE[cs];
 
-        for (std::vector<int>::iterator st_it = status.begin(); st_it != status.end(); ++st_it) {
+        for (auto st_it = status.begin(); st_it != status.end(); ++st_it) {
           if (channelAllowed == *st_it || (channelAllowed < 0 && abs(channelAllowed) <= *st_it)) {
             passChannelLimitation = true;
             break;

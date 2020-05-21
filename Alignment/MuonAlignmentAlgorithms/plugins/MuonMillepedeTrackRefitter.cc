@@ -86,7 +86,7 @@ void MuonMillepedeTrackRefitter::produce(edm::Event& event, const edm::EventSetu
 
   reco::TrackRef::key_type trackIndex = 0;
 
-  for (reco::TrackCollection::const_iterator trackSA = tracksSA->begin(); trackSA != tracksSA->end(); ++trackSA) {
+  for (auto trackSA = tracksSA->begin(); trackSA != tracksSA->end(); ++trackSA) {
     reco::TransientTrack tTrackSA(*trackSA, &*theMGField, theTrackingGeometry);
 
     //Create an empty trajectory
@@ -94,7 +94,7 @@ void MuonMillepedeTrackRefitter::produce(edm::Event& event, const edm::EventSetu
 
     TrajectoryStateOnSurface innerTSOS = tTrackSA.innermostMeasurementState();
 
-    for (trackingRecHit_iterator theHit = tTrackSA.recHitsBegin(); theHit != tTrackSA.recHitsEnd(); ++theHit) {
+    for (auto theHit = tTrackSA.recHitsBegin(); theHit != tTrackSA.recHitsEnd(); ++theHit) {
       TrackingRecHit* myClone = (*theHit)->clone();
       const GeomDet* myDet = theTrackingGeometry->idToDet((*theHit)->geographicalId());
       TrajectoryMeasurement myMeas(innerTSOS,

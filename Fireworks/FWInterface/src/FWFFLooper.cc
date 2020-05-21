@@ -422,7 +422,7 @@ void FWFFLooper::quit() {
   */
 edm::EDLooperBase::Status FWFFLooper::endOfLoop(const edm::EventSetup&, unsigned int) {
   // Looks like the module changer is availble only here.
-  for (ModuleChanges::iterator i = m_scheduledChanges.begin(), e = m_scheduledChanges.end(); i != e; ++i) {
+  for (auto i = m_scheduledChanges.begin(), e = m_scheduledChanges.end(); i != e; ++i) {
     try {
       moduleChanger()->changeModule(i->first, i->second);
     } catch (cms::Exception const& e) {

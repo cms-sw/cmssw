@@ -15,7 +15,7 @@ reco::PFClusterRef reco::PFClusterJet::pfCluster(size_t i) const {
   // check the daughter to be ok
   if (dau.isNonnull() && dau.isAvailable()) {
     // convert to concrete candidate type
-    const RecoPFClusterRefCandidate* pfClusterCand = dynamic_cast<const RecoPFClusterRefCandidate*>(dau.get());
+    const auto* pfClusterCand = dynamic_cast<const RecoPFClusterRefCandidate*>(dau.get());
     // check the candidate is of the right type
     if (pfClusterCand) {
       return pfClusterCand->pfCluster();

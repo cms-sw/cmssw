@@ -82,7 +82,7 @@ public:
     if (mu0 != nullptr) {
       iso0 = ((*mu0).*(leptonIsolation_))();
     } else {
-      const pat::GenericParticle *trk0 = dynamic_cast<const pat::GenericParticle *>(m0);
+      const auto *trk0 = dynamic_cast<const pat::GenericParticle *>(m0);
       if (trk0 != nullptr) {
         iso0 = ((*trk0).*(trackIsolation_))();
       } else {
@@ -94,7 +94,7 @@ public:
     if (mu1 != nullptr) {
       iso1 = ((*mu1).*(leptonIsolation_))();
     } else {
-      const pat::GenericParticle *trk1 = dynamic_cast<const pat::GenericParticle *>(m1);
+      const auto *trk1 = dynamic_cast<const pat::GenericParticle *>(m1);
       if (trk1 != nullptr) {
         iso1 = ((*trk1).*(trackIsolation_))();
       } else {

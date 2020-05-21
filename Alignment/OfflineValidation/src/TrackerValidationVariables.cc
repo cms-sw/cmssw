@@ -140,7 +140,7 @@ void TrackerValidationVariables::fillHitQuantities(reco::Track const& track, std
         resXprimeErr = hitStruct.resErrX;
         resYprimeErr = hitStruct.resErrY;
 
-        const RectangularPlaneBounds* rectangularBound = dynamic_cast<const RectangularPlaneBounds*>(&bound);
+        const auto* rectangularBound = dynamic_cast<const RectangularPlaneBounds*>(&bound);
         if (rectangularBound != nullptr) {
           hitStruct.inside = rectangularBound->inside(lPTrk);
           length = rectangularBound->length();
@@ -185,7 +185,7 @@ void TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory,
   TrajectoryStateCombiner tsoscomb;
 
   const std::vector<TrajectoryMeasurement>& tmColl = trajectory->measurements();
-  for (std::vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj != tmColl.end(); ++itTraj) {
+  for (auto itTraj = tmColl.begin(); itTraj != tmColl.end(); ++itTraj) {
     if (!itTraj->updatedState().isValid())
       continue;
 
@@ -288,7 +288,7 @@ void TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory,
         resXprimeErr = resXErr;
         resYprimeErr = resYErr;
 
-        const RectangularPlaneBounds* rectangularBound = dynamic_cast<const RectangularPlaneBounds*>(&bound);
+        const auto* rectangularBound = dynamic_cast<const RectangularPlaneBounds*>(&bound);
         if (rectangularBound != nullptr) {
           hitStruct.inside = rectangularBound->inside(lPTrk);
           length = rectangularBound->length();
@@ -309,7 +309,7 @@ void TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory,
         resXprimeErr = resXErr;
         resYprimeErr = resYErr;
 
-        const RectangularPlaneBounds* rectangularBound = dynamic_cast<const RectangularPlaneBounds*>(&bound);
+        const auto* rectangularBound = dynamic_cast<const RectangularPlaneBounds*>(&bound);
         if (rectangularBound != nullptr) {
           hitStruct.inside = rectangularBound->inside(lPTrk);
           length = rectangularBound->length();
@@ -327,7 +327,7 @@ void TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory,
 
         if (!dynamic_cast<const RadialStripTopology*>(&detUnit.type().topology()))
           continue;
-        const RadialStripTopology& topol = dynamic_cast<const RadialStripTopology&>(detUnit.type().topology());
+        const auto& topol = dynamic_cast<const RadialStripTopology&>(detUnit.type().topology());
 
         MeasurementPoint measHitPos = topol.measurementPosition(lPHit);
         MeasurementPoint measTrkPos = topol.measurementPosition(lPTrk);
@@ -371,7 +371,7 @@ void TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory,
         resYprimeErr = std::sqrt(measHitErr.vv() * localStripLengthHit * localStripLengthHit +
                                  measTrkErr.vv() * localStripLengthTrk * localStripLengthTrk + helpSummand);
 
-        const TrapezoidalPlaneBounds* trapezoidalBound = dynamic_cast<const TrapezoidalPlaneBounds*>(&bound);
+        const auto* trapezoidalBound = dynamic_cast<const TrapezoidalPlaneBounds*>(&bound);
         if (trapezoidalBound != nullptr) {
           hitStruct.inside = trapezoidalBound->inside(lPTrk);
           length = trapezoidalBound->length();

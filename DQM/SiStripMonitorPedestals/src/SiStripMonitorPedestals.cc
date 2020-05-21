@@ -131,9 +131,7 @@ void SiStripMonitorPedestals::createMEs(DQMStore::IBooker &ibooker, const edm::E
   edm::LogInfo("SiStripMonitorPedestals") << "SiStripMonitorPedestals::createMEs: "
                                           << "Number of Detector Present in cabling " << SelectedDetIds.size();
 
-  for (std::vector<uint32_t>::const_iterator idetid = SelectedDetIds.begin(), iEnd = SelectedDetIds.end();
-       idetid != iEnd;
-       ++idetid) {
+  for (auto idetid = SelectedDetIds.begin(), iEnd = SelectedDetIds.end(); idetid != iEnd; ++idetid) {
     uint32_t detid = *idetid;
 
     // Check consistency in DetId
@@ -293,12 +291,12 @@ void SiStripMonitorPedestals::analyze(const edm::Event &iEvent, const edm::Event
     nIteration_++;
 
   // loop over all MEs
-  for (std::map<uint32_t, ModMEs>::const_iterator i = PedMEs.begin(); i != PedMEs.end(); i++) {
+  for (auto i = PedMEs.begin(); i != PedMEs.end(); i++) {
     uint32_t detid = i->first;
     ModMEs local_modmes = i->second;
     // get iterators for digis belonging to one DetId, it is an iterator, i.e.
     // one element of the vector
-    std::vector<edm::DetSet<SiStripRawDigi>>::const_iterator digis = digi_collection->find(detid);
+    auto digis = digi_collection->find(detid);
     if (digis == digi_collection->end() || digis->data.empty() || digis->data.size() > 768) {
       if (digis == digi_collection->end()) {
         edm::LogError("SiStripMonitorPedestals") << " SiStripMonitorPedestals::analyze: Event " << nEvTot_ << " DetId "
@@ -339,7 +337,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event &iEvent, const edm::Event
         // unpacking the info looking at the right topology
         int numberCMBlocks = int(128. / NumCMstripsInGroup_);
         int ibin = 0;
-        for (std::vector<float>::const_iterator iped = tmp.begin(); iped != tmp.end(); iped++) {
+        for (auto iped = tmp.begin(); iped != tmp.end(); iped++) {
           int iapv = int(ibin / numberCMBlocks);
           (local_modmes.CMDistribution)->Fill(iapv, static_cast<float>(*iped));
           ibin++;
@@ -350,7 +348,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event &iEvent, const edm::Event
         tmp.clear();
         int iapv = 0;
         apvFactory_->getCommonModeSlope(id, tmp);
-        for (std::vector<float>::const_iterator it = tmp.begin(); it != tmp.end(); it++) {
+        for (auto it = tmp.begin(); it != tmp.end(); it++) {
           (local_modmes.CMSlopeDistribution)->Fill(iapv, static_cast<float>(*it));
           iapv++;
         }
@@ -374,7 +372,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event &iEvent, const edm::Event
         }
         int ibin = 0;
 
-        for (std::vector<float>::const_iterator iped = tmp.begin(); iped != tmp.end(); iped++) {
+        for (auto iped = tmp.begin(); iped != tmp.end(); iped++) {
           int napv = int(ibin / 128.);
           ibin++;
           float last_value = (local_modmes.PedsPerStrip)->getBinContent(ibin);
@@ -391,7 +389,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event &iEvent, const edm::Event
         tmp.clear();
         apvFactory_->getNoise(id, tmp);
         int ibin = 0;
-        for (std::vector<float>::const_iterator iped = tmp.begin(); iped != tmp.end(); iped++) {
+        for (auto iped = tmp.begin(); iped != tmp.end(); iped++) {
           ibin++;
           (local_modmes.CMSubNoiseProfile)->Fill(static_cast<double>(ibin * 1.), static_cast<float>(*iped));
 
@@ -408,7 +406,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event &iEvent, const edm::Event
         tmp.clear();
         apvFactory_->getRawNoise(id, tmp);
         int ibin = 0;
-        for (std::vector<float>::const_iterator iped = tmp.begin(); iped != tmp.end(); iped++) {
+        for (auto iped = tmp.begin(); iped != tmp.end(); iped++) {
           ibin++;
           (local_modmes.RawNoiseProfile)->Fill(static_cast<double>(ibin * 1.), static_cast<float>(*iped));
           float last_value = (local_modmes.RawNoisePerStrip)->getBinContent(ibin);
@@ -424,7 +422,7 @@ void SiStripMonitorPedestals::analyze(const edm::Event &iEvent, const edm::Event
         TkApvMask::MaskType temp;
         apvFactory_->getMask(id, temp);
         int ibin = 0;
-        for (TkApvMask::MaskType::const_iterator iped = temp.begin(); iped != temp.end(); iped++) {
+        for (auto iped = temp.begin(); iped != temp.end(); iped++) {
           ibin++;
 
           if (nIteration_ < 2) {
@@ -466,7 +464,7 @@ void SiStripMonitorPedestals::endJob(void) {
 // -- Reset Monitor Elements corresponding to a detetor
 //
 void SiStripMonitorPedestals::resetMEs(uint32_t idet) {
-  std::map<uint32_t, ModMEs>::iterator pos = PedMEs.find(idet);
+  auto pos = PedMEs.find(idet);
   if (pos != PedMEs.end()) {
     ModMEs mod_me = pos->second;
 
@@ -503,7 +501,7 @@ void SiStripMonitorPedestals::fillCondDBMEs(edm::EventSetup const &eSetup) {
   std::string quality_label = conf_.getParameter<std::string>("StripQualityLabel");
   eSetup.get<SiStripQualityRcd>().get(quality_label, qualityHandle);
 
-  for (std::map<uint32_t, ModMEs>::const_iterator i = PedMEs.begin(); i != PedMEs.end(); i++) {
+  for (auto i = PedMEs.begin(); i != PedMEs.end(); i++) {
     uint32_t detid = i->first;
     ModMEs local_modmes = i->second;
     edm::LogInfo("SiStripMonitorPedestals") << " SiStripMonitorPedestals::analyze: "

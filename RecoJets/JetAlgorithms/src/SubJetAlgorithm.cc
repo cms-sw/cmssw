@@ -39,21 +39,19 @@ void SubJetAlgorithm::run(const vector<fastjet::PseudoJet>& cell_particles, vect
   // are present in each jet
   vector<vector<int> > indices(inclusiveJets.size());
   // Loop over inclusive jets, attempt to find substructure
-  vector<fastjet::PseudoJet>::iterator jetIt = inclusiveJets.begin();
+  auto jetIt = inclusiveJets.begin();
   for (; jetIt != inclusiveJets.end(); ++jetIt) {
     //decompose into requested number of subjets:
     vector<fastjet::PseudoJet> subjets = fjClusterSeq->exclusive_subjets(*jetIt, nSubjets_);
     //create the subjets objects to put into the "output" objects
     vector<CompoundPseudoSubJet> subjetsOutput;
-    std::vector<fastjet::PseudoJet>::const_iterator itSubJetBegin = subjets.begin(), itSubJet = itSubJetBegin,
-                                                    itSubJetEnd = subjets.end();
+    auto itSubJetBegin = subjets.begin(), itSubJet = itSubJetBegin, itSubJetEnd = subjets.end();
     for (; itSubJet != itSubJetEnd; ++itSubJet) {
       // Get the transient subjet constituents from fastjet
       vector<fastjet::PseudoJet> subjetFastjetConstituents = fjClusterSeq->constituents(*itSubJet);
       // Get the indices of the constituents:
       vector<int> constituents;
-      vector<fastjet::PseudoJet>::const_iterator fastSubIt = subjetFastjetConstituents.begin(),
-                                                 transConstEnd = subjetFastjetConstituents.end();
+      auto fastSubIt = subjetFastjetConstituents.begin(), transConstEnd = subjetFastjetConstituents.end();
       for (; fastSubIt != transConstEnd; ++fastSubIt) {
         if (fastSubIt->user_index() >= 0) {
           constituents.push_back(fastSubIt->user_index());

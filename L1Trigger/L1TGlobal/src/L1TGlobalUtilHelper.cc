@@ -85,8 +85,7 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
       }
     } else {
       // no preferred input tag found yet, check now with the actual tag
-      for (std::vector<edm::InputTag>::const_iterator itPrefTag = preferredL1TAlgBlkInputTag.begin(),
-                                                      itPrefTagEnd = preferredL1TAlgBlkInputTag.end();
+      for (auto itPrefTag = preferredL1TAlgBlkInputTag.begin(), itPrefTagEnd = preferredL1TAlgBlkInputTag.end();
            itPrefTag != itPrefTagEnd;
            ++itPrefTag) {
         if (branchDescription.moduleLabel() == itPrefTag->label()) {
@@ -156,8 +155,7 @@ void l1t::L1TGlobalUtilHelper::operator()(edm::BranchDescription const& branchDe
     } else {
       // no preferred input tag found yet, check now with the actual tag
 
-      for (std::vector<edm::InputTag>::const_iterator itPrefTag = preferredL1TExtBlkInputTag.begin(),
-                                                      itPrefTagEnd = preferredL1TExtBlkInputTag.end();
+      for (auto itPrefTag = preferredL1TExtBlkInputTag.begin(), itPrefTagEnd = preferredL1TExtBlkInputTag.end();
            itPrefTag != itPrefTagEnd;
            ++itPrefTag) {
         if (branchDescription.moduleLabel() == itPrefTag->label()) {

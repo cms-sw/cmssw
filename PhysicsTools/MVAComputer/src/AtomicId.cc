@@ -29,14 +29,14 @@ namespace {  // anonymous
 }  // anonymous namespace
 
 IdCache::~IdCache() {
-  for (std::multiset<const char *, StringLess>::iterator iter = idSet.begin(); iter != idSet.end(); iter++)
+  for (auto iter = idSet.begin(); iter != idSet.end(); iter++)
     stringAllocator.deallocate(const_cast<char *>(*iter), std::strlen(*iter));
 }
 
 const char *IdCache::findOrInsert(const char *string) throw() {
   std::lock_guard<std::mutex> scoped_lock(mutex);
 
-  IdSet::iterator pos = idSet.lower_bound(string);
+  auto pos = idSet.lower_bound(string);
   if (pos != idSet.end() && std::strcmp(*pos, string) == 0)
     return *pos;
 

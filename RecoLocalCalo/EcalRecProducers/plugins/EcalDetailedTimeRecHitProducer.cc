@@ -158,9 +158,9 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 
   if (EBRecHits && ebTimeDigis) {
     // loop over uncalibrated rechits to make calibrated ones
-    for (EBRecHitCollection::const_iterator it = EBRecHits->begin(); it != EBRecHits->end(); ++it) {
+    for (auto it = EBRecHits->begin(); it != EBRecHits->end(); ++it) {
       EcalRecHit aHit((*it));
-      EcalTimeDigiCollection::const_iterator timeDigi = ebTimeDigis->find((*it).id());
+      auto timeDigi = ebTimeDigis->find((*it).id());
       if (timeDigi != ebTimeDigis->end()) {
         if (timeDigi->sampleOfInterest() >= 0) {
           float myTime = (*timeDigi)[timeDigi->sampleOfInterest()];
@@ -179,9 +179,9 @@ void EcalDetailedTimeRecHitProducer::produce(edm::Event& evt, const edm::EventSe
 
   if (EERecHits && eeTimeDigis) {
     // loop over uncalibrated rechits to make calibrated ones
-    for (EERecHitCollection::const_iterator it = EERecHits->begin(); it != EERecHits->end(); ++it) {
+    for (auto it = EERecHits->begin(); it != EERecHits->end(); ++it) {
       EcalRecHit aHit(*it);
-      EcalTimeDigiCollection::const_iterator timeDigi = eeTimeDigis->find((*it).id());
+      auto timeDigi = eeTimeDigis->find((*it).id());
       if (timeDigi != eeTimeDigis->end()) {
         if (timeDigi->sampleOfInterest() >= 0) {
           float myTime = (*timeDigi)[timeDigi->sampleOfInterest()];

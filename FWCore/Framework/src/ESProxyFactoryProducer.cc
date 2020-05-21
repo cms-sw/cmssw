@@ -36,7 +36,7 @@ namespace edm {
     KeyedProxiesVector keyedProxiesVector;
     using Iterator = Record2Factories::iterator;
     std::pair<Iterator, Iterator> range = record2Factories_.equal_range(iRecord);
-    for (Iterator it = range.first; it != range.second; ++it) {
+    for (auto it = range.first; it != range.second; ++it) {
       std::shared_ptr<DataProxy> proxy(it->second.factory_->makeProxy(iovIndex).release());
       if (nullptr != proxy.get()) {
         keyedProxiesVector.emplace_back((*it).second.key_, proxy);

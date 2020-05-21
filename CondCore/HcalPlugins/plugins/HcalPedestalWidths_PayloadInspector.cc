@@ -43,7 +43,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<HcalPedestalWidths> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        HcalPedestalWidthContainer* objContainer = new HcalPedestalWidthContainer(payload, std::get<0>(iov));
+        auto* objContainer = new HcalPedestalWidthContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasAll()->SaveAs(ImageName.c_str());
         return true;
@@ -70,8 +70,8 @@ namespace {
       std::shared_ptr<HcalPedestalWidths> payload2 = fetchPayload(std::get<1>(iov2));
 
       if (payload1.get() && payload2.get()) {
-        HcalPedestalWidthContainer* objContainer1 = new HcalPedestalWidthContainer(payload1, std::get<0>(iov1));
-        HcalPedestalWidthContainer* objContainer2 = new HcalPedestalWidthContainer(payload2, std::get<0>(iov2));
+        auto* objContainer1 = new HcalPedestalWidthContainer(payload1, std::get<0>(iov1));
+        auto* objContainer2 = new HcalPedestalWidthContainer(payload2, std::get<0>(iov2));
         objContainer2->Subtract(objContainer1);
         std::string ImageName(m_imageFileName);
         objContainer2->getCanvasAll()->SaveAs(ImageName.c_str());
@@ -94,7 +94,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<HcalPedestalWidths> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        HcalPedestalWidthContainer* objContainer = new HcalPedestalWidthContainer(payload, std::get<0>(iov));
+        auto* objContainer = new HcalPedestalWidthContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
         return true;
@@ -121,8 +121,8 @@ namespace {
       std::shared_ptr<HcalPedestalWidths> payload2 = fetchPayload(std::get<1>(iov2));
 
       if (payload1.get() && payload2.get()) {
-        HcalPedestalWidthContainer* objContainer1 = new HcalPedestalWidthContainer(payload1, std::get<0>(iov1));
-        HcalPedestalWidthContainer* objContainer2 = new HcalPedestalWidthContainer(payload2, std::get<0>(iov2));
+        auto* objContainer1 = new HcalPedestalWidthContainer(payload1, std::get<0>(iov1));
+        auto* objContainer2 = new HcalPedestalWidthContainer(payload2, std::get<0>(iov2));
         objContainer2->Subtract(objContainer1);
         std::string ImageName(m_imageFileName);
         objContainer2->getCanvasAll("EtaProfile")->SaveAs(ImageName.c_str());
@@ -145,7 +145,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<HcalPedestalWidths> payload = fetchPayload(std::get<1>(iov));
       if (payload.get()) {
-        HcalPedestalWidthContainer* objContainer = new HcalPedestalWidthContainer(payload, std::get<0>(iov));
+        auto* objContainer = new HcalPedestalWidthContainer(payload, std::get<0>(iov));
         std::string ImageName(m_imageFileName);
         objContainer->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());
         return true;
@@ -172,8 +172,8 @@ namespace {
       std::shared_ptr<HcalPedestalWidths> payload2 = fetchPayload(std::get<1>(iov2));
 
       if (payload1.get() && payload2.get()) {
-        HcalPedestalWidthContainer* objContainer1 = new HcalPedestalWidthContainer(payload1, std::get<0>(iov1));
-        HcalPedestalWidthContainer* objContainer2 = new HcalPedestalWidthContainer(payload2, std::get<0>(iov2));
+        auto* objContainer1 = new HcalPedestalWidthContainer(payload1, std::get<0>(iov1));
+        auto* objContainer2 = new HcalPedestalWidthContainer(payload2, std::get<0>(iov2));
         objContainer2->Subtract(objContainer1);
         std::string ImageName(m_imageFileName);
         objContainer2->getCanvasAll("PhiProfile")->SaveAs(ImageName.c_str());

@@ -124,14 +124,14 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
       l1t::CaloCluster* secMaxS = nullptr;
       l1t::CaloCluster* secondaryCluster = nullptr;
 
-      std::vector<int>::iterator isNeigh0 = find(sites.begin(), sites.end(), 0);
-      std::vector<int>::iterator isNeigh1 = find(sites.begin(), sites.end(), 1);
-      std::vector<int>::iterator isNeigh2 = find(sites.begin(), sites.end(), 2);
-      std::vector<int>::iterator isNeigh3 = find(sites.begin(), sites.end(), 3);
-      std::vector<int>::iterator isNeigh4 = find(sites.begin(), sites.end(), 4);
-      std::vector<int>::iterator isNeigh5 = find(sites.begin(), sites.end(), 5);
-      std::vector<int>::iterator isNeigh6 = find(sites.begin(), sites.end(), 6);
-      std::vector<int>::iterator isNeigh7 = find(sites.begin(), sites.end(), 7);
+      auto isNeigh0 = find(sites.begin(), sites.end(), 0);
+      auto isNeigh1 = find(sites.begin(), sites.end(), 1);
+      auto isNeigh2 = find(sites.begin(), sites.end(), 2);
+      auto isNeigh3 = find(sites.begin(), sites.end(), 3);
+      auto isNeigh4 = find(sites.begin(), sites.end(), 4);
+      auto isNeigh5 = find(sites.begin(), sites.end(), 5);
+      auto isNeigh6 = find(sites.begin(), sites.end(), 6);
+      auto isNeigh7 = find(sites.begin(), sites.end(), 7);
 
       // N neighbor --------------------------------------------------
       if (isNeigh0 != sites.end())

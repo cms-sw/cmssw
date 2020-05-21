@@ -419,10 +419,10 @@ TPTask::TPTask(edm::ParameterSet const& ps) : DQTask(ps) {
     std::vector<int> vFEDsuTCA = hcaldqm::utilities::getFEDuTCAList(_emap);
     //	push the rawIds of each fed into the vector
     //	this vector is used at endlumi for online state generation
-    for (std::vector<int>::const_iterator it = vFEDsVME.begin(); it != vFEDsVME.end(); ++it) {
+    for (auto it = vFEDsVME.begin(); it != vFEDsVME.end(); ++it) {
       _vhashFEDs.push_back(HcalElectronicsId(FIBERCH_MIN, FIBER_VME_MIN, SPIGOT_MIN, (*it) - FED_VME_MIN).rawId());
     }
-    for (std::vector<int>::const_iterator it = vFEDsuTCA.begin(); it != vFEDsuTCA.end(); ++it) {
+    for (auto it = vFEDsuTCA.begin(); it != vFEDsuTCA.end(); ++it) {
       std::pair<uint16_t, uint16_t> cspair = hcaldqm::utilities::fed2crate(*it);
       _vhashFEDs.push_back(HcalElectronicsId(cspair.first, cspair.second, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
     }
@@ -789,7 +789,7 @@ TPTask::TPTask(edm::ParameterSet const& ps) : DQTask(ps) {
 	 * --- compare soi FG
 	 * --- Do not fill anything for emulator Et!!!
 	 */
-  for (HcalTrigPrimDigiCollection::const_iterator it = cdata->begin(); it != cdata->end(); ++it) {
+  for (auto it = cdata->begin(); it != cdata->end(); ++it) {
     //	Explicit check on the DetIds present in the Collection
     HcalTrigTowerDetId tid = it->id();
     uint32_t rawid = _ehashmap.lookup(tid);
@@ -811,7 +811,7 @@ TPTask::TPTask(edm::ParameterSet const& ps) : DQTask(ps) {
       //	do this only for online processing
       if (_ptype == fOnline) {
         _cOccupancyData2x3_depthlike.fill(tid);
-        HcalTrigPrimDigiCollection::const_iterator jt = cemul->find(tid);
+        auto jt = cemul->find(tid);
         if (jt != cemul->end())
           _cEtCorr2x3_TTSubdet.fill(tid, it->SOI_compressedEt(), jt->SOI_compressedEt());
       }
@@ -872,7 +872,7 @@ TPTask::TPTask(edm::ParameterSet const& ps) : DQTask(ps) {
     }
 
     //	FIND the EMULATOR DIGI
-    HcalTrigPrimDigiCollection::const_iterator jt = cemul->find(tid);
+    auto jt = cemul->find(tid);
     if (jt != cemul->end()) {
       //	if PRESENT!
       int soiEt_e = jt->SOI_compressedEt();
@@ -955,7 +955,7 @@ TPTask::TPTask(edm::ParameterSet const& ps) : DQTask(ps) {
   }
 
   if (_ptype == fOnline) {
-    for (HcalTrigPrimDigiCollection::const_iterator it = cemul_noTDCCut->begin(); it != cemul_noTDCCut->end(); ++it) {
+    for (auto it = cemul_noTDCCut->begin(); it != cemul_noTDCCut->end(); ++it) {
       //	Explicit check on the DetIds present in the Collection
       HcalTrigTowerDetId tid = it->id();
       uint32_t rawid = _ehashmap.lookup(tid);
@@ -1032,7 +1032,7 @@ TPTask::TPTask(edm::ParameterSet const& ps) : DQTask(ps) {
 	 *	--- if found skip
 	 *	--- if not found - fill the missing Data plot
 	 */
-  for (HcalTrigPrimDigiCollection::const_iterator it = cemul->begin(); it != cemul->end(); ++it) {
+  for (auto it = cemul->begin(); it != cemul->end(); ++it) {
     //	Explicit check on the DetIds present in the Collection
     HcalTrigTowerDetId tid = it->id();
     uint32_t rawid = _ehashmap.lookup(tid);
@@ -1095,7 +1095,7 @@ TPTask::TPTask(edm::ParameterSet const& ps) : DQTask(ps) {
     // Look for a data digi.
     // Do not perform if the emulated digi is zero suppressed.
     if (!(it->zsMarkAndPass())) {
-      HcalTrigPrimDigiCollection::const_iterator jt = cdata->find(tid);
+      auto jt = cdata->find(tid);
       if (jt == cdata->end()) {
         tid.ietaAbs() >= 29 ? numMsnHF++ : numMsnHBHE++;
         _cEtCorr_TTSubdet.fill(tid, -2, soiEt);
@@ -1205,11 +1205,11 @@ std::shared_ptr<hcaldqm::Cache> TPTask::globalBeginLuminosityBlock(edm::Luminosi
   //
   //	GENERATE STATUS ONLY FOR ONLINE!
   //
-  for (std::vector<uint32_t>::const_iterator it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
+  for (auto it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
     flag::Flag fSum("TP");
-    HcalElectronicsId eid = HcalElectronicsId(*it);
+    auto eid = HcalElectronicsId(*it);
 
-    std::vector<uint32_t>::const_iterator cit = std::find(_vcdaqEids.begin(), _vcdaqEids.end(), *it);
+    auto cit = std::find(_vcdaqEids.begin(), _vcdaqEids.end(), *it);
     if (cit == _vcdaqEids.end()) {
       //	not @cDAQ
       for (uint32_t iflag = 0; iflag < _vflags.size(); iflag++)
@@ -1263,7 +1263,7 @@ std::shared_ptr<hcaldqm::Cache> TPTask::globalBeginLuminosityBlock(edm::Luminosi
       _vflags[fUnknownIds]._state = flag::fGOOD;
 
     int iflag = 0;
-    for (std::vector<flag::Flag>::iterator ft = _vflags.begin(); ft != _vflags.end(); ++ft) {
+    for (auto ft = _vflags.begin(); ft != _vflags.end(); ++ft) {
       _cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag), ft->_state);
       fSum += (*ft);
       iflag++;

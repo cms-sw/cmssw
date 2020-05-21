@@ -135,7 +135,7 @@ map<string, string> L1TMenuHelper::getLUSOTrigger(const map<string, bool>& iCate
     }
   }
 
-  for (CItAlgo iAlgo = theAlgoMap->begin(); iAlgo != theAlgoMap->end(); ++iAlgo) {
+  for (auto iAlgo = theAlgoMap->begin(); iAlgo != theAlgoMap->end(); ++iAlgo) {
     int error;
 
     bool algoIsValid = true;
@@ -171,7 +171,7 @@ map<string, string> L1TMenuHelper::getLUSOTrigger(const map<string, bool>& iCate
           break;
         } else if (pAlgo->algoRpnVector()[i].operation == L1GtLogicParser::OP_OPERAND) {
           string AlgoCondition = pAlgo->algoRpnVector()[i].operand;
-          map<string, SingleObjectCondition>::const_iterator ciCond = myConditions.find(AlgoCondition);
+          auto ciCond = myConditions.find(AlgoCondition);
 
           // If there is no matching condition (i.e. its not a single object or energy sum condition)
           // ignore this this L1 algo
@@ -401,7 +401,7 @@ map<string, string> L1TMenuHelper::testAlgos(const map<string, string>& _iAlgos)
   // Getting information from the menu
   const AlgorithmMap* theAlgoMap = &m_l1GtMenu->gtAlgorithmAliasMap();
 
-  for (map<string, string>::const_iterator i = iAlgos.begin(); iAlgos.end() != i; i++) {
+  for (auto i = iAlgos.begin(); iAlgos.end() != i; i++) {
     string tCategory = (*i).first;
     string tTrigger = (*i).second;
 

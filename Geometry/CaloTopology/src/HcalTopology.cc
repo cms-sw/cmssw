@@ -366,7 +366,7 @@ bool HcalTopology::isExcluded(const HcalDetId& id) const {
   }
   // next, check the list (slower)
   if (!exed && !exclusionList_.empty()) {
-    std::vector<HcalDetId>::const_iterator i = std::lower_bound(exclusionList_.begin(), exclusionList_.end(), id);
+    auto i = std::lower_bound(exclusionList_.begin(), exclusionList_.end(), id);
     if (i != exclusionList_.end() && *i == id)
       exed = true;
   }
@@ -374,7 +374,7 @@ bool HcalTopology::isExcluded(const HcalDetId& id) const {
 }
 
 void HcalTopology::exclude(const HcalDetId& id) {
-  std::vector<HcalDetId>::iterator i = std::lower_bound(exclusionList_.begin(), exclusionList_.end(), id);
+  auto i = std::lower_bound(exclusionList_.begin(), exclusionList_.end(), id);
   if (i == exclusionList_.end() || *i != id) {
     exclusionList_.insert(i, id);
   }

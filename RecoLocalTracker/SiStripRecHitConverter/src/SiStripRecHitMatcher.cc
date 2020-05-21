@@ -35,7 +35,7 @@ void SiStripRecHitMatcher::match(const SiStripRecHit2D* monoRH,
   std::vector<SiStripMatchedRecHit2D*> result;
   result.reserve(end - begin);
   match(monoRH, begin, end, result, gluedDet, trackdirection);
-  for (std::vector<SiStripMatchedRecHit2D*>::iterator p = result.begin(); p != result.end(); p++)
+  for (auto p = result.begin(); p != result.end(); p++)
     collector.push_back(*p);
 }
 

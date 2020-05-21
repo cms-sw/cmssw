@@ -67,7 +67,7 @@ const DualBzeroTrajectoryFactory::ReferenceTrajectoryCollection DualBzeroTraject
   edm::ESHandle<MagneticField> magneticField;
   setup.get<IdealMagneticFieldRecord>().get(magneticField);
 
-  ConstTrajTrackPairCollection::const_iterator itTracks = tracks.begin();
+  auto itTracks = tracks.begin();
 
   while (itTracks != tracks.end()) {
     const DualBzeroTrajectoryInput input = this->referenceStateAndRecHits(*itTracks);
@@ -106,8 +106,8 @@ const DualBzeroTrajectoryFactory::ReferenceTrajectoryCollection DualBzeroTraject
   edm::ESHandle<MagneticField> magneticField;
   setup.get<IdealMagneticFieldRecord>().get(magneticField);
 
-  ConstTrajTrackPairCollection::const_iterator itTracks = tracks.begin();
-  ExternalPredictionCollection::const_iterator itExternal = external.begin();
+  auto itTracks = tracks.begin();
+  auto itExternal = external.begin();
 
   while (itTracks != tracks.end()) {
     const DualBzeroTrajectoryInput input = referenceStateAndRecHits(*itTracks);

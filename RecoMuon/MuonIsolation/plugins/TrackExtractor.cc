@@ -84,7 +84,7 @@ IsoDeposit TrackExtractor::deposit(const Event& event, const EventSetup& eventSe
   TrackSelector::result_type sel_tracks = selection(*tracksH);
   LogTrace(metname) << "all tracks: " << tracksH->size() << " selected: " << sel_tracks.size();
 
-  TrackSelector::result_type::const_iterator tkI = sel_tracks.begin();
+  auto tkI = sel_tracks.begin();
   for (; tkI != sel_tracks.end(); ++tkI) {
     const reco::Track* tk = *tkI;
     LogTrace(metname) << "This track has: pt= " << tk->pt() << ", eta= " << tk->eta() << ", phi= " << tk->phi();

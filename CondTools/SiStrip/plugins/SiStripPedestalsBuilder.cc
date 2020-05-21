@@ -14,16 +14,14 @@ void SiStripPedestalsBuilder::analyze(const edm::Event& evt, const edm::EventSet
   edm::LogInfo("SiStripPedestalsBuilder")
       << "... creating dummy SiStripPedestals Data for Run " << run << "\n " << std::endl;
 
-  SiStripPedestals* obj = new SiStripPedestals();
+  auto* obj = new SiStripPedestals();
 
   SiStripDetInfoFileReader reader(fp_.fullPath());
 
   const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& DetInfos = reader.getAllData();
 
   int count = -1;
-  for (std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = DetInfos.begin();
-       it != DetInfos.end();
-       it++) {
+  for (auto it = DetInfos.begin(); it != DetInfos.end(); it++) {
     count++;
     //Generate Pedestal for det detid
     SiStripPedestals::InputVector theSiStripVector;

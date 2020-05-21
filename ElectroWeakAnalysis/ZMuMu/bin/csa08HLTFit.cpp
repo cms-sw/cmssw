@@ -89,7 +89,7 @@ int main(int ac, char* av[]) {
     if (vm.count("input-file")) {
       cout << "Input files are: " << vm["input-file"].as<vector<string> >() << "\n";
       vector<string> v_file = vm["input-file"].as<vector<string> >();
-      for (vector<string>::const_iterator it = v_file.begin(); it != v_file.end(); ++it) {
+      for (auto it = v_file.begin(); it != v_file.end(); ++it) {
         TFile* root_file = new TFile(it->c_str(), "read");
 
         TH1D* histoZMuMuNoIso = (TH1D*)root_file->Get("nonIsolatedZToMuMuPlots/zMass");

@@ -77,19 +77,15 @@ PFTauDecayModeCutMultiplexer::PFTauDecayModeCutMultiplexer(const edm::ParameterS
   computers_.reserve(decayModeMap.size());
 
   // for each decay mode MVA implementation (which may correspond to multiple decay modes, map the decay modes to the correct MVA computer
-  for (std::vector<edm::ParameterSet>::const_iterator iComputer = decayModeMap.begin(); iComputer != decayModeMap.end();
-       ++iComputer) {
+  for (auto iComputer = decayModeMap.begin(); iComputer != decayModeMap.end(); ++iComputer) {
     ComputerAndCut toInsert;
     toInsert.computerName = iComputer->getParameter<std::string>("computerName");
     toInsert.userCut = iComputer->getParameter<double>("cut");
-    CutList::iterator computerJustAdded =
-        computers_.insert(computers_.end(), toInsert);  //add this computer to the end of the list
+    auto computerJustAdded = computers_.insert(computers_.end(), toInsert);  //add this computer to the end of the list
 
     //populate the map
     std::vector<int> associatedDecayModes = iComputer->getParameter<std::vector<int> >("decayModeIndices");
-    for (std::vector<int>::const_iterator iDecayMode = associatedDecayModes.begin();
-         iDecayMode != associatedDecayModes.end();
-         ++iDecayMode) {
+    for (auto iDecayMode = associatedDecayModes.begin(); iDecayMode != associatedDecayModes.end(); ++iDecayMode) {
       //map this integer specifying the decay mode to the MVA comptuer we just added to the list
       std::pair<DecayModeToCutMap::iterator, bool> insertResult =
           computerMap_.insert(std::make_pair(*iDecayMode, computerJustAdded));

@@ -69,8 +69,8 @@ public:
         ret = int(m_mul) * strip + int(m_offset);
 
         int lpSize = -1;
-        L1RPCConeDefinition::TLPSizeVec::const_iterator it = LPSizeVec.begin();
-        L1RPCConeDefinition::TLPSizeVec::const_iterator itEnd = LPSizeVec.end();
+        auto it = LPSizeVec.begin();
+        auto itEnd = LPSizeVec.end();
         for (; it != itEnd; ++it) {
           if (it->m_tower != std::abs(m_tower) || it->m_LP != m_logplane - 1)
             continue;

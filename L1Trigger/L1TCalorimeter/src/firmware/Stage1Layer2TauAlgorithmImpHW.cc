@@ -51,7 +51,7 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
   std::vector<l1t::Tau> preSortIsoTaus;
   std::vector<l1t::Tau> sortedIsoTaus;
 
-  for (CaloRegionBxCollection::const_iterator region = subRegions.begin(); region != subRegions.end(); region++) {
+  for (auto region = subRegions.begin(); region != subRegions.end(); region++) {
     if (region->hwEta() < 4 || region->hwEta() > 17)
       continue;
 
@@ -72,8 +72,7 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
     int highestNeighborTauVeto = -1;
 
     //Find neighbor with highest Et
-    for (CaloRegionBxCollection::const_iterator neighbor = subRegions.begin(); neighbor != subRegions.end();
-         neighbor++) {
+    for (auto neighbor = subRegions.begin(); neighbor != subRegions.end(); neighbor++) {
       int neighborPhi = neighbor->hwPhi();
       int neighborEta = neighbor->hwEta();
       if (neighborEta < 4 || neighborEta > 17)
@@ -147,7 +146,7 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
   TauToGtEtaScales(params_, &sortedIsoTaus, isoTaus);
 
   // set all filler taus to have isolation bit set
-  for (std::vector<l1t::Tau>::iterator iTau = isoTaus->begin(); iTau != isoTaus->end(); ++iTau)
+  for (auto iTau = isoTaus->begin(); iTau != isoTaus->end(); ++iTau)
     iTau->setHwIso(1);
 }
 
@@ -156,7 +155,7 @@ double l1t::Stage1Layer2TauAlgorithmImpHW::JetIsolation(int et,
                                                         int ieta,
                                                         int iphi,
                                                         const std::vector<l1t::Jet>& jets) const {
-  for (JetBxCollection::const_iterator jet = jets.begin(); jet != jets.end(); jet++) {
+  for (auto jet = jets.begin(); jet != jets.end(); jet++) {
     if (ieta == jet->hwEta() && iphi == jet->hwPhi()) {
       double isolation = (double)(jet->hwPt() - et);
       return isolation / et;
@@ -196,7 +195,7 @@ string l1t::Stage1Layer2TauAlgorithmImpHW::findNESW(int ieta, int iphi, int neta
 int l1t::Stage1Layer2TauAlgorithmImpHW::AssociatedJetPt(int ieta, int iphi, const std::vector<l1t::Jet>* jets) const {
   int pt = -1;
 
-  for (JetBxCollection::const_iterator itJet = jets->begin(); itJet != jets->end(); ++itJet) {
+  for (auto itJet = jets->begin(); itJet != jets->end(); ++itJet) {
     int jetEta = itJet->hwEta();
     int jetPhi = itJet->hwPhi();
     if ((jetEta == ieta) && (jetPhi == iphi)) {

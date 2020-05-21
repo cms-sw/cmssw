@@ -49,8 +49,7 @@ bool LogicalPart::hasDDValue(const DDValue& v) const {
 }
 
 void LogicalPart::removeSpecifics(const std::pair<const DDPartSelection*, const DDsvalues_type*>& s) {
-  std::vector<std::pair<const DDPartSelection*, const DDsvalues_type*> >::iterator it =
-      std::find(specifics_.begin(), specifics_.end(), s);
+  auto it = std::find(specifics_.begin(), specifics_.end(), s);
   specifics_.erase(it);
 }
 

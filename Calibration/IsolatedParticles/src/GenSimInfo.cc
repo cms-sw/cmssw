@@ -244,7 +244,7 @@ namespace spr {
     for (int i = 0; i < 3; ++i)
       info.cHadronEne_[i] = 0.0;
     for (unsigned int i = 0; i < trackIds.size(); ++i) {
-      reco::GenParticleCollection::const_iterator trkItr2 = trackIds[i].trkItr;
+      auto trkItr2 = trackIds[i].trkItr;
       // avoid the track under consideration
       if ((trkItr2 != trkItr) && trackIds[i].ok) {
         int charge = trackIds[i].charge;

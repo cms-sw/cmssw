@@ -134,10 +134,10 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::useAllTracks(
   // vgp.reserve ( ( tracks.size() * ( tracks.size()-1 ) ) / 2 - 1 );
   TwoTrackMinimumDistance ttmd;
   bool status;
-  std::vector<reco::TransientTrack>::const_iterator end = tracks.end();
-  std::vector<reco::TransientTrack>::const_iterator endm1 = (end - 1);
-  for (std::vector<reco::TransientTrack>::const_iterator x = tracks.begin(); x != endm1; ++x) {
-    for (std::vector<reco::TransientTrack>::const_iterator y = x + 1; y != end; ++y) {
+  auto end = tracks.end();
+  auto endm1 = (end - 1);
+  for (auto x = tracks.begin(); x != endm1; ++x) {
+    for (auto y = x + 1; y != end; ++y) {
       status = ttmd.calculate((*x).impactPointState(), (*y).impactPointState());
       if (status) {
         std::pair<GlobalPoint, GlobalPoint> pts = ttmd.points();
@@ -156,10 +156,10 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::useFullMatrix(
     const std::vector<reco::TransientTrack>& tracks) const {
   std::vector<PointAndDistance> vgp;
   vgp.reserve((int)(tracks.size() * (tracks.size() - 1) / 2. - 1));
-  std::vector<reco::TransientTrack>::const_iterator end = tracks.end();
-  std::vector<reco::TransientTrack>::const_iterator endm1 = (end - 1);
-  for (std::vector<reco::TransientTrack>::const_iterator x = tracks.begin(); x != endm1; ++x) {
-    for (std::vector<reco::TransientTrack>::const_iterator y = x + 1; y != end; ++y) {
+  auto end = tracks.end();
+  auto endm1 = (end - 1);
+  for (auto x = tracks.begin(); x != endm1; ++x) {
+    for (auto y = x + 1; y != end; ++y) {
       PointAndDistance v(theMatrix->crossingPoint(*x, *y), theMatrix->distance(*x, *y));
       vgp.push_back(v);
     }

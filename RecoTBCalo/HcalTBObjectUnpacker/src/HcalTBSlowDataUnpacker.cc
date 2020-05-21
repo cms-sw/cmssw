@@ -32,7 +32,7 @@ namespace hcaltb {
       throw cms::Exception("Missing Data") << "No data in the slow data block";
     }
 
-    const struct xdaqSlowDataFormat *sd = (const struct xdaqSlowDataFormat *)(raw.data());
+    const auto *sd = (const struct xdaqSlowDataFormat *)(raw.data());
 
 #ifdef DEBUG
     cout << "#doubles = " << sd->n_doubles << endl;

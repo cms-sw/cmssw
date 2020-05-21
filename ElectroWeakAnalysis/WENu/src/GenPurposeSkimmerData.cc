@@ -412,7 +412,7 @@ void GenPurposeSkimmerData::analyze(const edm::Event &evt, const edm::EventSetup
       break;
     //
     int sc_index = sorted1[probeSc];
-    std::vector<reco::SuperCluster>::const_iterator Rprobe = sc1->begin() + sc_index;
+    auto Rprobe = sc1->begin() + sc_index;
     //
     reco::SuperCluster sc0 = *Rprobe;
     // now keep the relevant stuff:
@@ -428,7 +428,7 @@ void GenPurposeSkimmerData::analyze(const edm::Event &evt, const edm::EventSetup
       break;
     //
     int sc_index = sorted2[probeSc];
-    std::vector<reco::SuperCluster>::const_iterator Rprobe = sc2->begin() + sc_index;
+    auto Rprobe = sc2->begin() + sc_index;
     //
     reco::SuperCluster sc0 = *Rprobe;
     // now keep the relevant stuff:
@@ -486,7 +486,7 @@ void GenPurposeSkimmerData::analyze(const edm::Event &evt, const edm::EventSetup
       break;
     //
     int sc_index = sortedTr[probeSc];
-    std::vector<reco::Track>::const_iterator Rprobe = ctf->begin() + sc_index;
+    auto Rprobe = ctf->begin() + sc_index;
     //
     reco::Track sc0 = *Rprobe;
     // now keep the relevant stuff:
@@ -541,7 +541,7 @@ void GenPurposeSkimmerData::analyze(const edm::Event &evt, const edm::EventSetup
       break;
     //
     int sc_index = sortedMu[probeSc];
-    std::vector<pat::Muon>::const_iterator Rprobe = pmuon->begin() + sc_index;
+    auto Rprobe = pmuon->begin() + sc_index;
     //
     pat::Muon sc0 = *Rprobe;
     // now keep the relevant stuff:
@@ -631,12 +631,12 @@ void GenPurposeSkimmerData::analyze(const edm::Event &evt, const edm::EventSetup
   //************* DUPLICATE ******  REMOVAL *******************************
   // 02.06.08: due to a bug in the hybrid algorithm that affects detid ****
   //           we change detid matching to superCluster ref matching ******
-  for (pat::ElectronCollection::const_iterator elec = electrons->begin(); elec != electrons->end(); ++elec) {
+  for (auto elec = electrons->begin(); elec != electrons->end(); ++elec) {
     const pat::ElectronRef electronRef(pElectrons, index);
     //Remove duplicate electrons which share a supercluster
-    pat::ElectronCollection::const_iterator BestDuplicate = elec;
+    auto BestDuplicate = elec;
     int index2 = 0;
-    for (pat::ElectronCollection::const_iterator elec2 = electrons->begin(); elec2 != electrons->end(); ++elec2) {
+    for (auto elec2 = electrons->begin(); elec2 != electrons->end(); ++elec2) {
       if (elec != elec2) {
         if (elec->superCluster() == elec2->superCluster()) {
           if (fabs(BestDuplicate->eSuperClusterOverP() - 1.) >= fabs(elec2->eSuperClusterOverP() - 1.)) {
@@ -690,7 +690,7 @@ void GenPurposeSkimmerData::analyze(const edm::Event &evt, const edm::EventSetup
       break;
     //
     int elec_index = sorted[probeIt];
-    std::vector<pat::ElectronRef>::const_iterator Rprobe = UniqueElectrons.begin() + elec_index;
+    auto Rprobe = UniqueElectrons.begin() + elec_index;
     //
     pat::ElectronRef probeEle;
     probeEle = *Rprobe;

@@ -222,8 +222,7 @@ void L1TdeRCT::analyze(const Event& e, const EventSetup& c) {
   }
 
   if (doEcal) {
-    for (EcalTrigPrimDigiCollection::const_iterator iEcalTp = ecalTpData->begin(); iEcalTp != ecalTpData->end();
-         iEcalTp++) {
+    for (auto iEcalTp = ecalTpData->begin(); iEcalTp != ecalTpData->end(); iEcalTp++) {
       if (iEcalTp->compressedEt() > 0) {
         rctInputTPGEcalRank_->Fill(1. * (iEcalTp->compressedEt()));
 
@@ -253,8 +252,7 @@ void L1TdeRCT::analyze(const Event& e, const EventSetup& c) {
   }
 
   if (doHcal) {
-    for (HcalTrigPrimDigiCollection::const_iterator iHcalTp = hcalTpData->begin(); iHcalTp != hcalTpData->end();
-         iHcalTp++) {
+    for (auto iHcalTp = hcalTpData->begin(); iHcalTp != hcalTpData->end(); iHcalTp++) {
       int highSample = 0;
       int highEt = 0;
 
@@ -358,7 +356,7 @@ void L1TdeRCT::analyze(const Event& e, const EventSetup& c) {
 
   // StepII: fill variables
 
-  for (L1CaloEmCollection::const_iterator iem = emEmul->begin(); iem != emEmul->end(); iem++) {
+  for (auto iem = emEmul->begin(); iem != emEmul->end(); iem++) {
     if (iem->rank() >= 1) {
       if (iem->isolated()) {
         rctIsoEmEmulOcc_->Fill(iem->regionId().ieta(), iem->regionId().iphi());
@@ -397,7 +395,7 @@ void L1TdeRCT::analyze(const Event& e, const EventSetup& c) {
     }
   }
 
-  for (L1CaloEmCollection::const_iterator iem = emData->begin(); iem != emData->end(); iem++) {
+  for (auto iem = emData->begin(); iem != emData->end(); iem++) {
     if (selectBX_ != -1 && selectBX_ != iem->bx())
       continue;
 
@@ -447,7 +445,7 @@ void L1TdeRCT::analyze(const Event& e, const EventSetup& c) {
   }
 
   // fill region/bit arrays for emulator
-  for (L1CaloRegionCollection::const_iterator ireg = rgnEmul->begin(); ireg != rgnEmul->end(); ireg++) {
+  for (auto ireg = rgnEmul->begin(); ireg != rgnEmul->end(); ireg++) {
     //     std::cout << "Emul: " << nRegionEmul << " " << ireg->gctEta() << " " << ireg->gctPhi() << std::endl;
     if (ireg->overFlow())
       rctBitEmulOverFlow2D_->Fill(ireg->gctEta(), ireg->gctPhi());
@@ -508,7 +506,7 @@ void L1TdeRCT::analyze(const Event& e, const EventSetup& c) {
     regionEmulHfPlusTau[nRegionEmul] = ireg->fineGrain();
   }
   // fill region/bit arrays for hardware
-  for (L1CaloRegionCollection::const_iterator ireg = rgnData->begin(); ireg != rgnData->end(); ireg++) {
+  for (auto ireg = rgnData->begin(); ireg != rgnData->end(); ireg++) {
     if (selectBX_ != -1 && selectBX_ != ireg->bx())
       continue;
 
@@ -2094,14 +2092,14 @@ void L1TdeRCT::readFEDVector(MonitorElement* histogram, const edm::EventSetup& e
   std::vector<int> caloFeds;  // pare down the feds to the intresting ones
 
   const std::vector<int> Feds = summary->m_fed_in;
-  for (std::vector<int>::const_iterator cf = Feds.begin(); cf != Feds.end(); ++cf) {
+  for (auto cf = Feds.begin(); cf != Feds.end(); ++cf) {
     int fedNum = *cf;
     if ((fedNum > 600 && fedNum < 724) || fedNum == 1118 || fedNum == 1120 || fedNum == 1122)
       caloFeds.push_back(fedNum);
   }
 
   for (unsigned int i = 0; i < 108; ++i) {
-    std::vector<int>::iterator fv = std::find(caloFeds.begin(), caloFeds.end(), crateFED[i]);
+    auto fv = std::find(caloFeds.begin(), caloFeds.end(), crateFED[i]);
     if (fv != caloFeds.end()) {
       histogram->setBinContent(i + 1, 2, 1);
       histogram->setBinContent(i + 1, 1, 0);

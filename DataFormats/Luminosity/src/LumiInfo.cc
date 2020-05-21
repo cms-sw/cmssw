@@ -7,7 +7,7 @@
 
 float LumiInfo::instLuminosityBXSum() const {
   float totLum = 0;
-  for (std::vector<float>::const_iterator it = instLumiByBX_.begin(); it != instLumiByBX_.end(); ++it) {
+  for (auto it = instLumiByBX_.begin(); it != instLumiByBX_.end(); ++it) {
     totLum += *it;
   }
   return totLum;

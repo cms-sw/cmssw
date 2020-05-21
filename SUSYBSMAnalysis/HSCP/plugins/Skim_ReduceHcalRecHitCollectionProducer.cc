@@ -137,18 +137,16 @@ void ReduceHcalRecHitCollectionProducer::produce(edm::Event& iEvent, const edm::
   Handle<TrackCollection> tkTracks;
   iEvent.getByToken(inputCollectionToken_, tkTracks);
   std::unique_ptr<DetIdCollection> interestingDetIdCollection(new DetIdCollection());
-  for (TrackCollection::const_iterator itTrack = tkTracks->begin(); itTrack != tkTracks->end(); ++itTrack) {
+  for (auto itTrack = tkTracks->begin(); itTrack != tkTracks->end(); ++itTrack) {
     if (itTrack->pt() > ptcut_) {
       TrackDetMatchInfo info =
           trackAssociator_.associate(iEvent, iSetup, *itTrack, parameters_, TrackDetectorAssociator::InsideOut);
 
       if (!info.crossedHcalIds.empty()) {
         //loop through hits in the cone
-        for (std::vector<const HBHERecHit*>::const_iterator hit = info.hcalRecHits.begin();
-             hit != info.hcalRecHits.end();
-             ++hit) {
+        for (auto hit = info.hcalRecHits.begin(); hit != info.hcalRecHits.end(); ++hit) {
           DetId hitid = (*hit)->id();
-          HBHERecHitCollection::const_iterator iRecHit = recHitsHandle->find(hitid);
+          auto iRecHit = recHitsHandle->find(hitid);
           if ((iRecHit != recHitsHandle->end()) && (miniRecHitCollection->find(hitid) == miniRecHitCollection->end()))
             miniRecHitCollection->push_back(*iRecHit);
         }

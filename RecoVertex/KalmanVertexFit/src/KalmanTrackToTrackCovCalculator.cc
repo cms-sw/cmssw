@@ -19,7 +19,7 @@ typename CachingVertex<N>::TrackToTrackMap KalmanTrackToTrackCovCalculator<N>::o
   //vertex initial data needed
   AlgebraicSymMatrix33 vertexC = vertex.error().matrix();
 
-  for (typename std::vector<RefCountedVertexTrack>::iterator i = tracks.begin(); i != tracks.end(); i++) {
+  for (auto i = tracks.begin(); i != tracks.end(); i++) {
     const AlgebraicMatrixN3& leftA = (*i)->linearizedTrack()->positionJacobian();
     const AlgebraicMatrixNM& leftB = (*i)->linearizedTrack()->momentumJacobian();
     AlgebraicSymMatrixNN leftG = (*i)->linearizedTrack()->predictedStateWeight(ifail);
@@ -30,7 +30,7 @@ typename CachingVertex<N>::TrackToTrackMap KalmanTrackToTrackCovCalculator<N>::o
       throw VertexException("KalmanTrackToTrackCovarianceCalculator::leftW matrix inversion failed");
     AlgebraicMatrixM3 leftPart = leftW * (ROOT::Math::Transpose(leftB)) * leftG * leftA;
     typename CachingVertex<N>::TrackMap internalMap;
-    for (typename std::vector<RefCountedVertexTrack>::iterator j = tracks.begin(); j != tracks.end(); j++) {
+    for (auto j = tracks.begin(); j != tracks.end(); j++) {
       if (*i < *j) {
         const AlgebraicMatrixN3& rightA = (*j)->linearizedTrack()->positionJacobian();
         const AlgebraicMatrixNM& rightB = (*j)->linearizedTrack()->momentumJacobian();

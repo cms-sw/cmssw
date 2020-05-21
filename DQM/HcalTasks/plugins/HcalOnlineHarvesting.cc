@@ -29,7 +29,7 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps)
 
 /* virtual */ void HcalOnlineHarvesting::beginRun(edm::Run const& r, edm::EventSetup const& es) {
   DQHarvester::beginRun(r, es);
-  for (std::vector<DQClient*>::const_iterator it = _vsumgen.begin(); it != _vsumgen.end(); ++it)
+  for (auto it = _vsumgen.begin(); it != _vsumgen.end(); ++it)
     (*it)->beginRun(r, es);
 }
 
@@ -96,7 +96,7 @@ HcalOnlineHarvesting::HcalOnlineHarvesting(edm::ParameterSet const& ps)
   int ifed = 0;
   hcaldqm::flag::Flag fTotal("Status", hcaldqm::flag::fNCDAQ);
   if (_ptype != fOffline) {  // hidefed2crate
-    for (std::vector<uint32_t>::const_iterator it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
+    for (auto it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
       HcalElectronicsId eid(*it);
       hcaldqm::flag::Flag fSum("Status", hcaldqm::flag::fNCDAQ);
       for (uint32_t im = 0; im < _vmarks.size(); im++)

@@ -37,7 +37,7 @@ void MuonIdTruthInfo::truthMatchMuon(const edm::Event& iEvent, const edm::EventS
   unsigned int bestMatch = 0;
   const unsigned int offset = 0;  // kludge to fix a problem in trackId matching between tracks and hits.
 
-  for (edm::SimTrackContainer::const_iterator simTrk = simTracks->begin(); simTrk != simTracks->end(); simTrk++) {
+  for (auto simTrk = simTracks->begin(); simTrk != simTracks->end(); simTrk++) {
     float chi2 = matchChi2(*aMuon.track().get(), *simTrk);
     if (chi2 > bestMatchChi2)
       continue;
@@ -51,8 +51,7 @@ void MuonIdTruthInfo::truthMatchMuon(const edm::Event& iEvent, const edm::EventS
   int numberOfTruthMatchedChambers = 0;
 
   // loop over chambers
-  for (std::vector<reco::MuonChamberMatch>::iterator chamberMatch = matches.begin(); chamberMatch != matches.end();
-       chamberMatch++) {
+  for (auto chamberMatch = matches.begin(); chamberMatch != matches.end(); chamberMatch++) {
     if (chamberMatch->id.det() != DetId::Muon) {
       edm::LogWarning("MuonIdentification") << "Detector id of a muon chamber corresponds to not a muon detector";
       continue;
@@ -66,7 +65,7 @@ void MuonIdTruthInfo::truthMatchMuon(const edm::Event& iEvent, const edm::EventS
       edm::Handle<edm::PSimHitContainer> simHits;
       iEvent.getByLabel("g4SimHits", "MuonDTHits", simHits);
       if (simHits.isValid()) {
-        for (edm::PSimHitContainer::const_iterator hit = simHits->begin(); hit != simHits->end(); hit++)
+        for (auto hit = simHits->begin(); hit != simHits->end(); hit++)
           if (hit->trackId() == bestMatch)
             checkSimHitForBestMatch(bestSegmentMatch, distance, *hit, detId, geometry);
       } else
@@ -79,7 +78,7 @@ void MuonIdTruthInfo::truthMatchMuon(const edm::Event& iEvent, const edm::EventS
       edm::Handle<edm::PSimHitContainer> simHits;
       iEvent.getByLabel("g4SimHits", "MuonCSCHits", simHits);
       if (simHits.isValid()) {
-        for (edm::PSimHitContainer::const_iterator hit = simHits->begin(); hit != simHits->end(); hit++)
+        for (auto hit = simHits->begin(); hit != simHits->end(); hit++)
           if (hit->trackId() == bestMatch)
             checkSimHitForBestMatch(bestSegmentMatch, distance, *hit, detId, geometry);
       } else

@@ -16,8 +16,8 @@ namespace gs {
     typedef NameMap::const_iterator Nameiter;
 
     if (namePattern.useRegex()) {
-      const Nameiter itend = m.end();
-      for (Nameiter it = m.begin(); it != itend; ++it)
+      const auto itend = m.end();
+      for (auto it = m.begin(); it != itend; ++it)
         if (namePattern.matches(it->first))
           found->push_back(it->second->id());
     } else {
@@ -52,7 +52,7 @@ namespace gs {
     typedef RecordMap::iterator Mapiter;
     typedef NameMap::iterator Nameiter;
 
-    IdMap::iterator rit = records_.find(id);
+    auto rit = records_.find(id);
     if (rit == records_.end())
       return false;
 
@@ -60,7 +60,7 @@ namespace gs {
     records_.erase(rit);
 
     bool found = false;
-    const Mapiter mit = recordMap_.find(item->category());
+    const auto mit = recordMap_.find(item->category());
     assert(mit != recordMap_.end());
     const std::pair<Nameiter, Nameiter> limits = mit->second.equal_range(item->name());
     for (Nameiter nit = limits.first; nit != limits.second; ++nit)
@@ -78,10 +78,10 @@ namespace gs {
       smallestId_ = 0;
       largestId_ = 0;
     } else if (id == smallestId_ || id == largestId_) {
-      IdMap::const_iterator it = records_.begin();
+      auto it = records_.begin();
       smallestId_ = it->first;
       largestId_ = it->first;
-      const IdMap::const_iterator itend = records_.end();
+      const auto itend = records_.end();
       for (++it; it != itend; ++it)
         if (it->first < smallestId_)
           smallestId_ = it->first;
@@ -110,13 +110,13 @@ namespace gs {
     assert(found);
     found->clear();
 
-    const Mapiter endMap = recordMap_.end();
+    const auto endMap = recordMap_.end();
     if (categoryPattern.useRegex()) {
-      for (Mapiter it = recordMap_.begin(); it != endMap; ++it)
+      for (auto it = recordMap_.begin(); it != endMap; ++it)
         if (categoryPattern.matches(it->first))
           findByName(it->second, namePattern, found);
     } else {
-      Mapiter it = recordMap_.find(categoryPattern.pattern());
+      auto it = recordMap_.find(categoryPattern.pattern());
       if (it != endMap)
         findByName(it->second, namePattern, found);
     }
@@ -133,10 +133,10 @@ namespace gs {
       return false;
     if (records_.size() != r.records_.size())
       return false;
-    IdMap::const_iterator itend = records_.end();
-    IdMap::const_iterator itend2 = r.records_.end();
-    for (IdMap::const_iterator it = records_.begin(); it != itend; ++it) {
-      IdMap::const_iterator it2 = r.records_.find(it->first);
+    auto itend = records_.end();
+    auto itend2 = r.records_.end();
+    for (auto it = records_.begin(); it != itend; ++it) {
+      auto it2 = r.records_.find(it->first);
       if (it2 == itend2)
         return false;
       if (!(*it->second == *it2->second))
@@ -187,14 +187,14 @@ namespace gs {
     // Sort item ids in the increasing order first
     std::vector<unsigned long long> idlist;
     idlist.reserve(sz);
-    const IdMap::const_iterator itend = records_.end();
-    for (IdMap::const_iterator it = records_.begin(); it != itend; ++it)
+    const auto itend = records_.end();
+    for (auto it = records_.begin(); it != itend; ++it)
       idlist.push_back(it->first);
     std::sort(idlist.begin(), idlist.end());
 
     // Now, write the catalog records in the order of increasing ids
     for (unsigned long i = 0; i < sz; ++i) {
-      IdMap::const_iterator it = records_.find(idlist[i]);
+      auto it = records_.find(idlist[i]);
       if (!it->second->write(os))
         return false;
     }
@@ -265,7 +265,7 @@ namespace gs {
   }
 
   std::shared_ptr<const CatalogEntry> GeneralCatalog::retrieveEntry(const unsigned long long id) const {
-    IdMap::const_iterator it = records_.find(id);
+    auto it = records_.find(id);
     if (it == records_.end()) {
       CatalogEntry *ptr = nullptr;
       return std::shared_ptr<const CatalogEntry>(ptr);
@@ -277,7 +277,7 @@ namespace gs {
                                          unsigned *compressionCode,
                                          unsigned long long *length,
                                          std::streampos *pos) const {
-    IdMap::const_iterator it = records_.find(id);
+    auto it = records_.find(id);
     if (it == records_.end())
       return false;
 

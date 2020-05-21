@@ -130,7 +130,7 @@ reco::PFCandidatePtr Jet::getPFConstituent(unsigned fIndex) const {
   // Non-embedded access
   else {
     Constituent dau = daughterPtr(fIndex);
-    const reco::PFCandidate* pfCandidate = dynamic_cast<const reco::PFCandidate*>(dau.get());
+    const auto* pfCandidate = dynamic_cast<const reco::PFCandidate*>(dau.get());
     if (pfCandidate) {
       return reco::PFCandidatePtr(dau.id(), pfCandidate, dau.key());
     } else {
@@ -263,8 +263,7 @@ void Jet::initializeJEC(unsigned int level, const JetCorrFactors::Flavor& flavor
 
 /// return true if this jet carries the jet correction factors of a different set, for systematic studies
 int Jet::jecSet(const std::string& set) const {
-  for (std::vector<pat::JetCorrFactors>::const_iterator corrFactor = jec_.begin(); corrFactor != jec_.end();
-       ++corrFactor)
+  for (auto corrFactor = jec_.begin(); corrFactor != jec_.end(); ++corrFactor)
     if (corrFactor->jecSet() == set) {
       return (corrFactor - jec_.begin());
     }
@@ -274,8 +273,7 @@ int Jet::jecSet(const std::string& set) const {
 /// all available label-names of all sets of jet energy corrections
 const std::vector<std::string> Jet::availableJECSets() const {
   std::vector<std::string> sets;
-  for (std::vector<pat::JetCorrFactors>::const_iterator corrFactor = jec_.begin(); corrFactor != jec_.end();
-       ++corrFactor)
+  for (auto corrFactor = jec_.begin(); corrFactor != jec_.end(); ++corrFactor)
     sets.push_back(corrFactor->jecSet());
   return sets;
 }
@@ -471,10 +469,7 @@ void Jet::cacheCaloTowers() const {
     // Refactorized PAT access
     if (!caloTowersFwdPtr_.empty()) {
       caloTowersTemp->reserve(caloTowersFwdPtr_.size());
-      for (CaloTowerFwdPtrVector::const_iterator ibegin = caloTowersFwdPtr_.begin(),
-                                                 iend = caloTowersFwdPtr_.end(),
-                                                 icalo = ibegin;
-           icalo != iend;
+      for (auto ibegin = caloTowersFwdPtr_.begin(), iend = caloTowersFwdPtr_.end(), icalo = ibegin; icalo != iend;
            ++icalo) {
         caloTowersTemp->emplace_back(icalo->ptr());
       }
@@ -482,9 +477,7 @@ void Jet::cacheCaloTowers() const {
     // Compatibility access
     else if (!caloTowers_.empty()) {
       caloTowersTemp->reserve(caloTowers_.size());
-      for (CaloTowerCollection::const_iterator ibegin = caloTowers_.begin(), iend = caloTowers_.end(), icalo = ibegin;
-           icalo != iend;
-           ++icalo) {
+      for (auto ibegin = caloTowers_.begin(), iend = caloTowers_.end(), icalo = ibegin; icalo != iend; ++icalo) {
         caloTowersTemp->emplace_back(&caloTowers_, icalo - ibegin);
       }
     }
@@ -514,10 +507,7 @@ void Jet::cachePFCandidates() const {
     // Refactorized PAT access
     if (!pfCandidatesFwdPtr_.empty()) {
       pfCandidatesTemp->reserve(pfCandidatesFwdPtr_.size());
-      for (PFCandidateFwdPtrCollection::const_iterator ibegin = pfCandidatesFwdPtr_.begin(),
-                                                       iend = pfCandidatesFwdPtr_.end(),
-                                                       ipf = ibegin;
-           ipf != iend;
+      for (auto ibegin = pfCandidatesFwdPtr_.begin(), iend = pfCandidatesFwdPtr_.end(), ipf = ibegin; ipf != iend;
            ++ipf) {
         pfCandidatesTemp->emplace_back(ipf->ptr());
       }
@@ -525,11 +515,7 @@ void Jet::cachePFCandidates() const {
     // Compatibility access
     else if (!pfCandidates_.empty()) {
       pfCandidatesTemp->reserve(pfCandidates_.size());
-      for (reco::PFCandidateCollection::const_iterator ibegin = pfCandidates_.begin(),
-                                                       iend = pfCandidates_.end(),
-                                                       ipf = ibegin;
-           ipf != iend;
-           ++ipf) {
+      for (auto ibegin = pfCandidates_.begin(), iend = pfCandidates_.end(), ipf = ibegin; ipf != iend; ++ipf) {
         pfCandidatesTemp->emplace_back(&pfCandidates_, ipf - ibegin);
       }
     }
@@ -540,7 +526,7 @@ void Jet::cachePFCandidates() const {
     pfCandidatesTemp->reserve(nDaughters);
     for (unsigned fIndex = 0; fIndex < nDaughters; ++fIndex) {
       Constituent const& dau = daughterPtr(fIndex);
-      const reco::PFCandidate* pfCandidate = dynamic_cast<const reco::PFCandidate*>(dau.get());
+      const auto* pfCandidate = dynamic_cast<const reco::PFCandidate*>(dau.get());
       if (pfCandidate) {
         pfCandidatesTemp->emplace_back(dau.id(), pfCandidate, dau.key());
       } else {

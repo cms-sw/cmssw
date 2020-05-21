@@ -51,7 +51,7 @@ void RecoTauPiZeroUnembedder::produce(edm::Event& evt, const edm::EventSetup& es
   edm::Handle<reco::CandidateView> tauView;
   evt.getByToken(token, tauView);
 
-  reco::PFTauRefVector taus = reco::tau::castView<reco::PFTauRefVector>(tauView);
+  auto taus = reco::tau::castView<reco::PFTauRefVector>(tauView);
 
   // Get the reference to the product of where the final pizeros will end up
   reco::RecoTauPiZeroRefProd piZeroProd = evt.getRefBeforePut<reco::RecoTauPiZeroCollection>("pizeros");

@@ -43,7 +43,7 @@ bool BasicOverlapTest::fillOverlapsForItem(const reco::Candidate &item,
   // sort matches
   std::sort(matches.begin(), matches.end());
   // fill ptr vector
-  for (std::vector<std::pair<float, size_t> >::const_iterator it = matches.begin(); it != matches.end(); ++it) {
+  for (auto it = matches.begin(); it != matches.end(); ++it) {
     overlapsToFill.push_back(candidates_->ptrAt(it->second));
   }
   return true;
@@ -51,7 +51,7 @@ bool BasicOverlapTest::fillOverlapsForItem(const reco::Candidate &item,
 
 bool OverlapBySuperClusterSeed::fillOverlapsForItem(const reco::Candidate &item,
                                                     reco::CandidatePtrVector &overlapsToFill) const {
-  const reco::RecoCandidate *input = dynamic_cast<const reco::RecoCandidate *>(&item);
+  const auto *input = dynamic_cast<const reco::RecoCandidate *>(&item);
   if (input == nullptr)
     throw cms::Exception("Type Error") << "Input to OverlapBySuperClusterSeed is not a RecoCandidate. "
                                        << "It's a " << typeid(item).name() << "\n";
@@ -69,7 +69,7 @@ bool OverlapBySuperClusterSeed::fillOverlapsForItem(const reco::Candidate &item,
   size_t idx = 0;
   //     for (edm::View<reco::RecoCandidate>::const_iterator it = others_->begin(); it != others_->end(); ++it, ++idx) {
   for (reco::CandidateView::const_iterator it = others_->begin(); it != others_->end(); ++it, ++idx) {
-    const reco::RecoCandidate *other = dynamic_cast<const reco::RecoCandidate *>(&*it);
+    const auto *other = dynamic_cast<const reco::RecoCandidate *>(&*it);
     reco::SuperClusterRef otherSc = other->superCluster();
     if (otherSc.isNull() || !otherSc.isAvailable()) {
       throw cms::Exception("Bad Reference")

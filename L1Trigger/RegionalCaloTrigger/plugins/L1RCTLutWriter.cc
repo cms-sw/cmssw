@@ -66,7 +66,7 @@ void L1RCTLutWriter::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
 
   // make dummy channel mask -- we don't want to mask
   // any channels when writing LUTs, that comes afterwards
-  L1RCTChannelMask *m = new L1RCTChannelMask;
+  auto *m = new L1RCTChannelMask;
   for (int i = 0; i < 18; i++) {
     for (int j = 0; j < 2; j++) {
       for (int k = 0; k < 28; k++) {
@@ -82,7 +82,7 @@ void L1RCTLutWriter::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
   // Same for Noisy mask
   // make dummy channel mask -- we don't want to mask
   // any channels when writing LUTs, that comes afterwards
-  L1RCTNoisyChannelMask *m2 = new L1RCTNoisyChannelMask;
+  auto *m2 = new L1RCTNoisyChannelMask;
   for (int i = 0; i < 18; i++) {
     for (int j = 0; j < 2; j++) {
       for (int k = 0; k < 28; k++) {

@@ -73,7 +73,7 @@ void tnp::TagProbePairMaker::phiCutByEventNumber(TagProbePairs &pairs, int event
   unsigned int currentNum = 0;
 
   size_t nclean = pairs.size();
-  for (TagProbePairs::iterator it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
+  for (auto it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
     if (it->tag.isNull())
       continue;  // skip already invalidated pairs
     if (eventNumber % 2) {
@@ -106,7 +106,7 @@ void tnp::TagProbePairMaker::phiCutByEventNumber(TagProbePairs &pairs, int event
   } else if (nclean < pairs.size()) {
     TagProbePairs cleaned;
     cleaned.reserve(nclean);
-    for (TagProbePairs::iterator it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
+    for (auto it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
       if (it->tag.isNonnull())
         cleaned.push_back(*it);
     }
@@ -116,12 +116,12 @@ void tnp::TagProbePairMaker::phiCutByEventNumber(TagProbePairs &pairs, int event
 
 void tnp::TagProbePairMaker::arbitrate(TagProbePairs &pairs) const {
   size_t nclean = pairs.size();
-  for (TagProbePairs::iterator it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
+  for (auto it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
     if (it->tag.isNull())
       continue;  // skip already invalidated pairs
 
     bool TTpair = false;
-    for (TagProbePairs::iterator it2 = pairs.begin(); it2 != ed; ++it2) {  // first check for Tag-Tag pairs
+    for (auto it2 = pairs.begin(); it2 != ed; ++it2) {  // first check for Tag-Tag pairs
       if (it2->tag.isNull())
         continue;  // skip already invalidated pairs
       if (it != it2 && it->probe == it2->tag && it->tag == it2->probe) {
@@ -132,7 +132,7 @@ void tnp::TagProbePairMaker::arbitrate(TagProbePairs &pairs) const {
     //if(!TTpair) std::cout << "this is not TT!" << std::endl;
     bool invalidateThis = false;
     int numberOfProbes = 0;
-    for (TagProbePairs::iterator it2 = it + 1; it2 != ed; ++it2) {  // it+1 <= ed, otherwise we don't arrive here
+    for (auto it2 = it + 1; it2 != ed; ++it2) {  // it+1 <= ed, otherwise we don't arrive here
       // arbitrate the case where multiple probes are matched to the same tag
       if ((arbitration_ != NonDuplicate) && (it->tag == it2->tag)) {
         if (TTpair) {  // we already have found a TT pair, no need to guess
@@ -211,7 +211,7 @@ void tnp::TagProbePairMaker::arbitrate(TagProbePairs &pairs) const {
   } else if (nclean < pairs.size()) {
     TagProbePairs cleaned;
     cleaned.reserve(nclean);
-    for (TagProbePairs::iterator it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
+    for (auto it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
       if (it->tag.isNonnull())
         cleaned.push_back(*it);
     }

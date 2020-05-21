@@ -115,7 +115,7 @@ namespace PhysicsTools {
   }
 
   void TreeReader::setOptional(AtomicId name, bool opt, double optVal) {
-    std::map<AtomicId, Value>::iterator pos = valueMap.find(name);
+    auto pos = valueMap.find(name);
     if (pos == valueMap.end())
       throw cms::Exception("UnknownVariable") << "Variable \"" << name
                                               << "\" is not known to the "
@@ -126,7 +126,7 @@ namespace PhysicsTools {
   }
 
   void TreeReader::addTypeSingle(AtomicId name, const void *value, char type, bool opt) {
-    std::map<AtomicId, Value>::const_iterator pos = valueMap.find(name);
+    auto pos = valueMap.find(name);
     if (pos != valueMap.end())
       throw cms::Exception("DuplicateVariable") << "Duplicate Variable \"" << name << "\"." << std::endl;
 
@@ -171,7 +171,7 @@ namespace PhysicsTools {
   }
 
   void TreeReader::addTypeMulti(AtomicId name, const void *value, char type) {
-    std::map<AtomicId, Value>::const_iterator pos = valueMap.find(name);
+    auto pos = valueMap.find(name);
     if (pos != valueMap.end())
       throw cms::Exception("DuplicateVariable") << "Duplicate Variable \"" << name << "\"." << std::endl;
 
@@ -251,7 +251,7 @@ namespace PhysicsTools {
     if (!tree)
       throw cms::Exception("NoTreeAvailable") << "No TTree set in TreeReader::automaticAdd." << std::endl;
 
-    for (std::map<AtomicId, Value>::iterator iter = valueMap.begin(); iter != valueMap.end(); iter++)
+    for (auto iter = valueMap.begin(); iter != valueMap.end(); iter++)
       iter->second.update(this);
 
     upToDate = true;
@@ -274,7 +274,7 @@ namespace PhysicsTools {
   }
 
   double TreeReader::fill(const MVAComputer *mva) {
-    for (std::map<AtomicId, Value>::const_iterator iter = valueMap.begin(); iter != valueMap.end(); iter++)
+    for (auto iter = valueMap.begin(); iter != valueMap.end(); iter++)
       iter->second.fill(iter->first, this);
 
     double result = mva->eval(values);
@@ -284,7 +284,7 @@ namespace PhysicsTools {
   }
 
   Variable::ValueList TreeReader::fill() {
-    for (std::map<AtomicId, Value>::const_iterator iter = valueMap.begin(); iter != valueMap.end(); iter++)
+    for (auto iter = valueMap.begin(); iter != valueMap.end(); iter++)
       iter->second.fill(iter->first, this);
 
     Variable::ValueList result = values;
@@ -295,7 +295,7 @@ namespace PhysicsTools {
 
   std::vector<AtomicId> TreeReader::variables() const {
     std::vector<AtomicId> result;
-    for (std::map<AtomicId, Value>::const_iterator iter = valueMap.begin(); iter != valueMap.end(); iter++)
+    for (auto iter = valueMap.begin(); iter != valueMap.end(); iter++)
       result.push_back(iter->first);
 
     return result;
@@ -349,34 +349,34 @@ namespace PhysicsTools {
     if (multiple) {
       switch (type) {
         case 'D': {
-          const std::vector<Double_t> *values = static_cast<const std::vector<Double_t> *>(ptr);
+          const auto *values = static_cast<const std::vector<Double_t> *>(ptr);
           if (!values)
             values = &reader->multiDouble[index].second;
-          for (std::vector<Double_t>::const_iterator iter = values->begin(); iter != values->end(); iter++)
+          for (auto iter = values->begin(); iter != values->end(); iter++)
             reader->values.add(name, *iter);
           break;
         }
         case 'F': {
-          const std::vector<Float_t> *values = static_cast<const std::vector<Float_t> *>(ptr);
+          const auto *values = static_cast<const std::vector<Float_t> *>(ptr);
           if (!values)
             values = &reader->multiFloat[index].second;
-          for (std::vector<Float_t>::const_iterator iter = values->begin(); iter != values->end(); iter++)
+          for (auto iter = values->begin(); iter != values->end(); iter++)
             reader->values.add(name, *iter);
           break;
         }
         case 'I': {
-          const std::vector<Int_t> *values = static_cast<const std::vector<Int_t> *>(ptr);
+          const auto *values = static_cast<const std::vector<Int_t> *>(ptr);
           if (!values)
             values = &reader->multiInt[index].second;
-          for (std::vector<Int_t>::const_iterator iter = values->begin(); iter != values->end(); iter++)
+          for (auto iter = values->begin(); iter != values->end(); iter++)
             reader->values.add(name, *iter);
           break;
         }
         case 'B': {
-          const std::vector<Bool_t> *values = static_cast<const std::vector<Bool_t> *>(ptr);
+          const auto *values = static_cast<const std::vector<Bool_t> *>(ptr);
           if (!values)
             values = &reader->multiBool[index].second;
-          for (std::vector<Bool_t>::const_iterator iter = values->begin(); iter != values->end(); iter++)
+          for (auto iter = values->begin(); iter != values->end(); iter++)
             reader->values.add(name, *iter);
           break;
         }

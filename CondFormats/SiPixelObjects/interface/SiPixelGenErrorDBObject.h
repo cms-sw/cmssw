@@ -76,7 +76,7 @@ public:
   const std::map<unsigned int, short>& getGenErrorIDs() const { return templ_ID; }
 
   bool putGenErrorID(const uint32_t& detid, short& value) {
-    std::map<unsigned int, short>::const_iterator id = templ_ID.find(detid);
+    auto id = templ_ID.find(detid);
     if (id != templ_ID.end()) {
       edm::LogError("SiPixelGenErrorDBObject")
           << "GenError ID for DetID " << detid << " is already stored. Skipping this put" << std::endl;
@@ -87,7 +87,7 @@ public:
   }
 
   short getGenErrorID(const uint32_t& detid) const {
-    std::map<unsigned int, short>::const_iterator id = templ_ID.find(detid);
+    auto id = templ_ID.find(detid);
     if (id != templ_ID.end())
       return id->second;
     else

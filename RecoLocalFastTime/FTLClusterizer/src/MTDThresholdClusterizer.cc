@@ -64,8 +64,8 @@ bool MTDThresholdClusterizer::setup(const MTDGeometry* geom, const MTDTopology* 
         << "GeographicalID: " << std::hex << id.rawId() << " is invalid!" << std::dec << std::endl;
     return false;
   }
-  const ProxyMTDTopology& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
-  const RectangularMTDTopology& topol = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
+  const auto& topoproxy = static_cast<const ProxyMTDTopology&>(thedet->topology());
+  const auto& topol = static_cast<const RectangularMTDTopology&>(topoproxy.specificTopology());
 
   // Get the new sizes.
   unsigned int nrows = topol.nrows();     // rows in x
@@ -95,8 +95,8 @@ void MTDThresholdClusterizer::clusterize(const FTLRecHitCollection& input,
                                          const MTDGeometry* geom,
                                          const MTDTopology* topo,
                                          FTLClusterCollection& output) {
-  FTLRecHitCollection::const_iterator begin = input.begin();
-  FTLRecHitCollection::const_iterator end = input.end();
+  auto begin = input.begin();
+  auto end = input.end();
 
   // Do not bother for empty detectors
   if (begin == end) {

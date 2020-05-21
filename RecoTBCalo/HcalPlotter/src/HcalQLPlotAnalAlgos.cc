@@ -76,7 +76,7 @@ void HcalQLPlotAnalAlgos::processRH(const HBHERecHitCollection& hbherhc, const H
   for (it = hbherhc.begin(); it != hbherhc.end(); it++) {
     HcalDetId id(it->id());
     HcalElectronicsId eid;
-    HBHEDigiCollection::const_iterator dit = hbhedgc.find(id);
+    auto dit = hbhedgc.find(id);
     if (dit != hbhedgc.end())
       eid = dit->elecId();
     else {
@@ -102,7 +102,7 @@ void HcalQLPlotAnalAlgos::processRH(const HORecHitCollection& horhc, const HODig
   for (it = horhc.begin(); it != horhc.end(); it++) {
     HcalDetId id(it->id());
     HcalElectronicsId eid;
-    HODigiCollection::const_iterator dit = hodgc.find(id);
+    auto dit = hodgc.find(id);
     if (dit != hodgc.end())
       eid = dit->elecId();
     else {
@@ -128,7 +128,7 @@ void HcalQLPlotAnalAlgos::processRH(const HFRecHitCollection& hfrhc, const HFDig
   for (it = hfrhc.begin(); it != hfrhc.end(); it++) {
     HcalDetId id(it->id());
     HcalElectronicsId eid;
-    HFDigiCollection::const_iterator dit = hfdgc.find(id);
+    auto dit = hfdgc.find(id);
     if (dit != hfdgc.end())
       eid = dit->elecId();
     else {

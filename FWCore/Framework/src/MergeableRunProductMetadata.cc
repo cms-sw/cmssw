@@ -49,11 +49,9 @@ namespace edm {
 
         std::vector<LuminosityBlockNumber_t> temp;
         temp.reserve(lumis.size() + (lumisInRunBeingReadEnd - lumisInRunBeingReadBegin));
-        std::vector<LuminosityBlockNumber_t>::const_iterator end1 = lumis.end();
-        std::vector<LuminosityBlockNumber_t>::const_iterator end2 = lumisInRunBeingReadEnd;
-        for (std::vector<LuminosityBlockNumber_t>::const_iterator iter1 = lumis.begin(),
-                                                                  iter2 = lumisInRunBeingReadBegin;
-             iter1 != end1 || iter2 != end2;) {
+        auto end1 = lumis.end();
+        auto end2 = lumisInRunBeingReadEnd;
+        for (auto iter1 = lumis.begin(), iter2 = lumisInRunBeingReadBegin; iter1 != end1 || iter2 != end2;) {
           if (iter1 == end1) {
             temp.push_back(*iter2);
             ++iter2;
@@ -306,10 +304,9 @@ namespace edm {
 
         std::vector<LuminosityBlockNumber_t> temp;
         temp.reserve(metadataForProcess.lumis().size() + lumisFromIndexIntoFile_.size());
-        std::vector<LuminosityBlockNumber_t>::const_iterator end1 = metadataForProcess.lumis().end();
-        std::vector<LuminosityBlockNumber_t>::const_iterator end2 = lumisFromIndexIntoFile_.end();
-        for (std::vector<LuminosityBlockNumber_t>::const_iterator iter1 = metadataForProcess.lumis().begin(),
-                                                                  iter2 = lumisFromIndexIntoFile_.begin();
+        auto end1 = metadataForProcess.lumis().end();
+        auto end2 = lumisFromIndexIntoFile_.end();
+        for (auto iter1 = metadataForProcess.lumis().begin(), iter2 = lumisFromIndexIntoFile_.begin();
              iter1 != end1 || iter2 != end2;) {
           if (iter1 == end1) {
             temp.push_back(*iter2);

@@ -36,7 +36,7 @@ namespace ecaldqm {
         requisite.insert(_r);
     }
     void append(std::set<Collections> const& _s) {
-      for (std::set<Collections>::const_iterator sItr(_s.begin()); sItr != _s.end(); ++sItr)
+      for (auto sItr(_s.begin()); sItr != _s.end(); ++sItr)
         append(*sItr);
     }
   };
@@ -44,8 +44,8 @@ namespace ecaldqm {
   struct DependencySet {
     DependencySet() : set_() {}
     void push_back(Dependency const& _d) {
-      std::vector<Dependency>::iterator dItr(set_.begin());
-      std::vector<Dependency>::iterator dEnd(set_.end());
+      auto dItr(set_.begin());
+      auto dEnd(set_.end());
       for (; dItr != dEnd; ++dItr)
         if (dItr->dependant == _d.dependant)
           dItr->append(_d.requisite);

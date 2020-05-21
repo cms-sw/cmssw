@@ -836,7 +836,7 @@ edm::EDLooper::Status ZeeCalibration::duringLoop(const edm::Event& iEvent, const
 
 #ifdef DEBUG
   std::cout << "scCollection->size()" << scCollection->size() << std::endl;
-  for (reco::SuperClusterCollection::const_iterator scIt = scCollection->begin(); scIt != scCollection->end(); scIt++) {
+  for (auto scIt = scCollection->begin(); scIt != scCollection->end(); scIt++) {
     std::cout << scIt->energy() << std::endl;
   }
 #endif
@@ -1864,7 +1864,7 @@ void ZeeCalibration::fillEleInfo(std::vector<HepMC::GenParticle*>& mcEle,
     h_eleEffPhi_[0]->Fill(mcEle[i]->momentum().phi());
     h_eleEffPt_[0]->Fill(mcEle[i]->momentum().perp());
 
-    std::map<HepMC::GenParticle*, const reco::GsfElectron*>::const_iterator mIter = associationMap.find(mcEle[i]);
+    auto mIter = associationMap.find(mcEle[i]);
     if (mIter == associationMap.end())
       continue;
 
@@ -1952,8 +1952,7 @@ std::pair<DetId, double> ZeeCalibration::getHottestDetId(const std::vector<std::
 
   std::pair<DetId, double> myPair(DetId(0), -9999.);
 
-  for (std::vector<std::pair<DetId, float> >::const_iterator idIt = mySCRecHits.begin(); idIt != mySCRecHits.end();
-       idIt++) {
+  for (auto idIt = mySCRecHits.begin(); idIt != mySCRecHits.end(); idIt++) {
     if (idIt->first.subdetId() == EcalBarrel) {
       hottestRecHit = &(*(ebhits->find((*idIt).first)));
 

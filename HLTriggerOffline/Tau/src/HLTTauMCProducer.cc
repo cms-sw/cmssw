@@ -62,7 +62,7 @@ void HLTTauMCProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Eve
   // It is not guaranteed that primary bosons are stored in event history.
   // Is it really needed when check if taus from the boson is removed?
   // Kept for backward compatibility
-  for (GenParticleCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++p) {
+  for (auto p = genParticles->begin(); p != genParticles->end(); ++p) {
     // Check the PDG ID
     bool pdg_ok = false;
     for (size_t pi = 0; pi < m_PDG_.size(); ++pi) {
@@ -85,7 +85,7 @@ void HLTTauMCProducer::produce(edm::StreamID, edm::Event &iEvent, const edm::Eve
   // Look for taus
   GenParticleRefVector allTaus;
   unsigned index = 0;
-  for (GenParticleCollection::const_iterator p = genParticles->begin(); p != genParticles->end(); ++p, ++index) {
+  for (auto p = genParticles->begin(); p != genParticles->end(); ++p, ++index) {
     const GenParticle &genP = *p;
     // accept only isPromptDecayed() particles
     if (!genP.isPromptDecayed())

@@ -185,7 +185,7 @@ void ODTTCFConfig::setParameters(const std::map<string, string>& my_keys_map) {
   // parses the result of the XML parser that is a map of
   // string string with variable name variable value
 
-  for (std::map<std::string, std::string>::const_iterator ci = my_keys_map.begin(); ci != my_keys_map.end(); ci++) {
+  for (auto ci = my_keys_map.begin(); ci != my_keys_map.end(); ci++) {
     if (ci->first == "TTCF_CONFIGURATION_ID")
       setConfigTag(ci->second);
     if (ci->first == "Configuration") {

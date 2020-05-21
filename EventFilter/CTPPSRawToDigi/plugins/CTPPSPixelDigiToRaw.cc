@@ -151,7 +151,7 @@ void CTPPSPixelDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   // pack raw data into collection
   for (auto it = fedIds_.begin(); it != fedIds_.end(); it++) {
     FEDRawData& fedRawData = buffers->FEDData(*it);
-    CTPPSPixelDataFormatter::RawData::iterator fedbuffer = rawdata.find(*it);
+    auto fedbuffer = rawdata.find(*it);
     if (fedbuffer != rawdata.end())
       fedRawData = fedbuffer->second;
   }

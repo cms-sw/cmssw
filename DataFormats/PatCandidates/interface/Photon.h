@@ -199,7 +199,7 @@ namespace pat {
     // ---- methods for photon isolation deposits ----
     /// Returns the IsoDeposit associated with some key, or a null pointer if it is not available
     const IsoDeposit* isoDeposit(IsolationKeys key) const {
-      for (IsoDepositPairs::const_iterator it = isoDeposits_.begin(), ed = isoDeposits_.end(); it != ed; ++it) {
+      for (auto it = isoDeposits_.begin(), ed = isoDeposits_.end(); it != ed; ++it) {
         if (it->first == key)
           return &it->second;
       }
@@ -215,7 +215,7 @@ namespace pat {
     const IsoDeposit* userIsoDeposit(uint8_t index = 0) const { return isoDeposit(IsolationKeys(UserBaseIso + index)); }
     /// Sets the IsoDeposit associated with some key; if it is already existent, it is overwritten.
     void setIsoDeposit(IsolationKeys key, const IsoDeposit& dep) {
-      IsoDepositPairs::iterator it = isoDeposits_.begin(), ed = isoDeposits_.end();
+      auto it = isoDeposits_.begin(), ed = isoDeposits_.end();
       for (; it != ed; ++it) {
         if (it->first == key) {
           it->second = dep;

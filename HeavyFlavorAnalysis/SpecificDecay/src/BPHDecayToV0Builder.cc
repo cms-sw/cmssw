@@ -169,8 +169,8 @@ void BPHDecayToV0Builder::buildFromV0(const T* v0Collection, v0Type type) {
 }
 
 void BPHDecayToV0Builder::v0Clear() {
-  map<const BPHRecoCandidate*, const V0Info*>::iterator iter = v0Map.begin();
-  map<const BPHRecoCandidate*, const V0Info*>::iterator iend = v0Map.end();
+  auto iter = v0Map.begin();
+  auto iend = v0Map.end();
   while (iter != iend)
     delete iter++->second;
   return;

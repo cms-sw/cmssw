@@ -25,8 +25,7 @@ TkModuleGroupSelector::TkModuleGroupSelector(AlignableTracker *aliTracker,
     : nparameters_(0), subdetids_(sdets) {
   //verify that all provided options are known
   std::vector<std::string> parameterNames = cfg.getParameterNames();
-  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(); iParam != parameterNames.end();
-       ++iParam) {
+  for (auto iParam = parameterNames.begin(); iParam != parameterNames.end(); ++iParam) {
     const std::string name = (*iParam);
     if (name != "RunRange" && name != "ReferenceRun" && name != "Granularity") {
       throw cms::Exception("BadConfig") << "@SUB=TkModuleGroupSelector::TkModuleGroupSelector:"
@@ -80,7 +79,7 @@ bool TkModuleGroupSelector::createGroup(unsigned int &Id,
   referenceRun_.push_back(refrun);
   firstId_.push_back(Id);
   runRange_.push_back(range);
-  for (std::list<Alignable *>::const_iterator it = selected_alis.begin(); it != selected_alis.end(); ++it) {
+  for (auto it = selected_alis.begin(); it != selected_alis.end(); ++it) {
     this->fillDetIdMap((*it)->id(), firstId_.size() - 1);
     modules_selected = true;
   }
@@ -105,8 +104,7 @@ bool TkModuleGroupSelector::createGroup(unsigned int &Id,
 //============================================================================
 void TkModuleGroupSelector::verifyParameterNames(const edm::ParameterSet &pset, unsigned int psetnr) const {
   std::vector<std::string> parameterNames = pset.getParameterNames();
-  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(); iParam != parameterNames.end();
-       ++iParam) {
+  for (auto iParam = parameterNames.begin(); iParam != parameterNames.end(); ++iParam) {
     const std::string name = (*iParam);
     if (name != "levels" && name != "RunRange" && name != "split" && name != "ReferenceRun") {
       throw cms::Exception("BadConfig") << "@SUB=TkModuleGroupSelector::verifyParameterNames:"
@@ -126,7 +124,7 @@ void TkModuleGroupSelector::createModuleGroups(AlignableTracker *aliTracker,
   unsigned int Id = 0;
   unsigned int psetnr = 0;
   //loop over all LA groups
-  for (edm::VParameterSet::const_iterator pset = granularityConfig.begin(); pset != granularityConfig.end(); ++pset) {
+  for (auto pset = granularityConfig.begin(); pset != granularityConfig.end(); ++pset) {
     //test for unknown parameters
     this->verifyParameterNames((*pset), psetnr);
     psetnr++;
@@ -171,7 +169,7 @@ void TkModuleGroupSelector::createModuleGroups(AlignableTracker *aliTracker,
     }
 
     edm::RunNumber_t firstRun = 0;
-    for (std::vector<edm::RunNumber_t>::const_iterator iRun = range.begin(); iRun != range.end(); ++iRun) {
+    for (auto iRun = range.begin(); iRun != range.end(); ++iRun) {
       localRunRange.insert((*iRun));
       if ((*iRun) > firstRun) {
         firstRun = (*iRun);
@@ -189,8 +187,7 @@ void TkModuleGroupSelector::createModuleGroups(AlignableTracker *aliTracker,
   }
 
   //copy local set into the global vector of run boundaries
-  for (std::set<edm::RunNumber_t>::const_iterator itRun = localRunRange.begin(); itRun != localRunRange.end();
-       ++itRun) {
+  for (auto itRun = localRunRange.begin(); itRun != localRunRange.end(); ++itRun) {
     globalRunRange_.push_back((*itRun));
   }
 }
@@ -216,7 +213,7 @@ int TkModuleGroupSelector::getParameterIndexFromDetId(unsigned int detId, edm::R
   int index = -1;
 
   bool sel = false;
-  for (std::vector<int>::const_iterator itSubDets = subdetids_.begin(); itSubDets != subdetids_.end(); ++itSubDets) {
+  for (auto itSubDets = subdetids_.begin(); itSubDets != subdetids_.end(); ++itSubDets) {
     if (temp_id.det() == DetId::Tracker && temp_id.subdetId() == (*itSubDets)) {
       sel = true;
       break;
@@ -226,7 +223,7 @@ int TkModuleGroupSelector::getParameterIndexFromDetId(unsigned int detId, edm::R
   if (temp_id.det() != DetId::Tracker || !sel)
     return -1;
 
-  std::map<unsigned int, unsigned int>::const_iterator it = mapDetIdGroupId_.find(detId);
+  auto it = mapDetIdGroupId_.find(detId);
   if (it != mapDetIdGroupId_.end()) {
     const unsigned int iAlignableGroup = (*it).second;
     const std::vector<edm::RunNumber_t> &runs = runRange_.at(iAlignableGroup);

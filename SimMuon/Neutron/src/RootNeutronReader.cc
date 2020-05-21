@@ -4,7 +4,7 @@
 RootNeutronReader::RootNeutronReader(const std::string& fileName) : theFile(new TFile(fileName.c_str())) {}
 
 RootChamberReader& RootNeutronReader::chamberReader(int chamberType) {
-  std::map<int, RootChamberReader>::iterator mapItr = theChamberReaders.find(chamberType);
+  auto mapItr = theChamberReaders.find(chamberType);
 
   if (mapItr != theChamberReaders.end()) {
     return mapItr->second;

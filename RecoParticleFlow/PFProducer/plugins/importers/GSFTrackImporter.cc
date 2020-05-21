@@ -40,9 +40,9 @@ void GSFTrackImporter::importToBlock(const edm::Event& e, BlockElementImporterBa
     const auto& gsfextraref = basegsfref->extra();
     // import associated super clusters
     if (gsfextraref.isAvailable() && gsfextraref->seedRef().isAvailable()) {
-      reco::ElectronSeedRef seedref = gsfextraref->seedRef().castTo<reco::ElectronSeedRef>();
+      auto seedref = gsfextraref->seedRef().castTo<reco::ElectronSeedRef>();
       if (seedref.isAvailable() && seedref->isEcalDriven()) {
-        reco::SuperClusterRef scref = seedref->caloCluster().castTo<reco::SuperClusterRef>();
+        auto scref = seedref->caloCluster().castTo<reco::SuperClusterRef>();
         if (scref.isNonnull()) {
           // explicitly veto HGCal super clusters
           if (scref->seed()->seed().det() == DetId::HGCalEE || scref->seed()->seed().det() == DetId::HGCalHSi ||
@@ -51,10 +51,10 @@ void GSFTrackImporter::importToBlock(const edm::Event& e, BlockElementImporterBa
           PFBlockElementSCEqual myEqual(scref);
           auto sc_elem = std::find_if(elems.begin(), SCs_end, myEqual);
           if (sc_elem != SCs_end) {
-            reco::PFBlockElementSuperCluster* scbe = static_cast<reco::PFBlockElementSuperCluster*>(sc_elem->get());
+            auto* scbe = static_cast<reco::PFBlockElementSuperCluster*>(sc_elem->get());
             scbe->setFromGsfElectron(true);
           } else {
-            reco::PFBlockElementSuperCluster* scbe = new reco::PFBlockElementSuperCluster(scref);
+            auto* scbe = new reco::PFBlockElementSuperCluster(scref);
             scbe->setFromGsfElectron(true);
             scbe->setFromPFSuperCluster(_superClustersArePF);
             SCs_end = elems.emplace(SCs_end, scbe);
@@ -84,7 +84,7 @@ void GSFTrackImporter::importToBlock(const edm::Event& e, BlockElementImporterBa
     }
     const math::XYZTLorentzVector& pin = PfGsfPoint[0].momentum();
     const math::XYZTLorentzVector& pout = PfGsfPoint[IndexPout].momentum();
-    reco::PFBlockElementGsfTrack* temp = new reco::PFBlockElementGsfTrack(gsfref, pin, pout);
+    auto* temp = new reco::PFBlockElementGsfTrack(gsfref, pin, pout);
     if (_isSecondary) {
       temp->setTrackType(reco::PFBlockElement::T_FROM_GAMMACONV, true);
     }

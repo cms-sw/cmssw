@@ -115,9 +115,7 @@ void LaserAlignmentT0ProducerDQM::bookHistograms(DQMStore::IBooker &iBooker,
 ///
 void LaserAlignmentT0ProducerDQM::analyze(const edm::Event &aEvent, const edm::EventSetup &aSetup) {
   // loop all input products
-  for (std::vector<edm::ParameterSet>::iterator aDigiProducer = theDigiProducerList.begin();
-       aDigiProducer != theDigiProducerList.end();
-       ++aDigiProducer) {
+  for (auto aDigiProducer = theDigiProducerList.begin(); aDigiProducer != theDigiProducerList.end(); ++aDigiProducer) {
     const std::string digiProducer = aDigiProducer->getParameter<std::string>("DigiProducer");
     const std::string digiLabel = aDigiProducer->getParameter<std::string>("DigiLabel");
     const std::string digiType = aDigiProducer->getParameter<std::string>("DigiType");
@@ -174,7 +172,7 @@ void LaserAlignmentT0ProducerDQM::FillFromRawDigis(const edm::DetSetVector<SiStr
     const int detRawId = detectorId.GetTECEntry(det, ring, beam, disk);
 
     // search the digis for this raw id
-    edm::DetSetVector<SiStripRawDigi>::const_iterator detSetIter = aDetSetVector.find(detRawId);
+    auto detSetIter = aDetSetVector.find(detRawId);
 
     // raw DetSets may not be missing
     if (detSetIter == aDetSetVector.end()) {
@@ -183,7 +181,7 @@ void LaserAlignmentT0ProducerDQM::FillFromRawDigis(const edm::DetSetVector<SiStr
     }
 
     // access single modules' digis
-    edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator = detSetIter->data.begin();
+    auto digiRangeIterator = detSetIter->data.begin();
 
     for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator) {
       const SiStripRawDigi &digi = *digiRangeIterator;
@@ -227,7 +225,7 @@ void LaserAlignmentT0ProducerDQM::FillFromRawDigis(const edm::DetSetVector<SiStr
     const int detRawId = detectorId.GetTEC2TECEntry(det, beam, disk);
 
     // search the digis for this raw id
-    edm::DetSetVector<SiStripRawDigi>::const_iterator detSetIter = aDetSetVector.find(detRawId);
+    auto detSetIter = aDetSetVector.find(detRawId);
 
     // raw DetSets may not be missing
     if (detSetIter == aDetSetVector.end()) {
@@ -236,7 +234,7 @@ void LaserAlignmentT0ProducerDQM::FillFromRawDigis(const edm::DetSetVector<SiStr
     }
 
     // access single modules' digis
-    edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator = detSetIter->data.begin();
+    auto digiRangeIterator = detSetIter->data.begin();
 
     for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator) {
       const SiStripRawDigi &digi = *digiRangeIterator;
@@ -276,7 +274,7 @@ void LaserAlignmentT0ProducerDQM::FillFromRawDigis(const edm::DetSetVector<SiStr
     const int detRawId = detectorId.GetTIBTOBEntry(det, beam, pos);
 
     // search the digis for this raw id
-    edm::DetSetVector<SiStripRawDigi>::const_iterator detSetIter = aDetSetVector.find(detRawId);
+    auto detSetIter = aDetSetVector.find(detRawId);
 
     // raw DetSets may not be missing
     if (detSetIter == aDetSetVector.end()) {
@@ -285,7 +283,7 @@ void LaserAlignmentT0ProducerDQM::FillFromRawDigis(const edm::DetSetVector<SiStr
     }
 
     // access single modules' digis
-    edm::DetSet<SiStripRawDigi>::const_iterator digiRangeIterator = detSetIter->data.begin();
+    auto digiRangeIterator = detSetIter->data.begin();
 
     for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator) {
       const SiStripRawDigi &digi = *digiRangeIterator;
@@ -334,14 +332,14 @@ void LaserAlignmentT0ProducerDQM::FillFromProcessedDigis(const edm::DetSetVector
     const int detRawId = detectorId.GetTECEntry(det, ring, beam, disk);
 
     // search the digis for this raw id
-    edm::DetSetVector<SiStripDigi>::const_iterator detSetIter = aDetSetVector.find(detRawId);
+    auto detSetIter = aDetSetVector.find(detRawId);
 
     // processed DetSets may be missing (=empty), just skip
     if (detSetIter == aDetSetVector.end())
       continue;
 
     // access single modules' digis
-    edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator = detSetIter->data.begin();
+    auto digiRangeIterator = detSetIter->data.begin();
 
     for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator) {
       const SiStripDigi &digi = *digiRangeIterator;
@@ -385,14 +383,14 @@ void LaserAlignmentT0ProducerDQM::FillFromProcessedDigis(const edm::DetSetVector
     const int detRawId = detectorId.GetTEC2TECEntry(det, beam, disk);
 
     // search the digis for this raw id
-    edm::DetSetVector<SiStripDigi>::const_iterator detSetIter = aDetSetVector.find(detRawId);
+    auto detSetIter = aDetSetVector.find(detRawId);
 
     // processed DetSets may be missing (=empty), just skip
     if (detSetIter == aDetSetVector.end())
       continue;
 
     // access single modules' digis
-    edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator = detSetIter->data.begin();
+    auto digiRangeIterator = detSetIter->data.begin();
 
     for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator) {
       const SiStripDigi &digi = *digiRangeIterator;
@@ -432,14 +430,14 @@ void LaserAlignmentT0ProducerDQM::FillFromProcessedDigis(const edm::DetSetVector
     const int detRawId = detectorId.GetTIBTOBEntry(det, beam, pos);
 
     // search the digis for this raw id
-    edm::DetSetVector<SiStripDigi>::const_iterator detSetIter = aDetSetVector.find(detRawId);
+    auto detSetIter = aDetSetVector.find(detRawId);
 
     // processed DetSets may be missing (=empty), just skip
     if (detSetIter == aDetSetVector.end())
       continue;
 
     // access single modules' digis
-    edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator = detSetIter->data.begin();
+    auto digiRangeIterator = detSetIter->data.begin();
 
     for (; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator) {
       const SiStripDigi &digi = *digiRangeIterator;

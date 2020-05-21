@@ -292,15 +292,12 @@ namespace l1t {
 
               const CombinationsInCond* condComb = oMap.getCombinationsInCond(iCond);
               std::cout << "            Combinations in Condition [" << condComb->size() << "] : ";
-              for (std::vector<SingleCombInCond>::const_iterator itComb = (*condComb).begin();
-                   itComb != (*condComb).end();
-                   itComb++) {
+              for (auto itComb = (*condComb).begin(); itComb != (*condComb).end(); itComb++) {
                 // loop over objects in a combination for a given condition
                 //
                 unsigned int iType = 0;
                 std::cout << "(";
-                for (SingleCombInCond::const_iterator itObject = (*itComb).begin(); itObject != (*itComb).end();
-                     itObject++) {
+                for (auto itObject = (*itComb).begin(); itObject != (*itComb).end(); itObject++) {
                   // loop over types for the object in a combination.  This object might have more then one type (i.e. mu-eg)
                   //
 
@@ -346,7 +343,7 @@ namespace l1t {
         cout << " ------ EGammas -------- " << endl;
         if (egammas.isValid()) {
           if (i >= egammas->getFirstBX() && i <= egammas->getLastBX()) {
-            for (std::vector<l1t::EGamma>::const_iterator eg = egammas->begin(i); eg != egammas->end(i); ++eg) {
+            for (auto eg = egammas->begin(i); eg != egammas->end(i); ++eg) {
               cout << "  " << std::dec << std::setw(2) << std::setfill(' ') << nObj << std::setfill('0') << ")";
               cout << "   Pt " << std::dec << std::setw(3) << eg->hwPt() << " (0x" << std::hex << std::setw(3)
                    << std::setfill('0') << eg->hwPt() << ")";
@@ -371,7 +368,7 @@ namespace l1t {
         cout << " ------ Muons --------" << endl;
         if (muons.isValid()) {
           if (i >= muons->getFirstBX() && i <= muons->getLastBX()) {
-            for (std::vector<l1t::Muon>::const_iterator mu = muons->begin(i); mu != muons->end(i); ++mu) {
+            for (auto mu = muons->begin(i); mu != muons->end(i); ++mu) {
               cout << "  " << std::dec << std::setw(2) << std::setfill(' ') << nObj << std::setfill('0') << ")";
               cout << "   Pt " << std::dec << std::setw(3) << mu->hwPt() << " (0x" << std::hex << std::setw(3)
                    << std::setfill('0') << mu->hwPt() << ")";
@@ -401,7 +398,7 @@ namespace l1t {
         cout << " ------ Taus ----------" << endl;
         if (taus.isValid()) {
           if (i >= taus->getFirstBX() && i <= taus->getLastBX()) {
-            for (std::vector<l1t::Tau>::const_iterator tau = taus->begin(i); tau != taus->end(i); ++tau) {
+            for (auto tau = taus->begin(i); tau != taus->end(i); ++tau) {
               cout << "  " << std::dec << std::setw(2) << std::setfill(' ') << nObj << std::setfill('0') << ")";
               cout << "   Pt " << std::dec << std::setw(3) << tau->hwPt() << " (0x" << std::hex << std::setw(3)
                    << std::setfill('0') << tau->hwPt() << ")";
@@ -426,7 +423,7 @@ namespace l1t {
         cout << " ------ Jets ----------" << endl;
         if (jets.isValid()) {
           if (i >= jets->getFirstBX() && i <= jets->getLastBX()) {
-            for (std::vector<l1t::Jet>::const_iterator jet = jets->begin(i); jet != jets->end(i); ++jet) {
+            for (auto jet = jets->begin(i); jet != jets->end(i); ++jet) {
               cout << "  " << std::dec << std::setw(2) << std::setfill(' ') << nObj << std::setfill('0') << ")";
               cout << "   Pt " << std::dec << std::setw(3) << jet->hwPt() << " (0x" << std::hex << std::setw(3)
                    << std::setfill('0') << jet->hwPt() << ")";
@@ -449,7 +446,7 @@ namespace l1t {
         cout << " ------ EtSums ----------" << endl;
         if (etsums.isValid()) {
           if (i >= etsums->getFirstBX() && i <= etsums->getLastBX()) {
-            for (std::vector<l1t::EtSum>::const_iterator etsum = etsums->begin(i); etsum != etsums->end(i); ++etsum) {
+            for (auto etsum = etsums->begin(i); etsum != etsums->end(i); ++etsum) {
               switch (etsum->getType()) {
                 case l1t::EtSum::EtSumType::kMissingEt:
                   cout << " ETM:  ";
@@ -526,8 +523,7 @@ namespace l1t {
         cout << " ------ uGtExt ----------" << endl;
         if (uGtExt.isValid()) {
           if (i >= uGtExt->getFirstBX() && i <= uGtExt->getLastBX()) {
-            for (std::vector<GlobalExtBlk>::const_iterator extBlk = uGtExt->begin(i); extBlk != uGtExt->end(i);
-                 ++extBlk) {
+            for (auto extBlk = uGtExt->begin(i); extBlk != uGtExt->end(i); ++extBlk) {
               extBlk->print(std::cout);
             }
           } else {
@@ -541,8 +537,7 @@ namespace l1t {
         cout << " ------ uGtAlg ----------" << endl;
         if (uGtAlg.isValid()) {
           if (i >= uGtAlg->getFirstBX() && i <= uGtAlg->getLastBX()) {
-            for (std::vector<GlobalAlgBlk>::const_iterator algBlk = uGtAlg->begin(i); algBlk != uGtAlg->end(i);
-                 ++algBlk) {
+            for (auto algBlk = uGtAlg->begin(i); algBlk != uGtAlg->end(i); ++algBlk) {
               algBlk->print(std::cout);
             }
           } else {
@@ -581,9 +576,7 @@ namespace l1t {
     cout << "=========================== Global Trigger Summary Report  ==================================" << endl;
     cout << "                       Algorithm Name                              Init     aBXM     Final   " << endl;
     cout << "=============================================================================================" << endl;
-    for (std::map<std::string, std::vector<int>>::const_iterator itAlgo = m_algoSummary.begin();
-         itAlgo != m_algoSummary.end();
-         itAlgo++) {
+    for (auto itAlgo = m_algoSummary.begin(); itAlgo != m_algoSummary.end(); itAlgo++) {
       std::string name = itAlgo->first;
       int initCnt = (itAlgo->second).at(0);
       int initPre = (itAlgo->second).at(1);
@@ -614,7 +607,7 @@ namespace l1t {
     // Dump 8 Muons (16 digits + space)
     int nDumped = 0;
     if (muons.isValid()) {
-      for (std::vector<l1t::Muon>::const_iterator mu = muons->begin(bx); mu != muons->end(bx); ++mu) {
+      for (auto mu = muons->begin(bx); mu != muons->end(bx); ++mu) {
         cms_uint64_t packedWd = formatMuon(mu);
         if (nDumped < 8) {
           myOutFile << " " << std::hex << std::setw(16) << std::setfill('0') << packedWd;
@@ -629,7 +622,7 @@ namespace l1t {
     // Dump 12 EG (8 digits + space)
     nDumped = 0;
     if (egammas.isValid()) {
-      for (std::vector<l1t::EGamma>::const_iterator eg = egammas->begin(bx); eg != egammas->end(bx); ++eg) {
+      for (auto eg = egammas->begin(bx); eg != egammas->end(bx); ++eg) {
         unsigned int packedWd = formatEG(eg);
         if (nDumped < 12) {
           myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << packedWd;
@@ -647,7 +640,7 @@ namespace l1t {
     if (m_tvVersion > 1)
       maxTau = 12;
     if (taus.isValid()) {
-      for (std::vector<l1t::Tau>::const_iterator tau = taus->begin(bx); tau != taus->end(bx); ++tau) {
+      for (auto tau = taus->begin(bx); tau != taus->end(bx); ++tau) {
         unsigned int packedWd = formatTau(tau);
         if (nDumped < maxTau) {
           myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << packedWd;
@@ -662,7 +655,7 @@ namespace l1t {
     // Dump 12 Jets (8 digits + space)
     nDumped = 0;
     if (jets.isValid()) {
-      for (std::vector<l1t::Jet>::const_iterator jet = jets->begin(bx); jet != jets->end(bx); ++jet) {
+      for (auto jet = jets->begin(bx); jet != jets->end(bx); ++jet) {
         unsigned int packedWd = formatJet(jet);
         if (nDumped < 12) {
           myOutFile << " " << std::hex << std::setw(8) << std::setfill('0') << packedWd;
@@ -698,7 +691,7 @@ namespace l1t {
     std::pair<unsigned int, unsigned int> centrality(0, 0);
 
     if (etsums.isValid()) {
-      for (std::vector<l1t::EtSum>::const_iterator etsum = etsums->begin(bx); etsum != etsums->end(bx); ++etsum) {
+      for (auto etsum = etsums->begin(bx); etsum != etsums->end(bx); ++etsum) {
         switch (etsum->getType()) {
           case l1t::EtSum::EtSumType::kMissingEt:
             ETMpackWd = formatMissET(etsum);
@@ -805,7 +798,7 @@ namespace l1t {
     int digit = 0;
     myOutFile << " ";
     if (uGtExt.isValid()) {
-      for (std::vector<GlobalExtBlk>::const_iterator extBlk = uGtExt->begin(bx); extBlk != uGtExt->end(bx); ++extBlk) {
+      for (auto extBlk = uGtExt->begin(bx); extBlk != uGtExt->end(bx); ++extBlk) {
         for (int i = 255; i > -1; i--) {
           if (extBlk->getExternalDecision(i))
             digit |= (1 << (i % 4));
@@ -823,7 +816,7 @@ namespace l1t {
     digit = 0;
     myOutFile << " ";
     if (uGtAlg.isValid()) {
-      for (std::vector<GlobalAlgBlk>::const_iterator algBlk = uGtAlg->begin(bx); algBlk != uGtAlg->end(bx); ++algBlk) {
+      for (auto algBlk = uGtAlg->begin(bx); algBlk != uGtAlg->end(bx); ++algBlk) {
         for (int i = 511; i > -1; i--) {
           if (algBlk->getAlgoDecisionFinal(i))
             digit |= (1 << (i % 4));

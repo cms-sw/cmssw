@@ -90,7 +90,7 @@ ConfigurableAPVCyclePhaseProducer::ConfigurableAPVCyclePhaseProducer(const edm::
 
   std::vector<edm::ParameterSet> vps(iConfig.getParameter<std::vector<edm::ParameterSet> >("runPhases"));
 
-  for (std::vector<edm::ParameterSet>::const_iterator ps = vps.begin(); ps != vps.end(); ps++) {
+  for (auto ps = vps.begin(); ps != vps.end(); ps++) {
     _runphases[ps->getParameter<int>("runNumber")] = ps->getUntrackedParameter<std::vector<int> >("phases", _defphases);
     _runpartnames[ps->getParameter<int>("runNumber")] =
         ps->getUntrackedParameter<std::vector<std::string> >("partitions", _defpartnames);
@@ -126,8 +126,8 @@ void ConfigurableAPVCyclePhaseProducer::beginRun(const edm::Run& iRun, const edm
   const std::map<int, std::vector<std::string> >& _crunpartnames = _runpartnames;
   const std::map<int, std::vector<int> >& _crunphases = _runphases;
 
-  std::map<int, std::vector<int> >::const_iterator trphases = _crunphases.find(iRun.run());
-  std::map<int, std::vector<std::string> >::const_iterator trpartnames = _crunpartnames.find(iRun.run());
+  auto trphases = _crunphases.find(iRun.run());
+  auto trpartnames = _crunpartnames.find(iRun.run());
 
   std::vector<int> phases = _defphases;
   std::vector<std::string> partnames = _defpartnames;
@@ -151,8 +151,7 @@ void ConfigurableAPVCyclePhaseProducer::beginRun(const edm::Run& iRun, const edm
     }
   }
 
-  for (std::map<std::string, int>::const_iterator it = _currapvphases.get().begin(); it != _currapvphases.get().end();
-       it++) {
+  for (auto it = _currapvphases.get().begin(); it != _currapvphases.get().end(); it++) {
     edm::LogInfo("APVCyclePhaseProducerDebug") << "partition " << it->first << " phase " << it->second;
   }
 }

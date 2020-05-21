@@ -246,7 +246,7 @@ namespace edm {
             if (productInstanceName == star) {
               bool match = false;
               BranchKey lowerBound(friendlyClassName, moduleLabel, empty, empty);
-              for (ProductRegistry::ProductList::const_iterator it = preg.productList().lower_bound(lowerBound);
+              for (auto it = preg.productList().lower_bound(lowerBound);
                    it != preg.productList().end() && it->first.friendlyClassName() == friendlyClassName &&
                    it->first.moduleLabel() == moduleLabel;
                    ++it) {
@@ -293,7 +293,7 @@ namespace edm {
 
       // Now add the new alias entries to the product registry.
       for (auto const& aliasEntry : aliasMap) {
-        ProductRegistry::ProductList::const_iterator it = preg.productList().find(aliasEntry.first);
+        auto it = preg.productList().find(aliasEntry.first);
         assert(it != preg.productList().end());
         preg.addLabelAlias(it->second, aliasEntry.second.moduleLabel(), aliasEntry.second.productInstanceName());
       }
@@ -506,24 +506,22 @@ namespace edm {
       for_all(labelsToBeDropped, std::bind(&ParameterSet::eraseOrSetUntrackedParameterSet, std::ref(proc_pset), _1));
 
       // drop the labels from @all_modules
-      vstring::iterator endAfterRemove =
-          std::remove_if(modulesInConfig.begin(),
-                         modulesInConfig.end(),
-                         std::bind(binary_search_string, std::ref(labelsToBeDropped), _1));
+      auto endAfterRemove = std::remove_if(modulesInConfig.begin(),
+                                           modulesInConfig.end(),
+                                           std::bind(binary_search_string, std::ref(labelsToBeDropped), _1));
       modulesInConfig.erase(endAfterRemove, modulesInConfig.end());
       proc_pset.addParameter<vstring>(std::string("@all_modules"), modulesInConfig);
 
       // drop the labels from all end paths
       vstring endPathsToBeDropped;
       vstring labels;
-      for (vstring::const_iterator iEndPath = end_path_name_list.begin(), endEndPath = end_path_name_list.end();
-           iEndPath != endEndPath;
+      for (auto iEndPath = end_path_name_list.begin(), endEndPath = end_path_name_list.end(); iEndPath != endEndPath;
            ++iEndPath) {
         labels = proc_pset.getParameter<vstring>(*iEndPath);
-        vstring::iterator iSave = labels.begin();
-        vstring::iterator iBegin = labels.begin();
+        auto iSave = labels.begin();
+        auto iBegin = labels.begin();
 
-        for (vstring::iterator iLabel = labels.begin(), iEnd = labels.end(); iLabel != iEnd; ++iLabel) {
+        for (auto iLabel = labels.begin(), iEnd = labels.end(); iLabel != iEnd; ++iLabel) {
           if (binary_search_string(labelsToBeDropped, *iLabel)) {
             if (binary_search_string(outputModuleLabels, *iLabel)) {
               outputModulePathPositions[*iLabel].emplace_back(*iEndPath, iSave - iBegin);

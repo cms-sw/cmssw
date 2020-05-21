@@ -48,7 +48,7 @@ L1MuDTTrackContainer::TrackContainer const* L1MuDTTrackContainer::getContainer()
 bool L1MuDTTrackContainer::bxEmpty(int step) const {
   bool empty = true;
 
-  for (Trackiterator i = dtTracks.begin(); i != dtTracks.end(); i++) {
+  for (auto i = dtTracks.begin(); i != dtTracks.end(); i++) {
     if (step == i->bx())
       empty = false;
   }
@@ -59,7 +59,7 @@ bool L1MuDTTrackContainer::bxEmpty(int step) const {
 int L1MuDTTrackContainer::bxSize(int step1, int step2) const {
   int size = 0;
 
-  for (Trackiterator i = dtTracks.begin(); i != dtTracks.end(); i++) {
+  for (auto i = dtTracks.begin(); i != dtTracks.end(); i++) {
     if (step1 <= i->bx() && step2 >= i->bx() && i->quality_packed() != 0)
       size++;
   }
@@ -70,7 +70,7 @@ int L1MuDTTrackContainer::bxSize(int step1, int step2) const {
 L1MuDTTrackCand const* L1MuDTTrackContainer::dtTrackCand1(int wheel, int sect, int step) const {
   L1MuDTTrackCand const* rT = nullptr;
 
-  for (Trackiterator i = dtTracks.begin(); i != dtTracks.end(); i++) {
+  for (auto i = dtTracks.begin(); i != dtTracks.end(); i++) {
     if (step == i->bx() && wheel == i->whNum() && sect == i->scNum() && i->TrkTag() == 0)
       rT = &(*i);
   }
@@ -81,7 +81,7 @@ L1MuDTTrackCand const* L1MuDTTrackContainer::dtTrackCand1(int wheel, int sect, i
 L1MuDTTrackCand const* L1MuDTTrackContainer::dtTrackCand2(int wheel, int sect, int step) const {
   L1MuDTTrackCand const* rT = nullptr;
 
-  for (Trackiterator i = dtTracks.begin(); i != dtTracks.end(); i++) {
+  for (auto i = dtTracks.begin(); i != dtTracks.end(); i++) {
     if (step == i->bx() && wheel == i->whNum() && sect == i->scNum() && i->TrkTag() == 1)
       rT = &(*i);
   }

@@ -39,7 +39,7 @@ void HcalHFStatusBitFromRecHits::hfSetFlagFromRecHits(HFRecHitCollection& rec,
   double coshEta;
 
   // Is there a faster way to do this than a double loop?
-  for (HFRecHitCollection::iterator iHF = rec.begin(); iHF != rec.end(); ++iHF) {
+  for (auto iHF = rec.begin(); iHF != rec.end(); ++iHF) {
     // skip cells that have already been tagged -- shouldn't happen in current algorithm
     //if (iHF->flagField(HcalCaloFlagLabels::HFLongShort, HcalCaloFlagLabels::HFLongShort+1)) continue;
 
@@ -88,7 +88,7 @@ void HcalHFStatusBitFromRecHits::hfSetFlagFromRecHits(HFRecHitCollection& rec,
       continue;  // partner was dropped; don't set flag
 
     // inner loop will find 'partner' channel (same ieta, iphi, different depth)
-    for (HFRecHitCollection::iterator iHF2 = rec.begin(); iHF2 != rec.end(); ++iHF2) {
+    for (auto iHF2 = rec.begin(); iHF2 != rec.end(); ++iHF2) {
       if (iHF2->id().ieta() != ieta)
         continue;  // require ieta match
       if (iHF2->id().iphi() != iphi)

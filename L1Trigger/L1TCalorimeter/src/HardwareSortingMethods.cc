@@ -313,7 +313,7 @@ namespace l1t {
     std::vector<std::vector<l1t::L1Candidate> > hfm_input_energy(hfm_nrows, std::vector<l1t::L1Candidate>(hfm_ncols));
     std::vector<std::vector<l1t::L1Candidate> > hfp_input_energy(hfp_nrows, std::vector<l1t::L1Candidate>(hfp_ncols));
 
-    for (std::vector<l1t::Jet>::const_iterator injet = input->begin(); injet != input->end(); ++injet) {
+    for (auto injet = input->begin(); injet != input->end(); ++injet) {
       if (injet->hwEta() >= 4 && injet->hwEta() <= 17) {
         unsigned int myrow = gt_to_fw_phi_map[injet->hwPhi()];
         unsigned int mycol = injet->hwEta() - 4;  //hardcoding is bad
@@ -458,7 +458,7 @@ namespace l1t {
       }
     }
 
-    for (std::vector<l1t::EGamma>::const_iterator ineg = input->begin(); ineg != input->end(); ++ineg) {
+    for (auto ineg = input->begin(); ineg != input->end(); ++ineg) {
       int fiberNum = (int)floor(gt_to_fw_phi_map[ineg->hwPhi()] / 2);
       int index = ineg->hwQual();
       bool iso = ineg->hwIso();
@@ -578,7 +578,7 @@ namespace l1t {
 
     std::vector<std::vector<l1t::L1Candidate> > cen_input_energy(cen_nrows, std::vector<l1t::L1Candidate>(cen_ncols));
 
-    for (std::vector<l1t::Tau>::const_iterator injet = input->begin(); injet != input->end(); ++injet) {
+    for (auto injet = input->begin(); injet != input->end(); ++injet) {
       if (injet->hwEta() >= 4 && injet->hwEta() <= 17) {
         unsigned int myrow = gt_to_fw_phi_map[injet->hwPhi()];
         unsigned int mycol = injet->hwEta() - 4;  //hardcoding is bad

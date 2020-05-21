@@ -192,7 +192,7 @@ int TauSpinnerCMS::readParticlesfromReco(edm::Event &e,
                                          std::vector<SimpleParticle> &tau2_daughters) {
   edm::Handle<reco::GenParticleCollection> genParticles;
   e.getByToken(GenParticleCollectionToken_, genParticles);
-  for (reco::GenParticleCollection::const_iterator itr = genParticles->begin(); itr != genParticles->end(); ++itr) {
+  for (auto itr = genParticles->begin(); itr != genParticles->end(); ++itr) {
     int pdgid = abs(itr->pdgId());
     if (pdgid == 24 || pdgid == 37 || pdgid == 25 || pdgid == 36 || pdgid == 22 || pdgid == 23) {
       const reco::GenParticle *hx = &(*itr);
@@ -249,7 +249,7 @@ int TauSpinnerCMS::readParticlesfromReco(edm::Event &e,
 
 void TauSpinnerCMS::GetLastSelf(const reco::GenParticle *Particle) {
   for (unsigned int i = 0; i < Particle->numberOfDaughters(); i++) {
-    const reco::GenParticle *dau = static_cast<const reco::GenParticle *>(Particle->daughter(i));
+    const auto *dau = static_cast<const reco::GenParticle *>(Particle->daughter(i));
     if (Particle->pdgId() == dau->pdgId()) {
       Particle = dau;
       GetLastSelf(Particle);
@@ -259,7 +259,7 @@ void TauSpinnerCMS::GetLastSelf(const reco::GenParticle *Particle) {
 
 bool TauSpinnerCMS::isFirst(const reco::GenParticle *Particle) {
   for (unsigned int i = 0; i < Particle->numberOfMothers(); i++) {
-    const reco::GenParticle *moth = static_cast<const reco::GenParticle *>(Particle->mother(i));
+    const auto *moth = static_cast<const reco::GenParticle *>(Particle->mother(i));
     if (Particle->pdgId() == moth->pdgId()) {
       return false;
     }

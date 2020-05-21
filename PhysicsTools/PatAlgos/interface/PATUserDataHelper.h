@@ -92,8 +92,7 @@ namespace pat {
     }
     // Loop over the function names, create a new string-parser function object
     // with all of them. This operates on ObjectType
-    std::vector<std::string>::const_iterator funcBegin = functionNames_.begin(), funcEnd = functionNames_.end(),
-                                             funcIt = funcBegin;
+    auto funcBegin = functionNames_.begin(), funcEnd = functionNames_.end(), funcIt = funcBegin;
     for (; funcIt != funcEnd; ++funcIt) {
       functions_.push_back(StringObjectFunction<ObjectType>(*funcIt));
     }
@@ -121,8 +120,7 @@ namespace pat {
     userCandMerger_.add(patObject, iEvent, iSetup);
 
     // Add "inline" user-selected functions to the PAT object
-    typename std::vector<function_type>::const_iterator funcBegin = functions_.begin(), funcEnd = functions_.end(),
-                                                        funcIt = funcBegin;
+    auto funcBegin = functions_.begin(), funcEnd = functions_.end(), funcIt = funcBegin;
     if (functionLabels_.size() == functions_.size()) {
       for (; funcIt != funcEnd; ++funcIt) {
         double d = (*funcIt)(patObject);

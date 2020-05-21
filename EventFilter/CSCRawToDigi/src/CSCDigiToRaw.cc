@@ -42,7 +42,7 @@ namespace cscd2r {
     CSCDetId chamberId = chamberID(cscId);
     typename LCTCollection::Range lctRange = lcts.get(chamberId);
     bool result = false;
-    for (typename LCTCollection::const_iterator lctItr = lctRange.first; lctItr != lctRange.second; ++lctItr) {
+    for (auto lctItr = lctRange.first; lctItr != lctRange.second; ++lctItr) {
       int bx = lctItr->getBX() - nominalBX;
       if (bx >= bxMin && bx <= bxMax) {
         result = true;
@@ -56,7 +56,7 @@ namespace cscd2r {
     if (me1 && result == false && me1abCheck) {
       CSCDetId me1aId = CSCDetId(chamberId.endcap(), chamberId.station(), 4, chamberId.chamber(), 0);
       lctRange = lcts.get(me1aId);
-      for (typename LCTCollection::const_iterator lctItr = lctRange.first; lctItr != lctRange.second; ++lctItr) {
+      for (auto lctItr = lctRange.first; lctItr != lctRange.second; ++lctItr) {
         int bx = lctItr->getBX() - nominalBX;
         if (bx >= bxMin && bx <= bxMax) {
           result = true;
@@ -77,7 +77,7 @@ namespace cscd2r {
     CSCDetId chamberId = chamberID(cscId);
     CSCCLCTPreTriggerCollection::Range lctRange = lcts.get(chamberId);
     bool result = false;
-    for (CSCCLCTPreTriggerCollection::const_iterator lctItr = lctRange.first; lctItr != lctRange.second; ++lctItr) {
+    for (auto lctItr = lctRange.first; lctItr != lctRange.second; ++lctItr) {
       int bx = *lctItr - nominalBX;
       if (bx >= bxMin && bx <= bxMax) {
         result = true;
@@ -88,7 +88,7 @@ namespace cscd2r {
     if (me1a && result == false && me1abCheck) {
       //check pretriggers in me1a as well; relevant for TMB emulator writing to separate detIds
       lctRange = lcts.get(cscId);
-      for (CSCCLCTPreTriggerCollection::const_iterator lctItr = lctRange.first; lctItr != lctRange.second; ++lctItr) {
+      for (auto lctItr = lctRange.first; lctItr != lctRange.second; ++lctItr) {
         int bx = *lctItr - nominalBX;
         if (bx >= bxMin && bx <= bxMax) {
           result = true;
@@ -112,7 +112,7 @@ CSCDigiToRaw::CSCDigiToRaw(const edm::ParameterSet& pset)
 CSCEventData& CSCDigiToRaw::findEventData(const CSCDetId& cscDetId, FindEventDataInfo& info) const {
   CSCDetId chamberId = cscd2r::chamberID(cscDetId);
   // find the entry into the map
-  map<CSCDetId, CSCEventData>::iterator chamberMapItr = info.theChamberDataMap.find(chamberId);
+  auto chamberMapItr = info.theChamberDataMap.find(chamberId);
   if (chamberMapItr == info.theChamberDataMap.end()) {
     // make an entry, telling it the correct chamberType
     int chamberType = chamberId.iChamberType();
@@ -156,8 +156,8 @@ void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis,
 
       CSCEventData& cscData = findEventData(cscDetId, fedInfo);
 
-      std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
-      std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
+      auto digiItr = (*j).second.first;
+      auto last = (*j).second.second;
       for (; digiItr != last; ++digiItr) {
         CSCStripDigi digi = *digiItr;
         int strip = digi.getStrip();
@@ -201,8 +201,8 @@ void CSCDigiToRaw::add(const CSCWireDigiCollection& wireDigis,
     bool me1abCheck = fedInfo.formatVersion_ == 2013;
     if (packEverything || cscd2r::accept(cscDetId, alctDigis, alctWindowMin_, alctWindowMax_, me1abCheck)) {
       CSCEventData& cscData = findEventData(cscDetId, fedInfo);
-      std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
-      std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
+      auto digiItr = (*j).second.first;
+      auto last = (*j).second.second;
       for (; digiItr != last; ++digiItr) {
         cscData.add(*digiItr, cscDetId.layer());
       }
@@ -269,7 +269,7 @@ void CSCDigiToRaw::add(const CSCCLCTDigiCollection& clctDigis, FindEventDataInfo
     //without the shift, it's impossible to distinguish A and B parts
     if (me11a && fedInfo.formatVersion_ == 2013) {
       std::vector<CSCCLCTDigi> shiftedDigis((*j).second.first, (*j).second.second);
-      for (std::vector<CSCCLCTDigi>::iterator iC = shiftedDigis.begin(); iC != shiftedDigis.end(); ++iC) {
+      for (auto iC = shiftedDigis.begin(); iC != shiftedDigis.end(); ++iC) {
         if (iC->getCFEB() < 3) {  //sanity check, mostly
           (*iC) = CSCCLCTDigi(iC->isValid(),
                               iC->getQuality(),
@@ -301,7 +301,7 @@ void CSCDigiToRaw::add(const CSCCorrelatedLCTDigiCollection& corrLCTDigis, FindE
     //without the shift, it's impossible to distinguish A and B parts
     if (me11a && fedInfo.formatVersion_ == 2013) {
       std::vector<CSCCorrelatedLCTDigi> shiftedDigis((*j).second.first, (*j).second.second);
-      for (std::vector<CSCCorrelatedLCTDigi>::iterator iC = shiftedDigis.begin(); iC != shiftedDigis.end(); ++iC) {
+      for (auto iC = shiftedDigis.begin(); iC != shiftedDigis.end(); ++iC) {
         if (iC->getStrip() < 96) {  //sanity check, mostly
           (*iC) = CSCCorrelatedLCTDigi(iC->getTrknmb(),
                                        iC->isValid(),
@@ -367,13 +367,12 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
 
     for (int idcc = FEDNumbering::MINCSCFEDID; idcc <= FEDNumbering::MAXCSCFEDID; ++idcc) {
       // for every chamber with data, add to a DDU in this DCC Event
-      for (map<CSCDetId, CSCEventData>::iterator chamberItr = fedInfo.theChamberDataMap.begin();
-           chamberItr != fedInfo.theChamberDataMap.end();
+      for (auto chamberItr = fedInfo.theChamberDataMap.begin(); chamberItr != fedInfo.theChamberDataMap.end();
            ++chamberItr) {
         int indexDCC = mapping->slink(chamberItr->first);
         if (indexDCC == idcc) {
           //FIXME (What does this mean? Is something wrong?)
-          std::map<int, CSCDCCEventData>::iterator dccMapItr = dccMap.find(indexDCC);
+          auto dccMapItr = dccMap.find(indexDCC);
           if (dccMapItr == dccMap.end()) {
             throw cms::Exception("CSCDigiToRaw") << "Bad DCC number:" << indexDCC;
           }
@@ -389,7 +388,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
     }
 
     // FIXME: FEDRawData size set to 2*64 to add FED header and trailer
-    for (std::map<int, CSCDCCEventData>::iterator dccMapItr = dccMap.begin(); dccMapItr != dccMap.end(); ++dccMapItr) {
+    for (auto dccMapItr = dccMap.begin(); dccMapItr != dccMap.end(); ++dccMapItr) {
       boost::dynamic_bitset<> dccBits = dccMapItr->second.pack();
       FEDRawData& fedRawData = fed_buffers.FEDData(dccMapItr->first);
       fedRawData.resize(dccBits.size());
@@ -424,8 +423,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
     for (unsigned int i = 0; i < 36; i++) {
       unsigned int iddu = postLS1_map[i];
       // for every chamber with data, add to a DDU in this DCC Event
-      for (map<CSCDetId, CSCEventData>::iterator chamberItr = fedInfo.theChamberDataMap.begin();
-           chamberItr != fedInfo.theChamberDataMap.end();
+      for (auto chamberItr = fedInfo.theChamberDataMap.begin(); chamberItr != fedInfo.theChamberDataMap.end();
            ++chamberItr) {
         unsigned int indexDDU = mapping->slink(chamberItr->first);
 
@@ -447,7 +445,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
         }
 
         if (indexDDU == iddu) {
-          std::map<int, CSCDDUEventData>::iterator dduMapItr = dduMap.find(indexDDU);
+          auto dduMapItr = dduMap.find(indexDDU);
           if (dduMapItr == dduMap.end()) {
             throw cms::Exception("CSCDigiToRaw") << "Bad DDU number:" << indexDDU;
           }
@@ -462,7 +460,7 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
     }
 
     // FIXME: FEDRawData size set to 2*64 to add FED header and trailer
-    for (std::map<int, CSCDDUEventData>::iterator dduMapItr = dduMap.begin(); dduMapItr != dduMap.end(); ++dduMapItr) {
+    for (auto dduMapItr = dduMap.begin(); dduMapItr != dduMap.end(); ++dduMapItr) {
       boost::dynamic_bitset<> dduBits = dduMapItr->second.pack();
       FEDRawData& fedRawData = fed_buffers.FEDData(dduMapItr->first);
       fedRawData.resize(dduBits.size() / 8);

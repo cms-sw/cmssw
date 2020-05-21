@@ -548,7 +548,7 @@ DetId ElectronCalibrationUniv::findMaxHit(const std::vector<DetId>& v1,
   double currEnergy = 0.;
   DetId maxHit;
 
-  for (std::vector<DetId>::const_iterator idsIt = v1.begin(); idsIt != v1.end(); ++idsIt) {
+  for (auto idsIt = v1.begin(); idsIt != v1.end(); ++idsIt) {
     if (idsIt->subdetId() == 1) {
       EBRecHitCollection::const_iterator itrechit;
       itrechit = EBhits->find(*idsIt);
@@ -667,7 +667,7 @@ void ElectronCalibrationUniv::analyze(const edm::Event& iEvent, const edm::Event
   ///                          START HERE....
   ///////////////////////////////////////////////////////////////////////////////////////
 
-  reco::GsfElectronCollection::const_iterator eleIt = electronCollection->begin();
+  auto eleIt = electronCollection->begin();
 
   reco::GsfElectron highPtElectron;
 
@@ -695,9 +695,7 @@ void ElectronCalibrationUniv::analyze(const edm::Event& iEvent, const edm::Event
 
   std::vector<DetId> v1;
   //Loop to fill the vector of DetIds
-  for (std::vector<std::pair<DetId, float> >::const_iterator idsIt = sc.hitsAndFractions().begin();
-       idsIt != sc.hitsAndFractions().end();
-       ++idsIt) {
+  for (auto idsIt = sc.hitsAndFractions().begin(); idsIt != sc.hitsAndFractions().end(); ++idsIt) {
     v1.push_back(idsIt->first);
   }
 

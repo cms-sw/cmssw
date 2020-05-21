@@ -79,7 +79,7 @@ public:
       edm::Handle<reco::VertexCollection> vertices;
       e.getByToken(token_vertex, vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
-      reco::VertexCollection::const_iterator ci = vertCollection.begin();
+      auto ci = vertCollection.begin();
 
       if (!vertCollection.empty()) {
         originz = ci->z();
@@ -91,7 +91,7 @@ public:
       if (tracks->empty())
         return result;
 
-      reco::TrackCollection::const_iterator itr = tracks->begin();
+      auto itr = tracks->begin();
       for (; itr != tracks->end(); itr++) {
         GlobalVector ptrVec((itr)->px(), (itr)->py(), (itr)->pz());
         globalVector = ptrVec;
@@ -112,7 +112,7 @@ public:
       edm::Handle<reco::VertexCollection> vertices;
       e.getByToken(token_vertex, vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
-      reco::VertexCollection::const_iterator ci = vertCollection.begin();
+      auto ci = vertCollection.begin();
 
       if (!vertCollection.empty()) {
         originz = ci->z();
@@ -142,7 +142,7 @@ public:
       edm::Handle<reco::VertexCollection> vertices;
       e.getByToken(token_vertex, vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
-      reco::VertexCollection::const_iterator ci = vertCollection.begin();
+      auto ci = vertCollection.begin();
       if (!vertCollection.empty()) {
         originz = ci->z();
       } else {
@@ -153,7 +153,7 @@ public:
       if (jets->empty())
         return result;
 
-      for (l1extra::L1JetParticleCollection::const_iterator iJet = jets->begin(); iJet != jets->end(); iJet++) {
+      for (auto iJet = jets->begin(); iJet != jets->end(); iJet++) {
         GlobalVector jetVector(iJet->p4().x(), iJet->p4().y(), iJet->p4().z());
         GlobalPoint vertex(0, 0, originz);
 
@@ -170,7 +170,7 @@ public:
       edm::Handle<reco::VertexCollection> vertices;
       e.getByToken(token_vertex, vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
-      reco::VertexCollection::const_iterator ci = vertCollection.begin();
+      auto ci = vertCollection.begin();
       if (!vertCollection.empty()) {
         originz = ci->z();
       } else {

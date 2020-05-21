@@ -53,7 +53,7 @@ void ShiftedPFCandidateProducerForPFNoPUMEt::produce(edm::Event& evt, const edm:
   evt.getByToken(srcJetsToken_, jets);
 
   std::vector<const reco::PFJet*> selectedJets;
-  for (reco::PFJetCollection::const_iterator jet = jets->begin(); jet != jets->end(); ++jet) {
+  for (auto jet = jets->begin(); jet != jets->end(); ++jet) {
     if (jet->pt() > minJetPt_)
       selectedJets.push_back(&(*jet));
   }
@@ -68,8 +68,7 @@ void ShiftedPFCandidateProducerForPFNoPUMEt::produce(edm::Event& evt, const edm:
 
   auto shiftedPFCandidates = std::make_unique<reco::PFCandidateCollection>();
 
-  for (reco::PFCandidateCollection::const_iterator originalPFCandidate = originalPFCandidates->begin();
-       originalPFCandidate != originalPFCandidates->end();
+  for (auto originalPFCandidate = originalPFCandidates->begin(); originalPFCandidate != originalPFCandidates->end();
        ++originalPFCandidate) {
     const reco::PFJet* jet_matched = nullptr;
     for (auto jet : selectedJets) {

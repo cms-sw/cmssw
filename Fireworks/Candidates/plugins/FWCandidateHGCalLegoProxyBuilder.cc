@@ -50,7 +50,7 @@ private:
 void FWCandidateHGCalLegoProxyBuilder::scaleProduct(TEveElementList *parent,
                                                     FWViewType::EType type,
                                                     const FWViewContext *vc) {
-  for (TEveElement::List_i i = parent->BeginChildren(); i != parent->EndChildren(); ++i) {
+  for (auto i = parent->BeginChildren(); i != parent->EndChildren(); ++i) {
     if ((*i)->HasChildren()) {
       TEveElement *el = (*i)->FirstChild();  // There is only one child
       FWLegoCandidate *candidate = dynamic_cast<FWLegoCandidate *>(el);

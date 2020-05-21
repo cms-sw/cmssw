@@ -17,7 +17,7 @@ Phase2OTBarrelRod* Phase2OTBarrelRodBuilder::build(const GeometricDet* thePhase2
 
   double meanR = 0;
   double meanRBrothers = 0;
-  for (vector<const GeometricDet*>::const_iterator it = allGeometricDets.begin(); it != allGeometricDets.end(); it++) {
+  for (auto it = allGeometricDets.begin(); it != allGeometricDets.end(); it++) {
     compGeometricDets = (*it)->components();
     if (compGeometricDets.size() != 2) {
       LogDebug("TkDetLayers") << " Stack not with two components but with " << compGeometricDets.size() << std::endl;
@@ -33,7 +33,7 @@ Phase2OTBarrelRod* Phase2OTBarrelRodBuilder::build(const GeometricDet* thePhase2
   LogDebug("TkDetLayers") << " meanR Lower " << meanR << std::endl;
   LogDebug("TkDetLayers") << " meanR Upper " << meanRBrothers << std::endl;
 
-  for (vector<const GeometricDet*>::iterator it = allGeometricDets.begin(); it != allGeometricDets.end(); it++) {
+  for (auto it = allGeometricDets.begin(); it != allGeometricDets.end(); it++) {
     compGeometricDets = (*it)->components();
     const GeomDet* theGeomDet = theGeomDetGeometry->idToDet(compGeometricDets[0]->geographicalID());
     LogTrace("TkDetLayers") << " inserisco " << compGeometricDets[0]->geographicalID().rawId() << std::endl;

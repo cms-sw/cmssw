@@ -68,7 +68,7 @@ void CMSmplIonisation::InitialiseEnergyLossProcess(const G4ParticleDefinition* p
   SetBaseParticle(nullptr);
 
   // monopole model is responsible both for energy loss and fluctuations
-  CMSmplIonisationWithDeltaModel* ion = new CMSmplIonisationWithDeltaModel(magneticCharge, "PAI");
+  auto* ion = new CMSmplIonisationWithDeltaModel(magneticCharge, "PAI");
   ion->SetParticle(p);
 
   // define size of dedx and range tables

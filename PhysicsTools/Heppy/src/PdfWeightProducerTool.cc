@@ -54,7 +54,7 @@ namespace heppy {
   }
 
   const std::vector<double> &PdfWeightProducerTool::getWeights(const std::string &name) const {
-    std::map<std::string, std::vector<double> >::const_iterator match = weights_.find(name);
+    auto match = weights_.find(name);
     assert(match != weights_.end());
     return match->second;
   }

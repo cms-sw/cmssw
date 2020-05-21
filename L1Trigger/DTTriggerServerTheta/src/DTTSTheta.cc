@@ -82,7 +82,7 @@ void DTTSTheta::loadDTTSTheta() {
 
   // loop on all BTI triggers
   std::vector<DTBtiTrigData>::const_iterator p;
-  std::vector<DTBtiTrigData>::const_iterator pend = _bticard->end();
+  auto pend = _bticard->end();
   for (p = _bticard->begin(); p != pend; p++) {
     // Look only to BTIs in SL 2
     if (p->btiSL() == 2) {

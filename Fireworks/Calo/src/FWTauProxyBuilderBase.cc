@@ -66,7 +66,7 @@ void FWTauProxyBuilderBase::buildBaseTau(const reco::BaseTau& iTau,
     float ecalR = barrel ? context().caloR1() : context().caloR2();
     float ecalZ = barrel ? context().caloZ1() : context().caloZ2();
 
-    TEveScalableStraightLineSet* marker = new TEveScalableStraightLineSet("energy");
+    auto* marker = new TEveScalableStraightLineSet("energy");
 
     if (type == FWViewType::kRhoZ) {
       double r(0);
@@ -156,7 +156,7 @@ void FWTauProxyBuilderBase::scaleProduct(TEveElementList* parent, FWViewType::ET
     typedef std::vector<fireworks::scaleMarker> Lines_t;
     FWViewEnergyScale* caloScale = vc->getEnergyScale();
     // printf("%p -> %f\n", this,caloScale->getValToHeight() );
-    for (Lines_t::iterator i = m_lines.begin(); i != m_lines.end(); ++i) {
+    for (auto i = m_lines.begin(); i != m_lines.end(); ++i) {
       if (vc == (*i).m_vc) {
         float value = caloScale->getPlotEt() ? (*i).m_et : (*i).m_energy;
         (*i).m_ls->SetScale(caloScale->getScaleFactor3D() * value);

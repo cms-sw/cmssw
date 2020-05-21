@@ -27,7 +27,7 @@ void PerigeeLinearizedTrackState::computeJacobians() const {
 }
 
 bool PerigeeLinearizedTrackState::operator==(LinearizedTrackState<5>& other) const {
-  const PerigeeLinearizedTrackState* otherP = dynamic_cast<const PerigeeLinearizedTrackState*>(&other);
+  const auto* otherP = dynamic_cast<const PerigeeLinearizedTrackState*>(&other);
   if (otherP == nullptr) {
     throw VertexException("PerigeeLinearizedTrackState: don't know how to compare myself to non-perigee track state");
   }
@@ -35,7 +35,7 @@ bool PerigeeLinearizedTrackState::operator==(LinearizedTrackState<5>& other) con
 }
 
 bool PerigeeLinearizedTrackState::operator==(ReferenceCountingPointer<LinearizedTrackState<5> >& other) const {
-  const PerigeeLinearizedTrackState* otherP = dynamic_cast<const PerigeeLinearizedTrackState*>(other.get());
+  const auto* otherP = dynamic_cast<const PerigeeLinearizedTrackState*>(other.get());
   if (otherP == nullptr) {
     throw VertexException("PerigeeLinearizedTrackState: don't know how to compare myself to non-perigee track state");
   }

@@ -50,7 +50,7 @@ void SamplingHistograms::histoAnalysis(bool debug) {
   data().clear();
 
   // Iterate through map containing vectors of profile histograms
-  HistosMap::const_iterator iter = histos().begin();
+  auto iter = histos().begin();
   for (; iter != histos().end(); iter++) {
     // Check vector of histos is not empty (should be 1 histo)
     if (iter->second.empty()) {
@@ -61,7 +61,7 @@ void SamplingHistograms::histoAnalysis(bool debug) {
 
     // Retrieve pointers to profile histos for this FED channel
     vector<TH1*> profs;
-    Histos::const_iterator ihis = iter->second.begin();
+    auto ihis = iter->second.begin();
     for (; ihis != iter->second.end(); ihis++) {
       TProfile* prof = ExtractTObject<TProfile>().extract((*ihis)->me_);
       if (prof) {
@@ -70,7 +70,7 @@ void SamplingHistograms::histoAnalysis(bool debug) {
     }
 
     // Perform histo analysis
-    SamplingAnalysis* anal = new SamplingAnalysis(iter->first);
+    auto* anal = new SamplingAnalysis(iter->first);
     anal->setSoNcut(sOnCut_);
     SamplingAlgorithm algo(this->pset(), anal, latencyCode_);
     algo.analysis(profs);

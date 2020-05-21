@@ -80,11 +80,8 @@ RawDataConverter::DigiType RawDataConverter::GetValidLabels(
   std::ostringstream search_message;
   search_message << "Searching for SiStripDigis\n";
   // Loop through Module and instance labels that were defined in the configuration
-  for (std::vector<std::string>::iterator moduleLabel = theDigiModuleLabels.begin();
-       moduleLabel != theDigiModuleLabels.end();
-       ++moduleLabel) {
-    for (std::vector<std::string>::iterator instanceLabel = theProductInstanceLabels.begin();
-         instanceLabel != theProductInstanceLabels.end();
+  for (auto moduleLabel = theDigiModuleLabels.begin(); moduleLabel != theDigiModuleLabels.end(); ++moduleLabel) {
+    for (auto instanceLabel = theProductInstanceLabels.begin(); instanceLabel != theProductInstanceLabels.end();
          ++instanceLabel) {
       search_message << "Checking for Module " << *moduleLabel << " Instance " << *instanceLabel << "\n";
 

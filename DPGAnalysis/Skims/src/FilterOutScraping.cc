@@ -53,8 +53,8 @@ bool FilterOutScraping::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   _trackQuality = reco::TrackBase::qualityByName("highPurity");
 
   if (tkColl->size() > numtrack) {
-    reco::TrackCollection::const_iterator itk = tkColl->begin();
-    reco::TrackCollection::const_iterator itk_e = tkColl->end();
+    auto itk = tkColl->begin();
+    auto itk_e = tkColl->end();
     for (; itk != itk_e; ++itk) {
       // std::cout << "HighPurity?  " << itk->quality(_trackQuality) << std::endl;
       if (itk->quality(_trackQuality))

@@ -16,7 +16,7 @@ TEveScalableStraightLineSet *FWPFClusterRPZUtils::buildRhoPhiClusterLineSet(cons
 //______________________________________________________________________________
 TEveScalableStraightLineSet *FWPFClusterRPZUtils::buildRhoPhiClusterLineSet(
     const reco::PFCluster &cluster, const FWViewContext *vc, float e, float et, float r) {
-  TEveScalableStraightLineSet *ls = new TEveScalableStraightLineSet("rhophiCluster");
+  auto *ls = new TEveScalableStraightLineSet("rhophiCluster");
   TEveVector vec;
   float size = 1.f;  // Stored in scale
   double phi;
@@ -55,7 +55,7 @@ TEveScalableStraightLineSet *FWPFClusterRPZUtils::buildRhoZClusterLineSet(
   double theta, phi;
   double rad(0);
   TEveVector vec;
-  TEveScalableStraightLineSet *ls = new TEveScalableStraightLineSet("rhoZCluster");
+  auto *ls = new TEveScalableStraightLineSet("rhoZCluster");
 
   vec = TEveVector(cluster.x(), cluster.y(), cluster.z());
   phi = vec.Phi();

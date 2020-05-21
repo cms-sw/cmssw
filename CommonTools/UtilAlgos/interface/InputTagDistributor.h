@@ -15,11 +15,11 @@ class InputTagDistributor {
 public:
   InputTagDistributor(const edm::ParameterSet& pset, edm::ConsumesCollector& iC) {
     std::vector<std::string> inpuTags = pset.getParameterNamesForType<edm::InputTag>();
-    for (std::vector<std::string>::iterator i = inpuTags.begin(); i != inpuTags.end(); ++i)
+    for (auto i = inpuTags.begin(); i != inpuTags.end(); ++i)
       inputTags_[*i] = pset.getParameter<edm::InputTag>(*i);
   }
   const edm::InputTag& inputTag(std::string s) {
-    std::map<std::string, edm::InputTag>::iterator findMe = inputTags_.find(s);
+    auto findMe = inputTags_.find(s);
     if (findMe != inputTags_.end())
       return findMe->second;
     else {
@@ -58,7 +58,7 @@ public:
   }
   void preModule(const edm::ModuleDescription& desc) {
     //does a set with the module name, except that it does not throw on non-configured modules
-    std::map<std::string, InputTagDistributor*>::iterator f = multipleInstance_.find(desc.moduleLabel());
+    auto f = multipleInstance_.find(desc.moduleLabel());
     if (f != multipleInstance_.end())
       SetInputTagDistributorUniqueInstance_ = f->second;
     else {
@@ -93,8 +93,8 @@ public:
 
     // some mapping was setup
     InputTagDistributor& which = get();
-    std::map<std::string, InputTagDistributor*>::iterator inverseMap = multipleInstance_.begin();
-    std::map<std::string, InputTagDistributor*>::iterator inverseMap_end = multipleInstance_.end();
+    auto inverseMap = multipleInstance_.begin();
+    auto inverseMap_end = multipleInstance_.end();
     for (; inverseMap != inverseMap_end; ++inverseMap)
       if (inverseMap->second == &which)
         break;

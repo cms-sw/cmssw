@@ -493,7 +493,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
         stripCluster = ClusterLocX / Pitch + nstrips / 2.0;
       } else {
         DetId ClusterDetId(id);
-        const StripGeomDetUnit* stripdet = (const StripGeomDetUnit*)tkgeom->idToDetUnit(ClusterDetId);
+        const auto* stripdet = (const StripGeomDetUnit*)tkgeom->idToDetUnit(ClusterDetId);
         const StripTopology& Topo = stripdet->specificTopology();
         nstrips = Topo.nstrips();
         Pitch = stripdet->surface().bounds().width() / Topo.nstrips();
@@ -507,8 +507,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
         float hapoth = 0;
         if (layer >= 11) {
           const BoundPlane& plane = stripdet->surface();
-          const TrapezoidalPlaneBounds* trapezoidalBounds(
-              dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
+          const auto* trapezoidalBounds(dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
           std::array<const float, 4> const& parameters = (*trapezoidalBounds).parameters();
           hbedge = parameters[0];
           htedge = parameters[1];
@@ -567,7 +566,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
       pair<unsigned int, unsigned int> newgoodpair(1, 1);
       pair<unsigned int, unsigned int> newbadpair(1, 0);
       //First, figure out if the module already exists in the map of maps
-      map<unsigned int, pair<unsigned int, unsigned int> >::iterator it = modCounter[layer].find(id);
+      auto it = modCounter[layer].find(id);
       if (!badquality) {
         if (it == modCounter[layer].end()) {
           if (badflag)
@@ -747,10 +746,10 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
   //&&&&&&&&&&&&&&&&&&
   float percentage = 0;
 
-  SiStripQuality::RegistryIterator rbegin = quality_->getRegistryVectorBegin();
-  SiStripQuality::RegistryIterator rend = quality_->getRegistryVectorEnd();
+  auto rbegin = quality_->getRegistryVectorBegin();
+  auto rend = quality_->getRegistryVectorEnd();
 
-  for (SiStripBadStrip::RegistryIterator rp = rbegin; rp != rend; ++rp) {
+  for (auto rp = rbegin; rp != rend; ++rp) {
     unsigned int detid = rp->detid;
 
     int subdet = -999;
@@ -1267,11 +1266,11 @@ void SiStripHitEffFromCalibTree::makeSummary() {
   found2->Sumw2();
   all2->Sumw2();
 
-  TGraphAsymmErrors* gr = fs->make<TGraphAsymmErrors>(nLayers + 1);
+  auto* gr = fs->make<TGraphAsymmErrors>(nLayers + 1);
   gr->SetName("eff_good");
   gr->BayesDivide(found, all);
 
-  TGraphAsymmErrors* gr2 = fs->make<TGraphAsymmErrors>(nLayers + 1);
+  auto* gr2 = fs->make<TGraphAsymmErrors>(nLayers + 1);
   gr2->SetName("eff_all");
   gr2->BayesDivide(found2, all2);
 
@@ -1386,13 +1385,13 @@ void SiStripHitEffFromCalibTree::makeSummaryVsBx() {
     hfound->Sumw2();
     htotal->Sumw2();
 
-    TGraphAsymmErrors* geff = fs->make<TGraphAsymmErrors>(3564);
+    auto* geff = fs->make<TGraphAsymmErrors>(3564);
     geff->SetName(Form("effVsBx_layer%i", ilayer));
     geff->SetTitle("Hit Efficiency vs bx - " + GetLayerName(ilayer));
     geff->BayesDivide(hfound, htotal);
 
     //Average over trains
-    TGraphAsymmErrors* geff_avg = fs->make<TGraphAsymmErrors>();
+    auto* geff_avg = fs->make<TGraphAsymmErrors>();
     geff_avg->SetName(Form("effVsBxAvg_layer%i", ilayer));
     geff_avg->SetTitle("Hit Efficiency vs bx - " + GetLayerName(ilayer));
     geff_avg->SetMarkerStyle(20);
@@ -1482,7 +1481,7 @@ void SiStripHitEffFromCalibTree::ComputeEff(vector<TH1F*>& vhfound, vector<TH1F*
         htotal->SetBinContent(i, 1);
     }
 
-    TGraphAsymmErrors* geff = fs->make<TGraphAsymmErrors>(hfound->GetNbinsX());
+    auto* geff = fs->make<TGraphAsymmErrors>(hfound->GetNbinsX());
     geff->SetName(Form("%s_layer%i", name.c_str(), ilayer));
     geff->BayesDivide(hfound, htotal);
     if (name == "effVsLumi")
@@ -1565,8 +1564,8 @@ std::unique_ptr<SiStripBadStrip> SiStripHitEffFromCalibTree::getNewObject() {
   //Initialize a return variable
   auto obj = std::make_unique<SiStripBadStrip>();
 
-  SiStripBadStrip::RegistryIterator rIter = quality_->getRegistryVectorBegin();
-  SiStripBadStrip::RegistryIterator rIterEnd = quality_->getRegistryVectorEnd();
+  auto rIter = quality_->getRegistryVectorBegin();
+  auto rIterEnd = quality_->getRegistryVectorEnd();
 
   for (; rIter != rIterEnd; ++rIter) {
     SiStripBadStrip::Range range(quality_->getDataVectorBegin() + rIter->ibegin,

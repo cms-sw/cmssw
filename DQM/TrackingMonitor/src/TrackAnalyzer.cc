@@ -1123,7 +1123,7 @@ void TrackAnalyzer::setLumi(const edm::Event& iEvent, const edm::EventSetup& iSe
     edm::Handle<LumiScalersCollection> lumiScalers;
     iEvent.getByToken(lumiscalersToken_, lumiScalers);
     if (lumiScalers.isValid() && !lumiScalers->empty()) {
-      LumiScalersCollection::const_iterator scalit = lumiScalers->begin();
+      auto scalit = lumiScalers->begin();
       scal_lumi_ = scalit->instantLumi();
     } else
       scal_lumi_ = -1;
@@ -2006,7 +2006,7 @@ void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco
     etaerror = sqrt(TSOS.curvilinearError().matrix()(1, 1)) * fabs(sin(TSOS.globalMomentum().theta()));
   }
 
-  std::map<std::string, TkParameterMEs>::iterator iPos = TkParameterMEMap.find(sname);
+  auto iPos = TkParameterMEMap.find(sname);
   if (iPos != TkParameterMEMap.end()) {
     TkParameterMEs tkmes = iPos->second;
 
@@ -2361,9 +2361,7 @@ void TrackAnalyzer::fillHistosForTrackerSpecific(const reco::Track& track) {
   double eta = track.eta();
   double pt = track.pt();
 
-  for (std::map<std::string, TkRecHitsPerSubDetMEs>::iterator it = TkRecHitsPerSubDetMEMap.begin();
-       it != TkRecHitsPerSubDetMEMap.end();
-       it++) {
+  for (auto it = TkRecHitsPerSubDetMEMap.begin(); it != TkRecHitsPerSubDetMEMap.end(); it++) {
     int nValidLayers = 0;
     int nValidRecHits = 0;
     int substr = it->second.detectorId;

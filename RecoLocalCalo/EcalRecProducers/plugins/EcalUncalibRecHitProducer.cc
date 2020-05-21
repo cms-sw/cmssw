@@ -70,7 +70,7 @@ void EcalUncalibRecHitProducer::fillDescriptions(edm::ConfigurationDescriptions&
     descriptions.addDefault(desc);
   }
 
-  for (std::vector<edmplugin::PluginInfo>::const_iterator itInfos = infos.begin(); itInfos != infos.end(); itInfos++) {
+  for (auto itInfos = infos.begin(); itInfos != infos.end(); itInfos++) {
     std::unique_ptr<EcalUncalibRecHitWorkerBaseClass> fdWorker(
         EcalUncalibRecHitFillDescriptionWorkerFactory::get()->create(itInfos->name_));
 

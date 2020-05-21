@@ -44,7 +44,7 @@ namespace egPM {
     size_t y;
 
     AbsEtaNrClus(const reco::ElectronSeed& seed) {
-      reco::SuperClusterRef scRef = seed.caloCluster().castTo<reco::SuperClusterRef>();
+      auto scRef = seed.caloCluster().castTo<reco::SuperClusterRef>();
       x = std::abs(scRef->eta());
       y = scRef->clustersSize();
     }
@@ -58,7 +58,7 @@ namespace egPM {
     float z;
 
     AbsEtaNrClusPhi(const reco::ElectronSeed& seed) {
-      reco::SuperClusterRef scRef = seed.caloCluster().castTo<reco::SuperClusterRef>();
+      auto scRef = seed.caloCluster().castTo<reco::SuperClusterRef>();
       x = std::abs(scRef->eta());
       y = scRef->clustersSize();
       z = scRef->phi();
@@ -74,7 +74,7 @@ namespace egPM {
     float z;
 
     AbsEtaNrClusEt(const reco::ElectronSeed& seed) {
-      reco::SuperClusterRef scRef = seed.caloCluster().castTo<reco::SuperClusterRef>();
+      auto scRef = seed.caloCluster().castTo<reco::SuperClusterRef>();
       x = std::abs(scRef->eta());
       y = scRef->clustersSize();
       z = scRef->energy() * sin(scRef->position().Theta());

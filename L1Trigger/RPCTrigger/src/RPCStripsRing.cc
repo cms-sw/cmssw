@@ -148,7 +148,7 @@ void RPCStripsRing::filterOverlapingChambers() {
   int ch1EndStrips = 0;  // no of strips on the end of the map (first=last chamber of map)
 
   // How many strips has each chamber?
-  RPCStripsRing::iterator it = this->begin();
+  auto it = this->begin();
   uint32_t ch1Det = it->second.m_detRawId;
   for (; it != this->end(); ++it) {
     if (det2stripNo.find(it->second.m_detRawId) == det2stripNo.end()) {
@@ -193,7 +193,7 @@ void RPCStripsRing::filterOverlapingChambers() {
       ++it;
     } else {  // there are still strips in last det, delete current strip
       --det2stripNo[it->second.m_detRawId];
-      RPCStripsRing::iterator itErase = it;
+      auto itErase = it;
       ++it;
       //std::cout << "Removing strip " <<  it->second.m_detRawId << " " << (int)it->second.m_strip << std::endl;
       this->erase(itErase);
@@ -214,8 +214,8 @@ void RPCStripsRing::fillWithVirtualStrips() {
   float delta = 0;
   int stripsToAdd = 0;
 
-  RPCStripsRing::iterator it = this->begin();
-  RPCStripsRing::iterator itLast = this->begin();
+  auto it = this->begin();
+  auto itLast = this->begin();
   for (; it != this->end(); ++it) {
     /*std::cout << it->first << " "
         << it->second.m_detRawId << " "
@@ -274,11 +274,11 @@ void RPCStripsRing::createRefConnections(TOtherConnStructVec& otherRings, int lo
   const float offset = (5. / 360.) * 2 * pi;  // XXX
 
   //find first reference strip of first PAC (the strip with phi ~= 5deg)
-  RPCStripsRing::iterator starEndIt = this->begin();
+  auto starEndIt = this->begin();
   while ((++starEndIt)->first < offset)
     ;
 
-  RPCStripsRing::iterator it = starEndIt;
+  auto it = starEndIt;
   //--starEndIt;
 
   float angle = 0;
@@ -295,7 +295,7 @@ void RPCStripsRing::createRefConnections(TOtherConnStructVec& otherRings, int lo
     if (curStripNo % logplaneSize == 0) {
       ++curPACno;
       curBegStripNo = curStripNo;
-      RPCStripsRing::iterator plus8 = it;
+      auto plus8 = it;
       bool skipOccured = false;
       for (int i = 0; i < 7; ++i) {
         ++plus8;
@@ -329,7 +329,7 @@ void RPCStripsRing::createRefConnections(TOtherConnStructVec& otherRings, int lo
       }
       //std::cout << curPACno << " " << phiP8 << " " << phi << " "  << angle << std::endl;
 
-      TOtherConnStructVec::iterator itOt = otherRings.begin();
+      auto itOt = otherRings.begin();
       for (; itOt != otherRings.end(); ++itOt) {
         itOt->m_it->second.createOtherConnections(
             getTowerForRefRing(), curPACno, itOt->m_logplane, itOt->m_logplaneSize, angle);
@@ -366,7 +366,7 @@ void RPCStripsRing::createOtherConnections(int tower, int PACno, int logplane, i
                                         << " called for reference ring \n";
   }
 
-  RPCStripsRing::const_iterator it = this->lower_bound(angle);
+  auto it = this->lower_bound(angle);
 
   if (it == this->end())
     it = this->begin();
@@ -441,7 +441,7 @@ int RPCStripsRing::getTowerForRefRing() {
 */
 
 void RPCStripsRing::compressConnections() {
-  L1RPCConeBuilder::TConMap::iterator itChamber = m_connectionsMap->begin();
+  auto itChamber = m_connectionsMap->begin();
 
   auto uncompressedConsLeft = std::make_shared<L1RPCConeBuilder::TConMap>();
 
@@ -454,18 +454,15 @@ void RPCStripsRing::compressConnections() {
   for (; itChamber != m_connectionsMap->end(); ++itChamber) {
     uint32_t detId = itChamber->first;
 
-    for (L1RPCConeBuilder::TStrip2ConVec::iterator itStrip = itChamber->second.begin();
-         itStrip != itChamber->second.end();
-         ++itStrip) {
+    for (auto itStrip = itChamber->second.begin(); itStrip != itChamber->second.end(); ++itStrip) {
       // Iterate over strip Connections
-      for (L1RPCConeBuilder::TStripConVec::iterator itConn = itStrip->second.begin(); itConn != itStrip->second.end();
-           ++itConn) {
+      for (auto itConn = itStrip->second.begin(); itConn != itStrip->second.end(); ++itConn) {
         // Check if this connection isn't allready present in the compressed map
         ++uncompressedConsBefore;
         bool alreadyDone = false;
         if (m_compressedConnectionMap->find(detId) != m_compressedConnectionMap->end()) {
           // iterate over the vec, check element by element
-          for (L1RPCConeBuilder::TCompressedConVec::iterator itCompConn = (*m_compressedConnectionMap)[detId].begin();
+          for (auto itCompConn = (*m_compressedConnectionMap)[detId].begin();
                itCompConn != (*m_compressedConnectionMap)[detId].end();
                ++itCompConn) {
             if (itCompConn->m_tower == itConn->m_tower && itCompConn->m_PAC == itConn->m_PAC &&
@@ -491,13 +488,12 @@ void RPCStripsRing::compressConnections() {
 
         if (!alreadyDone) {
           // find another strip contributing to the same PAC,tower,logplane
-          L1RPCConeBuilder::TStrip2ConVec::iterator itStripOther = itStrip;
+          auto itStripOther = itStrip;
           ++itStripOther;
           bool otherStripFound = false;
           signed char mul = 1;
           for (; itStripOther != itChamber->second.end() && !otherStripFound; ++itStripOther) {
-            for (L1RPCConeBuilder::TStripConVec::iterator itConnOther = itStripOther->second.begin();
-                 itConnOther != itStripOther->second.end();
+            for (auto itConnOther = itStripOther->second.begin(); itConnOther != itStripOther->second.end();
                  ++itConnOther) {
               if (itConnOther->m_tower == itConn->m_tower && itConnOther->m_PAC == itConn->m_PAC &&
                   itConnOther->m_logplane == itConn->m_logplane)  // connection to same PAC,logplane

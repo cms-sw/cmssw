@@ -244,8 +244,7 @@ void fastsim::TrackerSimHitProducer::interact(Particle& particle,
   }
 
   // Fill simHitContainer
-  for (std::map<double, std::unique_ptr<PSimHit>>::const_iterator it = distAndHits.begin(); it != distAndHits.end();
-       it++) {
+  for (auto it = distAndHits.begin(); it != distAndHits.end(); it++) {
     simHitContainer_->push_back(*(it->second));
   }
 }

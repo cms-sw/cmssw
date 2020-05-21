@@ -162,7 +162,7 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
     }
   }
   if (testN) {
-    for (edm::PCaloHitContainer::const_iterator itr = pcalohh->begin(); itr != pcalohh->end(); ++itr) {
+    for (auto itr = pcalohh->begin(); itr != pcalohh->end(); ++itr) {
       PCaloHit hit(*itr);
       DetId newid = HcalHitRelabeller::relabel(hit.id(), hcons);
 #ifdef EDM_ML_DEBUG
@@ -193,7 +193,7 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent, const edm::Event
   const HcalTopology* theHBHETopology = htopo.product();
 
   // Loop over all SimTracks
-  for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
+  for (auto simTrkItr = SimTk->begin(); simTrkItr != SimTk->end(); simTrkItr++) {
     if ((std::abs(simTrkItr->type()) == idMuon_) && (simTrkItr->vertIndex() == 0) &&
         (std::abs(simTrkItr->momentum().eta()) < etaMax_)) {
       unsigned int thisTrk = simTrkItr->trackId();

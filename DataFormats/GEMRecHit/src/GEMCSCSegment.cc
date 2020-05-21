@@ -60,12 +60,10 @@ GEMCSCSegment::~GEMCSCSegment() {}
 
 std::vector<const TrackingRecHit*> GEMCSCSegment::recHits() const {
   std::vector<const TrackingRecHit*> pointersOfRecHits;
-  for (std::vector<GEMRecHit>::const_iterator irh = theGEMRecHits.begin(); irh != theGEMRecHits.end(); ++irh) {
+  for (auto irh = theGEMRecHits.begin(); irh != theGEMRecHits.end(); ++irh) {
     pointersOfRecHits.push_back(&(*irh));
   }
-  for (std::vector<CSCRecHit2D>::const_iterator irh = theCSCSegment.specificRecHits().begin();
-       irh != theCSCSegment.specificRecHits().end();
-       ++irh) {
+  for (auto irh = theCSCSegment.specificRecHits().begin(); irh != theCSCSegment.specificRecHits().end(); ++irh) {
     pointersOfRecHits.push_back(&(*irh));
   }
   return pointersOfRecHits;
@@ -73,7 +71,7 @@ std::vector<const TrackingRecHit*> GEMCSCSegment::recHits() const {
 
 std::vector<TrackingRecHit*> GEMCSCSegment::recHits() {
   std::vector<TrackingRecHit*> pointersOfRecHits;
-  for (std::vector<GEMRecHit>::iterator irh = theGEMRecHits.begin(); irh != theGEMRecHits.end(); ++irh) {
+  for (auto irh = theGEMRecHits.begin(); irh != theGEMRecHits.end(); ++irh) {
     pointersOfRecHits.push_back(&(*irh));
   }
   return pointersOfRecHits;

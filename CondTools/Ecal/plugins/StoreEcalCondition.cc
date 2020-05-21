@@ -26,7 +26,7 @@ StoreEcalCondition::StoreEcalCondition(const edm::ParameterSet& iConfig) {
 
   typedef std::vector<edm::ParameterSet> Parameters;
   Parameters toPut = iConfig.getParameter<Parameters>("toPut");
-  for (Parameters::iterator itToPut = toPut.begin(); itToPut != toPut.end(); ++itToPut) {
+  for (auto itToPut = toPut.begin(); itToPut != toPut.end(); ++itToPut) {
     inpFileName_.push_back(itToPut->getUntrackedParameter<std::string>("inputFile"));
     inpFileNameEE_.push_back(itToPut->getUntrackedParameter<std::string>("inputFileEE"));
     objectName_.push_back(itToPut->getUntrackedParameter<std::string>("conditionType"));
@@ -251,7 +251,7 @@ EcalWeightXtalGroups* StoreEcalCondition::readEcalWeightXtalGroupsFromFile(const
 
   // Code taken from EcalWeightTools/test/MakeOfflineDbFromAscii.cpp
 
-  EcalWeightXtalGroups* xtalGroups = new EcalWeightXtalGroups();
+  auto* xtalGroups = new EcalWeightXtalGroups();
   std::ifstream groupid_in(inputFile);
 
   if (!groupid_in.is_open()) {
@@ -513,7 +513,7 @@ EcalADCToGeVConstant* StoreEcalCondition::readEcalADCToGeVConstantFromFile(const
   sm_constr_ = sm_number;
 
   // barrel and endcaps the same
-  EcalADCToGeVConstant* agc = new EcalADCToGeVConstant(adc_to_gev, adc_to_gev_ee);
+  auto* agc = new EcalADCToGeVConstant(adc_to_gev, adc_to_gev_ee);
   edm::LogInfo("StoreEcalCondition") << "ADCtoGeV scale written into the DB";
   return agc;
 }
@@ -523,7 +523,7 @@ EcalPFRecHitThresholds* StoreEcalCondition::readEcalPFRecHitThresholdsFromFile(c
                                                                                const char* inputFileEE) {
   //-------------------------------------------------------------
 
-  EcalPFRecHitThresholds* ical = new EcalPFRecHitThresholds();
+  auto* ical = new EcalPFRecHitThresholds();
 
   FILE* inpFile;  // input file
   inpFile = fopen(inputFile, "r");
@@ -592,7 +592,7 @@ EcalIntercalibConstants* StoreEcalCondition::readEcalIntercalibConstantsFromFile
                                                                                  const char* inputFileEE) {
   //-------------------------------------------------------------
 
-  EcalIntercalibConstants* ical = new EcalIntercalibConstants();
+  auto* ical = new EcalIntercalibConstants();
 
   FILE* inpFile;  // input file
   inpFile = fopen(inputFile, "r");
@@ -750,7 +750,7 @@ EcalIntercalibConstantsMC* StoreEcalCondition::readEcalIntercalibConstantsMCFrom
                                                                                      const char* inputFileEE) {
   //-------------------------------------------------------------
 
-  EcalIntercalibConstantsMC* ical = new EcalIntercalibConstantsMC();
+  auto* ical = new EcalIntercalibConstantsMC();
 
   FILE* inpFile;  // input file
   inpFile = fopen(inputFile, "r");
@@ -1066,7 +1066,7 @@ EcalGainRatios* StoreEcalCondition::readEcalGainRatiosFromFile(const char* input
 }
 
 EcalChannelStatus* StoreEcalCondition::readEcalChannelStatusFromFile(const char* inputFile) {
-  EcalChannelStatus* status = new EcalChannelStatus();
+  auto* status = new EcalChannelStatus();
   // barrel
   for (int ieta = -EBDetId::MAX_IETA; ieta <= EBDetId::MAX_IETA; ++ieta) {
     if (ieta == 0)

@@ -99,8 +99,8 @@ namespace edm {
     if (eventRange.size() <= 1U)
       return eventRange;
     sort_all(eventRange, sortByStartEventIDSpecial);
-    for (std::vector<EventRange>::iterator i = eventRange.begin() + 1, e = eventRange.end(); i != e; ++i) {
-      std::vector<EventRange>::iterator iprev = i - 1;
+    for (auto i = eventRange.begin() + 1, e = eventRange.end(); i != e; ++i) {
+      auto iprev = i - 1;
       if (mergeSpecial(*iprev, *i)) {
         i = eventRange.erase(iprev);
         e = eventRange.end();

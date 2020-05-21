@@ -59,7 +59,7 @@ Level1TriggerScalers::Level1TriggerScalers()
 Level1TriggerScalers::Level1TriggerScalers(const unsigned char* rawData) {
   Level1TriggerScalers();
 
-  struct ScalersEventRecordRaw_v5 const* raw = reinterpret_cast<struct ScalersEventRecordRaw_v5 const*>(rawData);
+  auto const* raw = reinterpret_cast<struct ScalersEventRecordRaw_v5 const*>(rawData);
 
   trigType_ = (raw->header >> 56) & 0xFULL;
   eventID_ = (raw->header >> 32) & 0x00FFFFFFULL;
@@ -143,7 +143,7 @@ double Level1TriggerScalers::rateLS(unsigned int counts) { return (rateLS(counts
 double Level1TriggerScalers::rateLS(unsigned long long counts) { return (rateLS(counts, firstShortLSRun)); }
 
 double Level1TriggerScalers::rateLS(unsigned int counts, int runNumber) {
-  unsigned long long counts64 = (unsigned long long)counts;
+  auto counts64 = (unsigned long long)counts;
   return (rateLS(counts64, runNumber));
 }
 

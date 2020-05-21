@@ -61,7 +61,7 @@ namespace fftjetcms {
 
   template <typename Numeric>
   fftjet::Grid2d<float>* convert_Grid2d_to_float(const fftjet::Grid2d<Numeric>& grid) {
-    fftjet::Grid2d<float>* to = new fftjet::Grid2d<float>(
+    auto* to = new fftjet::Grid2d<float>(
         grid.nEta(), grid.etaMin(), grid.etaMax(), grid.nPhi(), grid.phiBin0Edge(), grid.title());
     copy_Grid2d_data(to, grid);
     return to;
@@ -69,7 +69,7 @@ namespace fftjetcms {
 
   template <typename Numeric>
   fftjet::Grid2d<double>* convert_Grid2d_to_double(const fftjet::Grid2d<Numeric>& grid) {
-    fftjet::Grid2d<double>* to = new fftjet::Grid2d<double>(
+    auto* to = new fftjet::Grid2d<double>(
         grid.nEta(), grid.etaMin(), grid.etaMax(), grid.nPhi(), grid.phiBin0Edge(), grid.title());
     copy_Grid2d_data(to, grid);
     return to;

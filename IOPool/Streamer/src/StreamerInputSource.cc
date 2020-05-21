@@ -269,7 +269,7 @@ namespace edm {
       resetLuminosityBlockAuxiliary();
     }
     if (!luminosityBlockAuxiliary() || luminosityBlockAuxiliary()->luminosityBlock() != eventView.lumi()) {
-      LuminosityBlockAuxiliary* luminosityBlockAuxiliary = new LuminosityBlockAuxiliary(
+      auto* luminosityBlockAuxiliary = new LuminosityBlockAuxiliary(
           runAuxiliary()->run(), eventView.lumi(), sendEvent_->aux().time(), Timestamp::invalidTimestamp());
       luminosityBlockAuxiliary->setProcessHistoryID(sendEvent_->processHistory().id());
       setLuminosityBlockAuxiliary(luminosityBlockAuxiliary);

@@ -52,10 +52,9 @@ void ShallowRechitClustersProducer::produce(edm::Event& iEvent, const edm::Event
     iEvent.getByToken(recHit_token, recHits);
     for (auto const& ds : *recHits) {
       for (auto const& hit : ds) {
-        shallow::CLUSTERMAP::iterator cluster =
-            clustermap.find(std::make_pair(hit.geographicalId().rawId(), hit.cluster()->firstStrip()));
+        auto cluster = clustermap.find(std::make_pair(hit.geographicalId().rawId(), hit.cluster()->firstStrip()));
         if (cluster != clustermap.end()) {
-          const StripGeomDetUnit* theStripDet =
+          const auto* theStripDet =
               dynamic_cast<const StripGeomDetUnit*>(theTrackerGeometry->idToDet(hit.geographicalId()));
           unsigned int i = cluster->second;
           strip->at(i) = theStripDet->specificTopology().strip(hit.localPosition());

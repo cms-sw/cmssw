@@ -134,10 +134,8 @@ void DTTTrigOffsetCalibration::endJob() {
 
   LogVerbatim("Calibration") << "[DTTTrigOffsetCalibration] Writing histos to file!" << endl;
 
-  for (ChamberHistosMap::const_iterator itChHistos = theT0SegHistoMap_.begin(); itChHistos != theT0SegHistoMap_.end();
-       ++itChHistos) {
-    for (vector<TH1F*>::const_iterator itHist = (*itChHistos).second.begin(); itHist != (*itChHistos).second.end();
-         ++itHist)
+  for (auto itChHistos = theT0SegHistoMap_.begin(); itChHistos != theT0SegHistoMap_.end(); ++itChHistos) {
+    for (auto itHist = (*itChHistos).second.begin(); itHist != (*itChHistos).second.end(); ++itHist)
       (*itHist)->Write();
   }
 
@@ -145,8 +143,7 @@ void DTTTrigOffsetCalibration::endJob() {
     // Create the object to be written to DB
     DTTtrig* tTrig = new DTTtrig();
 
-    for (ChamberHistosMap::const_iterator itChHistos = theT0SegHistoMap_.begin(); itChHistos != theT0SegHistoMap_.end();
-         ++itChHistos) {
+    for (auto itChHistos = theT0SegHistoMap_.begin(); itChHistos != theT0SegHistoMap_.end(); ++itChHistos) {
       DTChamberId chId = itChHistos->first;
       // Get SuperLayerId's for each ChamberId
       vector<DTSuperLayerId> slIds;
@@ -155,7 +152,7 @@ void DTTTrigOffsetCalibration::endJob() {
       if (chId.station() != 4)
         slIds.push_back(DTSuperLayerId(chId, 2));
 
-      for (vector<DTSuperLayerId>::const_iterator itSl = slIds.begin(); itSl != slIds.end(); ++itSl) {
+      for (auto itSl = slIds.begin(); itSl != slIds.end(); ++itSl) {
         // Get old values from DB
         float ttrigMean = 0;
         float ttrigSigma = 0;

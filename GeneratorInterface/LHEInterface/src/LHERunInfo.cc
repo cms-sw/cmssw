@@ -119,11 +119,11 @@ namespace lhef {
   bool LHERunInfo::operator==(const LHERunInfo &other) const { return heprup == other.heprup; }
 
   void LHERunInfo::count(int process, CountMode mode, double eventWeight, double brWeight, double matchWeight) {
-    std::vector<Process>::iterator proc = std::lower_bound(processes.begin(), processes.end(), process);
+    auto proc = std::lower_bound(processes.begin(), processes.end(), process);
     if (proc == processes.end() || proc->process() != process)
       return;
 
-    std::vector<Process>::iterator procLumi = std::lower_bound(processesLumi.begin(), processesLumi.end(), process);
+    auto procLumi = std::lower_bound(processesLumi.begin(), processesLumi.end(), process);
     if (procLumi == processesLumi.end() || procLumi->process() != process)
       return;
 
@@ -169,7 +169,7 @@ namespace lhef {
     double err2Sum = 0.0;
     double errBr2Sum = 0.0;
     int idwtup = heprup.IDWTUP;
-    for (std::vector<Process>::const_iterator proc = processes.begin(); proc != processes.end(); ++proc) {
+    for (auto proc = processes.begin(); proc != processes.end(); ++proc) {
       unsigned int idx = proc->heprupIndex();
 
       if (!proc->killed().n())
@@ -273,7 +273,7 @@ namespace lhef {
     LogDebug("LHERunInfo") << "Process\t\txsec_before [pb]\t\tpassed\tnposw\tnnegw\ttried\tnposw\tnnegw \txsec_match "
                               "[pb]\t\t\taccepted [%]\t event_eff [%]";
 
-    for (std::vector<Process>::const_iterator proc = processes.begin(); proc != processes.end(); ++proc) {
+    for (auto proc = processes.begin(); proc != processes.end(); ++proc) {
       unsigned int idx = proc->heprupIndex();
 
       if (!proc->selected().n()) {
@@ -435,7 +435,7 @@ namespace lhef {
 
   std::vector<std::string> LHERunInfo::findHeader(const std::string &tag) const {
     const LHERunInfo::Header *header = nullptr;
-    for (std::vector<Header>::const_iterator iter = headers.begin(); iter != headers.end(); ++iter) {
+    for (auto iter = headers.begin(); iter != headers.end(); ++iter) {
       if (iter->tag() == tag)
         return std::vector<std::string>(iter->begin(), iter->end());
       if (iter->tag() == "header")

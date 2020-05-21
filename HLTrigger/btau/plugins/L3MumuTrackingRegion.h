@@ -70,7 +70,7 @@ public:
       edm::Handle<reco::VertexCollection> vertices;
       ev.getByToken(theVertexToken, vertices);
       const reco::VertexCollection vertCollection = *(vertices.product());
-      reco::VertexCollection::const_iterator ci = vertCollection.begin();
+      auto ci = vertCollection.begin();
       if (!vertCollection.empty()) {
         originz = ci->z();
       } else {
@@ -79,7 +79,7 @@ public:
       }
       if (useVtxTks) {
         for (ci = vertCollection.begin(); ci != vertCollection.end(); ci++)
-          for (reco::Vertex::trackRef_iterator trackIt = ci->tracks_begin(); trackIt != ci->tracks_end(); trackIt++) {
+          for (auto trackIt = ci->tracks_begin(); trackIt != ci->tracks_end(); trackIt++) {
             reco::TrackRef iTrk = (*trackIt).castTo<reco::TrackRef>();
             GlobalVector dirVector((iTrk)->px(), (iTrk)->py(), (iTrk)->pz());
             result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(dirVector,
@@ -101,7 +101,7 @@ public:
     edm::Handle<reco::TrackCollection> trks;
     if (!theInputTrkToken.isUninitialized())
       ev.getByToken(theInputTrkToken, trks);
-    for (reco::TrackCollection::const_iterator iTrk = trks->begin(); iTrk != trks->end(); iTrk++) {
+    for (auto iTrk = trks->begin(); iTrk != trks->end(); iTrk++) {
       GlobalVector dirVector((iTrk)->px(), (iTrk)->py(), (iTrk)->pz());
       result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(dirVector,
                                                                          GlobalPoint(0, 0, float(originz)),

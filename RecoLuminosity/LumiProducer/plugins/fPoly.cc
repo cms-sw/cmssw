@@ -21,7 +21,7 @@ float lumi::fPoly::getCorrection(float luminonorm, float intglumi, unsigned int 
   float result = 1.0;
   float avglumi = 0.;
   float c1 = 0.;
-  std::map<std::string, float>::const_iterator coeffIt = m_coeffmap.find("C1");
+  auto coeffIt = m_coeffmap.find("C1");
   if (coeffIt != m_coeffmap.end()) {
     c1 = coeffIt->second;
   }
@@ -30,7 +30,7 @@ float lumi::fPoly::getCorrection(float luminonorm, float intglumi, unsigned int 
   }
   float Afterglow = 1.0;
   if (!m_afterglowmap.empty()) {
-    std::map<unsigned int, float>::const_iterator afterglowit = m_afterglowmap.lower_bound(nBXs + 1);
+    auto afterglowit = m_afterglowmap.lower_bound(nBXs + 1);
     if (afterglowit != m_afterglowmap.begin()) {
       Afterglow = (--afterglowit)->second;
     }

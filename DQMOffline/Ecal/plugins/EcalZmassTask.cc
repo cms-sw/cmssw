@@ -102,9 +102,7 @@ void EcalZmassTask::analyze(const edm::Event &iEvent, const edm::EventSetup &iSe
 
   std::vector<TLorentzVector> LV;
 
-  for (reco::GsfElectronCollection::const_iterator recoElectron = electronCollection->begin();
-       recoElectron != electronCollection->end();
-       recoElectron++) {
+  for (auto recoElectron = electronCollection->begin(); recoElectron != electronCollection->end(); recoElectron++) {
     if (recoElectron->et() <= 25)
       continue;
 

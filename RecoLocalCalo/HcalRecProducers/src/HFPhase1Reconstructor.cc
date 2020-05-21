@@ -185,7 +185,7 @@ void HFPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventS
   rec->reserve(preRecHits->size());
 
   // Iterate over the input and fill the output collection
-  for (HFPreRecHitCollection::const_iterator it = preRecHits->begin(); it != preRecHits->end(); ++it) {
+  for (auto it = preRecHits->begin(); it != preRecHits->end(); ++it) {
     // The check whether this PMT is single-anode one should go here.
     // Fix this piece of code if/when mixed-anode readout configurations
     // become available.
@@ -228,7 +228,7 @@ void HFPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventS
   // These flags need to be set consecutively.
   if (setNoiseFlags_) {
     // Step 1:  Set PET flag  (short fibers of |ieta|==29)
-    for (HFRecHitCollection::iterator i = rec->begin(); i != rec->end(); ++i) {
+    for (auto i = rec->begin(); i != rec->end(); ++i) {
       int depth = i->id().depth();
       int ieta = i->id().ieta();
       // Short fibers and all channels at |ieta|=29 use PET settings in Algo 3
@@ -237,7 +237,7 @@ void HFPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventS
     }
 
     // Step 2:  Set S8S1 flag (short fibers or |ieta|==29)
-    for (HFRecHitCollection::iterator i = rec->begin(); i != rec->end(); ++i) {
+    for (auto i = rec->begin(); i != rec->end(); ++i) {
       int depth = i->id().depth();
       int ieta = i->id().ieta();
       // Short fibers and all channels at |ieta|=29 use PET settings in Algo 3
@@ -246,7 +246,7 @@ void HFPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventS
     }
 
     // Step 3:  Set S9S1 flag (long fibers)
-    for (HFRecHitCollection::iterator i = rec->begin(); i != rec->end(); ++i) {
+    for (auto i = rec->begin(); i != rec->end(); ++i) {
       int depth = i->id().depth();
       int ieta = i->id().ieta();
       // Short fibers and all channels at |ieta|=29 use PET settings in Algo 3

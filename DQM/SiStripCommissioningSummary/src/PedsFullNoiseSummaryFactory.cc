@@ -10,7 +10,7 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 void PedsFullNoiseSummaryFactory::extract(Iterator iter) {
-  PedsFullNoiseAnalysis* anal = dynamic_cast<PedsFullNoiseAnalysis*>(iter->second);
+  auto* anal = dynamic_cast<PedsFullNoiseAnalysis*>(iter->second);
   if (!anal) {
     return;
   }

@@ -112,7 +112,7 @@ void L1ABCDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   iEvent.getByToken(m_l1abccollectionToken, pIn);
 
   // offset computation
-  for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
+  for (auto l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
     if (l1abc->l1AcceptOffset() == 0) {
       if (m_hoffsets && *m_hoffsets)
         (*m_hoffsets)
@@ -130,7 +130,7 @@ void L1ABCDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   edm::LogInfo("L1ABCDebug") << "Dump of L1AcceptBunchCrossing Collection for event in orbit " << iEvent.orbitNumber()
                              << " and BX " << iEvent.bunchCrossing();
 
-  for (L1AcceptBunchCrossingCollection::const_iterator l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
+  for (auto l1abc = pIn->begin(); l1abc != pIn->end(); ++l1abc) {
     edm::LogVerbatim("L1ABCDebug") << *l1abc;
   }
 }

@@ -99,9 +99,7 @@ void AlignmentParameterSelector::setGeometryCuts(const edm::ParameterSet &pSet) 
 
   this->clearGeometryCuts();
   const std::vector<std::string> parameterNames(pSet.getParameterNames());
-  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(), iEnd = parameterNames.end();
-       iParam != iEnd;
-       ++iParam) {
+  for (auto iParam = parameterNames.begin(), iEnd = parameterNames.end(); iParam != iEnd; ++iParam) {
     // Calling swap is more efficient than assignment:
     if (*iParam == "etaRanges") {
       pSet.getParameter<std::vector<double> >(*iParam).swap(theRangesEta);
@@ -154,9 +152,7 @@ void AlignmentParameterSelector::setPXBDetIdCuts(const edm::ParameterSet &pSet) 
   // but take care that nothing unknown is configured (to fetch typos!).
 
   const std::vector<std::string> parameterNames(pSet.getParameterNames());
-  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(), iEnd = parameterNames.end();
-       iParam != iEnd;
-       ++iParam) {
+  for (auto iParam = parameterNames.begin(), iEnd = parameterNames.end(); iParam != iEnd; ++iParam) {
     // Calling swap is more efficient than assignment:
     if (*iParam == "ladderRanges") {
       pSet.getParameter<std::vector<int> >(*iParam).swap(thePXBDetIdRanges.theLadderRanges);
@@ -177,9 +173,7 @@ void AlignmentParameterSelector::setPXFDetIdCuts(const edm::ParameterSet &pSet) 
   // but take care that nothing unknown is configured (to fetch typos!).
 
   const std::vector<std::string> parameterNames(pSet.getParameterNames());
-  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(), iEnd = parameterNames.end();
-       iParam != iEnd;
-       ++iParam) {
+  for (auto iParam = parameterNames.begin(), iEnd = parameterNames.end(); iParam != iEnd; ++iParam) {
     // Calling swap is more efficient than assignment:
     if (*iParam == "bladeRanges") {
       pSet.getParameter<std::vector<int> >(*iParam).swap(thePXFDetIdRanges.theBladeRanges);
@@ -204,9 +198,7 @@ void AlignmentParameterSelector::setTIBDetIdCuts(const edm::ParameterSet &pSet) 
   // but take care that nothing unknown is configured (to fetch typos!).
 
   const std::vector<std::string> parameterNames(pSet.getParameterNames());
-  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(), iEnd = parameterNames.end();
-       iParam != iEnd;
-       ++iParam) {
+  for (auto iParam = parameterNames.begin(), iEnd = parameterNames.end(); iParam != iEnd; ++iParam) {
     // Calling swap is more efficient than assignment:
     if (*iParam == "layerRanges") {
       pSet.getParameter<std::vector<int> >(*iParam).swap(theTIBDetIdRanges.theLayerRanges);
@@ -229,9 +221,7 @@ void AlignmentParameterSelector::setTIDDetIdCuts(const edm::ParameterSet &pSet) 
   // but take care that nothing unknown is configured (to fetch typos!).
 
   const std::vector<std::string> parameterNames(pSet.getParameterNames());
-  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(), iEnd = parameterNames.end();
-       iParam != iEnd;
-       ++iParam) {
+  for (auto iParam = parameterNames.begin(), iEnd = parameterNames.end(); iParam != iEnd; ++iParam) {
     // Calling swap is more efficient than assignment:
     if (*iParam == "diskRanges") {
       pSet.getParameter<std::vector<int> >(*iParam).swap(theTIDDetIdRanges.theDiskRanges);
@@ -254,9 +244,7 @@ void AlignmentParameterSelector::setTOBDetIdCuts(const edm::ParameterSet &pSet) 
   // but take care that nothing unknown is configured (to fetch typos!).
 
   const std::vector<std::string> parameterNames(pSet.getParameterNames());
-  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(), iEnd = parameterNames.end();
-       iParam != iEnd;
-       ++iParam) {
+  for (auto iParam = parameterNames.begin(), iEnd = parameterNames.end(); iParam != iEnd; ++iParam) {
     // Calling swap is more efficient than assignment:
     if (*iParam == "layerRanges") {
       pSet.getParameter<std::vector<int> >(*iParam).swap(theTOBDetIdRanges.theLayerRanges);
@@ -279,9 +267,7 @@ void AlignmentParameterSelector::setTECDetIdCuts(const edm::ParameterSet &pSet) 
   // but take care that nothing unknown is configured (to fetch typos!).
 
   const std::vector<std::string> parameterNames(pSet.getParameterNames());
-  for (std::vector<std::string>::const_iterator iParam = parameterNames.begin(), iEnd = parameterNames.end();
-       iParam != iEnd;
-       ++iParam) {
+  for (auto iParam = parameterNames.begin(), iEnd = parameterNames.end(); iParam != iEnd; ++iParam) {
     // Calling swap is more efficient than assignment:
     if (*iParam == "wheelRanges") {
       pSet.getParameter<std::vector<int> >(*iParam).swap(theTECDetIdRanges.theWheelRanges);
@@ -523,7 +509,7 @@ unsigned int AlignmentParameterSelector::add(const align::Alignables &alignables
   unsigned int numAli = 0;
 
   // loop on Alignable objects
-  for (align::Alignables::const_iterator iAli = alignables.begin(); iAli != alignables.end(); ++iAli) {
+  for (auto iAli = alignables.begin(); iAli != alignables.end(); ++iAli) {
     if (!this->layerDeselected(*iAli)              // check layers
         && !this->detUnitDeselected(*iAli)         // check detunit selection
         && !this->outsideGeometricalRanges(*iAli)  // check geometrical ranges

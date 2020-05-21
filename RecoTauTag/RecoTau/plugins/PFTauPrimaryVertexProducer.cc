@@ -24,8 +24,7 @@ void PFTauPrimaryVertexProducer::nonTauTracksInPV(const reco::VertexRef& thePVRe
                                                   const std::vector<edm::Ptr<reco::TrackBase> >& tauTracks,
                                                   std::vector<const reco::Track*>& nonTauTracks) {
   //Find non-tau tracks associated to thePV
-  for (reco::Vertex::trackRef_iterator vtxTrkRef = thePVRef->tracks_begin(); vtxTrkRef != thePVRef->tracks_end();
-       vtxTrkRef++) {
+  for (auto vtxTrkRef = thePVRef->tracks_begin(); vtxTrkRef != thePVRef->tracks_end(); vtxTrkRef++) {
     bool matched = false;
     for (const auto& tauTrack : tauTracks) {
       if (tauTrack.id() == vtxTrkRef->id() && tauTrack.key() == vtxTrkRef->key()) {

@@ -18,7 +18,7 @@ using namespace std;
 MagESector::MagESector(vector<MagELayer*>& layers, Geom::Phi<float> phiMin) : theLayers(layers), thePhiMin(phiMin) {}
 
 MagESector::~MagESector() {
-  for (vector<MagELayer*>::const_iterator ilay = theLayers.begin(); ilay != theLayers.end(); ++ilay) {
+  for (auto ilay = theLayers.begin(); ilay != theLayers.end(); ++ilay) {
     delete (*ilay);
   }
 }
@@ -28,7 +28,7 @@ const MagVolume* MagESector::findVolume(const GlobalPoint& gp, double tolerance)
   float Z = gp.z();
 
   // FIXME : use a binfinder
-  for (vector<MagELayer*>::const_reverse_iterator ilay = theLayers.rbegin(); ilay != theLayers.rend(); ++ilay) {
+  for (auto ilay = theLayers.rbegin(); ilay != theLayers.rend(); ++ilay) {
     if (Z + tolerance > (*ilay)->minZ()) {
       if (Z - tolerance < (*ilay)->maxZ()) {
         LogTrace("MagGeometry") << "  Trying elayer at Z " << (*ilay)->minZ() << " " << Z << endl;

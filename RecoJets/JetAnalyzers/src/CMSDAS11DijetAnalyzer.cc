@@ -125,7 +125,7 @@ void CMSDAS11DijetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
   std::vector<reco::CaloJet> selectedJets;
 
   // loop over the jet collection
-  for (reco::CaloJetCollection::const_iterator j_it = jets_h->begin(); j_it != jets_h->end(); j_it++) {
+  for (auto j_it = jets_h->begin(); j_it != jets_h->end(); j_it++) {
     reco::CaloJet jet = *j_it;
 
     // calculate and apply the correction

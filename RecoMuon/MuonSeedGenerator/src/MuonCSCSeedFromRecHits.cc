@@ -24,7 +24,7 @@ TrajectorySeed MuonCSCSeedFromRecHits::seed() const {
   //@@ doesn't handle overlap between ME11 and ME12 correctly
   // sort by station
   MuonRecHitContainer station1Hits, station2Hits, station3Hits, station4Hits;
-  for (MuonRecHitContainer::const_iterator iter = theRhits.begin(), end = theRhits.end(); iter != end; ++iter) {
+  for (auto iter = theRhits.begin(), end = theRhits.end(); iter != end; ++iter) {
     int station = CSCDetId((*iter)->geographicalId().rawId()).station();
     if ((*iter)->isME0()) {
       station = 1;  //ME0DetId((*iter)->geographicalId().rawId()).station();
@@ -78,11 +78,11 @@ TrajectorySeed MuonCSCSeedFromRecHits::seed() const {
 bool MuonCSCSeedFromRecHits::makeSeed(const MuonRecHitContainer& hits1,
                                       const MuonRecHitContainer& hits2,
                                       TrajectorySeed& seed) const {
-  for (MuonRecHitContainer::const_iterator itr1 = hits1.begin(), end1 = hits1.end(); itr1 != end1; ++itr1) {
+  for (auto itr1 = hits1.begin(), end1 = hits1.end(); itr1 != end1; ++itr1) {
     CSCDetId cscId1((*itr1)->geographicalId().rawId());
     //int type1 = CSCChamberSpecs::whatChamberType(cscId1.station(), cscId1.ring());
 
-    for (MuonRecHitContainer::const_iterator itr2 = hits2.begin(), end2 = hits2.end(); itr2 != end2; ++itr2) {
+    for (auto itr2 = hits2.begin(), end2 = hits2.end(); itr2 != end2; ++itr2) {
       CSCDetId cscId2((*itr2)->geographicalId().rawId());
       //int type2 = CSCChamberSpecs::whatChamberType(cscId2.station(), cscId2.ring());
 
@@ -158,7 +158,7 @@ MuonCSCSeedFromRecHits::ConstMuonRecHitPointer MuonCSCSeedFromRecHits::bestEndca
   float bestdPhiGloDir = M_PI;    //  +v
   int quality1 = 0, quality = 0;  //  +v  I= 5,6-p. / II= 4p.  / III= 3p.
 
-  for (MuonRecHitContainer::const_iterator iter = endcapHits.begin(); iter != endcapHits.end(); iter++) {
+  for (auto iter = endcapHits.begin(); iter != endcapHits.end(); iter++) {
     if (!(*iter)->isCSC() && !(*iter)->isME0())
       continue;
 
@@ -222,10 +222,10 @@ bool MuonCSCSeedFromRecHits::createDefaultEndcapSeed(ConstMuonRecHitPointer last
 }
 
 void MuonCSCSeedFromRecHits::analyze() const {
-  for (MuonRecHitContainer::const_iterator iter = theRhits.begin(); iter != theRhits.end(); iter++) {
+  for (auto iter = theRhits.begin(); iter != theRhits.end(); iter++) {
     if (!(*iter)->isCSC())
       continue;
-    for (MuonRecHitContainer::const_iterator iter2 = iter + 1; iter2 != theRhits.end(); ++iter2) {
+    for (auto iter2 = iter + 1; iter2 != theRhits.end(); ++iter2) {
       if (!(*iter2)->isCSC())
         continue;
 

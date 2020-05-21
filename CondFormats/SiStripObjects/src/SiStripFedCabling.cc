@@ -76,8 +76,8 @@ void SiStripFedCabling::buildFedCabling(ConnsConstIterRange input) {
   registry_.resize(nfeds, ConnsRange::emptyPair());
 
   // Populate container
-  ConnsIter ii = temp.begin();
-  ConnsIter jj = temp.end();
+  auto ii = temp.begin();
+  auto jj = temp.end();
   for (; ii != jj; ++ii) {
     uint16_t fed_id = ii->fedId();
     uint16_t fed_ch = ii->fedCh();
@@ -93,7 +93,7 @@ void SiStripFedCabling::buildFedCabling(ConnsConstIterRange input) {
       continue;
     }
 
-    FedsConstIter iter = find(feds_.begin(), feds_.end(), fed_id);
+    auto iter = find(feds_.begin(), feds_.end(), fed_id);
     if (iter == feds_.end()) {
       feds_.push_back(fed_id);
     }
@@ -107,8 +107,8 @@ void SiStripFedCabling::buildFedCabling(ConnsConstIterRange input) {
     }
 
     ConnsRange conns = range(registry_[index]);
-    ConnsConstIter iconn = conns.begin() + fed_ch;
-    FedChannelConnection& conn = const_cast<FedChannelConnection&>(*iconn);
+    auto iconn = conns.begin() + fed_ch;
+    auto& conn = const_cast<FedChannelConnection&>(*iconn);
     conn = *ii;
   }
 }
@@ -193,15 +193,15 @@ void SiStripFedCabling::printDebug(std::stringstream& ss, const TrackerTopology*
        << " Printing cabling map for " << feds_.size() << " FEDs with following ids: ";
   }
 
-  std::vector<uint16_t>::const_iterator ii = feds_.begin();
-  std::vector<uint16_t>::const_iterator jj = feds_.end();
+  auto ii = feds_.begin();
+  auto jj = feds_.end();
   for (; ii != jj; ++ii) {
     ss << *ii << " ";
   }
   ss << std::endl << std::endl;
 
-  std::vector<uint16_t>::const_iterator ifed = feds_.begin();
-  std::vector<uint16_t>::const_iterator jfed = feds_.end();
+  auto ifed = feds_.begin();
+  auto jfed = feds_.end();
   for (; ifed != jfed; ++ifed) {
     uint16_t index = *ifed - FEDNumbering::MINSiStripFEDID;
     if (index < registry_.size()) {
@@ -212,8 +212,8 @@ void SiStripFedCabling::printDebug(std::stringstream& ss, const TrackerTopology*
 
       uint16_t ichan = 0;
       uint16_t connected = 0;
-      ConnsConstIter iconn = conns.begin();
-      ConnsConstIter jconn = conns.end();
+      auto iconn = conns.begin();
+      auto jconn = conns.end();
       for (; iconn != jconn; ++iconn) {
         if (iconn->fedId() != sistrip::invalid_) {
           connected++;
@@ -256,8 +256,8 @@ void SiStripFedCabling::terse(std::stringstream& ss) const {
 
   ss << " Printing cabling map for " << feds_.size() << " FEDs: " << std::endl << std::endl;
 
-  std::vector<uint16_t>::const_iterator ifed = feds_.begin();
-  std::vector<uint16_t>::const_iterator jfed = feds_.end();
+  auto ifed = feds_.begin();
+  auto jfed = feds_.end();
   for (; ifed != jfed; ++ifed) {
     uint16_t index = *ifed - FEDNumbering::MINSiStripFEDID;
     if (index < registry_.size()) {
@@ -267,8 +267,8 @@ void SiStripFedCabling::terse(std::stringstream& ss) const {
          << " FedChannelConnection objects...)" << std::endl;
 
       uint16_t connected = 0;
-      ConnsConstIter iconn = conns.begin();
-      ConnsConstIter jconn = conns.end();
+      auto iconn = conns.begin();
+      auto jconn = conns.end();
       for (; iconn != jconn; ++iconn) {
         if (iconn->fedId() != sistrip::invalid_) {
           connected++;
@@ -300,8 +300,8 @@ void SiStripFedCabling::printSummary(std::stringstream& ss, const TrackerTopolog
   uint16_t nfeds = 0;
 
   // iterate through fed ids
-  std::vector<uint16_t>::const_iterator ii = feds_.begin();
-  std::vector<uint16_t>::const_iterator jj = feds_.end();
+  auto ii = feds_.begin();
+  auto jj = feds_.end();
   for (; ii != jj; ++ii) {
     // check number of connection objects
     uint16_t index = *ii - FEDNumbering::MINSiStripFEDID;
@@ -318,7 +318,7 @@ void SiStripFedCabling::printSummary(std::stringstream& ss, const TrackerTopolog
       std::vector<uint16_t> connected;
       connected.resize(8, 0);
       for (uint16_t ichan = 0; ichan < 96; ++ichan) {
-        ConnsConstIter iconn = conns.begin() + ichan;
+        auto iconn = conns.begin() + ichan;
         if (iconn->fedId() < sistrip::valid_) {
           uint16_t unit = SiStripFedKey::feUnit(ichan);
           if (unit > 8) {

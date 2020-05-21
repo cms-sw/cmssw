@@ -307,7 +307,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec, const HcalChannelQuality*
     for (auto& it1 : d1strip) {
       if (it1.id().ieta() < ietaMin || it1.id().ieta() > ietaMax)
         continue;
-      HFRecHitCollection::iterator hit = rec.find(it1.id());
+      auto hit = rec.find(it1.id());
       if (hit != rec.end()) {
         // tag a rechit with the anomalous hit flag
         if (verboseLevel_ >= 30) {
@@ -321,7 +321,7 @@ void HFStripFilter::runFilter(HFRecHitCollection& rec, const HcalChannelQuality*
     for (auto& it1 : d2strip) {
       if (it1.id().ieta() < ietaMin || it1.id().ieta() > ietaMax)
         continue;
-      HFRecHitCollection::iterator hit = rec.find(it1.id());
+      auto hit = rec.find(it1.id());
       if (hit != rec.end()) {
         // tag a rechit with the anomalous hit flag
         if (verboseLevel_ >= 30) {

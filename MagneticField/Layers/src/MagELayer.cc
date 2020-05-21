@@ -19,13 +19,13 @@ MagELayer::MagELayer(const vector<MagVolume*>& volumes, double zMin, double zMax
     : theVolumes(volumes), theZMin(zMin), theZMax(zMax) {}
 
 MagELayer::~MagELayer() {
-  for (vector<MagVolume*>::const_iterator ivol = theVolumes.begin(); ivol != theVolumes.end(); ++ivol) {
+  for (auto ivol = theVolumes.begin(); ivol != theVolumes.end(); ++ivol) {
     delete (*ivol);
   }
 }
 
 const MagVolume* MagELayer::findVolume(const GlobalPoint& gp, double tolerance) const {
-  for (vector<MagVolume*>::const_iterator ivol = theVolumes.begin(); ivol != theVolumes.end(); ++ivol) {
+  for (auto ivol = theVolumes.begin(); ivol != theVolumes.end(); ++ivol) {
     // FIXME : use a binfinder
 #ifdef EDM_ML_DEBUG
     {

@@ -29,7 +29,7 @@ bool PerformancePayloadFromTable::matches(const BinningPointByMap& _p, PhysicsPe
   BinningPointByMap p = _p;
   std::vector<BinningVariables::BinningVariablesType> t = myBinning();
 
-  for (std::vector<BinningVariables::BinningVariablesType>::const_iterator it = t.begin(); it != t.end(); ++it) {
+  for (auto it = t.begin(); it != t.end(); ++it) {
     //
     // first the binning point map must contain ALL the quantities here
     //
@@ -49,7 +49,7 @@ bool PerformancePayloadFromTable::isInPayload(PerformanceResult::ResultType res,
     return false;
   // now look whther the binning point contains all the info
   std::vector<BinningVariables::BinningVariablesType> t = myBinning();
-  for (std::vector<BinningVariables::BinningVariablesType>::const_iterator it = t.begin(); it != t.end(); ++it) {
+  for (auto it = t.begin(); it != t.end(); ++it) {
     if (!point.isKeyAvailable(*it))
       return false;
   }

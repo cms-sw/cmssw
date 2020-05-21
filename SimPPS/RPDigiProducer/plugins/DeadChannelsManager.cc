@@ -22,8 +22,7 @@ bool DeadChannelsManager::isChannelDead(RPDetId detectorId, unsigned short strip
   TotemSymbID totemSymbolicId;
   totemSymbolicId.symbolicID = symbolicId;
   if (analysisMaskPresent) {
-    std::map<TotemSymbID, TotemVFATAnalysisMask>::const_iterator vfatIter =
-        analysisMask->analysisMask.find(totemSymbolicId);
+    auto vfatIter = analysisMask->analysisMask.find(totemSymbolicId);
     if (vfatIter != analysisMask->analysisMask.end()) {
       TotemVFATAnalysisMask vfatMask = vfatIter->second;
       //if channel is dead return true

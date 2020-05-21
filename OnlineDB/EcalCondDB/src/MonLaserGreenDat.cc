@@ -144,7 +144,7 @@ void MonLaserGreenDat::writeArrayDB(const std::map<EcalLogicID, MonLaserGreenDat
   const MonLaserGreenDat* dataitem;
   int count = 0;
   typedef map<EcalLogicID, MonLaserGreenDat>::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
+  for (auto p = data->begin(); p != data->end(); ++p) {
     channel = &(p->first);
     int logicID = channel->getLogicID();
     if (!logicID) {

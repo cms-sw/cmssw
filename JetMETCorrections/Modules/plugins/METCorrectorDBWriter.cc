@@ -42,7 +42,7 @@ METCorrectorDBWriter::METCorrectorDBWriter(const edm::ParameterSet& pSet) {
 void METCorrectorDBWriter::beginJob() {
   LogDebug("default") << "beginJob===========";
 
-  MEtXYcorrectParametersCollection* payload = new MEtXYcorrectParametersCollection();
+  auto* payload = new MEtXYcorrectParametersCollection();
   std::cout << "Starting to import payload " << payloadTag << " from text files." << std::endl;
   for (int ilev(0); ilev < MEtXYcorrectParametersCollection::N_LEVELS; ++ilev) {
     std::string append("_");
@@ -63,10 +63,7 @@ void METCorrectorDBWriter::beginJob() {
       if (sections.empty()) {
         payload->push_back(ilev, MEtXYcorrectParameters(fip.fullPath(), ""));
       } else {
-        for (std::vector<std::string>::const_iterator isectbegin = sections.begin(),
-                                                      isectend = sections.end(),
-                                                      isect = isectbegin;
-             isect != isectend;
+        for (auto isectbegin = sections.begin(), isectend = sections.end(), isect = isectbegin; isect != isectend;
              ++isect) {
           payload->push_back(ilev, MEtXYcorrectParameters(fip.fullPath(), *isect), *isect);
           std::cout << "Added level " << levelName + "_" + *isect << " to record " << ilev << std::endl;

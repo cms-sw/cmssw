@@ -14,8 +14,8 @@ using namespace reco;
 void GhostTrack::initStates(const std::vector<TransientTrack> &tracks,
                             const std::vector<float> &weights,
                             double offset) {
-  std::vector<float>::const_iterator weight = weights.begin();
-  for (std::vector<TransientTrack>::const_iterator iter = tracks.begin(); iter != tracks.end(); ++iter) {
+  auto weight = weights.begin();
+  for (auto iter = tracks.begin(); iter != tracks.end(); ++iter) {
     GhostTrackState state(*iter);
     state.linearize(prediction_, true, offset);
     if (weight != weights.end())

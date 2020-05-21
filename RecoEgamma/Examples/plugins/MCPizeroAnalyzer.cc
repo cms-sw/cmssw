@@ -177,7 +177,7 @@ void MCPizeroAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
   std::vector<PizeroMCTruth> MCPizeroeros = thePizeroMCTruthFinder_->find(theSimTracks, theSimVertices);
   std::cout << " MCPizeroAnalyzer MCPizeroeros size " << MCPizeroeros.size() << std::endl;
 
-  for (std::vector<PizeroMCTruth>::const_iterator iPiz = MCPizeroeros.begin(); iPiz != MCPizeroeros.end(); ++iPiz) {
+  for (auto iPiz = MCPizeroeros.begin(); iPiz != MCPizeroeros.end(); ++iPiz) {
     h_MCPizE_->Fill((*iPiz).fourMomentum().e());
     h_MCPizEta_->Fill((*iPiz).fourMomentum().pseudoRapidity());
     h_MCPizPhi_->Fill((*iPiz).fourMomentum().phi());
@@ -193,7 +193,7 @@ void MCPizeroAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
     h_MCPizMass1_->Fill(invM);
 
     int converted = 0;
-    for (std::vector<PhotonMCTruth>::const_iterator iPho = mcPhotons.begin(); iPho != mcPhotons.end(); ++iPho) {
+    for (auto iPho = mcPhotons.begin(); iPho != mcPhotons.end(); ++iPho) {
       h_MCPhoE_->Fill((*iPho).fourMomentum().e());
       h_MCPhoEta_->Fill((*iPho).fourMomentum().pseudoRapidity());
       h_MCPhoPhi_->Fill((*iPho).fourMomentum().phi());
@@ -208,7 +208,7 @@ void MCPizeroAnalyzer::analyze(const edm::Event& e, const edm::EventSetup&) {
         std::vector<ElectronMCTruth> mcElectrons = (*iPho).electrons();
         std::cout << " MCPizeroAnalyzer mcElectrons size " << mcElectrons.size() << std::endl;
 
-        for (std::vector<ElectronMCTruth>::const_iterator iEl = mcElectrons.begin(); iEl != mcElectrons.end(); ++iEl) {
+        for (auto iEl = mcElectrons.begin(); iEl != mcElectrons.end(); ++iEl) {
           if ((*iEl).fourMomentum().e() < 30)
             continue;
           h_MCEleE_->Fill((*iEl).fourMomentum().e());

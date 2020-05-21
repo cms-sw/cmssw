@@ -100,7 +100,7 @@ void HcalSiPMHitResponse::add(const CaloSamples& signal) {
 void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engine) {
   if (!edm::isNotFinite(hit.time()) && ((theHitFilter == nullptr) || (theHitFilter->accepts(hit)))) {
     HcalDetId id(hit.id());
-    const HcalSimParameters& pars = dynamic_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));
+    const auto& pars = dynamic_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));
     //divide out mean of crosstalk distribution 1/(1-lambda) = multiply by (1-lambda)
     double signal(analogSignalAmplitude(id, hit.energy(), pars, engine) * (1 - pars.sipmCrossTalk(id)));
     unsigned int photons(signal + 0.5);
@@ -143,9 +143,9 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engin
 
 void HcalSiPMHitResponse::addPEnoise(CLHEP::HepRandomEngine* engine) {
   // Add SiPM dark current noise to all cells
-  for (std::vector<DetId>::const_iterator idItr = theDetIds->begin(); idItr != theDetIds->end(); ++idItr) {
+  for (auto idItr = theDetIds->begin(); idItr != theDetIds->end(); ++idItr) {
     HcalDetId id(*idItr);
-    const HcalSimParameters& pars = static_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));
+    const auto& pars = static_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));
 
     // uA * ns / (fC/pe) = pe!
     double dc_pe_avg = pars.sipmDarkCurrentuA(id) * dt / pars.photoelectronsToAnalog(id);
@@ -194,7 +194,7 @@ CaloSamples HcalSiPMHitResponse::makeBlankSignal(const DetId& detId) const {
 CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
                                                 photonTimeHist const& photonTimeBins,
                                                 CLHEP::HepRandomEngine* engine) {
-  const HcalSimParameters& pars = static_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));
+  const auto& pars = static_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));
   theSiPM.setNCells(pars.pixels(id));
   theSiPM.setTau(pars.sipmTau());
   theSiPM.setCrossTalk(pars.sipmCrossTalk(id));

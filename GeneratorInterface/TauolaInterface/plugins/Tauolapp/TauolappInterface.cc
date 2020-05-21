@@ -700,9 +700,9 @@ HepMC::GenEvent* TauolappInterface::make_simple_tau_event(const TLorentzVector& 
   // make tau's four vector
   HepMC::FourVector momentum_tau1(l.Px(), l.Py(), l.Pz(), l.E());
   // make particles
-  HepMC::GenParticle* tau1 = new HepMC::GenParticle(momentum_tau1, pdgid, status);
+  auto* tau1 = new HepMC::GenParticle(momentum_tau1, pdgid, status);
   // make the vertex
-  HepMC::GenVertex* vertex = new HepMC::GenVertex();
+  auto* vertex = new HepMC::GenVertex();
   vertex->add_particle_out(tau1);
   event->add_vertex(vertex);
   return event;
@@ -715,19 +715,18 @@ void TauolappInterface::update_particles(HepMC::GenParticle* partHep,
   partHep->set_status(p->status());
   if (p->end_vertex()) {
     if (!partHep->end_vertex()) {
-      HepMC::GenVertex* vtx = new HepMC::GenVertex(p->end_vertex()->position());
+      auto* vtx = new HepMC::GenVertex(p->end_vertex()->position());
       theEvent->add_vertex(vtx);
       vtx->add_particle_in(partHep);
     }
     if (p->end_vertex()->particles_out_size() != 0) {
-      for (HepMC::GenVertex::particles_out_const_iterator d = p->end_vertex()->particles_out_const_begin();
-           d != p->end_vertex()->particles_out_const_end();
+      for (auto d = p->end_vertex()->particles_out_const_begin(); d != p->end_vertex()->particles_out_const_end();
            d++) {
         // Create daughter and add to event
         TLorentzVector l((*d)->momentum().px(), (*d)->momentum().py(), (*d)->momentum().pz(), (*d)->momentum().e());
         l.Boost(boost);
         HepMC::FourVector momentum(l.Px(), l.Py(), l.Pz(), l.E());
-        HepMC::GenParticle* daughter = new HepMC::GenParticle(momentum, (*d)->pdg_id(), (*d)->status());
+        auto* daughter = new HepMC::GenParticle(momentum, (*d)->pdg_id(), (*d)->status());
         daughter->suggest_barcode(theEvent->particles_size() + 1);
         partHep->end_vertex()->add_particle_out(daughter);
         if ((*d)->end_vertex())

@@ -44,7 +44,7 @@ MagELayer* eLayer::buildMagELayer() const {
     double zmin = 1e19;
     double zmax = -1e19;
     vector<MagVolume*> mVols;
-    for (handles::const_iterator vol = theVolumes.begin(); vol != theVolumes.end(); ++vol) {
+    for (auto vol = theVolumes.begin(); vol != theVolumes.end(); ++vol) {
       mVols.push_back((*vol)->magVolume);
       zmin = min(zmin, (*vol)->minZ());
       zmax = max(zmax, (*vol)->maxZ());

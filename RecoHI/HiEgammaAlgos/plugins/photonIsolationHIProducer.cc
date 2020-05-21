@@ -84,7 +84,7 @@ void photonIsolationHIProducer::produce(edm::Event& evt, const edm::EventSetup& 
   TrackIsoCalculator TxC(*trackCollection, trackQuality_);
   EcalClusterLazyTools lazyTool(evt, es, barrelEcalHits_, endcapEcalHits_);
 
-  for (reco::PhotonCollection::const_iterator phoItr = photons->begin(); phoItr != photons->end(); ++phoItr) {
+  for (auto phoItr = photons->begin(); phoItr != photons->end(); ++phoItr) {
     reco::HIPhotonIsolation iso;
     // HI-style isolation info
     iso.ecalClusterIsoR1(CxC.getBkgSubEcalClusterIso(phoItr->superCluster(), 1, 0));
@@ -110,7 +110,7 @@ void photonIsolationHIProducer::produce(edm::Event& evt, const edm::EventSetup& 
     const DetId& id = lazyTool.getMaximum(*seed).first;
     float time = -999.;
     const EcalRecHitCollection& rechits = (phoItr->isEB() ? *barrelEcalHits : *endcapEcalHits);
-    EcalRecHitCollection::const_iterator it = rechits.find(id);
+    auto it = rechits.find(id);
     if (it != rechits.end()) {
       time = it->time();
     }

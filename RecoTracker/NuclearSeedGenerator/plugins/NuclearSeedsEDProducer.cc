@@ -49,9 +49,7 @@ void NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   std::vector<std::pair<int, int> > assocPair;
   int i = 0;
 
-  for (std::vector<Trajectory>::const_iterator iTraj = m_TrajectoryCollection->begin();
-       iTraj != m_TrajectoryCollection->end();
-       iTraj++, i++) {
+  for (auto iTraj = m_TrajectoryCollection->begin(); iTraj != m_TrajectoryCollection->end(); iTraj++, i++) {
     // run the finder
     theNuclearInteractionFinder->run(*iTraj, *data);
 
@@ -71,7 +69,7 @@ void NuclearSeedsEDProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 
   const edm::OrphanHandle<TrajectorySeedCollection> refprodTrajSeedColl = iEvent.put(std::move(output));
 
-  for (std::vector<std::pair<int, int> >::const_iterator iVecP = assocPair.begin(); iVecP != assocPair.end(); iVecP++) {
+  for (auto iVecP = assocPair.begin(); iVecP != assocPair.end(); iVecP++) {
     outAssoc->insert(edm::Ref<TrajectoryCollection>(m_TrajectoryCollection, iVecP->first),
                      edm::Ref<TrajectorySeedCollection>(refprodTrajSeedColl, iVecP->second));
   }

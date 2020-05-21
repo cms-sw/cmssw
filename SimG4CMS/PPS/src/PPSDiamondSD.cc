@@ -293,6 +293,6 @@ void PPSDiamondSD::clearTrack(G4Track* track) { track->SetTrackStatus(fStopAndKi
 void PPSDiamondSD::clearHits() { slave_->Initialize(); }
 
 bool PPSDiamondSD::isPrimary(const G4Track* track) {
-  TrackInformation* info = dynamic_cast<TrackInformation*>(track->GetUserInformation());
+  auto* info = dynamic_cast<TrackInformation*>(track->GetUserInformation());
   return info && info->isPrimary();
 }

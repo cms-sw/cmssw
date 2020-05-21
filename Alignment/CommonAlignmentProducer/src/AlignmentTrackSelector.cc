@@ -271,7 +271,7 @@ AlignmentTrackSelector::Tracks AlignmentTrackSelector::basicCuts(const Tracks& t
                                                                  const edm::EventSetup& eSetup) const {
   Tracks result;
 
-  for (Tracks::const_iterator it = tracks.begin(); it != tracks.end(); ++it) {
+  for (auto it = tracks.begin(); it != tracks.end(); ++it) {
     const reco::Track* trackp = *it;
     float pt = trackp->pt();
     float p = trackp->p();
@@ -489,7 +489,7 @@ bool AlignmentTrackSelector::isHit2D(const TrackingRecHit& hit) const {
         else if (dynamic_cast<const SiStripMatchedRecHit2D*>(&hit))
           return true;  // matched is 2D
         else if (dynamic_cast<const ProjectedSiStripRecHit2D*>(&hit)) {
-          const ProjectedSiStripRecHit2D* pH = static_cast<const ProjectedSiStripRecHit2D*>(&hit);
+          const auto* pH = static_cast<const ProjectedSiStripRecHit2D*>(&hit);
           return (countStereoHitAs2D_ && this->isHit2D(pH->originalHit()));  // depends on original...
         } else {
           edm::LogError("UnkownType") << "@SUB=AlignmentTrackSelector::isHit2D"
@@ -541,13 +541,13 @@ bool AlignmentTrackSelector::isOkCharge(const TrackingRecHit* hit) const {
 
   else if (type ==
            typeid(SiStripMatchedRecHit2D)) {  // or matched (should not occur anymore due to hit splitting since 20X)
-    const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
+    const auto* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
     if (matchedHit) {
       return (this->isOkChargeStripHit(matchedHit->monoHit()) && this->isOkChargeStripHit(matchedHit->stereoHit()));
     }
   } else if (type == typeid(ProjectedSiStripRecHit2D)) {
     // or projected (should not occur anymore due to hit splitting since 20X):
-    const ProjectedSiStripRecHit2D* projHit = dynamic_cast<const ProjectedSiStripRecHit2D*>(hit);
+    const auto* projHit = dynamic_cast<const ProjectedSiStripRecHit2D*>(hit);
     if (projHit) {
       return this->isOkChargeStripHit(projHit->originalHit());
     }
@@ -657,7 +657,7 @@ AlignmentTrackSelector::Tracks AlignmentTrackSelector::theNHighestPtTracks(const
 
   // copy theTrackMult highest pt tracks to result vector
   int n = 0;
-  for (Tracks::const_iterator it = sortedTracks.begin(); it != sortedTracks.end(); ++it) {
+  for (auto it = sortedTracks.begin(); it != sortedTracks.end(); ++it) {
     if (n < nHighestPt_) {
       result.push_back(*it);
       n++;

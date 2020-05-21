@@ -418,7 +418,7 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
       h_recoVtxChi2ndf_->Fill(chi2ndf);
       h_recoVtxChi2Prob_->Fill(chi2prob);
 
-      for (Vertex::trackRef_iterator itrk = pv.tracks_begin(); itrk != pv.tracks_end(); ++itrk) {
+      for (auto itrk = pv.tracks_begin(); itrk != pv.tracks_end(); ++itrk) {
         double pt = (**itrk).pt();
         sumpt += pt * pt;
 
@@ -631,7 +631,7 @@ void PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::Event
       int nhitinTEC = hits.numberOfValidStripTECHits();
       int nhitinBPIX = hits.numberOfValidPixelBarrelHits();
       int nhitinFPIX = hits.numberOfValidPixelEndcapHits();
-      for (trackingRecHit_iterator iHit = theTTrack.recHitsBegin(); iHit != theTTrack.recHitsEnd(); ++iHit) {
+      for (auto iHit = theTTrack.recHitsBegin(); iHit != theTTrack.recHitsEnd(); ++iHit) {
         if ((*iHit)->isValid()) {
           if (this->isHit2D(**iHit)) {
             ++nRecHit2D;

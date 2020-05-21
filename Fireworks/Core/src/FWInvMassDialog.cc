@@ -120,7 +120,7 @@ void FWInvMassDialog::Calculate() {
   math::XYZVector first, second;
   int n = 0;
 
-  for (std::set<FWModelId>::const_iterator i = sted.begin(); i != sted.end(); ++i, ++n) {
+  for (auto i = sted.begin(); i != sted.end(); ++i, ++n) {
     TString line;
 
     TClass *model_class = const_cast<TClass *>(i->item()->modelType());

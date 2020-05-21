@@ -75,9 +75,7 @@ namespace {
     }
 
     std::vector<reco::PFCandidatePtr> pfConsts = pfJet.getPFConstituents();
-    for (std::vector<reco::PFCandidatePtr>::const_iterator pfJetConstituent = pfConsts.begin();
-         pfJetConstituent != pfConsts.end();
-         ++pfJetConstituent) {
+    for (auto pfJetConstituent = pfConsts.begin(); pfJetConstituent != pfConsts.end(); ++pfJetConstituent) {
       std::vector<int> idxs;
       if (!pfCandidateCollection.empty() && pfJetConstituent->id() == viewProductID) {
         idxs.push_back(pfJetConstituent->key());
@@ -111,7 +109,7 @@ namespace {
         }
       }
       if (!idxs.empty()) {
-        for (std::vector<int>::const_iterator idx = idxs.begin(); idx != idxs.end(); ++idx) {
+        for (auto idx = idxs.begin(); idx != idxs.end(); ++idx) {
           if ((*idx) >= (int)flags.size())
             flags.resize(2 * flags.size());
           flags[*idx] |= value;
@@ -215,7 +213,7 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
   }
   LogDebug("produce") << "#jetInfos = " << jetInfos->size() << std::endl;
 
-  for (reco::PFJetCollection::const_iterator jet = jets->begin(); jet != jets->end(); ++jet) {
+  for (auto jet = jets->begin(); jet != jets->end(); ++jet) {
     if (jet->pt() > minJetPtForMEtCov_) {
       setPFCandidateFlag(*jet,
                          *pfCandidates,

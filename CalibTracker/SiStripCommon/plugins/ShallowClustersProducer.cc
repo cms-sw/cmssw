@@ -204,7 +204,7 @@ ShallowClustersProducer::NearDigis::NearDigis(const SiStripClusterInfo& info) {
 
 ShallowClustersProducer::NearDigis::NearDigis(const SiStripClusterInfo& info,
                                               const edm::DetSetVector<SiStripProcessedRawDigi>& rawProcessedDigis) {
-  edm::DetSetVector<SiStripProcessedRawDigi>::const_iterator digiframe = rawProcessedDigis.find(info.detId());
+  auto digiframe = rawProcessedDigis.find(info.detId());
   if (digiframe != rawProcessedDigis.end()) {
     max = digiframe->data.at(info.maxStrip()).adc();
     left = info.maxStrip() > uint16_t(0) ? digiframe->data.at(info.maxStrip() - 1).adc() : 0;

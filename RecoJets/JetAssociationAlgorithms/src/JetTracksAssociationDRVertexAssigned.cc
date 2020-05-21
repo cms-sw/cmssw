@@ -33,8 +33,8 @@ void JetTracksAssociationDRVertexAssigned::produce(reco::JetTracksAssociation::C
     const reco::TrackBaseRef ttr1(fTracks[i]);
 
     int trackhasvert = -1;
-    for (reco::VertexCollection::const_iterator iv = vertices.begin(); iv != vertices.end(); iv++) {
-      std::vector<reco::TrackBaseRef>::const_iterator rr = find((*iv).tracks_begin(), (*iv).tracks_end(), ttr1);
+    for (auto iv = vertices.begin(); iv != vertices.end(); iv++) {
+      auto rr = find((*iv).tracks_begin(), (*iv).tracks_end(), ttr1);
       if (rr != (*iv).tracks_end()) {
         trackhasvert = 1;
         trackvert[i] = (*iv).position().z();
@@ -59,7 +59,7 @@ void JetTracksAssociationDRVertexAssigned::produce(reco::JetTracksAssociation::C
     double jetPhi = jet->phi();
     double neweta = 0;
     for (unsigned t = 0; t < fTracks.size(); ++t) {
-      std::map<int, double>::iterator cur = trackvert.find(t);
+      auto cur = trackvert.find(t);
       if (cur != trackvert.end()) {
         neweta = jet->physicsEta((*cur).second, jetEta);
       } else {

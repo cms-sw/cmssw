@@ -299,8 +299,8 @@ void SiStripPartition::update(const SiStripConfigDb* const db) {
       // Find state for given partition
       tkStateVector states;
       states = df->getCurrentStates();
-      tkStateVector::const_iterator istate = states.begin();
-      tkStateVector::const_iterator jstate = states.end();
+      auto istate = states.begin();
+      auto jstate = states.end();
       while (istate != jstate) {
         if (*istate && partitionName_ == (*istate)->getPartitionName()) {
           break;
@@ -349,8 +349,8 @@ void SiStripPartition::update(const SiStripConfigDb* const db) {
           HashMapAnalysisVersions local_versions = df->getLocalAnalysisVersions(globalAnalysisV_);
 
           // Iterate through map< AnalysisType, pair<Major,Minor> >
-          HashMapAnalysisVersions::const_iterator ivers = local_versions.begin();
-          HashMapAnalysisVersions::const_iterator jvers = local_versions.end();
+          auto ivers = local_versions.begin();
+          auto jvers = local_versions.end();
           for (; ivers != jvers; ++ivers) {
             if (ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_FASTFEDCABLING) {
               fastCablingV_.first = ivers->second.first;
@@ -399,8 +399,8 @@ void SiStripPartition::update(const SiStripConfigDb* const db) {
           HashMapAnalysisVersions local_versions = df->getLocalAnalysisVersions(globalAnalysisV_);
 
           // Iterate through map< AnalysisType, pair<Major,Minor> >
-          HashMapAnalysisVersions::const_iterator ivers = local_versions.begin();
-          HashMapAnalysisVersions::const_iterator jvers = local_versions.end();
+          auto ivers = local_versions.begin();
+          auto jvers = local_versions.end();
           for (; ivers != jvers; ++ivers) {
             if (ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_FASTFEDCABLING) {
               if (!fastCablingV_.first && !fastCablingV_.second) {
@@ -568,8 +568,8 @@ void SiStripPartition::update(const SiStripConfigDb* const db) {
             // Retrieve global and local versions from state associated with given run
             globalAnalysisV_ = run->getAnalysisVersionMapPointerId();
             HashMapAnalysisVersions local_versions = df->getLocalAnalysisVersions(globalAnalysisV_);
-            HashMapAnalysisVersions::const_iterator ivers = local_versions.begin();
-            HashMapAnalysisVersions::const_iterator jvers = local_versions.end();
+            auto ivers = local_versions.begin();
+            auto jvers = local_versions.end();
             for (; ivers != jvers; ++ivers) {
               if (ivers->first == CommissioningAnalysisDescription::T_ANALYSIS_FASTFEDCABLING) {
                 fastCablingV_.first = ivers->second.first;
@@ -646,7 +646,7 @@ void SiStripPartition::update(const SiStripConfigDb* const db) {
               HashMapRunVersion local_versions = df->getAnalysisHistory(partitionName_, type);
 
               // Iterate through map< RunNumber, vector< pair<Major,Minor> > > to find appropriate run
-              HashMapRunVersion::const_iterator ivers = local_versions.end();
+              auto ivers = local_versions.end();
               if (runNumber_ == 0) {
                 ivers = --(local_versions.end());
               } else {
@@ -868,13 +868,13 @@ void SiStripPartition::print(std::stringstream& ss, bool using_db) const {
     ss << "  Input \"module.xml\" file    : " << inputModuleXml_ << std::endl
        << "  Input \"dcuinfo.xml\" file   : " << inputDcuInfoXml_ << std::endl
        << "  Input \"fec.xml\" file(s)    : ";
-    std::vector<std::string>::const_iterator ifec = inputFecXml_.begin();
+    auto ifec = inputFecXml_.begin();
     for (; ifec != inputFecXml_.end(); ifec++) {
       ss << *ifec << ", ";
     }
     ss << std::endl;
     ss << "  Input \"fed.xml\" file(s)    : ";
-    std::vector<std::string>::const_iterator ifed = inputFedXml_.begin();
+    auto ifed = inputFedXml_.begin();
     for (; ifed != inputFedXml_.end(); ifed++) {
       ss << *ifed << ", ";
     }

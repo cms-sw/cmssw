@@ -102,10 +102,8 @@ void SiPixelStatusProducer::beginLuminosityBlock(edm::LuminosityBlock const& lum
 
   // init the SiPixelDetectorStatus fDet and sensor size fSensors in the begining (when countLumi is zero)
   if (countLumi_ == 0) {
-    for (TrackerGeometry::DetContainer::const_iterator it = trackerGeometry_->dets().begin();
-         it != trackerGeometry_->dets().end();
-         it++) {
-      const PixelGeomDetUnit* pgdu = dynamic_cast<const PixelGeomDetUnit*>((*it));
+    for (auto it = trackerGeometry_->dets().begin(); it != trackerGeometry_->dets().end(); it++) {
+      const auto* pgdu = dynamic_cast<const PixelGeomDetUnit*>((*it));
       if (pgdu == nullptr)
         continue;
       DetId detId = (*it)->geographicalId();

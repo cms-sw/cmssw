@@ -168,8 +168,8 @@ void TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup) {
 
   // add event hypotheses for all given
   // hypothesis classes to the TtEvent
-  EventHypoIntToken hKey = hypKeyTokens_.begin();
-  EventHypoToken h = hypTokens_.begin();
+  auto hKey = hypKeyTokens_.begin();
+  auto h = hypTokens_.begin();
   for (; hKey != hypKeyTokens_.end(); ++hKey, ++h) {
     edm::Handle<int> key;
     evt.getByToken(*hKey, key);
@@ -178,7 +178,7 @@ void TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup) {
     evt.getByToken(*h, hypMatchVec);
 
     typedef std::vector<TtEvent::HypoCombPair>::const_iterator HypMatch;
-    for (HypMatch hm = hypMatchVec->begin(); hm != hypMatchVec->end(); ++hm) {
+    for (auto hm = hypMatchVec->begin(); hm != hypMatchVec->end(); ++hm) {
       ttEvent.addEventHypo((TtEvent::HypoClassKey&)*key, *hm);
     }
   }
@@ -266,9 +266,9 @@ void TtEvtBuilder<TtFullLeptonicEvent>::fillSpecific(TtFullLeptonicEvent& ttEven
 
 template <>
 void TtEvtBuilder<TtSemiLeptonicEvent>::fillSpecific(TtSemiLeptonicEvent& ttEvent, const edm::Event& evt) {
-  EventHypoIntToken hKey = hypKeyTokens_.begin();
-  EventHypoIntToken hNeutr = hypNeutrTokens_.begin();
-  EventHypoIntToken hJet = hypJetTokens_.begin();
+  auto hKey = hypKeyTokens_.begin();
+  auto hNeutr = hypNeutrTokens_.begin();
+  auto hJet = hypJetTokens_.begin();
   for (; hKey != hypKeyTokens_.end(); ++hKey, ++hNeutr, ++hJet) {
     edm::Handle<int> key;
     evt.getByToken(*hKey, key);

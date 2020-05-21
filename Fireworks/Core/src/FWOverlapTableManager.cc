@@ -94,7 +94,7 @@ void FWOverlapTableManager::importOverlaps(std::string iPath, double iPrecision)
   //   topVol->CheckOverlaps(iPrecision);
   icheck++;
   TGeoIterator git(topVol);
-  Entries_i eit = m_entries.begin();
+  auto eit = m_entries.begin();
   /*
      if (gGeoManager->GetListOfOverlaps()->GetEntriesFast()) {
      int newCnt =  gGeoManager->GetListOfOverlaps()->GetEntriesFast();
@@ -125,7 +125,7 @@ void FWOverlapTableManager::importOverlaps(std::string iPath, double iPrecision)
       checkingOverlaps = false;
     }
     // parent index
-    Entries_i pit = eit;
+    auto pit = eit;
     do {
       --pit;
       --(eit->m_parent);
@@ -334,7 +334,7 @@ void FWOverlapTableManager::printOverlaps(int idx) const {
   TEveGeoManagerHolder gmgr(FWGeometryTableViewManager::getGeoMangeur());
   std::pair<std::multimap<int, int>::const_iterator, std::multimap<int, int>::const_iterator> ppp;
   ppp = m_mapNodeOverlaps.equal_range(idx);
-  for (std::multimap<int, int>::const_iterator it2 = ppp.first; it2 != ppp.second; ++it2) {
+  for (auto it2 = ppp.first; it2 != ppp.second; ++it2) {
     const TGeoOverlap* ovl = (const TGeoOverlap*)gGeoManager->GetListOfOverlaps()->At((*it2).second);
     if (ovl)
       ovl->Print();
@@ -345,7 +345,7 @@ void FWOverlapTableManager::getOverlapTitles(int idx, TString& txt) const {
   TEveGeoManagerHolder gmgr(FWGeometryTableViewManager::getGeoMangeur());
   std::pair<std::multimap<int, int>::const_iterator, std::multimap<int, int>::const_iterator> ppp;
   ppp = m_mapNodeOverlaps.equal_range(idx);
-  for (std::multimap<int, int>::const_iterator it2 = ppp.first; it2 != ppp.second; ++it2) {
+  for (auto it2 = ppp.first; it2 != ppp.second; ++it2) {
     const TGeoOverlap* ovl = (const TGeoOverlap*)gGeoManager->GetListOfOverlaps()->At((*it2).second);
     {
       txt += "\n";
@@ -446,7 +446,7 @@ FWTableCellRendererBase* FWOverlapTableManager::cellRenderer(int iSortedRowNumbe
 
         TEveGeoManagerHolder gmgr(FWGeometryTableViewManager::getGeoMangeur());
 
-        for (std::multimap<int, int>::const_iterator it2 = ppp.first; it2 != ppp.second; ++it2) {
+        for (auto it2 = ppp.first; it2 != ppp.second; ++it2) {
           const TGeoOverlap* ovl = (const TGeoOverlap*)gGeoManager->GetListOfOverlaps()->At((*it2).second);
           if (ovl)
             x += Form("%s: %g ", ovl->IsOverlap() ? "Ovl" : "Extr", ovl->GetOverlap());

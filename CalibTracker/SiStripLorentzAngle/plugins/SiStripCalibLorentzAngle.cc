@@ -393,7 +393,7 @@ void SiStripCalibLorentzAngle::algoBeginJob(const edm::EventSetup& c) {
       gz = gposition.z();
 
       //get magnetic field
-      const StripGeomDetUnit* det = dynamic_cast<const StripGeomDetUnit*>(estracker->idToDetUnit(detid));
+      const auto* det = dynamic_cast<const StripGeomDetUnit*>(estracker->idToDetUnit(detid));
       if (det == nullptr) {
         edm::LogError("SiStripCalibLorentzAngle") << "[SiStripCalibLorentzAngle::getNewObject] the detID " << id
                                                   << " doesn't seem to belong to Tracker" << std::endl;
@@ -821,7 +821,7 @@ std::unique_ptr<SiStripLorentzAngle> SiStripCalibLorentzAngle::getNewObject() {
   auto LorentzAngle = std::make_unique<SiStripLorentzAngle>();
 
   if (!LayerDB) {
-    for (std::map<uint32_t, float>::iterator it = detid_la.begin(); it != detid_la.end(); it++) {
+    for (auto it = detid_la.begin(); it != detid_la.end(); it++) {
       float langle = it->second;
       if (!LorentzAngle->putLorentzAngle(it->first, langle))
         edm::LogError("SiStripCalibLorentzAngle")

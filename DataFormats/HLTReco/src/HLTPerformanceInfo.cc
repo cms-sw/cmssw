@@ -9,7 +9,7 @@ HLTPerformanceInfo::HLTPerformanceInfo() {
 }
 
 HLTPerformanceInfo::PathList::iterator HLTPerformanceInfo::findPath(const char* pathName) {
-  PathList::iterator l = std::find(paths_.begin(), paths_.end(), pathName);
+  auto l = std::find(paths_.begin(), paths_.end(), pathName);
   return l;
 }
 
@@ -36,7 +36,7 @@ double HLTPerformanceInfo::totalCPUTime() const {
 double HLTPerformanceInfo::totalPathTime(const size_t pathnumber) {
   double t = 0;
   unsigned int cnt = 0;
-  ModulesInPath::const_iterator i = paths_[pathnumber].begin();
+  auto i = paths_[pathnumber].begin();
   for (; i != paths_[pathnumber].end(); ++i) {
     if (cnt > paths_[pathnumber].status().index())
       break;
@@ -49,7 +49,7 @@ double HLTPerformanceInfo::totalPathTime(const size_t pathnumber) {
 double HLTPerformanceInfo::totalPathCPUTime(const size_t pathnumber) {
   double t = 0;
   unsigned int cnt = 0;
-  ModulesInPath::const_iterator i = paths_[pathnumber].begin();
+  auto i = paths_[pathnumber].begin();
   for (; i != paths_[pathnumber].end(); ++i) {
     if (cnt > paths_[pathnumber].status().index())
       break;
@@ -61,7 +61,7 @@ double HLTPerformanceInfo::totalPathCPUTime(const size_t pathnumber) {
 
 double HLTPerformanceInfo::longestModuleTime() const {
   double t = -1;
-  for (Modules::const_iterator i = modules_.begin(); i != modules_.end(); ++i) {
+  for (auto i = modules_.begin(); i != modules_.end(); ++i) {
     t = std::max(i->time(), t);
   }
   return t;
@@ -69,7 +69,7 @@ double HLTPerformanceInfo::longestModuleTime() const {
 
 double HLTPerformanceInfo::longestModuleCPUTime() const {
   double t = -1;
-  for (Modules::const_iterator i = modules_.begin(); i != modules_.end(); ++i) {
+  for (auto i = modules_.begin(); i != modules_.end(); ++i) {
     t = std::max(i->cputime(), t);
   }
   return t;
@@ -78,7 +78,7 @@ double HLTPerformanceInfo::longestModuleCPUTime() const {
 std::string HLTPerformanceInfo::longestModuleTimeName() const {
   double t = -1;
   std::string slowpoke("unknown");
-  for (Modules::const_iterator i = modules_.begin(); i != modules_.end(); ++i) {
+  for (auto i = modules_.begin(); i != modules_.end(); ++i) {
     if (i->time() > t) {
       slowpoke = i->name();
       t = i->time();
@@ -90,7 +90,7 @@ std::string HLTPerformanceInfo::longestModuleTimeName() const {
 std::string HLTPerformanceInfo::longestModuleCPUTimeName() const {
   double t = -1;
   std::string slowpoke("unknown");
-  for (Modules::const_iterator i = modules_.begin(); i != modules_.end(); ++i) {
+  for (auto i = modules_.begin(); i != modules_.end(); ++i) {
     if (i->cputime() > t) {
       slowpoke = i->name();
       t = i->cputime();
@@ -137,11 +137,11 @@ bool HLTPerformanceInfo::uniqueModule(const char* mod) const {
 }
 
 int HLTPerformanceInfo::moduleIndexInPath(const char* mod, const char* path) {
-  PathList::iterator p = findPath(path);
+  auto p = findPath(path);
   if (p == endPaths())
     return -1;  // Path doesn't exist
   int ctr = 0;
-  for (ModulesInPath::const_iterator j = p->begin(); j != p->end(); ++j) {
+  for (auto j = p->begin(); j != p->end(); ++j) {
     if (modules_.at(*j) == mod)
       return ctr;
     ctr++;
@@ -153,12 +153,12 @@ int HLTPerformanceInfo::moduleIndexInPath(const char* mod, const char* path) {
 // make sure not to wipe out ones that come after the last
 // module run on the particular path
 void HLTPerformanceInfo::setStatusOfModulesFromPath(const char* pathName) {
-  PathList::iterator p = findPath(pathName);
+  auto p = findPath(pathName);
   if (p == endPaths()) {
     return;  // do nothing
   }
   unsigned int ctr = 0;
-  for (ModulesInPath::const_iterator j = p->begin(); j != p->end(); ++j) {
+  for (auto j = p->begin(); j != p->end(); ++j) {
     edm::hlt::HLTState modState = edm::hlt::Ready;
     unsigned int modIndex = 0;
 

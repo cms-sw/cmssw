@@ -138,7 +138,7 @@ namespace reco {
             ecalPosV.clear();
             for (int i = 0; i < (int)myPFCands.size(); i++) {
               const ElementsInBlocks& elts = myPFCands[i]->elementsInBlocks();
-              for (ElementsInBlocks::const_iterator it = elts.begin(); it != elts.end(); ++it) {
+              for (auto it = elts.begin(); it != elts.end(); ++it) {
                 const reco::PFBlock& block = *(it->first);
                 unsigned indexOfElementInBlock = it->second;
                 const edm::OwnVector<reco::PFBlockElement>& elements = block.elements();

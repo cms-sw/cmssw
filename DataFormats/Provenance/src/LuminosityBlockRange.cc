@@ -90,8 +90,8 @@ namespace edm {
     if (lumiRange.size() <= 1U)
       return lumiRange;
     sort_all(lumiRange, sortByStartLuminosityBlockID);
-    for (std::vector<LuminosityBlockRange>::iterator i = lumiRange.begin() + 1, e = lumiRange.end(); i != e; ++i) {
-      std::vector<LuminosityBlockRange>::iterator iprev = i - 1;
+    for (auto i = lumiRange.begin() + 1, e = lumiRange.end(); i != e; ++i) {
+      auto iprev = i - 1;
       if (merge(*iprev, *i)) {
         i = lumiRange.erase(iprev);
         e = lumiRange.end();

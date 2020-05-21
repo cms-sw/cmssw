@@ -379,11 +379,10 @@ void BasicHepMCValidation::analyze(const edm::Event &iEvent, const edm::EventSet
       vrtxRadius->Fill(vrtx->point3d().perp(), weight);
     }
     ///loop on vertex particles
-    HepMC::GenVertex::particles_out_const_iterator vrtxPtclBegin = vrtx->particles_out_const_begin();
-    HepMC::GenVertex::particles_out_const_iterator vrtxPtclEnd = vrtx->particles_out_const_end();
+    auto vrtxPtclBegin = vrtx->particles_out_const_begin();
+    auto vrtxPtclEnd = vrtx->particles_out_const_end();
     outVrtxStablePtclNum = 0;
-    for (HepMC::GenVertex::particles_out_const_iterator vrtxPtclIt = vrtxPtclBegin; vrtxPtclIt != vrtxPtclEnd;
-         ++vrtxPtclIt) {
+    for (auto vrtxPtclIt = vrtxPtclBegin; vrtxPtclIt != vrtxPtclEnd; ++vrtxPtclIt) {
       HepMC::GenParticle const *vrtxPtcl = *vrtxPtclIt;
       if (vrtxPtcl->status() == 1) {
         ++outVrtxStablePtclNum;

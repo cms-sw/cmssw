@@ -39,7 +39,7 @@ void MuonSeedFinder::seeds(const MuonTransientTrackingRecHit::MuonRecHitContaine
   //  MuonDumper debug;
 
   unsigned int num_bar = 0;
-  for (MuonRecHitContainer::const_iterator iter = hits.begin(); iter != hits.end(); iter++) {
+  for (auto iter = hits.begin(); iter != hits.end(); iter++) {
     if ((*iter)->isDT()) {
       theBarrel.add(*iter);
       theOverlap.add(*iter);
@@ -48,7 +48,7 @@ void MuonSeedFinder::seeds(const MuonTransientTrackingRecHit::MuonRecHitContaine
   }
 
   unsigned int num_endcap = 0;
-  for (MuonRecHitContainer::const_iterator iter = hits.begin(); iter != hits.end(); iter++) {
+  for (auto iter = hits.begin(); iter != hits.end(); iter++) {
     if ((*iter)->isCSC() || (*iter)->isME0()) {
       theEndcap.add(*iter);
       theOverlap.add(*iter);

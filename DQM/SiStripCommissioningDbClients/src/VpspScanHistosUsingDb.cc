@@ -87,9 +87,9 @@ void VpspScanHistosUsingDb::update(SiStripConfigDb::DeviceDescriptionsRange devi
     SiStripFecKey fec_key(addr.fecCrate_, addr.fecSlot_, addr.fecRing_, addr.ccuAddr_, addr.ccuChan_, ichan + 1);
 
     // Iterate through all channels and extract LLD settings
-    Analyses::const_iterator iter = data(allowSelectiveUpload_).find(fec_key.key());
+    auto iter = data(allowSelectiveUpload_).find(fec_key.key());
     if (iter != data(allowSelectiveUpload_).end()) {
-      VpspScanAnalysis* anal = dynamic_cast<VpspScanAnalysis*>(iter->second);
+      auto* anal = dynamic_cast<VpspScanAnalysis*>(iter->second);
       if (!anal) {
         edm::LogError(mlDqmClient_) << "[VpspScanHistosUsingDb::" << __func__ << "]"
                                     << " NULL pointer to analysis object!";
@@ -125,7 +125,7 @@ void VpspScanHistosUsingDb::update(SiStripConfigDb::DeviceDescriptionsRange devi
 // -----------------------------------------------------------------------------
 /** */
 void VpspScanHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& desc, Analysis analysis) {
-  VpspScanAnalysis* anal = dynamic_cast<VpspScanAnalysis*>(analysis->second);
+  auto* anal = dynamic_cast<VpspScanAnalysis*>(analysis->second);
   if (!anal) {
     return;
   }
@@ -161,8 +161,8 @@ void VpspScanHistosUsingDb::create(SiStripConfigDb::AnalysisDescriptionsV& desc,
     // Add comments
     typedef std::vector<std::string> Strings;
     Strings errors = anal->getErrorCodes();
-    Strings::const_iterator istr = errors.begin();
-    Strings::const_iterator jstr = errors.end();
+    auto istr = errors.begin();
+    auto jstr = errors.end();
     for (; istr != jstr; ++istr) {
       tmp->addComments(*istr);
     }

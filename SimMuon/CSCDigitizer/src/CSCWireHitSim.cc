@@ -18,7 +18,7 @@ std::vector<CSCDetectorHit> &CSCWireHitSim::simulate(const CSCLayer *layer,
   const CSCLayerGeometry *geom = layer->geometry();
 
   theNewWireHits.clear();
-  for (edm::PSimHitContainer::const_iterator hitItr = simHits.begin(); hitItr != simHits.end(); ++hitItr) {
+  for (auto hitItr = simHits.begin(); hitItr != simHits.end(); ++hitItr) {
     std::vector<LocalPoint> ionClusters = getIonizationClusters(*hitItr, layer, engine);
 
     unsigned nClusters = ionClusters.size();
@@ -54,7 +54,7 @@ std::vector<LocalPoint> CSCWireHitSim::getIonizationClusters(const PSimHit &simH
   std::vector<LocalPoint> results;  // start empty
 
   int j = 0;
-  for (std::vector<LocalPoint>::const_iterator pointItr = positions.begin(); pointItr != positions.end(); ++pointItr) {
+  for (auto pointItr = positions.begin(); pointItr != positions.end(); ++pointItr) {
     ++j;
     // some verification
     if (layer->geometry()->inside(*pointItr)) {

@@ -71,14 +71,14 @@ void L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByLabel(m_energy_tag, internalJetsColl);
 
   double etTot = 0.0;
-  for (L1GctEtTotalCollection::const_iterator jbx = sumEtColl->begin(); jbx != sumEtColl->end(); jbx++) {
+  for (auto jbx = sumEtColl->begin(); jbx != sumEtColl->end(); jbx++) {
     if (jbx->bx() == 0) {
       etTot = static_cast<double>(jbx->et());
     }
   }
 
   double etHad = 0.0;
-  for (L1GctEtHadCollection::const_iterator jbx = sumHtColl->begin(); jbx != sumHtColl->end(); jbx++) {
+  for (auto jbx = sumHtColl->begin(); jbx != sumHtColl->end(); jbx++) {
     if (jbx->bx() == 0) {
       etHad = static_cast<double>(jbx->et());
     }
@@ -86,7 +86,7 @@ void L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
   double etMiss = 0.0;
   double etMAng = 0.0;
-  for (L1GctEtMissCollection::const_iterator jbx = missEtColl->begin(); jbx != missEtColl->end(); jbx++) {
+  for (auto jbx = missEtColl->begin(); jbx != missEtColl->end(); jbx++) {
     if (jbx->bx() == 0) {
       etMiss = static_cast<double>(jbx->et());
       int phibin = jbx->phi();
@@ -101,7 +101,7 @@ void L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   double etTotFromRegions = 0.0;
   double exTotFromRegions = 0.0;
   double eyTotFromRegions = 0.0;
-  for (L1CaloRegionCollection::const_iterator jrg = inputColl->begin(); jrg != inputColl->end(); jrg++) {
+  for (auto jrg = inputColl->begin(); jrg != inputColl->end(); jrg++) {
     if (jrg->bx() == 0) {
       double rgEt = static_cast<double>(jrg->et()) * lsbForEt;
       double rgPhibin = static_cast<double>(jrg->id().iphi());
@@ -116,7 +116,7 @@ void L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   double htMissGct = 0.0;
   double htMissAng = 0.0;
   double htMissGeV = 0.0;
-  for (L1GctHtMissCollection::const_iterator jbx = missHtColl->begin(); jbx != missHtColl->end(); jbx++) {
+  for (auto jbx = missHtColl->begin(); jbx != missHtColl->end(); jbx++) {
     if (jbx->bx() == 0) {
       htMissGct = static_cast<double>(jbx->et());
       htMissGeV = htMissScale->et(jbx->et());
@@ -131,8 +131,7 @@ void L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   double htFromJets = 0.0;
   double hxFromJets = 0.0;
   double hyFromJets = 0.0;
-  for (L1GctInternJetDataCollection::const_iterator jet = internalJetsColl->begin(); jet != internalJetsColl->end();
-       jet++) {
+  for (auto jet = internalJetsColl->begin(); jet != internalJetsColl->end(); jet++) {
     if (jet->bx() == 0 && !jet->empty()) {
       unsigned jetEtGct = jet->et();
       double jetEt = static_cast<double>(jetEtGct);
@@ -194,7 +193,7 @@ void L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByLabel(m_energy_tag, HFEtSumsColl);
   iEvent.getByLabel(m_energy_tag, HFCountsColl);
 
-  for (L1GctHFRingEtSumsCollection::const_iterator es = HFEtSumsColl->begin(); es != HFEtSumsColl->end(); es++) {
+  for (auto es = HFEtSumsColl->begin(); es != HFEtSumsColl->end(); es++) {
     if (es->bx() == 0) {
       theHfRing0EtSumPositiveEta->Fill(hfRingEtScale->et(es->etSum(0)));
       theHfRing0EtSumNegativeEta->Fill(hfRingEtScale->et(es->etSum(1)));
@@ -203,7 +202,7 @@ void L1GctValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     }
   }
 
-  for (L1GctHFBitCountsCollection::const_iterator bc = HFCountsColl->begin(); bc != HFCountsColl->end(); bc++) {
+  for (auto bc = HFCountsColl->begin(); bc != HFCountsColl->end(); bc++) {
     if (bc->bx() == 0) {
       theHfRing0CountPositiveEta->Fill(bc->bitCount(0));
       theHfRing0CountNegativeEta->Fill(bc->bitCount(1));

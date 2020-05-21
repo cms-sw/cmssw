@@ -86,8 +86,8 @@ int DTHVHandler::get(const DTWireId& id, int& flagA, int& flagC, int& flagS) con
 
 int DTHVHandler::offChannelsNumber() const {
   int offNum = 0;
-  DTHVStatus::const_iterator iter = objectPtr->begin();
-  DTHVStatus::const_iterator iend = objectPtr->end();
+  auto iter = objectPtr->begin();
+  auto iend = objectPtr->end();
   while (iter != iend) {
     const std::pair<DTHVStatusId, DTHVStatusData>& entry = *iter++;
     DTHVStatusId hvId = entry.first;
@@ -100,8 +100,8 @@ int DTHVHandler::offChannelsNumber() const {
 
 int DTHVHandler::offChannelsNumber(const DTChamberId& id) const {
   int offNum = 0;
-  DTHVStatus::const_iterator iter = objectPtr->begin();
-  DTHVStatus::const_iterator iend = objectPtr->end();
+  auto iter = objectPtr->begin();
+  auto iend = objectPtr->end();
   /*
   while ( iter != iend ) {
     const std::pair<DTHVStatusId,DTHVStatusData>& entry = *iter++;

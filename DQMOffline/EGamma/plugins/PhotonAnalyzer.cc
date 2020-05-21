@@ -1535,7 +1535,7 @@ void PhotonAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& esup) {
     double deltaRMin = 1000.;
     double deltaRMax = 0.05;  //sets deltaR threshold for matching photons to trigger objects
 
-    for (vector<int>::const_iterator objectKey = Keys.begin(); objectKey != Keys.end();
+    for (auto objectKey = Keys.begin(); objectKey != Keys.end();
          objectKey++) {  //loop over keys to objects that fired photon triggers
 
       deltaR = reco::deltaR(triggerEvent.getObjects()[(*objectKey)].eta(),
@@ -1816,12 +1816,10 @@ void PhotonAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& esup) {
         for (reco::CaloCluster_iterator bcIt = aPho->superCluster()->clustersBegin();
              bcIt != aPho->superCluster()->clustersEnd();
              ++bcIt) {  //loop over basic clusters in SC
-          for (vector<pair<DetId, float> >::const_iterator rhIt = (*bcIt)->hitsAndFractions().begin();
-               rhIt != (*bcIt)->hitsAndFractions().end();
+          for (auto rhIt = (*bcIt)->hitsAndFractions().begin(); rhIt != (*bcIt)->hitsAndFractions().end();
                ++rhIt) {  //loop over rec hits in basic cluster
 
-            for (EcalRecHitCollection::const_iterator it = ecalRecHitCollection.begin();
-                 it != ecalRecHitCollection.end();
+            for (auto it = ecalRecHitCollection.begin(); it != ecalRecHitCollection.end();
                  ++it) {                        //loop over all rec hits to find the right ones
               if (rhIt->first == (*it).id()) {  //found the matching rechit
                 if ((*it).recoFlag() == 9) {    //has a bad channel

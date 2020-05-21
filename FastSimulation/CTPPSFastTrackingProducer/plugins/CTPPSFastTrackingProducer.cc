@@ -108,7 +108,7 @@ CTPPSFastTrackingProducer::CTPPSFastTrackingProducer(const edm::ParameterSet& iC
   //
 }
 CTPPSFastTrackingProducer::~CTPPSFastTrackingProducer() {
-  for (std::map<unsigned int, H_BeamParticle*>::iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it) {
+  for (auto it = m_beamPart.begin(); it != m_beamPart.end(); ++it) {
     delete (*it).second;
   }
 }
@@ -128,7 +128,7 @@ void CTPPSFastTrackingProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
   std::unique_ptr<CTPPSFastTrackContainer> output_tracks(new CTPPSFastTrackContainer);
   int n = 0;
-  for (std::vector<CTPPSFastTrack>::const_iterator i = theCTPPSFastTrack.begin(); i != theCTPPSFastTrack.end(); i++) {
+  for (auto i = theCTPPSFastTrack.begin(); i != theCTPPSFastTrack.end(); i++) {
     output_tracks->push_back(*i);
     n += 1;
   }
@@ -354,7 +354,7 @@ void CTPPSFastTrackingProducer::FastReco(int Direction, H_RecRPObject* station) 
   for (int i = 0; i < 8; i++) {
     vToFCellWidth.push_back(fToFCellWidth[i]);
   }
-  CTPPSToFDetector* ToF = new CTPPSToFDetector(
+  auto* ToF = new CTPPSToFDetector(
       fToFNCellX, fToFNCellY, vToFCellWidth, fToFCellHeight, fToFPitchX, fToFPitchY, pos_tof, fTimeSigma);
   if (Direction > 0) {
     Trk1 = &(TrkStation_F->first);

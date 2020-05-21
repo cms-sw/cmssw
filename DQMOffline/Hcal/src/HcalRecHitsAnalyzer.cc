@@ -1010,7 +1010,7 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
     // HBHE
     edm::Handle<HBHERecHitCollection> hbhecoll;
     if (ev.getByToken(tok_hbhe_, hbhecoll)) {
-      for (HBHERecHitCollection::const_iterator j = hbhecoll->begin(); j != hbhecoll->end(); j++) {
+      for (auto j = hbhecoll->begin(); j != hbhecoll->end(); j++) {
         HcalDetId cell(j->id());
         const HcalGeometry *cellGeometry = dynamic_cast<const HcalGeometry *>(geometry->getSubdetectorGeometry(cell));
         double eta = cellGeometry->getPosition(cell).eta();
@@ -1060,7 +1060,7 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
     // HF
     edm::Handle<HFRecHitCollection> hfcoll;
     if (ev.getByToken(tok_hf_, hfcoll)) {
-      for (HFRecHitCollection::const_iterator j = hfcoll->begin(); j != hfcoll->end(); j++) {
+      for (auto j = hfcoll->begin(); j != hfcoll->end(); j++) {
         HcalDetId cell(j->id());
         auto cellGeometry = (geometry->getSubdetectorGeometry(cell))->getGeometry(cell);
         double eta = cellGeometry->getPosition().eta();
@@ -1108,7 +1108,7 @@ void HcalRecHitsAnalyzer::fillRecHitsTmp(int subdet_, edm::Event const &ev) {
   if (subdet_ == 3 || subdet_ == 5 || subdet_ == 6 || subdet_ == 0) {
     edm::Handle<HORecHitCollection> hocoll;
     if (ev.getByToken(tok_ho_, hocoll)) {
-      for (HORecHitCollection::const_iterator j = hocoll->begin(); j != hocoll->end(); j++) {
+      for (auto j = hocoll->begin(); j != hocoll->end(); j++) {
         HcalDetId cell(j->id());
         auto cellGeometry = (geometry->getSubdetectorGeometry(cell))->getGeometry(cell);
         double eta = cellGeometry->getPosition().eta();

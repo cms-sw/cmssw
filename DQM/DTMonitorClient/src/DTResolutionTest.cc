@@ -77,7 +77,7 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
       bookHistos(ibooker, wheel);
     }
     vector<const DTChamber*> chambers = muonGeom->chambers();
-    for (vector<const DTChamber*>::const_iterator chamber = chambers.begin(); chamber != chambers.end(); ++chamber) {
+    for (auto chamber = chambers.begin(); chamber != chambers.end(); ++chamber) {
       bookHistos(ibooker, (*chamber)->id());
     }
   }
@@ -92,19 +92,16 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   if (nLumiSegs % prescaleFactor != 0)
     return;
 
-  for (map<int, MonitorElement*>::const_iterator histo = wheelMeanHistos.begin(); histo != wheelMeanHistos.end();
-       histo++) {
+  for (auto histo = wheelMeanHistos.begin(); histo != wheelMeanHistos.end(); histo++) {
     (*histo).second->Reset();
   }
   if (parameters.getUntrackedParameter<bool>("sigmaTest")) {
-    for (map<int, MonitorElement*>::const_iterator histo = wheelSigmaHistos.begin(); histo != wheelSigmaHistos.end();
-         histo++) {
+    for (auto histo = wheelSigmaHistos.begin(); histo != wheelSigmaHistos.end(); histo++) {
       (*histo).second->Reset();
     }
   }
   if (parameters.getUntrackedParameter<bool>("slopeTest")) {
-    for (map<int, MonitorElement*>::const_iterator histo = wheelSlopeHistos.begin(); histo != wheelSlopeHistos.end();
-         histo++) {
+    for (auto histo = wheelSlopeHistos.begin(); histo != wheelSlopeHistos.end(); histo++) {
       (*histo).second->Reset();
     }
   }
@@ -159,8 +156,8 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
 
   edm::LogVerbatim("resolution") << "[DTResolutionTest]: " << nLumiSegs << " updates";
 
-  vector<const DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
-  vector<const DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
+  auto ch_it = muonGeom->chambers().begin();
+  auto ch_end = muonGeom->chambers().end();
 
   edm::LogVerbatim("resolution") << "[DTResolutionTest]: Residual Distribution tests results";
 
@@ -178,8 +175,8 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     if (chID.station() == 4)
       entry = 9;
 
-    vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin();
-    vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end();
+    auto sl_it = (*ch_it)->superLayers().begin();
+    auto sl_end = (*ch_it)->superLayers().end();
 
     for (; sl_it != sl_end; ++sl_it) {
       DTSuperLayerId slID = (*sl_it)->id();
@@ -251,8 +248,7 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
 
   // Mean test
   string MeanCriterionName = parameters.getUntrackedParameter<string>("meanTestName", "ResidualsMeanInRange");
-  for (map<pair<int, int>, MonitorElement*>::const_iterator hMean = MeanHistos.begin(); hMean != MeanHistos.end();
-       hMean++) {
+  for (auto hMean = MeanHistos.begin(); hMean != MeanHistos.end(); hMean++) {
     const QReport* theMeanQReport = (*hMean).second->getQReport(MeanCriterionName);
     stringstream wheel;
     wheel << (*hMean).first.first;
@@ -261,8 +257,7 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
     // Report the channels failing the test on the mean
     if (theMeanQReport) {
       vector<dqm::me_util::Channel> badChannels = theMeanQReport->getBadChannels();
-      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-           channel++) {
+      for (auto channel = badChannels.begin(); channel != badChannels.end(); channel++) {
         edm::LogError("resolution") << "Bad mean channel: wh: " << wheel.str()
                                     << " st: " << stationFromBin((*channel).getBin()) << " sect: " << sector.str()
                                     << " sl: " << slFromBin((*channel).getBin())
@@ -300,8 +295,7 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   // Sigma test
   if (parameters.getUntrackedParameter<bool>("sigmaTest")) {
     string SigmaCriterionName = parameters.getUntrackedParameter<string>("sigmaTestName", "ResidualsSigmaInRange");
-    for (map<pair<int, int>, MonitorElement*>::const_iterator hSigma = SigmaHistos.begin(); hSigma != SigmaHistos.end();
-         hSigma++) {
+    for (auto hSigma = SigmaHistos.begin(); hSigma != SigmaHistos.end(); hSigma++) {
       const QReport* theSigmaQReport = (*hSigma).second->getQReport(SigmaCriterionName);
       stringstream wheel;
       wheel << (*hSigma).first.first;
@@ -309,8 +303,7 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
       sector << (*hSigma).first.second;
       if (theSigmaQReport) {
         vector<dqm::me_util::Channel> badChannels = theSigmaQReport->getBadChannels();
-        for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-             channel++) {
+        for (auto channel = badChannels.begin(); channel != badChannels.end(); channel++) {
           edm::LogError("resolution") << "Bad sigma: wh: " << wheel.str()
                                       << " st: " << stationFromBin((*channel).getBin()) << " sect: " << sector.str()
                                       << " sl: " << slFromBin((*channel).getBin())
@@ -342,8 +335,7 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
   // Slope test
   if (parameters.getUntrackedParameter<bool>("slopeTest")) {
     string SlopeCriterionName = parameters.getUntrackedParameter<string>("slopeTestName", "ResidualsSlopeInRange");
-    for (map<pair<int, int>, MonitorElement*>::const_iterator hSlope = SlopeHistos.begin(); hSlope != SlopeHistos.end();
-         hSlope++) {
+    for (auto hSlope = SlopeHistos.begin(); hSlope != SlopeHistos.end(); hSlope++) {
       const QReport* theSlopeQReport = (*hSlope).second->getQReport(SlopeCriterionName);
       stringstream wheel;
       wheel << (*hSlope).first.first;
@@ -351,8 +343,7 @@ void DTResolutionTest::dqmEndLuminosityBlock(DQMStore::IBooker& ibooker,
       sector << (*hSlope).first.second;
       if (theSlopeQReport) {
         vector<dqm::me_util::Channel> badChannels = theSlopeQReport->getBadChannels();
-        for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); channel != badChannels.end();
-             channel++) {
+        for (auto channel = badChannels.begin(); channel != badChannels.end(); channel++) {
           edm::LogError("resolution") << "Bad slope: wh: " << wheel.str()
                                       << " st: " << stationFromBin((*channel).getBin()) << " sect: " << sector.str()
                                       << " sl: " << slFromBin((*channel).getBin())

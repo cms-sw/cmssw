@@ -88,7 +88,7 @@ void FWGlimpseView::createAxis() {
   Color_t fcol = kGray + 1;
 
   // X axis
-  TEveStraightLineSet* xAxis = new TEveStraightLineSet("GlimpseXAxis");
+  auto* xAxis = new TEveStraightLineSet("GlimpseXAxis");
   xAxis->SetPickable(kTRUE);
   xAxis->SetTitle("Energy Scale, 100 GeV, X-axis (LHC center)");
   xAxis->SetLineStyle(3);
@@ -103,7 +103,7 @@ void FWGlimpseView::createAxis() {
   axisHolder->AddElement(xTxt);
 
   // Y axis
-  TEveStraightLineSet* yAxis = new TEveStraightLineSet("GlimpseYAxis");
+  auto* yAxis = new TEveStraightLineSet("GlimpseYAxis");
   yAxis->SetPickable(kTRUE);
   yAxis->SetTitle("Energy Scale, 100 GeV, Y-axis (upward)");
   yAxis->SetLineColor(fcol);
@@ -118,7 +118,7 @@ void FWGlimpseView::createAxis() {
   axisHolder->AddElement(yTxt);
 
   // Z axis
-  TEveStraightLineSet* zAxis = new TEveStraightLineSet("GlimpseZAxis");
+  auto* zAxis = new TEveStraightLineSet("GlimpseZAxis");
   zAxis->SetPickable(kTRUE);
   zAxis->SetTitle("Energy Scale, 100 GeV, Z-axis (west, along beam)");
   zAxis->SetLineColor(fcol);
@@ -152,14 +152,14 @@ void FWGlimpseView::showCylinder() {
 
 void FWGlimpseView::addTo(FWConfiguration& iTo) const {
   FWEveView::addTo(iTo);
-  TGLPerspectiveCamera* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->CurrentCamera()));
+  auto* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->CurrentCamera()));
   if (camera)
     addToPerspectiveCamera(camera, typeName(), iTo);
 }
 
 void FWGlimpseView::setFrom(const FWConfiguration& iFrom) {
   FWEveView::setFrom(iFrom);
-  TGLPerspectiveCamera* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->CurrentCamera()));
+  auto* camera = dynamic_cast<TGLPerspectiveCamera*>(&(viewerGL()->CurrentCamera()));
   if (camera)
     setFromPerspectiveCamera(camera, typeName(), iFrom);
 }

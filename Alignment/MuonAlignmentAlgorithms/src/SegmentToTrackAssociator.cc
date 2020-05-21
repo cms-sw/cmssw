@@ -86,19 +86,16 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentToTrackAssociator::assoc
         bool isNewChamber = true;
 
         //Loop over segments already included in the vector of segments in the actual track
-        for (std::vector<int>::iterator positionIt = positionDT.begin(); positionIt != positionDT.end(); positionIt++) {
+        for (auto positionIt = positionDT.begin(); positionIt != positionDT.end(); positionIt++) {
           //If this segment has been used before isNewChamber = false
           if (NumberOfDTSegment == *positionIt)
             isNewChamber = false;
         }
 
         //Loop over vectors of segments associated to previous tracks
-        for (std::vector<std::vector<int> >::iterator collect = indexCollectionDT.begin();
-             collect != indexCollectionDT.end();
-             ++collect) {
+        for (auto collect = indexCollectionDT.begin(); collect != indexCollectionDT.end(); ++collect) {
           //Loop over segments associated to a track
-          for (std::vector<int>::iterator positionIt = (*collect).begin(); positionIt != (*collect).end();
-               positionIt++) {
+          for (auto positionIt = (*collect).begin(); positionIt != (*collect).end(); positionIt++) {
             //If this segment was used in a previos track then isNewChamber = false
             if (NumberOfDTSegment == *positionIt)
               isNewChamber = false;
@@ -133,19 +130,15 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentToTrackAssociator::assoc
         //By default the chamber associated to the segment is new
         bool isNewChamber = true;
         //Loop over segments in the current track
-        for (std::vector<int>::iterator positionIt = positionCSC.begin(); positionIt != positionCSC.end();
-             positionIt++) {
+        for (auto positionIt = positionCSC.begin(); positionIt != positionCSC.end(); positionIt++) {
           //If this segment has been used then newchamber = false
           if (NumberOfCSCSegment == *positionIt)
             isNewChamber = false;
         }
         //Loop over vectors of segments in previous tracks
-        for (std::vector<std::vector<int> >::iterator collect = indexCollectionCSC.begin();
-             collect != indexCollectionCSC.end();
-             ++collect) {
+        for (auto collect = indexCollectionCSC.begin(); collect != indexCollectionCSC.end(); ++collect) {
           //Loop over segments in a track
-          for (std::vector<int>::iterator positionIt = (*collect).begin(); positionIt != (*collect).end();
-               positionIt++) {
+          for (auto positionIt = (*collect).begin(); positionIt != (*collect).end(); positionIt++) {
             //If the segment was used in a previous track isNewChamber = false
             if (NumberOfCSCSegment == *positionIt)
               isNewChamber = false;

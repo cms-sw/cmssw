@@ -115,7 +115,7 @@ public:
       return nullptr;
     const container_type *c = reinterpret_cast<const container_type *>(getDataPtr());
     size_t collectionOffset = 0;
-    for (typename container_type::const_iterator ci = c->begin(), ce = c->end(); ci != ce; ++ci) {
+    for (auto ci = c->begin(), ce = c->end(); ci != ce; ++ci) {
       size_t i = iIndex - collectionOffset;
       if (i < ci->size())
         return &(ci->operator[](i));
@@ -131,7 +131,7 @@ public:
     const container_type *c = reinterpret_cast<const container_type *>(getDataPtr());
     size_t finalSize = 0;
 
-    for (typename container_type::const_iterator i = c->begin(), e = c->end(); i != e; ++i)
+    for (auto i = c->begin(), e = c->end(); i != e; ++i)
       finalSize += i->size();
 
     return finalSize;

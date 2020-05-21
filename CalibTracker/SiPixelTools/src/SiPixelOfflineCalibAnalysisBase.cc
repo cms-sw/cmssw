@@ -144,7 +144,7 @@ void SiPixelOfflineCalibAnalysisBase::endJob() {
 const std::vector<short>* SiPixelOfflineCalibAnalysisBase::getVcalValues() { return &vCalValues_; }
 
 std::string SiPixelOfflineCalibAnalysisBase::translateDetIdToString(uint32_t detid) {
-  std::map<uint32_t, std::string>::iterator detNameIter = detIdNames_.find(detid);
+  auto detNameIter = detIdNames_.find(detid);
   if (detNameIter != detIdNames_.end()) {
     return detNameIter->second;
   }
@@ -198,7 +198,7 @@ SiPixelOfflineCalibAnalysisBase::MonitorElement* SiPixelOfflineCalibAnalysisBase
     uint32_t detid, std::string name, std::string title) {
   DetId detId(detid);
   const TrackerGeometry& theTracker(*geom_);
-  const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId));
+  const auto* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId));
   int maxcol = theGeomDet->specificTopology().ncolumns();
   int maxrow = theGeomDet->specificTopology().nrows();
 

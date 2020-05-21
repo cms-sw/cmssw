@@ -231,7 +231,7 @@ int HcalAssistant::getListOfChannelsFromDb() {
 
 int HcalAssistant::getGeomId(int _rawid) {
   if (listIsRead) {
-    std::map<int, int>::const_iterator _geomId = rawid_to_geom.find(_rawid);
+    auto _geomId = rawid_to_geom.find(_rawid);
     if (_geomId != rawid_to_geom.end()) {
       return _geomId->second;
     } else
@@ -242,7 +242,7 @@ int HcalAssistant::getGeomId(int _rawid) {
 
 int HcalAssistant::getRawId(int _geomId) {
   if (listIsRead) {
-    std::map<int, int>::const_iterator _rawid = geom_to_rawid.find(_geomId);
+    auto _rawid = geom_to_rawid.find(_geomId);
     if (_rawid != geom_to_rawid.end()) {
       return _rawid->second;
     } else

@@ -94,7 +94,7 @@ void PATTriggerEventProducer::beginRun(const Run& iRun, const EventSetup& iSetup
     ProcessConfiguration processConfiguration;
     ParameterSet processPSet;
     // unbroken loop, which relies on time ordering (accepts the last found entry)
-    for (ProcessHistory::const_iterator iHist = processHistory.begin(); iHist != processHistory.end(); ++iHist) {
+    for (auto iHist = processHistory.begin(); iHist != processHistory.end(); ++iHist) {
       if (processHistory.getConfigurationForProcess(iHist->processName(), processConfiguration) &&
           pset::Registry::instance()->getMapped(processConfiguration.parameterSetID(), processPSet) &&
           processPSet.exists(tagTriggerEvent_.label())) {

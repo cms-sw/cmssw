@@ -80,7 +80,7 @@ void L2TauPixelIsoTagProducer::produce(edm::StreamID sid, edm::Event& ev, const 
 
       // to calculate isolation, use only tracks that were assigned to the vertex
       float iso = 0.f;
-      for (vector<TrackBaseRef>::const_iterator tr = pv->tracks_begin(); tr != pv->tracks_end(); ++tr) {
+      for (auto tr = pv->tracks_begin(); tr != pv->tracks_end(); ++tr) {
         if ((*tr)->pt() < m_trackMinPt)
           continue;
         if ((*tr)->numberOfValidHits() < m_trackMinNHits)

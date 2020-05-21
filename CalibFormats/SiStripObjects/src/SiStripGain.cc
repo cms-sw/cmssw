@@ -49,9 +49,9 @@ void SiStripGain::fillNewGain(const SiStripApvGain *apvgain,
   // values/factor.
   std::vector<uint32_t> detIds;
   apvgain->getDetIds(detIds);
-  std::vector<uint32_t>::const_iterator it = detIds.begin();
+  auto it = detIds.begin();
   for (; it != detIds.end(); ++it) {
-    std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator detInfoIt = DetInfos.find(*it);
+    auto detInfoIt = DetInfos.find(*it);
     if (detInfoIt != DetInfos.end()) {
       std::vector<float> theSiStripVector;
 
@@ -111,7 +111,7 @@ const SiStripApvGain::Range SiStripGain::getRange(const uint32_t &DetId, const u
 void SiStripGain::printDebug(std::stringstream &ss, const TrackerTopology * /*trackerTopo*/) const {
   std::vector<unsigned int> detIds;
   getDetIds(detIds);
-  std::vector<unsigned int>::const_iterator detid = detIds.begin();
+  auto detid = detIds.begin();
   ss << "Number of detids " << detIds.size() << std::endl;
 
   for (; detid != detIds.end(); ++detid) {
@@ -129,7 +129,7 @@ void SiStripGain::printSummary(std::stringstream &ss, const TrackerTopology *tra
 
   std::vector<unsigned int> detIds;
   getDetIds(detIds);
-  std::vector<uint32_t>::const_iterator detid = detIds.begin();
+  auto detid = detIds.begin();
   for (; detid != detIds.end(); ++detid) {
     SiStripApvGain::Range range = getRange(*detid);
     for (int it = 0; it < range.second - range.first; ++it) {

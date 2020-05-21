@@ -143,7 +143,7 @@ int XMLLUTLoader::createLoader(const std::vector<int>& crate_number, const std::
   XMLLUTLoader::lutDBConfig conf;
   XMLLUTLoader::checksumsDBConfig CSconf;
 
-  for (std::vector<std::string>::const_iterator _file = file_name.begin(); _file != file_name.end(); _file++) {
+  for (auto _file = file_name.begin(); _file != file_name.end(); _file++) {
     conf.trig_prim_lookuptbl_data_file = *_file;
     conf.trig_prim_lookuptbl_data_file += ".dat";
     conf.crate = crate_number[_file - file_name.begin()];

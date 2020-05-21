@@ -83,7 +83,7 @@ double DreamSD::getEnergyDeposit(const G4Step *aStep) {
 //________________________________________________________________________________________
 void DreamSD::initRun() {
   // Get the material and set properties if needed
-  DimensionMap::const_iterator ite = xtalLMap_.begin();
+  auto ite = xtalLMap_.begin();
   const G4LogicalVolume *lv = (ite->first);
   G4Material *material = lv->GetMaterial();
   edm::LogVerbatim("EcalSim") << "DreamSD::initRun: Initializes for material " << material->GetName() << " in "
@@ -157,7 +157,7 @@ void DreamSD::initMap(const std::string &sd, const edm::EventSetup &es) {
 #ifdef EDM_ML_DEBUG
   edm::LogVerbatim("EcalSim") << "DreamSD: Length Table for ReadOutName = " << sd << ":";
 #endif
-  DimensionMap::const_iterator ite = xtalLMap_.begin();
+  auto ite = xtalLMap_.begin();
   int i = 0;
   for (; ite != xtalLMap_.end(); ite++, i++) {
     G4String name = "Unknown";
@@ -218,7 +218,7 @@ double DreamSD::curve_LY(const G4Step *aStep, int flag) {
 //________________________________________________________________________________________
 double DreamSD::crystalLength(G4LogicalVolume *lv) const {
   double length = -1.;
-  DimensionMap::const_iterator ite = xtalLMap_.find(lv);
+  auto ite = xtalLMap_.find(lv);
   if (ite != xtalLMap_.end())
     length = ite->second.first;
   return length;
@@ -227,7 +227,7 @@ double DreamSD::crystalLength(G4LogicalVolume *lv) const {
 //________________________________________________________________________________________
 double DreamSD::crystalWidth(G4LogicalVolume *lv) const {
   double width = -1.;
-  DimensionMap::const_iterator ite = xtalLMap_.find(lv);
+  auto ite = xtalLMap_.find(lv);
   if (ite != xtalLMap_.end())
     width = ite->second.second;
   return width;
@@ -425,7 +425,7 @@ bool DreamSD::setPbWO2MaterialProperties_(G4Material *aMaterial) {
     return false;
   }
 
-  G4MaterialPropertiesTable *table = new G4MaterialPropertiesTable();
+  auto *table = new G4MaterialPropertiesTable();
 
   // Refractive index as a function of photon momentum
   // FIXME: Should somehow put that in the configuration

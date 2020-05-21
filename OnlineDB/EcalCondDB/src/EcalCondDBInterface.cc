@@ -32,8 +32,8 @@ void EcalCondDBInterface::fillLogicId2DetIdMaps() {
   std::vector<EcalLogicID> crystals_EE =
       getEcalLogicIDSetOrdered("EE_crystal_number", -1, 1, 1, 100, 1, 100, "EE_crystal_number", 4);
   // fill the barrel map
-  std::vector<EcalLogicID>::const_iterator ieb = crystals_EB.begin();
-  std::vector<EcalLogicID>::const_iterator eeb = crystals_EB.end();
+  auto ieb = crystals_EB.begin();
+  auto eeb = crystals_EB.end();
   while (ieb != eeb) {
     int iEta = ieb->getID1();
     int iPhi = ieb->getID2();
@@ -44,8 +44,8 @@ void EcalCondDBInterface::fillLogicId2DetIdMaps() {
   }
 
   // fill the endcap map
-  std::vector<EcalLogicID>::const_iterator iee = crystals_EE.begin();
-  std::vector<EcalLogicID>::const_iterator eee = crystals_EE.end();
+  auto iee = crystals_EE.begin();
+  auto eee = crystals_EE.end();
 
   while (iee != eee) {
     int iSide = iee->getID1();
@@ -109,8 +109,8 @@ std::list<ODDelaysDat> EcalCondDBInterface::fetchFEDelaysForRun(RunIOV* iov) noe
   } catch (std::runtime_error& e) {
     throw e;
   }
-  std::map<EcalLogicID, RunFEConfigDat>::const_iterator i = fillMap.begin();
-  std::map<EcalLogicID, RunFEConfigDat>::const_iterator e = fillMap.end();
+  auto i = fillMap.begin();
+  auto e = fillMap.end();
   while (i != e) {
     ODFEDAQConfig feDaqConfig;
     ODFEDAQConfig temp;
@@ -121,8 +121,8 @@ std::list<ODDelaysDat> EcalCondDBInterface::fetchFEDelaysForRun(RunIOV* iov) noe
     ODDelaysDat temp2;
     temp2.setConnection(env, conn);
     temp2.fetchData(&delays, temp.getDelayId());
-    std::vector<ODDelaysDat>::const_iterator di = delays.begin();
-    std::vector<ODDelaysDat>::const_iterator de = delays.end();
+    auto di = delays.begin();
+    auto de = delays.end();
     while (di != de) {
       ret.push_back(*di++);
     }
@@ -559,8 +559,8 @@ void EcalCondDBInterface::insertLmfDat(LMFDat* dat) noexcept(false) {
 
 void EcalCondDBInterface::insertLmfDat(std::list<LMFDat*> dat) noexcept(false) {
   try {
-    std::list<LMFDat*>::iterator i = dat.begin();
-    std::list<LMFDat*>::iterator e = dat.end();
+    auto i = dat.begin();
+    auto e = dat.end();
     while (i != e) {
       (*i)->setConnection(env, conn);
       (*i)->writeDB();

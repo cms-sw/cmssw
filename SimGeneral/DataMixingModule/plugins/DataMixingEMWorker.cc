@@ -77,7 +77,7 @@ namespace edm {
 
     if (EBRecHits) {
       // loop over rechits, storing them in a map so we can add pileup later
-      for (EBRecHitCollection::const_iterator it = EBRecHits->begin(); it != EBRecHits->end(); ++it) {
+      for (auto it = EBRecHits->begin(); it != EBRecHits->end(); ++it) {
         EBRecHitStorage_.insert(EBRecHitMap::value_type((it->id()), *it));
 
         LogDebug("DataMixingEMWorker") << "processed EBRecHit with rawId: " << it->id().rawId() << "\n"
@@ -98,7 +98,7 @@ namespace edm {
 
     if (EERecHits) {
       // loop over rechits, storing them in a map so we can add pileup later
-      for (EERecHitCollection::const_iterator it = EERecHits->begin(); it != EERecHits->end(); ++it) {
+      for (auto it = EERecHits->begin(); it != EERecHits->end(); ++it) {
         EERecHitStorage_.insert(EERecHitMap::value_type((it->id()), *it));
 #ifdef DEBUG
         LogDebug("DataMixingEMWorker") << "processed EERecHit with rawId: " << it->id().rawId() << "\n"
@@ -121,7 +121,7 @@ namespace edm {
 
     if (ESRecHits) {
       // loop over rechits, storing them in a map so we can add pileup later
-      for (ESRecHitCollection::const_iterator it = ESRecHits->begin(); it != ESRecHits->end(); ++it) {
+      for (auto it = ESRecHits->begin(); it != ESRecHits->end(); ++it) {
         ESRecHitStorage_.insert(ESRecHitMap::value_type((it->id()), *it));
 
 #ifdef DEBUG
@@ -154,7 +154,7 @@ namespace edm {
       LogDebug("DataMixingEMWorker") << "total # EB rechits: " << EBRecHits->size();
 
       // loop over digis, adding these to the existing maps
-      for (EBRecHitCollection::const_iterator it = EBRecHits->begin(); it != EBRecHits->end(); ++it) {
+      for (auto it = EBRecHits->begin(); it != EBRecHits->end(); ++it) {
         EBRecHitStorage_.insert(EBRecHitMap::value_type((it->id()), *it));
 
 #ifdef DEBUG
@@ -175,7 +175,7 @@ namespace edm {
       LogDebug("DataMixingEMWorker") << "total # EE rechits: " << EERecHits->size();
 
       // loop over digis, adding these to the existing maps
-      for (EERecHitCollection::const_iterator it = EERecHits->begin(); it != EERecHits->end(); ++it) {
+      for (auto it = EERecHits->begin(); it != EERecHits->end(); ++it) {
         EERecHitStorage_.insert(EERecHitMap::value_type((it->id()), *it));
 
 #ifdef DEBUG
@@ -196,7 +196,7 @@ namespace edm {
       LogDebug("DataMixingEMWorker") << "total # ES rechits: " << ESRecHits->size();
 
       // loop over digis, adding these to the existing maps
-      for (ESRecHitCollection::const_iterator it = ESRecHits->begin(); it != ESRecHits->end(); ++it) {
+      for (auto it = ESRecHits->begin(); it != ESRecHits->end(); ++it) {
         ESRecHitStorage_.insert(ESRecHitMap::value_type((it->id()), *it));
 
 #ifdef DEBUG
@@ -224,7 +224,7 @@ namespace edm {
 
     EBRecHitMap::const_iterator iEBchk;
 
-    for (EBRecHitMap::const_iterator iEB = EBRecHitStorage_.begin(); iEB != EBRecHitStorage_.end(); ++iEB) {
+    for (auto iEB = EBRecHitStorage_.begin(); iEB != EBRecHitStorage_.end(); ++iEB) {
       currentID = iEB->first;
 
       if (currentID == formerID) {  // we have to add these rechits together
@@ -259,7 +259,7 @@ namespace edm {
 
     EERecHitMap::const_iterator iEEchk;
 
-    for (EERecHitMap::const_iterator iEE = EERecHitStorage_.begin(); iEE != EERecHitStorage_.end(); ++iEE) {
+    for (auto iEE = EERecHitStorage_.begin(); iEE != EERecHitStorage_.end(); ++iEE) {
       currentID = iEE->first;
 
       if (currentID == formerID) {  // we have to add these rechits together
@@ -294,7 +294,7 @@ namespace edm {
 
     ESRecHitMap::const_iterator iESchk;
 
-    for (ESRecHitMap::const_iterator iES = ESRecHitStorage_.begin(); iES != ESRecHitStorage_.end(); ++iES) {
+    for (auto iES = ESRecHitStorage_.begin(); iES != ESRecHitStorage_.end(); ++iES) {
       currentID = iES->first;
 
       if (currentID == formerID) {  // we have to add these rechits together

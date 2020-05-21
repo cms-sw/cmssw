@@ -80,10 +80,10 @@ public:
 
   std::string print() const {
     std::stringstream ss("");
-    for (col_cit itd = data_->begin(); itd != data_->end(); itd++)
+    for (auto itd = data_->begin(); itd != data_->end(); itd++)
       if (!is_empty(itd))
         ss << "  data: " << print(itd);
-    for (col_cit itm = emul_->begin(); itm != emul_->end(); itm++)
+    for (auto itm = emul_->begin(); itm != emul_->end(); itm++)
       if (!is_empty(itm))
         ss << "  emul: " << print(itm);
     return ss.str();
@@ -119,7 +119,7 @@ bool DEcompare<T>::do_compare(std::ostream& os, int dump) {
 template <typename T>
 int DEcompare<T>::get_ncand(typeT col) const {
   int ncand = 0;
-  for (col_cit it = col->begin(); it != col->end(); it++) {
+  for (auto it = col->begin(); it != col->end(); it++) {
     if (!is_empty(it)) {
       ncand++;
     }
@@ -250,16 +250,16 @@ bool DEcompare<T>::SortCollections(cand_vec& data_good, cand_vec& emul_good, can
   data_tmp.clear();
   emul_tmp.clear();
 
-  for (col_cit ite = emul_->begin(); ite != emul_->end(); ite++) {
+  for (auto ite = emul_->begin(); ite != emul_->end(); ite++) {
     if (!is_empty(ite)) {
       emul_tmp.push_back(*ite);
     }
   }
 
-  for (col_cit itd = data_->begin(); itd != data_->end(); itd++) {
+  for (auto itd = data_->begin(); itd != data_->end(); itd++) {
     if (is_empty(itd))
       continue;
-    col_it ite = emul_tmp.end();
+    auto ite = emul_tmp.end();
     ite = de_utils.de_find(emul_tmp.begin(), emul_tmp.end(), *itd);
     if (ite != emul_tmp.end()) {
       data_good.push_back(*itd);
@@ -271,8 +271,8 @@ bool DEcompare<T>::SortCollections(cand_vec& data_good, cand_vec& emul_good, can
     }
   }
 
-  for (col_it itd = data_tmp.begin(); itd != data_tmp.end(); itd++) {
-    for (col_it ite = emul_tmp.begin(); ite != emul_tmp.end(); ite++) {
+  for (auto itd = data_tmp.begin(); itd != data_tmp.end(); itd++) {
+    for (auto ite = emul_tmp.begin(); ite != emul_tmp.end(); ite++) {
       if (de_utils.de_equal_loc(*itd, *ite)) {
         data_bad.push_back(*itd);
         emul_bad.push_back(*ite);

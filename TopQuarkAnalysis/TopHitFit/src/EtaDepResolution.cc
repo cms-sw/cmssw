@@ -29,8 +29,7 @@
 namespace hitfit {
 
   std::vector<EtaDepResElement>::const_iterator EtaDepResolution::FindResolution(double& eta) const {
-    for (std::vector<EtaDepResElement>::const_iterator res = _EtaDepResElement.begin(); res != _EtaDepResElement.end();
-         ++res) {
+    for (auto res = _EtaDepResElement.begin(); res != _EtaDepResElement.end(); ++res) {
       if (res->IsInInterval(eta) || res->IsOnEdge(eta)) {
         return res;
       }
@@ -114,7 +113,7 @@ namespace hitfit {
   Vector_Resolution EtaDepResolution::operator()(double& eta) { return GetResolution(eta); }
 
   Vector_Resolution EtaDepResolution::GetResolution(double& eta) const {
-    std::vector<EtaDepResElement>::const_iterator etaDepResEleVecIter = FindResolution(eta);
+    auto etaDepResEleVecIter = FindResolution(eta);
     if (etaDepResEleVecIter != _EtaDepResElement.end()) {
       return etaDepResEleVecIter->GetResolution();
     }

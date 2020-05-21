@@ -37,7 +37,7 @@ Phase2TrackerCabling* Phase2TrackerCablingCfgESSource::make(const Phase2TrackerC
   // iterate through the parameterset and create corresponding Phase2TrackerModule
   std::vector<edm::ParameterSet> modules = pset_.getParameterSetVector("modules");
   uint32_t detid, gbtid, fedid, fedch, powerGroup, coolingLoop;
-  for (std::vector<edm::ParameterSet>::const_iterator it = modules.begin(); it < modules.end(); ++it) {
+  for (auto it = modules.begin(); it < modules.end(); ++it) {
     detid = it->getParameter<uint32_t>("detid");
     gbtid = it->getParameter<uint32_t>("gbtid");
     fedid = it->getParameter<uint32_t>("fedid");
@@ -50,6 +50,6 @@ Phase2TrackerCabling* Phase2TrackerCablingCfgESSource::make(const Phase2TrackerC
   }
 
   // return the cabling
-  Phase2TrackerCabling* cabling = new Phase2TrackerCabling(conns);
+  auto* cabling = new Phase2TrackerCabling(conns);
   return cabling;
 }

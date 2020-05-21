@@ -730,7 +730,7 @@ namespace spr {
             ok = 1;
           else
             ok = -1;
-          for (EcalBarrelGeometry::OrderedListOfEEDetId::const_iterator iptr = ol.begin(); iptr != ol.end(); ++iptr)
+          for (auto iptr = ol.begin(); iptr != ol.end(); ++iptr)
             cells.push_back(*iptr);
         }
       }
@@ -755,7 +755,7 @@ namespace spr {
             ok = 1;
           else
             ok = -1;
-          for (EcalEndcapGeometry::OrderedListOfEBDetId::const_iterator iptr = ol.begin(); iptr != ol.end(); ++iptr)
+          for (auto iptr = ol.begin(); iptr != ol.end(); ++iptr)
             cells.push_back(*iptr);
         }
       }

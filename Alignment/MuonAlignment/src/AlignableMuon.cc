@@ -46,7 +46,7 @@ AlignableMuon::AlignableMuon(const DTGeometry* dtGeometry, const CSCGeometry* cs
 
 //--------------------------------------------------------------------------------------------------
 AlignableMuon::~AlignableMuon() {
-  for (align::Alignables::iterator iter = theMuonComponents.begin(); iter != theMuonComponents.end(); iter++) {
+  for (auto iter = theMuonComponents.begin(); iter != theMuonComponents.end(); iter++) {
     delete *iter;
   }
 }
@@ -95,7 +95,7 @@ void AlignableMuon::buildDTBarrel(const DTGeometry* pDT, bool update) {
             theDTBarrel.back()->wheel(iwh + 2).station(ist - 1).chamber(iChamber).update(det);
           } else {
             // Create the alignable DT chamber
-            AlignableDTChamber* tmpDTChamber = new AlignableDTChamber(det);
+            auto* tmpDTChamber = new AlignableDTChamber(det);
 
             // Store the DT chambers in a given DT Station and Wheel
             tmpDTChambersInStation.push_back(tmpDTChamber);
@@ -113,7 +113,7 @@ void AlignableMuon::buildDTBarrel(const DTGeometry* pDT, bool update) {
         theDTChambers.insert(theDTChambers.end(), tmpDTChambersInStation.begin(), tmpDTChambersInStation.end());
 
         // Create the alignable DT station with chambers in a given station and wheel
-        AlignableDTStation* tmpDTStation = new AlignableDTStation(tmpDTChambersInStation);
+        auto* tmpDTStation = new AlignableDTStation(tmpDTChambersInStation);
 
         // Store the DT stations in a given wheel
         tmpDTStationsInWheel.push_back(tmpDTStation);
@@ -129,7 +129,7 @@ void AlignableMuon::buildDTBarrel(const DTGeometry* pDT, bool update) {
       theDTStations.insert(theDTStations.end(), tmpDTStationsInWheel.begin(), tmpDTStationsInWheel.end());
 
       // Create the alignable DT wheel
-      AlignableDTWheel* tmpWheel = new AlignableDTWheel(tmpDTStationsInWheel);
+      auto* tmpWheel = new AlignableDTWheel(tmpDTStationsInWheel);
 
       // Store the DT wheels
       theDTWheels.push_back(tmpWheel);
@@ -143,7 +143,7 @@ void AlignableMuon::buildDTBarrel(const DTGeometry* pDT, bool update) {
 
   if (!update) {
     // Create the alignable Muon Barrel
-    AlignableDTBarrel* tmpDTBarrel = new AlignableDTBarrel(theDTWheels);
+    auto* tmpDTBarrel = new AlignableDTBarrel(theDTWheels);
 
     // Store the barrel
     theDTBarrel.push_back(tmpDTBarrel);
@@ -191,7 +191,7 @@ void AlignableMuon::buildCSCEndcap(const CSCGeometry* pCSC, bool update) {
               // Update the alignable CSC chamber
               theCSCEndcaps[iec - 1]->station(ist - 1).ring(iri - 1).chamber(iChamber).update(det);
             } else {
-              AlignableCSCChamber* tmpCSCChamber = new AlignableCSCChamber(det);
+              auto* tmpCSCChamber = new AlignableCSCChamber(det);
 
               // Store the alignable CSC chambers
               tmpCSCChambersInRing.push_back(tmpCSCChamber);
@@ -211,7 +211,7 @@ void AlignableMuon::buildCSCEndcap(const CSCGeometry* pCSC, bool update) {
             theCSCChambers.insert(theCSCChambers.end(), tmpCSCChambersInRing.begin(), tmpCSCChambersInRing.end());
 
             // Create the alignable CSC ring with chambers in a given ring
-            AlignableCSCRing* tmpCSCRing = new AlignableCSCRing(tmpCSCChambersInRing);
+            auto* tmpCSCRing = new AlignableCSCRing(tmpCSCChambersInRing);
 
             // Store the CSC rings in a given station
             tmpCSCRingsInStation.push_back(tmpCSCRing);
@@ -228,7 +228,7 @@ void AlignableMuon::buildCSCEndcap(const CSCGeometry* pCSC, bool update) {
 
       if (!update) {
         // Create the alignable CSC station with rings in a given station
-        AlignableCSCStation* tmpCSCStation = new AlignableCSCStation(tmpCSCRingsInStation);
+        auto* tmpCSCStation = new AlignableCSCStation(tmpCSCRingsInStation);
 
         // Store the alignable CSC rings
         theCSCRings.insert(theCSCRings.end(), tmpCSCRingsInStation.begin(), tmpCSCRingsInStation.end());
@@ -245,7 +245,7 @@ void AlignableMuon::buildCSCEndcap(const CSCGeometry* pCSC, bool update) {
 
     if (!update) {
       // Create the alignable CSC endcap
-      AlignableCSCEndcap* tmpEndcap = new AlignableCSCEndcap(tmpCSCStationsInEndcap);
+      auto* tmpEndcap = new AlignableCSCEndcap(tmpCSCStationsInEndcap);
 
       // Store the alignable CSC stations
       theCSCStations.insert(theCSCStations.end(), tmpCSCStationsInEndcap.begin(), tmpCSCStationsInEndcap.end());
@@ -271,12 +271,11 @@ align::Alignables AlignableMuon::DTLayers() {
   align::Alignables result;
 
   align::Alignables chambers = DTChambers();
-  for (align::Alignables::const_iterator chamberIter = chambers.begin(); chamberIter != chambers.end(); ++chamberIter) {
+  for (auto chamberIter = chambers.begin(); chamberIter != chambers.end(); ++chamberIter) {
     align::Alignables superlayers = (*chamberIter)->components();
-    for (align::Alignables::const_iterator superlayerIter = superlayers.begin(); superlayerIter != superlayers.end();
-         ++superlayerIter) {
+    for (auto superlayerIter = superlayers.begin(); superlayerIter != superlayers.end(); ++superlayerIter) {
       align::Alignables layers = (*superlayerIter)->components();
-      for (align::Alignables::const_iterator layerIter = layers.begin(); layerIter != layers.end(); ++layerIter) {
+      for (auto layerIter = layers.begin(); layerIter != layers.end(); ++layerIter) {
         result.push_back(*layerIter);
       }
     }
@@ -290,10 +289,9 @@ align::Alignables AlignableMuon::DTSuperLayers() {
   align::Alignables result;
 
   align::Alignables chambers = DTChambers();
-  for (align::Alignables::const_iterator chamberIter = chambers.begin(); chamberIter != chambers.end(); ++chamberIter) {
+  for (auto chamberIter = chambers.begin(); chamberIter != chambers.end(); ++chamberIter) {
     align::Alignables superlayers = (*chamberIter)->components();
-    for (align::Alignables::const_iterator superlayerIter = superlayers.begin(); superlayerIter != superlayers.end();
-         ++superlayerIter) {
+    for (auto superlayerIter = superlayers.begin(); superlayerIter != superlayers.end(); ++superlayerIter) {
       result.push_back(*superlayerIter);
     }
   }
@@ -334,9 +332,9 @@ align::Alignables AlignableMuon::CSCLayers() {
   align::Alignables result;
 
   align::Alignables chambers = CSCChambers();
-  for (align::Alignables::const_iterator chamberIter = chambers.begin(); chamberIter != chambers.end(); ++chamberIter) {
+  for (auto chamberIter = chambers.begin(); chamberIter != chambers.end(); ++chamberIter) {
     align::Alignables layers = (*chamberIter)->components();
-    for (align::Alignables::const_iterator layerIter = layers.begin(); layerIter != layers.end(); ++layerIter) {
+    for (auto layerIter = layers.begin(); layerIter != layers.end(); ++layerIter) {
       result.push_back(*layerIter);
     }
   }
@@ -385,7 +383,7 @@ Alignments* AlignableMuon::alignments(void) const {
   align::Alignables comp = this->components();
   Alignments* m_alignments = new Alignments();
   // Add components recursively
-  for (align::Alignables::iterator i = comp.begin(); i != comp.end(); i++) {
+  for (auto i = comp.begin(); i != comp.end(); i++) {
     Alignments* tmpAlignments = (*i)->alignments();
     std::copy(tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), std::back_inserter(m_alignments->m_align));
     delete tmpAlignments;
@@ -399,10 +397,10 @@ Alignments* AlignableMuon::alignments(void) const {
 //__________________________________________________________________________________________________
 AlignmentErrorsExtended* AlignableMuon::alignmentErrors(void) const {
   align::Alignables comp = this->components();
-  AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();
+  auto* m_alignmentErrors = new AlignmentErrorsExtended();
 
   // Add components recursively
-  for (align::Alignables::iterator i = comp.begin(); i != comp.end(); i++) {
+  for (auto i = comp.begin(); i != comp.end(); i++) {
     AlignmentErrorsExtended* tmpAlignmentErrorsExtended = (*i)->alignmentErrors();
     std::copy(tmpAlignmentErrorsExtended->m_alignError.begin(),
               tmpAlignmentErrorsExtended->m_alignError.end(),
@@ -446,7 +444,7 @@ AlignmentErrorsExtended* AlignableMuon::cscAlignmentErrorsExtended(void) {
   // Retrieve muon endcaps alignment errors
   AlignmentErrorsExtended* cscEndCap1Errors = this->CSCEndcaps().front()->alignmentErrors();
   AlignmentErrorsExtended* cscEndCap2Errors = this->CSCEndcaps().back()->alignmentErrors();
-  AlignmentErrorsExtended* tmpAlignmentErrorsExtended = new AlignmentErrorsExtended();
+  auto* tmpAlignmentErrorsExtended = new AlignmentErrorsExtended();
 
   std::copy(cscEndCap1Errors->m_alignError.begin(),
             cscEndCap1Errors->m_alignError.end(),

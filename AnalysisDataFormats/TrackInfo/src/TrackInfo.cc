@@ -11,7 +11,7 @@ const TrajectorySeed& TrackInfo::seed() const { return seed_; }
 const reco::TrackInfo::TrajectoryInfo& TrackInfo::trajStateMap() const { return trajstates_; }
 
 const RecHitType TrackInfo::type(TrackingRecHitRef hit) const {
-  TrajectoryInfo::const_iterator states = trajstates_.find(hit);
+  auto states = trajstates_.find(hit);
   if (states != trajstates_.end())
     return states->second.type();
   else
@@ -20,7 +20,7 @@ const RecHitType TrackInfo::type(TrackingRecHitRef hit) const {
 }
 
 const PTrajectoryStateOnDet* TrackInfo::stateOnDet(StateType statetype, TrackingRecHitRef hit) const {
-  TrajectoryInfo::const_iterator states = trajstates_.find(hit);
+  auto states = trajstates_.find(hit);
   if (states != trajstates_.end())
     return states->second.stateOnDet(statetype);
   else
@@ -29,7 +29,7 @@ const PTrajectoryStateOnDet* TrackInfo::stateOnDet(StateType statetype, Tracking
 }
 
 const LocalVector TrackInfo::localTrackMomentum(StateType statetype, TrackingRecHitRef hit) const {
-  TrajectoryInfo::const_iterator states = trajstates_.find(hit);
+  auto states = trajstates_.find(hit);
   if (states != trajstates_.end()) {
     const PTrajectoryStateOnDet* state = states->second.stateOnDet(statetype);
     if (state != nullptr)
@@ -40,7 +40,7 @@ const LocalVector TrackInfo::localTrackMomentum(StateType statetype, TrackingRec
 }
 
 const LocalVector TrackInfo::localTrackMomentumOnMono(StateType statetype, TrackingRecHitRef hit) const {
-  TrajectoryInfo::const_iterator states = trajstates_.find(hit);
+  auto states = trajstates_.find(hit);
   if (states != trajstates_.end())
     return states->second.localTrackMomentumOnMono(statetype);
   else
@@ -49,14 +49,14 @@ const LocalVector TrackInfo::localTrackMomentumOnMono(StateType statetype, Track
 }
 
 const LocalVector TrackInfo::localTrackMomentumOnStereo(StateType statetype, TrackingRecHitRef hit) const {
-  TrajectoryInfo::const_iterator states = trajstates_.find(hit);
+  auto states = trajstates_.find(hit);
   if (states != trajstates_.end())
     return states->second.localTrackMomentumOnStereo(statetype);
   return LocalVector(0, 0, 0);
 }
 
 const LocalPoint TrackInfo::localTrackPosition(StateType statetype, TrackingRecHitRef hit) const {
-  TrajectoryInfo::const_iterator states = trajstates_.find(hit);
+  auto states = trajstates_.find(hit);
   if (states != trajstates_.end()) {
     const PTrajectoryStateOnDet* state = states->second.stateOnDet(statetype);
     if (state != nullptr)
@@ -67,7 +67,7 @@ const LocalPoint TrackInfo::localTrackPosition(StateType statetype, TrackingRecH
 }
 
 const LocalPoint TrackInfo::localTrackPositionOnMono(StateType statetype, TrackingRecHitRef hit) const {
-  TrajectoryInfo::const_iterator states = trajstates_.find(hit);
+  auto states = trajstates_.find(hit);
   if (states != trajstates_.end())
     return states->second.localTrackPositionOnMono(statetype);
   else
@@ -76,7 +76,7 @@ const LocalPoint TrackInfo::localTrackPositionOnMono(StateType statetype, Tracki
 }
 
 const LocalPoint TrackInfo::localTrackPositionOnStereo(StateType statetype, TrackingRecHitRef hit) const {
-  TrajectoryInfo::const_iterator states = trajstates_.find(hit);
+  auto states = trajstates_.find(hit);
   if (states != trajstates_.end())
     return states->second.localTrackPositionOnStereo(statetype);
   else

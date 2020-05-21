@@ -175,8 +175,7 @@ void HTXSRivetProducer::beginRun(edm::Run const& iRun, edm::EventSetup const& es
     if (product_exists) {
       typedef std::vector<LHERunInfoProduct::Header>::const_iterator headers_const_iterator;
       LHERunInfoProduct myLHERunInfoProduct = *(run.product());
-      for (headers_const_iterator iter = myLHERunInfoProduct.headers_begin(); iter != myLHERunInfoProduct.headers_end();
-           iter++) {
+      for (auto iter = myLHERunInfoProduct.headers_begin(); iter != myLHERunInfoProduct.headers_end(); iter++) {
         std::vector<std::string> lines = iter->lines();
         for (unsigned int iLine = 0; iLine < lines.size(); iLine++) {
           std::string line = lines.at(iLine);

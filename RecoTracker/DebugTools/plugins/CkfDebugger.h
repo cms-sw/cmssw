@@ -130,7 +130,7 @@ private:
 
   bool hasDelta(const PSimHit* correctHit) {
     bool delta = false;
-    for (std::vector<PSimHit>::iterator isim = hitAssociator->SimHitMap[correctHit->detUnitId()].begin();
+    for (auto isim = hitAssociator->SimHitMap[correctHit->detUnitId()].begin();
          isim != hitAssociator->SimHitMap[correctHit->detUnitId()].end();
          ++isim) {
       /*       edm::LogVerbatim("CkfDebugger") << "SimHit on this det at pos="<< position(&*isim)  */

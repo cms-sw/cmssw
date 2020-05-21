@@ -12,8 +12,8 @@ std::set<std::string> cond::CoralServiceManager::knownPlugins() const {
   std::vector<edmplugin::PluginInfo> pinfo = cond::CoralServicePluginFactory::get()->available();
   std::set<std::string> r;
   std::vector<edmplugin::PluginInfo>::iterator i;
-  std::vector<edmplugin::PluginInfo>::iterator ibeg = pinfo.begin();
-  std::vector<edmplugin::PluginInfo>::iterator iend = pinfo.end();
+  auto ibeg = pinfo.begin();
+  auto iend = pinfo.end();
   for (i = ibeg; i < iend; ++i) {
     r.insert(i->name_);
   }

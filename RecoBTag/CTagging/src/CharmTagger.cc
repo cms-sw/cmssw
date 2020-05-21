@@ -77,10 +77,10 @@ CharmTagger::~CharmTagger() {}
 /// b-tag a jet based on track-to-jet parameters in the extened info collection
 float CharmTagger::discriminator(const TagInfoHelper &tagInfo) const {
   // default value, used if there are no leptons associated to this jet
-  const reco::CandIPTagInfo &ip_info = tagInfo.get<reco::CandIPTagInfo>(0);
-  const reco::CandSecondaryVertexTagInfo &sv_info = tagInfo.get<reco::CandSecondaryVertexTagInfo>(1);
-  const reco::CandSoftLeptonTagInfo &softmu_info = tagInfo.get<reco::CandSoftLeptonTagInfo>(2);
-  const reco::CandSoftLeptonTagInfo &softel_info = tagInfo.get<reco::CandSoftLeptonTagInfo>(3);
+  const auto &ip_info = tagInfo.get<reco::CandIPTagInfo>(0);
+  const auto &sv_info = tagInfo.get<reco::CandSecondaryVertexTagInfo>(1);
+  const auto &softmu_info = tagInfo.get<reco::CandSoftLeptonTagInfo>(2);
+  const auto &softel_info = tagInfo.get<reco::CandSoftLeptonTagInfo>(3);
   reco::TaggingVariableList vars = sl_computer_(ip_info, sv_info, softmu_info, softel_info);
 
   // Loop over input variables

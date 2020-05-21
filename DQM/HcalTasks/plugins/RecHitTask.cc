@@ -245,9 +245,9 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
     std::vector<int> vFEDsuTCA = hcaldqm::utilities::getFEDuTCAList(_emap);
 
     //	push the rawIds of each fed into the vector
-    for (std::vector<int>::const_iterator it = vFEDsVME.begin(); it != vFEDsVME.end(); ++it)
+    for (auto it = vFEDsVME.begin(); it != vFEDsVME.end(); ++it)
       _vhashFEDs.push_back(HcalElectronicsId(FIBERCH_MIN, FIBER_VME_MIN, SPIGOT_MIN, (*it) - FED_VME_MIN).rawId());
-    for (std::vector<int>::const_iterator it = vFEDsuTCA.begin(); it != vFEDsuTCA.end(); ++it) {
+    for (auto it = vFEDsuTCA.begin(); it != vFEDsuTCA.end(); ++it) {
       std::pair<uint16_t, uint16_t> cspair = utilities::fed2crate(*it);
       _vhashFEDs.push_back(HcalElectronicsId(cspair.first, cspair.second, FIBER_uTCA_MIN1, FIBERCH_MIN, false).rawId());
     }
@@ -510,7 +510,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
   int nChsHE = 0;
   int nChsHBCut = 0;
   int nChsHECut = 0;
-  for (HBHERecHitCollection::const_iterator it = chbhe->begin(); it != chbhe->end(); ++it) {
+  for (auto it = chbhe->begin(); it != chbhe->end(); ++it) {
     double energy = it->energy();
     double timing = it->time();
 
@@ -651,7 +651,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
   int nChsHOCut = 0;
   double ehop = 0;
   double ehom = 0;
-  for (HORecHitCollection::const_iterator it = cho->begin(); it != cho->end(); ++it) {
+  for (auto it = cho->begin(); it != cho->end(); ++it) {
     double energy = it->energy();
     double timing = it->time();
 
@@ -748,7 +748,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
   int nChsHFCut = 0;
   double ehfp = 0;
   double ehfm = 0;
-  for (HFRecHitCollection::const_iterator it = chf->begin(); it != chf->end(); ++it) {
+  for (auto it = chf->begin(); it != chf->end(); ++it) {
     double energy = it->energy();
     double timing = it->time();
 
@@ -844,7 +844,7 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps) : DQTask(ps) {
 
   // Loop over HFPreRecHits to get charge and charge asymmetry
   if (_hfPreRecHitsAvailable) {
-    for (HFPreRecHitCollection::const_iterator it = cprehf->begin(); it != cprehf->end(); ++it) {
+    for (auto it = cprehf->begin(); it != cprehf->end(); ++it) {
       HcalDetId did = it->id();
       if (_filter_HF.filter(did)) {
         continue;
@@ -899,11 +899,11 @@ std::shared_ptr<hcaldqm::Cache> RecHitTask::globalBeginLuminosityBlock(edm::Lumi
   }
 
   if (_ptype != fOffline) {  // hidefed2crate
-    for (std::vector<uint32_t>::const_iterator it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
+    for (auto it = _vhashFEDs.begin(); it != _vhashFEDs.end(); ++it) {
       flag::Flag fSum("RECO");
-      HcalElectronicsId eid = HcalElectronicsId(*it);
+      auto eid = HcalElectronicsId(*it);
 
-      std::vector<uint32_t>::const_iterator cit = std::find(_vcdaqEids.begin(), _vcdaqEids.end(), *it);
+      auto cit = std::find(_vcdaqEids.begin(), _vcdaqEids.end(), *it);
       if (cit == _vcdaqEids.end()) {
         //	not @cDAQ
         for (uint32_t iflag = 0; iflag < _vflags.size(); iflag++)
@@ -926,7 +926,7 @@ std::shared_ptr<hcaldqm::Cache> RecHitTask::globalBeginLuminosityBlock(edm::Lumi
         _vflags[fUnknownIds]._state = flag::fGOOD;
 
       int iflag = 0;
-      for (std::vector<flag::Flag>::iterator ft = _vflags.begin(); ft != _vflags.end(); ++ft) {
+      for (auto ft = _vflags.begin(); ft != _vflags.end(); ++ft) {
         _cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag), int(ft->_state));
         fSum += (*ft);
         iflag++;
