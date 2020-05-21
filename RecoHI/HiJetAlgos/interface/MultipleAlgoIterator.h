@@ -5,14 +5,14 @@
 
 class MultipleAlgoIterator : public PileUpSubtractor {
 public:
-  MultipleAlgoIterator(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC);
+  MultipleAlgoIterator(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
   void offsetCorrectJets() override;
   void rescaleRMS(double s);
-  double getEt(const reco::CandidatePtr & in) const;
-  double getEta(const reco::CandidatePtr & in) const;
-  void calculatePedestal(std::vector<fastjet::PseudoJet> const & coll) override;
-  void subtractPedestal(std::vector<fastjet::PseudoJet> & coll) override;
-  void calculateOrphanInput(std::vector<fastjet::PseudoJet> & orphanInput);
+  double getEt(const reco::CandidatePtr& in) const;
+  double getEta(const reco::CandidatePtr& in) const;
+  void calculatePedestal(std::vector<fastjet::PseudoJet> const& coll) override;
+  void subtractPedestal(std::vector<fastjet::PseudoJet>& coll) override;
+  void calculateOrphanInput(std::vector<fastjet::PseudoJet>& orphanInput) override;
   double minimumTowersFraction_;
   bool sumRecHits_;
   bool dropZeroTowers_;

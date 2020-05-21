@@ -44,48 +44,51 @@ ParametrizedSubtractor::ParametrizedSubtractor(const edm::ParameterSet& iConfig,
   }
 }
 
-void ParametrizedSubtractor::setupGeometryMap(edm::Event& iEvent,const edm::EventSetup& iSetup){
-   LogDebug("PileUpSubtractor")<<"The subtractor setting up geometry...\n";
+void ParametrizedSubtractor::setupGeometryMap(edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  LogDebug("PileUpSubtractor") << "The subtractor setting up geometry...\n";
 
-   // The function below that is commented out was deleted from
-   // DataFormats/HeavyIonEvent/src/Centrality.cc
-   // in June 2015. See comments associated with that commit.
-   //   if(!cbins_) getCentralityBinsFromDB(iSetup);
+  // The function below that is commented out was deleted from
+  // DataFormats/HeavyIonEvent/src/Centrality.cc
+  // in June 2015. See comments associated with that commit.
+  //   if(!cbins_) getCentralityBinsFromDB(iSetup);
 
-   edm::Handle<reco::Centrality> cent;
-   iEvent.getByToken(centTag_,cent);
-   
-   centrality_ = cent->EtHFhitSum();
-   bin_ = 40-hC->FindBin(centrality_);
-   if(bin_ > 39) bin_ = 39;
-   if(bin_ < 0) bin_ = 0;
+  edm::Handle<reco::Centrality> cent;
+  iEvent.getByToken(centTag_, cent);
 
-   if(!geo_) {
-      edm::ESHandle<CaloGeometry> pG;
-      iSetup.get<CaloGeometryRecord>().get(pG);
-      geo_ = pG.product();
-      std::vector<DetId> alldid =  geo_->getValidDetIds();
-      
-      int ietaold = -10000;
-      ietamax_ = -10000;
-      ietamin_ = 10000;
-      for(std::vector<DetId>::const_iterator did=alldid.begin(); did != alldid.end(); did++){
-	 if( (*did).det() == DetId::Hcal ){
-	    HcalDetId hid = HcalDetId(*did);
-	    allgeomid_.push_back(*did);
+  centrality_ = cent->EtHFhitSum();
+  bin_ = 40 - hC->FindBin(centrality_);
+  if (bin_ > 39)
+    bin_ = 39;
+  if (bin_ < 0)
+    bin_ = 0;
 
-	    if((hid).ieta() != ietaold){
-	       ietaold = (hid).ieta();
-	       geomtowers_[(hid).ieta()] = 1;
-	       if((hid).ieta() > ietamax_) ietamax_ = (hid).ieta();
-	       if((hid).ieta() < ietamin_) ietamin_ = (hid).ieta();
-	    }
-	    else{
-	       geomtowers_[(hid).ieta()]++;
-	    }
-	 }
+  if (!geo_) {
+    edm::ESHandle<CaloGeometry> pG;
+    iSetup.get<CaloGeometryRecord>().get(pG);
+    geo_ = pG.product();
+    std::vector<DetId> alldid = geo_->getValidDetIds();
+
+    int ietaold = -10000;
+    ietamax_ = -10000;
+    ietamin_ = 10000;
+    for (std::vector<DetId>::const_iterator did = alldid.begin(); did != alldid.end(); did++) {
+      if ((*did).det() == DetId::Hcal) {
+        HcalDetId hid = HcalDetId(*did);
+        allgeomid_.push_back(*did);
+
+        if ((hid).ieta() != ietaold) {
+          ietaold = (hid).ieta();
+          geomtowers_[(hid).ieta()] = 1;
+          if ((hid).ieta() > ietamax_)
+            ietamax_ = (hid).ieta();
+          if ((hid).ieta() < ietamin_)
+            ietamin_ = (hid).ieta();
+        } else {
+          geomtowers_[(hid).ieta()]++;
+        }
       }
-   }
+    }
+  }
 
   for (int i = ietamin_; i < ietamax_ + 1; i++) {
     emean_[i] = 0.;
