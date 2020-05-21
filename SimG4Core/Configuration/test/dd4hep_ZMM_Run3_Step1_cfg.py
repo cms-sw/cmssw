@@ -24,30 +24,6 @@ process.maxEvents = cms.untracked.PSet(
     output = cms.optional.untracked.allowed(cms.int32,cms.PSet)
 )
 
-# --------------------------------start of new part----------------------------
-#Other statements
-
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-
-    externalLHEProducer = cms.PSet(
-            initialSeed = cms.untracked.uint32(69),
-       engineName = cms.untracked.string('HepJamesRandom')
-    ),
-    generator = cms.PSet(
-            initialSeed = cms.untracked.uint32(69),
-       engineName = cms.untracked.string('HepJamesRandom')
-    ),
-    VtxSmeared = cms.PSet(
-            initialSeed = cms.untracked.uint32(69),
-       engineName = cms.untracked.string('HepJamesRandom')
-    ),
-    g4SimHits = cms.PSet(
-            initialSeed = cms.untracked.uint32(69),
-       engineName = cms.untracked.string('HepJamesRandom')
-    )
-
-)
-# --------------------------------end of new part----------------------------
 
 # Input source
 process.source = cms.Source("EmptySource")
@@ -104,11 +80,9 @@ process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 
 # Other statements
+process.genstepfilter.triggerConditions=cms.vstring("generation_step")
 from Configuration.AlCa.GlobalTag import GlobalTag 
 process.GlobalTag = GlobalTag(process.GlobalTag, '110X_mcRun3_2021_realistic_v6', '')
-
-process.genstepfilter.triggerConditions=cms.vstring("generation_step")
-
 
 process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     PythiaParameters = cms.PSet(
