@@ -44,6 +44,13 @@ void DQMFileSaverPB::initRun() const {
     transferDestination_ = edm::Service<evf::EvFDaqDirector>()->getStreamDestinations(streamLabel_);
     mergeType_ = edm::Service<evf::EvFDaqDirector>()->getStreamMergeType(streamLabel_, evf::MergeTypePB);
   }
+
+  if (!fakeFilterUnitMode_) {
+    evf::EvFDaqDirector* daqDirector = (evf::EvFDaqDirector*)(edm::Service<evf::EvFDaqDirector>().operator->());
+    const std::string initFileName = daqDirector->getInitFilePath(streamLabel_);
+    std::ofstream file(initFileName);
+    file.close();
+  }
 }
 
 void DQMFileSaverPB::saveLumi(const FileParameters& fp) const {

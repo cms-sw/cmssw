@@ -1,13 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("PROD")
+from Configuration.Eras.Era_Run2_2018_cff import Run2_2018
+process = cms.Process('PROD',Run2_2018)
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+process.load('FWCore.MessageService.MessageLogger_cfi')
 
 #Geometry
 #
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+process.load("Configuration.Geometry.GeometryExtended2018_cff")
 
 #Magnetic Field
 #
@@ -21,20 +22,8 @@ process.load("IOMC.RandomEngine.IOMC_cff")
 process.RandomNumberGeneratorService.generator.initialSeed = 456789
 process.RandomNumberGeneratorService.g4SimHits.initialSeed = 9876
 
-process.MessageLogger = cms.Service("MessageLogger",
-    debugModules = cms.untracked.vstring('*'),
-    cout = cms.untracked.PSet(
-        threshold = cms.untracked.string('DEBUG'),
-        default = cms.untracked.PSet(
-            limit = cms.untracked.int32(0)
-        ),
-        MaterialBudget = cms.untracked.PSet(
-            limit = cms.untracked.int32(-1)
-        )
-    ),
-    categories = cms.untracked.vstring('MaterialBudget'),
-    destinations = cms.untracked.vstring('cout')
-)
+if hasattr(process,'MessageLogger'):
+    process.MessageLogger.categories.append('MaterialBudget')
 
 process.source = cms.Source("EmptySource",
     firstRun        = cms.untracked.uint32(1),
@@ -66,6 +55,7 @@ process.TFileService = cms.Service("TFileService",
 process.p1 = cms.Path(process.generator*process.g4SimHits)
 process.g4SimHits.UseMagneticField = False
 process.g4SimHits.Physics.type = 'SimG4Core/Physics/DummyPhysics'
+process.g4SimHits.StackingAction.TrackNeutrino = True
 process.g4SimHits.Physics.DummyEMPhysics = True
 process.g4SimHits.Physics.CutsPerRegion = False
 process.g4SimHits.Generator.ApplyEtaCuts = False
@@ -84,5 +74,3 @@ process.g4SimHits.Watchers = cms.VPSet(cms.PSet(
     ),
     type = cms.string('MaterialBudgetHcal')
 ))
-
-
