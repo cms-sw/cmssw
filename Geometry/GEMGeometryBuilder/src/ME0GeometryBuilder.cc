@@ -400,7 +400,7 @@ ME0Geometry* ME0GeometryBuilder::buildGeometry(cms::DDFilteredView& fv, const Mu
       // loop over the other eta partions
 
       while (doEtaParts) {
-	ME0DetId detId = ME0DetId(me0Num.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.history())));
+        ME0DetId detId = ME0DetId(me0Num.baseNumberToUnitNumber(mdddnum.geoHistoryToBaseNumber(fv.history())));
         // build other eta partitions
         ME0EtaPartition* etaPart = buildEtaPartition(fv, detId);
         me0Layer->add(etaPart);
