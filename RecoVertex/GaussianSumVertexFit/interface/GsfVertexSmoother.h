@@ -67,11 +67,11 @@ private:
   VertexState meanVertex(const VertexState& vertexA, const VertexState& vertexB) const;
 
   TrackChi2Pair vertexAndTrackUpdate(const VertexState& oldVertex,
-                                     const RefCountedVertexTrack track,
+                                     const RefCountedVertexTrack& track,
                                      const GlobalPoint& referencePosition) const;
 
   RefittedTrackComponent createNewComponent(const VertexState& oldVertex,
-                                            const RefCountedLinearizedTrackState linTrack,
+                                            const RefCountedLinearizedTrackState& linTrack,
                                             float weight) const;
 
   TrackChi2Pair assembleTrackComponents(const std::vector<RefittedTrackComponent>& trackComponents,
@@ -84,7 +84,7 @@ private:
    *  \param priorVertex The prior vertex state
    *  \param fittedVertex The fitted vertex state
    */
-  double priorVertexChi2(const VertexState priorVertex, const VertexState fittedVertex) const;
+  double priorVertexChi2(const VertexState& priorVertex, const VertexState& fittedVertex) const;
 
   bool limitComponents;
   DeepCopyPointerByClone<GsfVertexMerger> theMerger;

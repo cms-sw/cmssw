@@ -65,15 +65,16 @@ private:
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
-  void doPFJets(edm::Handle<reco::PFJetCollection> pfJets);
-  void doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets, edm::Handle<reco::JetCorrector> pfJetCorr);
-  void doCaloJets(edm::Handle<reco::CaloJetCollection> caloJets);
-  void doCaloJetCorr(edm::Handle<reco::CaloJetCollection> caloJets, edm::Handle<reco::JetCorrector> caloJetCorr);
-  void doCaloMet(edm::Handle<reco::CaloMETCollection> caloMet);
-  void doCaloMetBE(edm::Handle<reco::CaloMETCollection> caloMetBE);
+  void doPFJets(const edm::Handle<reco::PFJetCollection>& pfJets);
+  void doPFJetCorr(const edm::Handle<reco::PFJetCollection>& pfJets, const edm::Handle<reco::JetCorrector>& pfJetCorr);
+  void doCaloJets(const edm::Handle<reco::CaloJetCollection>& caloJets);
+  void doCaloJetCorr(const edm::Handle<reco::CaloJetCollection>& caloJets,
+                     const edm::Handle<reco::JetCorrector>& caloJetCorr);
+  void doCaloMet(const edm::Handle<reco::CaloMETCollection>& caloMet);
+  void doCaloMetBE(const edm::Handle<reco::CaloMETCollection>& caloMetBE);
 
-  void doPFMet(edm::Handle<reco::PFMETCollection> pfMet);
-  void doPFMetNoMu(edm::Handle<reco::PFMETCollection> pfMet, edm::Handle<reco::MuonCollection>);
+  void doPFMet(const edm::Handle<reco::PFMETCollection>& pfMet);
+  void doPFMetNoMu(const edm::Handle<reco::PFMETCollection>& pfMet, const edm::Handle<reco::MuonCollection>&);
 
   bool pfJetID(const reco::PFJet& jet);
   bool caloJetID(const reco::CaloJet& jet);
@@ -303,7 +304,7 @@ void L1JetRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSe
   tree_->Fill();
 }
 
-void L1JetRecoTreeProducer::doCaloJets(edm::Handle<reco::CaloJetCollection> caloJets) {
+void L1JetRecoTreeProducer::doCaloJets(const edm::Handle<reco::CaloJetCollection>& caloJets) {
   for (auto it = caloJets->begin(); it != caloJets->end() && jet_data->nCaloJets < maxJet_; ++it) {
     if (!caloJetIDMissing_)
       if (!caloJetID(*it))
@@ -331,7 +332,7 @@ void L1JetRecoTreeProducer::doCaloJets(edm::Handle<reco::CaloJetCollection> calo
   }
 }
 
-void L1JetRecoTreeProducer::doPFJets(edm::Handle<reco::PFJetCollection> pfJets) {
+void L1JetRecoTreeProducer::doPFJets(const edm::Handle<reco::PFJetCollection>& pfJets) {
   for (auto it = pfJets->begin(); it != pfJets->end() && jet_data->nJets < maxJet_; ++it) {
     if (!pfJetID(*it))
       continue;
@@ -366,8 +367,8 @@ void L1JetRecoTreeProducer::doPFJets(edm::Handle<reco::PFJetCollection> pfJets) 
   }
 }
 
-void L1JetRecoTreeProducer::doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJets,
-                                        edm::Handle<reco::JetCorrector> pfJetCorr) {
+void L1JetRecoTreeProducer::doPFJetCorr(const edm::Handle<reco::PFJetCollection>& pfJets,
+                                        const edm::Handle<reco::JetCorrector>& pfJetCorr) {
   float corrFactor = 1.;
   unsigned int nJets = 0;
 
@@ -401,8 +402,8 @@ void L1JetRecoTreeProducer::doPFJetCorr(edm::Handle<reco::PFJetCollection> pfJet
   met_data->mHtPhi = tv2.Phi();
 }
 
-void L1JetRecoTreeProducer::doCaloJetCorr(edm::Handle<reco::CaloJetCollection> caloJets,
-                                          edm::Handle<reco::JetCorrector> caloJetCorr) {
+void L1JetRecoTreeProducer::doCaloJetCorr(const edm::Handle<reco::CaloJetCollection>& caloJets,
+                                          const edm::Handle<reco::JetCorrector>& caloJetCorr) {
   float caloCorrFactor = 1.;
   unsigned int nCaloJets = 0;
 
@@ -426,7 +427,7 @@ void L1JetRecoTreeProducer::doCaloJetCorr(edm::Handle<reco::CaloJetCollection> c
   }
 }
 
-void L1JetRecoTreeProducer::doPFMet(edm::Handle<reco::PFMETCollection> pfMet) {
+void L1JetRecoTreeProducer::doPFMet(const edm::Handle<reco::PFMETCollection>& pfMet) {
   const reco::PFMETCollection* metCol = pfMet.product();
   const reco::PFMET theMet = metCol->front();
 
@@ -437,8 +438,8 @@ void L1JetRecoTreeProducer::doPFMet(edm::Handle<reco::PFMETCollection> pfMet) {
   met_data->metPy = theMet.py();
 }
 
-void L1JetRecoTreeProducer::doPFMetNoMu(edm::Handle<reco::PFMETCollection> pfMet,
-                                        edm::Handle<reco::MuonCollection> muons) {
+void L1JetRecoTreeProducer::doPFMetNoMu(const edm::Handle<reco::PFMETCollection>& pfMet,
+                                        const edm::Handle<reco::MuonCollection>& muons) {
   const reco::PFMETCollection* metCol = pfMet.product();
   const reco::PFMET theMet = metCol->front();
   reco::PFMET thePFMetNoMu = metCol->front();
@@ -468,7 +469,7 @@ void L1JetRecoTreeProducer::doPFMetNoMu(edm::Handle<reco::PFMETCollection> pfMet
   met_data->pfMetNoMuPy = thePFMetNoMu.py();
 }
 
-void L1JetRecoTreeProducer::doCaloMet(edm::Handle<reco::CaloMETCollection> caloMet) {
+void L1JetRecoTreeProducer::doCaloMet(const edm::Handle<reco::CaloMETCollection>& caloMet) {
   const reco::CaloMETCollection* metCol = caloMet.product();
   const reco::CaloMET theMet = metCol->front();
 
@@ -477,7 +478,7 @@ void L1JetRecoTreeProducer::doCaloMet(edm::Handle<reco::CaloMETCollection> caloM
   met_data->caloSumEt = theMet.sumEt();
 }
 
-void L1JetRecoTreeProducer::doCaloMetBE(edm::Handle<reco::CaloMETCollection> caloMetBE) {
+void L1JetRecoTreeProducer::doCaloMetBE(const edm::Handle<reco::CaloMETCollection>& caloMetBE) {
   const reco::CaloMETCollection* metCol = caloMetBE.product();
   const reco::CaloMET theMet = metCol->front();
 

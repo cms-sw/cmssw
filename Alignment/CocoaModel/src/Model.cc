@@ -1286,7 +1286,7 @@ ALIdouble Model::getParamFittedSigmaVectorItem(const ALIuint position) {
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@  getParamFittedSigmaVectorItem
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-ALIbool Model::readMeasurementsFromFile(ALIstring only1Date, ALIstring only1Time) {
+ALIbool Model::readMeasurementsFromFile(const ALIstring& only1Date, const ALIstring& only1Time) {
   if (ALIUtils::debug >= 5)
     std::cout << " readMeasurementsFromFile " << Measurement::measurementsFileName() << std::endl;
   if (Measurement::measurementsFileName().empty())

@@ -1,6 +1,8 @@
 #ifndef TRACKINFO_TPTORECOTRACK_H
 #define TRACKINFO_TPTORECOTRACK_H
 
+#include <utility>
+
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -22,16 +24,16 @@ public:
   TPtoRecoTrack();
   ~TPtoRecoTrack();
 
-  void SetTrackingParticle(TrackingParticleRef tp) { trackingParticle_ = tp; }
+  void SetTrackingParticle(const TrackingParticleRef &tp) { trackingParticle_ = tp; }
 
-  void SetRecoTrack_AlgoA(reco::TrackBaseRef track) { recoTrack_AlgoA_ = track; }
-  void SetRecoTrack_AlgoB(reco::TrackBaseRef track) { recoTrack_AlgoB_ = track; }
+  void SetRecoTrack_AlgoA(reco::TrackBaseRef track) { recoTrack_AlgoA_ = std::move(track); }
+  void SetRecoTrack_AlgoB(reco::TrackBaseRef track) { recoTrack_AlgoB_ = std::move(track); }
 
   void SetShared_AlgoA(const float &mA) { sharedA_ = mA; }
   void SetShared_AlgoB(const float &mB) { sharedB_ = mB; }
 
-  void SetRecoVertex_AlgoA(reco::VertexRef vertex) { recoVertex_AlgoA_ = vertex; }
-  void SetRecoVertex_AlgoB(reco::VertexRef vertex) { recoVertex_AlgoB_ = vertex; }
+  void SetRecoVertex_AlgoA(const reco::VertexRef &vertex) { recoVertex_AlgoA_ = vertex; }
+  void SetRecoVertex_AlgoB(const reco::VertexRef &vertex) { recoVertex_AlgoB_ = vertex; }
 
   void SetBeamSpot(const math::XYZPoint &bs) { beamSpot_ = bs; }
 

@@ -23,8 +23,12 @@
 
 #include "CondTools/RPC/interface/RPCLBLinkNameParser.h"
 
-RPCDetId RPCLBLinkMapHandler::getRPCDetId(
-    int region, int disk_or_wheel, int layer, int sector, std::string subsector_string, std::string partition) {
+RPCDetId RPCLBLinkMapHandler::getRPCDetId(int region,
+                                          int disk_or_wheel,
+                                          int layer,
+                                          int sector,
+                                          const std::string& subsector_string,
+                                          const std::string& partition) {
   int station(0), ring(0), subsector(0), roll(0);
   // region well-defined
   if (!region) {  // barrel

@@ -138,7 +138,7 @@ namespace {
     DoNothing(const SeedingLayerSetsHits*) {}
     DoNothing(edm::RunningAverage*) {}
 
-    static void produces(edm::ProducesCollector){};
+    static void produces(const edm::ProducesCollector&){};
 
     void reserve(size_t) {}
 

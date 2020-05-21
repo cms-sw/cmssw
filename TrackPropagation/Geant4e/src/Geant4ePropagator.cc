@@ -1,4 +1,5 @@
 #include <sstream>
+#include <utility>
 
 // Geant4e
 #include "TrackPropagation/Geant4e/interface/ConvertFromToCLHEP.h"
@@ -39,7 +40,7 @@
 Geant4ePropagator::Geant4ePropagator(const MagneticField *field, std::string particleName, PropagationDirection dir)
     : Propagator(dir),
       theField(field),
-      theParticleName(particleName),
+      theParticleName(std::move(particleName)),
       theG4eManager(G4ErrorPropagatorManager::GetErrorPropagatorManager()),
       theG4eData(G4ErrorPropagatorData::GetErrorPropagatorData()) {
   LogDebug("Geant4e") << "Geant4e Propagator initialized";

@@ -170,7 +170,7 @@ private:
                    std::unique_ptr<HOCalibVariableCollection>& hostore,
                    int Noccu_old,
                    int indx,
-                   edm::Handle<reco::TrackCollection> cosmicmuon,
+                   const edm::Handle<reco::TrackCollection>& cosmicmuon,
                    edm::View<reco::Muon>::const_iterator muon1,
                    const edm::Event& iEvent,
                    const edm::EventSetup& iSetup);
@@ -400,7 +400,7 @@ void AlCaHOCalibProducer::fillHOStore(const reco::TrackRef& ncosm,
                                       std::unique_ptr<HOCalibVariableCollection>& hostore,
                                       int Noccu_old,
                                       int indx,
-                                      edm::Handle<reco::TrackCollection> cosmicmuon,
+                                      const edm::Handle<reco::TrackCollection>& cosmicmuon,
                                       edm::View<reco::Muon>::const_iterator muon1,
                                       const edm::Event& iEvent,
                                       const edm::EventSetup& iSetup) {

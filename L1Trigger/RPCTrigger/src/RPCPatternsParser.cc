@@ -110,7 +110,7 @@ RPCPatternsParser::RPCPatternsParser() {
 
 RPCPatternsParser::~RPCPatternsParser() { cms::concurrency::xercesTerminate(); }
 
-void RPCPatternsParser::parse(std::string fileName) {
+void RPCPatternsParser::parse(const std::string& fileName) {
   ifstream fin;
   fin.open(fileName.c_str());
   if (fin.fail()) {

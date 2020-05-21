@@ -17,7 +17,7 @@ public:
   double correction(const LorentzVector& fJet) const override;
   double correction(const reco::Jet&) const override;
 
-  void setParameters(std::string, int);
+  void setParameters(const std::string&, int);
   /// if correction needs event information
   bool eventRequired() const override { return false; }
 

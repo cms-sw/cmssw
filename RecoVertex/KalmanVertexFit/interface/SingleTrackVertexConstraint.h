@@ -41,7 +41,7 @@ public:
    *  The method which does the constaint.
    *  The track must NOT have been used in the vertex fit.
    */
-  BTFtuple constrain(const reco::TransientTrack& track, const VertexState priorVertex) const;
+  BTFtuple constrain(const reco::TransientTrack& track, const VertexState& priorVertex) const;
 
   /**
    *  Constaint of a TransientTrack with a BeamSpot.

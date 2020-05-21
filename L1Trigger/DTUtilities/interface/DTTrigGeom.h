@@ -107,16 +107,16 @@ public:
   // Local and global position of a trigger object
 
   /// Go to CMS coordinate system for a point
-  GlobalPoint toGlobal(const LocalPoint p) const { return _stat->surface().toGlobal(p); }
+  GlobalPoint toGlobal(const LocalPoint& p) const { return _stat->surface().toGlobal(p); }
 
   /// Go to CMS coordinate system for a vector
-  GlobalVector toGlobal(const LocalVector v) const { return _stat->surface().toGlobal(v); }
+  GlobalVector toGlobal(const LocalVector& v) const { return _stat->surface().toGlobal(v); }
 
   /// Go to Local coordinate system for a point
-  LocalPoint toLocal(const GlobalPoint p) const { return _stat->surface().toLocal(p); }
+  LocalPoint toLocal(const GlobalPoint& p) const { return _stat->surface().toLocal(p); }
 
   /// Go to Local coordinate system for a vector
-  LocalVector toLocal(const GlobalVector v) const { return _stat->surface().toLocal(v); }
+  LocalVector toLocal(const GlobalVector& v) const { return _stat->surface().toLocal(v); }
 
   /*!
       \verbatim
@@ -138,7 +138,7 @@ public:
       \endverbatim
     */
   /// Local position in chamber of a BTI
-  LocalPoint localPosition(const DTBtiId) const;
+  LocalPoint localPosition(const DTBtiId&) const;
 
   /*!
      \verbatim
@@ -171,13 +171,13 @@ public:
     \endverbatim
     */
   /// Local position in chamber of a TRACO
-  LocalPoint localPosition(const DTTracoId) const;
+  LocalPoint localPosition(const DTTracoId&) const;
 
   /// CMS position of a BTI
-  inline GlobalPoint CMSPosition(const DTBtiId obj) const { return toGlobal(localPosition(obj)); }
+  inline GlobalPoint CMSPosition(const DTBtiId& obj) const { return toGlobal(localPosition(obj)); }
 
   /// CMS position of a TRACO
-  inline GlobalPoint CMSPosition(const DTTracoId obj) const { return toGlobal(localPosition(obj)); }
+  inline GlobalPoint CMSPosition(const DTTracoId& obj) const { return toGlobal(localPosition(obj)); }
 
   /// Dump the geometry
   void dumpGeom() const;

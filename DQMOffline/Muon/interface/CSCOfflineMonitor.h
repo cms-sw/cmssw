@@ -92,26 +92,26 @@ private:
   edm::EDGetTokenT<CSCSegmentCollection> se_token;
 
   // modules
-  void doOccupancies(edm::Handle<CSCStripDigiCollection> strips,
-                     edm::Handle<CSCWireDigiCollection> wires,
-                     edm::Handle<CSCRecHit2DCollection> recHits,
-                     edm::Handle<CSCSegmentCollection> cscSegments,
-                     edm::Handle<CSCCLCTDigiCollection> clcts);
-  void doStripDigis(edm::Handle<CSCStripDigiCollection> strips);
-  void doWireDigis(edm::Handle<CSCWireDigiCollection> wires);
-  void doRecHits(edm::Handle<CSCRecHit2DCollection> recHits,
-                 edm::Handle<CSCStripDigiCollection> strips,
-                 edm::ESHandle<CSCGeometry> cscGeom);
-  void doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips, edm::ESHandle<CSCGeometry> cscGeom);
-  void doSegments(edm::Handle<CSCSegmentCollection> cscSegments, edm::ESHandle<CSCGeometry> cscGeom);
-  void doResolution(edm::Handle<CSCSegmentCollection> cscSegments, edm::ESHandle<CSCGeometry> cscGeom);
-  void doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
-                      edm::Handle<CSCStripDigiCollection> strips,
-                      edm::Handle<CSCRecHit2DCollection> recHits,
-                      edm::Handle<CSCSegmentCollection> cscSegments,
-                      edm::ESHandle<CSCGeometry> cscGeom);
-  void doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts,
-                   edm::Handle<CSCCLCTDigiCollection> clcts,
+  void doOccupancies(const edm::Handle<CSCStripDigiCollection> &strips,
+                     const edm::Handle<CSCWireDigiCollection> &wires,
+                     const edm::Handle<CSCRecHit2DCollection> &recHits,
+                     const edm::Handle<CSCSegmentCollection> &cscSegments,
+                     const edm::Handle<CSCCLCTDigiCollection> &clcts);
+  void doStripDigis(const edm::Handle<CSCStripDigiCollection> &strips);
+  void doWireDigis(const edm::Handle<CSCWireDigiCollection> &wires);
+  void doRecHits(const edm::Handle<CSCRecHit2DCollection> &recHits,
+                 const edm::Handle<CSCStripDigiCollection> &strips,
+                 const edm::ESHandle<CSCGeometry> &cscGeom);
+  void doPedestalNoise(const edm::Handle<CSCStripDigiCollection> &strips, const edm::ESHandle<CSCGeometry> &cscGeom);
+  void doSegments(const edm::Handle<CSCSegmentCollection> &cscSegments, const edm::ESHandle<CSCGeometry> &cscGeom);
+  void doResolution(const edm::Handle<CSCSegmentCollection> &cscSegments, const edm::ESHandle<CSCGeometry> &cscGeom);
+  void doEfficiencies(const edm::Handle<CSCWireDigiCollection> &wires,
+                      const edm::Handle<CSCStripDigiCollection> &strips,
+                      const edm::Handle<CSCRecHit2DCollection> &recHits,
+                      const edm::Handle<CSCSegmentCollection> &cscSegments,
+                      const edm::ESHandle<CSCGeometry> &cscGeom);
+  void doBXMonitor(const edm::Handle<CSCALCTDigiCollection> &alcts,
+                   const edm::Handle<CSCCLCTDigiCollection> &clcts,
                    const edm::Event &event,
                    const edm::EventSetup &eventSetup);
 
@@ -139,7 +139,7 @@ private:
     return extrapolatedPosition;
   }
 
-  bool withinSensitiveRegion(LocalPoint localPos,
+  bool withinSensitiveRegion(const LocalPoint &localPos,
                              const std::array<const float, 4> &layerBounds,
                              int station,
                              int ring,

@@ -107,7 +107,7 @@ private:
                                const edm::EventSetup* iSetup,
                                const Track* track,
                                double trajChi2OverN);
-  bool IsFarFromBorder(TrajectoryStateOnSurface trajState, const uint32_t detid, const edm::EventSetup* iSetup);
+  bool IsFarFromBorder(const TrajectoryStateOnSurface& trajState, const uint32_t detid, const edm::EventSetup* iSetup);
 
   void getPeakOfLandau(TH1* InputHisto, double* FitResults, double LowRange = 0, double HighRange = 5400);
 
@@ -1397,7 +1397,7 @@ double SiStripGainFromData::ComputeChargeOverPath(const SiStripCluster* Cluster,
   return ClusterChargeOverPath;
 }
 
-bool SiStripGainFromData::IsFarFromBorder(TrajectoryStateOnSurface trajState,
+bool SiStripGainFromData::IsFarFromBorder(const TrajectoryStateOnSurface& trajState,
                                           const uint32_t detid,
                                           const edm::EventSetup* iSetup) {
   edm::ESHandle<TrackerGeometry> tkGeom;

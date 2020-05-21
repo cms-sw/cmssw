@@ -20,13 +20,14 @@
 #include "TPaveStats.h"
 #include <string>
 #include <fstream>
+#include <utility>
 
 namespace {
 
   class HcalChannelStatusContainer : public HcalObjRepresent::HcalDataContainer<HcalChannelQuality, HcalChannelStatus> {
   public:
     HcalChannelStatusContainer(std::shared_ptr<HcalChannelQuality> payload, unsigned int run)
-        : HcalObjRepresent::HcalDataContainer<HcalChannelQuality, HcalChannelStatus>(payload, run) {}
+        : HcalObjRepresent::HcalDataContainer<HcalChannelQuality, HcalChannelStatus>(std::move(payload), run) {}
     float getValue(HcalChannelStatus* chan) override { return chan->getValue() / 32770; }
   };
 

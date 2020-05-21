@@ -53,7 +53,7 @@ private:
   bool verbose_;
   MonitorElement* reportSummary_;
   MonitorElement* reportSummaryMap_;
-  float invMassZtest(std::string path, TString name, DQMStore::IGetter&);
+  float invMassZtest(const std::string& path, const TString& name, DQMStore::IGetter&);
 
   // ----------member data ---------------------------
 };

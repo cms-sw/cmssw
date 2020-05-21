@@ -215,7 +215,7 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::vector<std::vector<std::string> > &tableMa
   dacs_ = pulseTrain;
 }
 
-PixelFEDTestDAC::PixelFEDTestDAC(std::string filename) {
+PixelFEDTestDAC::PixelFEDTestDAC(const std::string &filename) {
   std::string mthn = "[PixelFEDTestDAC::PixelFEDTestDAC()]\t\t\t\t    ";
   const unsigned long int UB = 200;
   const unsigned long int B = 500;

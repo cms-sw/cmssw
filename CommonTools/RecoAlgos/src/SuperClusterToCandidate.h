@@ -13,7 +13,7 @@ namespace converter {
     typedef reco::SuperClusterCollection Components;
     typedef reco::RecoEcalCandidate Candidate;
     SuperClusterToCandidate(const edm::ParameterSet& cfg) : MassiveCandidateConverter(cfg) {}
-    void convert(reco::SuperClusterRef scRef, reco::RecoEcalCandidate& c) const {
+    void convert(const reco::SuperClusterRef& scRef, reco::RecoEcalCandidate& c) const {
       const reco::SuperCluster& sc = *scRef;
       math::XYZPoint v(0, 0, 0);  // this should be taken from something else...
       math::XYZVector p = sc.energy() * (sc.position() - v).unit();

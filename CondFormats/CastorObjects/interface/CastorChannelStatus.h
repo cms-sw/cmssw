@@ -28,7 +28,7 @@ public:
 
   CastorChannelStatus() : mId(0), mStatus(0) {}
   CastorChannelStatus(unsigned long fid, uint32_t status) : mId(fid), mStatus(status) {}
-  CastorChannelStatus(unsigned long fid, std::string status) : mId(fid) {
+  CastorChannelStatus(unsigned long fid, const std::string& status) : mId(fid) {
     if (status == "BAD")
       mStatus = BAD;
     else if (status == "GOOD")

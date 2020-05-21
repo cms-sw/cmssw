@@ -70,7 +70,7 @@ PixelGlobalDelay25::PixelGlobalDelay25(vector<vector<string> > &tableMat) : Pixe
   }
 }
 
-PixelGlobalDelay25::PixelGlobalDelay25(std::string filename) : PixelConfigBase(" ", " ", " ") {
+PixelGlobalDelay25::PixelGlobalDelay25(const std::string &filename) : PixelConfigBase(" ", " ", " ") {
   std::string mthn = "[PixelGlobalDelay25::PixelGlobalDelay25()]\t\t\t    ";
   std::ifstream in(filename.c_str());
 

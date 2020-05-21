@@ -15,7 +15,7 @@
 
 /** Read from root file <f> acceptance tables named <basename> and <basename>_hight */
 
-void AcceptanceTableHelper::Init(TFile& f, const std::string basename) {
+void AcceptanceTableHelper::Init(TFile& f, const std::string& basename) {
   // ... read table for low t
   TH3F* h = (TH3F*)f.Get(basename.c_str());
 

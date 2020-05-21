@@ -6,7 +6,7 @@
 #include "SimCalorimetry/EcalTestBeamAlgos/interface/EcalTBReadout.h"
 #include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
 
-EcalTBReadout::EcalTBReadout(const std::string theEcalTBInfoLabel) : ecalTBInfoLabel_(theEcalTBInfoLabel) {
+EcalTBReadout::EcalTBReadout(const std::string &theEcalTBInfoLabel) : ecalTBInfoLabel_(theEcalTBInfoLabel) {
   theTargetCrystal_ = -1;
   theTTlist_.reserve(1);
 }

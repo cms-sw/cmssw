@@ -24,7 +24,7 @@ namespace edm {
   }
 
   std::unique_ptr<DigiAccumulatorMixMod> DigiAccumulatorMixModFactory::makeDigiAccumulator(
-      ParameterSet const& conf, ProducesCollector producesCollector, ConsumesCollector& iC) const {
+      ParameterSet const& conf, const ProducesCollector& producesCollector, ConsumesCollector& iC) const {
     std::string accumulatorType = conf.getParameter<std::string>("accumulatorType");
     FDEBUG(1) << "DigiAccumulatorMixModFactory: digi_accumulator_type = " << accumulatorType << std::endl;
     auto wm = DigiAccumulatorMixModPluginFactory::get()->create(accumulatorType, conf, producesCollector, iC);

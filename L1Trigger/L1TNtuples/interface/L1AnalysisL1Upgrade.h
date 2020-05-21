@@ -25,11 +25,11 @@ namespace L1Analysis {
     L1AnalysisL1Upgrade();
     ~L1AnalysisL1Upgrade();
     void Reset() { l1upgrade_.Reset(); }
-    void SetEm(const edm::Handle<l1t::EGammaBxCollection> em, unsigned maxL1Upgrade);
-    void SetTau(const edm::Handle<l1t::TauBxCollection> tau, unsigned maxL1Upgrade);
-    void SetJet(const edm::Handle<l1t::JetBxCollection> jet, unsigned maxL1Upgrade);
-    void SetSum(const edm::Handle<l1t::EtSumBxCollection> sums, unsigned maxL1Upgrade);
-    void SetMuon(const edm::Handle<l1t::MuonBxCollection> muon, unsigned maxL1Upgrade);
+    void SetEm(const edm::Handle<l1t::EGammaBxCollection>& em, unsigned maxL1Upgrade);
+    void SetTau(const edm::Handle<l1t::TauBxCollection>& tau, unsigned maxL1Upgrade);
+    void SetJet(const edm::Handle<l1t::JetBxCollection>& jet, unsigned maxL1Upgrade);
+    void SetSum(const edm::Handle<l1t::EtSumBxCollection>& sums, unsigned maxL1Upgrade);
+    void SetMuon(const edm::Handle<l1t::MuonBxCollection>& muon, unsigned maxL1Upgrade);
     L1AnalysisL1UpgradeDataFormat* getData() { return &l1upgrade_; }
 
   private:

@@ -138,7 +138,7 @@ std::vector<APVGain::MonitorElement*> APVGain::FetchMonitor(std::vector<APVGain:
 
 /** Brief Fetch the Monitor Element index corresponding to a DetId.
  *  */
-std::vector<unsigned int> APVGain::FetchIndices(std::map<unsigned int, APVloc> theMap,
+std::vector<unsigned int> APVGain::FetchIndices(const std::map<unsigned int, APVloc>& theMap,
                                                 uint32_t det_id,
                                                 const TrackerTopology* topo) {
   std::vector<unsigned int> found_indices = std::vector<unsigned int>();

@@ -10,13 +10,15 @@
  * \version $Revision: 1.2 $
  *
  */
+#include <utility>
+
 #include "CommonTools/Utils/src/SelectorBase.h"
 #include "CommonTools/Utils/src/SelectorPtr.h"
 
 namespace reco {
   namespace parser {
     struct AndCombiner : public SelectorBase {
-      AndCombiner(SelectorPtr lhs, SelectorPtr rhs) : lhs_(lhs), rhs_(rhs) {}
+      AndCombiner(SelectorPtr lhs, SelectorPtr rhs) : lhs_(std::move(lhs)), rhs_(std::move(rhs)) {}
       bool operator()(const edm::ObjectWithDict& o) const override { return (*lhs_)(o) && (*rhs_)(o); }
 
     private:

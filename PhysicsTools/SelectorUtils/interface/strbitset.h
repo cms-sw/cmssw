@@ -14,6 +14,8 @@
 
 #include <string>
 #include <map>
+#include <utility>
+
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -87,7 +89,7 @@ namespace pat {
     /// adds an item that is indexed by the string. this
     /// can then be sorted, cut, whatever, and the
     /// index mapping is kept
-    void push_back(std::string s) {
+    void push_back(const std::string& s) {
       if (map_.find(s) == map_.end()) {
         map_[s] = bits_.size();
         bits_.resize(bits_.size() + 1);
@@ -107,7 +109,7 @@ namespace pat {
     }
 
     //! access method const
-    bit_vector::const_reference operator[](const std::string s) const {
+    bit_vector::const_reference operator[](const std::string& s) const {
       size_t index = this->index(s);
       return bits_.operator[](index);
     }
@@ -115,7 +117,7 @@ namespace pat {
     bit_vector::const_reference operator[](index_type const& i) const { return bits_.operator[](i.i_); }
 
     //! access method non-const
-    bit_vector::reference operator[](const std::string s) {
+    bit_vector::reference operator[](const std::string& s) {
       size_t index = this->index(s);
       return bits_.operator[](index);
     }
@@ -139,8 +141,8 @@ namespace pat {
     }
 
     //! set method of one bit
-    strbitset& set(std::string s, bool val = true) {
-      (*this)[s] = val;
+    strbitset& set(const std::string& s, bool val = true) {
+      (*this)[std::move(s)] = val;
       return *this;
     }
 
@@ -150,7 +152,7 @@ namespace pat {
     }
 
     //! flip method of one bit
-    strbitset& flip(std::string s) {
+    strbitset& flip(const std::string& s) {
       (*this)[s] = !((*this)[s]);
       return *this;
     }
@@ -284,7 +286,7 @@ namespace pat {
     size_t none() const { return !any(); }
 
     //! test
-    bool test(std::string s) const { return (*this)[s] == true; }
+    bool test(const std::string& s) const { return (*this)[std::move(s)] == true; }
 
     bool test(index_type const& i) const { return (*this)[i] == true; }
 
@@ -308,7 +310,7 @@ namespace pat {
   private:
     /// workhorse: this gets the index of "bits" that is pointed to by
     /// the string "s"
-    size_t index(std::string s) const {
+    size_t index(const std::string& s) const {
       str_index_map::const_iterator f = map_.find(s);
       if (f == map_.end()) {
         std::cout << "Cannot find " << s << ", returning size()" << std::endl;

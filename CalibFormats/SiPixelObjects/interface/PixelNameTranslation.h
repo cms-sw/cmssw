@@ -41,7 +41,7 @@ namespace pos {
   class PixelNameTranslation : public PixelConfigBase {
   public:
     PixelNameTranslation(std::vector<std::vector<std::string> >& tableMat);
-    PixelNameTranslation(std::string filename);
+    PixelNameTranslation(const std::string& filename);
 
     ~PixelNameTranslation() override {}
 

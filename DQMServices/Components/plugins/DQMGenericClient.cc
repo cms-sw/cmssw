@@ -140,7 +140,7 @@ private:
 
   void findAllSubdirectories(DQMStore::IBooker& ibooker,
                              DQMStore::IGetter& igetter,
-                             std::string dir,
+                             const std::string& dir,
                              std::set<std::string>* myList,
                              const TString& pattern);
 
@@ -1189,7 +1189,7 @@ void DQMGenericClient::limitedFit(MonitorElement* srcME, MonitorElement* meanME,
 
 void DQMGenericClient::findAllSubdirectories(DQMStore::IBooker& ibooker,
                                              DQMStore::IGetter& igetter,
-                                             std::string dir,
+                                             const std::string& dir,
                                              std::set<std::string>* myList,
                                              const TString& _pattern = TString("")) {
   TString pattern = _pattern;

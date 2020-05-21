@@ -1433,7 +1433,7 @@ std::map<DTWireId, std::vector<DTRecHit1DPair>> GlobalRecHitsAnalyzer::map1DRecH
 }
 
 // Compute SimHit distance from wire (cm)
-float GlobalRecHitsAnalyzer::simHitDistFromWire(const DTLayer* layer, DTWireId wireId, const PSimHit& hit) {
+float GlobalRecHitsAnalyzer::simHitDistFromWire(const DTLayer* layer, const DTWireId& wireId, const PSimHit& hit) {
   float xwire = layer->specificTopology().wirePosition(wireId.wire());
   LocalPoint entryP = hit.entryPoint();
   LocalPoint exitP = hit.exitPoint();
@@ -1447,7 +1447,7 @@ float GlobalRecHitsAnalyzer::simHitDistFromWire(const DTLayer* layer, DTWireId w
 // Find the RecHit closest to the muon SimHit
 template <typename type>
 const type* GlobalRecHitsAnalyzer::findBestRecHit(const DTLayer* layer,
-                                                  DTWireId wireId,
+                                                  const DTWireId& wireId,
                                                   const std::vector<type>& recHits,
                                                   const float simHitDist) {
   float res = 99999;

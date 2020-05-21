@@ -124,7 +124,7 @@ namespace external {
   }
 
   double HEPTopTaggerV2_fixed_R::nsub(
-      fastjet::PseudoJet jet, int order, fastjet::contrib::Njettiness::AxesMode axes, double beta, double R0) {
+      const fastjet::PseudoJet& jet, int order, fastjet::contrib::Njettiness::AxesMode axes, double beta, double R0) {
     fastjet::contrib::Nsubjettiness nsub(order, axes, beta, R0);
     return nsub.result(jet);
   }
@@ -175,7 +175,7 @@ namespace external {
     _qweight = -1.;
   }
 
-  HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet jet)
+  HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet& jet)
       : _do_qjets(false),
         _jet(jet),
         _initial_jet(jet),
@@ -210,7 +210,7 @@ namespace external {
         _debug(false),
         _first_time(true) {}
 
-  HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet jet, double mtmass, double mwmass)
+  HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet& jet, double mtmass, double mwmass)
       : _do_qjets(false),
         _jet(jet),
         _initial_jet(jet),

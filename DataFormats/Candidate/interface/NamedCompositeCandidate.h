@@ -15,6 +15,7 @@
 #include "DataFormats/Candidate/interface/NamedCompositeCandidateFwd.h"
 #include <string>
 #include <map>
+#include <utility>
 
 namespace reco {
 
@@ -23,9 +24,9 @@ namespace reco {
     typedef std::vector<std::string> role_collection;
 
     /// default constructor
-    NamedCompositeCandidate(std::string name = "") : CompositeCandidate(), name_(name) {}
+    NamedCompositeCandidate(std::string name = "") : CompositeCandidate(), name_(std::move(name)) {}
     NamedCompositeCandidate(std::string name, const role_collection& roles)
-        : CompositeCandidate(), name_(name), roles_(roles) {}
+        : CompositeCandidate(), name_(std::move(name)), roles_(roles) {}
     /// constructor from values
     NamedCompositeCandidate(std::string name,
                             const role_collection& roles,
@@ -35,9 +36,9 @@ namespace reco {
                             int pdgId = 0,
                             int status = 0,
                             bool integerCharge = true)
-        : CompositeCandidate(q, p4, vtx, pdgId, status, integerCharge), name_(name), roles_(roles) {}
+        : CompositeCandidate(q, p4, vtx, pdgId, status, integerCharge), name_(std::move(name)), roles_(roles) {}
     /// constructor from values
-    NamedCompositeCandidate(std::string name, const role_collection& roles, const Candidate& p);
+    NamedCompositeCandidate(const std::string& name, const role_collection& roles, const Candidate& p);
 
     /// destructor
     ~NamedCompositeCandidate() override;
@@ -46,7 +47,7 @@ namespace reco {
     // get name
     std::string name() const { return name_; }
     // set name
-    void setName(std::string n) { name_ = n; }
+    void setName(std::string n) { name_ = std::move(n); }
     // get roles
     const NamedCompositeCandidate::role_collection& roles() const { return roles_; }
     // set roles

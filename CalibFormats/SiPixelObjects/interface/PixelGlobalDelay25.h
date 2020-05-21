@@ -25,7 +25,7 @@ namespace pos {
 */
   class PixelGlobalDelay25 : public PixelConfigBase {
   public:
-    PixelGlobalDelay25(std::string filename);                         // create from file
+    PixelGlobalDelay25(const std::string &filename);                  // create from file
     PixelGlobalDelay25(std::vector<std::vector<std::string> > &tab);  // create from DB
     ~PixelGlobalDelay25() override;
 

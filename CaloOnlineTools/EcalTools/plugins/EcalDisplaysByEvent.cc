@@ -181,7 +181,9 @@ void EcalDisplaysByEvent::analyze(edm::Event const& iEvent, edm::EventSetup cons
   deleteEvtByEvtHists();
 }
 
-void EcalDisplaysByEvent::selectHits(Handle<EcalRecHitCollection> hits, int ievt, ESHandle<CaloTopology> caloTopo) {
+void EcalDisplaysByEvent::selectHits(const Handle<EcalRecHitCollection>& hits,
+                                     int ievt,
+                                     const ESHandle<CaloTopology>& caloTopo) {
   for (EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr) {
     EcalRecHit hit = (*hitItr);
     DetId det = hit.id();
@@ -353,7 +355,7 @@ int EcalDisplaysByEvent::getEEIndex(EcalElectronicsId elecId) {
   return 10000 * FEDid + 100 * elecId.towerId() + 5 * (elecId.stripId() - 1) + elecId.xtalId();
 }
 
-void EcalDisplaysByEvent::makeHistos(Handle<EBDigiCollection> ebDigiHandle) {
+void EcalDisplaysByEvent::makeHistos(const Handle<EBDigiCollection>& ebDigiHandle) {
   const EBDigiCollection* ebDigis = ebDigiHandle.product();
   for (EBDigiCollection::const_iterator digiItr = ebDigis->begin(); digiItr != ebDigis->end(); ++digiItr) {
     EBDetId digiId = digiItr->id();
@@ -368,7 +370,7 @@ void EcalDisplaysByEvent::makeHistos(Handle<EBDigiCollection> ebDigiHandle) {
   }
 }
 
-void EcalDisplaysByEvent::makeHistos(Handle<EEDigiCollection> eeDigiHandle) {
+void EcalDisplaysByEvent::makeHistos(const Handle<EEDigiCollection>& eeDigiHandle) {
   const EEDigiCollection* eeDigis = eeDigiHandle.product();
   for (EEDigiCollection::const_iterator digiItr = eeDigis->begin(); digiItr != eeDigis->end(); ++digiItr) {
     DetId det = digiItr->id();
@@ -398,7 +400,7 @@ void EcalDisplaysByEvent::makeHistos(Handle<EEDigiCollection> eeDigiHandle) {
   }
 }
 
-void EcalDisplaysByEvent::makeHistos(Handle<EcalRecHitCollection> hits) {
+void EcalDisplaysByEvent::makeHistos(const Handle<EcalRecHitCollection>& hits) {
   for (EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr) {
     EcalRecHit hit = (*hitItr);
     DetId det = hit.id();
@@ -741,7 +743,7 @@ void EcalDisplaysByEvent::initAllEventHistos() {
   digiOccupancyCoarseCanvasAll_ = init2DEcalCanvas("DigiOccupancyCoarse_AllEvents");
 }
 
-TH3F* EcalDisplaysByEvent::init3DEcalHist(std::string histTypeName, int subDet) {
+TH3F* EcalDisplaysByEvent::init3DEcalHist(const std::string& histTypeName, int subDet) {
   TH3F* hist;
   bool isBarrel = (subDet == EB_FINE || subDet == EB_COARSE) ? true : false;
   bool isCoarse = (subDet == EB_COARSE || subDet == EEM_COARSE || subDet == EEP_COARSE) ? true : false;
@@ -801,7 +803,7 @@ TH3F* EcalDisplaysByEvent::init3DEcalHist(std::string histTypeName, int subDet) 
   return hist;
 }
 
-TH2F* EcalDisplaysByEvent::init2DEcalHist(std::string histTypeName, int subDet) {
+TH2F* EcalDisplaysByEvent::init2DEcalHist(const std::string& histTypeName, int subDet) {
   TH2F* hist;
   bool isBarrel = (subDet == EB_FINE || subDet == EB_COARSE) ? true : false;
   bool isCoarse = (subDet == EB_COARSE || subDet == EEM_COARSE || subDet == EEP_COARSE) ? true : false;
@@ -841,7 +843,7 @@ TH2F* EcalDisplaysByEvent::init2DEcalHist(std::string histTypeName, int subDet) 
   return hist;
 }
 
-TCanvas* EcalDisplaysByEvent::init2DEcalCanvas(std::string canvasTitle) {
+TCanvas* EcalDisplaysByEvent::init2DEcalCanvas(const std::string& canvasTitle) {
   TCanvas* canvas = new TCanvas(canvasTitle.c_str(), canvasTitle.c_str(), 300, 60, 500, 200);
   return canvas;
 }

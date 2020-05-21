@@ -452,7 +452,7 @@ bool TCMETAlgo::isValidVertex() {
 }
 
 //____________________________________________________________________________||
-bool TCMETAlgo::closeToElectron(const reco::TrackRef track) {
+bool TCMETAlgo::closeToElectron(const reco::TrackRef& track) {
   float trk_eta = track->eta();
   float trk_phi = track->phi();
   LorentzVector tk_p4(track->px(), track->py(), track->pz(), track->p());
@@ -488,7 +488,7 @@ bool TCMETAlgo::closeToElectron(const reco::TrackRef track) {
 }
 
 //____________________________________________________________________________||
-bool TCMETAlgo::nearGoodShowerTrack(const reco::TrackRef track, const std::vector<int>& goodShowerTracks) {
+bool TCMETAlgo::nearGoodShowerTrack(const reco::TrackRef& track, const std::vector<int>& goodShowerTracks) {
   //checks if 'track' is within dR < deltaRShower_ of any good shower tracks
   float eta1 = track->eta();
   float phi1 = track->phi();
@@ -531,17 +531,17 @@ void TCMETAlgo::findGoodShowerTracks(std::vector<int>& goodShowerTracks) {
 }
 
 //____________________________________________________________________________||
-int TCMETAlgo::nExpectedInnerHits(const reco::TrackRef track) {
+int TCMETAlgo::nExpectedInnerHits(const reco::TrackRef& track) {
   return track->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_INNER_HITS);
 }
 
 //____________________________________________________________________________||
-int TCMETAlgo::nExpectedOuterHits(const reco::TrackRef track) {
+int TCMETAlgo::nExpectedOuterHits(const reco::TrackRef& track) {
   return track->hitPattern().numberOfLostHits(reco::HitPattern::MISSING_OUTER_HITS);
 }
 
 //____________________________________________________________________________||
-int TCMETAlgo::nLayers(const reco::TrackRef track) { return track->hitPattern().trackerLayersWithMeasurement(); }
+int TCMETAlgo::nLayers(const reco::TrackRef& track) { return track->hitPattern().trackerLayersWithMeasurement(); }
 
 //____________________________________________________________________________||
 bool TCMETAlgo::isMuon(const reco::TrackRef& trackRef) {
@@ -573,7 +573,7 @@ bool TCMETAlgo::isElectron(const reco::TrackRef& trackRef) {
 }
 
 //____________________________________________________________________________||
-bool TCMETAlgo::isGoodTrack(const reco::TrackRef track) {
+bool TCMETAlgo::isGoodTrack(const reco::TrackRef& track) {
   double d0 = 9999.;
 
   if (hasValidVertex_) {
@@ -674,7 +674,7 @@ bool TCMETAlgo::isGoodTrack(const reco::TrackRef track) {
 }
 
 //____________________________________________________________________________||
-void TCMETAlgo::correctMETforMuon(const reco::TrackRef track, reco::MuonRef& muonRef) {
+void TCMETAlgo::correctMETforMuon(const reco::TrackRef& track, reco::MuonRef& muonRef) {
   reco::MuonMETCorrectionData muCorrData = (*muonDepValueMapHandle_)[muonRef];
 
   double delx = muCorrData.corrX();
@@ -698,7 +698,7 @@ void TCMETAlgo::correctMETforMuon(reco::MuonRef& muonRef) {
 }
 
 //____________________________________________________________________________||
-void TCMETAlgo::correctMETforTrack(const reco::TrackRef track, TH2D* rf, const TVector3& outerTrackPosition) {
+void TCMETAlgo::correctMETforTrack(const reco::TrackRef& track, TH2D* rf, const TVector3& outerTrackPosition) {
   if (track->pt() < minpt_) {
     met_x_ -= track->pt() * cos(track->phi());
     met_y_ -= track->pt() * sin(track->phi());
@@ -721,7 +721,7 @@ void TCMETAlgo::correctMETforTrack(const reco::TrackRef track, TH2D* rf, const T
 }
 
 //____________________________________________________________________________||
-void TCMETAlgo::correctSumEtForTrack(const reco::TrackRef track, TH2D* rf, const TVector3& outerTrackPosition) {
+void TCMETAlgo::correctSumEtForTrack(const reco::TrackRef& track, TH2D* rf, const TVector3& outerTrackPosition) {
   if (track->pt() < minpt_) {
     sumEt_ += track->pt();
   } else {
@@ -736,7 +736,7 @@ void TCMETAlgo::correctSumEtForTrack(const reco::TrackRef track, TH2D* rf, const
 }
 
 //____________________________________________________________________________||
-TVector3 TCMETAlgo::propagateTrackToCalorimeterFace(const reco::TrackRef track) {
+TVector3 TCMETAlgo::propagateTrackToCalorimeterFace(const reco::TrackRef& track) {
   const class MagneticField* bField = magneticFieldHandle_.product();
 
   TVector3 outerTrkPosition;

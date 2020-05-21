@@ -40,7 +40,7 @@ private:
 
 class HiPhotonType {
 public:
-  HiPhotonType(edm::Handle<reco::GenParticleCollection> inputHandle);
+  HiPhotonType(const edm::Handle<reco::GenParticleCollection> &inputHandle);
   bool IsPrompt(const reco::GenParticle &pp);
   bool IsIsolated(const reco::GenParticle &pp);
   //  bool IsIsolatedPP(const reco::GenParticle &pp);

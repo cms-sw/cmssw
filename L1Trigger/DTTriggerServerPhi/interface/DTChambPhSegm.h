@@ -41,12 +41,12 @@ typedef unsigned char myint8;
 class DTChambPhSegm : public DTTrigData {
 public:
   /// Constructor
-  DTChambPhSegm(DTChamberId, int);
+  DTChambPhSegm(const DTChamberId &, int);
 
   /// Constructor
   /*sm   DTChambPhSegm(MuBarChamberId, int, */
   /*sm 		    const DTTracoTrigData* tracotrig, int); */
-  DTChambPhSegm(DTChamberId, int, const DTTracoTrigData *, int);
+  DTChambPhSegm(const DTChamberId &, int, const DTTracoTrigData *, int);
   /// Constructor */
   /*sm   DTChambPhSegm(const DTChambPhSegm& seg); */
   DTChambPhSegm(const DTChambPhSegm &);

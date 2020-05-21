@@ -65,7 +65,7 @@ namespace {
 
   GlobalError const linPointError = initLinePointError();
 
-  void sortByDistanceToRefPoint(std::vector<RefCountedVertexTrack>& cont, const GlobalPoint ref) {
+  void sortByDistanceToRefPoint(std::vector<RefCountedVertexTrack>& cont, const GlobalPoint& ref) {
     auto s = cont.size();
     float d2[s];
     int ind[s];

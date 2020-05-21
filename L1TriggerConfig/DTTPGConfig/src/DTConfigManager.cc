@@ -55,7 +55,7 @@ DTConfigManager::~DTConfigManager() {
 // Operations --
 //--------------
 
-const DTConfigBti* DTConfigManager::getDTConfigBti(DTBtiId btiid) const {
+const DTConfigBti* DTConfigManager::getDTConfigBti(const DTBtiId& btiid) const {
   DTChamberId chambid = btiid.SLId().chamberId();
   BtiMap::const_iterator biter1 = my_btimap.find(chambid);
   if (biter1 == my_btimap.end()) {
@@ -74,7 +74,7 @@ const DTConfigBti* DTConfigManager::getDTConfigBti(DTBtiId btiid) const {
   return &(*biter2).second;
 }
 
-const std::map<DTBtiId, DTConfigBti>& DTConfigManager::getDTConfigBtiMap(DTChamberId chambid) const {
+const std::map<DTBtiId, DTConfigBti>& DTConfigManager::getDTConfigBtiMap(const DTChamberId& chambid) const {
   BtiMap::const_iterator biter = my_btimap.find(chambid);
   if (biter == my_btimap.end()) {
     std::cout << "DTConfigManager::getConfigBtiMap : Chamber (" << chambid.wheel() << "," << chambid.sector() << ","
@@ -84,7 +84,7 @@ const std::map<DTBtiId, DTConfigBti>& DTConfigManager::getDTConfigBtiMap(DTChamb
   return (*biter).second;
 }
 
-const DTConfigTraco* DTConfigManager::getDTConfigTraco(DTTracoId tracoid) const {
+const DTConfigTraco* DTConfigManager::getDTConfigTraco(const DTTracoId& tracoid) const {
   DTChamberId chambid = tracoid.ChamberId();
   TracoMap::const_iterator titer1 = my_tracomap.find(chambid);
   if (titer1 == my_tracomap.end()) {
@@ -103,7 +103,7 @@ const DTConfigTraco* DTConfigManager::getDTConfigTraco(DTTracoId tracoid) const 
   return &(*titer2).second;
 }
 
-const std::map<DTTracoId, DTConfigTraco>& DTConfigManager::getDTConfigTracoMap(DTChamberId chambid) const {
+const std::map<DTTracoId, DTConfigTraco>& DTConfigManager::getDTConfigTracoMap(const DTChamberId& chambid) const {
   TracoMap::const_iterator titer = my_tracomap.find(chambid);
   if (titer == my_tracomap.end()) {
     std::cout << "DTConfigManager::getConfigTracoMap : Chamber (" << chambid.wheel() << "," << chambid.sector() << ","
@@ -113,7 +113,7 @@ const std::map<DTTracoId, DTConfigTraco>& DTConfigManager::getDTConfigTracoMap(D
   return (*titer).second;
 }
 
-const DTConfigTSTheta* DTConfigManager::getDTConfigTSTheta(DTChamberId chambid) const {
+const DTConfigTSTheta* DTConfigManager::getDTConfigTSTheta(const DTChamberId& chambid) const {
   TSThetaMap::const_iterator thiter = my_tsthetamap.find(chambid);
   if (thiter == my_tsthetamap.end()) {
     std::cout << "DTConfigManager::getConfigTSTheta : Chamber (" << chambid.wheel() << "," << chambid.sector() << ","
@@ -124,7 +124,7 @@ const DTConfigTSTheta* DTConfigManager::getDTConfigTSTheta(DTChamberId chambid) 
   return &(*thiter).second;
 }
 
-const DTConfigTSPhi* DTConfigManager::getDTConfigTSPhi(DTChamberId chambid) const {
+const DTConfigTSPhi* DTConfigManager::getDTConfigTSPhi(const DTChamberId& chambid) const {
   TSPhiMap::const_iterator phiter = my_tsphimap.find(chambid);
   if (phiter == my_tsphimap.end()) {
     std::cout << "DTConfigManager::getConfigTSPhi : Chamber (" << chambid.wheel() << "," << chambid.sector() << ","
@@ -135,7 +135,7 @@ const DTConfigTSPhi* DTConfigManager::getDTConfigTSPhi(DTChamberId chambid) cons
   return &(*phiter).second;
 }
 
-const DTConfigTrigUnit* DTConfigManager::getDTConfigTrigUnit(DTChamberId chambid) const {
+const DTConfigTrigUnit* DTConfigManager::getDTConfigTrigUnit(const DTChamberId& chambid) const {
   TrigUnitMap::const_iterator tuiter = my_trigunitmap.find(chambid);
   if (tuiter == my_trigunitmap.end()) {
     std::cout << "DTConfigManager::getConfigTrigUnit : Chamber (" << chambid.wheel() << "," << chambid.sector() << ","
@@ -146,7 +146,7 @@ const DTConfigTrigUnit* DTConfigManager::getDTConfigTrigUnit(DTChamberId chambid
   return &(*tuiter).second;
 }
 
-const DTConfigLUTs* DTConfigManager::getDTConfigLUTs(DTChamberId chambid) const {
+const DTConfigLUTs* DTConfigManager::getDTConfigLUTs(const DTChamberId& chambid) const {
   LUTMap::const_iterator lutiter = my_lutmap.find(chambid);
   if (lutiter == my_lutmap.end()) {
     std::cout << "DTConfigManager::getConfigLUTs : Chamber (" << chambid.wheel() << "," << chambid.sector() << ","
@@ -157,7 +157,7 @@ const DTConfigLUTs* DTConfigManager::getDTConfigLUTs(DTChamberId chambid) const 
   return &(*lutiter).second;
 }
 
-const DTConfigSectColl* DTConfigManager::getDTConfigSectColl(DTSectCollId scid) const {
+const DTConfigSectColl* DTConfigManager::getDTConfigSectColl(const DTSectCollId& scid) const {
   SectCollMap::const_iterator sciter = my_sectcollmap.find(scid);
   if (sciter == my_sectcollmap.end()) {
     std::cout << "DTConfigManager::getConfigSectColl : SectorCollector (" << scid.wheel() << "," << scid.sector()
@@ -175,12 +175,12 @@ int DTConfigManager::getBXOffset() const {
   return (ST / 2 + ST % 2);
 }
 
-void DTConfigManager::setDTConfigBti(DTBtiId btiid, DTConfigBti conf) {
+void DTConfigManager::setDTConfigBti(const DTBtiId& btiid, const DTConfigBti& conf) {
   DTChamberId chambid = btiid.SLId().chamberId();
   my_btimap[chambid][btiid] = conf;
 }
 
-void DTConfigManager::setDTConfigTraco(DTTracoId tracoid, DTConfigTraco conf) {
+void DTConfigManager::setDTConfigTraco(const DTTracoId& tracoid, const DTConfigTraco& conf) {
   DTChamberId chambid = tracoid.ChamberId();
   my_tracomap[chambid][tracoid] = conf;
 }

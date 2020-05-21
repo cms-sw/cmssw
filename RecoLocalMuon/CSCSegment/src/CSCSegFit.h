@@ -25,6 +25,8 @@
 #include <Math/SVector.h>
 #include <Math/SMatrix.h>
 
+#include <utility>
+
 #include <vector>
 
 class CSCSegFit {
@@ -53,7 +55,7 @@ public:
 
   //@@ WANT OBJECT TO CACHE THE SET OF HITS SO CANNOT PASS BY REF
   CSCSegFit(const CSCChamber* csc, CSCSetOfHits hits)
-      : chamber_(csc), hits_(hits), scaleXError_(1.0), fitdone_(false) {}
+      : chamber_(csc), hits_(std::move(hits)), scaleXError_(1.0), fitdone_(false) {}
 
   virtual ~CSCSegFit() {}
 

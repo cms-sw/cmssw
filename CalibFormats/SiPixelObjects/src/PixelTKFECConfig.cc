@@ -84,7 +84,7 @@ PixelTKFECConfig::PixelTKFECConfig(std::vector<std::vector<std::string> > &table
 
 //****************************************************************************************
 
-PixelTKFECConfig::PixelTKFECConfig(std::string filename) : PixelConfigBase(" ", " ", " ") {
+PixelTKFECConfig::PixelTKFECConfig(const std::string &filename) : PixelConfigBase(" ", " ", " ") {
   std::string mthn = "]\t[PixelTKFECConfig::PixelTKFECConfig()]\t\t\t    ";
   std::ifstream in(filename.c_str());
 
@@ -186,7 +186,7 @@ unsigned int PixelTKFECConfig::getAddress(unsigned int i) const {
   return TKFECconfig_[i].getAddress();
 }
 
-unsigned int PixelTKFECConfig::crateFromTKFECID(std::string TKFECID) const {
+unsigned int PixelTKFECConfig::crateFromTKFECID(const std::string &TKFECID) const {
   for (unsigned int i = 0; i < TKFECconfig_.size(); i++) {
     if (TKFECconfig_[i].getTKFECID() == TKFECID)
       return TKFECconfig_[i].getCrate();
@@ -199,7 +199,7 @@ unsigned int PixelTKFECConfig::crateFromTKFECID(std::string TKFECID) const {
   return 0;
 }
 
-std::string PixelTKFECConfig::typeFromTKFECID(std::string TKFECID) const {
+std::string PixelTKFECConfig::typeFromTKFECID(const std::string &TKFECID) const {
   for (unsigned int i = 0; i < TKFECconfig_.size(); i++) {
     if (TKFECconfig_[i].getTKFECID() == TKFECID)
       return TKFECconfig_[i].getType();
@@ -212,7 +212,7 @@ std::string PixelTKFECConfig::typeFromTKFECID(std::string TKFECID) const {
   return nullptr;
 }
 
-unsigned int PixelTKFECConfig::addressFromTKFECID(std::string TKFECID) const {
+unsigned int PixelTKFECConfig::addressFromTKFECID(const std::string &TKFECID) const {
   for (unsigned int i = 0; i < TKFECconfig_.size(); i++) {
     if (TKFECconfig_[i].getTKFECID() == TKFECID)
       return TKFECconfig_[i].getAddress();

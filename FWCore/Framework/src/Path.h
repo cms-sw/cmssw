@@ -146,7 +146,7 @@ namespace edm {
                                  ModuleDescription const&,
                                  std::string const& id,
                                  PathContext const&);
-    void threadsafe_setFailedModuleInfo(int nwrwue, std::exception_ptr);
+    void threadsafe_setFailedModuleInfo(int nwrwue, const std::exception_ptr&);
     void recordStatus(int nwrwue, hlt::HLTState state);
     void updateCounters(hlt::HLTState state);
 

@@ -4,7 +4,7 @@
 
 namespace edm {
 
-  ProcessDesc::ProcessDesc(std::shared_ptr<ParameterSet> pset)
+  ProcessDesc::ProcessDesc(const std::shared_ptr<ParameterSet>& pset)
       : pset_(pset), services_(pset_->popVParameterSet(std::string("services"))) {}
 
   ProcessDesc::ProcessDesc(std::unique_ptr<ParameterSet> pset)

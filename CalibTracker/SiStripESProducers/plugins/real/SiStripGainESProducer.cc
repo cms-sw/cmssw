@@ -42,7 +42,7 @@ private:
   template <typename Record>
   class GainGetterT : public GainGetter {
   public:
-    GainGetterT(edm::ESConsumesCollector& cc, std::string record, std::string label)
+    GainGetterT(edm::ESConsumesCollector& cc, const std::string& record, const std::string& label)
         : GainGetter(std::move(record), std::move(label)),
           token_{cc.consumesFrom<SiStripApvGain, Record>(edm::ESInputTag{"", recordLabel().second})} {}
 

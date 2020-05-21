@@ -436,7 +436,7 @@ bool Onia2MuMuPAT::isAMixedbHadron(int pdgID, int momPdgID) {
   return false;
 }
 
-std::pair<int, float> Onia2MuMuPAT::findJpsiMCInfo(reco::GenParticleRef genJpsi) {
+std::pair<int, float> Onia2MuMuPAT::findJpsiMCInfo(const reco::GenParticleRef &genJpsi) {
   int momJpsiID = 0;
   float trueLife = -99.;
 

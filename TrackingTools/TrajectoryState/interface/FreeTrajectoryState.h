@@ -11,6 +11,7 @@
 #include "TrackingTools/TrajectoryParametrization/interface/TrajectoryStateExceptions.h"
 
 #include <iosfwd>
+#include <utility>
 
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "FWCore/Utilities/interface/Likely.h"
@@ -45,7 +46,8 @@ public:
                       TrackCharge aCharge,
                       const MagneticField* fieldProvider,
                       GlobalVector fieldValue)
-      : theGlobalParameters(aX, aP, aCharge, fieldProvider, fieldValue), theCurvilinearError(InvalidError()) {}
+      : theGlobalParameters(aX, aP, aCharge, fieldProvider, std::move(fieldValue)),
+        theCurvilinearError(InvalidError()) {}
 
   FreeTrajectoryState(const GlobalTrajectoryParameters& aGlobalParameters,
                       const CurvilinearTrajectoryError& aCurvilinearError)

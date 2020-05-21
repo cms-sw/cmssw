@@ -48,14 +48,14 @@ public:
 
   //create the pf candidate to vertex association and the inverse map
   std::pair<std::unique_ptr<PFCandToVertexAssMap>, std::unique_ptr<VertexToPFCandAssMap>> createMappings(
-      edm::Handle<reco::PFCandidateCollection> pfCandH, const edm::EventSetup& iSetup);
+      const edm::Handle<reco::PFCandidateCollection>& pfCandH, const edm::EventSetup& iSetup);
 
   //create the pf candidate to vertex association map
-  std::unique_ptr<PFCandToVertexAssMap> CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollection>,
+  std::unique_ptr<PFCandToVertexAssMap> CreatePFCandToVertexMap(const edm::Handle<reco::PFCandidateCollection>&,
                                                                 const edm::EventSetup&);
 
   //create the vertex to pf candidate association map
-  std::unique_ptr<VertexToPFCandAssMap> CreateVertexToPFCandMap(edm::Handle<reco::PFCandidateCollection>,
+  std::unique_ptr<VertexToPFCandAssMap> CreateVertexToPFCandMap(const edm::Handle<reco::PFCandidateCollection>&,
                                                                 const edm::EventSetup&);
 
   //function to sort the vertices in the AssociationMap by the sum of (pT - pT_Error)**2

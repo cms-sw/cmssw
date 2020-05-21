@@ -19,9 +19,9 @@ namespace l1t {
       namespace L1TMuonEndCap =
           ::emtf;  // use alias 'L1TMuonEndCap' for the namespace 'emtf' used in L1Trigger/L1TMuonEndCap
 
-      void ImportME(EMTFHit& _hit, const l1t::emtf::ME _ME, const int _endcap, const int _evt_sector);
-      void ImportRPC(EMTFHit& _hit, const l1t::emtf::RPC _RPC, const int _endcap, const int _evt_sector);
-      void ImportSP(EMTFTrack& _track, const l1t::emtf::SP _SP, const int _endcap, const int _evt_sector);
+      void ImportME(EMTFHit& _hit, const l1t::emtf::ME& _ME, const int _endcap, const int _evt_sector);
+      void ImportRPC(EMTFHit& _hit, const l1t::emtf::RPC& _RPC, const int _endcap, const int _evt_sector);
+      void ImportSP(EMTFTrack& _track, const l1t::emtf::SP& _SP, const int _endcap, const int _evt_sector);
 
       // Integer version of pow() - returns base^exp
       inline int PowInt(int base, int exp) {

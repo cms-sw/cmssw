@@ -2,14 +2,16 @@
  * $Id: MuonTrackCSCChamberResidual.cc,v 1.3 2011/11/02 19:58:38 khotilov Exp $
  */
 
+#include <utility>
+
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonTrackCSCChamberResidual.h"
 //#include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 
 MuonTrackCSCChamberResidual::MuonTrackCSCChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
                                                          AlignableNavigator *navigator,
                                                          DetId chamberId,
-                                                         AlignableDetOrUnitPtr chamberAlignable)
-    : MuonChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable) {
+                                                         const AlignableDetOrUnitPtr &chamberAlignable)
+    : MuonChamberResidual(std::move(globalGeometry), navigator, chamberId, chamberAlignable) {
   m_type = MuonChamberResidual::kCSC;
   align::GlobalVector zDirection(0., 0., 1.);
   m_sign = m_globalGeometry->idToDet(m_chamberId)->toLocal(zDirection).z() > 0. ? 1. : -1.;

@@ -139,7 +139,7 @@ namespace {
       active_el = nullptr;
       active_label = "";
     }
-    void setLabel(std::string label) {
+    void setLabel(const std::string& label) {
       active_el = &(countermap[label]);
       active_label = label;
     }

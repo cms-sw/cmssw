@@ -16,6 +16,8 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <utility>
+
 #include <vector>
 
 #include "TH1F.h"
@@ -239,7 +241,8 @@ namespace HcalObjRepresent {
       gStyle->SetPadTickY(1);
     }
 
-    TH1D* GetProjection(TH2F* hist, std::string plotType, const char* newName, std::string subDetName, int depth) {
+    TH1D* GetProjection(
+        TH2F* hist, const std::string& plotType, const char* newName, const std::string& subDetName, int depth) {
       //TODO: Also want average for standard projection of 2DHist (not ratio or diff)?
       //if (PlotMode_ != "Ratio") return (plotType=="EtaProfile") ? ((TH2F*)(hist->Clone("temp")))->ProjectionX(newName) : ((TH2F*)(hist->Clone("temp")))->ProjectionY(newName);
 
@@ -285,7 +288,7 @@ namespace HcalObjRepresent {
                   std::string subDetName,
                   int startDepth = 1,
                   int startCanv = 1,
-                  std::string plotForm = "2DHist") {
+                  const std::string& plotForm = "2DHist") {
       const char* newName;
       std::pair<float, float> range;
       int padNum;
@@ -356,7 +359,7 @@ namespace HcalObjRepresent {
     //// functions called in Payload Inspector classes to import final canvases to be plotted
 
     // profile = "EtaProfile" || "PhiProfile"
-    TCanvas* getCanvasAll(std::string profile = "2DHist") {
+    TCanvas* getCanvasAll(const std::string& profile = "2DHist") {
       fillValConts();
       initGraphics();
       TCanvas* HAll = new TCanvas("HAll", "HAll", 1680, (GetTopoMode() == "2015/2016") ? 1680 : 2500);
@@ -398,7 +401,7 @@ namespace HcalObjRepresent {
       return HBHO;
     }
 
-    std::string GetUnit(std::string type) {
+    std::string GetUnit(const std::string& type) {
       std::string unit = units_[type];
       if (unit.empty())
         return "";
@@ -433,7 +436,7 @@ namespace HcalObjRepresent {
                                                  {"crossTalk", ""},
                                                  {"parLin", ""}};
 
-    tHcalValCont* getContFromString(std::string subDetString) {
+    tHcalValCont* getContFromString(const std::string& subDetString) {
       if (subDetString == "HB")
         return &HBvalContainer;
       else if (subDetString == "HE")
@@ -1065,7 +1068,7 @@ namespace HcalObjRepresent {
       depth[d].Reset();
   }  // void Reset(void)
 
-  void setup(std::vector<TH2F>& depth, std::string name, std::string units = "") {
+  void setup(std::vector<TH2F>& depth, const std::string& name, const std::string& units = "") {
     std::string unittitle, unitname;
     if (units.empty()) {
       unitname = units;
@@ -1136,8 +1139,8 @@ namespace HcalObjRepresent {
                    HcalGains::tAllContWithNames& allContainers,
                    std::string name,
                    int id,
-                   std::string units = "") {
-    setup(graphData, name);
+                   const std::string& units = "") {
+    setup(graphData, std::move(name));
 
     std::stringstream x;
     // Change the titles of each individual histogram
@@ -1208,7 +1211,7 @@ namespace HcalObjRepresent {
     unsigned int nr, id;
     std::stringstream filename, rootname, plotname;
 
-    void fillOneGain(std::vector<TH2F>& graphData, std::string units = "") {
+    void fillOneGain(std::vector<TH2F>& graphData, const std::string& units = "") {
       std::stringstream ss("");
 
       if (m_total == 1)
@@ -1258,7 +1261,7 @@ namespace HcalObjRepresent {
     virtual void doFillIn(std::vector<TH2F>& graphData) = 0;
 
   private:
-    void draw(std::vector<TH2F>& graphData, std::string filename) {
+    void draw(std::vector<TH2F>& graphData, const std::string& filename) {
       //Drawing...
       // use David's palette
       gStyle->SetPalette(1);
@@ -1294,7 +1297,7 @@ namespace HcalObjRepresent {
       canvas.SaveAs(filename.c_str());
     }
 
-    void setup(std::vector<TH2F>& depth, std::string name, std::string units = "") {
+    void setup(std::vector<TH2F>& depth, const std::string& name, const std::string& units = "") {
       std::string unittitle, unitname;
       if (units.empty()) {
         unitname = units;

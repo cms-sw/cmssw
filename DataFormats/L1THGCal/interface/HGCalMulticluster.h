@@ -13,7 +13,7 @@ namespace l1t {
   class HGCalMulticluster : public HGCalClusterT<l1t::HGCalCluster> {
   public:
     HGCalMulticluster() : hOverEValid_(false) {}
-    HGCalMulticluster(const LorentzVector p4, int pt = 0, int eta = 0, int phi = 0);
+    HGCalMulticluster(const LorentzVector& p4, int pt = 0, int eta = 0, int phi = 0);
 
     HGCalMulticluster(const edm::Ptr<l1t::HGCalCluster>& tc, float fraction = 1);
 

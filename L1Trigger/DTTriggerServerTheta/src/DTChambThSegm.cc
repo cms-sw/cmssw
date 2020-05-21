@@ -31,7 +31,7 @@
 //----------------
 // Constructors --
 //----------------
-DTChambThSegm::DTChambThSegm(DTChamberId chamberid, int step, int* pos, int* qual)
+DTChambThSegm::DTChambThSegm(const DTChamberId& chamberid, int step, int* pos, int* qual)
     : m_chamberid(chamberid), m_step(step) {
   for (int i = 0; i < 7; i++) {
     m_outPos[i] = pos[i];

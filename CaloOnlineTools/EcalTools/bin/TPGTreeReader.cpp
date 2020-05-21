@@ -88,7 +88,7 @@ unsigned int getFg(unsigned int val) { return ((val & 0x100) != 0); }
 
 unsigned int getTtf(unsigned int val) { return ((val >> 9) & 0x7); }
 
-std::vector<std::string> split(std::string msg, std::string separator) {
+std::vector<std::string> split(const std::string& msg, const std::string& separator) {
   boost::char_separator<char> sep(separator.c_str());
   boost::tokenizer<boost::char_separator<char> > tok(msg, sep);
   std::vector<std::string> token;

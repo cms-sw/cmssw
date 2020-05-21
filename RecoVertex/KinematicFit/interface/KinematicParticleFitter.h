@@ -56,7 +56,7 @@ public:
  * multiple track refits.
  * In case of failure, an invalid tree is returned.
  */
-  RefCountedKinematicTree fit(KinematicConstraint* cs, RefCountedKinematicTree tree) const;
+  RefCountedKinematicTree fit(KinematicConstraint* cs, const RefCountedKinematicTree& tree) const;
 
 private:
   ParentParticleFitter* parentFitter;

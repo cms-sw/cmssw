@@ -248,7 +248,7 @@ void cond::service::PoolDBOutputService::createNewIOV(const std::string& firstPa
 }
 
 void cond::service::PoolDBOutputService::createNewIOV(const std::string& firstPayloadId,
-                                                      const std::string payloadType,
+                                                      const std::string& payloadType,
                                                       cond::Time_t firstSinceTime,
                                                       Record& myrecord) {
   //std::lock_guard<std::recursive_mutex> lock(m_mutex);

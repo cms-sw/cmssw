@@ -42,7 +42,7 @@
 typedef std::shared_ptr<npstat::StorableMultivariateFunctor> StorableFunctorPtr;
 
 static void insertLUTItem(FFTJetLookupTableSequence& seq,
-                          StorableFunctorPtr fptr,
+                          const StorableFunctorPtr& fptr,
                           const std::string& name,
                           const std::string& category) {
   FFTJetLookupTableSequence::iterator it = seq.find(category);

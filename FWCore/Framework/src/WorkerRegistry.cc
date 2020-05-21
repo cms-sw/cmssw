@@ -6,6 +6,8 @@
    \date 18 May 2005
 */
 #include <memory>
+#include <utility>
+
 #include "FWCore/Framework/src/WorkerRegistry.h"
 #include "FWCore/Framework/src/Worker.h"
 #include "FWCore/Framework/src/ModuleHolder.h"
@@ -16,10 +18,10 @@
 namespace edm {
 
   WorkerRegistry::WorkerRegistry(std::shared_ptr<ActivityRegistry> areg)
-      : modRegistry_(new ModuleRegistry), m_workerMap(), actReg_(areg) {}
+      : modRegistry_(new ModuleRegistry), m_workerMap(), actReg_(std::move(areg)) {}
 
-  WorkerRegistry::WorkerRegistry(std::shared_ptr<ActivityRegistry> areg, std::shared_ptr<ModuleRegistry> modReg)
-      : modRegistry_(modReg), m_workerMap(), actReg_(areg) {}
+  WorkerRegistry::WorkerRegistry(std::shared_ptr<ActivityRegistry> areg, const std::shared_ptr<ModuleRegistry>& modReg)
+      : modRegistry_(modReg), m_workerMap(), actReg_(std::move(areg)) {}
 
   WorkerRegistry::~WorkerRegistry() {}
 

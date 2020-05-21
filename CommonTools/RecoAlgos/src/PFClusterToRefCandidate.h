@@ -14,7 +14,7 @@ namespace converter {
     typedef reco::PFClusterCollection Components;
     typedef reco::RecoPFClusterRefCandidate Candidate;
     PFClusterToRefCandidate(const edm::ParameterSet& cfg) : MassiveCandidateConverter(cfg) {}
-    void convert(reco::PFClusterRef pfclusterRef, reco::RecoPFClusterRefCandidate& c) const {
+    void convert(const reco::PFClusterRef& pfclusterRef, reco::RecoPFClusterRefCandidate& c) const {
       c = reco::RecoPFClusterRefCandidate(pfclusterRef, sqrt(massSqr_));
     }
   };

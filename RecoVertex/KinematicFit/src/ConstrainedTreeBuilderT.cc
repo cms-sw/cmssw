@@ -3,8 +3,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 RefCountedKinematicTree ConstrainedTreeBuilderT::buildRealTree(
-    const RefCountedKinematicParticle virtualParticle,
-    const RefCountedKinematicVertex vtx,
+    const RefCountedKinematicParticle& virtualParticle,
+    const RefCountedKinematicVertex& vtx,
     const std::vector<RefCountedKinematicParticle>& particles) const {
   //making a resulting tree:
   RefCountedKinematicTree resTree = ReferenceCountingPointer<KinematicTree>(new KinematicTree());

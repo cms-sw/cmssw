@@ -34,7 +34,7 @@ private:
   template <typename TYPE>
   edm::ValueMap<reco::PFCandidatePtr> fillValueMap(
       edm::Event& event,
-      std::string label,
+      const std::string& label,
       edm::Handle<TYPE>& inputObjCollection,
       const std::map<edm::Ref<TYPE>, reco::PFCandidatePtr>& mapToTheCandidate,
       const edm::OrphanHandle<reco::PFCandidateCollection>& newPFCandColl) const;
@@ -255,7 +255,7 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 template <typename TYPE>
 edm::ValueMap<reco::PFCandidatePtr> PFLinker::fillValueMap(
     edm::Event& event,
-    std::string label,
+    const std::string& label,
     edm::Handle<TYPE>& inputObjCollection,
     const std::map<edm::Ref<TYPE>, reco::PFCandidatePtr>& mapToTheCandidate,
     const edm::OrphanHandle<reco::PFCandidateCollection>& newPFCandColl) const {

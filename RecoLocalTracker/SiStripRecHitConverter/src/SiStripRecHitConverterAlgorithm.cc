@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "RecoLocalTracker/SiStripRecHitConverter/interface/SiStripRecHitConverterAlgorithm.h"
 #include "RecoLocalTracker/Records/interface/TkStripCPERecord.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
@@ -50,11 +52,12 @@ void SiStripRecHitConverterAlgorithm::initialize(const edm::EventSetup& es) {
   }
 }
 
-void SiStripRecHitConverterAlgorithm::run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > input, products& output) {
+void SiStripRecHitConverterAlgorithm::run(const edm::Handle<edmNew::DetSetVector<SiStripCluster> >& input,
+                                          products& output) {
   run(input, output, LocalVector(0., 0., 0.));
 }
 
-void SiStripRecHitConverterAlgorithm::run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > inputhandle,
+void SiStripRecHitConverterAlgorithm::run(const edm::Handle<edmNew::DetSetVector<SiStripCluster> >& inputhandle,
                                           products& output,
                                           LocalVector trackdirection) {
   for (auto const& DS : *inputhandle) {
@@ -81,7 +84,7 @@ void SiStripRecHitConverterAlgorithm::run(edm::Handle<edmNew::DetSetVector<SiStr
       collector.abort();
   }
   if (doMatching) {
-    match(output, trackdirection);
+    match(output, std::move(trackdirection));
   }
 }
 
@@ -144,7 +147,7 @@ namespace {
   };
 }  // namespace
 
-void SiStripRecHitConverterAlgorithm::match(products& output, LocalVector trackdirection) const {
+void SiStripRecHitConverterAlgorithm::match(products& output, const LocalVector& trackdirection) const {
   int nmatch = 0;
   edm::OwnVector<SiStripMatchedRecHit2D> collectorMatched;  // gp/FIXME: avoid this
 

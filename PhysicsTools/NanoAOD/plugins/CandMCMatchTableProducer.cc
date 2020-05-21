@@ -148,7 +148,7 @@ public:
     iEvent.put(std::move(tab));
   }
 
-  static int getParentHadronFlag(const reco::GenParticleRef match) {
+  static int getParentHadronFlag(const reco::GenParticleRef& match) {
     bool has4 = false;
     for (unsigned int im = 0, nm = match->numberOfMothers(); im < nm; ++im) {
       reco::GenParticleRef mom = match->motherRef(im);

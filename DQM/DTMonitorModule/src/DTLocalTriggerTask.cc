@@ -229,7 +229,7 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c) 
   }
 }
 
-void DTLocalTriggerTask::bookBarrelHistos(DQMStore::IBooker& ibooker, string histoTag) {
+void DTLocalTriggerTask::bookBarrelHistos(DQMStore::IBooker& ibooker, const string& histoTag) {
   ibooker.setCurrentFolder(topFolder());
   if (histoTag == "TM_ErrorsChamberID") {
     tm_IDDataErrorPlot = ibooker.book1D(histoTag.c_str(), "TM Data ID Error", 5, -2, 3);
@@ -241,8 +241,8 @@ void DTLocalTriggerTask::bookBarrelHistos(DQMStore::IBooker& ibooker, string his
 
 void DTLocalTriggerTask::bookHistos(DQMStore::IBooker& ibooker,
                                     const DTChamberId& dtCh,
-                                    string folder,
-                                    string histoTag) {
+                                    const string& folder,
+                                    const string& histoTag) {
   int wh = dtCh.wheel();
   int sc = dtCh.sector();
   stringstream wheel;
@@ -394,7 +394,7 @@ void DTLocalTriggerTask::bookHistos(DQMStore::IBooker& ibooker,
   }
 }
 
-void DTLocalTriggerTask::bookWheelHistos(DQMStore::IBooker& ibooker, int wh, string histoTag) {
+void DTLocalTriggerTask::bookWheelHistos(DQMStore::IBooker& ibooker, int wh, const string& histoTag) {
   stringstream wheel;
   wheel << wh;
 

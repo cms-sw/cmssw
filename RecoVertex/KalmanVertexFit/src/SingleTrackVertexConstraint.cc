@@ -25,8 +25,8 @@ SingleTrackVertexConstraint::BTFtuple SingleTrackVertexConstraint::constrain(con
   return constrain(track, priorVertexState);
 }
 
-SingleTrackVertexConstraint::BTFtuple SingleTrackVertexConstraint::constrain(const TransientTrack& track,
-                                                                             const VertexState priorVertexState) const {
+SingleTrackVertexConstraint::BTFtuple SingleTrackVertexConstraint::constrain(
+    const TransientTrack& track, const VertexState& priorVertexState) const {
   // Linearize tracks
 
   typedef CachingVertex<5>::RefCountedVertexTrack RefCountedVertexTrack;

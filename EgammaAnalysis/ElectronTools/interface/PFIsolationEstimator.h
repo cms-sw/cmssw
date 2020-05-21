@@ -67,32 +67,33 @@ public:
 
   float fGetIsolation(const reco::PFCandidate* pfCandidate,
                       const reco::PFCandidateCollection* pfParticlesColl,
-                      reco::VertexRef vtx,
-                      edm::Handle<reco::VertexCollection> vertices);
+                      const reco::VertexRef& vtx,
+                      const edm::Handle<reco::VertexCollection>& vertices);
   std::vector<float> fGetIsolationInRings(const reco::PFCandidate* pfCandidate,
                                           const reco::PFCandidateCollection* pfParticlesColl,
-                                          reco::VertexRef vtx,
-                                          edm::Handle<reco::VertexCollection> vertices);
+                                          const reco::VertexRef& vtx,
+                                          const edm::Handle<reco::VertexCollection>& vertices);
 
   float fGetIsolation(const reco::Photon* photon,
                       const reco::PFCandidateCollection* pfParticlesColl,
-                      reco::VertexRef vtx,
-                      edm::Handle<reco::VertexCollection> vertices);
+                      const reco::VertexRef& vtx,
+                      const edm::Handle<reco::VertexCollection>& vertices);
   std::vector<float> fGetIsolationInRings(const reco::Photon* photon,
                                           const reco::PFCandidateCollection* pfParticlesColl,
-                                          reco::VertexRef vtx,
-                                          edm::Handle<reco::VertexCollection> vertices);
+                                          const reco::VertexRef& vtx,
+                                          const edm::Handle<reco::VertexCollection>& vertices);
 
   float fGetIsolation(const reco::GsfElectron* electron,
                       const reco::PFCandidateCollection* pfParticlesColl,
-                      const reco::VertexRef vtx,
-                      edm::Handle<reco::VertexCollection> vertices);
+                      const reco::VertexRef& vtx,
+                      const edm::Handle<reco::VertexCollection>& vertices);
   std::vector<float> fGetIsolationInRings(const reco::GsfElectron* electron,
                                           const reco::PFCandidateCollection* pfParticlesColl,
-                                          reco::VertexRef vtx,
-                                          edm::Handle<reco::VertexCollection> vertices);
+                                          const reco::VertexRef& vtx,
+                                          const edm::Handle<reco::VertexCollection>& vertices);
 
-  reco::VertexRef chargedHadronVertex(edm::Handle<reco::VertexCollection> verticies, const reco::PFCandidate& pfcand);
+  reco::VertexRef chargedHadronVertex(const edm::Handle<reco::VertexCollection>& verticies,
+                                      const reco::PFCandidate& pfcand);
 
   void setConeSize(float fValue = 0.4) { fConeSize = fValue; };
 
@@ -136,10 +137,11 @@ public:
   //Veto implementation
   float isPhotonParticleVetoed(const reco::PFCandidate* pfIsoCand);
   float isNeutralParticleVetoed(const reco::PFCandidate* pfIsoCand);
-  float isChargedParticleVetoed(const reco::PFCandidate* pfIsoCand, edm::Handle<reco::VertexCollection> vertices);
   float isChargedParticleVetoed(const reco::PFCandidate* pfIsoCand,
-                                reco::VertexRef vtx,
-                                edm::Handle<reco::VertexCollection> vertices);
+                                const edm::Handle<reco::VertexCollection>& vertices);
+  float isChargedParticleVetoed(const reco::PFCandidate* pfIsoCand,
+                                const reco::VertexRef& vtx,
+                                const edm::Handle<reco::VertexCollection>& vertices);
 
   float getIsolationPhoton() {
     fIsolationPhoton = fIsolationInRingsPhoton[0];

@@ -21,7 +21,7 @@ public:
   // Constructor
   SiPixelConfigParser();
 
-  void getDocument(std::string filename);
+  void getDocument(const std::string &filename);
 
   // get List of MEs for TrackerMap
   bool getMENamesForTrackerMap(std::string &tkmap_name, std::vector<std::string> &me_names);

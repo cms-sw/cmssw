@@ -7,13 +7,15 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <utility>
+
 #include "TFormula.h"
 
 class Filter {
 public:
   Filter() = default;
   Filter(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC);
-  Filter(std::string name, edm::ParameterSet& iConfig, edm::ConsumesCollector& iC)
+  Filter(const std::string& name, edm::ParameterSet& iConfig, edm::ConsumesCollector& iC)
       : name_(name), cached_decision_(false), eventCacheID_(0) {
     dump_ = iConfig.dump();
     if (!iConfig.empty()) {
@@ -140,7 +142,7 @@ public:
   friend class FilterSelections;
 
   FilterSelection(std::string name, const edm::ParameterSet& iConfig)
-      : name_(name),
+      : name_(std::move(name)),
         ntuplize_(iConfig.getParameter<bool>("ntuplize")),
         makeContentPlots_(iConfig.getParameter<bool>("makeContentPlots")),
         makeFinalPlots_(iConfig.getParameter<bool>("makeFinalPlots")),

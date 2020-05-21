@@ -253,7 +253,7 @@ public:
     AMCHeaders.push_back(header);
   }
 
-  void addUHTR(uhtrData uhtr, uint64_t crate, uint64_t slot) {
+  void addUHTR(const uhtrData& uhtr, uint64_t crate, uint64_t slot) {
     // push uhtr data into FED container
     uhtrs.push_back(uhtr);
     // create the corresponding AMC header

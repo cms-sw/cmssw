@@ -81,7 +81,7 @@ public:
 
 private:
   // Internal Methods
-  void book1D(DQMStore::IBooker &, std::string, const std::string &, std::string);
+  void book1D(DQMStore::IBooker &, const std::string &, const std::string &, const std::string &);
   void book2D(DQMStore::IBooker &, const std::string &, const std::string &, const std::string &, const std::string &);
   reco::MuonCollection selectedMuons(const reco::MuonCollection &,
                                      const reco::BeamSpot &,

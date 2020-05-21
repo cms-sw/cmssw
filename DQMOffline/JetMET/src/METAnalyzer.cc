@@ -221,7 +221,7 @@ void METAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
 }
 
 // ***********************************************************
-void METAnalyzer::bookMESet(std::string DirName,
+void METAnalyzer::bookMESet(const std::string& DirName,
                             DQMStore::IBooker& ibooker,
                             std::map<std::string, MonitorElement*>& map_of_MEs) {
   bool bLumiSecPlot = fill_met_high_level_histo;
@@ -248,7 +248,7 @@ void METAnalyzer::bookMESet(std::string DirName,
 }
 
 // ***********************************************************
-void METAnalyzer::bookMonitorElement(std::string DirName,
+void METAnalyzer::bookMonitorElement(const std::string& DirName,
                                      DQMStore::IBooker& ibooker,
                                      std::map<std::string, MonitorElement*>& map_of_MEs,
                                      bool bLumiSecPlot = false,
@@ -1386,7 +1386,7 @@ void METAnalyzer::dqmEndRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 }
 
 // ***********************************************************
-void METAnalyzer::makeRatePlot(std::string DirName, double totltime) {
+void METAnalyzer::makeRatePlot(const std::string& DirName, double totltime) {
   //dbe_->setCurrentFolder(DirName);
   MonitorElement* meMET = map_dijet_MEs[DirName + "/" + "MET"];
   MonitorElement* mMETRate = map_dijet_MEs[DirName + "/" + "METRate"];
@@ -2038,15 +2038,15 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 // ***********************************************************
 void METAnalyzer::fillMESet(const edm::Event& iEvent,
-                            std::string DirName,
+                            const std::string& DirName,
                             const reco::MET& met,
                             const pat::MET* patmet,
                             const reco::PFMET* pfmet,
                             const reco::CaloMET* calomet,
                             const reco::Candidate::PolarLorentzVector& zCand,
                             std::map<std::string, MonitorElement*>& map_of_MEs,
-                            std::vector<bool> techTriggerCase,
-                            std::vector<bool> METFilterDecision) {
+                            const std::vector<bool>& techTriggerCase,
+                            const std::vector<bool>& METFilterDecision) {
   bool bLumiSecPlot = fill_met_high_level_histo;
   bool fillPFCandidatePlots = false;
   if (DirName.find("Cleaned") != std::string::npos) {
@@ -2146,7 +2146,7 @@ void METAnalyzer::fillMESet(const edm::Event& iEvent,
 // ***********************************************************
 void METAnalyzer::fillMonitorElement(const edm::Event& iEvent,
                                      std::string DirName,
-                                     std::string subFolderName,
+                                     const std::string& subFolderName,
                                      const reco::MET& met,
                                      const pat::MET* patmet,
                                      const reco::PFMET* pfmet,

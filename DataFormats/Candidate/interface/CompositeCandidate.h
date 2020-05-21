@@ -14,6 +14,8 @@
 
 #include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
 #include <string>
+#include <utility>
+
 #include <vector>
 
 namespace reco {
@@ -24,7 +26,7 @@ namespace reco {
     typedef CandidateCollection daughters;
     typedef std::vector<std::string> role_collection;
     /// default constructor
-    CompositeCandidate(std::string name = "") : LeafCandidate(), name_(name) {}
+    CompositeCandidate(std::string name = "") : LeafCandidate(), name_(std::move(name)) {}
     /// constructor from values
     template <typename P4>
     CompositeCandidate(Charge q,
@@ -34,7 +36,7 @@ namespace reco {
                        int status = 0,
                        bool integerCharge = true,
                        std::string name = "")
-        : LeafCandidate(q, p4, vtx, pdgId, status, integerCharge), name_(name) {}
+        : LeafCandidate(q, p4, vtx, pdgId, status, integerCharge), name_(std::move(name)) {}
     /// constructor from values
     explicit CompositeCandidate(const Candidate& p, const std::string& name = "");
     /// constructor from values
@@ -44,7 +46,7 @@ namespace reco {
     /// get the name of the candidate
     std::string name() const { return name_; }
     /// set the name of the candidate
-    void setName(std::string name) { name_ = name; }
+    void setName(std::string name) { name_ = std::move(name); }
     /// get the roles
     role_collection const& roles() const { return roles_; }
     /// set the roles

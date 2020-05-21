@@ -630,7 +630,7 @@ int l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::returnHoE(const l1t::CaloTower
   return ratio;
 }
 
-bool l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idHoverE_ext(const l1t::CaloTower tow) {
+bool l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::idHoverE_ext(const l1t::CaloTower& tow) {
   int qual = tow.hwQual();
   bool eOverHFlag = ((qual & 0x2) > 0);
 

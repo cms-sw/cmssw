@@ -41,7 +41,9 @@ public:
   void Insert(const TotemFramePosition& index, const VFATFrame& frame) { data.insert({index, frame}); }
 
   /// inserts an empty (default) frame to the given position and returns pointer to the frame
-  VFATFrame* InsertEmptyFrame(TotemFramePosition index) { return &data.insert({index, VFATFrame()}).first->second; }
+  VFATFrame* InsertEmptyFrame(const TotemFramePosition& index) {
+    return &data.insert({index, VFATFrame()}).first->second;
+  }
 
   /// cleans completely the collection
   void Clear() { data.clear(); }

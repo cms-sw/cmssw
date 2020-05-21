@@ -3,6 +3,7 @@
 
 #include "RegionalMuonCandFwd.h"
 #include <map>
+#include <utility>
 
 namespace l1t {
   class RegionalMuonCand {
@@ -115,7 +116,7 @@ namespace l1t {
           m_hwSign(sign),
           m_hwSignValid(signvalid),
           m_hwQuality(quality),
-          m_trackAddress(trackAddress),
+          m_trackAddress(std::move(trackAddress)),
           m_dataword(0) {
       setTFIdentifiers(processor, trackFinder);
     };

@@ -140,8 +140,8 @@ void HiBremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterPtrVect
   usedSeedEnergy.clear();
 }
 
-bool HiBremRecoveryClusterAlgo::match(reco::CaloClusterPtr seed_p,
-                                      reco::CaloClusterPtr cluster_p,
+bool HiBremRecoveryClusterAlgo::match(const reco::CaloClusterPtr& seed_p,
+                                      const reco::CaloClusterPtr& cluster_p,
                                       double dEtaMax,
                                       double dPhiMax) {
   math::XYZPoint clusterPosition = cluster_p->position();

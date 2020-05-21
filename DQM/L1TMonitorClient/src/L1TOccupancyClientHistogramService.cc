@@ -9,6 +9,8 @@
 #include <cstdio>
 #include <sstream>
 #include <cmath>
+#include <utility>
+
 #include <vector>
 #include <TMath.h>
 
@@ -42,7 +44,7 @@ L1TOccupancyClientHistogramService::L1TOccupancyClientHistogramService(const Par
 // Outputs:
 //   * unsigned int = Total number un-masked bins of histogram iHistName
 //____________________________________________________________________________
-unsigned int L1TOccupancyClientHistogramService::getNBinsHistogram(string iHistName) {
+unsigned int L1TOccupancyClientHistogramService::getNBinsHistogram(const string& iHistName) {
   TH2F* pHistogram = getDifferentialHistogram(iHistName);
   int nBinsX = pHistogram->GetNbinsX();
   int nBinsY = pHistogram->GetNbinsY();
@@ -60,7 +62,8 @@ unsigned int L1TOccupancyClientHistogramService::getNBinsHistogram(string iHistN
 //   * string               iHistName    = Name of the histogram
 //   * vector<ParameterSet> iMaskedAreas = Vector areas to be masked
 //____________________________________________________________________________
-void L1TOccupancyClientHistogramService::setMaskedBins(string iHistName, const vector<ParameterSet>& iMaskedAreas) {
+void L1TOccupancyClientHistogramService::setMaskedBins(const string& iHistName,
+                                                       const vector<ParameterSet>& iMaskedAreas) {
   TH2F* histo = mHistograms[iHistName].first;
   vector<pair<int, int> >* m = new vector<pair<int, int> >();
 
@@ -160,7 +163,7 @@ void L1TOccupancyClientHistogramService::setMaskedBins(string iHistName, const v
 // Outputs:
 // * vector<pair<int,int> > = Vector of masked bin coordinates (x,y)
 //____________________________________________________________________________
-vector<pair<int, int> > L1TOccupancyClientHistogramService::getMaskedBins(string iHistName) {
+vector<pair<int, int> > L1TOccupancyClientHistogramService::getMaskedBins(const string& iHistName) {
   return (*mMaskedBins[iHistName]);
 }
 
@@ -172,7 +175,7 @@ vector<pair<int, int> > L1TOccupancyClientHistogramService::getMaskedBins(string
 // Outputs:
 // * unsigned int = Total number of masked bins
 //____________________________________________________________________________
-unsigned int L1TOccupancyClientHistogramService::getNBinsMasked(string iHistName) {
+unsigned int L1TOccupancyClientHistogramService::getNBinsMasked(const string& iHistName) {
   return mMaskedBins[iHistName]->size();
 }
 
@@ -187,7 +190,7 @@ unsigned int L1TOccupancyClientHistogramService::getNBinsMasked(string iHistName
 // Outputs:
 // * int =
 //____________________________________________________________________________
-int L1TOccupancyClientHistogramService::maskBins(string iHistName, TH2F* oHist, int iStrip, int iAxis) {
+int L1TOccupancyClientHistogramService::maskBins(const string& iHistName, TH2F* oHist, int iStrip, int iAxis) {
   vector<pair<int, int> > m = (*mMaskedBins[iHistName]);
   int count = 0;
 
@@ -229,7 +232,7 @@ int L1TOccupancyClientHistogramService::maskBins(string iHistName, TH2F* oHist, 
 // Outputs:
 // * unsigned int = Total number of masked bins
 //____________________________________________________________________________
-bool L1TOccupancyClientHistogramService::isMasked(string iHistName, int iBinX, int iBinY) {
+bool L1TOccupancyClientHistogramService::isMasked(const string& iHistName, int iBinX, int iBinY) {
   vector<pair<int, int> >* thisHistMaskedBins = mMaskedBins[iHistName];
 
   bool binIsMasked = false;
@@ -254,7 +257,7 @@ bool L1TOccupancyClientHistogramService::isMasked(string iHistName, int iBinX, i
 // Outputs:
 // * bool = Returns is all bins in a strip are masked
 //____________________________________________________________________________
-bool L1TOccupancyClientHistogramService::isStripMasked(string iHistName, int iBinStrip, int iAxis) {
+bool L1TOccupancyClientHistogramService::isStripMasked(const string& iHistName, int iBinStrip, int iAxis) {
   bool stripIsMasked = true;
   vector<pair<int, int> >* thisHistMaskedBins = mMaskedBins[iHistName];
 
@@ -292,12 +295,12 @@ bool L1TOccupancyClientHistogramService::isStripMasked(string iHistName, int iBi
 // * TH2F* = Returns a pointer the differential histogram
 //____________________________________________________________________________
 TH2F* L1TOccupancyClientHistogramService::loadHisto(DQMStore::IGetter& igetter,
-                                                    string iHistName,
+                                                    const string& iHistName,
                                                     string iHistLocation) {
   pair<TH2F*, TH2F*> histPair;
 
   // Histogram to be monitored should be loaded  in the begining of the run
-  TH2F* pHist = getRebinnedHistogram(igetter, iHistName, iHistLocation);
+  TH2F* pHist = getRebinnedHistogram(igetter, iHistName, std::move(iHistLocation));
 
   if (mHistValid[iHistName]) {
     histPair.first = pHist;
@@ -325,8 +328,8 @@ TH2F* L1TOccupancyClientHistogramService::loadHisto(DQMStore::IGetter& igetter,
 // * TH2F* = Returns a pointer the differential histogram
 //____________________________________________________________________________
 TH2F* L1TOccupancyClientHistogramService::getRebinnedHistogram(DQMStore::IGetter& igetter,
-                                                               string iHistName,
-                                                               string iHistLocation) {
+                                                               const string& iHistName,
+                                                               const string& iHistLocation) {
   MonitorElement* me = igetter.get(iHistLocation);
 
   TH2F* histMonitor;
@@ -372,8 +375,8 @@ TH2F* L1TOccupancyClientHistogramService::getRebinnedHistogram(DQMStore::IGetter
 // * string iHistLocation = Location of the histogram in the directory structure
 //____________________________________________________________________________
 void L1TOccupancyClientHistogramService::updateHistogramEndLS(DQMStore::IGetter& igetter,
-                                                              string iHistName,
-                                                              string iHistLocation,
+                                                              const string& iHistName,
+                                                              const string& iHistLocation,
                                                               int iLS) {
   if (mHistValid[iHistName]) {
     TH2F* histo_curr = getRebinnedHistogram(
@@ -398,7 +401,7 @@ void L1TOccupancyClientHistogramService::updateHistogramEndLS(DQMStore::IGetter&
 // Inputs:
 // * string iHistName     = Name of the histogram to be tested
 //____________________________________________________________________________
-void L1TOccupancyClientHistogramService::updateHistogramEndRun(string iHistName) {
+void L1TOccupancyClientHistogramService::updateHistogramEndRun(const string& iHistName) {
   if (mHistValid[iHistName]) {
     mHistograms[iHistName].second->Add(mHistDiffMinus1[iHistName]);
     mLSListDiff[iHistName].insert(
@@ -412,7 +415,7 @@ void L1TOccupancyClientHistogramService::updateHistogramEndRun(string iHistName)
 // Inputs:
 // * string iHistName     = Name of the histogram to be tested
 //____________________________________________________________________________
-void L1TOccupancyClientHistogramService::resetHisto(string iHistName) {
+void L1TOccupancyClientHistogramService::resetHisto(const string& iHistName) {
   if (mHistValid[iHistName]) {
     // Replacing mHistDiffMinus1
     delete mHistDiffMinus1[iHistName];
@@ -436,7 +439,9 @@ void L1TOccupancyClientHistogramService::resetHisto(string iHistName) {
 // Output:
 // vector<int> = List of LS analysed
 //____________________________________________________________________________
-vector<int> L1TOccupancyClientHistogramService::getLSCertification(string iHistName) { return mLSListDiff[iHistName]; }
+vector<int> L1TOccupancyClientHistogramService::getLSCertification(const string& iHistName) {
+  return mLSListDiff[iHistName];
+}
 
 //____________________________________________________________________________
 // Function: getDifferentialHistogram
@@ -446,7 +451,7 @@ vector<int> L1TOccupancyClientHistogramService::getLSCertification(string iHistN
 // Outputs:
 // * TH2F* = Returns a pointer the differential histogram
 //____________________________________________________________________________
-TH2F* L1TOccupancyClientHistogramService::getDifferentialHistogram(string iHistName) {
+TH2F* L1TOccupancyClientHistogramService::getDifferentialHistogram(const string& iHistName) {
   if (mHistValid[iHistName]) {
     return mHistograms[iHistName].second;
   }

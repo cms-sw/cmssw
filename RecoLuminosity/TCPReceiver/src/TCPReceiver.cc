@@ -28,6 +28,7 @@
 #include <netdb.h>
 
 #include <cstring>
+#include <utility>
 
 namespace HCAL_HLX {
 
@@ -52,7 +53,7 @@ namespace HCAL_HLX {
 #endif
     acquireMode = mode;
     servPort = port;
-    servIP = IP;
+    servIP = std::move(IP);
     Connected = false;
 
 #ifdef DEBUG
@@ -220,7 +221,7 @@ namespace HCAL_HLX {
 #ifdef DEBUG
     std::cout << "Begin " << __PRETTY_FUNCTION__ << std::endl;
 #endif
-    servIP = IP;
+    servIP = std::move(IP);
 #ifdef DEBUG
     std::cout << "End " << __PRETTY_FUNCTION__ << std::endl;
 #endif

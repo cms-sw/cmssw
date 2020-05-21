@@ -106,7 +106,7 @@ namespace pat {
 
     // for debugging
     float calcDxy(float dx, float dy, float phi) const { return -dx * std::sin(phi) + dy * std::cos(phi); }
-    float calcDz(reco::Candidate::Point p, reco::Candidate::Point v, const reco::Candidate &c) const {
+    float calcDz(const reco::Candidate::Point &p, const reco::Candidate::Point &v, const reco::Candidate &c) const {
       return p.Z() - v.Z() - ((p.X() - v.X()) * c.px() + (p.Y() - v.Y()) * c.py()) * c.pz() / (c.pt() * c.pt());
     }
   };

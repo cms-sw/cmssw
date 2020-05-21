@@ -29,9 +29,9 @@ PFBlockBasedIsolation::~PFBlockBasedIsolation() {}
 void PFBlockBasedIsolation::setup(const edm::ParameterSet& conf) { coneSize_ = conf.getParameter<double>("coneSize"); }
 
 std::vector<reco::PFCandidateRef> PFBlockBasedIsolation::calculate(
-    math::XYZTLorentzVectorD p4,
-    const reco::PFCandidateRef pfEGCand,
-    const edm::Handle<reco::PFCandidateCollection> pfCandidateHandle) {
+    const math::XYZTLorentzVectorD& p4,
+    const reco::PFCandidateRef& pfEGCand,
+    const edm::Handle<reco::PFCandidateCollection>& pfCandidateHandle) {
   std::vector<reco::PFCandidateRef> myVec;
 
   math::XYZVector candidateMomentum(p4.px(), p4.py(), p4.pz());

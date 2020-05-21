@@ -57,7 +57,7 @@ public:
 private:
   void produce(edm::StreamID, edm::Event &, const edm::EventSetup &) const override;
 
-  void fillValueMaps(std::string valueName,
+  void fillValueMaps(const std::string &valueName,
                      const std::vector<float> &values,
                      edm::Handle<edm::View<pat::Jet>> &srcJet,
                      edm::Event &iEvent) const;
@@ -119,7 +119,7 @@ void BetaStarVarProducer<T>::produce(edm::StreamID streamID, edm::Event &iEvent,
 }
 
 template <typename T>
-void BetaStarVarProducer<T>::fillValueMaps(std::string valueName,
+void BetaStarVarProducer<T>::fillValueMaps(const std::string &valueName,
                                            const std::vector<float> &values,
                                            edm::Handle<edm::View<pat::Jet>> &srcJet,
                                            edm::Event &iEvent) const {

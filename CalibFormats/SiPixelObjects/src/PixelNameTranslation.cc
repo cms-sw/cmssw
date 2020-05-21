@@ -210,7 +210,7 @@ PixelNameTranslation::PixelNameTranslation(std::vector<std::vector<std::string> 
 }  //end contructor
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-PixelNameTranslation::PixelNameTranslation(std::string filename) : PixelConfigBase(" ", " ", " ") {
+PixelNameTranslation::PixelNameTranslation(const std::string& filename) : PixelConfigBase(" ", " ", " ") {
   static std::string mthn = "[PixelNameTranslation::PixelNameTranslation()]\t\t    ";
 
   std::ifstream in(filename.c_str());

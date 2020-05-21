@@ -202,7 +202,7 @@ void DTResolutionAnalysisTask::analyze(const edm::Event& event, const edm::Event
 }
 
 // Book a set of histograms for a given SL
-void DTResolutionAnalysisTask::bookHistos(DQMStore::IBooker& ibooker, DTSuperLayerId slId) {
+void DTResolutionAnalysisTask::bookHistos(DQMStore::IBooker& ibooker, const DTSuperLayerId& slId) {
   edm::LogVerbatim("DTDQM|DTMonitorModule|DTResolutionAnalysisTask") << "   Booking histos for SL: " << slId << endl;
 
   // Compose the chamber name
@@ -228,7 +228,7 @@ void DTResolutionAnalysisTask::bookHistos(DQMStore::IBooker& ibooker, DTSuperLay
 }
 
 // Fill a set of histograms for a given SL
-void DTResolutionAnalysisTask::fillHistos(DTSuperLayerId slId, float distExtr, float residual) {
+void DTResolutionAnalysisTask::fillHistos(const DTSuperLayerId& slId, float distExtr, float residual) {
   vector<MonitorElement*> histos = histosPerSL[slId];
   histos[0]->Fill(residual);
 }

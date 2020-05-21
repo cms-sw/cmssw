@@ -14,7 +14,7 @@ public:
   double getWeight(int genPID, double genP);
 
 private:
-  void readResponse(std::string fName);
+  void readResponse(const std::string& fName);
 
   bool useTable;
   double scale;

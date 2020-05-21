@@ -12,8 +12,8 @@
 
 class RctDataDecoder {
 public:
-  bool decodeLinks(const std::vector<unsigned int> evenFiberData,
-                   const std::vector<unsigned int> oddFiberData,
+  bool decodeLinks(const std::vector<unsigned int> &evenFiberData,
+                   const std::vector<unsigned int> &oddFiberData,
                    std::vector<RCTInfo> &rctInfoData) {
     // Ensure that there is data to process
     unsigned int nWordsToProcess = evenFiberData.size();

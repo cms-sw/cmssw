@@ -600,7 +600,7 @@ void PixelFEDCard::readDBROCLevels(std::vector<std::vector<std::string> > &table
 }
 
 // Read the configuration parameters from file
-PixelFEDCard::PixelFEDCard(string fileName) : PixelConfigBase(" ", " ", " ") {
+PixelFEDCard::PixelFEDCard(const string &fileName) : PixelConfigBase(" ", " ", " ") {
   std::string mthn = "]\t[PixelFEDCard::PixelFEDCard()]\t\t\t\t    ";
   //const bool localDEBUG = true;
   const bool localDEBUG = false;

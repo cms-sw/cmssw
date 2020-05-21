@@ -1,10 +1,12 @@
+#include <utility>
+
 #include "Validation/Geometry/interface/MaterialBudgetTree.h"
 #include "Validation/Geometry/interface/MaterialBudgetData.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 MaterialBudgetTree::MaterialBudgetTree(std::shared_ptr<MaterialBudgetData> data, const std::string& filename)
-    : MaterialBudgetFormat(data) {
+    : MaterialBudgetFormat(std::move(data)) {
   theFile = std::make_unique<TFile>(filename.c_str(), "RECREATE");
   theFile->cd();
   book();

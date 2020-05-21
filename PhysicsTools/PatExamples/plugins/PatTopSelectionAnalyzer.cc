@@ -31,9 +31,9 @@ private:
   void endJob() override;
 
   /// check if histogram was booked
-  bool booked(const std::string histName) const { return hists_.find(histName) != hists_.end(); };
+  bool booked(const std::string& histName) const { return hists_.find(histName) != hists_.end(); };
   /// fill histogram if it had been booked before
-  void fill(const std::string histName, double value) const {
+  void fill(const std::string& histName, double value) const {
     if (booked(histName))
       hists_.find(histName)->second->Fill(value);
   };

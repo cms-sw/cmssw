@@ -13,7 +13,7 @@ namespace edm {
 
   class ProcessDesc {
   public:
-    explicit ProcessDesc(std::shared_ptr<ParameterSet> pset);
+    explicit ProcessDesc(const std::shared_ptr<ParameterSet>& pset);
     explicit ProcessDesc(std::unique_ptr<ParameterSet> pset);
 
     /// construct from the configuration language string

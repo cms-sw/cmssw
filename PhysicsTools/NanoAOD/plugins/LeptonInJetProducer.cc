@@ -45,8 +45,8 @@ public:
 private:
   void produce(edm::StreamID, edm::Event &, edm::EventSetup const &) const override;
 
-  static bool orderPseudoJet(fastjet::PseudoJet j1, fastjet::PseudoJet j2);
-  std::tuple<float, float> calculateLSF(std::vector<fastjet::PseudoJet> iCParticles,
+  static bool orderPseudoJet(const fastjet::PseudoJet &j1, const fastjet::PseudoJet &j2);
+  std::tuple<float, float> calculateLSF(const std::vector<fastjet::PseudoJet> &iCParticles,
                                         std::vector<fastjet::PseudoJet> &ljets,
                                         float ilPt,
                                         float ilEta,
@@ -158,12 +158,12 @@ void LeptonInJetProducer<T>::produce(edm::StreamID streamID, edm::Event &iEvent,
 }
 
 template <typename T>
-bool LeptonInJetProducer<T>::orderPseudoJet(fastjet::PseudoJet j1, fastjet::PseudoJet j2) {
+bool LeptonInJetProducer<T>::orderPseudoJet(const fastjet::PseudoJet &j1, const fastjet::PseudoJet &j2) {
   return j1.perp2() > j2.perp2();
 }
 
 template <typename T>
-std::tuple<float, float> LeptonInJetProducer<T>::calculateLSF(std::vector<fastjet::PseudoJet> iCParticles,
+std::tuple<float, float> LeptonInJetProducer<T>::calculateLSF(const std::vector<fastjet::PseudoJet> &iCParticles,
                                                               std::vector<fastjet::PseudoJet> &lsubjets,
                                                               float ilPt,
                                                               float ilEta,

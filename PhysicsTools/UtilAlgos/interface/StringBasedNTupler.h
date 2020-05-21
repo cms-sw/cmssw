@@ -29,6 +29,7 @@
 #include <memory>
 #include <string>
 #include <sstream>
+#include <utility>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDFilter.h"
@@ -42,9 +43,20 @@
 class TreeBranch {
 public:
   TreeBranch() : class_(""), expr_(""), order_(""), selection_(""), maxIndexName_(""), branchAlias_("") {}
-  TreeBranch(
-      std::string C, edm::InputTag S, std::string E, std::string O, std::string SE, std::string Mi, std::string Ba)
-      : class_(C), src_(S), expr_(E), order_(O), selection_(SE), maxIndexName_(Mi), branchAlias_(Ba) {
+  TreeBranch(const std::string& C,
+             const edm::InputTag& S,
+             const std::string& E,
+             const std::string& O,
+             const std::string& SE,
+             std::string Mi,
+             std::string Ba)
+      : class_(C),
+        src_(S),
+        expr_(E),
+        order_(O),
+        selection_(SE),
+        maxIndexName_(std::move(Mi)),
+        branchAlias_(std::move(Ba)) {
     branchTitle_ = E + " calculated on " + C + " object from " + S.encode();
     if (!O.empty())
       branchTitle_ += " ordered according to " + O;

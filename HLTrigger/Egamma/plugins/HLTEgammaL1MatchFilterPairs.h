@@ -33,7 +33,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  bool CheckL1Matching(edm::Ref<reco::RecoEcalCandidateCollection> ref,
+  bool CheckL1Matching(const edm::Ref<reco::RecoEcalCandidateCollection>& ref,
                        std::vector<l1extra::L1EmParticleRef>& l1EGIso,
                        std::vector<l1extra::L1EmParticleRef>& l1EGNonIso) const;
 

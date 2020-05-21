@@ -245,7 +245,7 @@ float DTRunConditionVarClient::varQuality(float var, float maxGood, float minBad
 }
 
 void DTRunConditionVarClient::percDevVDrift(
-    DTChamberId indexCh, float meanVD, float sigmaVD, float& devVD, float& errdevVD) {
+    const DTChamberId& indexCh, float meanVD, float sigmaVD, float& devVD, float& errdevVD) {
   DTSuperLayerId indexSLPhi1(indexCh, 1);
   DTSuperLayerId indexSLPhi2(indexCh, 3);
 
@@ -270,8 +270,8 @@ void DTRunConditionVarClient::percDevVDrift(
 }
 
 void DTRunConditionVarClient::bookWheelHistos(DQMStore::IBooker& ibooker,
-                                              string histoType,
-                                              string subfolder,
+                                              const string& histoType,
+                                              const string& subfolder,
                                               int wh,
                                               int nbins,
                                               float min,
@@ -312,7 +312,7 @@ void DTRunConditionVarClient::bookWheelHistos(DQMStore::IBooker& ibooker,
 
 DTRunConditionVarClient::MonitorElement* DTRunConditionVarClient::getChamberHistos(DQMStore::IGetter& igetter,
                                                                                    const DTChamberId& dtCh,
-                                                                                   string histoType) {
+                                                                                   const string& histoType) {
   int wh = dtCh.wheel();
   int sc = dtCh.sector();
   int st = dtCh.station();

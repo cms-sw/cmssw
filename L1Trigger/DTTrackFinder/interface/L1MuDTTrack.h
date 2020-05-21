@@ -20,6 +20,8 @@
 
 #include <iosfwd>
 #include <string>
+#include <utility>
+
 #include <vector>
 
 //----------------------
@@ -128,7 +130,7 @@ public:
   inline void disable() { m_empty = true; }
 
   /// set name of object
-  inline void setName(std::string name) { m_name = name; }
+  inline void setName(std::string name) { m_name = std::move(name); }
 
   /// set track-class of muon candidate
   inline void setTC(TrackClass tc) { m_tc = tc; }

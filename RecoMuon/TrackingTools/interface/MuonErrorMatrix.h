@@ -36,7 +36,7 @@ public:
 
   /// main method to be used. Retrieve a 5x5 symetrical matrix according to parametrization of error or scale factor
   CurvilinearTrajectoryError get(GlobalVector momentum, bool convolute = true);
-  CurvilinearTrajectoryError getFast(GlobalVector momentum);
+  CurvilinearTrajectoryError getFast(const GlobalVector& momentum);
 
   /// multiply term by term the two matrix
   static void multiply(CurvilinearTrajectoryError& initial_error, const CurvilinearTrajectoryError& scale_error);

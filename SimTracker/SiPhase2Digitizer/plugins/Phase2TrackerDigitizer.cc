@@ -119,7 +119,7 @@ namespace cms {
   }
 
   Phase2TrackerDigitizer::~Phase2TrackerDigitizer() {}
-  void Phase2TrackerDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits,
+  void Phase2TrackerDigitizer::accumulatePixelHits(const edm::Handle<std::vector<PSimHit> >& hSimHits,
                                                    size_t globalSimHitIndex,
                                                    const uint32_t tofBin) {
     if (hSimHits.isValid()) {

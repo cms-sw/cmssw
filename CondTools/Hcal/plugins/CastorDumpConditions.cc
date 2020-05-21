@@ -61,7 +61,7 @@ public:
   void dumpIt(const std::vector<std::string>& mDumpRequest,
               const edm::Event& e,
               const edm::EventSetup& context,
-              const std::string name);
+              const std::string& name);
 
 private:
   std::string file_prefix;
@@ -129,7 +129,7 @@ template <class S, class SRcd>
 void CastorDumpConditions::dumpIt(const std::vector<std::string>& mDumpRequest,
                                   const edm::Event& e,
                                   const edm::EventSetup& context,
-                                  const std::string name) {
+                                  const std::string& name) {
   if (std::find(mDumpRequest.begin(), mDumpRequest.end(), name) != mDumpRequest.end()) {
     int myrun = e.id().run();
     edm::ESHandle<S> p;

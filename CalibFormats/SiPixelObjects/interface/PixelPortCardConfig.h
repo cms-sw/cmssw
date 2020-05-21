@@ -6,6 +6,8 @@
 *
 *   A longer explanation will be placed here later
 */
+#include <utility>
+
 #include <vector>
 #include <string>
 #include <map>
@@ -27,7 +29,7 @@ namespace pos {
   class PixelPortCardConfig : public PixelConfigBase {
   public:
     PixelPortCardConfig(std::vector<std::vector<std::string> > &tableMat);
-    PixelPortCardConfig(std::string);
+    PixelPortCardConfig(const std::string &);
 
     void writeASCII(std::string dir = "") const override;
     void writeXML(pos::PixelConfigKey key, int version, std::string path) const override { ; }
@@ -43,7 +45,7 @@ namespace pos {
                          std::ofstream *out2 = nullptr) const override;
 
     const std::string &getPortCardName() const { return portcardname_; }
-    void setPortCardName(std::string newName) { portcardname_ = newName; }
+    void setPortCardName(std::string newName) { portcardname_ = std::move(newName); }
 
     unsigned int getdevicesize() const;
     std::string getTKFECID() const;
@@ -54,7 +56,7 @@ namespace pos {
     std::string gettype() const;
     unsigned int getdeviceAddress(unsigned int i) const;
     unsigned int getdeviceValues(unsigned int i) const;
-    unsigned int getdeviceAddressForSetting(std::string settingName) const;
+    unsigned int getdeviceAddressForSetting(const std::string &settingName) const;
     unsigned int getdeviceValuesForSetting(std::string settingName) const;
     unsigned int getdeviceValuesForAddress(unsigned int address) const;
     unsigned int getAOHBias(unsigned int AOHNumber) const {
@@ -71,7 +73,7 @@ namespace pos {
     }
     unsigned int getAOHGain(unsigned int AOHNumber) const;
 
-    unsigned int new_PLL_CTR2_value(std::string CTR4or5, unsigned int last_CTR2) const;
+    unsigned int new_PLL_CTR2_value(const std::string &CTR4or5, unsigned int last_CTR2) const;
 
   private:
     void fillNameToAddress();
@@ -79,7 +81,7 @@ namespace pos {
 
     bool containsDeviceAddress(unsigned int deviceAddress) const;
     bool containsSetting(std::string settingName) const {
-      return containsDeviceAddress(getdeviceAddressForSetting(settingName));
+      return containsDeviceAddress(getdeviceAddressForSetting(std::move(settingName)));
     }
 
     void setAOHGain(std::string settingName, unsigned int value);

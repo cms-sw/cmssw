@@ -1,6 +1,8 @@
 #ifndef DATAFORMATS_METRECO_HALOCLUSTERCANDIDATEECAL_H
 #define DATAFORMATS_METRECO_HALOCLUSTERCANDIDATEECAL_H
 
+#include <utility>
+
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
@@ -56,7 +58,7 @@ namespace reco {
     void setTimeDiscriminator(double x) { timediscriminator = x; }
     void setIsHaloFromPattern(bool x) { ishalofrompattern = x; }
     void setIsHaloFromPattern_HLT(bool x) { ishalofrompattern_hlt = x; }
-    void setBeamHaloRecHitsCandidates(edm::RefVector<EcalRecHitCollection> x) { bhrhcandidates = x; }
+    void setBeamHaloRecHitsCandidates(edm::RefVector<EcalRecHitCollection> x) { bhrhcandidates = std::move(x); }
     //Specific to EB:
     void setEtStripIPhiSeedPlus1(double x) { etstrip_iphiseedplus1 = x; }
     void setEtStripIPhiSeedMinus1(double x) { etstrip_iphiseedminus1 = x; }

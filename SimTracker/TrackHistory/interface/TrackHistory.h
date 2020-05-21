@@ -34,7 +34,7 @@ public:
      /param[in] depth of the track history
      /param[out] boolean that is true when history can be determined
   */
-  bool evaluate(TrackingParticleRef tpr) {
+  bool evaluate(const TrackingParticleRef &tpr) {
     if (enableSimToReco_) {
       std::pair<reco::TrackBaseRef, double> result = match(tpr, simToReco_, bestMatchByMaxValue_);
       recotrack_ = result.first;
@@ -49,7 +49,7 @@ public:
      /param[in] TrackRef to a reco::track
      /param[out] boolean that is false when a fake track is detected
   */
-  bool evaluate(reco::TrackBaseRef);
+  bool evaluate(const reco::TrackBaseRef &);
 
   //! Return a reference to the reconstructed track.
   const reco::TrackBaseRef &recoTrack() const { return recotrack_; }

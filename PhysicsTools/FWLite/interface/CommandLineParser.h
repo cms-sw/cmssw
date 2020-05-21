@@ -73,7 +73,7 @@ namespace optutl {
     static std::string removeEnding(const std::string &input, const std::string &ending);
 
     // splits a line into words
-    static void split(SVec &retval, std::string line, std::string match = " \t", bool ignoreComments = true);
+    static void split(SVec &retval, std::string line, const std::string &match = " \t", bool ignoreComments = true);
 
     // removes '# ....' comment
     static void removeComment(std::string &line);

@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "RecoPixelVertexing/PixelTriplets/interface/CosmicLayerTriplets.h"
 #include "RecoTracker/TkHitPairs/interface/SeedLayerPairs.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
@@ -58,7 +60,7 @@ void CosmicLayerTriplets::init(const SiStripRecHit2DCollection& collstereo,
                                const SiStripMatchedRecHit2DCollection& collmatched,
                                std::string geometry,
                                const edm::EventSetup& iSetup) {
-  _geometry = geometry;
+  _geometry = std::move(geometry);
   if (watchTrackerGeometry_.check(iSetup)) {
     edm::ESHandle<GeometricSearchTracker> track;
     iSetup.get<TrackerRecoGeometryRecord>().get(track);

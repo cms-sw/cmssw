@@ -322,7 +322,7 @@ void DTEfficiencyTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& 
   edm::LogVerbatim("efficiency") << "[DTEfficiencyTest] endjob called!";
 }
 
-string DTEfficiencyTest::getMEName(string histoTag, const DTLayerId& lID) {
+string DTEfficiencyTest::getMEName(const string& histoTag, const DTLayerId& lID) {
   stringstream wheel;
   wheel << lID.superlayerId().wheel();
   stringstream station;

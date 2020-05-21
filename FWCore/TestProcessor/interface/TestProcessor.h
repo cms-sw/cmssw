@@ -111,7 +111,7 @@ namespace edm {
       }
 
       template <typename REC, typename T>
-      edm::test::ESPutTokenT<T> esProduces(std::string iLabel = std::string()) {
+      edm::test::ESPutTokenT<T> esProduces(const std::string& iLabel = std::string()) {
         auto rk = eventsetup::EventSetupRecordKey::makeKey<REC>();
         eventsetup::DataKey dk(eventsetup::DataKey::makeTypeTag<T>(), iLabel.c_str());
         esProduceEntries_.emplace_back(rk, dk, std::make_shared<TestDataProxy<T>>());
@@ -155,7 +155,7 @@ namespace edm {
     public:
       using Config = TestProcessorConfig;
 
-      TestProcessor(Config const& iConfig, ServiceToken iToken = ServiceToken());
+      TestProcessor(Config const& iConfig, const ServiceToken& iToken = ServiceToken());
       ~TestProcessor() noexcept(false);
 
       /** Run the test. The function arguments are the data products to be added to the

@@ -111,12 +111,12 @@ public:
   int16_t bx() const { return m_bx; }
 
   /// Functions to convert from internal format to external jet candidates at the output of the jetFinder
-  L1GctJetCand jetCand(const lutPtr lut) const;
+  L1GctJetCand jetCand(const lutPtr& lut) const;
   L1GctJetCand jetCand(const std::vector<lutPtr>& luts) const;
 
   /// The two separate Lut outputs
-  uint16_t rank(const lutPtr lut) const;
-  unsigned calibratedEt(const lutPtr lut) const;
+  uint16_t rank(const lutPtr& lut) const;
+  unsigned calibratedEt(const lutPtr& lut) const;
 
 private:
   uint16_t m_rawsum;
@@ -127,7 +127,7 @@ private:
   bool m_tauVeto;
   int16_t m_bx;
 
-  uint16_t lutValue(const lutPtr lut) const;
+  uint16_t lutValue(const lutPtr& lut) const;
 };
 
 std::ostream& operator<<(std::ostream& os, const L1GctJet& cand);

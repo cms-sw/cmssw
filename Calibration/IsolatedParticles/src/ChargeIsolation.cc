@@ -52,7 +52,7 @@ namespace spr {
 
   double chargeIsolationEcal(const DetId& coreDet,
                              reco::TrackCollection::const_iterator trkItr,
-                             edm::Handle<reco::TrackCollection> trkCollection,
+                             const edm::Handle<reco::TrackCollection>& trkCollection,
                              const CaloGeometry* geo,
                              const CaloTopology* caloTopology,
                              const MagneticField* bField,
@@ -151,7 +151,7 @@ namespace spr {
   //===========================================================================================================
 
   double chargeIsolationHcal(reco::TrackCollection::const_iterator trkItr,
-                             edm::Handle<reco::TrackCollection> trkCollection,
+                             const edm::Handle<reco::TrackCollection>& trkCollection,
                              const DetId ClosestCell,
                              const HcalTopology* topology,
                              const CaloSubdetectorGeometry* gHB,
@@ -224,7 +224,7 @@ namespace spr {
   double coneChargeIsolation(const edm::Event& iEvent,
                              const edm::EventSetup& iSetup,
                              reco::TrackCollection::const_iterator trkItr,
-                             edm::Handle<reco::TrackCollection> trkCollection,
+                             const edm::Handle<reco::TrackCollection>& trkCollection,
                              TrackDetectorAssociator& associator,
                              TrackAssociatorParameters& parameters_,
                              const std::string& theTrackQuality,

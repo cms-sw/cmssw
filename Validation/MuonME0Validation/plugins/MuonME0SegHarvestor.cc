@@ -1,5 +1,6 @@
 // system include files
 #include <memory>
+#include <utility>
 
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -35,7 +36,7 @@ MuonME0SegHarvestor::MuonME0SegHarvestor(const edm::ParameterSet &ps) {
 
 MuonME0SegHarvestor::~MuonME0SegHarvestor() {}
 
-TProfile *MuonME0SegHarvestor::ComputeEff(TH1F *num, TH1F *denum, std::string nameHist) {
+TProfile *MuonME0SegHarvestor::ComputeEff(TH1F *num, TH1F *denum, const std::string &nameHist) {
   std::string name = "eff_" + nameHist;
   std::string title = "Segment Efficiency" + std::string(num->GetTitle());
   TProfile *efficHist = new TProfile(name.c_str(),
@@ -72,7 +73,7 @@ TProfile *MuonME0SegHarvestor::ComputeEff(TH1F *num, TH1F *denum, std::string na
 void MuonME0SegHarvestor::ProcessBooking(
     DQMStore::IBooker &ibooker, DQMStore::IGetter &ig, std::string nameHist, TH1F *num, TH1F *den) {
   if (num != nullptr && den != nullptr) {
-    TProfile *profile = ComputeEff(num, den, nameHist);
+    TProfile *profile = ComputeEff(num, den, std::move(nameHist));
 
     TString x_axis_title = TString(num->GetXaxis()->GetTitle());
     TString title = TString::Format("Segment Efficiency;%s;Eff.", x_axis_title.Data());

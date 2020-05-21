@@ -398,8 +398,8 @@ private:
 
   void createMEs(DQMStore::IBooker& ibooker, const edm::EventSetup& es);
   void createSimpleHitsMEs(DQMStore::IBooker& ibooker);
-  void createLayerMEs(DQMStore::IBooker& ibooker, std::string label);
-  void createStereoAndMatchedMEs(DQMStore::IBooker& ibooker, std::string label);
+  void createLayerMEs(DQMStore::IBooker& ibooker, const std::string& label);
+  void createStereoAndMatchedMEs(DQMStore::IBooker& ibooker, const std::string& label);
 
   MonitorElement* bookME1D(DQMStore::IBooker& ibooker,
                            const char* ParameterSetLabel,
@@ -434,19 +434,19 @@ private:
 
   RecHitProperties rechitpro;
 
-  void rechitanalysis(LocalVector ldir,
+  void rechitanalysis(const LocalVector& ldir,
                       const TrackingRecHit* rechit,
                       const StripGeomDetUnit* stripdet,
-                      edm::ESHandle<StripClusterParameterEstimator> stripcpe,
+                      const edm::ESHandle<StripClusterParameterEstimator>& stripcpe,
                       TrackerHitAssociator& associate,
                       bool simplehit1or2D);
 
   enum class MatchStatus { matched, monoHit, stereoHit };
-  void rechitanalysis_matched(LocalVector ldir,
+  void rechitanalysis_matched(const LocalVector& ldir,
                               const TrackingRecHit* rechit,
                               const GluedGeomDet* gluedDet,
                               TrackerHitAssociator& associate,
-                              edm::ESHandle<StripClusterParameterEstimator> stripcpe,
+                              const edm::ESHandle<StripClusterParameterEstimator>& stripcpe,
                               const MatchStatus matchedmonorstereo);
 
   float track_rapidity;

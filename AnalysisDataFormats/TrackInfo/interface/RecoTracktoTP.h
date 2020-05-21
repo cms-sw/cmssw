@@ -1,6 +1,8 @@
 #ifndef TRACKINFO_RECOTRACKTOTP_H
 #define TRACKINFO_RECOTRACKTOTP_H
 
+#include <utility>
+
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -22,9 +24,9 @@ public:
   RecoTracktoTP();
   ~RecoTracktoTP();
 
-  void SetTrackingParticle(TrackingParticleRef tp) { trackingParticle_ = tp; }
-  void SetRecoTrack(reco::TrackBaseRef track) { recoTrack = track; }
-  void SetRecoVertex(reco::VertexRef vertex) { recoVertex = vertex; }
+  void SetTrackingParticle(const TrackingParticleRef &tp) { trackingParticle_ = tp; }
+  void SetRecoTrack(reco::TrackBaseRef track) { recoTrack = std::move(track); }
+  void SetRecoVertex(const reco::VertexRef &vertex) { recoVertex = vertex; }
   void SetBeamSpot(const math::XYZPoint &bs) { beamSpot_ = bs; }
   void SetShared(const float &m) { shared_ = m; }
 

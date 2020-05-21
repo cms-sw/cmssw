@@ -83,7 +83,7 @@ private:
 
   template <typename type>
   const type* findBestRecHit(const DTLayer* layer,
-                             DTWireId wireId,
+                             const DTWireId& wireId,
                              const std::vector<type>& recHits,
                              const float simHitDist);
 
@@ -107,7 +107,7 @@ private:
   // Book a set of histograms for a give chamber
   void bookHistos(DTSuperLayerId slId, int step);
   // Fill a set of histograms for a give chamber
-  void fillHistos(DTSuperLayerId slId,
+  void fillHistos(const DTSuperLayerId& slId,
                   float distance,
                   float residualOnDistance,
                   float position,

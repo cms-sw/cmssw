@@ -31,7 +31,7 @@
 
 class DTRPCBxCorrection {
 public:
-  DTRPCBxCorrection(L1MuDTChambPhContainer, L1MuDTChambPhContainer);
+  DTRPCBxCorrection(const L1MuDTChambPhContainer&, const L1MuDTChambPhContainer&);
   ~DTRPCBxCorrection(){};
 
   void run(const edm::EventSetup& c);
@@ -41,8 +41,8 @@ public:
   ///Return Output PhContainer
   L1MuDTChambPhContainer getDTContainer() { return m_dt_tsshifted; }
 
-  static int nRPCHits(L1MuTMChambPhContainer inCon, int bx, int wh, int sec, int st);
-  static int nRPCHits(L1MuDTChambPhContainer inCon, int bx, int wh, int sec, int st);
+  static int nRPCHits(const L1MuTMChambPhContainer& inCon, int bx, int wh, int sec, int st);
+  static int nRPCHits(const L1MuDTChambPhContainer& inCon, int bx, int wh, int sec, int st);
   static int deltaPhi(int dt_phi, int rpc_strip);
 
 private:

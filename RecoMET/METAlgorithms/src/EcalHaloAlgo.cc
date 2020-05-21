@@ -557,7 +557,7 @@ bool EcalHaloAlgo::EEClusterShapeandTimeStudy_ITBH(HaloClusterCandidateECAL hcan
   return true;
 }
 
-math::XYZPoint EcalHaloAlgo::getPosition(const DetId& id, reco::Vertex::Point vtx) {
+math::XYZPoint EcalHaloAlgo::getPosition(const DetId& id, const reco::Vertex::Point& vtx) {
   const GlobalPoint& pos = geo->getPosition(id);
   math::XYZPoint posV(pos.x() - vtx.x(), pos.y() - vtx.y(), pos.z() - vtx.z());
   return posV;

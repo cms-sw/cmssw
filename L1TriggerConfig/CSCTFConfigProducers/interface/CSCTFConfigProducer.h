@@ -26,7 +26,7 @@ public:
   std::unique_ptr<L1MuCSCTFConfiguration> produceL1MuCSCTFConfigurationRcd(const L1MuCSCTFConfigurationRcd& iRecord);
   std::unique_ptr<L1MuCSCTFAlignment> produceL1MuCSCTFAlignmentRcd(const L1MuCSCTFAlignmentRcd& iRecord);
   std::unique_ptr<L1MuCSCPtLut> produceL1MuCSCPtLutRcd(const L1MuCSCPtLutRcd& iRecord);
-  void readLUT(std::string path, unsigned short* lut, unsigned long length);
+  void readLUT(const std::string& path, unsigned short* lut, unsigned long length);
 
   CSCTFConfigProducer(const edm::ParameterSet& pset);
   ~CSCTFConfigProducer(void) override {}

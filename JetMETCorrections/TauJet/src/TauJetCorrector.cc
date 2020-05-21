@@ -49,7 +49,7 @@ double TauJetCorrector::ParametrizationTauJet::value(double et, double eta) cons
 
 class JetCalibrationParameterSetTauJet {
 public:
-  JetCalibrationParameterSetTauJet(string tag);
+  JetCalibrationParameterSetTauJet(const string& tag);
   int neta() { return etavector.size(); }
   double eta(int ieta) { return etavector[ieta]; }
   int type(int ieta) { return typevector[ieta]; }
@@ -61,7 +61,7 @@ private:
   vector<int> typevector;
   vector<vector<double> > pars;
 };
-JetCalibrationParameterSetTauJet::JetCalibrationParameterSetTauJet(string tag) {
+JetCalibrationParameterSetTauJet::JetCalibrationParameterSetTauJet(const string& tag) {
   std::string file = "JetMETCorrections/TauJet/data/" + tag + ".txt";
 
   edm::FileInPath f1(file);
@@ -102,7 +102,7 @@ TauJetCorrector::~TauJetCorrector() {
     delete ip->second;
 }
 
-void TauJetCorrector::setParameters(std::string aCalibrationType, int itype) {
+void TauJetCorrector::setParameters(const std::string& aCalibrationType, int itype) {
   //cout<< " Start to set parameters "<<endl;
   type = itype;
   JetCalibrationParameterSetTauJet pset(aCalibrationType);

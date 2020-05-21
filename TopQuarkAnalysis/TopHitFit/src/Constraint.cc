@@ -74,7 +74,7 @@ namespace hitfit {
     return *this;
   }
 
-  Constraint::Constraint(std::string s)
+  Constraint::Constraint(const std::string& s)
   //
   // Purpose: Constructor.
   //          Build a constraint from the string describing it.

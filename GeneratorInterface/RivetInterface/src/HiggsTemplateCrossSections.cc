@@ -103,7 +103,7 @@ namespace Rivet {
     ///        Prints an warning message, and keeps track of number of errors
     HiggsClassification error(HiggsClassification &cat,
                               HTXS::ErrorCode err,
-                              std::string msg = "",
+                              const std::string &msg = "",
                               int NmaxWarnings = 20) {
       // Set the error, and keep statistics
       cat.errorCode = err;

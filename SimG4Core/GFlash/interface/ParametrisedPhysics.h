@@ -13,7 +13,7 @@
 
 class ParametrisedPhysics : public G4VPhysicsConstructor {
 public:
-  ParametrisedPhysics(std::string name, const edm::ParameterSet &p);
+  ParametrisedPhysics(const std::string &name, const edm::ParameterSet &p);
   ~ParametrisedPhysics() override;
 
 protected:

@@ -102,9 +102,9 @@ private:
   // for an alignable at position pos.
   double getCoefficient(const int sysdeformation,
                         const align::GlobalPoint &pos,
-                        const GlobalPoint gUDirection,
-                        const GlobalPoint gVDirection,
-                        const GlobalPoint gWDirection,
+                        const GlobalPoint &gUDirection,
+                        const GlobalPoint &gVDirection,
+                        const GlobalPoint &gWDirection,
                         const int iParameter,
                         const double &x0,
                         const std::vector<double> &constraintparameters) const;

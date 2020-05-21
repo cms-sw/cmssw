@@ -81,13 +81,13 @@ namespace l1t {
 
     void dumpTestVectors(int bx,
                          std::ofstream& myCout,
-                         Handle<BXVector<l1t::Muon>> muons,
-                         Handle<BXVector<l1t::EGamma>> egammas,
-                         Handle<BXVector<l1t::Tau>> taus,
-                         Handle<BXVector<l1t::Jet>> jets,
-                         Handle<BXVector<l1t::EtSum>> etsums,
-                         Handle<BXVector<GlobalAlgBlk>> uGtAlg,
-                         Handle<BXVector<GlobalExtBlk>> uGtExt);
+                         const Handle<BXVector<l1t::Muon>>& muons,
+                         const Handle<BXVector<l1t::EGamma>>& egammas,
+                         const Handle<BXVector<l1t::Tau>>& taus,
+                         const Handle<BXVector<l1t::Jet>>& jets,
+                         const Handle<BXVector<l1t::EtSum>>& etsums,
+                         const Handle<BXVector<GlobalAlgBlk>>& uGtAlg,
+                         const Handle<BXVector<GlobalExtBlk>>& uGtExt);
 
     cms_uint64_t formatMuon(std::vector<l1t::Muon>::const_iterator mu);
     unsigned int formatEG(std::vector<l1t::EGamma>::const_iterator eg);
@@ -599,13 +599,13 @@ namespace l1t {
 
   void GtRecordDump::dumpTestVectors(int bx,
                                      std::ofstream& myOutFile,
-                                     Handle<BXVector<l1t::Muon>> muons,
-                                     Handle<BXVector<l1t::EGamma>> egammas,
-                                     Handle<BXVector<l1t::Tau>> taus,
-                                     Handle<BXVector<l1t::Jet>> jets,
-                                     Handle<BXVector<l1t::EtSum>> etsums,
-                                     Handle<BXVector<GlobalAlgBlk>> uGtAlg,
-                                     Handle<BXVector<GlobalExtBlk>> uGtExt) {
+                                     const Handle<BXVector<l1t::Muon>>& muons,
+                                     const Handle<BXVector<l1t::EGamma>>& egammas,
+                                     const Handle<BXVector<l1t::Tau>>& taus,
+                                     const Handle<BXVector<l1t::Jet>>& jets,
+                                     const Handle<BXVector<l1t::EtSum>>& etsums,
+                                     const Handle<BXVector<GlobalAlgBlk>>& uGtAlg,
+                                     const Handle<BXVector<GlobalExtBlk>>& uGtExt) {
     const int empty = 0;
 
     // Dump Bx (4 digits)

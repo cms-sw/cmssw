@@ -86,7 +86,7 @@ namespace fastsim {
     void save();
 
     //! Read the nuclear interactions from a file, so you can reproduce the events (e.g. in case of a crash).
-    bool read(std::string inputFile);
+    bool read(const std::string& inputFile);
 
     double theDistCut;       //!< Cut on deltaR for the FastSim Tracking (ClosestChargedDaughter algorithm)
     double theHadronEnergy;  //!< Minimum energy for nuclear interaction
@@ -839,7 +839,7 @@ void fastsim::NuclearInteraction::save() {
   myOutputFile.flush();
 }
 
-bool fastsim::NuclearInteraction::read(std::string inputFile) {
+bool fastsim::NuclearInteraction::read(const std::string& inputFile) {
   std::ifstream myInputFile;
   struct stat results;
   //

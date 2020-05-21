@@ -73,7 +73,7 @@ void popcon::L1RPCHwConfigSourceHandler::getNewObjects() {
   std::cout << "L1RPCHwConfigSourceHandler: L1RPCHwConfigSourceHandler::getNewObjects ends\n";
 }
 
-void popcon::L1RPCHwConfigSourceHandler::ConnectOnlineDB(std::string connect, std::string authPath) {
+void popcon::L1RPCHwConfigSourceHandler::ConnectOnlineDB(const std::string& connect, const std::string& authPath) {
   std::cout << "L1RPCHwConfigSourceHandler: connecting to " << connect << "..." << std::flush;
   cond::persistency::ConnectionPool connection;
   //  session->configuration().setAuthenticationMethod(cond::XML);

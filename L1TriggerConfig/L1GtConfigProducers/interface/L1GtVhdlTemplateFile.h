@@ -55,7 +55,7 @@ public:
   /// replaces the whole line containing atLine and inserts content instead of it
   bool insert(const std::string &atLine, const std::vector<std::string> &content);
   /// replaces the whole line containing atLine with the content of file
-  bool insert(const std::string atLine, const L1GtVhdlTemplateFile &file);
+  bool insert(const std::string &atLine, const L1GtVhdlTemplateFile &file);
   /// prints the content of the VHDL File (only lines_)
   void print() const;
   /// prints the parameter map

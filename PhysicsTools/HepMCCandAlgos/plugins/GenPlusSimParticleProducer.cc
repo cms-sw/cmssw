@@ -79,7 +79,7 @@ namespace pat {
                         const edm::SimTrackContainer &simtks,
                         const edm::SimVertexContainer &simvtxs,
                         reco::GenParticleCollection &mergedGens,
-                        const reco::GenParticleRefProd ref,
+                        const reco::GenParticleRefProd &ref,
                         std::vector<int> &genBarcodes,
                         bool &barcodesAreSorted) const;
     struct LessById {
@@ -128,7 +128,7 @@ void GenPlusSimParticleProducer::addGenParticle(const SimTrack &stMom,
                                                 const SimTrackContainer &simtracksSorted,
                                                 const SimVertexContainer &simvertices,
                                                 reco::GenParticleCollection &mergedGens,
-                                                const GenParticleRefProd ref,
+                                                const GenParticleRefProd &ref,
                                                 std::vector<int> &genBarcodes,
                                                 bool &barcodesAreSorted) const {
   // Make the genParticle for stDau and add it to the new collection and update the parent-child relationship

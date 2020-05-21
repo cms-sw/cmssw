@@ -185,7 +185,7 @@ bool HLTEgammaL1MatchFilterPairs::hltFilter(edm::Event& iEvent,
   return accept;
 }
 
-bool HLTEgammaL1MatchFilterPairs::CheckL1Matching(edm::Ref<reco::RecoEcalCandidateCollection> ref,
+bool HLTEgammaL1MatchFilterPairs::CheckL1Matching(const edm::Ref<reco::RecoEcalCandidateCollection>& ref,
                                                   std::vector<l1extra::L1EmParticleRef>& l1EGIso,
                                                   std::vector<l1extra::L1EmParticleRef>& l1EGNonIso) const {
   for (auto& i : l1EGIso) {

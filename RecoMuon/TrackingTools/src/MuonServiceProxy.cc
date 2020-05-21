@@ -174,7 +174,7 @@ void MuonServiceProxy::update(const edm::EventSetup& setup, bool duringEvent) {
 }
 
 // get the propagator
-edm::ESHandle<Propagator> MuonServiceProxy::propagator(std::string propagatorName) const {
+edm::ESHandle<Propagator> MuonServiceProxy::propagator(const std::string& propagatorName) const {
   PropagatorMap::const_iterator prop = thePropagators.find(propagatorName);
 
   if (prop == thePropagators.end()) {

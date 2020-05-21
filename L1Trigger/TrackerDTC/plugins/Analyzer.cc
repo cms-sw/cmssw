@@ -92,7 +92,7 @@ namespace trackerDTC {
     // checks if TrackingParticle is selected for efficiency measurements
     bool select(const TrackingParticle& tp) const;
     // fills kinematic tp histograms
-    void fill(const TPPtr& tpPtr, const vector<TH1F*> th1fs) const;
+    void fill(const TPPtr& tpPtr, const vector<TH1F*>& th1fs) const;
     // analyze DTC products and find still reconstrucable TrackingParticles
     void analyzeStubs(const TTDTC*, const TTDTC*, const map<TTStubRef, set<TPPtr>>&, map<TPPtr, set<TTStubRef>>&);
     // fill stub related histograms
@@ -370,7 +370,7 @@ namespace trackerDTC {
   }
 
   // fills kinematic tp histograms
-  void Analyzer::fill(const TPPtr& tpPtr, const vector<TH1F*> th1fs) const {
+  void Analyzer::fill(const TPPtr& tpPtr, const vector<TH1F*>& th1fs) const {
     const double s = sin(tpPtr->phi());
     const double c = cos(tpPtr->phi());
     const TrackingParticle::Point& v = tpPtr->vertex();

@@ -18,7 +18,7 @@
 
 class EcalTBReadout {
 public:
-  EcalTBReadout(const std::string theEcalTBInfoLabel);
+  EcalTBReadout(const std::string &theEcalTBInfoLabel);
   ~EcalTBReadout(){};
 
   /// tell the readout which cells exist

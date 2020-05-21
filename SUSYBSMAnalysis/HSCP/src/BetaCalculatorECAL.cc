@@ -316,7 +316,7 @@ void BetaCalculatorECAL::addStepToXtal(std::map<int, GlobalPoint>& trackExitPosi
                                        std::map<int, float>& trackCrossedXtalMap,
                                        DetId aDetId,
                                        float step,
-                                       GlobalPoint point,
+                                       const GlobalPoint& point,
                                        const CaloSubdetectorGeometry* theSubdetGeometry) {
   auto cell_p = theSubdetGeometry->getGeometry(aDetId);
   GlobalPoint p = cell_p->getPosition(23);

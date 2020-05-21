@@ -28,16 +28,16 @@ void setStyle();
 
 /** search for an existing canvas with the name 
 and returns the poiter to it */
-TCanvas* getGlobalCanvas(std::string name = "Inv MatrixCanvas");
+TCanvas* getGlobalCanvas(const std::string& name = "Inv MatrixCanvas");
 
 /** search for an existing TFile with the name 
 and returns the poiter to it */
-TFile* getGlobalTFile(std::string name = "Inv MatrixTFile.root");
+TFile* getGlobalTFile(const std::string& name = "Inv MatrixTFile.root");
 //TFile * getGlobalTFile (const char* name) ;
 
 /** search for an existing TFile with the name 
 and saves it to disk with his name */
-int saveGlobalTFile(std::string name = "Inv MatrixFile.root");
+int saveGlobalTFile(const std::string& name = "Inv MatrixFile.root");
 
 /** search for an existing calib matrix saved with the name 
 and returns the poiter to it,
@@ -93,7 +93,7 @@ int extract(std::vector<int>* output, const std::string& dati);
 int writeCalibTxt(const CLHEP::HepMatrix& AmplitudeMatrix,
                   const CLHEP::HepMatrix& SigmaMatrix,
                   const CLHEP::HepMatrix& StatisticMatrix,
-                  std::string fileName = "calibOutput.txt");
+                  const std::string& fileName = "calibOutput.txt");
 
 /** to write the file fpr the CMSSW in the DB compliant format (using Energy as reference)*/
 int writeCMSSWCoeff(const CLHEP::HepMatrix& amplMatrix,
@@ -101,11 +101,11 @@ int writeCMSSWCoeff(const CLHEP::HepMatrix& amplMatrix,
                     float ERef,
                     const CLHEP::HepMatrix& sigmaMatrix,
                     const CLHEP::HepMatrix& statisticMatrix,
-                    std::string fileName = "calibOutput.txt",
-                    std::string genTag = "CAL_GENTAG",
-                    std::string method = "CAL_METHOD",
-                    std::string version = "CAL_VERSION",
-                    std::string type = "CAL_TYPE");
+                    const std::string& fileName = "calibOutput.txt",
+                    const std::string& genTag = "CAL_GENTAG",
+                    const std::string& method = "CAL_METHOD",
+                    const std::string& version = "CAL_VERSION",
+                    const std::string& type = "CAL_TYPE");
 
 /** to write the file fpr the CMSSW in the DB compliant format 
     (using Crystal as reference) */
@@ -115,24 +115,24 @@ int writeCMSSWCoeff(const CLHEP::HepMatrix& amplMatrix,
                     int phiRef,
                     const CLHEP::HepMatrix& sigmaMatrix,
                     const CLHEP::HepMatrix& statisticMatrix,
-                    std::string fileName = "calibOutput.txt",
-                    std::string genTag = "CAL_GENTAG",
-                    std::string method = "CAL_METHOD",
-                    std::string version = "CAL_VERSION",
-                    std::string type = "CAL_TYPE");
+                    const std::string& fileName = "calibOutput.txt",
+                    const std::string& genTag = "CAL_GENTAG",
+                    const std::string& method = "CAL_METHOD",
+                    const std::string& version = "CAL_VERSION",
+                    const std::string& type = "CAL_TYPE");
 
 /** translates the calib coefficients format,
     from the TB06Studies one to the CMSSSW one */
 int translateCoeff(const CLHEP::HepMatrix& calibcoeff,
                    const CLHEP::HepMatrix& sigmaMatrix,
                    const CLHEP::HepMatrix& statisticMatrix,
-                   std::string SMnumber = "1",
+                   const std::string& SMnumber = "1",
                    double calibThres = 0.01,
-                   std::string fileName = "calibOutput.txt",
-                   std::string genTag = "CAL_GENTAG",
-                   std::string method = "CAL_METHOD",
-                   std::string version = "CAL_VERSION",
-                   std::string type = "CAL_TYPE");
+                   const std::string& fileName = "calibOutput.txt",
+                   const std::string& genTag = "CAL_GENTAG",
+                   const std::string& method = "CAL_METHOD",
+                   const std::string& version = "CAL_VERSION",
+                   const std::string& type = "CAL_TYPE");
 
 /** translates the calib coefficients format,
     from the CMSSW one to the TB06Studies one */

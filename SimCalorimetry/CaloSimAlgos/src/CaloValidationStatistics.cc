@@ -2,9 +2,10 @@
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloValidationStatistics.h"
 #include <cmath>
 #include <iostream>
+#include <utility>
 
 CaloValidationStatistics::CaloValidationStatistics(std::string name, float expectedMean, float expectedRMS)
-    : name_(name),
+    : name_(std::move(name)),
       expectedMean_(expectedMean),
       expectedRMS_(expectedRMS),
       sum_(0.),

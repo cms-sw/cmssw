@@ -12,6 +12,8 @@
 
 #include <iostream>
 #include <string>
+#include <utility>
+
 #include <vector>
 #include <sstream>
 #include <iconv.h>
@@ -55,7 +57,7 @@ LutXml::LutXml() : XMLDOMBlock("CFGBrickSet", 1) { init(); }
 
 LutXml::LutXml(InputSource &_source) : XMLDOMBlock(_source) { init(); }
 
-LutXml::LutXml(std::string filename) : XMLDOMBlock(filename) { init(); }
+LutXml::LutXml(std::string filename) : XMLDOMBlock(std::move(filename)) { init(); }
 
 LutXml::~LutXml() {
   XMLString::release(&root);
@@ -133,8 +135,8 @@ void LutXml::addLut(LutXml::Config &_config, XMLDOMBlock *checksums_xml) {
 template <typename T>
 DOMElement *LutXml::addData(std::string _elements, std::string _encoding, const T &_lut) {
   DOMElement *child = document->createElement(XMLProcessor::_toXMLCh("Data"));
-  child->setAttribute(XMLProcessor::_toXMLCh("elements"), XMLProcessor::_toXMLCh(_elements));
-  child->setAttribute(XMLProcessor::_toXMLCh("encoding"), XMLProcessor::_toXMLCh(_encoding));
+  child->setAttribute(XMLProcessor::_toXMLCh("elements"), XMLProcessor::_toXMLCh(std::move(_elements)));
+  child->setAttribute(XMLProcessor::_toXMLCh("encoding"), XMLProcessor::_toXMLCh(std::move(_encoding)));
 
   std::stringstream buf;
 
@@ -174,9 +176,9 @@ DOMElement *LutXml::add_checksum(DOMDocument *parent, Config &config) {
 
 DOMElement *LutXml::addParameter(std::string _name, std::string _type, std::string _value) {
   DOMElement *child = document->createElement(XMLProcessor::_toXMLCh("Parameter"));
-  child->setAttribute(XMLProcessor::_toXMLCh("name"), XMLProcessor::_toXMLCh(_name));
-  child->setAttribute(XMLProcessor::_toXMLCh("type"), XMLProcessor::_toXMLCh(_type));
-  DOMText *parameter_value = document->createTextNode(XMLProcessor::_toXMLCh(_value));
+  child->setAttribute(XMLProcessor::_toXMLCh("name"), XMLProcessor::_toXMLCh(std::move(_name)));
+  child->setAttribute(XMLProcessor::_toXMLCh("type"), XMLProcessor::_toXMLCh(std::move(_type)));
+  DOMText *parameter_value = document->createTextNode(XMLProcessor::_toXMLCh(std::move(_value)));
   child->appendChild(parameter_value);
 
   brickElem->appendChild(child);
@@ -188,7 +190,7 @@ DOMElement *LutXml::addParameter(std::string _name, std::string _type, int _valu
   char buf[128];
   sprintf(buf, "%d", _value);
   std::string str_value = buf;
-  return addParameter(_name, _type, str_value);
+  return addParameter(std::move(_name), std::move(_type), str_value);
 }
 
 std::string &LutXml::getCurrentBrick(void) { return getString(brickElem); }
@@ -248,7 +250,7 @@ std::string LutXml::get_checksum(std::vector<unsigned int> &lut) {
   return result.str();
 }
 
-int LutXml::test_access(std::string filename) {
+int LutXml::test_access(const std::string &filename) {
   edm::LogInfo("LutXml") << "Created map size: " << lut_map.size();
 
   struct timeval _t;

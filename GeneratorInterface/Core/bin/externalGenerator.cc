@@ -39,7 +39,7 @@ static char const* const kVerboseCommandOpt = "verbose,v";
 using namespace edm::shared_memory;
 class Harness {
 public:
-  Harness(std::string const& iConfig, edm::ServiceToken iToken)
+  Harness(std::string const& iConfig, const edm::ServiceToken& iToken)
       : tester_(edm::test::TestProcessor::Config{iConfig}, iToken) {}
 
   ExternalGeneratorLumiInfo getBeginLumiValue(unsigned int iLumi) {

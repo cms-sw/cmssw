@@ -223,7 +223,7 @@ void PFMETAlgorithmMVA::setInput(const std::vector<reco::PUSubMETCandInfo>& lept
 }
 
 //-------------------------------------------------------------------------------
-std::unique_ptr<float[]> PFMETAlgorithmMVA::createFloatVector(std::vector<std::string> variableNames) {
+std::unique_ptr<float[]> PFMETAlgorithmMVA::createFloatVector(const std::vector<std::string>& variableNames) {
   std::unique_ptr<float[]> floatVector(new float[variableNames.size()]);
   int i = 0;
   for (auto variableName : variableNames) {

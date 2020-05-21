@@ -11,7 +11,7 @@ namespace {
   std::mutex fileMutex;
 }
 
-SimHitPrinter::SimHitPrinter(std::string filename) {
+SimHitPrinter::SimHitPrinter(const std::string& filename) {
   if (theFile)
     return;
   const char* theName = filename.c_str();
@@ -28,7 +28,7 @@ SimHitPrinter::~SimHitPrinter() {
   //  theFile->close();
 }
 
-void SimHitPrinter::startNewSimHit(std::string s) {
+void SimHitPrinter::startNewSimHit(const std::string& s) {
   std::cout.width(10);
   std::cout.setf(std::ios::right, std::ios::adjustfield);
   std::cout.setf(std::ios::scientific, std::ios::floatfield);
@@ -78,7 +78,7 @@ void SimHitPrinter::printEloss(float eloss) const {
   (*theFile) << " e " << eloss;
 }
 
-void SimHitPrinter::printLocal(LocalPoint localen, LocalPoint localex) const {
+void SimHitPrinter::printLocal(const LocalPoint& localen, const LocalPoint& localex) const {
   std::cout << " Local(en/ex): " << localen.x() << " " << localen.y() << " " << localen.z() << " / " << localex.x()
             << " " << localex.y() << " " << localex.z() << std::endl;
   std::lock_guard<std::mutex> guard{fileMutex};
@@ -90,7 +90,7 @@ void SimHitPrinter::printLocal(LocalPoint localen, LocalPoint localex) const {
              << localex.y() << " " << localex.z();
 }
 
-void SimHitPrinter::printGlobal(GlobalPoint global) const {
+void SimHitPrinter::printGlobal(const GlobalPoint& global) const {
   std::cout << " Global(en): " << global.x() << " " << global.y() << " " << global.z() << std::endl;
   std::lock_guard<std::mutex> guard{fileMutex};
   (*theFile).width(10);

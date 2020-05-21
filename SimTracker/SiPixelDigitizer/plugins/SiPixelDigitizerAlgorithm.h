@@ -3,6 +3,8 @@
 
 #include <map>
 #include <memory>
+#include <utility>
+
 #include <vector>
 #include <iostream>
 #include "DataFormats/GeometrySurface/interface/GloballyPositioned.h"
@@ -184,7 +186,7 @@ private:
   public:
     EnergyDepositUnit() : _energy(0), _position(0, 0, 0) {}
     EnergyDepositUnit(float energy, float x, float y, float z) : _energy(energy), _position(x, y, z) {}
-    EnergyDepositUnit(float energy, Local3DPoint position) : _energy(energy), _position(position) {}
+    EnergyDepositUnit(float energy, Local3DPoint position) : _energy(energy), _position(std::move(position)) {}
     float x() const { return _position.x(); }
     float y() const { return _position.y(); }
     float z() const { return _position.z(); }

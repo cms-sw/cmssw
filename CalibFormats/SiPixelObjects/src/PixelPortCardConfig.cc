@@ -13,6 +13,8 @@
 #include <sstream>
 #include <iostream>
 #include <string>
+#include <utility>
+
 #include <vector>
 #include <cassert>
 #include <stdexcept>
@@ -351,7 +353,7 @@ PixelPortCardConfig::PixelPortCardConfig(vector<vector<string> > &tableMat) : Pi
 }
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-PixelPortCardConfig::PixelPortCardConfig(std::string filename) : PixelConfigBase(" ", " ", " ") {
+PixelPortCardConfig::PixelPortCardConfig(const std::string &filename) : PixelConfigBase(" ", " ", " ") {
   string mthn = "[PixelPortCardConfig::PixelPortCardConfig()]\t\t    ";
   //std::cout << __LINE__ << "]\t" << mthn << "filename:"<<filename<<std::endl;
 
@@ -478,7 +480,7 @@ void PixelPortCardConfig::sortDeviceList() {
   //  }
 }
 
-unsigned int PixelPortCardConfig::new_PLL_CTR2_value(std::string CTR4or5, unsigned int last_CTR2) const {
+unsigned int PixelPortCardConfig::new_PLL_CTR2_value(const std::string &CTR4or5, unsigned int last_CTR2) const {
   if (CTR4or5 == k_PLL_CTR4)
     return 0xdf & last_CTR2;
   else if (CTR4or5 == k_PLL_CTR5)
@@ -1153,11 +1155,11 @@ void PixelPortCardConfig::setdeviceValues(unsigned int address, unsigned int val
 }
 
 void PixelPortCardConfig::setdeviceValues(std::string settingName, unsigned int value) {
-  setdeviceValues(getdeviceAddressForSetting(settingName), value);
+  setdeviceValues(getdeviceAddressForSetting(std::move(settingName)), value);
   return;
 }
 
-unsigned int PixelPortCardConfig::getdeviceAddressForSetting(std::string settingName) const {
+unsigned int PixelPortCardConfig::getdeviceAddressForSetting(const std::string &settingName) const {
   //std::cout << "[PixelPortCardConfig::getdeviceAddressForSetting()]\t    settingName: " << settingName<< std::endl ;
   std::map<std::string, unsigned int>::const_iterator foundName_itr = nameToAddress_.find(settingName);
   assert(foundName_itr != nameToAddress_.end());
@@ -1165,7 +1167,7 @@ unsigned int PixelPortCardConfig::getdeviceAddressForSetting(std::string setting
 }
 
 unsigned int PixelPortCardConfig::getdeviceValuesForSetting(std::string settingName) const {
-  return getdeviceValuesForAddress(getdeviceAddressForSetting(settingName));
+  return getdeviceValuesForAddress(getdeviceAddressForSetting(std::move(settingName)));
 }
 
 unsigned int PixelPortCardConfig::getdeviceValuesForAddress(unsigned int address) const {

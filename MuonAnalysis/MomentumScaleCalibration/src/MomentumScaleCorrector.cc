@@ -1,6 +1,6 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MomentumScaleCorrector.h"
 
-void MomentumScaleCorrector::readParameters(TString fileName) {
+void MomentumScaleCorrector::readParameters(const TString& fileName) {
   iterationNum_ = 0;
   parArray_ = nullptr;
   // std::vector<double> parameterErrors;

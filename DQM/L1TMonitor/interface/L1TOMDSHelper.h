@@ -56,7 +56,7 @@ public:
   ~L1TOMDSHelper();  // Destructor
 
   bool connect(std::string iOracleDB, std::string iPathCondDB, int &error);
-  std::map<std::string, WbMTriggerXSecFit> getWbMTriggerXsecFits(std::string iTable, int &error);
+  std::map<std::string, WbMTriggerXSecFit> getWbMTriggerXsecFits(const std::string &iTable, int &error);
   std::map<std::string, WbMTriggerXSecFit> getWbMAlgoXsecFits(int &error);
   std::map<std::string, WbMTriggerXSecFit> getWbMTechXsecFits(int &error);
   int getNumberCollidingBunches(int lhcFillNumber, int &error);

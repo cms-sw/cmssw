@@ -19,7 +19,7 @@ namespace l1t {
   class TkBsCandidate : public L1Candidate {
   public:
     TkBsCandidate();
-    TkBsCandidate(const LorentzVector& p4, TkPhiCandidate cand1, TkPhiCandidate cand2);
+    TkBsCandidate(const LorentzVector& p4, const TkPhiCandidate& cand1, const TkPhiCandidate& cand2);
 
     // ---------- const member functions ---------------------
     const TkPhiCandidate& phiCandidate(size_t i) const { return phiCandList_.at(i); }

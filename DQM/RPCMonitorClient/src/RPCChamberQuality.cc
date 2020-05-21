@@ -209,7 +209,7 @@ void RPCChamberQuality::fillMonitorElements(DQMStore::IGetter& igetter) {
   }
 }
 
-void RPCChamberQuality::performeClientOperation(std::string MESufix,
+void RPCChamberQuality::performeClientOperation(const std::string& MESufix,
                                                 int region,
                                                 MonitorElement* quality,
                                                 DQMStore::IGetter& igetter) {

@@ -11,6 +11,8 @@
  *  Modified by D. Nash
  */
 
+#include <utility>
+
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/DetLayers/interface/NavigationDirection.h"
@@ -119,13 +121,13 @@ public:
 protected:
 private:
   /// Set the last compatible TSOS
-  void setLastCompatibleTSOS(TrajectoryStateOnSurface tsos) { theLastCompatibleTSOS = tsos; }
+  void setLastCompatibleTSOS(TrajectoryStateOnSurface tsos) { theLastCompatibleTSOS = std::move(tsos); }
 
   /// Set the last TSOS
-  void setLastUpdatedTSOS(TrajectoryStateOnSurface tsos) { theLastUpdatedTSOS = tsos; }
+  void setLastUpdatedTSOS(TrajectoryStateOnSurface tsos) { theLastUpdatedTSOS = std::move(tsos); }
 
   /// Set the last but one TSOS
-  void setLastButOneUpdatedTSOS(TrajectoryStateOnSurface tsos) { theLastButOneUpdatedTSOS = tsos; }
+  void setLastButOneUpdatedTSOS(TrajectoryStateOnSurface tsos) { theLastButOneUpdatedTSOS = std::move(tsos); }
 
   /// Increment the DT,CSC,RPC counters
   void incrementChamberCounters(const DetLayer *layer);

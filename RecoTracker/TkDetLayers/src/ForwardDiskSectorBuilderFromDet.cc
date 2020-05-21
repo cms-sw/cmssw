@@ -142,7 +142,7 @@ pair<DiskSectorBounds*, GlobalVector> ForwardDiskSectorBuilderFromDet::computeBo
 }
 
 Surface::RotationType ForwardDiskSectorBuilderFromDet::computeRotation(const vector<const GeomDet*>& dets,
-                                                                       Surface::PositionType pos) const {
+                                                                       const Surface::PositionType& pos) const {
   GlobalVector yAxis = (GlobalVector(pos.x(), pos.y(), 0.)).unit();
 
   GlobalVector zAxis(0., 0., 1.);

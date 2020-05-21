@@ -34,12 +34,12 @@ public:
 
   virtual ~AlignPCLThreshold() {}
 
-  AlignPCLThreshold(coordThresholds X = coordThresholds(),
-                    coordThresholds tX = coordThresholds(),
-                    coordThresholds Y = coordThresholds(),
-                    coordThresholds tY = coordThresholds(),
-                    coordThresholds Z = coordThresholds(),
-                    coordThresholds tZ = coordThresholds(),
+  AlignPCLThreshold(const coordThresholds& X = coordThresholds(),
+                    const coordThresholds& tX = coordThresholds(),
+                    const coordThresholds& Y = coordThresholds(),
+                    const coordThresholds& tY = coordThresholds(),
+                    const coordThresholds& Z = coordThresholds(),
+                    const coordThresholds& tZ = coordThresholds(),
                     std::vector<coordThresholds> extraDOF = std::vector<coordThresholds>());
 
   float getXcut() const { return m_xCoord.m_Cut; }

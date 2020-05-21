@@ -3,6 +3,7 @@
 
 #include <stdexcept>
 #include <iostream>
+#include <utility>
 
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
@@ -26,7 +27,7 @@ public:
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
 
-  inline void setDescription(std::string x) { m_description = x; }
+  inline void setDescription(std::string x) { m_description = std::move(x); }
   inline std::string getDescription() const { return m_description; }
   inline void setEcalConfigId(int x) { m_ecal_config_id = x; }
   inline int getEcalConfigId() const { return m_ecal_config_id; }

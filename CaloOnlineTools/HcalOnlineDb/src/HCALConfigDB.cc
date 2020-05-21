@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <cstring>
+#include <utility>
 
 #ifdef HAVE_XDAQ
 #include <toolbox/string.h>
@@ -35,7 +36,7 @@ HCALConfigDB::HCALConfigDB(void) {
 HCALConfigDB::HCALConfigDB(std::string _accessor) {
   database = nullptr;
   database2 = nullptr;
-  accessor = _accessor;
+  accessor = std::move(_accessor);
 }
 
 HCALConfigDB::~HCALConfigDB(void) {
@@ -43,10 +44,10 @@ HCALConfigDB::~HCALConfigDB(void) {
   delete database2;
 }
 
-void HCALConfigDB::setAccessor(std::string _accessor) { accessor = _accessor; }
+void HCALConfigDB::setAccessor(std::string _accessor) { accessor = std::move(_accessor); }
 
 void HCALConfigDB::connect(std::string _accessor) {
-  accessor = _accessor;
+  accessor = std::move(_accessor);
 
   std::string::size_type i = accessor.find("occi://");
   if (i != std::string::npos) {
@@ -59,9 +60,9 @@ void HCALConfigDB::connect(std::string _accessor) {
 }
 
 void HCALConfigDB::connect(std::string _accessor1, std::string _accessor2) {
-  connect(_accessor1);
+  connect(std::move(_accessor1));
 
-  accessor2 = _accessor2;
+  accessor2 = std::move(_accessor2);
 
   std::string::size_type i = accessor2.find("occi://");
   if (i != std::string::npos) {
@@ -81,7 +82,7 @@ void HCALConfigDB::disconnect(void) {
 }
 
 std::vector<unsigned int> HCALConfigDB::getOnlineLUT(
-    std::string tag, int crate, int slot, int topbottom, int fiber, int channel, int luttype) {
+    const std::string& tag, int crate, int slot, int topbottom, int fiber, int channel, int luttype) {
   //connect( accessor );
 
   std::vector<unsigned int> result;
@@ -126,7 +127,7 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUT(
   return result;
 }
 
-std::vector<unsigned int> HCALConfigDB::getOnlineLUT(std::string tag,
+std::vector<unsigned int> HCALConfigDB::getOnlineLUT(const std::string& tag,
                                                      uint32_t _rawid,
                                                      hcal::ConfigurationDatabase::LUTType _lt) {
   std::vector<unsigned int> result;
@@ -204,7 +205,7 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUT(std::string tag,
   return result;
 }
 
-std::vector<unsigned int> HCALConfigDB::getOnlineLUTFromXML(std::string tag,
+std::vector<unsigned int> HCALConfigDB::getOnlineLUTFromXML(const std::string& tag,
                                                             uint32_t _rawid,
                                                             hcal::ConfigurationDatabase::LUTType _lt) {
   std::vector<unsigned int> result;

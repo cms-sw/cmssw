@@ -29,7 +29,7 @@ struct TICLSeedingRegion {
 
   TICLSeedingRegion() {}
 
-  TICLSeedingRegion(GlobalPoint o, GlobalVector d, int zS, int idx, edm::ProductID id) {
+  TICLSeedingRegion(const GlobalPoint& o, const GlobalVector& d, int zS, int idx, edm::ProductID id) {
     origin = o;
     directionAtOrigin = d;
     zSide = zS;

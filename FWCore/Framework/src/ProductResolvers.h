@@ -22,6 +22,7 @@ a set of related EDProducts. This is the storage unit of such information.
 #include <atomic>
 
 #include <string>
+#include <utility>
 
 namespace edm {
   class MergeableRunProductMetadata;
@@ -47,7 +48,7 @@ namespace edm {
   public:
     enum class ProductStatus { ProductSet, NotPut, ResolveFailed, ResolveNotRun, ProductDeleted };
 
-    DataManagingProductResolver(std::shared_ptr<BranchDescription const> bd, ProductStatus iDefaultStatus)
+    DataManagingProductResolver(const std::shared_ptr<BranchDescription const>& bd, ProductStatus iDefaultStatus)
         : DataManagingOrAliasProductResolver(),
           productData_(bd),
           theStatus_(iDefaultStatus),
@@ -104,7 +105,9 @@ namespace edm {
   class InputProductResolver : public DataManagingProductResolver {
   public:
     explicit InputProductResolver(std::shared_ptr<BranchDescription const> bd)
-        : DataManagingProductResolver(bd, ProductStatus::ResolveNotRun), m_prefetchRequested{false}, aux_{nullptr} {}
+        : DataManagingProductResolver(std::move(bd), ProductStatus::ResolveNotRun),
+          m_prefetchRequested{false},
+          aux_{nullptr} {}
 
     void setupUnscheduled(UnscheduledConfigurator const&) final;
 
@@ -139,7 +142,7 @@ namespace edm {
 
   class ProducedProductResolver : public DataManagingProductResolver {
   public:
-    ProducedProductResolver(std::shared_ptr<BranchDescription const> bd, ProductStatus iDefaultStatus)
+    ProducedProductResolver(const std::shared_ptr<BranchDescription const>& bd, ProductStatus iDefaultStatus)
         : DataManagingProductResolver(bd, iDefaultStatus) {
       assert(bd->produced());
     }
@@ -154,7 +157,7 @@ namespace edm {
   class PuttableProductResolver : public ProducedProductResolver {
   public:
     explicit PuttableProductResolver(std::shared_ptr<BranchDescription const> bd)
-        : ProducedProductResolver(bd, ProductStatus::NotPut), worker_(nullptr), prefetchRequested_(false) {}
+        : ProducedProductResolver(std::move(bd), ProductStatus::NotPut), worker_(nullptr), prefetchRequested_(false) {}
 
     void setupUnscheduled(UnscheduledConfigurator const&) final;
 
@@ -182,7 +185,9 @@ namespace edm {
   class UnscheduledProductResolver : public ProducedProductResolver {
   public:
     explicit UnscheduledProductResolver(std::shared_ptr<BranchDescription const> bd)
-        : ProducedProductResolver(bd, ProductStatus::ResolveNotRun), aux_(nullptr), prefetchRequested_(false) {}
+        : ProducedProductResolver(std::move(bd), ProductStatus::ResolveNotRun),
+          aux_(nullptr),
+          prefetchRequested_(false) {}
 
     void setupUnscheduled(UnscheduledConfigurator const&) final;
 
@@ -212,7 +217,7 @@ namespace edm {
     typedef ProducedProductResolver::ProductStatus ProductStatus;
     explicit AliasProductResolver(std::shared_ptr<BranchDescription const> bd,
                                   DataManagingOrAliasProductResolver& realProduct)
-        : DataManagingOrAliasProductResolver(), realProduct_(realProduct), bd_(bd) {}
+        : DataManagingOrAliasProductResolver(), realProduct_(realProduct), bd_(std::move(bd)) {}
 
     void connectTo(ProductResolverBase const& iOther, Principal const* iParentPrincipal) final {
       realProduct_.connectTo(iOther, iParentPrincipal);
@@ -264,7 +269,7 @@ namespace edm {
   class SwitchBaseProductResolver : public DataManagingOrAliasProductResolver {
   public:
     using ProductStatus = DataManagingProductResolver::ProductStatus;
-    SwitchBaseProductResolver(std::shared_ptr<BranchDescription const> bd,
+    SwitchBaseProductResolver(const std::shared_ptr<BranchDescription const>& bd,
                               DataManagingOrAliasProductResolver& realProduct);
 
     void connectTo(ProductResolverBase const& iOther, Principal const* iParentPrincipal) final;
@@ -370,7 +375,11 @@ namespace edm {
   public:
     typedef ProducedProductResolver::ProductStatus ProductStatus;
     explicit ParentProcessProductResolver(std::shared_ptr<BranchDescription const> bd)
-        : ProductResolverBase(), realProduct_(nullptr), bd_(bd), provRetriever_(nullptr), parentPrincipal_(nullptr) {}
+        : ProductResolverBase(),
+          realProduct_(nullptr),
+          bd_(std::move(bd)),
+          provRetriever_(nullptr),
+          parentPrincipal_(nullptr) {}
 
     void connectTo(ProductResolverBase const& iOther, Principal const* iParentPrincipal) final {
       realProduct_ = &iOther;
@@ -442,7 +451,7 @@ namespace edm {
                                   bool skipCurrentProcess,
                                   SharedResourcesAcquirer* sra,
                                   ModuleCallingContext const* mcc,
-                                  ServiceToken token) const;
+                                  const ServiceToken& token) const;
 
     bool dataValidFromResolver(unsigned int iProcessingIndex,
                                Principal const& principal,
@@ -491,7 +500,7 @@ namespace edm {
                            SharedResourcesAcquirer* sra,
                            ModuleCallingContext const* mcc) const;
 
-    void setCache(bool skipCurrentProcess, ProductResolverIndex index, std::exception_ptr exceptionPtr) const;
+    void setCache(bool skipCurrentProcess, ProductResolverIndex index, const std::exception_ptr& exceptionPtr) const;
 
     std::vector<ProductResolverIndex> matchingHolders_;
     std::vector<bool> ambiguous_;

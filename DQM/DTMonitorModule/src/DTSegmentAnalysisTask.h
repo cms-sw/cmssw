@@ -67,9 +67,9 @@ private:
   bool checkNoisyChannels;
 
   // book the histos
-  void bookHistos(DQMStore::IBooker& ibooker, DTChamberId chamberId);
+  void bookHistos(DQMStore::IBooker& ibooker, const DTChamberId& chamberId);
   // Fill a set of histograms for a given chamber
-  void fillHistos(DTChamberId chamberId, int nHits, float chi2);
+  void fillHistos(const DTChamberId& chamberId, int nHits, float chi2);
 
   //  the histos
   std::map<DTChamberId, std::vector<MonitorElement*> > histosPerCh;

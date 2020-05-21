@@ -18,7 +18,7 @@ public:
 
   // Methods for user data
   std::string getRunType() const;
-  void setRunType(std::string runtype);
+  void setRunType(const std::string &runtype);
 
   std::string getDescription() const;
 

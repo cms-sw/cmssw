@@ -5,6 +5,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <utility>
 
 #include "FWCore/TestProcessor/interface/TestProcessor.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
@@ -34,7 +35,7 @@ using namespace edm::shared_memory;
 class Harness {
 public:
   Harness(std::string const& iConfig, edm::ServiceToken iToken)
-      : tester_(edm::test::TestProcessor::Config{iConfig}, iToken) {}
+      : tester_(edm::test::TestProcessor::Config{iConfig}, std::move(iToken)) {}
 
   edmtest::IntProduct getBeginLumiValue(unsigned int iLumi) {
     auto lumi = tester_.testBeginLuminosityBlock(iLumi);

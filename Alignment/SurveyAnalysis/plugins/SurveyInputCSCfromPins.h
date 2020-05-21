@@ -21,8 +21,8 @@ public:
   void analyze(const edm::Event &, const edm::EventSetup &) override;
 
 private:
-  void orient(align::LocalVector LC1,
-              align::LocalVector LC2,
+  void orient(const align::LocalVector &LC1,
+              const align::LocalVector &LC2,
               double a,
               double b,
               double &T,

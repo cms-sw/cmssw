@@ -19,10 +19,10 @@ namespace susybsm {
     //void setDT(const bool type) {DT = type;}
     //void setCSC(const bool type) {CSC = type;}
 
-    void setDTSegmentRef(const DTRecSegment4DRef segment) { DTSegmentRef_ = segment; }
-    void setCSCSegmentRef(const CSCSegmentRef segment) { CSCSegmentRef_ = segment; }
+    void setDTSegmentRef(const DTRecSegment4DRef& segment) { DTSegmentRef_ = segment; }
+    void setCSCSegmentRef(const CSCSegmentRef& segment) { CSCSegmentRef_ = segment; }
 
-    void setGP(const GlobalPoint point) { gp = point; }
+    void setGP(const GlobalPoint& point) { gp = point; }
 
     GlobalPoint getGP() const { return gp; }
 

@@ -3,6 +3,8 @@
 
 #include <map>
 #include <stdexcept>
+#include <utility>
+
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 #define USE_NORM 1
@@ -26,10 +28,10 @@ public:
   inline void setSize(unsigned int id) { m_size = id; }
   inline unsigned int getSize() const { return m_size; }
 
-  inline void setDCCConfigurationUrl(std::string x) { m_dcc_url = x; }
+  inline void setDCCConfigurationUrl(std::string x) { m_dcc_url = std::move(x); }
   inline std::string getDCCConfigurationUrl() const { return m_dcc_url; }
 
-  inline void setTestPatternFileUrl(std::string x) { m_test_url = x; }
+  inline void setTestPatternFileUrl(std::string x) { m_test_url = std::move(x); }
   inline std::string getTestPatternFileUrl() const { return m_test_url; }
 
   inline void setNTestPatternsToLoad(int id) { m_ntest = id; }
@@ -41,7 +43,7 @@ public:
   inline void setDCCClob(unsigned char* x) { m_dcc_clob = x; }
   inline unsigned char* getDCCClob() const { return m_dcc_clob; }
   inline unsigned int getDCCClobSize() const { return m_size; }
-  inline void setDCCWeightsMode(std::string x) { m_wei = x; }
+  inline void setDCCWeightsMode(std::string x) { m_wei = std::move(x); }
   inline std::string getDCCWeightsMode() const { return m_wei; }
 
   void setParameters(const std::map<std::string, std::string>& my_keys_map);

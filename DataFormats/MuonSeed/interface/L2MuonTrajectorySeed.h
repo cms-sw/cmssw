@@ -25,13 +25,13 @@ public:
   L2MuonTrajectorySeed(PTrajectoryStateOnDet const& ptsos,
                        RecHitContainer const& rh,
                        PropagationDirection dir,
-                       l1extra::L1MuonParticleRef l1Ref);
+                       const l1extra::L1MuonParticleRef& l1Ref);
 
   /// Constructor for stage2 L1
   L2MuonTrajectorySeed(PTrajectoryStateOnDet const& ptsos,
                        RecHitContainer const& rh,
                        PropagationDirection dir,
-                       l1t::MuonRef l1Ref);
+                       const l1t::MuonRef& l1Ref);
 
   /// Destructor
   ~L2MuonTrajectorySeed() override{};

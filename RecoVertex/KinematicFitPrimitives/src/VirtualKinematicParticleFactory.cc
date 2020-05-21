@@ -14,7 +14,7 @@ RefCountedKinematicParticle VirtualKinematicParticleFactory::particle(
     const KinematicState& kineState,
     float& chiSquared,
     float& degreesOfFr,
-    ReferenceCountingPointer<KinematicParticle> previousParticle,
+    const ReferenceCountingPointer<KinematicParticle>& previousParticle,
     KinematicConstraint* lastConstraint) const {
   if (previousParticle.get() != nullptr) {
     KinematicParticle* prp = &(*previousParticle);

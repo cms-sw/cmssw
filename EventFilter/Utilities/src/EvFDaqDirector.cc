@@ -485,7 +485,7 @@ namespace evf {
 
   std::string EvFDaqDirector::getFFFParamsFilePathOnBU() const { return bu_run_dir_ + "/hlt/fffParameters.jsn"; }
 
-  void EvFDaqDirector::removeFile(std::string filename) {
+  void EvFDaqDirector::removeFile(const std::string& filename) {
     int retval = remove(filename.c_str());
     if (retval != 0)
       edm::LogError("EvFDaqDirector") << "Could not remove used file -: " << filename

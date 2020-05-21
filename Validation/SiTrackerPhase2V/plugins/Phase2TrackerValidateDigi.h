@@ -104,7 +104,7 @@ private:
   bool isPrimary(const SimTrack& simTrk, const PSimHit& simHit);
 
   void fillHistogram(MonitorElement* th1, MonitorElement* th2, MonitorElement* th3, float val, int primary);
-  int fillSimHitInfo(const edm::Event& iEvent, const SimTrack simTrk, const edm::ESHandle<TrackerGeometry> gHandle);
+  int fillSimHitInfo(const edm::Event& iEvent, const SimTrack& simTrk, const edm::ESHandle<TrackerGeometry>& gHandle);
   bool findOTDigi(unsigned int detid, unsigned int id);
   bool findITPixelDigi(unsigned int detid, unsigned int id);
   void fillOTBXInfo();

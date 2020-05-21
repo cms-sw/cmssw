@@ -135,7 +135,9 @@ void DTDataIntegrityROSOffline::bookHistos(DQMStore::IBooker& ibooker, const int
   hCorruptionSummary->setBinLabel(8, "Trailer Check", 2);
 }
 
-void DTDataIntegrityROSOffline::bookHistos(DQMStore::IBooker& ibooker, string folder, DTROChainCoding code) {
+void DTDataIntegrityROSOffline::bookHistos(DQMStore::IBooker& ibooker,
+                                           const string& folder,
+                                           const DTROChainCoding& code) {
   string dduID_s = to_string(code.getDDU());
   string rosID_s = to_string(code.getROS());
   string robID_s = to_string(code.getROB());
@@ -302,7 +304,7 @@ void DTDataIntegrityROSOffline::bookHistos(DQMStore::IBooker& ibooker, string fo
   }
 }
 
-void DTDataIntegrityROSOffline::bookHistosROS25(DQMStore::IBooker& ibooker, DTROChainCoding code) {
+void DTDataIntegrityROSOffline::bookHistosROS25(DQMStore::IBooker& ibooker, const DTROChainCoding& code) {
   bookHistos(ibooker, string("ROS"), code);
 }
 

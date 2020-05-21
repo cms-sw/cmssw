@@ -44,7 +44,7 @@
 // Constructors --
 //----------------
 
-DTSectColl::DTSectColl(DTSectCollId id) : _sectcollid(id) {
+DTSectColl::DTSectColl(const DTSectCollId& id) : _sectcollid(id) {
   //_config = _conf_manager->getDTConfigSectColl(_sectcollid);
 
   // create SC Chips

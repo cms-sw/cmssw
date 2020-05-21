@@ -21,11 +21,11 @@ public:
   RECOVertex();
   ~RECOVertex();
 
-  void setup(const edm::ParameterSet &pSet, TTree *tree, std::string vertexType);
+  void setup(const edm::ParameterSet &pSet, TTree *tree, const std::string &vertexType);
   void clear(void);
 
   /** Analyze the Data */
-  void analyze(edm::Handle<reco::VertexCollection> recoVertexs, TTree *tree);
+  void analyze(const edm::Handle<reco::VertexCollection> &recoVertexs, TTree *tree);
 
 private:
   // Tree variables

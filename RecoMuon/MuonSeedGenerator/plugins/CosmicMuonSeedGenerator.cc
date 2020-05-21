@@ -413,7 +413,7 @@ bool CosmicMuonSeedGenerator::leftIsBetter(const MuonTransientTrackingRecHit::Mu
 CosmicMuonSeedGenerator::MuonRecHitPairVector CosmicMuonSeedGenerator::makeSegPairs(
     const MuonTransientTrackingRecHit::MuonRecHitContainer& hits1,
     const MuonTransientTrackingRecHit::MuonRecHitContainer& hits2,
-    std::string tag) const {
+    const std::string& tag) const {
   MuonRecHitPairVector result;
   const std::string category = "Muon|RecoMuon|CosmicMuonSeedGenerator";
 

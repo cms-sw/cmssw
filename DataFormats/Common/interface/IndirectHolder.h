@@ -29,7 +29,7 @@ namespace edm {
       // this constructor, so that the cloning can be avoided. I'm not
       // sure if use of unique_ptr here causes any troubles elsewhere.
       IndirectHolder() : BaseHolder<T>(), helper_(nullptr) {}
-      IndirectHolder(std::shared_ptr<RefHolderBase> p);
+      IndirectHolder(const std::shared_ptr<RefHolderBase>& p);
       template <typename U>
       IndirectHolder(std::unique_ptr<U> p) : helper_(p.release()) {}
       IndirectHolder(IndirectHolder const& other);
@@ -66,7 +66,8 @@ namespace edm {
     // Implementation of IndirectHolder<T>
     //------------------------------------------------------------------
     template <typename T>
-    inline IndirectHolder<T>::IndirectHolder(std::shared_ptr<RefHolderBase> p) : BaseHolder<T>(), helper_(p->clone()) {}
+    inline IndirectHolder<T>::IndirectHolder(const std::shared_ptr<RefHolderBase>& p)
+        : BaseHolder<T>(), helper_(p->clone()) {}
 
     template <typename T>
     inline IndirectHolder<T>::IndirectHolder(IndirectHolder const& other)

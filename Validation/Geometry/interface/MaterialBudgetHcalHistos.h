@@ -33,9 +33,9 @@ private:
   void hend();
   std::vector<std::string> getNames(DDFilteredView &fv);
   std::vector<double> getDDDArray(const std::string &str, const DDsvalues_type &sv);
-  bool isSensitive(std::string);
+  bool isSensitive(const std::string &);
   bool isItHF(const G4VTouchable *);
-  bool isItEC(std::string);
+  bool isItEC(const std::string &);
 
 private:
   static const int maxSet = 25, maxSet2 = 9;

@@ -318,7 +318,7 @@ bool Source::getXrootdSite(XrdCl::File &fh, std::string &site) {
   return getXrootdSiteFromURL(lastUrl, site);
 }
 
-bool Source::getXrootdSiteFromURL(std::string url, std::string &site) {
+bool Source::getXrootdSiteFromURL(const std::string &url, std::string &site) {
   const std::string attr = "sitename";
   XrdCl::Buffer *response = nullptr;
   XrdCl::Buffer arg(attr.size());
@@ -374,7 +374,7 @@ static void validateList(const XrdCl::ChunkList &cl) {
   assert(cl.size() <= 1024);
 }
 
-void Source::handle(std::shared_ptr<ClientRequest> c) {
+void Source::handle(const std::shared_ptr<ClientRequest> &c) {
   edm::LogVerbatim("XrdAdaptorInternal") << "Reading from " << ID() << ", quality " << m_qm->get() << std::endl;
   c->m_source = shared_from_this();
   c->m_self_reference = c;

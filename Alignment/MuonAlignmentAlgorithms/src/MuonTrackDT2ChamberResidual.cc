@@ -2,13 +2,15 @@
  * $Id: $
  */
 
+#include <utility>
+
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonTrackDT2ChamberResidual.h"
 
 MuonTrackDT2ChamberResidual::MuonTrackDT2ChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
                                                          AlignableNavigator *navigator,
                                                          DetId chamberId,
-                                                         AlignableDetOrUnitPtr chamberAlignable)
-    : MuonChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable) {
+                                                         const AlignableDetOrUnitPtr &chamberAlignable)
+    : MuonChamberResidual(std::move(globalGeometry), navigator, chamberId, chamberAlignable) {
   m_type = MuonChamberResidual::kDT2;
   align::GlobalVector zDirection(0., 0., 1.);
   m_sign = m_globalGeometry->idToDet(m_chamberId)->toLocal(zDirection).y() > 0. ? 1. : -1.;

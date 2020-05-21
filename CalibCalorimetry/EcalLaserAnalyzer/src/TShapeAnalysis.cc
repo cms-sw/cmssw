@@ -202,7 +202,7 @@ void TShapeAnalysis::putAllVals(int ch, double *sampl, int ieta, int iphi) {
   }
 }
 
-void TShapeAnalysis::computeShape(string namefile, TTree *tAB) {
+void TShapeAnalysis::computeShape(const string &namefile, TTree *tAB) {
   double tm_atmax[200];
   double parout[3];
 

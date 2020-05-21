@@ -51,7 +51,7 @@ DTTracoTrig::DTTracoTrig(DTTracoChip *tparent, int step) : _tparent(tparent) {
   _data.setParent(tparent->id());
 }
 
-DTTracoTrig::DTTracoTrig(DTTracoChip *parent, DTTracoTrigData data) : _tparent(parent), _data(data) {
+DTTracoTrig::DTTracoTrig(DTTracoChip *parent, const DTTracoTrigData &data) : _tparent(parent), _data(data) {
   // reserve the appropriate amount of space for vectors
   _btitrig.reserve(2);
 }

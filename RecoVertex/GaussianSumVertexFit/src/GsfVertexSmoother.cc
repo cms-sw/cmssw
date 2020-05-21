@@ -89,7 +89,7 @@ CachingVertex<5> GsfVertexSmoother::smooth(const CachingVertex<5>& vertex) const
 }
 
 GsfVertexSmoother::TrackChi2Pair GsfVertexSmoother::vertexAndTrackUpdate(const VertexState& oldVertex,
-                                                                         const RefCountedVertexTrack track,
+                                                                         const RefCountedVertexTrack& track,
                                                                          const GlobalPoint& referencePosition) const {
   VSC prevVtxComponents = oldVertex.components();
 
@@ -162,7 +162,7 @@ GsfVertexSmoother::TrackChi2Pair GsfVertexSmoother::assembleTrackComponents(
    */
 
 GsfVertexSmoother::RefittedTrackComponent GsfVertexSmoother::createNewComponent(
-    const VertexState& oldVertex, const RefCountedLinearizedTrackState linTrack, float trackWeight) const {
+    const VertexState& oldVertex, const RefCountedLinearizedTrackState& linTrack, float trackWeight) const {
   int sign = +1;
 
   // Weight of the component in the mixture (non-normalized)
@@ -203,7 +203,7 @@ VertexState GsfVertexSmoother::meanVertex(const VertexState& vertexA, const Vert
 #endif
 }
 
-double GsfVertexSmoother::priorVertexChi2(const VertexState priorVertex, const VertexState fittedVertex) const {
+double GsfVertexSmoother::priorVertexChi2(const VertexState& priorVertex, const VertexState& fittedVertex) const {
   std::vector<VertexState> priorVertexComp = priorVertex.components();
   std::vector<VertexState> fittedVertexComp = fittedVertex.components();
   double vetexChi2 = 0.;

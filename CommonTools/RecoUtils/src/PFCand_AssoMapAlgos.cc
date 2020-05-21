@@ -40,7 +40,8 @@ void PFCand_AssoMapAlgos::GetInputCollections(edm::Event& iEvent, const edm::Eve
 /* create the pf candidate to vertex association and the inverse map                 */
 /*************************************************************************************/
 std::pair<std::unique_ptr<PFCandToVertexAssMap>, std::unique_ptr<VertexToPFCandAssMap>>
-PFCand_AssoMapAlgos::createMappings(edm::Handle<reco::PFCandidateCollection> pfCandH, const edm::EventSetup& iSetup) {
+PFCand_AssoMapAlgos::createMappings(const edm::Handle<reco::PFCandidateCollection>& pfCandH,
+                                    const edm::EventSetup& iSetup) {
   unique_ptr<PFCandToVertexAssMap> pfcand2vertex(new PFCandToVertexAssMap(vtxcollH, pfCandH));
   unique_ptr<VertexToPFCandAssMap> vertex2pfcand(new VertexToPFCandAssMap(pfCandH, vtxcollH));
 
@@ -107,7 +108,7 @@ PFCand_AssoMapAlgos::createMappings(edm::Handle<reco::PFCandidateCollection> pfC
 /*************************************************************************************/
 
 std::unique_ptr<PFCandToVertexAssMap> PFCand_AssoMapAlgos::CreatePFCandToVertexMap(
-    edm::Handle<reco::PFCandidateCollection> pfCandH, const edm::EventSetup& iSetup) {
+    const edm::Handle<reco::PFCandidateCollection>& pfCandH, const edm::EventSetup& iSetup) {
   return createMappings(pfCandH, iSetup).first;
 }
 
@@ -116,7 +117,7 @@ std::unique_ptr<PFCandToVertexAssMap> PFCand_AssoMapAlgos::CreatePFCandToVertexM
 /*************************************************************************************/
 
 std::unique_ptr<VertexToPFCandAssMap> PFCand_AssoMapAlgos::CreateVertexToPFCandMap(
-    edm::Handle<reco::PFCandidateCollection> pfCandH, const edm::EventSetup& iSetup) {
+    const edm::Handle<reco::PFCandidateCollection>& pfCandH, const edm::EventSetup& iSetup) {
   return createMappings(pfCandH, iSetup).second;
 }
 

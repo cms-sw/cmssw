@@ -20,7 +20,7 @@
 
 class PreMixingPhase2TrackerWorker : public PreMixingWorker {
 public:
-  PreMixingPhase2TrackerWorker(const edm::ParameterSet& ps, edm::ProducesCollector, edm::ConsumesCollector&& iC);
+  PreMixingPhase2TrackerWorker(const edm::ParameterSet& ps, const edm::ProducesCollector&, edm::ConsumesCollector&& iC);
   ~PreMixingPhase2TrackerWorker() override = default;
 
   void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& es) override;
@@ -49,7 +49,7 @@ private:
 };
 
 PreMixingPhase2TrackerWorker::PreMixingPhase2TrackerWorker(const edm::ParameterSet& ps,
-                                                           edm::ProducesCollector producesCollector,
+                                                           const edm::ProducesCollector& producesCollector,
                                                            edm::ConsumesCollector&& iC)
     : digitizer_(ps, producesCollector, iC),
       pixelSignalToken_(iC.consumes<edm::DetSetVector<PixelDigi>>(ps.getParameter<edm::InputTag>("pixelLabelSig"))),

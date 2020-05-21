@@ -332,7 +332,7 @@ std::string METCorrectorParametersCollection::findMiniAodSource(key_type k) {
   else
     return MiniAodSource_[k - MiniAod * 100 - 1];
 }
-void METCorrectorParametersCollection::getSections(std::string inputFile, std::vector<std::string>& outputs) {
+void METCorrectorParametersCollection::getSections(const std::string& inputFile, std::vector<std::string>& outputs) {
   outputs.clear();
   std::ifstream input(inputFile.c_str());
   while (!input.eof()) {

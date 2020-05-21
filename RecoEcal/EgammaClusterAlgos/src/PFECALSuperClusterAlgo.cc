@@ -84,7 +84,7 @@ namespace {
   }
 
   bool isClustered(const CalibClusterPtr& x,
-                   const CalibClusterPtr seed,
+                   const CalibClusterPtr& seed,
                    const PFECALSuperClusterAlgo::clustering_type type,
                    const bool dyn_dphi,
                    const double etawidthSuperCluster,

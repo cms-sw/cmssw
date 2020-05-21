@@ -45,7 +45,7 @@ public:
       : type(_type), name(_name), min(_min), fraction(_fraction), verbosity(_verbosity) {}
 
   /// add new value to map, counter takes value of EC or BC number
-  void Fill(word counter, TotemFramePosition fr);
+  void Fill(word counter, const TotemFramePosition &fr);
 
   /// summarizes and fill the status (wrong EC and BC progress error for some frames)
   template <typename T>

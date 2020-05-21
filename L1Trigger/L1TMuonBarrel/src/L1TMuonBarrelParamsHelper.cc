@@ -278,7 +278,7 @@ void L1TMuonBarrelParamsHelper::configFromDB(l1t::TriggerSystem& trgSys) {
 int L1TMuonBarrelParamsHelper::load_pt(std::vector<LUT>& pta_lut,
                                        std::vector<int>& pta_threshold,
                                        unsigned short int nbitphi,
-                                       std::string AssLUTpath) {
+                                       const std::string& AssLUTpath) {
   // maximal number of pt assignment methods
   const int MAX_PTASSMETH = 19;
   const int MAX_PTASSMETHA = 12;
@@ -453,7 +453,7 @@ int L1TMuonBarrelParamsHelper::load_pt(std::vector<LUT>& pta_lut,
 int L1TMuonBarrelParamsHelper::load_phi(std::vector<LUT>& phi_lut,
                                         unsigned short int nbit_phi,
                                         unsigned short int nbit_phib,
-                                        std::string AssLUTpath) {
+                                        const std::string& AssLUTpath) {
   // precision : in the look-up tables the following precision is used :
   // address (phib) ...10 bits, phi ... 12 bits
 

@@ -428,7 +428,7 @@ namespace cms {
   }
 
   //____________________________________________________________________________||
-  int MuonTCMETValueMapProducer::nLayers(const reco::TrackRef track) {
+  int MuonTCMETValueMapProducer::nLayers(const reco::TrackRef& track) {
     const reco::HitPattern& p = track->hitPattern();
     return p.trackerLayersWithMeasurement();
   }

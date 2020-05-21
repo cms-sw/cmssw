@@ -31,9 +31,9 @@
 //----------------
 // Constructors --
 //----------------
-DTSectCollPhSegm::DTSectCollPhSegm(DTSectCollId scId, int step) : m_sectcollid(scId), m_step(step) { clear(); }
+DTSectCollPhSegm::DTSectCollPhSegm(const DTSectCollId& scId, int step) : m_sectcollid(scId), m_step(step) { clear(); }
 
-DTSectCollPhSegm::DTSectCollPhSegm(DTSectCollId scId, int step, const DTChambPhSegm* tsPhiTrig, int isFirst)
+DTSectCollPhSegm::DTSectCollPhSegm(const DTSectCollId& scId, int step, const DTChambPhSegm* tsPhiTrig, int isFirst)
     : m_sectcollid(scId), m_step(step), m_isFirst(isFirst), m_tsphitrig(tsPhiTrig) {}
 
 DTSectCollPhSegm::DTSectCollPhSegm(const DTSectCollPhSegm& seg)

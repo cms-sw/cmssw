@@ -36,8 +36,8 @@ public:
   void endJob() override;
 
 private:
-  std::string formatIOV(cond::Time_t iov, std::string format = "%Y-%m-%d__%H_%M_%S");
-  void prepGraph(TGraph *gr, TString name, TString title, Color_t color);
+  std::string formatIOV(cond::Time_t iov, const std::string &format = "%Y-%m-%d__%H_%M_%S");
+  void prepGraph(TGraph *gr, const TString &name, const TString &title, Color_t color);
   void dumpCSV(bool isHV, std::size_t nModules);
 
   cond::persistency::ConnectionPool m_connectionPool;
@@ -213,7 +213,7 @@ void SiStripDetVOffTrendPlotter::analyze(const edm::Event &evt, const edm::Event
 
 void SiStripDetVOffTrendPlotter::endJob() {}
 
-std::string SiStripDetVOffTrendPlotter::formatIOV(cond::Time_t iov, std::string format) {
+std::string SiStripDetVOffTrendPlotter::formatIOV(cond::Time_t iov, const std::string &format) {
   auto facet = new boost::posix_time::time_facet(format.c_str());
   std::ostringstream stream;
   stream.imbue(std::locale(stream.getloc(), facet));
@@ -221,7 +221,7 @@ std::string SiStripDetVOffTrendPlotter::formatIOV(cond::Time_t iov, std::string 
   return stream.str();
 }
 
-void SiStripDetVOffTrendPlotter::prepGraph(TGraph *gr, TString name, TString title, Color_t color) {
+void SiStripDetVOffTrendPlotter::prepGraph(TGraph *gr, const TString &name, const TString &title, Color_t color) {
   gr->SetName(name);
   gr->SetTitle(title);
   gr->SetLineColor(color);

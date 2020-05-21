@@ -13,12 +13,13 @@
 #include "TGraph.h"
 #include <cassert>
 #include <map>
+#include <utility>
 
 class BTagPerformance {
 public:
   BTagPerformance(){};
   void Set(std::string name) {
-    fname = name;
+    fname = std::move(name);
     fNcuts = 40;
     b_all = c_all = udsg_all = 0;
     for (int i = 0; i < fNcuts; ++i) {
@@ -110,7 +111,7 @@ public:
       ip++;
     }
   };
-  std::map<int, double> GetMap(TString option = "b") {
+  std::map<int, double> GetMap(const TString& option = "b") {
     if (option == "b")
       return b_eff;
     if (option == "c")
@@ -132,7 +133,7 @@ public:
   };
 
   TArrayD GetArray(TString option = "b") {
-    std::map<int, double> amap = GetMap(option);
+    std::map<int, double> amap = GetMap(std::move(option));
     TArrayD tarray(fNcuts);
     for (std::map<int, double>::const_iterator im = amap.begin(); im != amap.end(); ++im) {
       //std::cout << "i= " << im->first << " value= " << im->second << std::endl;

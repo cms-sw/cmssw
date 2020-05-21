@@ -342,13 +342,13 @@ namespace Pythia8 {
       return true;
     }
 
-    inline double qSplittingScale(Vec4 pt, Vec4 p1, Vec4 p2) {
+    inline double qSplittingScale(const Vec4 &pt, Vec4 p1, Vec4 p2) {
       p1.bstback(pt);
       p2.bstback(pt);
       return sqrt(2 * p1 * p2 * p2.e() / p1.e());
     }
 
-    inline double gSplittingScale(Vec4 pt, Vec4 p1, Vec4 p2) {
+    inline double gSplittingScale(const Vec4 &pt, Vec4 p1, Vec4 p2) {
       p1.bstback(pt);
       p2.bstback(pt);
       return sqrt(2 * p1 * p2 * p1.e() * p2.e() / (pow(p1.e() + p2.e(), 2)));

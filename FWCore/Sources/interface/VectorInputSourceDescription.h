@@ -10,6 +10,7 @@ a VectorinputSource that does not come in through the ParameterSet
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 
 #include <memory>
+#include <utility>
 
 namespace edm {
   class PreallocationConfiguration;
@@ -19,7 +20,7 @@ namespace edm {
     VectorInputSourceDescription() : productRegistry_(nullptr) {}
 
     VectorInputSourceDescription(std::shared_ptr<ProductRegistry> preg, PreallocationConfiguration const& allocations)
-        : productRegistry_(preg), allocations_(&allocations) {}
+        : productRegistry_(std::move(preg)), allocations_(&allocations) {}
 
     std::shared_ptr<ProductRegistry> productRegistry_;
     PreallocationConfiguration const* allocations_;

@@ -56,14 +56,14 @@ DigiLumiCorrHistogramMaker::~DigiLumiCorrHistogramMaker() {
   }
 }
 
-void DigiLumiCorrHistogramMaker::book(const std::string dirname,
+void DigiLumiCorrHistogramMaker::book(const std::string& dirname,
                                       const std::map<unsigned int, std::string>& labels,
                                       edm::ConsumesCollector&& iC) {
   m_labels = labels;
   book(dirname, iC);
 }
 
-void DigiLumiCorrHistogramMaker::book(const std::string dirname, edm::ConsumesCollector& iC) {
+void DigiLumiCorrHistogramMaker::book(const std::string& dirname, edm::ConsumesCollector& iC) {
   edm::Service<TFileService> tfserv;
   TFileDirectory subev = tfserv->mkdir(dirname);
 

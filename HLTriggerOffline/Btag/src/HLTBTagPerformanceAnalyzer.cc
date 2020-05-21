@@ -9,7 +9,7 @@ namespace {
   // find the index of the object key of an association vector closest to a given
   // jet, within a given distance
   template <typename T, typename V>
-  int closestJet(const RefToBase<reco::Jet> jet, const edm::AssociationVector<T, V> &association, double distance) {
+  int closestJet(const RefToBase<reco::Jet> &jet, const edm::AssociationVector<T, V> &association, double distance) {
     int closest = -1;
     for (unsigned int i = 0; i < association.size(); ++i) {
       double d = ROOT::Math::VectorUtil::DeltaR(jet->momentum(), association[i].first->momentum());

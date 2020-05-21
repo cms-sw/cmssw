@@ -115,7 +115,7 @@ public:
   // all Tracks are passed to the trackFilter first, and only processed if it returns true.
   void fillTrackQuantities(const edm::Event& event,
                            const edm::EventSetup& eventSetup,
-                           std::function<bool(const reco::Track&)> trackFilter,
+                           const std::function<bool(const reco::Track&)>& trackFilter,
                            std::vector<AVTrackStruct>& v_avtrackout);
 
 private:

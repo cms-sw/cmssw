@@ -2,7 +2,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <fstream>
 
-void SiPixelCPEGenericErrorParm::fillCPEGenericErrorParm(double version, std::string file) {
+void SiPixelCPEGenericErrorParm::fillCPEGenericErrorParm(double version, const std::string& file) {
   //--- Open the file
   std::ifstream in(file.c_str(), std::ios::in);
 

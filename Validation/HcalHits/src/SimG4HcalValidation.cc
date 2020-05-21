@@ -708,7 +708,7 @@ void SimG4HcalValidation::collectEnergyRdir(const double eta0, const double phi0
 }
 
 //---------------------------------------------------
-double SimG4HcalValidation::getHcalScale(std::string det, int layer) const {
+double SimG4HcalValidation::getHcalScale(const std::string &det, int layer) const {
   double tmp = 0.;
 
   if (det == "HB") {

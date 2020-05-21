@@ -138,9 +138,9 @@ public:
   }
 
   // returns XML std::string if target == "string" otherwise NULL
-  XMLCh* serializeDOM(XERCES_CPP_NAMESPACE::DOMNode* node, std::string target = "stdout");
+  XMLCh* serializeDOM(XERCES_CPP_NAMESPACE::DOMNode* node, const std::string& target = "stdout");
 
-  inline static XMLCh* _toXMLCh(std::string temp);
+  inline static XMLCh* _toXMLCh(const std::string& temp);
   inline static XMLCh* _toXMLCh(int temp);
   inline static XMLCh* _toXMLCh(double temp);
   inline static XMLCh* _toXMLCh(time_t temp);
@@ -169,7 +169,7 @@ private:
   static XMLProcessor* instance;
 };
 
-inline XMLCh* XMLProcessor::_toXMLCh(std::string temp) {
+inline XMLCh* XMLProcessor::_toXMLCh(const std::string& temp) {
   XMLCh* buff = XERCES_CPP_NAMESPACE::XMLString::transcode(temp.c_str());
   return buff;
 }

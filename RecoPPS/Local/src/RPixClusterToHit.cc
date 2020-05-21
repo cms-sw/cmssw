@@ -17,7 +17,7 @@ void RPixClusterToHit::buildHits(unsigned int detId,
   }
 }
 
-void RPixClusterToHit::make_hit(CTPPSPixelCluster aCluster, std::vector<CTPPSPixelRecHit> &hits) {
+void RPixClusterToHit::make_hit(const CTPPSPixelCluster &aCluster, std::vector<CTPPSPixelRecHit> &hits) {
   // take a cluster, generate a rec hit and push it in the rec hit vector
 
   //call the topology

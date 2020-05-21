@@ -487,7 +487,7 @@ string EcalSRCondTools::tokenize(const string& s, const string& delim, int& pos)
   return s.substr(pos0, (pos > 0 ? pos : len) - pos0);
 }
 
-std::string EcalSRCondTools::trim(std::string s) {
+std::string EcalSRCondTools::trim(const std::string& s) {
   std::string::size_type pos0 = s.find_first_not_of(" \t");
   if (pos0 == string::npos) {
     pos0 = 0;

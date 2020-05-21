@@ -33,7 +33,7 @@ bool isMediumMuonCustom(const reco::Muon& recoMu) {
   return isMedium;
 }
 
-bool isTightMuonCustom(const reco::Muon& recoMu, const reco::Vertex recoVtx) {
+bool isTightMuonCustom(const reco::Muon& recoMu, const reco::Vertex& recoVtx) {
   //bp
   bool isTight = recoMu.isGlobalMuon() && recoMu.isPFMuon() && recoMu.globalTrack()->normalizedChi2() < 10. &&
                  recoMu.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 &&

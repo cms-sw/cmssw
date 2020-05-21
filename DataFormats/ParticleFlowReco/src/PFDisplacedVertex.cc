@@ -101,7 +101,7 @@ std::string PFDisplacedVertex::nameVertexType() const {
   return "?";
 }
 
-const math::XYZTLorentzVector PFDisplacedVertex::momentum(string massHypo,
+const math::XYZTLorentzVector PFDisplacedVertex::momentum(const string& massHypo,
                                                           VertexTrackType T,
                                                           bool useRefitted,
                                                           double mass) const {

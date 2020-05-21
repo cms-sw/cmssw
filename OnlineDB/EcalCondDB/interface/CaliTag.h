@@ -20,19 +20,19 @@ public:
 
   // Methods for user data
   std::string getGeneralTag() const;
-  void setGeneralTag(std::string tag);
+  void setGeneralTag(const std::string& tag);
 
   LocationDef getLocationDef() const;
   void setLocationDef(const LocationDef& locDef);
 
   std::string getMethod() const;
-  void setMethod(std::string method);
+  void setMethod(const std::string& method);
 
   std::string getVersion() const;
-  void setVersion(std::string version);
+  void setVersion(const std::string& version);
 
   std::string getDataType() const;
-  void setDataType(std::string dataType);
+  void setDataType(const std::string& dataType);
 
   // Methods using ID
   int fetchID() noexcept(false) override;

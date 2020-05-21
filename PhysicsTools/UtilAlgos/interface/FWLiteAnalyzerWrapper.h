@@ -101,7 +101,7 @@ namespace fwlite {
   class AnalyzerWrapper {
   public:
     /// default constructor
-    AnalyzerWrapper(const edm::ParameterSet& cfg, std::string analyzerName, std::string directory = "");
+    AnalyzerWrapper(const edm::ParameterSet& cfg, const std::string& analyzerName, const std::string& directory = "");
     /// default destructor
     virtual ~AnalyzerWrapper(){};
     /// everything which has to be done before the event loop
@@ -128,7 +128,9 @@ namespace fwlite {
 
   /// default contructor
   template <class T>
-  AnalyzerWrapper<T>::AnalyzerWrapper(const edm::ParameterSet& cfg, std::string analyzerName, std::string directory)
+  AnalyzerWrapper<T>::AnalyzerWrapper(const edm::ParameterSet& cfg,
+                                      const std::string& analyzerName,
+                                      const std::string& directory)
       : inputHandler_(cfg),
         outputHandler_(cfg),
         maxEvents_(inputHandler_.maxEvents()),

@@ -82,7 +82,7 @@ DTBtiTrig::DTBtiTrig(DTBtiChip* tparent, int code, int K, int X, int step, int e
   _data.setKeq(5, Keq[5]);
 }
 
-DTBtiTrig::DTBtiTrig(DTBtiChip* parent, DTBtiTrigData data) : _tparent(parent), _data(data) {
+DTBtiTrig::DTBtiTrig(DTBtiChip* parent, const DTBtiTrigData& data) : _tparent(parent), _data(data) {
   // reserve the appropriate amount of space for vectors
   _digi.reserve(4);
 }

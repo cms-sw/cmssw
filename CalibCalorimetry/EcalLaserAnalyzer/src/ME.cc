@@ -80,7 +80,7 @@ TString ME::primPath(int lmr) {
 
 TString ME::path() { return TString(std::getenv("MUSECAL")) + "/"; }
 
-TString ME::rootFileName(ME::Header header, ME::Settings settings) {
+TString ME::rootFileName(const ME::Header& header, ME::Settings settings) {
   // get the laser monitoring region and super-module
   int lmr_ = ME::lmr(header.dcc, header.side);
   TString outfile_ = primPath(lmr_);

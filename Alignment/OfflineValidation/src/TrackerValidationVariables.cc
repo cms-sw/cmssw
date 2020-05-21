@@ -429,7 +429,7 @@ void TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
 
 void TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
                                                      const edm::EventSetup& eventSetup,
-                                                     std::function<bool(const reco::Track&)> trackFilter,
+                                                     const std::function<bool(const reco::Track&)>& trackFilter,
                                                      std::vector<AVTrackStruct>& v_avtrackout) {
   const MagneticField& magneticField = eventSetup.getData(magneticFieldToken_);
 

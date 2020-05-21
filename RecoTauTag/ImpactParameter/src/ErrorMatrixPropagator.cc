@@ -9,11 +9,12 @@
 
 using namespace tauImpactParameter;
 
-TMatrixTSym<double> ErrorMatrixPropagator::propagateError(std::function<TVectorT<double>(const TVectorT<double>&)> f,
-                                                          const TVectorT<double>& inPar,
-                                                          TMatrixTSym<double>& inCov,
-                                                          double epsilon,
-                                                          double errorEpsilonRatio) {
+TMatrixTSym<double> ErrorMatrixPropagator::propagateError(
+    const std::function<TVectorT<double>(const TVectorT<double>&)>& f,
+    const TVectorT<double>& inPar,
+    TMatrixTSym<double>& inCov,
+    double epsilon,
+    double errorEpsilonRatio) {
   TVectorT<double> v = f(inPar);
   TMatrixT<double> Jacobian(inPar.GetNrows(), v.GetNrows());
   for (int i = 0; i < inPar.GetNrows(); i++) {

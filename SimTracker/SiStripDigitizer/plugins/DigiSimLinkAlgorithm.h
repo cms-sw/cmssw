@@ -58,7 +58,7 @@ public:
            edm::DetSet<SiStripRawDigi> &,
            const std::vector<std::pair<const PSimHit *, int> > &,
            StripGeomDetUnit const *,
-           GlobalVector,
+           const GlobalVector &,
            float,
            edm::ESHandle<SiStripGain> &,
            edm::ESHandle<SiStripThreshold> &,

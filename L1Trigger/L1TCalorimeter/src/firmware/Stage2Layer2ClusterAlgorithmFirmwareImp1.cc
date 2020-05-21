@@ -473,7 +473,7 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::refining(const std::vector<l
   }
 }
 
-bool l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::idHoverE(const l1t::CaloTower tow) {
+bool l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::idHoverE(const l1t::CaloTower& tow) {
   bool hOverEBit = true;
 
   int ratio = tow.hwEtRatio();

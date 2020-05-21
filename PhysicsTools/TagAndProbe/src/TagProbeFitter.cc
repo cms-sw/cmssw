@@ -50,9 +50,9 @@ using namespace std;
 using namespace RooFit;
 
 TagProbeFitter::TagProbeFitter(const std::vector<std::string>& inputFileNames,
-                               string inputDirectoryName,
-                               string inputTreeName,
-                               string outputFileName,
+                               const string& inputDirectoryName,
+                               const string& inputTreeName,
+                               const string& outputFileName,
                                int numCPU_,
                                bool saveWorkspace_,
                                bool floatShapeParameters_,
@@ -110,14 +110,14 @@ void TagProbeFitter::setQuiet(bool quiet_) {
 
 void TagProbeFitter::setSplitMode(unsigned int nevents) { split_mode = nevents; }
 
-bool TagProbeFitter::addVariable(string name, string title, double low, double hi, string units) {
+bool TagProbeFitter::addVariable(const string& name, const string& title, double low, double hi, const string& units) {
   RooRealVar temp(name.c_str(), title.c_str(), low, hi, units.c_str());
   temp.setBins(5000, "cache");
   variables.addClone(temp);
   return true;
 }
 
-bool TagProbeFitter::addCategory(string name, string title, string expression) {
+bool TagProbeFitter::addCategory(const string& name, const string& title, const string& expression) {
   RooCategory* c = (RooCategory*)parameterParser.factory(expression.c_str());
   if (!c)
     return false;
@@ -128,26 +128,29 @@ bool TagProbeFitter::addCategory(string name, string title, string expression) {
   return true;
 }
 
-bool TagProbeFitter::addExpression(string expressionName,
-                                   string title,
-                                   string expression,
+bool TagProbeFitter::addExpression(const string& expressionName,
+                                   const string& title,
+                                   const string& expression,
                                    const std::vector<string>& arguments) {
   expressionVars.push_back(make_pair(make_pair(expressionName, title), make_pair(expression, arguments)));
   return true;
 }
 
-bool TagProbeFitter::addThresholdCategory(string categoryName, string title, string varName, double cutValue) {
+bool TagProbeFitter::addThresholdCategory(const string& categoryName,
+                                          const string& title,
+                                          const string& varName,
+                                          double cutValue) {
   thresholdCategories.push_back(make_pair(make_pair(categoryName, title), make_pair(varName, cutValue)));
   return true;
 }
 
-void TagProbeFitter::addPdf(string name, vector<string>& pdfCommands) { pdfs[name] = pdfCommands; }
+void TagProbeFitter::addPdf(const string& name, vector<string>& pdfCommands) { pdfs[name] = pdfCommands; }
 
 void TagProbeFitter::setBinsForMassPlots(int bins) { massBins = bins; }
 
 void TagProbeFitter::setWeightVar(const std::string& var) { weightVar = var; }
 
-string TagProbeFitter::calculateEfficiency(string dirName,
+string TagProbeFitter::calculateEfficiency(const string& dirName,
                                            const std::vector<string>& effCats,
                                            const std::vector<string>& effStates,
                                            vector<string>& unbinnedVariables,
@@ -552,7 +555,7 @@ string TagProbeFitter::calculateEfficiency(string dirName,
   return "";
 }
 
-void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar& efficiency) {
+void TagProbeFitter::doFitEfficiency(RooWorkspace* w, const string& pdfName, RooRealVar& efficiency) {
   //if pdfName is empty skip the fit
   if (pdfName == "all") {
     return;

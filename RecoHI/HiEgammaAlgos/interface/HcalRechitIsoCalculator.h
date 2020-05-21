@@ -20,17 +20,17 @@ class HcalRechitIsoCalculator {
 public:
   HcalRechitIsoCalculator(const edm::Event &iEvent,
                           const edm::EventSetup &iSetup,
-                          const edm::Handle<HBHERecHitCollection> hbhe,
-                          const edm::Handle<HFRecHitCollection> hfLabel,
-                          const edm::Handle<HORecHitCollection> hoLabel);
+                          const edm::Handle<HBHERecHitCollection> &hbhe,
+                          const edm::Handle<HFRecHitCollection> &hfLabel,
+                          const edm::Handle<HORecHitCollection> &hoLabel);
 
   /// Return the hcal rechit energy in a cone around the SC
-  double getHcalRechitIso(const reco::SuperClusterRef clus,
+  double getHcalRechitIso(const reco::SuperClusterRef &clus,
                           const double i,
                           const double threshold,
                           const double innerR = 0.0);
   /// Return the background-subtracted hcal rechit energy in a cone around the SC
-  double getBkgSubHcalRechitIso(const reco::SuperClusterRef clus,
+  double getBkgSubHcalRechitIso(const reco::SuperClusterRef &clus,
                                 const double i,
                                 const double threshold,
                                 const double innerR = 0.0);

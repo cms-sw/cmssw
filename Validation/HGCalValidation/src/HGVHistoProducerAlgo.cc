@@ -1,5 +1,6 @@
 #include <numeric>
 #include <iomanip>
+#include <utility>
 
 #include "Validation/HGCalValidation/interface/HGVHistoProducerAlgo.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -209,7 +210,7 @@ void HGVHistoProducerAlgo::bookClusterHistos(DQMStore::IBooker& ibook,
                                              Histograms& histograms,
                                              unsigned layers,
                                              std::vector<int> thicknesses,
-                                             std::string pathtomatbudfile) {
+                                             const std::string& pathtomatbudfile) {
   //---------------------------------------------------------------------------------------------------------------------------
   histograms.h_cluster_eta.push_back(
       ibook.book1D("num_reco_cluster_eta", "N of reco clusters vs eta", nintEta_, minEta_, maxEta_));
@@ -2418,7 +2419,7 @@ double HGVHistoProducerAlgo::distance(const double x1,
 }
 
 void HGVHistoProducerAlgo::setRecHitTools(std::shared_ptr<hgcal::RecHitTools> recHitTools) {
-  recHitTools_ = recHitTools;
+  recHitTools_ = std::move(recHitTools);
 }
 
 DetId HGVHistoProducerAlgo::findmaxhit(const reco::CaloCluster& cluster,

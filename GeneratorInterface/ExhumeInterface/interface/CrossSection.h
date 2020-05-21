@@ -122,7 +122,7 @@ namespace Exhume {
     };
 
     template <typename T_>
-    inline void insert(const std::string _name_, const T_ _x_) {
+    inline void insert(const std::string &_name_, const T_ _x_) {
       PMap.insert(std::pair<std::string, PConstVoidPair>(_name_, PConstVoidPair(typeid(_x_).name(), _x_)));
     }
 

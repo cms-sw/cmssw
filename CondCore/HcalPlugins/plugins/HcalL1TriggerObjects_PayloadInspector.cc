@@ -20,6 +20,7 @@
 #include "TPaveStats.h"
 #include <string>
 #include <fstream>
+#include <utility>
 
 namespace {
 
@@ -27,7 +28,7 @@ namespace {
       : public HcalObjRepresent::HcalDataContainer<HcalL1TriggerObjects, HcalL1TriggerObject> {
   public:
     HcalL1TriggerObjectContainer(std::shared_ptr<HcalL1TriggerObjects> payload, unsigned int run)
-        : HcalObjRepresent::HcalDataContainer<HcalL1TriggerObjects, HcalL1TriggerObject>(payload, run) {}
+        : HcalObjRepresent::HcalDataContainer<HcalL1TriggerObjects, HcalL1TriggerObject>(std::move(payload), run) {}
     float getValue(HcalL1TriggerObject* trig) override { return trig->getRespGain(); }
   };
 

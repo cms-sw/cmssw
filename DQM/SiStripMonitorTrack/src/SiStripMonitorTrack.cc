@@ -983,7 +983,7 @@ void SiStripMonitorTrack::hitStudy(const edm::Event& ev,
                                    const SiStripMatchedRecHit2D* matchedhit,
                                    const SiStripRecHit2D* hit2D,
                                    const SiStripRecHit1D* hit1D,
-                                   LocalVector localMomentum,
+                                   const LocalVector& localMomentum,
                                    const bool track_ok) {
   LocalVector statedirection;
   if (matchedhit) {  // type=Matched;
@@ -1084,7 +1084,7 @@ bool SiStripMonitorTrack::trackFilter(const reco::Track& track) {
   return true;
 }
 //------------------------------------------------------------------------
-void SiStripMonitorTrack::trackStudyFromTrack(edm::Handle<reco::TrackCollection> trackCollectionHandle,
+void SiStripMonitorTrack::trackStudyFromTrack(const edm::Handle<reco::TrackCollection>& trackCollectionHandle,
                                               const edm::DetSetVector<SiStripDigi>& digilist,
                                               const edm::Event& ev) {
   //numTracks = trackCollectionHandle->size();
@@ -1161,7 +1161,7 @@ void SiStripMonitorTrack::trackStudyFromTrack(edm::Handle<reco::TrackCollection>
   }
 }
 //------------------------------------------------------------------------
-void SiStripMonitorTrack::trackStudyFromTrajectory(edm::Handle<reco::TrackCollection> trackCollectionHandle,
+void SiStripMonitorTrack::trackStudyFromTrajectory(const edm::Handle<reco::TrackCollection>& trackCollectionHandle,
                                                    const edm::DetSetVector<SiStripDigi>& digilist,
                                                    const edm::Event& ev) {
   //Perform track study
@@ -1189,7 +1189,7 @@ void SiStripMonitorTrack::trackStudyFromTrajectory(edm::Handle<reco::TrackCollec
 //------------------------------------------------------------------------
 template <class T>
 void SiStripMonitorTrack::RecHitInfo(const T* tkrecHit,
-                                     LocalVector LV,
+                                     const LocalVector& LV,
                                      const edm::DetSetVector<SiStripDigi>& digilist,
                                      const edm::Event& ev,
                                      bool track_ok) {
@@ -1473,7 +1473,7 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster,
                                        const uint32_t detid,
                                        enum ClusterFlags flag,
                                        bool track_ok,
-                                       const LocalVector LV,
+                                       const LocalVector& LV,
                                        const Det2MEs& MEs,
                                        const TrackerTopology* tTopo,
                                        const SiStripGain* stripGain,

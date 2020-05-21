@@ -89,9 +89,9 @@ namespace edm {
 
       void resetProxyProvider(ParameterSetIDHolder const&, std::shared_ptr<DataProxyProvider> const&);
 
-      void add(std::shared_ptr<DataProxyProvider>);
+      void add(const std::shared_ptr<DataProxyProvider>&);
       ///For now, only use one finder
-      void addFinder(std::shared_ptr<EventSetupRecordIntervalFinder>);
+      void addFinder(const std::shared_ptr<EventSetupRecordIntervalFinder>&);
 
       ///Intended for use only in unit tests
       void setValidityInterval_forTesting(ValidityInterval const&);
@@ -162,7 +162,7 @@ namespace edm {
                                     DataToPreferredProviderMap const& mp) {
         addProxiesToRecord(get_underlying_safe(dpp), mp);
       }
-      void addProxiesToRecord(std::shared_ptr<DataProxyProvider>, DataToPreferredProviderMap const&);
+      void addProxiesToRecord(const std::shared_ptr<DataProxyProvider>&, DataToPreferredProviderMap const&);
 
       std::shared_ptr<EventSetupRecordIntervalFinder> swapFinder(std::shared_ptr<EventSetupRecordIntervalFinder> iNew) {
         std::swap(iNew, finder());

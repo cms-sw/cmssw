@@ -19,7 +19,7 @@ namespace edm {
     static DigiAccumulatorMixModFactory const* get();
 
     std::unique_ptr<DigiAccumulatorMixMod> makeDigiAccumulator(ParameterSet const&,
-                                                               ProducesCollector,
+                                                               const ProducesCollector&,
                                                                ConsumesCollector&) const;
 
   private:

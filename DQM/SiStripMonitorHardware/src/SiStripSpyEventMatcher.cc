@@ -276,9 +276,9 @@ namespace sistrip {
 
   void SpyEventMatcher::findMatchingFeds(const uint32_t eventId,
                                          const uint8_t apvAddress,
-                                         SpyEventMatcher::CountersPtr totalEventCounters,
-                                         SpyEventMatcher::CountersPtr l1aCounters,
-                                         SpyEventMatcher::CountersPtr apvAddresses,
+                                         const SpyEventMatcher::CountersPtr& totalEventCounters,
+                                         const SpyEventMatcher::CountersPtr& l1aCounters,
+                                         const SpyEventMatcher::CountersPtr& apvAddresses,
                                          std::set<uint16_t>& matchingFeds) {
     //loop over all FEDs. Maps should have same content and be in order so, avoid searches by iterating (and checking keys match)
     std::vector<uint32_t>::const_iterator iTotalEventCount = totalEventCounters->begin();
@@ -298,9 +298,9 @@ namespace sistrip {
 
   void SpyEventMatcher::mergeMatchingData(const std::set<uint16_t>& matchingFeds,
                                           const FEDRawDataCollection& inputRawData,
-                                          SpyEventMatcher::CountersPtr inputTotalEventCounters,
-                                          SpyEventMatcher::CountersPtr inputL1ACounters,
-                                          SpyEventMatcher::CountersPtr inputAPVAddresses,
+                                          const SpyEventMatcher::CountersPtr& inputTotalEventCounters,
+                                          const SpyEventMatcher::CountersPtr& inputL1ACounters,
+                                          const SpyEventMatcher::CountersPtr& inputAPVAddresses,
                                           const edm::DetSetVector<SiStripRawDigi>* inputScopeDigis,
                                           const edm::DetSetVector<SiStripRawDigi>* inputPayloadDigis,
                                           const edm::DetSetVector<SiStripRawDigi>* inputReorderedDigis,

@@ -16,7 +16,7 @@ public:
   MuonCSCChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
                          AlignableNavigator *navigator,
                          DetId chamberId,
-                         AlignableDetOrUnitPtr chamberAlignable);
+                         const AlignableDetOrUnitPtr &chamberAlignable);
 
   // for CSC, the residual is chamber local x, projected by the strip measurement direction
   // for CSC, the resslope is dresx/dz, or tan(phi_y)

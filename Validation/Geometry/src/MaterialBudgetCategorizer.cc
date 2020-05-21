@@ -12,7 +12,7 @@
 #include <fstream>
 #include <vector>
 
-MaterialBudgetCategorizer::MaterialBudgetCategorizer(std::string mode) {
+MaterialBudgetCategorizer::MaterialBudgetCategorizer(const std::string& mode) {
   //----- Build map volume name - volume index
   G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
   G4LogicalVolumeStore::iterator ite;
@@ -39,7 +39,7 @@ MaterialBudgetCategorizer::MaterialBudgetCategorizer(std::string mode) {
   }
 }
 
-void MaterialBudgetCategorizer::buildCategoryMap(std::string theMaterialFileName,
+void MaterialBudgetCategorizer::buildCategoryMap(const std::string& theMaterialFileName,
                                                  std::map<std::string, std::vector<float> >& theMap) {
   std::ifstream theMaterialFile(theMaterialFileName);
 
@@ -75,7 +75,7 @@ void MaterialBudgetCategorizer::buildCategoryMap(std::string theMaterialFileName
   }
 }
 
-void MaterialBudgetCategorizer::buildHGCalCategoryMap(std::string theMaterialFileName,
+void MaterialBudgetCategorizer::buildHGCalCategoryMap(const std::string& theMaterialFileName,
                                                       std::map<std::string, std::vector<float> >& theMap) {
   std::ifstream theMaterialFile(theMaterialFileName);
   if (!theMaterialFile)

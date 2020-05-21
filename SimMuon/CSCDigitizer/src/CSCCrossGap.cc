@@ -3,8 +3,17 @@
 #include <cmath>
 
 #include <iostream>
+#include <utility>
+
 CSCCrossGap::CSCCrossGap(double mass, float mom, LocalVector gap)
-    : theBeta2(0.), theGamma(1.), loggam(0.), theGap(gap), clusters(), electronsInClusters(), steps(), elosses() {
+    : theBeta2(0.),
+      theGamma(1.),
+      loggam(0.),
+      theGap(std::move(gap)),
+      clusters(),
+      electronsInClusters(),
+      steps(),
+      elosses() {
   logGamma(mass, mom);
   LogTrace("CSCCrossGap") << "CSCCrossGap: simhit \n"
                           << "mass = " << mass << "GeV/c2, momentum = " << mom << " GeV/c, gap length = " << length()

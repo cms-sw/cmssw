@@ -61,13 +61,13 @@ DigiInvestigatorHistogramMaker::~DigiInvestigatorHistogramMaker() {
   }
 }
 
-void DigiInvestigatorHistogramMaker::book(const std::string dirname,
+void DigiInvestigatorHistogramMaker::book(const std::string& dirname,
                                           const std::map<unsigned int, std::string>& labels) {
   _labels = labels;
   book(dirname);
 }
 
-void DigiInvestigatorHistogramMaker::book(const std::string dirname) {
+void DigiInvestigatorHistogramMaker::book(const std::string& dirname) {
   edm::Service<TFileService> tfserv;
   TFileDirectory subev = tfserv->mkdir(dirname);
 

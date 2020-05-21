@@ -438,7 +438,7 @@ void MuonMillepedeAlgorithm::printM(const AlgebraicMatrix &m) {
 void MuonMillepedeAlgorithm::updateInfo(const AlgebraicMatrix &m_invCov,
                                         const AlgebraicMatrix &m_weightRes,
                                         const AlgebraicMatrix &m_res,
-                                        std::string id) {
+                                        const std::string &id) {
   std::string id_invCov = id + "_invCov";
   std::string id_weightRes = id + "_weightRes";
   std::string id_n = id + "_N";

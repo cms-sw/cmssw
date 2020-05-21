@@ -40,7 +40,7 @@ public:
   MuonTransientTrackingRecHit::MuonRecHitContainer associate(const edm::Event&,
                                                              const edm::EventSetup&,
                                                              const reco::Track&,
-                                                             std::string);
+                                                             const std::string&);
 
   //Clear the vector
   void clear();

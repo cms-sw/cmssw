@@ -73,7 +73,7 @@ SiStripLorentzAngleDepESProducer::SiStripLorentzAngleDepESProducer(const edm::Pa
   auto const deconvLabel{getDeconv.getUntrackedParameter<std::string>("label")};
   setWhatProduced(this).setMayConsume(
       lorentzAngleToken_,
-      [peakLabel, deconvLabel](auto const& get, edm::ESTransientHandle<SiStripLatency> iLatency) {
+      [peakLabel, deconvLabel](auto const& get, const edm::ESTransientHandle<SiStripLatency>& iLatency) {
         if (iLatency->singleReadOutMode() == 1) {
           return get("", peakLabel);
         }

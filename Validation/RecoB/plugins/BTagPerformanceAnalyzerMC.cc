@@ -498,8 +498,8 @@ void BTagPerformanceAnalyzerMC::analyze(const edm::Event &iEvent, const edm::Eve
   }
 }
 
-bool BTagPerformanceAnalyzerMC::getJetWithGenJet(edm::RefToBase<Jet> jetRef,
-                                                 edm::Handle<edm::Association<reco::GenJetCollection>> genJetsMatched) {
+bool BTagPerformanceAnalyzerMC::getJetWithGenJet(
+    const edm::RefToBase<Jet> &jetRef, const edm::Handle<edm::Association<reco::GenJetCollection>> &genJetsMatched) {
   if (!doPUid)
     return true;
   reco::GenJetRef genjet = (*genJetsMatched)[jetRef];
@@ -508,12 +508,13 @@ bool BTagPerformanceAnalyzerMC::getJetWithGenJet(edm::RefToBase<Jet> jetRef,
   return false;
 }
 
-bool BTagPerformanceAnalyzerMC::getJetWithFlavour(const edm::Event &iEvent,
-                                                  edm::RefToBase<Jet> jetRef,
-                                                  const FlavourMap &flavours,
-                                                  JetWithFlavour &jetWithFlavour,
-                                                  const JetCorrector *corrector,
-                                                  edm::Handle<edm::Association<reco::GenJetCollection>> genJetsMatched) {
+bool BTagPerformanceAnalyzerMC::getJetWithFlavour(
+    const edm::Event &iEvent,
+    edm::RefToBase<Jet> jetRef,
+    const FlavourMap &flavours,
+    JetWithFlavour &jetWithFlavour,
+    const JetCorrector *corrector,
+    const edm::Handle<edm::Association<reco::GenJetCollection>> &genJetsMatched) {
   edm::ProductID recProdId = jetRef.id();
   edm::ProductID refProdId = (flavours.begin() == flavours.end()) ? recProdId : flavours.begin()->first.id();
 

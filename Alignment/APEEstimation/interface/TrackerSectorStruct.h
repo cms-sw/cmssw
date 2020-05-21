@@ -1,6 +1,8 @@
 #ifndef Alignment_APEEstimation_TrackerSectorStruct_h
 #define Alignment_APEEstimation_TrackerSectorStruct_h
 
+#include <utility>
+
 #include <vector>
 #include <map>
 #include "TH1F.h"
@@ -42,7 +44,7 @@ public:
           PSigmaXTrkVsVar(nullptr),
           PSigmaXVsVar(nullptr){};
 
-    inline void fillCorrHists(const TString,
+    inline void fillCorrHists(const TString &,
                               const TrackStruct::HitParameterStruct &hitParameterStruct,
                               double variable);
     inline void fillCorrHistsX(const TrackStruct::HitParameterStruct &hitParameterStruct, double variable);
@@ -54,14 +56,29 @@ public:
   };
 
   inline void setCorrHistParams(TFileDirectory *, double, double, double);
-  inline CorrelationHists bookCorrHists(
-      TString, TString, TString, TString, TString, int, int, double, double, std::string = "nphtr");
+  inline CorrelationHists bookCorrHists(const TString &,
+                                        const TString &,
+                                        const TString &,
+                                        const TString &,
+                                        const TString &,
+                                        int,
+                                        int,
+                                        double,
+                                        double,
+                                        const std::string & = "nphtr");
   inline CorrelationHists bookCorrHistsX(
       TString, TString, TString, TString, int, int, double, double, std::string = "nphtr");
   inline CorrelationHists bookCorrHistsY(
       TString, TString, TString, TString, int, int, double, double, std::string = "nphtr");
   /// same, but without booking 1D histo
-  inline CorrelationHists bookCorrHists(TString, TString, TString, TString, int, double, double, std::string = "nphtr");
+  inline CorrelationHists bookCorrHists(const TString &,
+                                        const TString &,
+                                        const TString &,
+                                        const TString &,
+                                        int,
+                                        double,
+                                        double,
+                                        const std::string & = "nphtr");
   inline CorrelationHists bookCorrHistsX(TString, TString, TString, int, double, double, std::string = "nphtr");
   inline CorrelationHists bookCorrHistsY(TString, TString, TString, int, double, double, std::string = "nphtr");
 
@@ -175,7 +192,16 @@ TrackerSectorStruct::CorrelationHists TrackerSectorStruct::bookCorrHistsX(TStrin
                                                                           double minBinX,
                                                                           double maxBinX,
                                                                           std::string options) {
-  return bookCorrHists("X", varName, varTitle, labelX, unitX, nBinX1D, nBinX2D, minBinX, maxBinX, options);
+  return bookCorrHists("X",
+                       std::move(varName),
+                       std::move(varTitle),
+                       std::move(labelX),
+                       std::move(unitX),
+                       nBinX1D,
+                       nBinX2D,
+                       minBinX,
+                       maxBinX,
+                       std::move(options));
 }
 TrackerSectorStruct::CorrelationHists TrackerSectorStruct::bookCorrHistsY(TString varName,
                                                                           TString varTitle,
@@ -186,18 +212,27 @@ TrackerSectorStruct::CorrelationHists TrackerSectorStruct::bookCorrHistsY(TStrin
                                                                           double minBinX,
                                                                           double maxBinX,
                                                                           std::string options) {
-  return bookCorrHists("Y", varName, varTitle, labelX, unitX, nBinX1D, nBinX2D, minBinX, maxBinX, options);
+  return bookCorrHists("Y",
+                       std::move(varName),
+                       std::move(varTitle),
+                       std::move(labelX),
+                       std::move(unitX),
+                       nBinX1D,
+                       nBinX2D,
+                       minBinX,
+                       maxBinX,
+                       std::move(options));
 }
-TrackerSectorStruct::CorrelationHists TrackerSectorStruct::bookCorrHists(TString xY,
-                                                                         TString varName,
-                                                                         TString varTitle,
-                                                                         TString labelX,
-                                                                         TString unitX,
+TrackerSectorStruct::CorrelationHists TrackerSectorStruct::bookCorrHists(const TString &xY,
+                                                                         const TString &varName,
+                                                                         const TString &varTitle,
+                                                                         const TString &labelX,
+                                                                         const TString &unitX,
                                                                          int nBinX1D,
                                                                          int nBinX2D,
                                                                          double minBinX,
                                                                          double maxBinX,
-                                                                         std::string options) {
+                                                                         const std::string &options) {
   TString xy;
   TString suffix;
   if (xY == "X") {
@@ -324,20 +359,22 @@ TrackerSectorStruct::CorrelationHists TrackerSectorStruct::bookCorrHists(TString
 
 TrackerSectorStruct::CorrelationHists TrackerSectorStruct::bookCorrHistsX(
     TString varName, TString labelX, TString unitX, int nBinX, double minBinX, double maxBinX, std::string options) {
-  return bookCorrHists("X", varName, labelX, unitX, nBinX, minBinX, maxBinX, options);
+  return bookCorrHists(
+      "X", std::move(varName), std::move(labelX), std::move(unitX), nBinX, minBinX, maxBinX, std::move(options));
 }
 TrackerSectorStruct::CorrelationHists TrackerSectorStruct::bookCorrHistsY(
     TString varName, TString labelX, TString unitX, int nBinX, double minBinX, double maxBinX, std::string options) {
-  return bookCorrHists("Y", varName, labelX, unitX, nBinX, minBinX, maxBinX, options);
+  return bookCorrHists(
+      "Y", std::move(varName), std::move(labelX), std::move(unitX), nBinX, minBinX, maxBinX, std::move(options));
 }
-TrackerSectorStruct::CorrelationHists TrackerSectorStruct::bookCorrHists(TString xY,
-                                                                         TString varName,
-                                                                         TString labelX,
-                                                                         TString unitX,
+TrackerSectorStruct::CorrelationHists TrackerSectorStruct::bookCorrHists(const TString &xY,
+                                                                         const TString &varName,
+                                                                         const TString &labelX,
+                                                                         const TString &unitX,
                                                                          int nBinX,
                                                                          double minBinX,
                                                                          double maxBinX,
-                                                                         std::string options) {
+                                                                         const std::string &options) {
   TString xy;
   if (xY == "X") {
     xy = "x";
@@ -461,7 +498,7 @@ void TrackerSectorStruct::CorrelationHists::fillCorrHistsY(const TrackStruct::Hi
                                                            double variable) {
   return fillCorrHists("Y", hitParameterStruct, variable);
 }
-void TrackerSectorStruct::CorrelationHists::fillCorrHists(const TString xY,
+void TrackerSectorStruct::CorrelationHists::fillCorrHists(const TString &xY,
                                                           const TrackStruct::HitParameterStruct &hitParameterStruct,
                                                           double variable) {
   float norRes(999.);

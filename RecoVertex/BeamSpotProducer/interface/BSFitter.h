@@ -24,6 +24,8 @@ ________________________________________________________________**/
 #include "TH1F.h"
 
 // C++ standard
+#include <utility>
+
 #include <vector>
 #include <string>
 
@@ -36,9 +38,9 @@ public:
 
   virtual ~BSFitter();
 
-  void SetFitType(std::string type) { ffit_type = type; }
+  void SetFitType(std::string type) { ffit_type = std::move(type); }
 
-  void SetFitVariable(std::string name) { ffit_variable = name; }
+  void SetFitVariable(std::string name) { ffit_variable = std::move(name); }
 
   reco::BeamSpot Fit();
 

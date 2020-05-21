@@ -41,7 +41,7 @@ private:
   }
 
   // tmp
-  void printTrackRecHits(const reco::Track &track, edm::ESHandle<GlobalTrackingGeometry> trackingGeometry) const;
+  void printTrackRecHits(const reco::Track &track, const edm::ESHandle<GlobalTrackingGeometry> &trackingGeometry) const;
 
 private:
   edm::InputTag theLinksCollectionLabel;

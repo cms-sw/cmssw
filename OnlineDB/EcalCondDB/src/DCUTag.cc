@@ -20,7 +20,7 @@ string DCUTag::getGeneralTag() const { return m_genTag; }
 
 // User data methods
 
-void DCUTag::setGeneralTag(string genTag) {
+void DCUTag::setGeneralTag(const string& genTag) {
   if (genTag != m_genTag) {
     m_ID = 0;
     m_genTag = genTag;

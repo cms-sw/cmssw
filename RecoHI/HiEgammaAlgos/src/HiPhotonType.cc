@@ -13,7 +13,7 @@
 using namespace edm;
 using namespace reco;
 
-HiPhotonType::HiPhotonType(edm::Handle<GenParticleCollection> inputHandle) {
+HiPhotonType::HiPhotonType(const edm::Handle<GenParticleCollection> &inputHandle) {
   using namespace std;
 
   const GenParticleCollection *collection1 = inputHandle.product();

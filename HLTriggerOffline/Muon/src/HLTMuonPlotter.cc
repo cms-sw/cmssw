@@ -2,6 +2,8 @@
 /** \file HLTMuonPlotter.cc
  */
 
+#include <utility>
+
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -34,7 +36,7 @@ HLTMuonPlotter::HLTMuonPlotter(const ParameterSet &pset,
     :
 
       l1Matcher_(pset) {
-  hltPath_ = hltPath;
+  hltPath_ = std::move(hltPath);
   moduleLabels_ = moduleLabels;
   stepLabels_ = stepLabels;
   hltProcessName_ = pset.getParameter<string>("hltProcessName");
@@ -347,7 +349,8 @@ void HLTMuonPlotter::findMatches(vector<MatchStruct> &matches,
   }
 }
 
-void HLTMuonPlotter::bookHist(DQMStore::IBooker &iBooker, string path, string label, string source, string type) {
+void HLTMuonPlotter::bookHist(
+    DQMStore::IBooker &iBooker, const string &path, const string &label, const string &source, const string &type) {
   string sourceUpper = source;
   sourceUpper[0] = toupper(sourceUpper[0]);
   string name = source + "Pass" + type + "_" + label;

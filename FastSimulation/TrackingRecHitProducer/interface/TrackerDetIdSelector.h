@@ -110,7 +110,7 @@ public:
   TrackerDetIdSelector(const DetId& detId, const TrackerTopology& trackerTopology)
       : _detId(detId), _trackerTopology(trackerTopology) {}
 
-  bool passSelection(std::string selectionStr) const;
+  bool passSelection(const std::string& selectionStr) const;
 };
 
 class Accessor : public boost::static_visitor<int> {
@@ -161,7 +161,7 @@ struct WalkAST {
     std::cout << n;
     std::cout << " [" << _acc(n) << "] ";
   }
-  void operator()(std::string str) const {
+  void operator()(const std::string& str) const {
     std::cout << str;
     std::cout << " [" << _acc(str) << "] ";
   }
@@ -252,7 +252,7 @@ struct TrackerDetIdSelectorGrammar : boost::spirit::qi::grammar<ITERATOR,
   }
 };
 
-bool TrackerDetIdSelector::passSelection(std::string selectionStr) const {
+bool TrackerDetIdSelector::passSelection(const std::string& selectionStr) const {
   std::string::const_iterator begin = selectionStr.cbegin();
   std::string::const_iterator end = selectionStr.cend();
 

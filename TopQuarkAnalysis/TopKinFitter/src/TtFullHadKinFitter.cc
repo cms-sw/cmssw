@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "PhysicsTools/KinFitter/interface/TFitConstraintM.h"
 #include "PhysicsTools/KinFitter/interface/TAbsFitParticle.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleEMomDev.h"
@@ -389,14 +391,14 @@ TtFullHadKinFitter::KinFit::KinFit(bool useBTagging,
                                    double mTop)
     : useBTagging_(useBTagging),
       bTags_(bTags),
-      bTagAlgo_(bTagAlgo),
+      bTagAlgo_(std::move(bTagAlgo)),
       minBTagValueBJet_(minBTagValueBJet),
       maxBTagValueNonBJet_(maxBTagValueNonBJet),
       udscResolutions_(udscResolutions),
       bResolutions_(bResolutions),
       jetEnergyResolutionScaleFactors_(jetEnergyResolutionScaleFactors),
       jetEnergyResolutionEtaBinning_(jetEnergyResolutionEtaBinning),
-      jetCorrectionLevel_(jetCorrectionLevel),
+      jetCorrectionLevel_(std::move(jetCorrectionLevel)),
       maxNJets_(maxNJets),
       maxNComb_(maxNComb),
       maxNrIter_(maxNrIter),

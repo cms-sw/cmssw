@@ -41,7 +41,7 @@ private:
   void endJob() override;
   bool isAbHadron(int pdgID);
   bool isAMixedbHadron(int pdgID, int momPdgID);
-  std::pair<int, float> findJpsiMCInfo(reco::GenParticleRef genJpsi);
+  std::pair<int, float> findJpsiMCInfo(const reco::GenParticleRef& genJpsi);
 
   // ----------member data ---------------------------
 private:

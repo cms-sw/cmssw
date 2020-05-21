@@ -114,7 +114,7 @@ namespace sistrip {
     }
   }
 
-  void MeasureLA::write_report_plots(std::string name, LA_Filler_Fitter::Method method, GRANULARITY gran) const {
+  void MeasureLA::write_report_plots(const std::string& name, LA_Filler_Fitter::Method method, GRANULARITY gran) const {
     TFile file((name + ".root").c_str(), "RECREATE");
     const std::string key = ".*" + granularity(gran) + ".*(" + LA_Filler_Fitter::method(method) + "|" +
                             LA_Filler_Fitter::method(method, false) + ".*)";
@@ -125,7 +125,7 @@ namespace sistrip {
   }
 
   template <class T>
-  void MeasureLA::write_report_text(std::string name,
+  void MeasureLA::write_report_text(const std::string& name,
                                     const LA_Filler_Fitter::Method& _method,
                                     const std::map<T, LA_Filler_Fitter::Result>& _results) const {
     LA_Filler_Fitter::Method method = _method;
@@ -138,7 +138,7 @@ namespace sistrip {
     file.close();
   }
 
-  void MeasureLA::write_report_text_ms(std::string name, LA_Filler_Fitter::Method method) const {
+  void MeasureLA::write_report_text_ms(const std::string& name, LA_Filler_Fitter::Method method) const {
     std::fstream file((name + ".dat").c_str(), std::ios::out);
     const std::string key = ".*" + granularity(MODULESUMMARY) + LA_Filler_Fitter::method(method);
     for (Book::const_iterator it = book.begin(key); it != book.end(); ++it) {
@@ -178,7 +178,7 @@ namespace sistrip {
   }
 
   std::pair<uint32_t, LA_Filler_Fitter::Method> MeasureLA::calibration_key(
-      const std::string layer, const LA_Filler_Fitter::Method method) const {
+      const std::string& layer, const LA_Filler_Fitter::Method method) const {
     boost::regex format(".*(T[IO]B)_layer(\\d)([as]).*");
     const bool isTIB = "TIB" == boost::regex_replace(layer, format, "\\1");
     const bool stereo = "s" == boost::regex_replace(layer, format, "\\3");

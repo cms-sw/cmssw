@@ -145,7 +145,7 @@ void DTRunConditionVar::analyze(const Event& event, const EventSetup& eventSetup
 }  //end analyze
 
 void DTRunConditionVar::bookChamberHistos(
-    DQMStore::IBooker& ibooker, const DTChamberId& dtCh, string histoType, int nbins, float min, float max) {
+    DQMStore::IBooker& ibooker, const DTChamberId& dtCh, const string& histoType, int nbins, float min, float max) {
   int wh = dtCh.wheel();
   int sc = dtCh.sector();
   int st = dtCh.station();

@@ -6,10 +6,10 @@ L1Analysis::L1AnalysisGCT::L1AnalysisGCT() : verbose_(false) {}
 L1Analysis::L1AnalysisGCT::L1AnalysisGCT(bool verbose) { verbose_ = verbose; }
 
 L1Analysis::L1AnalysisGCT::~L1AnalysisGCT() {}
-void L1Analysis::L1AnalysisGCT::SetJet(const edm::Handle<L1GctJetCandCollection> l1CenJets,
-                                       const edm::Handle<L1GctJetCandCollection> l1ForJets,
-                                       const edm::Handle<L1GctJetCandCollection> l1TauJets,
-                                       const edm::Handle<L1GctJetCandCollection> l1IsoTauJets) {
+void L1Analysis::L1AnalysisGCT::SetJet(const edm::Handle<L1GctJetCandCollection>& l1CenJets,
+                                       const edm::Handle<L1GctJetCandCollection>& l1ForJets,
+                                       const edm::Handle<L1GctJetCandCollection>& l1TauJets,
+                                       const edm::Handle<L1GctJetCandCollection>& l1IsoTauJets) {
   // std::cout << "L1IsoTauJets valid: " << l1IsoTauJets.isValid() <<std::endl;
   // edm::LogAbsolute("L1") << "CCLA: " << l1IsoTauJets.isValid() <<std::endl;
   // Central jets
@@ -81,10 +81,10 @@ void L1Analysis::L1AnalysisGCT::SetJet(const edm::Handle<L1GctJetCandCollection>
   }
 }
 
-void L1Analysis::L1AnalysisGCT::SetES(const edm::Handle<L1GctEtMissCollection> l1EtMiss,
-                                      const edm::Handle<L1GctHtMissCollection> l1HtMiss,
-                                      const edm::Handle<L1GctEtHadCollection> l1EtHad,
-                                      const edm::Handle<L1GctEtTotalCollection> l1EtTotal) {
+void L1Analysis::L1AnalysisGCT::SetES(const edm::Handle<L1GctEtMissCollection>& l1EtMiss,
+                                      const edm::Handle<L1GctHtMissCollection>& l1HtMiss,
+                                      const edm::Handle<L1GctEtHadCollection>& l1EtHad,
+                                      const edm::Handle<L1GctEtTotalCollection>& l1EtTotal) {
   // Energy sums
   for (L1GctEtMissCollection::const_iterator etm = l1EtMiss->begin(); etm != l1EtMiss->end(); ++etm) {
     gct_.EtMiss.push_back(etm->et());
@@ -131,8 +131,8 @@ void L1Analysis::L1AnalysisGCT::SetES(const edm::Handle<L1GctEtMissCollection> l
   }
 }
 
-void L1Analysis::L1AnalysisGCT::SetHFminbias(const edm::Handle<L1GctHFRingEtSumsCollection> l1HFSums,
-                                             const edm::Handle<L1GctHFBitCountsCollection> l1HFCounts) {
+void L1Analysis::L1AnalysisGCT::SetHFminbias(const edm::Handle<L1GctHFRingEtSumsCollection>& l1HFSums,
+                                             const edm::Handle<L1GctHFBitCountsCollection>& l1HFCounts) {
   //Fill HF Ring Histograms
   gct_.HFRingEtSumSize = l1HFSums->size();
   int ies = 0;
@@ -157,8 +157,8 @@ void L1Analysis::L1AnalysisGCT::SetHFminbias(const edm::Handle<L1GctHFRingEtSums
   }
 }
 
-void L1Analysis::L1AnalysisGCT::SetEm(const edm::Handle<L1GctEmCandCollection> l1IsoEm,
-                                      const edm::Handle<L1GctEmCandCollection> l1NonIsoEm) {
+void L1Analysis::L1AnalysisGCT::SetEm(const edm::Handle<L1GctEmCandCollection>& l1IsoEm,
+                                      const edm::Handle<L1GctEmCandCollection>& l1NonIsoEm) {
   // Isolated EM
   if (verbose_) {
     edm::LogInfo("L1Prompt") << "L1TGCT: number of iso em cands: " << l1IsoEm->size() << std::endl;

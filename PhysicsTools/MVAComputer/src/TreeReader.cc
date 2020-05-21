@@ -57,7 +57,7 @@ namespace PhysicsTools {
     upToDate = false;
   }
 
-  void TreeReader::addBranch(const std::string &expression, AtomicId name, bool opt) {
+  void TreeReader::addBranch(const std::string &expression, const AtomicId &name, bool opt) {
     if (!tree)
       throw cms::Exception("NoTreeAvailable") << "No TTree set in TreeReader::addBranch." << std::endl;
 
@@ -114,7 +114,7 @@ namespace PhysicsTools {
     valueMap[name].setBranchName(branch->GetName());
   }
 
-  void TreeReader::setOptional(AtomicId name, bool opt, double optVal) {
+  void TreeReader::setOptional(const AtomicId &name, bool opt, double optVal) {
     std::map<AtomicId, Value>::iterator pos = valueMap.find(name);
     if (pos == valueMap.end())
       throw cms::Exception("UnknownVariable") << "Variable \"" << name
@@ -125,7 +125,7 @@ namespace PhysicsTools {
     pos->second.setOpt(opt, optVal);
   }
 
-  void TreeReader::addTypeSingle(AtomicId name, const void *value, char type, bool opt) {
+  void TreeReader::addTypeSingle(const AtomicId &name, const void *value, char type, bool opt) {
     std::map<AtomicId, Value>::const_iterator pos = valueMap.find(name);
     if (pos != valueMap.end())
       throw cms::Exception("DuplicateVariable") << "Duplicate Variable \"" << name << "\"." << std::endl;
@@ -170,7 +170,7 @@ namespace PhysicsTools {
     return std::pair<void *, std::vector<T> >(nullptr, std::vector<T>());
   }
 
-  void TreeReader::addTypeMulti(AtomicId name, const void *value, char type) {
+  void TreeReader::addTypeMulti(const AtomicId &name, const void *value, char type) {
     std::map<AtomicId, Value>::const_iterator pos = valueMap.find(name);
     if (pos != valueMap.end())
       throw cms::Exception("DuplicateVariable") << "Duplicate Variable \"" << name << "\"." << std::endl;
@@ -345,7 +345,7 @@ namespace PhysicsTools {
     reader->tree->SetBranchAddress(name, value);
   }
 
-  void TreeReader::Value::fill(AtomicId name, TreeReader *reader) const {
+  void TreeReader::Value::fill(const AtomicId &name, TreeReader *reader) const {
     if (multiple) {
       switch (type) {
         case 'D': {

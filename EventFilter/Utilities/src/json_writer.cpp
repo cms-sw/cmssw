@@ -424,7 +424,7 @@ namespace Json {
   // //////////////////////////////////////////////////////////////////
 
   StyledStreamWriter::StyledStreamWriter(std::string indentation)
-      : document_(nullptr), rightMargin_(74), indentation_(indentation) {}
+      : document_(nullptr), rightMargin_(74), indentation_(std::move(indentation)) {}
 
   void StyledStreamWriter::write(std::ostream &out, const Value &root) {
     document_ = &out;

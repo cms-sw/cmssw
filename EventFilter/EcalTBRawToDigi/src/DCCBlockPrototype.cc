@@ -5,6 +5,7 @@
 
 #include <cstdio>
 #include <sstream>
+#include <utility>
 
 DCCTBBlockPrototype::DCCTBBlockPrototype(DCCTBDataParser *parser,
                                          std::string name,
@@ -14,7 +15,7 @@ DCCTBBlockPrototype::DCCTBBlockPrototype(DCCTBDataParser *parser,
                                          uint32_t wordEventOffset) {
   blockError_ = false;
   parser_ = parser;
-  name_ = name;
+  name_ = std::move(name);
   dataP_ = buffer;
   beginOfBuffer_ = buffer;
   blockSize_ = numbBytes;
@@ -111,7 +112,7 @@ uint32_t DCCTBBlockPrototype::getDataWord(uint32_t wordPosition, uint32_t bitPos
 }
 
 void DCCTBBlockPrototype::increment(uint32_t numb, std::string msg) {
-  seeIfIsPossibleToIncrement(numb, msg);
+  seeIfIsPossibleToIncrement(numb, std::move(msg));
   dataP_ += numb;
   wordCounter_ += numb;
 }
@@ -203,7 +204,7 @@ uint32_t DCCTBBlockPrototype::getDataField(std::string name) {
 }
 
 std::string DCCTBBlockPrototype::formatString(std::string myString, uint32_t minPositions) {
-  std::string ret(myString);
+  std::string ret(std::move(myString));
   uint32_t stringSize = ret.size();
   if (minPositions > stringSize) {
     for (uint32_t i = 0; i < minPositions - stringSize; i++) {

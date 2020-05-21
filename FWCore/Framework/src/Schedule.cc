@@ -61,12 +61,13 @@ namespace edm {
     // Here we make the trigger results inserter directly.  This should
     // probably be a utility in the WorkerRegistry or elsewhere.
 
-    std::shared_ptr<TriggerResultInserter> makeInserter(ParameterSet& proc_pset,
-                                                        PreallocationConfiguration const& iPrealloc,
-                                                        ProductRegistry& preg,
-                                                        ExceptionToActionTable const& actions,
-                                                        std::shared_ptr<ActivityRegistry> areg,
-                                                        std::shared_ptr<ProcessConfiguration> processConfiguration) {
+    std::shared_ptr<TriggerResultInserter> makeInserter(
+        ParameterSet& proc_pset,
+        PreallocationConfiguration const& iPrealloc,
+        ProductRegistry& preg,
+        ExceptionToActionTable const& actions,
+        const std::shared_ptr<ActivityRegistry>& areg,
+        const std::shared_ptr<ProcessConfiguration>& processConfiguration) {
       ParameterSet* trig_pset = proc_pset.getPSetForUpdate("@trigger_paths");
       trig_pset->registerIt();
 
@@ -107,8 +108,8 @@ namespace edm {
                                  std::vector<std::string> const& pathNames,
                                  PreallocationConfiguration const& iPrealloc,
                                  ProductRegistry& preg,
-                                 std::shared_ptr<ActivityRegistry> areg,
-                                 std::shared_ptr<ProcessConfiguration> processConfiguration,
+                                 const std::shared_ptr<ActivityRegistry>& areg,
+                                 const std::shared_ptr<ProcessConfiguration>& processConfiguration,
                                  std::string const& moduleTypeName) {
       ParameterSet pset;
       pset.addParameter<std::string>("@module_type", moduleTypeName);
@@ -588,8 +589,8 @@ namespace edm {
                      ThinnedAssociationsHelper& thinnedAssociationsHelper,
                      SubProcessParentageHelper const* subProcessParentageHelper,
                      ExceptionToActionTable const& actions,
-                     std::shared_ptr<ActivityRegistry> areg,
-                     std::shared_ptr<ProcessConfiguration> processConfiguration,
+                     const std::shared_ptr<ActivityRegistry>& areg,
+                     const std::shared_ptr<ProcessConfiguration>& processConfiguration,
                      bool hasSubprocesses,
                      PreallocationConfiguration const& prealloc,
                      ProcessContext const* processContext)

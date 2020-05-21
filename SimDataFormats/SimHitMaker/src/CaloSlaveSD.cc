@@ -10,7 +10,7 @@
 
 #include <iostream>
 
-CaloSlaveSD::CaloSlaveSD(std::string n) : name_(n) {
+CaloSlaveSD::CaloSlaveSD(const std::string& n) : name_(n) {
   LogDebug("HitBuildInfo") << "CaloSlaveSD Called with name " << n << "\n";
 }
 

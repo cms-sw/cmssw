@@ -2,6 +2,8 @@
 #define SimDataFormatsCaloTestParticleFlux_h
 
 #include <string>
+#include <utility>
+
 #include <vector>
 #include <memory>
 
@@ -10,7 +12,7 @@
 
 class ParticleFlux {
 public:
-  ParticleFlux(std::string name = "", int id = 0) : detName_(name), detId_(id) {}
+  ParticleFlux(std::string name = "", int id = 0) : detName_(std::move(name)), detId_(id) {}
   virtual ~ParticleFlux() {}
 
   struct flux {
@@ -25,9 +27,9 @@ public:
   int getId() const { return detId_; }
   unsigned int getComponents() const { return fluxVector_.size(); }
   std::vector<ParticleFlux::flux> getFlux() const& { return fluxVector_; }
-  void setName(const std::string nm) { detName_ = nm; }
+  void setName(const std::string& nm) { detName_ = nm; }
   void setId(const int id) { detId_ = id; }
-  void addFlux(const ParticleFlux::flux f);
+  void addFlux(const ParticleFlux::flux& f);
   void clear();
 
 private:

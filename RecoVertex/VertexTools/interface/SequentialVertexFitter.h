@@ -182,7 +182,7 @@ private:
    *   \return The fitted vertex
    */
   CachingVertex<N> fit(const std::vector<RefCountedVertexTrack>& tracks,
-                       const VertexState priorVertex,
+                       const VertexState& priorVertex,
                        bool withPrior) const;
 
   /**

@@ -103,9 +103,10 @@ public:
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-  std::tuple<float, float, float> calculatePtRatioRel(edm::Ptr<reco::Candidate> lep, edm::Ptr<pat::Jet> jet) const;
-  std::tuple<float, float, float> calculatePtRatioRelSimple(edm::Ptr<reco::Candidate> lep,
-                                                            edm::Ptr<pat::Jet> jet) const;  //old version?
+  std::tuple<float, float, float> calculatePtRatioRel(const edm::Ptr<reco::Candidate>& lep,
+                                                      const edm::Ptr<pat::Jet>& jet) const;
+  std::tuple<float, float, float> calculatePtRatioRelSimple(const edm::Ptr<reco::Candidate>& lep,
+                                                            const edm::Ptr<pat::Jet>& jet) const;  //old version?
 
   // ----------member data ---------------------------
 
@@ -350,8 +351,8 @@ void BJetEnergyRegressionVarProducer<T>::produce(edm::StreamID streamID,
 }
 
 template <typename T>
-std::tuple<float, float, float> BJetEnergyRegressionVarProducer<T>::calculatePtRatioRel(edm::Ptr<reco::Candidate> lep,
-                                                                                        edm::Ptr<pat::Jet> jet) const {
+std::tuple<float, float, float> BJetEnergyRegressionVarProducer<T>::calculatePtRatioRel(
+    const edm::Ptr<reco::Candidate>& lep, const edm::Ptr<pat::Jet>& jet) const {
   auto rawp4 = jet->correctedP4("Uncorrected");
   auto lepp4 = lep->p4();
 
@@ -368,7 +369,7 @@ std::tuple<float, float, float> BJetEnergyRegressionVarProducer<T>::calculatePtR
 
 template <typename T>
 std::tuple<float, float, float> BJetEnergyRegressionVarProducer<T>::calculatePtRatioRelSimple(
-    edm::Ptr<reco::Candidate> lep, edm::Ptr<pat::Jet> jet) const {
+    const edm::Ptr<reco::Candidate>& lep, const edm::Ptr<pat::Jet>& jet) const {
   auto lepp4 = lep->p4();
   auto rawp4 = jet->correctedP4("Uncorrected");
 

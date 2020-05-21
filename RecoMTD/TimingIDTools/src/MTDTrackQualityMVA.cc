@@ -1,6 +1,6 @@
 #include "RecoMTD/TimingIDTools/interface/MTDTrackQualityMVA.h"
 
-MTDTrackQualityMVA::MTDTrackQualityMVA(std::string weights_file) {
+MTDTrackQualityMVA::MTDTrackQualityMVA(const std::string& weights_file) {
   std::string options("!Color:Silent");
   std::string method("BDT");
 

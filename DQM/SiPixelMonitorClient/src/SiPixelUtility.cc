@@ -7,7 +7,7 @@ using namespace std;
 //
 // Get a list of MEs in a folder
 //
-int SiPixelUtility::getMEList(string name, vector<string> &values) {
+int SiPixelUtility::getMEList(const string &name, vector<string> &values) {
   values.clear();
   string prefix_str = name.substr(0, (name.find(":")));
   prefix_str += "/";
@@ -20,7 +20,7 @@ int SiPixelUtility::getMEList(string name, vector<string> &values) {
 //
 // Get a list of MEs in a folder and the path name
 //
-int SiPixelUtility::getMEList(string name, string &dir_path, vector<string> &values) {
+int SiPixelUtility::getMEList(const string &name, string &dir_path, vector<string> &values) {
   values.clear();
   dir_path = name.substr(0, (name.find(":")));
   dir_path += "/";
@@ -30,7 +30,7 @@ int SiPixelUtility::getMEList(string name, string &dir_path, vector<string> &val
 }
 
 // Check if the requested ME exists in a folder
-bool SiPixelUtility::checkME(string name, string me_name, string &full_path) {
+bool SiPixelUtility::checkME(const string &name, const string &me_name, string &full_path) {
   if (name.find(name) == string::npos)
     return false;
   string prefix_str = name.substr(0, (name.find(":")));

@@ -20,7 +20,7 @@ namespace calib {
 
     ~CalibElectron(){};
 
-    std::vector<std::pair<int, float> > getCalibModulesWeights(TString calibtype);
+    std::vector<std::pair<int, float> > getCalibModulesWeights(const TString& calibtype);
     const reco::GsfElectron* getRecoElectron() { return theElectron_; }
     const EcalRecHitCollection* getRecHits() { return theHits_; }
     const EcalRecHitCollection* getEERecHits() { return theEEHits_; }

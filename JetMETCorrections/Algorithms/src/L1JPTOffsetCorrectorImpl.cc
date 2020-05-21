@@ -1,6 +1,8 @@
 // Implementation of class L1JPTOffsetCorrector.
 // L1JPTOffset jet corrector class.
 
+#include <utility>
+
 #include "JetMETCorrections/Algorithms/interface/L1JPTOffsetCorrectorImpl.h"
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 #include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
@@ -58,7 +60,7 @@ void L1JPTOffsetCorrectorImplMaker::fillDescriptions(edm::ConfigurationDescripti
 //------------------------------------------------------------------------
 L1JPTOffsetCorrectorImpl::L1JPTOffsetCorrectorImpl(std::shared_ptr<FactorizedJetCorrectorCalculator const> corrector,
                                                    const reco::JetCorrector* offsetService)
-    : offsetService_(offsetService), corrector_(corrector) {}
+    : offsetService_(offsetService), corrector_(std::move(corrector)) {}
 //------------------------------------------------------------------------
 //--- L1OffsetCorrectorImpl destructor -------------------------------------------
 //------------------------------------------------------------------------

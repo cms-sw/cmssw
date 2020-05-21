@@ -471,7 +471,7 @@ void MuonResidualsFitter::read(FILE *file, int which) {
   delete[] likeAChecksum2;
 }
 
-void MuonResidualsFitter::plotsimple(std::string name, TFileDirectory *dir, int which, double multiplier) {
+void MuonResidualsFitter::plotsimple(const std::string &name, TFileDirectory *dir, int which, double multiplier) {
   double window = 100.;
   if (which == 0)
     window = 2. * 30.;
@@ -488,7 +488,7 @@ void MuonResidualsFitter::plotsimple(std::string name, TFileDirectory *dir, int 
 }
 
 void MuonResidualsFitter::plotweighted(
-    std::string name, TFileDirectory *dir, int which, int whichredchi2, double multiplier) {
+    const std::string &name, TFileDirectory *dir, int which, int whichredchi2, double multiplier) {
   double window = 100.;
   if (which == 0)
     window = 2. * 30.;

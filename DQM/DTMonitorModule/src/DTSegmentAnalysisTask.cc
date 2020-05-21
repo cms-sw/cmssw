@@ -242,7 +242,7 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
 }
 
 // Book a set of histograms for a give chamber
-void DTSegmentAnalysisTask::bookHistos(DQMStore::IBooker& ibooker, DTChamberId chamberId) {
+void DTSegmentAnalysisTask::bookHistos(DQMStore::IBooker& ibooker, const DTChamberId& chamberId) {
   edm::LogVerbatim("DTDQM|DTMonitorModule|DTSegmentAnalysisTask") << "   Booking histos for chamber: " << chamberId;
 
   // Compose the chamber name
@@ -268,7 +268,7 @@ void DTSegmentAnalysisTask::bookHistos(DQMStore::IBooker& ibooker, DTChamberId c
 }
 
 // Fill a set of histograms for a give chamber
-void DTSegmentAnalysisTask::fillHistos(DTChamberId chamberId, int nHits, float chi2) {
+void DTSegmentAnalysisTask::fillHistos(const DTChamberId& chamberId, int nHits, float chi2) {
   int sector = chamberId.sector();
   if (chamberId.sector() == 13) {
     sector = 4;

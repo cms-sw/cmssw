@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "DQMOffline/L1Trigger/interface/L1TDiffHarvesting.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -10,7 +12,7 @@ namespace dqmoffline {
         : dir1_(ps.getUntrackedParameter<std::string>("dir1")),
           dir2_(ps.getUntrackedParameter<std::string>("dir2")),
           outputDir_(ps.getUntrackedParameter<std::string>("outputDir", dir1_)),
-          plotName_(plotName),
+          plotName_(std::move(plotName)),
           h1_(),
           h2_(),
           h_diff_(),

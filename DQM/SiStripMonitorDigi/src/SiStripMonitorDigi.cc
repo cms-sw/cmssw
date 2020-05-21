@@ -1064,7 +1064,7 @@ void SiStripMonitorDigi::createModuleMEs(DQMStore::IBooker& ibooker, ModMEs& mod
 // -- Create Module Level MEs
 //
 
-void SiStripMonitorDigi::createLayerMEs(DQMStore::IBooker& ibooker, std::string label, int ndets) {
+void SiStripMonitorDigi::createLayerMEs(DQMStore::IBooker& ibooker, const std::string& label, int ndets) {
   std::map<std::string, LayerMEs>::iterator iLayerME = LayerMEsMap.find(label);
   if (iLayerME == LayerMEsMap.end()) {
     SiStripHistoId hidmanager;
@@ -1160,7 +1160,7 @@ void SiStripMonitorDigi::createLayerMEs(DQMStore::IBooker& ibooker, std::string 
 //
 // -- Create SubDetector MEs
 //
-void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker& ibooker, std::string label) {
+void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker& ibooker, const std::string& label) {
   SubDetMEs subdetMEs;
   subdetMEs.totNDigis = 0;
   subdetMEs.SubDetTotDigiProf = nullptr;

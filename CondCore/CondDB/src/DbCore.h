@@ -148,7 +148,7 @@ namespace cond {
     inline void f_add_condition_data(coral::AttributeList& data,
                                      std::string& whereClause,
                                      const P& value,
-                                     const std::string condition = "=") {
+                                     const std::string& condition = "=") {
       static_assert_is_same_decayed<typename Column::type, P>();
       std::stringstream varId;
       unsigned int id = data.size();
@@ -162,7 +162,7 @@ namespace cond {
 
     // function for appending conditions to a where clause
     template <typename C1, typename C2>
-    inline void f_add_condition(std::string& whereClause, const std::string condition = "=") {
+    inline void f_add_condition(std::string& whereClause, const std::string& condition = "=") {
       if (!whereClause.empty())
         whereClause += " AND ";
       whereClause += C1::fullyQualifiedName() + " " + condition + " " + C2::fullyQualifiedName() + " ";

@@ -6,7 +6,7 @@
 
 class PFBlockElementSCEqual {
 public:
-  PFBlockElementSCEqual(reco::SuperClusterRef scRef) : ref_(scRef) { ; }
+  PFBlockElementSCEqual(const reco::SuperClusterRef& scRef) : ref_(scRef) { ; }
   inline bool operator()(const std::unique_ptr<reco::PFBlockElement>& el) {
     return (el->type() == reco::PFBlockElement::SC &&
             (static_cast<const reco::PFBlockElementSuperCluster*>(el.get()))->superClusterRef() == ref_);

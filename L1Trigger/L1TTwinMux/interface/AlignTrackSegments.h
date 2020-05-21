@@ -30,7 +30,7 @@
 
 class AlignTrackSegments {
 public:
-  AlignTrackSegments(L1MuDTChambPhContainer inphiDigis);
+  AlignTrackSegments(const L1MuDTChambPhContainer& inphiDigis);
   ~AlignTrackSegments(){};
 
   void run(const edm::EventSetup& c);

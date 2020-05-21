@@ -21,7 +21,7 @@ namespace edm {
   public:
     ProductData();
 
-    explicit ProductData(std::shared_ptr<BranchDescription const> bd);
+    explicit ProductData(const std::shared_ptr<BranchDescription const>& bd);
 
     // For use by FWLite
     ProductData(WrapperBase* product, Provenance const& prov);
@@ -47,7 +47,7 @@ namespace edm {
     void unsafe_setWrapper(std::unique_ptr<WrapperBase> iValue) const;
     void unsafe_setWrapper(std::shared_ptr<WrapperBase const> iValue) const;  // for SwitchProducer
 
-    void resetBranchDescription(std::shared_ptr<BranchDescription const> bd);
+    void resetBranchDescription(const std::shared_ptr<BranchDescription const>& bd);
 
     void resetProductData() { wrapper_.reset(); }
 

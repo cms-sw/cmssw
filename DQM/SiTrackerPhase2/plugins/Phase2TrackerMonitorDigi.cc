@@ -90,8 +90,8 @@ void Phase2TrackerMonitorDigi::analyze(const edm::Event& iEvent, const edm::Even
       fillOTDigiHistos(otDigiHandle, geomHandle);
   }
 }
-void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetSetVector<PixelDigi>> handle,
-                                                     const edm::ESHandle<TrackerGeometry> gHandle) {
+void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetSetVector<PixelDigi>>& handle,
+                                                     const edm::ESHandle<TrackerGeometry>& gHandle) {
   const edm::DetSetVector<PixelDigi>* digis = handle.product();
 
   const TrackerTopology* tTopo = tTopoHandle_.product();
@@ -216,8 +216,8 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
     local_mes.nHitDetsPerLayer = 0;
   }
 }
-void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVector<Phase2TrackerDigi>> handle,
-                                                const edm::ESHandle<TrackerGeometry> gHandle) {
+void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVector<Phase2TrackerDigi>>& handle,
+                                                const edm::ESHandle<TrackerGeometry>& gHandle) {
   const edm::DetSetVector<Phase2TrackerDigi>* digis = handle.product();
 
   const TrackerTopology* tTopo = tTopoHandle_.product();

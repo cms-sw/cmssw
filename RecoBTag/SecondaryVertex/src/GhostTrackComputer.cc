@@ -108,7 +108,7 @@ const btag::TrackIPData &GhostTrackComputer::threshTrack(const CandIPTagInfo &tr
   return dummy;
 }
 
-static void addMeas(std::pair<double, double> &sum, Measurement1D meas) {
+static void addMeas(std::pair<double, double> &sum, const Measurement1D &meas) {
   double weight = 1. / meas.error();
   weight *= weight;
   sum.first += weight * meas.value();

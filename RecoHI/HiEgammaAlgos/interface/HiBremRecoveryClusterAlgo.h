@@ -53,7 +53,7 @@ private:
   void makeIslandSuperClusters(reco::CaloClusterPtrVector &clusters_v, double etaRoad, double phiRoad);
 
   // return true if the cluster is within the search phi-eta window of the seed
-  bool match(reco::CaloClusterPtr seed_p, reco::CaloClusterPtr cluster_p, double etaRoad, double phiRoad);
+  bool match(const reco::CaloClusterPtr& seed_p, const reco::CaloClusterPtr& cluster_p, double etaRoad, double phiRoad);
 
   VerbosityLevel verbosity;
 

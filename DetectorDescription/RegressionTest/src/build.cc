@@ -166,7 +166,7 @@ void regressionTest_first(ClhepEvaluator& eval) {
   cpv.position(part, ws, std::string("1"), t0, rw);
 }
 
-void output(string filename) {
+void output(const string& filename) {
   ostream& os(cout);
 
   os << "Starting Regressiontest Output" << endl;

@@ -18,7 +18,7 @@ std::ostream& operator<<(std::ostream&, const SiStripFedIdListReader&);
 class SiStripFedIdListReader {
 public:
   /** */
-  explicit SiStripFedIdListReader(std::string filePath);
+  explicit SiStripFedIdListReader(const std::string& filePath);
 
   /** */
   explicit SiStripFedIdListReader(const SiStripFedIdListReader&);

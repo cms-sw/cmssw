@@ -5,6 +5,8 @@
 #define DataFormats_HGCalReco_Trackster_h
 
 #include <array>
+#include <utility>
+
 #include <vector>
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -68,7 +70,7 @@ namespace ticl {
     inline void addToRawEmEnergy(float value) { raw_em_energy_ += value; }
     inline void setRawPt(float value) { raw_pt_ = value; }
     inline void setRawEmPt(float value) { raw_em_pt_ = value; }
-    inline void setBarycenter(Vector value) { barycenter_ = value; }
+    inline void setBarycenter(Vector value) { barycenter_ = std::move(value); }
     inline void setEigenValuesVectors();
     inline void fillPCAVariables(Eigen::Vector3d &eigenvalues,
                                  Eigen::Matrix3d &eigenvectors,

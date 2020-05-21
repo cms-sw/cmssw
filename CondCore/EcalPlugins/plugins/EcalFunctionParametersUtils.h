@@ -12,7 +12,7 @@ int countEmptyRows(std::vector<float>& vec) {
 }
 
 void fillFunctionParamsValues(
-    TH2F*& align, std::vector<float>& m_params, std::string title, int& gridRows, int& NbColumns) {
+    TH2F*& align, std::vector<float>& m_params, const std::string& title, int& gridRows, int& NbColumns) {
   const int maxInCol = 25;
   int NbRows = 0;
 

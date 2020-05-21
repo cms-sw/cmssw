@@ -3,6 +3,9 @@
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/Worker.h"
+
+#include <utility>
+
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
@@ -99,7 +102,7 @@ namespace edm {
 
   Worker::~Worker() {}
 
-  void Worker::setActivityRegistry(std::shared_ptr<ActivityRegistry> areg) { actReg_ = areg; }
+  void Worker::setActivityRegistry(std::shared_ptr<ActivityRegistry> areg) { actReg_ = std::move(areg); }
 
   void Worker::exceptionContext(cms::Exception& ex, ModuleCallingContext const* mcc) {
     ModuleCallingContext const* imcc = mcc;

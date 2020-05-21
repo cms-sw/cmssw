@@ -20,6 +20,8 @@
 //
 
 // system include files
+#include <utility>
+
 #include <vector>
 #include <cstring>
 #include <fstream>
@@ -80,7 +82,7 @@ private:
 class EMap {
 public:
   EMap() {}
-  EMap(std::string filename) { read_map(filename); }
+  EMap(std::string filename) { read_map(std::move(filename)); }
   EMap(const HcalElectronicsMap* map);
   ~EMap() {}
 
@@ -116,7 +118,7 @@ public:
 
   };  // end of class EMapRow
 
-  int read_map(std::string filename);
+  int read_map(const std::string& filename);
 
   std::vector<EMap::EMapRow>& get_map(void);
 

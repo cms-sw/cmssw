@@ -131,7 +131,7 @@ double PFGsfHelper::fittedDP() const { return dp; }
 double PFGsfHelper::sigmafittedDP() const { return sigmaDp; }
 bool PFGsfHelper::isValid() const { return Valid; }
 
-void PFGsfHelper::computeQpMode(const TrajectoryStateOnSurface tsos,
+void PFGsfHelper::computeQpMode(const TrajectoryStateOnSurface& tsos,
                                 AlgebraicVector5& parameters,
                                 AlgebraicSymMatrix55& covariance) const {
   //

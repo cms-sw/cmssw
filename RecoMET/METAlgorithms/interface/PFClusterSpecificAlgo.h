@@ -30,7 +30,8 @@
 class PFClusterSpecificAlgo {
 public:
   PFClusterSpecificAlgo() { ; }
-  reco::PFClusterMET addInfo(edm::Handle<edm::View<reco::Candidate> > PFClusterCandidates, const CommonMETData& met);
+  reco::PFClusterMET addInfo(const edm::Handle<edm::View<reco::Candidate> >& PFClusterCandidates,
+                             const CommonMETData& met);
 
 private:
   typedef math::XYZTLorentzVector LorentzVector;

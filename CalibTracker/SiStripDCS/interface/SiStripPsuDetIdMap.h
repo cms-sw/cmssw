@@ -37,8 +37,8 @@ public:
   /** Destructor */
   ~SiStripPsuDetIdMap();
 
-  std::vector<uint32_t> getLvDetID(std::string psu);
-  void getHvDetID(std::string psuchannel,
+  std::vector<uint32_t> getLvDetID(const std::string &psu);
+  void getHvDetID(const std::string &psuchannel,
                   std::vector<uint32_t> &ids,
                   std::vector<uint32_t> &unmapped_ids,
                   std::vector<uint32_t> &crosstalking_ids);
@@ -47,7 +47,7 @@ public:
   //1-detids (positively matching the PSUChannel for HV case, positively matching the PSU for the LV case)
   //2-unmapped_detids (matching the PSUChannel000 for the HV case, empty for LV case)
   //3-crosstalking_detids (matching the PSUChannel999 for the HV case, empty for the LV case)
-  void getDetID(std::string pvss,
+  void getDetID(const std::string &pvss,
                 bool,
                 std::vector<uint32_t> &detids,
                 std::vector<uint32_t> &unmapped_detids,
@@ -55,15 +55,15 @@ public:
   /** Returns the PSU channel name for the specified Det ID, for power groups only. */
   std::string getPSUName(uint32_t detid);
   /** Returns the PSU channel name for the specified Det ID. */
-  std::string getPSUName(uint32_t detid, std::string group);
+  std::string getPSUName(uint32_t detid, const std::string &group);
   /** Returns the detector location for the specified Det ID, for power groups only. */
   std::string getDetectorLocation(uint32_t detid);
   /** Returns the detector location for the specified PSU channel. */
-  std::string getDetectorLocation(std::string pvss);
+  std::string getDetectorLocation(const std::string &pvss);
   /** Returns the detector location for the specified Det ID and specified group type (PG or CG). */
-  std::string getDetectorLocation(uint32_t detid, std::string group);
+  std::string getDetectorLocation(uint32_t detid, const std::string &group);
   /** Returns the DCU ID for the specified PSU channel - checks power and control groups. */
-  uint32_t getDcuId(std::string pvss);
+  uint32_t getDcuId(const std::string &pvss);
   /** Returns the DCU ID associated to the specified Det ID.  NB.  This checks power groups only, by definition. */
   uint32_t getDcuId(uint32_t detid);
 
@@ -117,7 +117,7 @@ public:
   /** Returns the DCU-PSU map as a vector. */
   std::vector<std::pair<uint32_t, std::string> > getDcuPsuMap();
   /** Returns 1 if the specified PSU channel is a HV channel, 0 if it is a LV channel.  -1 means error. */
-  int IsHVChannel(std::string pvss);
+  int IsHVChannel(const std::string &pvss);
 
 private:
   // typedefs
@@ -130,7 +130,7 @@ private:
   /** Extracts the DCU device descriptions and stores them for further use. Only used for control groups. */
   //  std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> >  retrieveDcuDeviceAddresses(std::string partition);
   std::vector<std::pair<std::vector<uint16_t>, std::vector<uint32_t> > > retrieveDcuDeviceAddresses(
-      std::string partition);
+      const std::string &partition);
   /** Searches the DCU device descriptions for the specified DCU ID. Needed for control groups. */
   std::vector<uint32_t> findDcuIdFromDeviceAddress(uint32_t dcuid_);
   /** Utility to clone a DCU-PSU map. */

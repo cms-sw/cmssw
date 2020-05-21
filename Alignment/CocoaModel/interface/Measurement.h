@@ -13,6 +13,8 @@
 #ifndef _MEASUREMENT_HH
 #define _MEASUREMENT_HH
 
+#include <utility>
+
 #include <vector>
 #include <cstdlib>
 
@@ -133,11 +135,11 @@ public:
     //-    std::cout << coor << " setting sigma " << theSigma[coor] << std::endl;
   }
 
-  void setType(ALIstring type) { theType = type; }
+  void setType(ALIstring type) { theType = std::move(type); }
 
   void SetDimension(ALIuint dim) { theDim = dim; }
 
-  void AddOptONameListItem(ALIstring optos) { _OptONameList.push_back(optos); }
+  void AddOptONameListItem(const ALIstring& optos) { _OptONameList.push_back(optos); }
 
   void AddOptOListItem(OpticalObject* opto) { _OptOList.push_back(opto); }
 

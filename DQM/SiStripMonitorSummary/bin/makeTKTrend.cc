@@ -15,7 +15,7 @@
 
 void makeTKTrend(const char* inFileName,
                  const char* outFileName,
-                 std::string subDetName,
+                 const std::string& subDetName,
                  std::string partName,
                  const unsigned int partNumber);
 
@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
 
 void makeTKTrend(const char* inFileName,
                  const char* outFileName,
-                 std::string subDetName,
+                 const std::string& subDetName,
                  std::string partName,
                  const unsigned int partNumber) {
   // Maps <Run number, nBad>

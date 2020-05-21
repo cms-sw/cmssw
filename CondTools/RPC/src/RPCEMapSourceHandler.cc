@@ -58,7 +58,7 @@ void popcon::RPCEMapSourceHandler::getNewObjects() {
   //	std::cout << "RPCEMapSourceHandler: RPCEMapSourceHandler::getNewObjects ends\n";
 }
 
-void popcon::RPCEMapSourceHandler::ConnectOnlineDB(std::string connect, std::string authPath) {
+void popcon::RPCEMapSourceHandler::ConnectOnlineDB(const std::string& connect, const std::string& authPath) {
   cond::persistency::ConnectionPool connection;
   std::cout << "RPCEMapConfigSourceHandler: connecting to " << connect << "..." << std::flush;
   connection.setAuthenticationPath(authPath);

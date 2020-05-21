@@ -51,7 +51,7 @@ typedef std::vector<ALIUnitsCategory*> ALIUnitsTable;
 
 class ALIUnitDefinition : public std::enable_shared_from_this<ALIUnitDefinition> {
 public:  // with description
-  ALIUnitDefinition(ALIstring name, ALIstring symbol, ALIstring category, ALIdouble value);
+  ALIUnitDefinition(const ALIstring& name, const ALIstring& symbol, const ALIstring& category, ALIdouble value);
 
 public:  // without description
   ~ALIUnitDefinition();
@@ -74,8 +74,8 @@ public:  // with description
 
   static ALIUnitsTable& GetUnitsTable() { return theUnitsTable; }
 
-  static ALIdouble GetValueOf(ALIstring);
-  static ALIstring GetCategory(ALIstring);
+  static ALIdouble GetValueOf(const ALIstring&);
+  static ALIstring GetCategory(const ALIstring&);
 
 private:
   ALIstring Name;        // SI name
@@ -128,8 +128,8 @@ private:
 
 class ALIBestUnit {
 public:  // with description
-  ALIBestUnit(ALIdouble internalValue, ALIstring category);
-  ALIBestUnit(const CLHEP::Hep3Vector& internalValue, ALIstring category);
+  ALIBestUnit(ALIdouble internalValue, const ALIstring& category);
+  ALIBestUnit(const CLHEP::Hep3Vector& internalValue, const ALIstring& category);
   // These constructors convert a physical quantity from its internalValue
   // into the most appropriate unit of the same category.
   // In practice it builds an object VU = (newValue, newUnit)
@@ -142,7 +142,7 @@ public:  // without description
   size_t GetIndexOfCategory() const { return IndexOfCategory; }
 
 public:  // with description
-  friend std::ostream& operator<<(std::ostream&, ALIBestUnit VU);
+  friend std::ostream& operator<<(std::ostream&, const ALIBestUnit& VU);
   // Default format to print the objet VU above.
 
 private:

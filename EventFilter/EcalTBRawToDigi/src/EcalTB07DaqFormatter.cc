@@ -30,6 +30,7 @@
 
 #include <iostream>
 #include <string>
+#include <utility>
 
 EcalTB07DaqFormatter::EcalTB07DaqFormatter(std::string tbName,
                                            int cryIcMap[68][5][5],
@@ -50,7 +51,7 @@ EcalTB07DaqFormatter::EcalTB07DaqFormatter(std::string tbName,
 
   theParser_ = new DCCTBDataParser(parameters);
 
-  tbName_ = tbName;
+  tbName_ = std::move(tbName);
 
   for (int i = 0; i < 68; ++i)
     for (int j = 0; j < 5; ++j)

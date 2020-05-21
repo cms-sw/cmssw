@@ -49,9 +49,9 @@ namespace edm {
 
     void weight3D_init(float Scale);
 
-    void weight3D_init(std::string WeightFileName);  // initialize from root file
+    void weight3D_init(const std::string& WeightFileName);  // initialize from root file
 
-    void weight3D_init(std::string MCFileName, std::string DataFileName);  // initialize from root files
+    void weight3D_init(const std::string& MCFileName, const std::string& DataFileName);  // initialize from root files
 
   protected:
     std::string generatedFileName_;

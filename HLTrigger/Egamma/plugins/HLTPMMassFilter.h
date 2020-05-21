@@ -64,7 +64,7 @@ public:
 private:
   TLorentzVector approxMomAtVtx(const MagneticField* magField,
                                 const GlobalPoint& xvert,
-                                const reco::SuperClusterRef sc,
+                                const reco::SuperClusterRef& sc,
                                 int charge) const;
 
   edm::InputTag candTag_;  // input tag identifying product contains filtered egammas

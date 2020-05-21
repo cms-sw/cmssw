@@ -43,6 +43,6 @@ private:
   COND_SERIALIZABLE;
 };
 
-std::ostream &operator<<(std::ostream &, SiPixelFEDChannelContainer FEDChannels);
+std::ostream &operator<<(std::ostream &, const SiPixelFEDChannelContainer &FEDChannels);
 
 #endif  //CondFormats_SiPixelObjects_SiPixelFEDChannelContainer_h

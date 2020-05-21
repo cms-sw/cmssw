@@ -153,7 +153,7 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
   }
 }
 
-void SimpleDAFHitCollector::Debug(const std::vector<TrajectoryMeasurement> TM) const {
+void SimpleDAFHitCollector::Debug(const std::vector<TrajectoryMeasurement>& TM) const {
 #ifdef EDM_ML_DEBUG
   for (vector<TrajectoryMeasurement>::const_iterator itrajmeas = TM.begin(); itrajmeas < TM.end(); itrajmeas++) {
     if (itrajmeas->recHit()->isValid()) {

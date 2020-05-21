@@ -40,7 +40,7 @@
 namespace edm {
   namespace serviceregistry {
 
-    ServicesManager::MakerHolder::MakerHolder(std::shared_ptr<ServiceMakerBase> iMaker,
+    ServicesManager::MakerHolder::MakerHolder(const std::shared_ptr<ServiceMakerBase>& iMaker,
                                               ParameterSet& iPSet,
                                               ActivityRegistry& iRegistry)
         : maker_(iMaker), pset_(&iPSet), registry_(&iRegistry), wasAdded_(false) {}
@@ -69,7 +69,7 @@ namespace edm {
       createServices();
     }
 
-    ServicesManager::ServicesManager(ServiceToken iToken,
+    ServicesManager::ServicesManager(const ServiceToken& iToken,
                                      ServiceLegacy iLegacy,
                                      std::vector<ParameterSet>& iConfiguration,
                                      bool associate)

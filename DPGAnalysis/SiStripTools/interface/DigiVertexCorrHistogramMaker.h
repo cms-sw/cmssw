@@ -23,9 +23,9 @@ public:
 
   ~DigiVertexCorrHistogramMaker();
 
-  void book(const std::string dirname, const std::map<unsigned int, std::string>& labels, edm::ConsumesCollector&& iC);
-  void book(const std::string dirname, edm::ConsumesCollector&& iC) { book(dirname, iC); }
-  void book(const std::string dirname, edm::ConsumesCollector& iC);
+  void book(const std::string& dirname, const std::map<unsigned int, std::string>& labels, edm::ConsumesCollector&& iC);
+  void book(const std::string& dirname, edm::ConsumesCollector&& iC) { book(dirname, iC); }
+  void book(const std::string& dirname, edm::ConsumesCollector& iC);
   void beginRun(const edm::Run& iRun);
   void fill(const edm::Event& iEvent, const unsigned int nvtx, const std::map<unsigned int, int>& ndigi);
 

@@ -45,7 +45,7 @@ public:
   // ---------- static member functions --------------------
 
   // ---------- member functions ---------------------------
-  void add(std::shared_ptr<FWViewManagerBase>);
+  void add(const std::shared_ptr<FWViewManagerBase>&);
   void registerEventItem(const FWEventItem* iItem);
   void removeEventItem(const FWEventItem* iItem);
   void eventBegin();

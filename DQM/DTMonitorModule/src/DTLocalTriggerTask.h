@@ -66,13 +66,13 @@ protected:
   /// Book the histograms
 
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
-  void bookHistos(DQMStore::IBooker&, const DTChamberId& dtCh, std::string folder, std::string histoTag);
+  void bookHistos(DQMStore::IBooker&, const DTChamberId& dtCh, const std::string& folder, const std::string& histoTag);
 
   /// Book the histograms
-  void bookWheelHistos(DQMStore::IBooker&, int wh, std::string histoTag);
+  void bookWheelHistos(DQMStore::IBooker&, int wh, const std::string& histoTag);
 
   /// Book the histograms
-  void bookBarrelHistos(DQMStore::IBooker&, std::string histoTag);
+  void bookBarrelHistos(DQMStore::IBooker&, const std::string& histoTag);
 
   /// Set Quality labels
   void setQLabels(MonitorElement* me, short int iaxis);

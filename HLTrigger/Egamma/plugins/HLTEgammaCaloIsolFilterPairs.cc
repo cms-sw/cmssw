@@ -119,7 +119,7 @@ bool HLTEgammaCaloIsolFilterPairs::hltFilter(edm::Event& iEvent,
   return accept;
 }
 
-bool HLTEgammaCaloIsolFilterPairs::PassCaloIsolation(edm::Ref<reco::RecoEcalCandidateCollection> ref,
+bool HLTEgammaCaloIsolFilterPairs::PassCaloIsolation(const edm::Ref<reco::RecoEcalCandidateCollection>& ref,
                                                      const reco::RecoEcalCandidateIsolationMap& IsoMap,
                                                      const reco::RecoEcalCandidateIsolationMap& NonIsoMap,
                                                      int which,

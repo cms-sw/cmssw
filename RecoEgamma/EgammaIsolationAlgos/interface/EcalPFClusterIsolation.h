@@ -42,10 +42,10 @@ public:
                          double energyEndcap);
 
   ~EcalPFClusterIsolation();
-  double getSum(T1Ref, edm::Handle<std::vector<reco::PFCluster> >);
+  double getSum(T1Ref, const edm::Handle<std::vector<reco::PFCluster> >&);
 
 private:
-  bool computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu);
+  bool computedRVeto(T1Ref candRef, const reco::PFClusterRef& pfclu);
 
   double drVeto2_;
   const double drMax_;

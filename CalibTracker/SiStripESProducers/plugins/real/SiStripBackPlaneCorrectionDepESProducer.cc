@@ -76,7 +76,7 @@ SiStripBackPlaneCorrectionDepESProducer::SiStripBackPlaneCorrectionDepESProducer
 
   setWhatProduced(this).setMayConsume(
       backPlaneCorrectionToken_,
-      [peakLabel, deconvLabel](auto const& get, edm::ESTransientHandle<SiStripLatency> iLatency) {
+      [peakLabel, deconvLabel](auto const& get, const edm::ESTransientHandle<SiStripLatency>& iLatency) {
         if (iLatency->singleReadOutMode() == 1) {
           return get("", peakLabel);
         }

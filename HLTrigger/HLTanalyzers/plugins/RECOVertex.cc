@@ -44,7 +44,7 @@ void RECOVertex::clear() {
 }
 
 /*  Setup the analysis to put the branch-variables into the tree. */
-void RECOVertex::setup(const edm::ParameterSet& pSet, TTree* HltTree, std::string vertexType) {
+void RECOVertex::setup(const edm::ParameterSet& pSet, TTree* HltTree, const std::string& vertexType) {
   edm::ParameterSet myHltParams = pSet.getParameter<edm::ParameterSet>("RunParameters");
   std::vector<std::string> parameterNames = myHltParams.getParameterNames();
 
@@ -83,7 +83,7 @@ void RECOVertex::setup(const edm::ParameterSet& pSet, TTree* HltTree, std::strin
 }
 
 /* **Analyze the event** */
-void RECOVertex::analyze(edm::Handle<reco::VertexCollection> recoVertexs, TTree* HltTree) {
+void RECOVertex::analyze(const edm::Handle<reco::VertexCollection>& recoVertexs, TTree* HltTree) {
   // reset the tree variables
   clear();
 

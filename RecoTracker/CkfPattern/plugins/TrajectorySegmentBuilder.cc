@@ -62,7 +62,7 @@ namespace {
 
 using namespace std;
 
-TrajectorySegmentBuilder::TempTrajectoryContainer TrajectorySegmentBuilder::segments(const TSOS startingState) {
+TrajectorySegmentBuilder::TempTrajectoryContainer TrajectorySegmentBuilder::segments(const TSOS& startingState) {
   //
   // create empty trajectory
   //
@@ -188,7 +188,7 @@ TrajectorySegmentBuilder::TempTrajectoryContainer TrajectorySegmentBuilder::segm
   return candidates;
 }
 
-void TrajectorySegmentBuilder::updateTrajectory(TempTrajectory& traj, TM tm) const {
+void TrajectorySegmentBuilder::updateTrajectory(TempTrajectory& traj, const TM& tm) const {
   auto&& predictedState = tm.predictedState();
   auto&& hit = tm.recHit();
 

@@ -106,8 +106,8 @@ private:
   typedef edm::IndexSet TrackingParticleRefKeySet;  ///< @brief Set for TrackingParticleRef keys
 
   // - added by S. Sarkar
-  static bool tpIntPairGreater(std::pair<edm::Ref<TrackingParticleCollection>, size_t> i,
-                               std::pair<edm::Ref<TrackingParticleCollection>, size_t> j) {
+  static bool tpIntPairGreater(const std::pair<edm::Ref<TrackingParticleCollection>, size_t>& i,
+                               const std::pair<edm::Ref<TrackingParticleCollection>, size_t>& j) {
     return (i.first.key() > j.first.key());
   }
 
@@ -176,14 +176,14 @@ private:
   double getDoubleCount(const TrackerHitAssociator& hitAssociator,
                         iter begin,
                         iter end,
-                        TrackingParticleRef associatedTrackingParticle) const;
+                        const TrackingParticleRef& associatedTrackingParticle) const;
   /** @brief Overload for when using cluster to TrackingParticle association list.
    */
   template <typename iter>
   double getDoubleCount(const ClusterTPAssociation& clusterToTPList,
                         iter begin,
                         iter end,
-                        TrackingParticleRef associatedTrackingParticle) const;
+                        const TrackingParticleRef& associatedTrackingParticle) const;
 
   /** @brief Returns a vector of pairs where first is a SimTrackIdentifiers (see typedef above) and second is the number of hits that came from that sim track.
    *

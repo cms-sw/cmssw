@@ -39,6 +39,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <string>
+#include <utility>
+
 #include <vector>
 #include <iostream>
 #include <sstream>
@@ -54,7 +56,7 @@ using namespace std;
 using namespace magneticfield;
 
 MagGeoBuilderFromDDD::MagGeoBuilderFromDDD(string tableSet_, int geometryVersion_, bool debug_)
-    : tableSet(tableSet_), geometryVersion(geometryVersion_), theGridFiles(nullptr), debug(debug_) {
+    : tableSet(std::move(tableSet_)), geometryVersion(geometryVersion_), theGridFiles(nullptr), debug(debug_) {
   if (debug)
     cout << "Constructing a MagGeoBuilderFromDDD" << endl;
 }

@@ -119,7 +119,7 @@ namespace hitfit {
      @param res The new Fit_Result object to be added into the list of
      Fit_Result object.
    */
-    void push(std::shared_ptr<Fit_Result> res);
+    void push(const std::shared_ptr<Fit_Result>& res);
 
     // Dump out the vector.
     friend std::ostream& operator<<(std::ostream& s, const Fit_Result_Vec& resvec);

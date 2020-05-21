@@ -82,8 +82,8 @@ public:
 
   StripPosition project(const GeomDetUnit* det,
                         const GluedGeomDet* glueddet,
-                        StripPosition strip,
-                        LocalVector trackdirection) const;
+                        const StripPosition& strip,
+                        const LocalVector& trackdirection) const;
 
   // needed by the obsolete version still in use on some architectures
   void match(const SiStripRecHit2D* monoRH,

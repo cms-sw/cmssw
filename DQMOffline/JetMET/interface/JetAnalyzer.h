@@ -97,7 +97,7 @@ public:
 
 private:
   // ----------member data ---------------------------
-  static bool jetSortingRule(reco::Jet x, reco::Jet y) { return x.pt() > y.pt(); }
+  static bool jetSortingRule(const reco::Jet& x, const reco::Jet& y) { return x.pt() > y.pt(); }
 
   //try to put one collection as start
   edm::InputTag mInputCollection_;
@@ -159,7 +159,7 @@ private:
   std::string DirName;
 
   // Book MonitorElements
-  void bookMESetSelection(std::string, DQMStore::IBooker&);
+  void bookMESetSelection(const std::string&, DQMStore::IBooker&);
   //void bookMonitorElement(std::string, bool);
 
   int verbose_;

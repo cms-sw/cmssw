@@ -26,7 +26,7 @@ namespace edm {
       return branch;
     }
   }  // namespace
-  RootTree::RootTree(std::shared_ptr<InputFile> filePtr,
+  RootTree::RootTree(const std::shared_ptr<InputFile>& filePtr,
                      BranchType const& branchType,
                      unsigned int nIndexes,
                      unsigned int maxVirtualSize,

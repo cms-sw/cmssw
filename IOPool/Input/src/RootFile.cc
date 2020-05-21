@@ -101,7 +101,7 @@ namespace edm {
   };
 
   namespace {
-    void checkReleaseVersion(std::vector<ProcessHistory> processHistoryVector, std::string const& fileName) {
+    void checkReleaseVersion(const std::vector<ProcessHistory>& processHistoryVector, std::string const& fileName) {
       std::string releaseVersion = getReleaseVersion();
       releaseversion::DecomposedReleaseVersion currentRelease(releaseVersion);
       for (auto const& ph : processHistoryVector) {
@@ -141,8 +141,8 @@ namespace edm {
   RootFile::RootFile(std::string const& fileName,
                      ProcessConfiguration const& processConfiguration,
                      std::string const& logicalFileName,
-                     std::shared_ptr<InputFile> filePtr,
-                     std::shared_ptr<EventSkipperByID> eventSkipperByID,
+                     const std::shared_ptr<InputFile>& filePtr,
+                     const std::shared_ptr<EventSkipperByID>& eventSkipperByID,
                      bool skipAnyEvents,
                      int remainingEvents,
                      int remainingLumis,
@@ -154,10 +154,10 @@ namespace edm {
                      bool noEventSort,
                      ProductSelectorRules const& productSelectorRules,
                      InputType inputType,
-                     std::shared_ptr<BranchIDListHelper> branchIDListHelper,
-                     std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
+                     const std::shared_ptr<BranchIDListHelper>& branchIDListHelper,
+                     const std::shared_ptr<ThinnedAssociationsHelper>& thinnedAssociationsHelper,
                      std::vector<BranchID> const* associationsFromSecondary,
-                     std::shared_ptr<DuplicateChecker> duplicateChecker,
+                     const std::shared_ptr<DuplicateChecker>& duplicateChecker,
                      bool dropDescendants,
                      ProcessHistoryRegistry& processHistoryRegistry,
                      std::vector<std::shared_ptr<IndexIntoFile>> const& indexesIntoFiles,

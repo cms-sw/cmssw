@@ -275,7 +275,7 @@ private:
    * @param iEvent event index
    * @param adcCount the payload, the ADC count of the channels.
    */
-  void genFeData(std::string basename, int iEvent, const std::vector<uint16_t> adcCount[nEbEta][nEbPhi]) const;
+  void genFeData(const std::string &basename, int iEvent, const std::vector<uint16_t> adcCount[nEbEta][nEbPhi]) const;
 
   /** Generates FE trigger primitives data
    * @param basename base for the output file name. DCC number is appended to
@@ -283,7 +283,7 @@ private:
    * @param iEvent event index
    * @param tps the payload, the trigger primitives
    */
-  void genTccIn(std::string basename, int iEvent, const int tps[nTtEta][nTtPhi]) const;
+  void genTccIn(const std::string &basename, int iEvent, const int tps[nTtEta][nTtPhi]) const;
 
   /** Generates TCC->DCC data
    * @param basename base for the output file name. DCC number is appended to
@@ -291,7 +291,7 @@ private:
    * @param iEvent event index
    * @param tps the payload, the trigger primitives
    */
-  void genTccOut(std::string basename, int iEvent, const int tps[nTtEta][nTtPhi]) const;
+  void genTccOut(const std::string &basename, int iEvent, const int tps[nTtEta][nTtPhi]) const;
 
   /** Retrieves barrel digis (APD ADC count).
    * @param event CMS event
@@ -338,7 +338,7 @@ private:
    * @param iEvent event index
    * @param the trigger tower flags
    */
-  void genSrData(std::string basename, int iEvent, int ttf[nEbTtEta][nTtPhi]) const;
+  void genSrData(const std::string &basename, int iEvent, int ttf[nEbTtEta][nTtPhi]) const;
 
 private:
   /** Name of module/plugin/producer making digis

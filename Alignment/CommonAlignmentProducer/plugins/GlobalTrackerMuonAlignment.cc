@@ -115,13 +115,13 @@ public:
   void analyzeTrackTrajectory(const edm::Event&, const edm::EventSetup&);
   void bookHist();
   void fitHist();
-  void trackFitter(reco::TrackRef, reco::TransientTrack&, PropagationDirection, TrajectoryStateOnSurface&);
-  void muonFitter(reco::TrackRef, reco::TransientTrack&, PropagationDirection, TrajectoryStateOnSurface&);
-  void debugTrackHit(const std::string, reco::TrackRef);
-  void debugTrackHit(const std::string, reco::TransientTrack&);
-  void debugTrajectorySOS(const std::string, TrajectoryStateOnSurface&);
-  void debugTrajectorySOSv(const std::string, TrajectoryStateOnSurface);
-  void debugTrajectory(const std::string, Trajectory&);
+  void trackFitter(const reco::TrackRef&, reco::TransientTrack&, PropagationDirection, TrajectoryStateOnSurface&);
+  void muonFitter(const reco::TrackRef&, reco::TransientTrack&, PropagationDirection, TrajectoryStateOnSurface&);
+  void debugTrackHit(const std::string&, const reco::TrackRef&);
+  void debugTrackHit(const std::string&, reco::TransientTrack&);
+  void debugTrajectorySOS(const std::string&, TrajectoryStateOnSurface&);
+  void debugTrajectorySOSv(const std::string&, const TrajectoryStateOnSurface&);
+  void debugTrajectory(const std::string&, Trajectory&);
 
   void gradientGlobal(GlobalVector&, GlobalVector&, GlobalVector&, GlobalVector&, GlobalVector&, AlgebraicSymMatrix66&);
   void gradientLocal(GlobalVector&,
@@ -2994,7 +2994,7 @@ void GlobalTrackerMuonAlignment::misalignMuonL(GlobalVector& GRm,
 }  // end misalignMuonL
 
 // ----  refit any direction of transient track ------
-void GlobalTrackerMuonAlignment::trackFitter(reco::TrackRef alongTr,
+void GlobalTrackerMuonAlignment::trackFitter(const reco::TrackRef& alongTr,
                                              reco::TransientTrack& alongTTr,
                                              PropagationDirection direction,
                                              TrajectoryStateOnSurface& trackFittedTSOS) {
@@ -3109,7 +3109,7 @@ void GlobalTrackerMuonAlignment::trackFitter(reco::TrackRef alongTr,
 }  // end of trackFitter
 
 // ----  refit any direction of muon transient track ------
-void GlobalTrackerMuonAlignment::muonFitter(reco::TrackRef alongTr,
+void GlobalTrackerMuonAlignment::muonFitter(const reco::TrackRef& alongTr,
                                             reco::TransientTrack& alongTTr,
                                             PropagationDirection direction,
                                             TrajectoryStateOnSurface& trackFittedTSOS) {
@@ -3209,7 +3209,7 @@ void GlobalTrackerMuonAlignment::muonFitter(reco::TrackRef alongTr,
 }  // end of muonFitter
 
 // ----  debug printout of hits from TransientTrack  ------
-void GlobalTrackerMuonAlignment::debugTrackHit(const std::string title, TransientTrack& alongTr) {
+void GlobalTrackerMuonAlignment::debugTrackHit(const std::string& title, TransientTrack& alongTr) {
   std::cout << " ------- " << title << " --------" << std::endl;
   int nHit = 1;
   for (trackingRecHit_iterator i = alongTr.recHitsBegin(); i != alongTr.recHitsEnd(); i++) {
@@ -3228,7 +3228,7 @@ void GlobalTrackerMuonAlignment::debugTrackHit(const std::string title, Transien
 }
 
 // ----  debug printout of hits from TrackRef   ------
-void GlobalTrackerMuonAlignment::debugTrackHit(const std::string title, reco::TrackRef alongTr) {
+void GlobalTrackerMuonAlignment::debugTrackHit(const std::string& title, const reco::TrackRef& alongTr) {
   std::cout << " ------- " << title << " --------" << std::endl;
   int nHit = 1;
   for (auto const& hit : alongTr->recHits()) {
@@ -3247,7 +3247,7 @@ void GlobalTrackerMuonAlignment::debugTrackHit(const std::string title, reco::Tr
 }
 
 // ----  debug printout TrajectoryStateOnSurface  ------
-void GlobalTrackerMuonAlignment::debugTrajectorySOS(const std::string title, TrajectoryStateOnSurface& trajSOS) {
+void GlobalTrackerMuonAlignment::debugTrajectorySOS(const std::string& title, TrajectoryStateOnSurface& trajSOS) {
   std::cout << "    --- " << title << " --- " << std::endl;
   if (!trajSOS.isValid()) {
     std::cout << "      Not valid !!!! " << std::endl;
@@ -3273,7 +3273,8 @@ void GlobalTrackerMuonAlignment::debugTrajectorySOS(const std::string title, Tra
 }
 
 // ----  debug printout TrajectoryStateOnSurface  ------
-void GlobalTrackerMuonAlignment::debugTrajectorySOSv(const std::string title, TrajectoryStateOnSurface trajSOS) {
+void GlobalTrackerMuonAlignment::debugTrajectorySOSv(const std::string& title,
+                                                     const TrajectoryStateOnSurface& trajSOS) {
   std::cout << "    --- " << title << " --- " << std::endl;
   if (!trajSOS.isValid()) {
     std::cout << "      Not valid !!!! " << std::endl;
@@ -3299,7 +3300,7 @@ void GlobalTrackerMuonAlignment::debugTrajectorySOSv(const std::string title, Tr
 }
 
 // ----  debug printout Trajectory   ------
-void GlobalTrackerMuonAlignment::debugTrajectory(const std::string title, Trajectory& traj) {
+void GlobalTrackerMuonAlignment::debugTrajectory(const std::string& title, Trajectory& traj) {
   std::cout << "\n"
             << "    ...... " << title << " ...... " << std::endl;
   if (!traj.isValid()) {

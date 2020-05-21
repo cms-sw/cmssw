@@ -13,7 +13,7 @@
 
 using namespace pos;
 
-PixelDACScanRange::PixelDACScanRange(std::string name,
+PixelDACScanRange::PixelDACScanRange(const std::string& name,
                                      unsigned int first,
                                      unsigned int last,
                                      unsigned int step,
@@ -42,7 +42,7 @@ PixelDACScanRange::PixelDACScanRange(std::string name,
   setDACChannel(name);
 }
 
-PixelDACScanRange::PixelDACScanRange(std::string name,
+PixelDACScanRange::PixelDACScanRange(const std::string& name,
                                      const std::vector<unsigned int>& values,
                                      unsigned int index,
                                      bool mixValuesAcrossROCs) {
@@ -58,7 +58,7 @@ PixelDACScanRange::PixelDACScanRange(std::string name,
   setDACChannel(name);
 }
 
-void PixelDACScanRange::setDACChannel(std::string name) {
+void PixelDACScanRange::setDACChannel(const std::string& name) {
   if (name == pos::k_DACName_Vdd) {
     dacchannel_ = pos::k_DACAddress_Vdd;
   } else if (name == pos::k_DACName_Vana) {

@@ -22,7 +22,7 @@ ElectronEnergyRegressionEvaluate::ElectronEnergyRegressionEvaluate()
 ElectronEnergyRegressionEvaluate::~ElectronEnergyRegressionEvaluate() {}
 // Destructor does nothing
 
-void ElectronEnergyRegressionEvaluate::initialize(std::string weightsFile,
+void ElectronEnergyRegressionEvaluate::initialize(const std::string &weightsFile,
                                                   ElectronEnergyRegressionEvaluate::ElectronEnergyRegressionType type) {
   // Loading forest object according to different versions
   TFile file(edm::FileInPath(weightsFile.c_str()).fullPath().c_str());

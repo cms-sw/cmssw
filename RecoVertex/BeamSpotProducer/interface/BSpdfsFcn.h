@@ -18,13 +18,14 @@ ________________________________________________________________**/
 
 #include <iostream>
 #include <string>
+#include <utility>
 
 class BSpdfsFcn : public ROOT::Minuit2::FCNBase {
 public:
   // cache the current data
   void SetData(const std::vector<BSTrkParameters>& a_BSvector) { fBSvector = a_BSvector; };
   // define pdfs to use
-  void SetPDFs(std::string usepdfs) { fusepdfs = usepdfs; }
+  void SetPDFs(std::string usepdfs) { fusepdfs = std::move(usepdfs); }
 
   double operator()(const std::vector<double>&) const override;
   double Up() const override { return 1.; }

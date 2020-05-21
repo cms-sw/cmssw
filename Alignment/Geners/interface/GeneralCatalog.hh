@@ -38,7 +38,7 @@ namespace gs {
     // Add a new entry with id (presumably, from another catalog).
     // Returns "true" on success. The entry is not included (and "false"
     // is returned) in case the entry with the given id already exists.
-    bool addEntry(std::shared_ptr<const CatalogEntry> ptr);
+    bool addEntry(const std::shared_ptr<const CatalogEntry> &ptr);
 
     // Remove an entry with the given id. "false" is returned in case
     // an entry with the specified id does not exist.

@@ -42,7 +42,7 @@ using namespace llvm;
 
 namespace clangcms {
 
-  void writeLog(std::string ostring) {
+  void writeLog(const std::string &ostring) {
     std::string tname = "class-checker.txt.unsorted";
     support::writeLog(ostring, tname);
     return;

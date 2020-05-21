@@ -12,7 +12,7 @@
 using namespace cms;
 using namespace std;
 
-SiPixelDetInfoFileReader::SiPixelDetInfoFileReader(std::string filePath) {
+SiPixelDetInfoFileReader::SiPixelDetInfoFileReader(const std::string& filePath) {
   //   if(filePath==std::string("")){
   //     filePath = edm::FileInPath(std::string("CalibTracker/SiPixelCommon/data/SiPixelDetInfo.dat") ).fullPath();
   //   }

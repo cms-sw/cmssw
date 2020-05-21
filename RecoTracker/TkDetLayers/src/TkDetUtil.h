@@ -20,7 +20,7 @@ namespace tkDetUtil {
     return rangesIntersect(phiRange, det.surface().phiSpan(), [](auto x, auto y) { return Geom::phiLess(x, y); });
   }
 
-  inline bool overlapInPhi(GlobalPoint crossPoint, const GeomDet& det, float phiWindow) {
+  inline bool overlapInPhi(const GlobalPoint& crossPoint, const GeomDet& det, float phiWindow) {
     return overlapInPhi(crossPoint.barePhi(), det, phiWindow);
   }
 

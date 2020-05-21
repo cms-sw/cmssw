@@ -69,7 +69,7 @@ private:
   enum MomentumForRefitting { atVertex, atInnermostSurface };
   const MomentumForRefitting momentumForRefitting_;
 
-  static MomentumForRefitting momentumForRefittingFromString(std::string momentumForRefittingString);
+  static MomentumForRefitting momentumForRefittingFromString(const std::string& momentumForRefittingString);
 
   edm::EDGetTokenT<reco::TrackCollection> trackCollToken_;
   edm::EDGetTokenT<reco::BeamSpot> bsToken_;
@@ -238,7 +238,7 @@ bool TwoBodyDecayMomConstraintProducer::match(const TrajectoryStateOnSurface& ne
 }
 
 TwoBodyDecayMomConstraintProducer::MomentumForRefitting
-TwoBodyDecayMomConstraintProducer::momentumForRefittingFromString(std::string strMomentumForRefitting) {
+TwoBodyDecayMomConstraintProducer::momentumForRefittingFromString(const std::string& strMomentumForRefitting) {
   if (strMomentumForRefitting == "atVertex") {
     return atVertex;
   } else if (strMomentumForRefitting == "atInnermostSurface") {

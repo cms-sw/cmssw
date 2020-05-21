@@ -21,6 +21,7 @@
 
 #include <string>
 #include <fstream>
+#include <utility>
 
 #include <TFile.h>
 #include <TDirectoryFile.h>
@@ -491,7 +492,7 @@ void GEMDQMStatusDigi::bookHistogramsStationPart(DQMStore::IBooker &ibooker, GEM
   auto newbookGEB = [this](DQMStore::IBooker &ibooker,
                            std::string strName,
                            std::string strTitle,
-                           std::string strAxis,
+                           const std::string &strAxis,
                            GEMDetId &lid,
                            int nLayer,
                            int nStation,
@@ -607,7 +608,7 @@ void GEMDQMStatusDigi::bookHistogramsTimeRecordPart(DQMStore::IBooker &ibooker) 
 
 // To make labels like python, with std::(unordered_)map
 std::string printfWithMap(std::string strFmt, std::unordered_map<std::string, Int_t> mapArg) {
-  std::string strRes = strFmt;
+  std::string strRes = std::move(strFmt);
   char szOutFmt[64];
   size_t unPos, unPosEnd;
 

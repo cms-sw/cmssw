@@ -21,8 +21,8 @@ namespace L1Analysis {
     L1AnalysisBMTFInputs();
     ~L1AnalysisBMTFInputs();
 
-    void SetBMPH(const edm::Handle<L1MuDTChambPhContainer> L1MuDTChambPhContainer, unsigned int maxDTPH);
-    void SetBMTH(const edm::Handle<L1MuDTChambThContainer> L1MuDTChambThContainer, unsigned int maxDTTH);
+    void SetBMPH(const edm::Handle<L1MuDTChambPhContainer>& L1MuDTChambPhContainer, unsigned int maxDTPH);
+    void SetBMTH(const edm::Handle<L1MuDTChambThContainer>& L1MuDTChambThContainer, unsigned int maxDTTH);
 
     void Reset() { bmtf_.Reset(); }
     L1AnalysisBMTFInputsDataFormat* getData() { return &bmtf_; }

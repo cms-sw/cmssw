@@ -41,7 +41,7 @@ const RefVector<TrackCollection> IsolatedTauTagInfo::tracksInCone(
   return tmp;
 }
 
-void IsolatedTauTagInfo::setLeadingTrack(const TrackRef leadTk) { leadTrack_ = leadTk; }
+void IsolatedTauTagInfo::setLeadingTrack(const TrackRef& leadTk) { leadTrack_ = leadTk; }
 
 const TrackRef IsolatedTauTagInfo::leadingSignalTrack() const { return leadTrack_; }
 

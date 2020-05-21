@@ -55,7 +55,7 @@ public:
     * @param  _PACsCnt The configuration version.
     * Should be caled once, before using PACs
     */
-  void init(std::string patFilesDirectory, L1RpcPACsCntEnum _PACsCnt) {
+  void init(const std::string& patFilesDirectory, L1RpcPACsCntEnum _PACsCnt) {
     destroy();
     m_PACsCnt = _PACsCnt;
     if (m_PACsCnt == ONE_PAC_PER_TOWER) {

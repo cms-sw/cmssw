@@ -28,6 +28,8 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <memory>
+#include <utility>
+
 #include <vector>
 #include <string>
 #include <typeinfo>
@@ -69,9 +71,9 @@ namespace edm {
           minBunch_(minBunch),
           maxBunch_(maxBunch),
           bunchSpace_(bunchSpace),
-          subdet_(subdet),
-          label_(label),
-          labelCF_(labelCF),
+          subdet_(std::move(subdet)),
+          label_(std::move(label)),
+          labelCF_(std::move(labelCF)),
           maxNbSources_(maxNbSources),
           makePCrossingFrame_(makePCrossingFrame),
           tag_(tag),
@@ -94,9 +96,9 @@ namespace edm {
           minBunch_(minBunch),
           maxBunch_(maxBunch),
           bunchSpace_(bunchSpace),
-          subdet_(subdet),
-          label_(label),
-          labelCF_(labelCF),
+          subdet_(std::move(subdet)),
+          label_(std::move(label)),
+          labelCF_(std::move(labelCF)),
           maxNbSources_(maxNbSources),
           makePCrossingFrame_(false),
           tag_(tag),

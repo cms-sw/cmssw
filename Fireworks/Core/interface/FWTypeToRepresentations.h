@@ -41,7 +41,7 @@ public:
   // ---------- static member functions --------------------
 
   // ---------- member functions ---------------------------
-  void add(std::shared_ptr<FWRepresentationCheckerBase> iChecker);
+  void add(const std::shared_ptr<FWRepresentationCheckerBase>& iChecker);
   void insert(const FWTypeToRepresentations&);
 
 private:

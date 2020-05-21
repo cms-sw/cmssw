@@ -34,7 +34,7 @@ namespace metsig {
 
     void setResolutions(metsig::SignAlgoResolutions *resolutions);
     void addPFJets(const edm::View<reco::PFJet> *PFJets);
-    void addPFCandidate(reco::PFCandidatePtr pf);
+    void addPFCandidate(const reco::PFCandidatePtr &pf);
     void useOriginalPtrs(const edm::ProductID &productID);
     reco::METCovMatrix getSignifMatrix() const { return algo_.getSignifMatrix(); }
     reco::METCovMatrix mkSignifMatrix(edm::Handle<edm::View<reco::Candidate> > &PFCandidates);

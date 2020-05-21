@@ -34,10 +34,10 @@ private:
   void makeRatioHisto(DQMStore::IGetter &igetter, MonitorElement *ratioME, std::string &nName, std::string &dName);
   void setMapPhLabel(MonitorElement *me);
   void setMapThLabel(MonitorElement *me);
-  TH1F *get1DHisto(std::string meName, DQMStore::IGetter &igetter);
-  TH2F *get2DHisto(std::string meName, DQMStore::IGetter &igetter);
-  TProfile2D *get2DProfile(std::string meName, DQMStore::IGetter &igetter);
-  TProfile *get1DProfile(std::string meName, DQMStore::IGetter &igetter);
+  TH1F *get1DHisto(const std::string &meName, DQMStore::IGetter &igetter);
+  TH2F *get2DHisto(const std::string &meName, DQMStore::IGetter &igetter);
+  TProfile2D *get2DProfile(const std::string &meName, DQMStore::IGetter &igetter);
+  TProfile *get1DProfile(const std::string &meName, DQMStore::IGetter &igetter);
 
   edm::ParameterSet parameters_;
   std::string monitorName_;

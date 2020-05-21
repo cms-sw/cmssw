@@ -69,7 +69,7 @@ private:
   std::string floatToString(float num);
   void writeGraphs();
   void initHists(int);
-  void selectHits(edm::Handle<EcalRecHitCollection> hits, int ievt, edm::ESHandle<CaloTopology> caloTopo);
+  void selectHits(const edm::Handle<EcalRecHitCollection>& hits, int ievt, const edm::ESHandle<CaloTopology>& caloTopo);
   TGraph* selectDigi(DetId det, int ievt);
   int getEEIndex(EcalElectronicsId elecId);
 

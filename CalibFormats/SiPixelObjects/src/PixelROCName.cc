@@ -10,13 +10,14 @@
 #include <cctype>
 #include <cassert>
 #include <cstdlib>
+#include <utility>
 
 using namespace std;
 using namespace pos;
 
 PixelROCName::PixelROCName() : id_(0) {}
 
-PixelROCName::PixelROCName(std::string rocname) { parsename(rocname); }
+PixelROCName::PixelROCName(std::string rocname) { parsename(std::move(rocname)); }
 
 void PixelROCName::setIdFPix(char np, char LR, int disk, int blade, int panel, int plaquet, int roc) {
   std::string mthn = "[PixelROCName::setIdFPix()]\t\t\t\t    ";

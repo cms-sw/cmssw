@@ -393,7 +393,7 @@ void PhotonPostprocessing::runPostprocessing() {
 void PhotonPostprocessing::dividePlots(MonitorElement* dividend,
                                        MonitorElement* numerator,
                                        MonitorElement* denominator,
-                                       std::string type) {
+                                       const std::string& type) {
   double value, err;
   if (nullptr == dividend or nullptr == denominator or nullptr == numerator) {
     return;

@@ -5,7 +5,7 @@ VirtualKinematicParticle::VirtualKinematicParticle(const KinematicState& kineSta
                                                    float& chiSquared,
                                                    float& degreesOfFr,
                                                    KinematicConstraint* lastConstraint,
-                                                   ReferenceCountingPointer<KinematicParticle> previousParticle,
+                                                   const ReferenceCountingPointer<KinematicParticle>& previousParticle,
                                                    KinematicStatePropagator* pr) {
   theField = kineState.magneticField();
   if (previousParticle.get() == nullptr) {

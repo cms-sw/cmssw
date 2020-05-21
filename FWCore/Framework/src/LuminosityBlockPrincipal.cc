@@ -4,7 +4,7 @@
 
 namespace edm {
 
-  LuminosityBlockPrincipal::LuminosityBlockPrincipal(std::shared_ptr<ProductRegistry const> reg,
+  LuminosityBlockPrincipal::LuminosityBlockPrincipal(const std::shared_ptr<ProductRegistry const>& reg,
                                                      ProcessConfiguration const& pc,
                                                      HistoryAppender* historyAppender,
                                                      unsigned int index,

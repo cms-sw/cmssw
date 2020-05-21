@@ -36,8 +36,8 @@ private:
     const float ptbin_low, ptbin_high, etabin_low, etabin_high;
     MonitorElement* plot_;
 
-    Plot1DInBin(const std::string _name,
-                const std::string _title,
+    Plot1DInBin(const std::string& _name,
+                const std::string& _title,
                 const uint32_t _nbins,
                 const float _min,
                 const float _max,
@@ -79,8 +79,8 @@ private:
     const float ptbin_low, ptbin_high, etabin_low, etabin_high;
     MonitorElement* plot_;
 
-    Plot1DInBinVariable(const std::string _name,
-                        const std::string _title,
+    Plot1DInBinVariable(const std::string& _name,
+                        const std::string& _title,
                         std::unique_ptr<TH1F> _base_hist,
                         float _ptbin_low,
                         float _ptbin_high,

@@ -30,7 +30,7 @@ public:
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
 
-  void select(edm::Handle<collection>, const edm::Event&, const edm::EventSetup&);
+  void select(const edm::Handle<collection>&, const edm::Event&, const edm::EventSetup&);
 
 private:
   container selected_;  //! the selected collection

@@ -10,7 +10,7 @@
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeTubs.h"
 
 CocoaSolidShapeTubs::CocoaSolidShapeTubs(
-    const ALIstring type, ALIfloat pRMin, ALIfloat pRMax, ALIfloat pDz, ALIfloat pSPhi, ALIfloat pDPhi)
+    const ALIstring& type, ALIfloat pRMin, ALIfloat pRMax, ALIfloat pDz, ALIfloat pSPhi, ALIfloat pDPhi)
     : CocoaSolidShape(type) {
   theInnerRadius = pRMin;
   theOuterRadius = pRMax;

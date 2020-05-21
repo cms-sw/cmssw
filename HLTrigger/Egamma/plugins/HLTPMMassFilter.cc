@@ -172,7 +172,7 @@ bool HLTPMMassFilter::hltFilter(edm::Event& iEvent,
 
 TLorentzVector HLTPMMassFilter::approxMomAtVtx(const MagneticField* magField,
                                                const GlobalPoint& xvert,
-                                               const reco::SuperClusterRef sc,
+                                               const reco::SuperClusterRef& sc,
                                                int charge) const {
   GlobalPoint xsc(sc->position().x(), sc->position().y(), sc->position().z());
   float energy = sc->energy();

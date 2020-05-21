@@ -112,7 +112,7 @@ void CommandLineParser::help() {
   exit(0);
 }
 
-void CommandLineParser::split(SVec &retval, string line, string match, bool ignoreComments) {
+void CommandLineParser::split(SVec &retval, string line, const string &match, bool ignoreComments) {
   if (ignoreComments) {
     removeComment(line);
   }  // if ignoreComments

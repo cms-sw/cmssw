@@ -49,7 +49,7 @@ private:
                              int i_fi_ch,
                              int i_crate,
                              int i_htr,
-                             std::string i_fpga,
+                             const std::string& i_fpga,
                              int i_htr_fi,
                              int i_spigot,
                              int i_slb,

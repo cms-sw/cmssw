@@ -3,6 +3,7 @@
 
 #include <map>
 #include <stdexcept>
+#include <utility>
 
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 
@@ -21,7 +22,7 @@ public:
   inline void setTypeId(int x) { m_type_id = x; }
   inline int getTypeId() const { return m_type_id; }
 
-  inline void setScanType(std::string x) { m_type = x; }
+  inline void setScanType(std::string x) { m_type = std::move(x); }
   inline std::string getScanType() const { return m_type; }
 
   inline void setFromVal(int x) { m_from_val = x; }

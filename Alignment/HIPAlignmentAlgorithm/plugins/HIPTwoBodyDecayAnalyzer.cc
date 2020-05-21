@@ -54,10 +54,10 @@ private:
   void endJob() override;
 
   void bookAllBranches();
-  bool bookBranch(std::string bname, BranchType btype);
-  BranchType searchArray(std::string branchname, int& position);
+  bool bookBranch(const std::string& bname, BranchType btype);
+  BranchType searchArray(const std::string& branchname, int& position);
   template <typename varType>
-  void setVal(std::string bname, varType value) {
+  void setVal(const std::string& bname, varType value) {
     int varposition = -1;
     BranchType varbranchtype = searchArray(bname, varposition);
     if (varposition == -1)
@@ -76,7 +76,7 @@ private:
   void initializeBranches();
   bool actuateBranches();
 
-  void analyzeTrackCollection(std::string strTrackType,
+  void analyzeTrackCollection(const std::string& strTrackType,
                               edm::ESHandle<TransientTrackBuilder>& theTTBuilder,
                               edm::Handle<reco::TrackCollection>& hTrackColl,
                               bool verbose = false);
@@ -97,7 +97,7 @@ HIPTwoBodyDecayAnalyzer::HIPTwoBodyDecayAnalyzer(const edm::ParameterSet& iConfi
   bookAllBranches();
 }
 
-HIPTwoBodyDecayAnalyzer::BranchType HIPTwoBodyDecayAnalyzer::searchArray(std::string branchname, int& position) {
+HIPTwoBodyDecayAnalyzer::BranchType HIPTwoBodyDecayAnalyzer::searchArray(const std::string& branchname, int& position) {
   for (unsigned short el = 0; el < shortBranches.size(); el++) {
     if (branchname == shortBranches.at(el).first) {
       position = el;
@@ -198,7 +198,7 @@ void HIPTwoBodyDecayAnalyzer::bookAllBranches() {
   }
   actuateBranches();
 }
-bool HIPTwoBodyDecayAnalyzer::bookBranch(std::string bname, BranchType btype) {
+bool HIPTwoBodyDecayAnalyzer::bookBranch(const std::string& bname, BranchType btype) {
   if (btype == BranchType_float_t)
     floatBranches.emplace_back(bname, new float);
   else if (btype == BranchType_int_t)
@@ -287,7 +287,7 @@ void HIPTwoBodyDecayAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& d
   descriptions.addDefault(desc);
 }
 
-void HIPTwoBodyDecayAnalyzer::analyzeTrackCollection(std::string strTrackType,
+void HIPTwoBodyDecayAnalyzer::analyzeTrackCollection(const std::string& strTrackType,
                                                      edm::ESHandle<TransientTrackBuilder>& theTTBuilder,
                                                      edm::Handle<reco::TrackCollection>& hTrackColl,
                                                      bool verbose) {

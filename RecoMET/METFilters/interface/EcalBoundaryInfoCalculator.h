@@ -31,18 +31,18 @@ public:
 
   BoundaryInformation boundaryRecHits(const edm::Handle<EcalRecHitCollection>&,
                                       const EcalRecHit*,
-                                      const edm::ESHandle<CaloTopology> theCaloTopology,
-                                      const edm::ESHandle<EcalChannelStatus> ecalStatus,
-                                      const edm::ESHandle<CaloGeometry> geometry) const;
+                                      const edm::ESHandle<CaloTopology>& theCaloTopology,
+                                      const edm::ESHandle<EcalChannelStatus>& ecalStatus,
+                                      const edm::ESHandle<CaloGeometry>& geometry) const;
 
   BoundaryInformation gapRecHits(const edm::Handle<EcalRecHitCollection>&,
                                  const EcalRecHit*,
-                                 const edm::ESHandle<CaloTopology> theCaloTopology,
-                                 const edm::ESHandle<EcalChannelStatus> ecalStatus,
-                                 const edm::ESHandle<CaloGeometry> geometry) const;
+                                 const edm::ESHandle<CaloTopology>& theCaloTopology,
+                                 const edm::ESHandle<EcalChannelStatus>& ecalStatus,
+                                 const edm::ESHandle<CaloGeometry>& geometry) const;
 
   bool checkRecHitHasDeadNeighbour(const EcalRecHit& hit,
-                                   const edm::ESHandle<EcalChannelStatus> ecalStatus,
+                                   const edm::ESHandle<EcalChannelStatus>& ecalStatus,
                                    std::vector<int>& stati) const {
     stati.clear();
     EcalDetId hitdetid = EcalDetId(hit.id());
@@ -133,7 +133,7 @@ public:
     return false;
   }
 
-  bool checkRecHitHasInvalidNeighbour(const EcalRecHit& hit, const edm::ESHandle<EcalChannelStatus> ecalStatus) const {
+  bool checkRecHitHasInvalidNeighbour(const EcalRecHit& hit, const edm::ESHandle<EcalChannelStatus>& ecalStatus) const {
     //// return true, if *direct* neighbour is invalid
 
     EcalDetId hitdetid = EcalDetId(hit.id());
@@ -266,7 +266,7 @@ private:
   }
 
   std::unique_ptr<CaloNavigator<EcalDetId>> initializeEcalNavigator(DetId startE,
-                                                                    const edm::ESHandle<CaloTopology> theCaloTopology,
+                                                                    const edm::ESHandle<CaloTopology>& theCaloTopology,
                                                                     EcalSubdetector ecalSubDet) const {
     std::unique_ptr<CaloNavigator<EcalDetId>> theEcalNav(nullptr);
     if (ecalSubDet == EcalBarrel) {
@@ -318,9 +318,9 @@ template <class EcalDetId>
 BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::boundaryRecHits(
     const edm::Handle<EcalRecHitCollection>& RecHits,
     const EcalRecHit* hit,
-    const edm::ESHandle<CaloTopology> theCaloTopology,
-    edm::ESHandle<EcalChannelStatus> ecalStatus,
-    edm::ESHandle<CaloGeometry> geometry) const {
+    const edm::ESHandle<CaloTopology>& theCaloTopology,
+    const edm::ESHandle<EcalChannelStatus>& ecalStatus,
+    const edm::ESHandle<CaloGeometry>& geometry) const {
   //initialize boundary information
   std::vector<EcalRecHit> boundaryRecHits;
   std::vector<DetId> boundaryDetIds;
@@ -510,11 +510,12 @@ BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::boundaryRecHits(
 }
 
 template <class EcalDetId>
-BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::gapRecHits(const edm::Handle<EcalRecHitCollection>& RecHits,
-                                                                      const EcalRecHit* hit,
-                                                                      const edm::ESHandle<CaloTopology> theCaloTopology,
-                                                                      edm::ESHandle<EcalChannelStatus> ecalStatus,
-                                                                      edm::ESHandle<CaloGeometry> geometry) const {
+BoundaryInformation EcalBoundaryInfoCalculator<EcalDetId>::gapRecHits(
+    const edm::Handle<EcalRecHitCollection>& RecHits,
+    const EcalRecHit* hit,
+    const edm::ESHandle<CaloTopology>& theCaloTopology,
+    const edm::ESHandle<EcalChannelStatus>& ecalStatus,
+    const edm::ESHandle<CaloGeometry>& geometry) const {
   //initialize boundary information
   std::vector<EcalRecHit> gapRecHits;
   std::vector<DetId> gapDetIds;

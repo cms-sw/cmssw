@@ -6,6 +6,7 @@
 
 #include "DataFormats/GEMRecHit/interface/GEMCSCSegment.h"
 #include <iostream>
+#include <utility>
 
 namespace {
   // Get CSCDetId from one of the rechits, but then remove the layer part so it's a _chamber_ id
@@ -28,16 +29,16 @@ public:
 };
 
 GEMCSCSegment::GEMCSCSegment(const CSCSegment* csc_segment,
-                             const std::vector<const GEMRecHit*> gem_rhs,
+                             const std::vector<const GEMRecHit*>& gem_rhs,
                              LocalPoint origin,
                              LocalVector direction,
-                             AlgebraicSymMatrix errors,
+                             const AlgebraicSymMatrix& errors,
                              double chi2)
     :
 
       RecSegment(buildDetId(csc_segment->cscDetId())),
-      theOrigin(origin),
-      theLocalDirection(direction),
+      theOrigin(std::move(origin)),
+      theLocalDirection(std::move(direction)),
       theCovMatrix(errors),
       theChi2(chi2) {
   for (unsigned int i = 0; i < gem_rhs.size(); ++i) {

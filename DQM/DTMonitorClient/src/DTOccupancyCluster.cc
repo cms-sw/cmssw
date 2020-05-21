@@ -106,7 +106,7 @@ double DTOccupancyCluster::maxMean() const { return theMaxMean; }
 
 double DTOccupancyCluster::maxRMS() const { return theMaxRMS; }
 
-TH2F* DTOccupancyCluster::getHisto(std::string histoName,
+TH2F* DTOccupancyCluster::getHisto(const std::string& histoName,
                                    int nBinsX,
                                    double minX,
                                    double maxX,

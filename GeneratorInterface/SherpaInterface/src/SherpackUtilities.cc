@@ -150,7 +150,7 @@ namespace spu {
   }
 
   /* compress or decompress from stdin to stdout */
-  int Unzip(std::string infile, std::string outfile) {
+  int Unzip(const std::string &infile, const std::string &outfile) {
     /////////////////////////////////////////////
     /////////////// BUG FIX FOR MPI /////////////
     /////////////////////////////////////////////
@@ -483,7 +483,7 @@ namespace spu {
   }
 
   // function for calculating the MD5 checksum of a file
-  void md5_File(std::string filename, char *result) {
+  void md5_File(const std::string &filename, char *result) {
     char buffer[4096];
     MD5_CTX md5;
     MD5_Init(&md5);

@@ -186,7 +186,7 @@ PixelTBMSettings::PixelTBMSettings(std::string filename) : PixelConfigBase("", "
   }
 }
 
-void PixelTBMSettings::setTBMGenericValue(std::string what, int value) {
+void PixelTBMSettings::setTBMGenericValue(const std::string &what, int value) {
   if (what == "analogInputBias") {
     analogInputBias_ = (unsigned char)value;
   } else if (what == "analogOutputBias") {
@@ -202,7 +202,7 @@ void PixelTBMSettings::setTBMGenericValue(std::string what, int value) {
   }
 }
 
-void PixelTBMSettings::writeBinary(std::string filename) const {
+void PixelTBMSettings::writeBinary(const std::string &filename) const {
   std::ofstream out(filename.c_str(), std::ios::binary);
 
   out << (char)rocid_.rocname().size();

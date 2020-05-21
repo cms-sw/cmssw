@@ -22,7 +22,7 @@ namespace spf {
     SherpackFetcher(edm::ParameterSet const &);
     int Fetch();
     ~SherpackFetcher();
-    int CopyFile(std::string pathstring);
+    int CopyFile(const std::string &pathstring);
     const char *classname() const { return "SherpackFetcher"; }
 
   private:

@@ -47,7 +47,7 @@ public:
   void processFed(int twinmuxfed,
                   int wheel,
                   std::array<short, 12> const& twinMuxAmcSec,
-                  edm::Handle<FEDRawDataCollection> data,
+                  const edm::Handle<FEDRawDataCollection>& data,
                   L1MuDTChambPhContainer::Phi_Container& phi_data,
                   L1MuDTChambThContainer::The_Container& the_data,
                   L1MuDTChambPhContainer::Phi_Container& phi_out_data) const;

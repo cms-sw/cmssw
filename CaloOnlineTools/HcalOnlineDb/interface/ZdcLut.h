@@ -36,7 +36,7 @@ public:
   //std::vector <int> get_lut(int side_num, int fiber_num, int channel_num){ return side[side_num].fiber[fiber_num].channel[channel_num].LUT; }
   std::vector<int> get_lut(int emap_side, int emap_htr_fiber, int emap_fi_ch);
 
-  std::vector<int> get_lut(std::string zdc_section, int zdc_side, int zdc_channel);
+  std::vector<int> get_lut(const std::string& zdc_section, int zdc_side, int zdc_channel);
 
   int simple_loop(void);
 

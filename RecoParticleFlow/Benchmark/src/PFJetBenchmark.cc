@@ -66,12 +66,12 @@ void PFJetBenchmark::write() {
     cout << "No output file specified (" << outputFile_ << "). Results will not be saved!" << endl;
 }
 
-void PFJetBenchmark::setup(string Filename,
+void PFJetBenchmark::setup(const string& Filename,
                            bool debug,
                            bool plotAgainstReco,
                            bool onlyTwoJets,
                            double deltaRMax,
-                           string benchmarkLabel_,
+                           const string& benchmarkLabel_,
                            double recPt,
                            double maxEta,
                            DQMStore* dbe_store) {

@@ -20,6 +20,7 @@
 
 // system include files
 #include <memory>
+#include <utility>
 
 // user include files
 #include "formulaEvaluatorBase.h"
@@ -33,7 +34,7 @@ namespace reco {
       BinaryOperatorEvaluatorBase(std::shared_ptr<EvaluatorBase> iLHS,
                                   std::shared_ptr<EvaluatorBase> iRHS,
                                   Precedence iPrec)
-          : EvaluatorBase(iPrec), m_lhs(iLHS), m_rhs(iRHS) {}
+          : EvaluatorBase(iPrec), m_lhs(std::move(iLHS)), m_rhs(std::move(iRHS)) {}
 
       BinaryOperatorEvaluatorBase(Precedence iPrec) : EvaluatorBase(iPrec) {}
 
@@ -53,8 +54,8 @@ namespace reco {
     template <typename Op>
     class BinaryOperatorEvaluator : public BinaryOperatorEvaluatorBase {
     public:
-      BinaryOperatorEvaluator(std::shared_ptr<EvaluatorBase> iLHS,
-                              std::shared_ptr<EvaluatorBase> iRHS,
+      BinaryOperatorEvaluator(const std::shared_ptr<EvaluatorBase>& iLHS,
+                              const std::shared_ptr<EvaluatorBase>& iRHS,
                               Precedence iPrec)
           : BinaryOperatorEvaluatorBase(std::move(iLHS), std::move(iRHS), iPrec) {}
 

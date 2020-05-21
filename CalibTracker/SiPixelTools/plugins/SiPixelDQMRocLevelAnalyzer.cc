@@ -333,7 +333,7 @@ void SiPixelDQMRocLevelAnalyzer::beginJob() {
 // ------------ method called once each job just after ending the event loop  ------------
 void SiPixelDQMRocLevelAnalyzer::endJob() {}
 
-void SiPixelDQMRocLevelAnalyzer::RocSummary(std::string tagname) {
+void SiPixelDQMRocLevelAnalyzer::RocSummary(const std::string &tagname) {
   int maxcrow, maxccol;
   std::string name, path = "first";
   std::string oldPath = "";

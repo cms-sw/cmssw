@@ -39,9 +39,9 @@ namespace external {
 
     HEPTopTaggerV2_fixed_R();
 
-    HEPTopTaggerV2_fixed_R(fastjet::PseudoJet jet);
+    HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet& jet);
 
-    HEPTopTaggerV2_fixed_R(fastjet::PseudoJet jet, double mtmass, double mwmass);
+    HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet& jet, double mtmass, double mwmass);
 
     //run tagger
     void run();
@@ -128,7 +128,7 @@ namespace external {
     void get_setting() const;
     void get_info() const;
 
-    double nsub(fastjet::PseudoJet jet,
+    double nsub(const fastjet::PseudoJet& jet,
                 int order,
                 fastjet::contrib::Njettiness::AxesMode axes = fastjet::contrib::Njettiness::kt_axes,
                 double beta = 1.,

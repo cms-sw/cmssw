@@ -445,7 +445,7 @@ void MuonTestSummary::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &i
   theCertificationContents[8]->Fill(muonId_TK_EC);
 }
 
-void MuonTestSummary::doKinematicsTests(DQMStore::IGetter &igetter, string muonType, int bin) {
+void MuonTestSummary::doKinematicsTests(DQMStore::IGetter &igetter, const string &muonType, int bin) {
   // chi2 test
   string path = "Muons/MuonRecoAnalyzer/" + muonType + "chi2OverDf";
   MonitorElement *chi2Histo = igetter.get(path);
@@ -553,8 +553,13 @@ void MuonTestSummary::doKinematicsTests(DQMStore::IGetter &igetter, string muonT
   }
 }
 //--GH new
-void MuonTestSummary::GaussFit(
-    string type, string parameter, MonitorElement *Histo, float &mean, float &mean_err, float &sigma, float &sigma_err) {
+void MuonTestSummary::GaussFit(const string &type,
+                               const string &parameter,
+                               MonitorElement *Histo,
+                               float &mean,
+                               float &mean_err,
+                               float &sigma,
+                               float &sigma_err) {
   // Gaussian Fit
   float statMean = Histo->getMean(1);
   float statSigma = Histo->getRMS(1);
@@ -591,7 +596,10 @@ void MuonTestSummary::GaussFit(
     sigma_err = 1;
   }
 }
-void MuonTestSummary::doResidualsTests(DQMStore::IGetter &igetter, string type, string parameter, int bin) {
+void MuonTestSummary::doResidualsTests(DQMStore::IGetter &igetter,
+                                       const string &type,
+                                       const string &parameter,
+                                       int bin) {
   // residuals test
   if (type != "GlbMuon") {
     string path = "Muons/MuonRecoAnalyzer/Res_" + type + "_" + parameter;
@@ -930,7 +938,7 @@ void MuonTestSummary::doMuonIDTests(DQMStore::IGetter &igetter) {
 }
 
 void MuonTestSummary::ResidualCheck(DQMStore::IGetter &igetter,
-                                    std::string muType,
+                                    const std::string &muType,
                                     const std::vector<std::string> &resHistos,
                                     int &numPlot,
                                     double &Mean,
@@ -1000,7 +1008,10 @@ void MuonTestSummary::ResidualCheck(DQMStore::IGetter &igetter,
   }
   return;
 }
-void MuonTestSummary::doEnergyTests(DQMStore::IGetter &igetter, string histname, string muonType, int binNumber) {
+void MuonTestSummary::doEnergyTests(DQMStore::IGetter &igetter,
+                                    const string &histname,
+                                    const string &muonType,
+                                    int binNumber) {
   // num matches test
   string path = "Muons/MuonEnergyDepositAnalyzer/" + histname + muonType;
   MonitorElement *energyHisto = igetter.get(path);

@@ -40,7 +40,7 @@ namespace gainCalibHelper {
     // helper method to fill the gain / pedestals distributions
     template <typename PayloadType>
     static void fillTheHisto(const std::shared_ptr<PayloadType>& payload,
-                             std::shared_ptr<TH1F> h1,
+                             const std::shared_ptr<TH1F>& h1,
                              gainCalibPI::type theType,
                              const std::vector<uint32_t>& wantedIds = {}) {
       std::vector<uint32_t> detids;
@@ -143,8 +143,8 @@ namespace gainCalibHelper {
     // helper method to fill the gain / pedestals distributions
     template <typename PayloadType>
     static void fillTheHistos(const std::shared_ptr<PayloadType>& payload,
-                              std::shared_ptr<TH1> hBPix,
-                              std::shared_ptr<TH1> hFPix,
+                              const std::shared_ptr<TH1>& hBPix,
+                              const std::shared_ptr<TH1>& hFPix,
                               gainCalibPI::type theType) {
       std::vector<uint32_t> detids;
       payload->getDetIds(detids);

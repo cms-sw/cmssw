@@ -76,7 +76,7 @@ void HLTTauDQMTagAndProbePlotter::bookHistograms(DQMStore::IBooker& iBooker,
 
 HLTTauDQMTagAndProbePlotter::~HLTTauDQMTagAndProbePlotter() = default;
 
-LV HLTTauDQMTagAndProbePlotter::findTrgObject(std::string pathName, const trigger::TriggerEvent& triggerEvent) {
+LV HLTTauDQMTagAndProbePlotter::findTrgObject(const std::string& pathName, const trigger::TriggerEvent& triggerEvent) {
   trigger::TriggerObjectCollection trigObjs = triggerEvent.getObjects();
   const unsigned moduleIndex = moduleLabels.size() - 2;
 

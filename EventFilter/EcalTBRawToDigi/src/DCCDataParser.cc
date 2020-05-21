@@ -54,7 +54,7 @@ void DCCTBDataParser::computeBlockSizes() {
 /* DCCTBDataParser::parseFile                       */
 /* reada data from file and parse it              */
 /*------------------------------------------------*/
-void DCCTBDataParser::parseFile(std::string fileName, bool singleEvent) {
+void DCCTBDataParser::parseFile(const std::string &fileName, bool singleEvent) {
   std::ifstream inputFile;  //open file as input
   inputFile.open(fileName.c_str());
 

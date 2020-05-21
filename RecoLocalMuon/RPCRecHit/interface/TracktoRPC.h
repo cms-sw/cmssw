@@ -66,7 +66,7 @@ public:
   std::unique_ptr<RPCRecHitCollection>&& thePoints() { return std::move(_ThePoints); }
 
 private:
-  bool ValidRPCSurface(RPCDetId rpcid, LocalPoint LocalP, const edm::EventSetup& iSetup);
+  bool ValidRPCSurface(RPCDetId rpcid, const LocalPoint& LocalP, const edm::EventSetup& iSetup);
 
   std::unique_ptr<RPCRecHitCollection> _ThePoints;
   edm::OwnVector<RPCRecHit> RPCPointVector;

@@ -38,7 +38,7 @@ public:
   }
 
   /// Get acceptance tables from root file
-  void Init(TFile &, const std::string);
+  void Init(TFile &, const std::string &);
 
   /// Acceptance as a function of t, xi and phi
   float GetAcceptance(float, float, float);

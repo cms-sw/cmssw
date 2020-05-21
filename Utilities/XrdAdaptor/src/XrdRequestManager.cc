@@ -2,6 +2,8 @@
 #include <cassert>
 #include <iostream>
 #include <algorithm>
+#include <utility>
+
 #include <netdb.h>
 
 #include "XrdCl/XrdClFile.hh"
@@ -116,7 +118,7 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
       m_excluded_active_count(0) {}
 
 void RequestManager::initialize(std::weak_ptr<RequestManager> self) {
-  m_open_handler = OpenHandler::getInstance(self);
+  m_open_handler = OpenHandler::getInstance(std::move(self));
 
   XrdCl::Env *env = XrdCl::DefaultEnv::GetEnv();
   if (env) {
@@ -277,7 +279,7 @@ namespace {
 
 void RequestManager::reportSiteChange(std::vector<std::shared_ptr<Source>> const &iOld,
                                       std::vector<std::shared_ptr<Source>> const &iNew,
-                                      std::string orig_site) const {
+                                      const std::string &orig_site) const {
   auto siteList = formatSites(iNew);
   if (!orig_site.empty() && (orig_site != siteList)) {
     edm::LogWarning("XrdAdaptor") << "Data is served from " << siteList << " instead of original site " << orig_site;
@@ -517,7 +519,7 @@ std::shared_ptr<Source> RequestManager::pickSingleSource() {
   return source;
 }
 
-std::future<IOSize> RequestManager::handle(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr) {
+std::future<IOSize> RequestManager::handle(const std::shared_ptr<XrdAdaptor::ClientRequest> &c_ptr) {
   assert(c_ptr.get());
   timespec now;
   GET_CLOCK_MONOTONIC(now);
@@ -609,7 +611,7 @@ void XrdAdaptor::RequestManager::handleOpen(XrdCl::XRootDStatus &status, std::sh
   }
 }
 
-std::future<IOSize> XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vector<IOPosBuffer>> iolist) {
+std::future<IOSize> XrdAdaptor::RequestManager::handle(const std::shared_ptr<std::vector<IOPosBuffer>> &iolist) {
   //Use a copy of m_activeSources and m_inactiveSources throughout this function
   // in order to avoid holding the lock a long time and causing a deadlock.
   // When the function is over we will update the values of the containers
@@ -710,7 +712,7 @@ std::future<IOSize> XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vect
   }
 }
 
-void RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr, XrdCl::Status &c_status) {
+void RequestManager::requestFailure(const std::shared_ptr<XrdAdaptor::ClientRequest> &c_ptr, XrdCl::Status &c_status) {
   std::shared_ptr<Source> source_ptr = c_ptr->getCurrentSource();
 
   // Fail early for invalid responses - XrdFile has a separate path for handling this.
@@ -872,7 +874,7 @@ static void consumeChunkBack(size_t front,
   }
 }
 
-static IOSize validateList(const std::vector<IOPosBuffer> req) {
+static IOSize validateList(const std::vector<IOPosBuffer> &req) {
   IOSize total = 0;
   off_t last_offset = -1;
   for (const auto &it : req) {
@@ -958,7 +960,8 @@ void XrdAdaptor::RequestManager::splitClientRequest(const std::vector<IOPosBuffe
                                          << " bytes) and " << req2.size() << " (" << size2 << " bytes)" << std::endl;
 }
 
-XrdAdaptor::RequestManager::OpenHandler::OpenHandler(std::weak_ptr<RequestManager> manager) : m_manager(manager) {}
+XrdAdaptor::RequestManager::OpenHandler::OpenHandler(std::weak_ptr<RequestManager> manager)
+    : m_manager(std::move(manager)) {}
 
 // Cannot use ~OpenHandler=default as XrdCl::File is not fully
 // defined in the header.

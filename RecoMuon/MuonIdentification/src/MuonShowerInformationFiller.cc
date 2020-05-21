@@ -172,8 +172,8 @@ void MuonShowerInformationFiller::setServices(const EventSetup& setup) {
 //
 TransientTrackingRecHit::ConstRecHitContainer MuonShowerInformationFiller::hitsFromSegments(
     const GeomDet* geomDet,
-    edm::Handle<DTRecSegment4DCollection> dtSegments,
-    edm::Handle<CSCSegmentCollection> cscSegments) const {
+    const edm::Handle<DTRecSegment4DCollection>& dtSegments,
+    const edm::Handle<CSCSegmentCollection>& cscSegments) const {
   MuonTransientTrackingRecHit::MuonRecHitContainer segments;
 
   DetId geoId = geomDet->geographicalId();

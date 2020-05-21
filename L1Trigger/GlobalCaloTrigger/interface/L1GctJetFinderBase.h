@@ -82,10 +82,10 @@ public:
     hfTowerSumsType() : etSum0(0), etSum1(0), nOverThreshold0(0), nOverThreshold1(0) {}
     hfTowerSumsType(unsigned e0, unsigned e1, unsigned n0, unsigned n1)
         : etSum0(e0), etSum1(e1), nOverThreshold0(n0), nOverThreshold1(n1) {}
-    hfTowerSumsType(L1GctJetCount<kHfEtSumBits> e0,
-                    L1GctJetCount<kHfEtSumBits> e1,
-                    L1GctJetCount<kHfCountBits> n0,
-                    L1GctJetCount<kHfCountBits> n1)
+    hfTowerSumsType(const L1GctJetCount<kHfEtSumBits>& e0,
+                    const L1GctJetCount<kHfEtSumBits>& e1,
+                    const L1GctJetCount<kHfCountBits>& n0,
+                    const L1GctJetCount<kHfCountBits>& n1)
         : etSum0(e0), etSum1(e1), nOverThreshold0(n0), nOverThreshold1(n1) {}
 
     void reset() {

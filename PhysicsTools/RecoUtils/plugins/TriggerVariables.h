@@ -4,7 +4,7 @@
 
 class L1BitComputer : public VariableComputer {
 public:
-  L1BitComputer(CachingVariable::CachingVariableFactoryArg arg, edm::ConsumesCollector& iC)
+  L1BitComputer(const CachingVariable::CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC)
       : VariableComputer(arg, iC) {
     src_ = iC.consumes<L1GlobalTriggerReadoutRecord>(
         edm::Service<InputTagDistributorService>()->retrieve("src", arg.iConfig));
@@ -56,7 +56,7 @@ private:
 
 class HLTBitComputer : public VariableComputer {
 public:
-  HLTBitComputer(CachingVariable::CachingVariableFactoryArg arg, edm::ConsumesCollector& iC)
+  HLTBitComputer(const CachingVariable::CachingVariableFactoryArg& arg, edm::ConsumesCollector& iC)
       : VariableComputer(arg, iC) {
     src_ = iC.consumes<edm::TriggerResults>(edm::Service<InputTagDistributorService>()->retrieve("src", arg.iConfig));
     HLTConfigProvider provider;

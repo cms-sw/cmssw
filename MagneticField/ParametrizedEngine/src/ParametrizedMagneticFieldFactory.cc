@@ -19,7 +19,8 @@ using namespace edm;
 ParametrizedMagneticFieldFactory::ParametrizedMagneticFieldFactory() {}
 
 // Legacy interface, deprecated
-std::unique_ptr<MagneticField> ParametrizedMagneticFieldFactory::get(string version, const ParameterSet& parameters) {
+std::unique_ptr<MagneticField> ParametrizedMagneticFieldFactory::get(const string& version,
+                                                                     const ParameterSet& parameters) {
   if (version == "OAE_1103l_071212") {
     // V. Karimaki's off-axis expansion fitted to v1103l TOSCA computation
     std::unique_ptr<MagneticField> result(new OAEParametrizedMagneticField(parameters));
@@ -44,7 +45,7 @@ std::unique_ptr<MagneticField> ParametrizedMagneticFieldFactory::get(string vers
 }
 
 // New interface
-std::unique_ptr<MagneticField> ParametrizedMagneticFieldFactory::get(string version, vector<double> parameters) {
+std::unique_ptr<MagneticField> ParametrizedMagneticFieldFactory::get(const string& version, vector<double> parameters) {
   if (version == "Uniform") {
     if (parameters.size() != 1)
       throw cms::Exception("InvalidParameter") << "Incorrect parameters (" << parameters.size() << ")`for " << version;

@@ -49,7 +49,7 @@ public:
   friend std::ostream& operator<<(std::ostream& s, const SiPixelCPEGenericErrorParm& genericErrors);
 
   //!  Function to fill the db object given a filename
-  void fillCPEGenericErrorParm(double version, std::string file);
+  void fillCPEGenericErrorParm(double version, const std::string& file);
 
   //!  Accessors for the vectors -- non-const version
   inline DbVector& errors() { return errors_; }

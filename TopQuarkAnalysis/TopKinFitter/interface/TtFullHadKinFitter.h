@@ -1,6 +1,8 @@
 #ifndef TtFullHadKinFitter_h
 #define TtFullHadKinFitter_h
 
+#include <utility>
+
 #include <vector>
 
 #include "TLorentzVector.h"
@@ -177,7 +179,7 @@ public:
                      double maxBTagValueNonBJet) {
       useBTagging_ = useBTagging;
       bTags_ = bTags;
-      bTagAlgo_ = bTagAlgo;
+      bTagAlgo_ = std::move(bTagAlgo);
       minBTagValueBJet_ = minBTagValueBJet;
       maxBTagValueNonBJet_ = maxBTagValueNonBJet;
     }
@@ -210,7 +212,7 @@ public:
       mTop_ = mTop;
     }
     /// set jec level
-    void setJEC(std::string jetCorrectionLevel) { jetCorrectionLevel_ = jetCorrectionLevel; }
+    void setJEC(std::string jetCorrectionLevel) { jetCorrectionLevel_ = std::move(jetCorrectionLevel); }
     /// set useOnlyMatch
     void setUseOnlyMatch(bool useOnlyMatch) { useOnlyMatch_ = useOnlyMatch; }
     /// set match to be used

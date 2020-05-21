@@ -105,10 +105,10 @@ namespace reco {
     reco::SuperClusterRef superClusterPFECALRef() const { return scPFECALRef_; }
 
     /// set reference to the corresponding supercluster
-    void setSuperClusterRef(reco::SuperClusterRef sc) { scRef_ = sc; }
+    void setSuperClusterRef(const reco::SuperClusterRef& sc) { scRef_ = sc; }
 
     /// set reference to the corresponding supercluster
-    void setSuperClusterPFECALRef(reco::SuperClusterRef sc) { scPFECALRef_ = sc; }
+    void setSuperClusterPFECALRef(const reco::SuperClusterRef& sc) { scPFECALRef_ = sc; }
 
     /// add Single Leg Conversion TrackRef
     void addSingleLegConvTrackRefMva(const std::pair<reco::TrackRef, float>& trackrefmva);

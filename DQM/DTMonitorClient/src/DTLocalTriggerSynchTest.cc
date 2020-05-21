@@ -33,6 +33,7 @@
 //C++ headers
 #include <iostream>
 #include <sstream>
+#include <utility>
 
 using namespace edm;
 using namespace std;
@@ -205,7 +206,9 @@ void DTLocalTriggerSynchTest::makeRatioME(TH1F* numerator, TH1F* denominator, Mo
   efficiency->Divide(numerator, denominator, 1, 1, "");
 }
 
-float DTLocalTriggerSynchTest::getFloatFromME(DQMStore::IGetter& igetter, DTChamberId chId, std::string meType) {
+float DTLocalTriggerSynchTest::getFloatFromME(DQMStore::IGetter& igetter,
+                                              const DTChamberId& chId,
+                                              const std::string& meType) {
   stringstream wheel;
   wheel << chId.wheel();
   stringstream station;
@@ -230,9 +233,9 @@ float DTLocalTriggerSynchTest::getFloatFromME(DQMStore::IGetter& igetter, DTCham
 }
 
 void DTLocalTriggerSynchTest::bookChambHistos(DQMStore::IBooker& ibooker,
-                                              DTChamberId chambId,
+                                              const DTChamberId& chambId,
                                               string htype,
-                                              string subfolder) {
+                                              const string& subfolder) {
   stringstream wheel;
   wheel << chambId.wheel();
   stringstream station;
@@ -240,7 +243,7 @@ void DTLocalTriggerSynchTest::bookChambHistos(DQMStore::IBooker& ibooker,
   stringstream sector;
   sector << chambId.sector();
 
-  string fullType = fullName(htype);
+  string fullType = fullName(std::move(htype));
   string HistoName = fullType + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 
   string folder = topFolder() + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str();

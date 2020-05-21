@@ -39,7 +39,7 @@ namespace edm {
     std::string module;
     ELseverityLevel severity;
     unsigned int count;
-    ErrorSummaryEntry(std::string const& cat, std::string const& mod, ELseverityLevel sev, unsigned int cnt = 0)
+    ErrorSummaryEntry(std::string const& cat, std::string const& mod, const ELseverityLevel& sev, unsigned int cnt = 0)
         : category(cat), module(mod), severity(sev), count(cnt) {}
     ErrorSummaryEntry() : category(), module(), severity(), count(0) {}
     bool operator<(ErrorSummaryEntry const& rhs) const {

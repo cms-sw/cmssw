@@ -42,7 +42,7 @@ namespace l1t {
     std::vector<int> getChunkyRing(Jet& jet,
                                    int pos,
                                    const std::vector<l1t::CaloTower>& towers,
-                                   const std::string chunkyString);
+                                   const std::string& chunkyString);
 
     int chunkyDonutPUEstimate(Jet& jet, int pos, const std::vector<l1t::CaloTower>& towers);
 
@@ -50,7 +50,7 @@ namespace l1t {
     int chunkySandwichPUEstimate(Jet& jet,
                                  int pos,
                                  const std::vector<l1t::CaloTower>& towers,
-                                 const std::string chunkySandwichStr);
+                                 const std::string& chunkySandwichStr);
     std::map<int, int> getSumEtEtaMap(const std::vector<l1t::CaloTower>& towers);
 
   private:

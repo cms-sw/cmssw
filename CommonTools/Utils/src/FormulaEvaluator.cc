@@ -236,9 +236,10 @@ namespace {
       return false;
     }
 
-    EvaluatorInfo createEvaluator(std::string::const_iterator iBegin,
-                                  std::string::const_iterator iEnd,
-                                  std::shared_ptr<reco::formula::BinaryOperatorEvaluatorBase> iPreviousBinary) const {
+    EvaluatorInfo createEvaluator(
+        std::string::const_iterator iBegin,
+        std::string::const_iterator iEnd,
+        const std::shared_ptr<reco::formula::BinaryOperatorEvaluatorBase>& iPreviousBinary) const {
       EvaluatorInfo leftEvaluatorInfo;
 
       if (iBegin == iEnd) {

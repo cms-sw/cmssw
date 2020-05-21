@@ -362,8 +362,8 @@ void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventS
 }
 
 //-----------------------------------------------------------------------------------
-void TrackEfficiencyMonitor::testTrackerTracks(edm::Handle<reco::TrackCollection> tkTracks,
-                                               edm::Handle<reco::TrackCollection> staTracks,
+void TrackEfficiencyMonitor::testTrackerTracks(const edm::Handle<reco::TrackCollection>& tkTracks,
+                                               const edm::Handle<reco::TrackCollection>& staTracks,
                                                const NavigationSchool& navigationSchool)
 //-----------------------------------------------------------------------------------
 {
@@ -482,8 +482,8 @@ void TrackEfficiencyMonitor::testTrackerTracks(edm::Handle<reco::TrackCollection
 }
 
 //-----------------------------------------------------------------------------------
-void TrackEfficiencyMonitor::testSTATracks(edm::Handle<reco::TrackCollection> tkTracks,
-                                           edm::Handle<reco::TrackCollection> staTracks)
+void TrackEfficiencyMonitor::testSTATracks(const edm::Handle<reco::TrackCollection>& tkTracks,
+                                           const edm::Handle<reco::TrackCollection>& staTracks)
 //-----------------------------------------------------------------------------------
 {
   reco::TransientTrack tkTT = theTTrackBuilder->build(tkTracks->front());
@@ -557,7 +557,9 @@ TrackEfficiencyMonitor::SemiCylinder TrackEfficiencyMonitor::checkSemiCylinder(c
 }
 
 //-----------------------------------------------------------------------------------
-bool TrackEfficiencyMonitor::trackerAcceptance(TrajectoryStateOnSurface theTSOS, double theRadius, double theMaxZ)
+bool TrackEfficiencyMonitor::trackerAcceptance(const TrajectoryStateOnSurface& theTSOS,
+                                               double theRadius,
+                                               double theMaxZ)
 //-----------------------------------------------------------------------------------
 {
   //---------------------------------------------------

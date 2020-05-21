@@ -50,15 +50,15 @@ struct MatchStruct {
   // FIXME: If finally the track is disappeared, then recover the last code...
   MatchStruct(const reco::Track* cand, const unsigned int& obj)
       : objType(obj), pt(cand->pt()), eta(cand->eta()), phi(cand->phi()), thepointer(cand) {}
-  bool operator<(MatchStruct match) { return this->pt < match.pt; }
-  bool operator>(MatchStruct match) { return this->pt > match.pt; }
+  bool operator<(const MatchStruct& match) { return this->pt < match.pt; }
+  bool operator>(const MatchStruct& match) { return this->pt > match.pt; }
 };
 
 //! Helper structure to order MatchStruct
 struct matchesByDescendingPt {
-  bool operator()(MatchStruct a, MatchStruct b) { return a.pt > b.pt; }
+  bool operator()(const MatchStruct& a, const MatchStruct& b) { return a.pt > b.pt; }
 };
 struct matchesByDescendingBtag {
-  bool operator()(MatchStruct a, MatchStruct b) { return a.bTag > b.bTag; }
+  bool operator()(const MatchStruct& a, const MatchStruct& b) { return a.bTag > b.bTag; }
 };
 #endif

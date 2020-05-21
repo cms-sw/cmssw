@@ -13,6 +13,8 @@
 // system include files
 
 // user include files
+#include <utility>
+
 #include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/src/EventSetupsController.h"
@@ -31,12 +33,12 @@ namespace edm {
                                   std::shared_ptr<DataProxyProvider> iComponent,
                                   ParameterSet const&,
                                   bool) {
-      iProvider.add(iComponent);
+      iProvider.add(std::move(iComponent));
     }
 
     void ModuleMakerTraits::replaceExisting(EventSetupProvider& iProvider,
                                             std::shared_ptr<DataProxyProvider> iComponent) {
-      iProvider.replaceExisting(iComponent);
+      iProvider.replaceExisting(std::move(iComponent));
     }
 
     std::shared_ptr<ModuleMakerTraits::base_type> ModuleMakerTraits::getComponentAndRegisterProcess(

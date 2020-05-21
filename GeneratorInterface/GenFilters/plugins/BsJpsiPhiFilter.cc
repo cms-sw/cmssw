@@ -27,8 +27,8 @@ private:
 
   HepMC::GenParticle* findParticle(HepMC::GenVertex*, const int requested_id) const;
 
-  HepMC::GenEvent::particle_const_iterator getNextBs(const HepMC::GenEvent::particle_const_iterator start,
-                                                     const HepMC::GenEvent::particle_const_iterator end) const;
+  HepMC::GenEvent::particle_const_iterator getNextBs(const HepMC::GenEvent::particle_const_iterator& start,
+                                                     const HepMC::GenEvent::particle_const_iterator& end) const;
 
   bool cuts(const HepMC::GenParticle* jpsi, const CutStruct& cut) const;
   bool etaInRange(float eta, float etamin, float etamax) const;
@@ -65,7 +65,7 @@ HepMC::GenParticle* BsJpsiPhiFilter::findParticle(HepMC::GenVertex* vertex, cons
 }
 
 HepMC::GenEvent::particle_const_iterator BsJpsiPhiFilter::getNextBs(
-    const HepMC::GenEvent::particle_const_iterator start, const HepMC::GenEvent::particle_const_iterator end) const {
+    const HepMC::GenEvent::particle_const_iterator& start, const HepMC::GenEvent::particle_const_iterator& end) const {
   HepMC::GenEvent::particle_const_iterator p;
   for (p = start; p != end; p++) {
     int event_particle_id = abs((*p)->pdg_id());

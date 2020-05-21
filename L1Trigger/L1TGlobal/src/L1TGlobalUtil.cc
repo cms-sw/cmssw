@@ -56,7 +56,7 @@ l1t::L1TGlobalUtil::~L1TGlobalUtil() {
 /// check that the L1TGlobalUtil has been properly initialised
 bool l1t::L1TGlobalUtil::valid() const { return m_l1GtMenuCacheID != 0ULL and m_l1GtMenu != nullptr; }
 
-void l1t::L1TGlobalUtil::OverridePrescalesAndMasks(std::string filename, unsigned int psColumn) {
+void l1t::L1TGlobalUtil::OverridePrescalesAndMasks(const std::string& filename, unsigned int psColumn) {
   edm::FileInPath f1("L1Trigger/L1TGlobal/data/Luminosity/startup/" + filename);
   m_preScaleFileName = f1.fullPath();
   m_PreScaleColumn = psColumn;

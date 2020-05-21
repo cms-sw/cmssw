@@ -602,13 +602,13 @@ void CommissioningHistograms::createSummaryHisto(const sistrip::Monitorable& mon
 
 // -----------------------------------------------------------------------------
 /** */
-void CommissioningHistograms::remove(std::string pattern) {
+void CommissioningHistograms::remove(const std::string& pattern) {
   // TODO: remove no longer supported in DQMStore.
 }
 
 // -----------------------------------------------------------------------------
 /** */
-void CommissioningHistograms::save(std::string& path, uint32_t run_number, std::string partitionName) {
+void CommissioningHistograms::save(std::string& path, uint32_t run_number, const std::string& partitionName) {
   // Construct path and filename
   std::stringstream ss;
 

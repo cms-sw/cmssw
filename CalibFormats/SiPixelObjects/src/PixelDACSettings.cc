@@ -350,7 +350,7 @@ PixelROCDACSettings* PixelDACSettings::getDACSettings(PixelROCName name) {
   return nullptr;
 }
 
-void PixelDACSettings::writeBinary(std::string filename) const {
+void PixelDACSettings::writeBinary(const std::string& filename) const {
   std::ofstream out(filename.c_str(), std::ios::binary);
 
   for (unsigned int i = 0; i < dacsettings_.size(); i++) {

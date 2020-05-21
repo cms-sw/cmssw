@@ -2,6 +2,8 @@
 #define Utilities_XrdAdaptor_XrdRequestManager_h
 
 #include <mutex>
+#include <utility>
+
 #include <vector>
 #include <set>
 #include <condition_variable>
@@ -56,7 +58,7 @@ namespace XrdAdaptor {
       return handle(c_ptr);
     }
 
-    std::future<IOSize> handle(std::shared_ptr<std::vector<IOPosBuffer>> iolist);
+    std::future<IOSize> handle(const std::shared_ptr<std::vector<IOPosBuffer>> &iolist);
 
     /**
      * Handle a client request.
@@ -64,12 +66,12 @@ namespace XrdAdaptor {
      * it may decide to issue multiple requests and return the first successful.  In that case,
      * some references to the client request may still be outstanding when this function returns.
      */
-    std::future<IOSize> handle(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr);
+    std::future<IOSize> handle(const std::shared_ptr<XrdAdaptor::ClientRequest> &c_ptr);
 
     /**
      * Handle a failed client request.
      */
-    void requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr, XrdCl::Status &c_status);
+    void requestFailure(const std::shared_ptr<XrdAdaptor::ClientRequest> &c_ptr, XrdCl::Status &c_status);
 
     /**
      * Retrieve the names of the active sources
@@ -180,7 +182,7 @@ namespace XrdAdaptor {
      */
     void reportSiteChange(std::vector<std::shared_ptr<Source>> const &iOld,
                           std::vector<std::shared_ptr<Source>> const &iNew,
-                          std::string orig_site = std::string{}) const;
+                          const std::string &orig_site = std::string{}) const;
 
     /**
      * Update the StatisticsSenderService, if necessary, with the current server.
@@ -235,7 +237,7 @@ namespace XrdAdaptor {
     class OpenHandler : boost::noncopyable, public XrdCl::ResponseHandler {
     public:
       static std::shared_ptr<OpenHandler> getInstance(std::weak_ptr<RequestManager> manager) {
-        OpenHandler *instance_ptr = new OpenHandler(manager);
+        OpenHandler *instance_ptr = new OpenHandler(std::move(manager));
         std::shared_ptr<OpenHandler> instance(instance_ptr);
         instance_ptr->m_self_weak = instance;
         return instance;

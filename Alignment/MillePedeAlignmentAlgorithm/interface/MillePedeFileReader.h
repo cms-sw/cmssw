@@ -5,6 +5,7 @@
 #include <array>
 #include <string>
 #include <iostream>
+#include <utility>
 
 /*** core framework functionality ***/
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -34,7 +35,7 @@ public:
         m_isDBUpdateVetoed(isDBUpdateVetoed),
         m_nRecords(nRecords),
         m_exitCode(exitCode),
-        m_exitMessage(exitMessage),
+        m_exitMessage(std::move(exitMessage)),
         m_updateBits(updateBits) {}
 
   const bool getDBUpdated() { return m_isDBUpdated; }

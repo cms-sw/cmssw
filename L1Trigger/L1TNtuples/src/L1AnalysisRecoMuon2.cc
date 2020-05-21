@@ -15,8 +15,8 @@ L1Analysis::L1AnalysisRecoMuon2::~L1AnalysisRecoMuon2() {}
 
 void L1Analysis::L1AnalysisRecoMuon2::SetMuon(const edm::Event& event,
                                               const edm::EventSetup& setup,
-                                              edm::Handle<reco::MuonCollection> muons,
-                                              edm::Handle<reco::VertexCollection> vertices,
+                                              const edm::Handle<reco::MuonCollection>& muons,
+                                              const edm::Handle<reco::VertexCollection>& vertices,
                                               double METx,
                                               double METy,
                                               unsigned maxMuon) {

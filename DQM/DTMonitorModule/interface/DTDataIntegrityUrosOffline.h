@@ -46,7 +46,7 @@ protected:
 
 private:
   void bookHistos(DQMStore::IBooker&, const int fedMin, const int fedMax);
-  void bookHistos(DQMStore::IBooker&, std::string folder, const int fed);
+  void bookHistos(DQMStore::IBooker&, const std::string& folder, const int fed);
   void bookHistosuROS(DQMStore::IBooker&, const int fed, const int uRos);
   void bookHistosROS(DQMStore::IBooker&, const int wheel, const int ros);
 

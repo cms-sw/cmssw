@@ -331,7 +331,7 @@ void MuScleFitMuonSelector::selectGenSimMuons(const edm::Event& event,
 
 void MuScleFitMuonSelector::selectSimulatedMuons(const edm::Event& event,
                                                  const bool ifHepMC,
-                                                 edm::Handle<edm::HepMCProduct> evtMC,
+                                                 const edm::Handle<edm::HepMCProduct>& evtMC,
                                                  std::vector<std::pair<lorentzVector, lorentzVector> >& simPair,
                                                  MuScleFitPlotter* plotter) {
   edm::Handle<edm::SimTrackContainer> simTracks;

@@ -3,6 +3,7 @@
 
 #include <map>
 #include <stdexcept>
+#include <utility>
 
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 
@@ -18,7 +19,7 @@ public:
 
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
-  inline void setTag(std::string x) { m_tag = x; }
+  inline void setTag(std::string x) { m_tag = std::move(x); }
   inline std::string getTag() const { return m_tag; }
   inline void setVersion(int x) { m_version = x; }
   inline int getVersion() const { return m_version; }
@@ -30,9 +31,9 @@ public:
 
   inline void setCycleNum(int x) { m_cycle_num = x; }
   inline int getCycleNum() const { return m_cycle_num; }
-  inline void setCycleTag(std::string x) { m_cycle_tag = x; }
+  inline void setCycleTag(std::string x) { m_cycle_tag = std::move(x); }
   inline std::string getCycleTag() const { return m_cycle_tag; }
-  inline void setCycleDescription(std::string x) { m_cycle_description = x; }
+  inline void setCycleDescription(std::string x) { m_cycle_description = std::move(x); }
   inline std::string getCycleDescription() const { return m_cycle_description; }
   inline void setCCSId(int x) { m_ccs = x; }
   inline int getCCSId() const { return m_ccs; }

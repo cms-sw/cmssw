@@ -42,7 +42,7 @@ double HoECalculator::operator() ( const reco::BasicCluster* clus,
 
 */
 
-double HoECalculator::getHoE(GlobalPoint pclu, float ecalEnergy, const edm::Event& e, const edm::EventSetup& c) {
+double HoECalculator::getHoE(const GlobalPoint& pclu, float ecalEnergy, const edm::Event& e, const edm::EventSetup& c) {
   if (!theCaloGeom_.isValid())
     c.get<CaloGeometryRecord>().get(theCaloGeom_);
 

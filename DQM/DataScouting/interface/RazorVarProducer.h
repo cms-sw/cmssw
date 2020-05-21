@@ -22,7 +22,7 @@ public:
   double CalcR(double MR,
                const TLorentzVector &ja,
                const TLorentzVector &jb,
-               edm::Handle<reco::CaloMETCollection> met,
+               const edm::Handle<reco::CaloMETCollection> &met,
                const std::vector<math::XYZTLorentzVector> &muons);
 
 private:

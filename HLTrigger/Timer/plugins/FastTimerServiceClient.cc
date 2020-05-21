@@ -58,7 +58,7 @@ private:
                        DQMStore::IGetter& getter,
                        std::string const& current_path,
                        std::string const& suffix,
-                       MEPSet pset);
+                       const MEPSet& pset);
 
   static MEPSet getHistoPSet(const edm::ParameterSet& pset);
 
@@ -363,7 +363,7 @@ void FastTimerServiceClient::fillPlotsVsLumi(DQMStore::IBooker& booker,
                                              DQMStore::IGetter& getter,
                                              std::string const& current_path,
                                              std::string const& suffix,
-                                             MEPSet pset) {
+                                             const MEPSet& pset) {
   std::vector<std::string> menames;
 
   static const boost::regex byls(".*byls");

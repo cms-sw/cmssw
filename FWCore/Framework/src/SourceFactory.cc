@@ -27,7 +27,8 @@ namespace edm {
 
     std::string SourceMakerTraits::name() { return "CMS EDM Framework ESSource"; }
 
-    void SourceMakerTraits::replaceExisting(EventSetupProvider&, std::shared_ptr<EventSetupRecordIntervalFinder>) {
+    void SourceMakerTraits::replaceExisting(EventSetupProvider&,
+                                            const std::shared_ptr<EventSetupRecordIntervalFinder>&) {
       throw edm::Exception(edm::errors::LogicError) << "SourceMakerTraits::replaceExisting\n"
                                                     << "This function is not implemented and should never be called.\n"
                                                     << "Please report this to a Framework Developer\n";

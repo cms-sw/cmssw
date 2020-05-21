@@ -82,7 +82,7 @@ public:
       The syntax of the strings follows the definitions in the ECALELF ElectronCategory_class: http://ecalelfs.github.io/ECALELF/d5/d11/classElectronCategory__class.html
   */
   correctionCategory_class(
-      TString category_);  ///< constructor with name of the category according to ElectronCategory_class
+      const TString& category_);  ///< constructor with name of the category according to ElectronCategory_class
 
   /// this constructor is used to assign a category to the electron/photon given values in input
   inline correctionCategory_class(const unsigned int runNumber,
@@ -124,7 +124,7 @@ public:
   bool doScale, doSmearings;
 
 public:
-  EnergyScaleCorrection_class(std::string correctionFileName, unsigned int genSeed = 0);
+  EnergyScaleCorrection_class(const std::string& correctionFileName, unsigned int genSeed = 0);
   EnergyScaleCorrection_class(){};  ///< dummy constructor needed in ElectronEnergyCalibratorRun2
   ~EnergyScaleCorrection_class(void);
 
@@ -161,7 +161,7 @@ private:
                                 double EtEle) const;  // technical implementation
 
   void ReadFromFile(
-      TString
+      const TString&
           filename);  ///<   category  "runNumber"   runMin  runMax   deltaP  err_deltaP_per_bin err_deltaP_stat err_deltaP_syst
 
   // this method adds the correction values read from the txt file to the map
@@ -189,7 +189,7 @@ private:
                    double err_phi,
                    double Emean,
                    double err_Emean);
-  void ReadSmearingFromFile(TString filename);  ///< File structure: category constTerm alpha;
+  void ReadSmearingFromFile(const TString& filename);  ///< File structure: category constTerm alpha;
 public:
   inline void SetSmearingType(fileFormat_t value) {
     if (value <= 1) {

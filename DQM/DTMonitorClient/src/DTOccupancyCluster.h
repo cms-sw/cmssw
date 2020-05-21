@@ -56,7 +56,7 @@ public:
   double maxRMS() const;
 
   /// get a TH2F displaying the cluster
-  TH2F* getHisto(std::string histoName,
+  TH2F* getHisto(const std::string& histoName,
                  int nBinsX,
                  double minX,
                  double maxX,

@@ -20,7 +20,7 @@ namespace CLHEP {
 
 class MTDDigiProducer : public DigiAccumulatorMixMod {
 public:
-  MTDDigiProducer(edm::ParameterSet const& pset, edm::ProducesCollector, edm::ConsumesCollector& iC);
+  MTDDigiProducer(edm::ParameterSet const& pset, const edm::ProducesCollector&, edm::ConsumesCollector& iC);
   MTDDigiProducer(edm::ParameterSet const& pset, edm::ConsumesCollector& iC) {
     throw cms::Exception("DeprecatedConstructor")
         << "Please make sure you're calling this with the threaded mixing module...";

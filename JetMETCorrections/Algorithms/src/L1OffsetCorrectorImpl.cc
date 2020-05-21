@@ -1,6 +1,8 @@
 // Implementation of class L1OffsetCorrectorImpl.
 // L1Offset jet corrector class.
 
+#include <utility>
+
 #include "JetMETCorrections/Algorithms/interface/L1OffsetCorrectorImpl.h"
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrector.h"
 
@@ -56,7 +58,7 @@ void L1OffsetCorrectorImplMaker::fillDescriptions(edm::ConfigurationDescriptions
 //------------------------------------------------------------------------
 L1OffsetCorrectorImpl::L1OffsetCorrectorImpl(std::shared_ptr<FactorizedJetCorrectorCalculator const> calculator,
                                              int npv)
-    : corrector_(calculator), npv_(npv) {}
+    : corrector_(std::move(calculator)), npv_(npv) {}
 
 //------------------------------------------------------------------------
 //--- Returns correction for a given 4-vector ----------------------------

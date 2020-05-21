@@ -10,7 +10,8 @@ namespace cond {
   SmallWORMDict::~SmallWORMDict() {}
 
   SmallWORMDict::SmallWORMDict(std::vector<std::string> const& idict)
-      : m_data(std::accumulate(idict.begin(), idict.end(), 0, [](int a, std::string b) { return a + b.size(); })),
+      : m_data(
+            std::accumulate(idict.begin(), idict.end(), 0, [](int a, const std::string& b) { return a + b.size(); })),
         m_index(idict.size(), 1) {
     // sort (use index)
     m_index[0] = 0;

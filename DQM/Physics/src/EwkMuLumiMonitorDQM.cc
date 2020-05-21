@@ -125,8 +125,8 @@ double EwkMuLumiMonitorDQM::muIso(const reco::Muon& mu) {
 }
 
 double EwkMuLumiMonitorDQM::tkIso(const reco::Track& tk,
-                                  Handle<TrackCollection> tracks,
-                                  Handle<CaloTowerCollection> calotower) {
+                                  const Handle<TrackCollection>& tracks,
+                                  const Handle<CaloTowerCollection>& calotower) {
   double ptSum = 0;
   for (size_t i = 0; i < tracks->size(); ++i) {
     const reco::Track& elem = tracks->at(i);

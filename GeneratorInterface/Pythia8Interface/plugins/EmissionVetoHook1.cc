@@ -5,7 +5,7 @@ using namespace Pythia8;
 #include "GeneratorInterface/Pythia8Interface/plugins/EmissionVetoHook1.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-void EmissionVetoHook1::fatalEmissionVeto(std::string message) {
+void EmissionVetoHook1::fatalEmissionVeto(const std::string &message) {
   throw edm::Exception(edm::errors::Configuration, "Pythia8Interface") << "EmissionVeto: " << message << std::endl;
 }
 

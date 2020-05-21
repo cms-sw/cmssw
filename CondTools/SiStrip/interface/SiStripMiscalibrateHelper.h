@@ -69,7 +69,7 @@ namespace SiStripMiscalibrate {
   /------------------*/
 
   std::pair<float, float> getTruncatedRange(const TrackerMap* theMap);
-  sistripsummary::TrackerRegion getRegionFromString(std::string region);
+  sistripsummary::TrackerRegion getRegionFromString(const std::string& region);
   std::vector<sistripsummary::TrackerRegion> getRegionsFromDetId(const TrackerTopology* m_trackerTopo, DetId detid);
 
 };  // namespace SiStripMiscalibrate

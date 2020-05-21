@@ -423,7 +423,7 @@ std::string JetCorrectorParametersCollection::findL7Parton(key_type k) {
     return l7Partons_[k / 1000 - 1];
 }
 
-void JetCorrectorParametersCollection::getSections(std::string inputFile, std::vector<std::string>& outputs) {
+void JetCorrectorParametersCollection::getSections(const std::string& inputFile, std::vector<std::string>& outputs) {
   outputs.clear();
   std::ifstream input(inputFile.c_str());
   while (!input.eof()) {

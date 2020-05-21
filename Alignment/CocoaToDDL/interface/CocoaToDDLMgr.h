@@ -29,7 +29,7 @@ public:
   ~CocoaToDDLMgr(){};
   static CocoaToDDLMgr* getInstance();
 
-  void writeDDDFile(ALIstring filename);
+  void writeDDDFile(const ALIstring& filename);
   void writeHeader(ALIstring filename);
   void writeMaterials();
   void writeSolids();
@@ -40,28 +40,28 @@ public:
   void measurementsAsSpecPars();
 
   void newPartPre(std::string name);
-  void newPartPost(std::string name, std::string extension);
-  void newSectPre_ma(std::string name);
+  void newPartPost(const std::string& name, const std::string& extension);
+  void newSectPre_ma(const std::string& name);
   void ma(CocoaMaterialElementary* ma);
-  void newSectPost_ma(std::string name);
-  void newSectPre_so(std::string name);
+  void newSectPost_ma(const std::string& name);
+  void newSectPre_so(const std::string& name);
   void so(OpticalObject* opto);
-  void newSectPost_so(std::string name);
-  void newSectPre_lv(std::string name);
+  void newSectPost_so(const std::string& name);
+  void newSectPre_lv(const std::string& name);
   void lv(OpticalObject* opto);
-  void newSectPost_lv(std::string name);
-  void newSectPre_pv(std::string name);
+  void newSectPost_lv(const std::string& name);
+  void newSectPre_pv(const std::string& name);
   void pv(OpticalObject* opto);
-  void newSectPost_pv(std::string name);
-  void newSectPre_ro(std::string name);
+  void newSectPost_pv(const std::string& name);
+  void newSectPre_ro(const std::string& name);
   void ro(const CLHEP::HepRotation& ro, int n);
-  void newSectPost_ro(std::string name);
-  void newSectPre_specPar(std::string name);
+  void newSectPost_ro(const std::string& name);
+  void newSectPre_specPar(const std::string& name);
   void specPar(OpticalObject* opto);
   void writeSpecParsCocoa();
-  void newSectPost_specPar(std::string name);
-  void newSectPre(std::string name, std::string type);
-  void newSectPost(std::string name);
+  void newSectPost_specPar(const std::string& name);
+  void newSectPre(const std::string& name, const std::string& type);
+  void newSectPost(const std::string& name);
   ALIbool materialIsRepeated(CocoaMaterialElementary* ma);
   ALIint buildRotationNumber(OpticalObject* opto);
 

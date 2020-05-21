@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string>
+#include <utility>
+
 #include <vector>
 #include <algorithm>
 #include <map>
@@ -124,53 +126,55 @@ struct Point {
 ///*  Function declaration  *
 ///**************************
 
-TString getName(TString structure, int layer, TString geometry);
+TString getName(const TString &structure, int layer, TString geometry);
 TH1F *ConvertToHist(TGraphErrors *g);
-const map<TString, int> numberOfLayers(TString Year = "2018");
+const map<TString, int> numberOfLayers(const TString &Year = "2018");
 vector<int> runlistfromlumifile(TString Year = "2018");
-bool checkrunlist(vector<int> runs, vector<int> IOVlist = {}, TString Year = "2018");
-TString lumifileperyear(TString Year = "2018", string RunOrIOV = "IOV");
+bool checkrunlist(vector<int> runs, const vector<int> &IOVlist = {}, TString Year = "2018");
+TString lumifileperyear(const TString &Year = "2018", const string &RunOrIOV = "IOV");
 void scalebylumi(TGraphErrors *g, vector<pair<int, double>> lumiIOVpairs);
 vector<pair<int, double>> lumiperIOV(vector<int> IOVlist, TString Year = "2018");
 double getintegratedlumiuptorun(int run, TString Year = "2018", double min = 0.);
 void PixelUpdateLines(TCanvas *c,
-                      TString Year = "2018",
+                      const TString &Year = "2018",
                       bool showlumi = false,
-                      vector<int> pixelupdateruns = {314881, 316758, 317527, 318228, 320377});
+                      const vector<int> &pixelupdateruns = {314881, 316758, 317527, 318228, 320377});
 void PlotDMRTrends(
     vector<int> IOVlist,
-    TString Variable = "median",
-    vector<string> labels = {"MB"},
-    TString Year = "2018",
-    string myValidation = "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/results/acardini/DMRs/",
-    vector<string> geometries = {"GT", "SG", "MP pix LBL", "PIX HLS+ML STR fix"},
+    const TString &Variable = "median",
+    const vector<string> &labels = {"MB"},
+    const TString &Year = "2018",
+    const string &myValidation =
+        "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/results/acardini/DMRs/",
+    const vector<string> &geometries = {"GT", "SG", "MP pix LBL", "PIX HLS+ML STR fix"},
     vector<Color_t> colours = {kBlue, kRed, kGreen, kCyan},
     TString outputdir =
         "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/alignmentObjects/acardini/DMRsTrends/",
     bool pixelupdate = false,
-    vector<int> pixelupdateruns = {314881, 316758, 317527, 318228, 320377},
+    const vector<int> &pixelupdateruns = {314881, 316758, 317527, 318228, 320377},
     bool showlumi = false);
-void compileDMRTrends(
-    vector<int> IOVlist,
-    TString Variable = "median",
-    vector<string> labels = {"MB"},
-    TString Year = "2018",
-    string myValidation = "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/results/acardini/DMRs/",
-    vector<string> geometries = {"GT", "SG", "MP pix LBL", "PIX HLS+ML STR fix"},
-    bool showlumi = false,
-    bool FORCE = false);
+void compileDMRTrends(vector<int> IOVlist,
+                      const TString &Variable = "median",
+                      const vector<string> &labels = {"MB"},
+                      const TString &Year = "2018",
+                      const string &myValidation =
+                          "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/results/acardini/DMRs/",
+                      const vector<string> &geometries = {"GT", "SG", "MP pix LBL", "PIX HLS+ML STR fix"},
+                      bool showlumi = false,
+                      bool FORCE = false);
 void DMRtrends(
-    vector<int> IOVlist,
-    vector<string> Variables = {"median", "DrmsNR"},
-    vector<string> labels = {"MB"},
-    TString Year = "2018",
-    string myValidation = "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/results/acardini/DMRs/",
-    vector<string> geometries = {"GT", "SG", "MP pix LBL", "PIX HLS+ML STR fix"},
-    vector<Color_t> colours = {kBlue, kRed, kGreen, kCyan},
-    TString outputdir =
+    const vector<int> &IOVlist,
+    const vector<string> &Variables = {"median", "DrmsNR"},
+    const vector<string> &labels = {"MB"},
+    const TString &Year = "2018",
+    const string &myValidation =
+        "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/results/acardini/DMRs/",
+    const vector<string> &geometries = {"GT", "SG", "MP pix LBL", "PIX HLS+ML STR fix"},
+    const vector<Color_t> &colours = {kBlue, kRed, kGreen, kCyan},
+    const TString &outputdir =
         "/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/data/commonValidation/alignmentObjects/acardini/DMRsTrends/",
     bool pixelupdate = false,
-    vector<int> pixelupdateruns = {314881, 316758, 317527, 318228, 320377},
+    const vector<int> &pixelupdateruns = {314881, 316758, 317527, 318228, 320377},
     bool showlumi = false,
     bool FORCE = false);
 
@@ -198,13 +202,13 @@ private:
 public:
   TString title;
   Geometry() : title("") {}
-  Geometry(TString Title) : title(Title) {}
+  Geometry(TString Title) : title(std::move(Title)) {}
   Geometry &operator=(const Geometry &geom) {
     title = geom.title;
     points = geom.points;
     return *this;
   }
-  void SetTitle(TString Title) { title = Title; }
+  void SetTitle(TString Title) { title = std::move(Title); }
   TString GetTitle() { return title; }
   vector<float> Run() const { return GetQuantity(&Point::GetRun); }
   vector<float> Mu() const { return GetQuantity(&Point::GetMu); }
@@ -233,7 +237,7 @@ public:
  *  \brief Function used to get a string containing information on the high level structure, the layer/disc and the geometry.
  */
 
-TString getName(TString structure, int layer, TString geometry) {
+TString getName(const TString &structure, int layer, TString geometry) {
   geometry.ReplaceAll(" ", "_");
   TString name = geometry + "_" + structure;
   if (layer != 0) {
@@ -251,7 +255,7 @@ TString getName(TString structure, int layer, TString geometry) {
  *  \brief Function used to retrieve a map containing the number of layers per subdetector
  */
 
-const map<TString, int> numberOfLayers(TString Year) {
+const map<TString, int> numberOfLayers(const TString &Year) {
   if (Year == "2016")
     return {{"BPIX", 3}, {"FPIX", 2}, {"TIB", 4}, {"TID", 3}, {"TOB", 6}, {"TEC", 9}};
   else
@@ -264,7 +268,7 @@ const map<TString, int> numberOfLayers(TString Year) {
  *         The use of a lumi-per-IOV file is deprecated, but can still be useful for debugging
  */
 
-TString lumifileperyear(TString Year, string RunOrIOV) {
+TString lumifileperyear(const TString &Year, const string &RunOrIOV) {
   TString LumiFile = std::getenv("CMSSW_BASE");
   LumiFile += "/src/Alignment/OfflineValidation/data/lumiper";
   if (RunOrIOV != "run" && RunOrIOV != "IOV") {
@@ -286,7 +290,7 @@ TString lumifileperyear(TString Year, string RunOrIOV) {
  */
 
 vector<int> runlistfromlumifile(TString Year) {
-  TString filename = lumifileperyear(Year, "run");
+  TString filename = lumifileperyear(std::move(Year), "run");
   fs::path path(filename.Data());
   if (fs::is_empty(path)) {
     cout << "ERROR: Empty file " << path.c_str() << endl;
@@ -305,8 +309,8 @@ vector<int> runlistfromlumifile(TString Year) {
  *  \brief Check whether all runs of interest are present in the luminosity per run txt file and whether all IOVs analized have been correctly processed
  */
 
-bool checkrunlist(vector<int> runs, vector<int> IOVlist, TString Year) {
-  vector<int> runlist = runlistfromlumifile(Year);
+bool checkrunlist(vector<int> runs, const vector<int> &IOVlist, TString Year) {
+  vector<int> runlist = runlistfromlumifile(std::move(Year));
   vector<int> missingruns;  //runs for which the luminosity is not found
   vector<int> lostruns;     //IOVs for which the DMR were not found
   bool problemfound = false;
@@ -347,16 +351,16 @@ bool checkrunlist(vector<int> runs, vector<int> IOVlist, TString Year) {
  *  \brief Create and plot the DMR trends.
  */
 
-void DMRtrends(vector<int> IOVlist,
-               vector<string> Variables,
-               vector<string> labels,
-               TString Year,
-               string myValidation,
-               vector<string> geometries,
-               vector<Color_t> colours,
-               TString outputdir,
+void DMRtrends(const vector<int> &IOVlist,
+               const vector<string> &Variables,
+               const vector<string> &labels,
+               const TString &Year,
+               const string &myValidation,
+               const vector<string> &geometries,
+               const vector<Color_t> &colours,
+               const TString &outputdir,
                bool pixelupdate,
-               vector<int> pixelupdateruns,
+               const vector<int> &pixelupdateruns,
                bool showlumi,
                bool FORCE) {
   fs::path path(outputdir.Data());
@@ -393,11 +397,11 @@ void DMRtrends(vector<int> IOVlist,
  */
 
 void compileDMRTrends(vector<int> IOVlist,
-                      TString Variable,
-                      vector<string> labels,
-                      TString Year,
-                      string myValidation,
-                      vector<string> geometries,
+                      const TString &Variable,
+                      const vector<string> &labels,
+                      const TString &Year,
+                      const string &myValidation,
+                      const vector<string> &geometries,
                       bool showlumi,
                       bool FORCE) {
   gROOT->SetBatch();
@@ -432,7 +436,7 @@ void compileDMRTrends(vector<int> IOVlist,
             "been stored!"
          << endl;
     exit(EXIT_FAILURE);
-  } else if (checkrunlist(RunNumbers, IOVlist, Year)) {
+  } else if (checkrunlist(RunNumbers, std::move(IOVlist), Year)) {
     cout << "Please check the DMRs that have been produced!" << endl;
     if (!FORCE)
       exit(EXIT_FAILURE);
@@ -566,7 +570,7 @@ void compileDMRTrends(vector<int> IOVlist,
 /*! \fn PixelUpdateLines
  *  \brief  Adds to the canvas vertical lines corresponding to the pixelupdateruns
  */
-void PixelUpdateLines(TCanvas *c, TString Year, bool showlumi, vector<int> pixelupdateruns) {
+void PixelUpdateLines(TCanvas *c, const TString &Year, bool showlumi, const vector<int> &pixelupdateruns) {
   vector<TPaveText *> labels;
   double lastlumi = 0.;
   c->cd();
@@ -632,7 +636,7 @@ void PixelUpdateLines(TCanvas *c, TString Year, bool showlumi, vector<int> pixel
  */
 
 double getintegratedlumiuptorun(int run, TString Year, double min) {
-  TGraph *scale = new TGraph((lumifileperyear(Year, "run")).Data());
+  TGraph *scale = new TGraph((lumifileperyear(std::move(Year), "run")).Data());
   int Nscale = scale->GetN();
   double *xscale = scale->GetX();
   double *yscale = scale->GetY();
@@ -710,7 +714,7 @@ void scalebylumi(TGraphErrors *g, vector<pair<int, double>> lumiIOVpairs) {
 vector<pair<int, double>> lumiperIOV(vector<int> IOVlist, TString Year) {
   size_t N = IOVlist.size();
   vector<pair<int, double>> lumiperIOV;
-  TGraph *scale = new TGraph((lumifileperyear(Year, "run")).Data());
+  TGraph *scale = new TGraph((lumifileperyear(std::move(Year), "run")).Data());
   size_t Nscale = scale->GetN();
   double *xscale = scale->GetX();
   double *yscale = scale->GetY();
@@ -787,15 +791,15 @@ TH1F *ConvertToHist(TGraphErrors *g) {
  */
 
 void PlotDMRTrends(vector<int> IOVlist,
-                   TString Variable,
-                   vector<string> labels,
-                   TString Year,
-                   string myValidation,
-                   vector<string> geometries,
+                   const TString &Variable,
+                   const vector<string> &labels,
+                   const TString &Year,
+                   const string &myValidation,
+                   const vector<string> &geometries,
                    vector<Color_t> colours,
                    TString outputdir,
                    bool pixelupdate,
-                   vector<int> pixelupdateruns,
+                   const vector<int> &pixelupdateruns,
                    bool showlumi) {
   gErrorIgnoreLevel = kWarning;
   checkrunlist(pixelupdateruns, {}, Year);
@@ -805,7 +809,7 @@ void PlotDMRTrends(vector<int> IOVlist,
 
   vector<pair<int, double>> lumiIOVpairs;
   if (showlumi)
-    lumiIOVpairs = lumiperIOV(IOVlist, Year);
+    lumiIOVpairs = lumiperIOV(std::move(IOVlist), Year);
 
   TString filename = myValidation + "DMRtrends";
   for (TString label : labels) {

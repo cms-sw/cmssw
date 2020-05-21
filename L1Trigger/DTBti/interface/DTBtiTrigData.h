@@ -45,7 +45,7 @@ public:
   ~DTBtiTrigData() override {}
 
   //! Set the parent BTI identifier
-  inline void setParent(DTBtiId btiid) { _btiid = btiid; }
+  inline void setParent(const DTBtiId& btiid) { _btiid = btiid; }
 
   //! Set trigger step
   inline void setStep(int step) { _step = step; }

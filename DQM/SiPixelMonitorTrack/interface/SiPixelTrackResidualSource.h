@@ -198,7 +198,7 @@ private:
   MonitorElement *meRocBladevsDiskEndcapOffTrk;
 
   void getepixrococcupancyontrk(const TrackerTopology *const tTopo,
-                                TransientTrackingRecHit::ConstRecHitPointer hit,
+                                const TransientTrackingRecHit::ConstRecHitPointer &hit,
                                 float xclust,
                                 float yclust,
                                 float z,

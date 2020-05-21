@@ -44,10 +44,11 @@ void SegmentToTrackAssociator::clear() {
   indexCollectionCSC.clear();
 }
 
-MuonTransientTrackingRecHit::MuonRecHitContainer SegmentToTrackAssociator::associate(const edm::Event& iEvent,
-                                                                                     const edm::EventSetup& iSetup,
-                                                                                     const reco::Track& track,
-                                                                                     std::string TrackRefitterType) {
+MuonTransientTrackingRecHit::MuonRecHitContainer SegmentToTrackAssociator::associate(
+    const edm::Event& iEvent,
+    const edm::EventSetup& iSetup,
+    const reco::Track& track,
+    const std::string& TrackRefitterType) {
   // The segment collections
   edm::Handle<DTRecSegment4DCollection> DTSegments;
   iEvent.getByLabel(theDTSegmentLabel, DTSegments);

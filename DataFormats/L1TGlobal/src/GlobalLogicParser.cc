@@ -89,7 +89,8 @@ GlobalLogicParser::GlobalLogicParser(std::string& logicalExpressionVal) {
 }
 
 //   from a logical and a numerical expression
-GlobalLogicParser::GlobalLogicParser(const std::string logicalExpressionVal, const std::string numericalExpressionVal) {
+GlobalLogicParser::GlobalLogicParser(const std::string& logicalExpressionVal,
+                                     const std::string& numericalExpressionVal) {
   // checks also for correctness
 
   if (!setLogicalExpression(logicalExpressionVal)) {

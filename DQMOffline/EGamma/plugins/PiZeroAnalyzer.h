@@ -81,8 +81,8 @@ public:
 
 private:
   void makePizero(const edm::EventSetup& es,
-                  const edm::Handle<EcalRecHitCollection> eb,
-                  const edm::Handle<EcalRecHitCollection> ee);
+                  const edm::Handle<EcalRecHitCollection>& eb,
+                  const edm::Handle<EcalRecHitCollection>& ee);
 
   std::string fName_;
   unsigned int prescaleFactor_;

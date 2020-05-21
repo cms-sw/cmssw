@@ -108,7 +108,7 @@ TSOSHistogramMaker::TSOSHistogramMaker(const edm::ParameterSet& iConfig)
 }
 
 void TSOSHistogramMaker::fill(const TrajectoryStateOnSurface& tsos,
-                              TransientTrackingRecHit::ConstRecHitPointer hit) const {
+                              const TransientTrackingRecHit::ConstRecHitPointer& hit) const {
   if (hit == nullptr || !hit->isValid())
     return;
 

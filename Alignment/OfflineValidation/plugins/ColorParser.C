@@ -1,5 +1,7 @@
 #include <iostream>
 #include <map>
+#include <utility>
+
 #include "TROOT.h"
 #include "TColor.h"
 
@@ -53,4 +55,4 @@ Color_t parser(TString input) {
   }
 }
 
-Color_t ColorParser(TString input) { return parser(input); }
+Color_t ColorParser(TString input) { return parser(std::move(input)); }

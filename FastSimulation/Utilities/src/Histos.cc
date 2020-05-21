@@ -46,7 +46,7 @@ void Histos::book(const std::string& name, int nx, float xmin, float xmax, const
   }
 }
 
-void Histos::put(const std::string& file, std::string name) {
+void Histos::put(const std::string& file, const std::string& name) {
   TFile* f = new TFile(file.c_str(), "recreate");
   f->cd();
 

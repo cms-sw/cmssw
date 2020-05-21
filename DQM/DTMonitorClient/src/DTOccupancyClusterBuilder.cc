@@ -51,7 +51,7 @@ void DTOccupancyClusterBuilder::buildClusters() {
   sortClusters();
 }
 
-void DTOccupancyClusterBuilder::drawClusters(std::string canvasName) {
+void DTOccupancyClusterBuilder::drawClusters(const std::string& canvasName) {
   int nBinsX = 100;
   int nBinsY = 100;
   int colorMap[12] = {632, 600, 800, 400, 820, 416, 432, 880, 616, 860, 900, 920};
@@ -155,7 +155,7 @@ void DTOccupancyClusterBuilder::sortClusters() {
 
 DTOccupancyCluster DTOccupancyClusterBuilder::getBestCluster() const { return theClusters.front(); }
 
-bool DTOccupancyClusterBuilder::isProblematic(DTLayerId layerId) const {
+bool DTOccupancyClusterBuilder::isProblematic(const DTLayerId& layerId) const {
   if (theProblematicLayers.find(layerId) != theProblematicLayers.end()) {
     return true;
   }

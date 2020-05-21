@@ -511,7 +511,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::loadCalibrationLuts() {
   }
 }
 
-bool l1t::Stage2Layer2TauAlgorithmFirmwareImp1::compareTowers(l1t::CaloTower TT1, l1t::CaloTower TT2) {
+bool l1t::Stage2Layer2TauAlgorithmFirmwareImp1::compareTowers(const l1t::CaloTower& TT1, const l1t::CaloTower& TT2) {
   // 1. compare hwPt (for the moment no switch with E and H only, always use E+H)
   if (TT1.hwPt() < TT2.hwPt())
     return true;

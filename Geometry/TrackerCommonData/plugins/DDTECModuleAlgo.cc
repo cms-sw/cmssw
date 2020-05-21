@@ -50,7 +50,7 @@ private:
              double z,
              const string& rotName,
              DDCompactView& cpv);
-  void doPos(DDLogicalPart toPos, double x, double y, double z, string rotName, DDCompactView& cpv);
+  void doPos(const DDLogicalPart& toPos, double x, double y, double z, string rotName, DDCompactView& cpv);
   //variables:
   double noOverlapShift;
   int ringNo;
@@ -326,7 +326,8 @@ void DDTECModuleAlgo::doPos(const DDLogicalPart& toPos,
                       << tran << " with " << rot;
 }
 
-void DDTECModuleAlgo::doPos(DDLogicalPart toPos, double x, double y, double z, string rotName, DDCompactView& cpv) {
+void DDTECModuleAlgo::doPos(
+    const DDLogicalPart& toPos, double x, double y, double z, string rotName, DDCompactView& cpv) {
   int copyNr = 1;
   if (isStereo)
     copyNr = 2;

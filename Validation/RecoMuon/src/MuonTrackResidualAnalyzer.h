@@ -9,6 +9,9 @@
 
 // Base Class Headers
 #include <DQMServices/Core/interface/DQMOneEDAnalyzer.h>
+
+#include <utility>
+
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -59,11 +62,11 @@ protected:
 private:
   bool isInTheAcceptance(double eta);
 
-  std::map<DetId, const PSimHit *> mapMuSimHitsPerId(edm::Handle<edm::PSimHitContainer> dtSimhits,
-                                                     edm::Handle<edm::PSimHitContainer> cscSimhits,
-                                                     edm::Handle<edm::PSimHitContainer> rpcSimhits);
+  std::map<DetId, const PSimHit *> mapMuSimHitsPerId(const edm::Handle<edm::PSimHitContainer> &dtSimhits,
+                                                     const edm::Handle<edm::PSimHitContainer> &cscSimhits,
+                                                     const edm::Handle<edm::PSimHitContainer> &rpcSimhits);
 
-  void mapMuSimHitsPerId(edm::Handle<edm::PSimHitContainer> simhits, std::map<DetId, const PSimHit *> &hitIdMap);
+  void mapMuSimHitsPerId(const edm::Handle<edm::PSimHitContainer> &simhits, std::map<DetId, const PSimHit *> &hitIdMap);
 
   void computeResolution(Trajectory &trajectory,
                          std::map<DetId, const PSimHit *> &hitIdMap,
@@ -115,7 +118,7 @@ private:
   std::vector<const PSimHit *> theSimHitContainer;
 
   struct RadiusComparatorInOut {
-    RadiusComparatorInOut(edm::ESHandle<GlobalTrackingGeometry> tg) : theTG(tg) {}
+    RadiusComparatorInOut(edm::ESHandle<GlobalTrackingGeometry> tg) : theTG(std::move(tg)) {}
 
     bool operator()(const PSimHit *a, const PSimHit *b) const {
       const GeomDet *geomDetA = theTG->idToDet(DetId(a->detUnitId()));

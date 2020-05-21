@@ -3,6 +3,7 @@
 #include "PhysicsTools/Utilities/interface/Parameter.h"
 
 #include <cmath>
+#include <utility>
 
 namespace funct {
 
@@ -10,7 +11,7 @@ namespace funct {
 
   struct Gaussian {
     Gaussian(const Parameter& m, const Parameter& s) : mean(m.ptr()), sigma(s.ptr()) {}
-    Gaussian(std::shared_ptr<double> m, std::shared_ptr<double> s) : mean(m), sigma(s) {}
+    Gaussian(std::shared_ptr<double> m, std::shared_ptr<double> s) : mean(std::move(m)), sigma(std::move(s)) {}
     Gaussian(double m, double s) : mean(new double(m)), sigma(new double(s)) {}
     double operator()(double x) const {
       double z = (x - *mean) / *sigma;

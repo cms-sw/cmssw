@@ -31,7 +31,7 @@ private:
 
   template <typename H1, typename H2>
   void writeAssociation(
-      edm::Event &out, const H1 &from, const H2 &to, const std::vector<int> indices, const std::string &name) const {
+      edm::Event &out, const H1 &from, const H2 &to, const std::vector<int> &indices, const std::string &name) const {
     typedef edm::Association<std::vector<reco::Muon>> AssoMap;
     std::unique_ptr<AssoMap> assomap(new AssoMap(to));
     typename AssoMap::Filler filler(*assomap);
@@ -41,7 +41,7 @@ private:
   }
 
   template <typename H1>
-  void writeValueMap(edm::Event &out, const H1 &from, const std::vector<int> values, const std::string &name) const {
+  void writeValueMap(edm::Event &out, const H1 &from, const std::vector<int> &values, const std::string &name) const {
     typedef edm::ValueMap<int> IntMap;
     std::unique_ptr<IntMap> intmap(new IntMap());
     typename IntMap::Filler filler(*intmap);

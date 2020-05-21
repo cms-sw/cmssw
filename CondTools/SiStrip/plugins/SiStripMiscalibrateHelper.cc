@@ -5,7 +5,7 @@
 #include "CondCore/SiStripPlugins/interface/SiStripPayloadInspectorHelper.h"
 
 /*--------------------------------------------------------------------*/
-sistripsummary::TrackerRegion SiStripMiscalibrate::getRegionFromString(std::string region)
+sistripsummary::TrackerRegion SiStripMiscalibrate::getRegionFromString(const std::string& region)
 /*--------------------------------------------------------------------*/
 {
   std::map<std::string, sistripsummary::TrackerRegion> mapping = {

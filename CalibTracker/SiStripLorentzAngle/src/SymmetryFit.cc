@@ -3,7 +3,7 @@
 #include <cassert>
 #include <memory>
 
-TH1* SymmetryFit::symmetryChi2(std::string basename,
+TH1* SymmetryFit::symmetryChi2(const std::string& basename,
                                const std::vector<TH1*>& candidates,
                                const std::pair<unsigned, unsigned> range) {
   TH1* fake = (TH1*)(candidates[0]->Clone(basename.c_str()));

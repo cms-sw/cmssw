@@ -9,7 +9,7 @@ namespace rpcrawtodigi {
 
   class ErrorRDDM : public DataRecord {
   public:
-    ErrorRDDM(const DataRecord r) : DataRecord(r) {}
+    ErrorRDDM(const DataRecord& r) : DataRecord(r) {}
 
     static bool matchType(const DataRecord& record);
     std::string print() const;

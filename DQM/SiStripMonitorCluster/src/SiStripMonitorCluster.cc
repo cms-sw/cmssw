@@ -1228,7 +1228,7 @@ void SiStripMonitorCluster::createModuleMEs(ModMEs& mod_single,
 //
 // -- Create Module Level MEs
 //
-void SiStripMonitorCluster::createLayerMEs(std::string label, int ndets, DQMStore::IBooker& ibooker) {
+void SiStripMonitorCluster::createLayerMEs(const std::string& label, int ndets, DQMStore::IBooker& ibooker) {
   SiStripHistoId hidmanager;
 
   LayerMEs layerMEs;
@@ -1351,7 +1351,7 @@ void SiStripMonitorCluster::createLayerMEs(std::string label, int ndets, DQMStor
 //
 // -- Create SubDetector MEs
 //
-void SiStripMonitorCluster::createSubDetMEs(std::string label, DQMStore::IBooker& ibooker) {
+void SiStripMonitorCluster::createSubDetMEs(const std::string& label, DQMStore::IBooker& ibooker) {
   SubDetMEs subdetMEs;
   subdetMEs.totNClusters = 0;
   subdetMEs.SubDetTotClusterTH1 = nullptr;

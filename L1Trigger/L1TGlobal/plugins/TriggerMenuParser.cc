@@ -23,6 +23,8 @@
 
 // system include files
 #include <string>
+#include <utility>
+
 #include <vector>
 
 #include <iostream>
@@ -498,7 +500,7 @@ std::string l1t::TriggerMenuParser::l1t2string(T data) {
   ss << data;
   return ss.str();
 }
-int l1t::TriggerMenuParser::l1tstr2int(const std::string data) {
+int l1t::TriggerMenuParser::l1tstr2int(const std::string& data) {
   std::stringstream ss;
   ss << data;
   int value;
@@ -775,8 +777,8 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
 }
 
 void l1t::TriggerMenuParser::parseCalMuEta_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap,
-                                                std::string obj1,
-                                                std::string obj2) {
+                                                const std::string& obj1,
+                                                const std::string& obj2) {
   using namespace tmeventsetup;
 
   // First Delta Eta for this set
@@ -802,8 +804,8 @@ void l1t::TriggerMenuParser::parseCalMuEta_LUTS(std::map<std::string, tmeventset
 }
 
 void l1t::TriggerMenuParser::parseCalMuPhi_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap,
-                                                std::string obj1,
-                                                std::string obj2) {
+                                                const std::string& obj1,
+                                                const std::string& obj2) {
   using namespace tmeventsetup;
 
   // First Delta Eta for this set
@@ -829,13 +831,13 @@ void l1t::TriggerMenuParser::parseCalMuPhi_LUTS(std::map<std::string, tmeventset
 }
 
 void l1t::TriggerMenuParser::parsePt_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap,
-                                          std::string lutpfx,
+                                          const std::string& lutpfx,
                                           std::string obj1,
                                           unsigned int prec) {
   using namespace tmeventsetup;
 
   // First Delta Eta for this set
-  std::string scLabel1 = obj1;
+  std::string scLabel1 = std::move(obj1);
   scLabel1 += "-ET";
 
   //This LUT does not exist in L1 Menu file, don't fill it
@@ -851,8 +853,8 @@ void l1t::TriggerMenuParser::parsePt_LUTS(std::map<std::string, tmeventsetup::es
 }
 
 void l1t::TriggerMenuParser::parseDeltaEta_Cosh_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap,
-                                                     std::string obj1,
-                                                     std::string obj2,
+                                                     const std::string& obj1,
+                                                     const std::string& obj2,
                                                      unsigned int prec1,
                                                      unsigned int prec2) {
   using namespace tmeventsetup;
@@ -972,7 +974,9 @@ void l1t::TriggerMenuParser::parsePhi_Trig_LUTS(const std::map<std::string, tmev
  *
  */
 
-bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu, unsigned int chipNr, const bool corrFlag) {
+bool l1t::TriggerMenuParser::parseMuon(const tmeventsetup::esCondition& condMu,
+                                       unsigned int chipNr,
+                                       const bool corrFlag) {
   using namespace tmeventsetup;
 
   // get condition, particle name (must be muon) and type name
@@ -1435,7 +1439,9 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
  *
  */
 
-bool l1t::TriggerMenuParser::parseCalo(tmeventsetup::esCondition condCalo, unsigned int chipNr, const bool corrFlag) {
+bool l1t::TriggerMenuParser::parseCalo(const tmeventsetup::esCondition& condCalo,
+                                       unsigned int chipNr,
+                                       const bool corrFlag) {
   //    XERCES_CPP_NAMESPACE_USE
   using namespace tmeventsetup;
 
@@ -1958,7 +1964,7 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const tmeventsetup::esObject* corrCal
  *
  */
 
-bool l1t::TriggerMenuParser::parseEnergySum(tmeventsetup::esCondition condEnergySum,
+bool l1t::TriggerMenuParser::parseEnergySum(const tmeventsetup::esCondition& condEnergySum,
                                             unsigned int chipNr,
                                             const bool corrFlag) {
   //    XERCES_CPP_NAMESPACE_USE
@@ -2367,7 +2373,7 @@ bool l1t::TriggerMenuParser::parseEnergySumCorr(const tmeventsetup::esObject* co
  *
  */
 
-bool l1t::TriggerMenuParser::parseExternal(tmeventsetup::esCondition condExt, unsigned int chipNr) {
+bool l1t::TriggerMenuParser::parseExternal(const tmeventsetup::esCondition& condExt, unsigned int chipNr) {
   using namespace tmeventsetup;
 
   // get condition, particle name and type name
@@ -2442,7 +2448,7 @@ bool l1t::TriggerMenuParser::parseExternal(tmeventsetup::esCondition condExt, un
  *
  */
 
-bool l1t::TriggerMenuParser::parseCorrelation(tmeventsetup::esCondition corrCond, unsigned int chipNr) {
+bool l1t::TriggerMenuParser::parseCorrelation(const tmeventsetup::esCondition& corrCond, unsigned int chipNr) {
   using namespace tmeventsetup;
 
   std::string condition = "corr";
@@ -3024,7 +3030,7 @@ bool l1t::TriggerMenuParser::parseCorrelationWithOverlapRemoval(const tmeventset
  *
  */
 
-bool l1t::TriggerMenuParser::parseAlgorithm(tmeventsetup::esAlgorithm algorithm, unsigned int chipNr) {
+bool l1t::TriggerMenuParser::parseAlgorithm(const tmeventsetup::esAlgorithm& algorithm, unsigned int chipNr) {
   using namespace tmeventsetup;
   //using namespace Algorithm;
 

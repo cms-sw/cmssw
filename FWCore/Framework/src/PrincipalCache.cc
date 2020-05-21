@@ -50,7 +50,8 @@ namespace edm {
     return lumiHolder_.tryToGet();
   }
 
-  void PrincipalCache::merge(std::shared_ptr<RunAuxiliary> aux, std::shared_ptr<ProductRegistry const> reg) {
+  void PrincipalCache::merge(const std::shared_ptr<RunAuxiliary>& aux,
+                             const std::shared_ptr<ProductRegistry const>& reg) {
     if (runPrincipal_.get() == nullptr) {
       throw edm::Exception(edm::errors::LogicError) << "PrincipalCache::merge\n"
                                                     << "Illegal attempt to merge run into cache\n"
@@ -78,7 +79,7 @@ namespace edm {
     runPrincipal_->mergeAuxiliary(*aux);
   }
 
-  void PrincipalCache::insert(std::shared_ptr<RunPrincipal> rp) {
+  void PrincipalCache::insert(const std::shared_ptr<RunPrincipal>& rp) {
     if (runPrincipal_.get() != nullptr) {
       throw edm::Exception(edm::errors::LogicError) << "PrincipalCache::insert\n"
                                                     << "Illegal attempt to insert run into cache\n"
@@ -94,7 +95,7 @@ namespace edm {
 
   void PrincipalCache::insert(std::unique_ptr<LuminosityBlockPrincipal> lbp) { lumiHolder_.add(std::move(lbp)); }
 
-  void PrincipalCache::insert(std::shared_ptr<EventPrincipal> ep) {
+  void PrincipalCache::insert(const std::shared_ptr<EventPrincipal>& ep) {
     unsigned int iStreamIndex = ep->streamID().value();
     assert(iStreamIndex < eventPrincipals_.size());
     eventPrincipals_[iStreamIndex] = ep;
@@ -117,7 +118,7 @@ namespace edm {
     runPrincipal_.reset();
   }
 
-  void PrincipalCache::adjustEventsToNewProductRegistry(std::shared_ptr<ProductRegistry const> reg) {
+  void PrincipalCache::adjustEventsToNewProductRegistry(const std::shared_ptr<ProductRegistry const>& reg) {
     for (auto& eventPrincipal : eventPrincipals_) {
       if (eventPrincipal) {
         eventPrincipal->adjustIndexesAfterProductRegistryAddition();

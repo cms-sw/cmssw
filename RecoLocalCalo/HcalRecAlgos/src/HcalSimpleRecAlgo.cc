@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <utility>
 
 //--- temporary for printouts
 // #include<iostream>
@@ -51,9 +52,13 @@ void HcalSimpleRecAlgo::setRecoParams(
 
 void HcalSimpleRecAlgo::setLeakCorrection() { setLeakCorrection_ = true; }
 
-void HcalSimpleRecAlgo::setHFPileupCorrection(std::shared_ptr<AbsOOTPileupCorrection> corr) { hfPileupCorr_ = corr; }
+void HcalSimpleRecAlgo::setHFPileupCorrection(std::shared_ptr<AbsOOTPileupCorrection> corr) {
+  hfPileupCorr_ = std::move(corr);
+}
 
-void HcalSimpleRecAlgo::setHOPileupCorrection(std::shared_ptr<AbsOOTPileupCorrection> corr) { hoPileupCorr_ = corr; }
+void HcalSimpleRecAlgo::setHOPileupCorrection(std::shared_ptr<AbsOOTPileupCorrection> corr) {
+  hoPileupCorr_ = std::move(corr);
+}
 
 void HcalSimpleRecAlgo::setBXInfo(const BunchXParameter* info, const unsigned lenInfo) {
   bunchCrossingInfo_ = info;

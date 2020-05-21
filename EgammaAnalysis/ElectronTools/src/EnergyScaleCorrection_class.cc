@@ -12,11 +12,12 @@
 #include <iomanip>
 //for istreamstring
 #include <sstream>
+#include <utility>
 
 //#define DEBUG
 //#define PEDANTIC_OUTPUT
 
-EnergyScaleCorrection_class::EnergyScaleCorrection_class(std::string correctionFileName, unsigned int genSeed)
+EnergyScaleCorrection_class::EnergyScaleCorrection_class(const std::string& correctionFileName, unsigned int genSeed)
     : doScale(false), doSmearings(false), smearingType_(ECALELF) {
   if (!correctionFileName.empty()) {
     std::string filename = correctionFileName + "_scales.dat";
@@ -141,7 +142,7 @@ float EnergyScaleCorrection_class::getScaleOffset(
  *  category  "runNumber"   runMin  runMax   deltaP  err_deltaP(stat on single bins)  err_deltaP_stat(to be used) err_deltaP_syst(to be used)
  *
  */
-void EnergyScaleCorrection_class::ReadFromFile(TString filename) {
+void EnergyScaleCorrection_class::ReadFromFile(const TString& filename) {
 #ifdef PEDANTIC_OUTPUT
   std::cout << "[STATUS] Reading energy scale correction  values from file: " << filename << std::endl;
 #endif
@@ -174,7 +175,7 @@ void EnergyScaleCorrection_class::ReadFromFile(TString filename) {
 // this method adds the correction values read from the txt file to the map
 void EnergyScaleCorrection_class::AddScale(
     TString category_, int runMin_, int runMax_, double deltaP_, double err_deltaP_, double err_syst_deltaP) {
-  correctionCategory_class cat(category_);  // build the category from the string
+  correctionCategory_class cat(std::move(category_));  // build the category from the string
   cat.runmin = runMin_;
   cat.runmax = runMax_;
 
@@ -208,7 +209,7 @@ void EnergyScaleCorrection_class::AddSmearing(TString category_,
                                               double err_phi,
                                               double Emean,
                                               double err_Emean) {
-  correctionCategory_class cat(category_);
+  correctionCategory_class cat(std::move(category_));
   cat.runmin = (runMin_ < 0) ? 0 : runMin_;
   cat.runmax = runMax_;
 
@@ -254,7 +255,7 @@ void EnergyScaleCorrection_class::AddSmearing(TString category_,
  *
  */
 
-void EnergyScaleCorrection_class::ReadSmearingFromFile(TString filename) {
+void EnergyScaleCorrection_class::ReadSmearingFromFile(const TString& filename) {
 #ifdef PEDANTIC_OUTPUT
   std::cout << "[STATUS] Reading smearing values from file: " << filename << std::endl;
 #endif
@@ -411,7 +412,7 @@ bool correctionCategory_class::operator<(const correctionCategory_class& b) cons
   return false;
 }
 
-correctionCategory_class::correctionCategory_class(TString category_) {
+correctionCategory_class::correctionCategory_class(const TString& category_) {
   std::string category(category_.Data());
 #ifdef DEBUG
   std::cout << "[DEBUG] correctionClass defined for category: " << category << std::endl;

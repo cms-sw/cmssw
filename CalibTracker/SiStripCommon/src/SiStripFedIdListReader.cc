@@ -5,7 +5,7 @@
 
 // -----------------------------------------------------------------------------
 //
-SiStripFedIdListReader::SiStripFedIdListReader(std::string filePath) {
+SiStripFedIdListReader::SiStripFedIdListReader(const std::string& filePath) {
   fedIds_.clear();
   inputFile_.open(filePath.c_str());
 

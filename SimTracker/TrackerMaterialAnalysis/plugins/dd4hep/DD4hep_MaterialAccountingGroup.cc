@@ -163,7 +163,7 @@ void DD4hep_MaterialAccountingGroup::savePlots(void) {
   delete m_file;
 }
 
-void DD4hep_MaterialAccountingGroup::savePlot(std::shared_ptr<TH1F> plot, const std::string& name) {
+void DD4hep_MaterialAccountingGroup::savePlot(const std::shared_ptr<TH1F>& plot, const std::string& name) {
   TCanvas canvas(name.c_str(), plot->GetTitle(), 1280, 1024);
   plot->SetFillColor(15);  // grey
   plot->SetLineColor(1);   // black
@@ -174,7 +174,9 @@ void DD4hep_MaterialAccountingGroup::savePlot(std::shared_ptr<TH1F> plot, const 
   plot->SetDirectory(m_file);
 }
 
-void DD4hep_MaterialAccountingGroup::savePlot(std::shared_ptr<TProfile> plot, float average, const std::string& name) {
+void DD4hep_MaterialAccountingGroup::savePlot(const std::shared_ptr<TProfile>& plot,
+                                              float average,
+                                              const std::string& name) {
   std::unique_ptr<TH1F> line = std::make_unique<TH1F>(
       TH1F((name + "_par").c_str(), "Parametrization", 1, plot->GetXaxis()->GetXmin(), plot->GetXaxis()->GetXmax()));
 

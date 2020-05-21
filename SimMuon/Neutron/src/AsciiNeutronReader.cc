@@ -4,11 +4,12 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include <sstream>
 #include <iostream>
+#include <utility>
 
 using namespace std;
 
 AsciiNeutronReader::AsciiNeutronReader(string fileNameBase)
-    : theFileNameBase(fileNameBase),
+    : theFileNameBase(std::move(fileNameBase)),
       //theStreamPos(nChamberTypes+1, 0) //TODO WON"T WORK!  replace with a map
       theStreamPos(11, 0) {}
 

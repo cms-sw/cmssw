@@ -21,6 +21,8 @@
 
 // system include files
 #include <memory>
+#include <utility>
+
 #include <vector>
 #include <map>
 #include <sstream>
@@ -64,9 +66,9 @@ public:
                          bool WriteOutputFile,
                          std::string DQMOutfileName,
                          bool WriteDQMHistograms) {
-    OutFileName_ = OutputFileName;
+    OutFileName_ = std::move(OutputFileName);
     WriteOutputFile_ = WriteOutputFile;
-    DQMOutfileName_ = DQMOutfileName;
+    DQMOutfileName_ = std::move(DQMOutfileName);
     WriteDQMHistograms_ = WriteDQMHistograms;
   }
   void setTrackerGeometry(const TrackerGeometry* tkgeom) { TkGeom = tkgeom; }

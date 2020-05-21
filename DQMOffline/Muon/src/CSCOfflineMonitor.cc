@@ -844,11 +844,11 @@ void CSCOfflineMonitor::analyze(const edm::Event& event, const edm::EventSetup& 
 //
 // ==============================================
 
-void CSCOfflineMonitor::doOccupancies(edm::Handle<CSCStripDigiCollection> strips,
-                                      edm::Handle<CSCWireDigiCollection> wires,
-                                      edm::Handle<CSCRecHit2DCollection> recHits,
-                                      edm::Handle<CSCSegmentCollection> cscSegments,
-                                      edm::Handle<CSCCLCTDigiCollection> clcts) {
+void CSCOfflineMonitor::doOccupancies(const edm::Handle<CSCStripDigiCollection>& strips,
+                                      const edm::Handle<CSCWireDigiCollection>& wires,
+                                      const edm::Handle<CSCRecHit2DCollection>& recHits,
+                                      const edm::Handle<CSCSegmentCollection>& cscSegments,
+                                      const edm::Handle<CSCCLCTDigiCollection>& clcts) {
   bool clcto[2][4][4][36];
   bool wireo[2][4][4][36];
   bool stripo[2][4][4][36];
@@ -1010,7 +1010,7 @@ void CSCOfflineMonitor::doOccupancies(edm::Handle<CSCStripDigiCollection> strips
 //
 // ==============================================
 
-void CSCOfflineMonitor::doWireDigis(edm::Handle<CSCWireDigiCollection> wires) {
+void CSCOfflineMonitor::doWireDigis(const edm::Handle<CSCWireDigiCollection>& wires) {
   int nWireGroupsTotal = 0;
   for (CSCWireDigiCollection::DigiRangeIterator dWDiter = wires->begin(); dWDiter != wires->end(); dWDiter++) {
     CSCDetId id = (CSCDetId)(*dWDiter).first;
@@ -1037,7 +1037,7 @@ void CSCOfflineMonitor::doWireDigis(edm::Handle<CSCWireDigiCollection> wires) {
 //
 // ==============================================
 
-void CSCOfflineMonitor::doStripDigis(edm::Handle<CSCStripDigiCollection> strips) {
+void CSCOfflineMonitor::doStripDigis(const edm::Handle<CSCStripDigiCollection>& strips) {
   int nStripsFired = 0;
   for (CSCStripDigiCollection::DigiRangeIterator dSDiter = strips->begin(); dSDiter != strips->end(); dSDiter++) {
     CSCDetId id = (CSCDetId)(*dSDiter).first;
@@ -1077,8 +1077,8 @@ void CSCOfflineMonitor::doStripDigis(edm::Handle<CSCStripDigiCollection> strips)
 //
 //=======================================================
 
-void CSCOfflineMonitor::doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips,
-                                        edm::ESHandle<CSCGeometry> cscGeom) {
+void CSCOfflineMonitor::doPedestalNoise(const edm::Handle<CSCStripDigiCollection>& strips,
+                                        const edm::ESHandle<CSCGeometry>& cscGeom) {
   for (CSCStripDigiCollection::DigiRangeIterator dPNiter = strips->begin(); dPNiter != strips->end(); dPNiter++) {
     CSCDetId id = (CSCDetId)(*dPNiter).first;
     int kStation = id.station();
@@ -1120,9 +1120,9 @@ void CSCOfflineMonitor::doPedestalNoise(edm::Handle<CSCStripDigiCollection> stri
 //
 // ==============================================
 
-void CSCOfflineMonitor::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits,
-                                  edm::Handle<CSCStripDigiCollection> strips,
-                                  edm::ESHandle<CSCGeometry> cscGeom) {
+void CSCOfflineMonitor::doRecHits(const edm::Handle<CSCRecHit2DCollection>& recHits,
+                                  const edm::Handle<CSCStripDigiCollection>& strips,
+                                  const edm::ESHandle<CSCGeometry>& cscGeom) {
   // Get the RecHits collection :
   int nRecHits = recHits->size();
 
@@ -1196,7 +1196,8 @@ void CSCOfflineMonitor::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits,
 //
 // ===============================================
 
-void CSCOfflineMonitor::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, edm::ESHandle<CSCGeometry> cscGeom) {
+void CSCOfflineMonitor::doSegments(const edm::Handle<CSCSegmentCollection>& cscSegments,
+                                   const edm::ESHandle<CSCGeometry>& cscGeom) {
   // get CSC segment collection
   int nSegments = cscSegments->size();
 
@@ -1319,8 +1320,8 @@ void CSCOfflineMonitor::doSegments(edm::Handle<CSCSegmentCollection> cscSegments
 // look at hit Resolution
 //
 // ==============================================
-void CSCOfflineMonitor::doResolution(edm::Handle<CSCSegmentCollection> cscSegments,
-                                     edm::ESHandle<CSCGeometry> cscGeom) {
+void CSCOfflineMonitor::doResolution(const edm::Handle<CSCSegmentCollection>& cscSegments,
+                                     const edm::ESHandle<CSCGeometry>& cscGeom) {
   for (CSCSegmentCollection::const_iterator dSiter = cscSegments->begin(); dSiter != cscSegments->end(); dSiter++) {
     CSCDetId id = (CSCDetId)(*dSiter).cscDetId();
     //
@@ -1474,11 +1475,11 @@ float CSCOfflineMonitor::getSignal(const CSCStripDigiCollection& stripdigis, CSC
 // Author: S. Stoynev
 //----------------------------------------------------------------------------
 
-void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
-                                       edm::Handle<CSCStripDigiCollection> strips,
-                                       edm::Handle<CSCRecHit2DCollection> recHits,
-                                       edm::Handle<CSCSegmentCollection> cscSegments,
-                                       edm::ESHandle<CSCGeometry> cscGeom) {
+void CSCOfflineMonitor::doEfficiencies(const edm::Handle<CSCWireDigiCollection>& wires,
+                                       const edm::Handle<CSCStripDigiCollection>& strips,
+                                       const edm::Handle<CSCRecHit2DCollection>& recHits,
+                                       const edm::Handle<CSCSegmentCollection>& cscSegments,
+                                       const edm::ESHandle<CSCGeometry>& cscGeom) {
   bool allWires[2][4][4][36][6];
   bool allStrips[2][4][4][36][6];
   bool AllRecHits[2][4][4][36][6];
@@ -1779,8 +1780,8 @@ void CSCOfflineMonitor::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
 //
 // ==============================================
 
-void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts,
-                                    edm::Handle<CSCCLCTDigiCollection> clcts,
+void CSCOfflineMonitor::doBXMonitor(const edm::Handle<CSCALCTDigiCollection>& alcts,
+                                    const edm::Handle<CSCCLCTDigiCollection>& clcts,
                                     const edm::Event& event,
                                     const edm::EventSetup& eventSetup) {
   // Loop over ALCTDigis
@@ -1978,7 +1979,7 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts,
   return;
 }
 
-bool CSCOfflineMonitor::withinSensitiveRegion(LocalPoint localPos,
+bool CSCOfflineMonitor::withinSensitiveRegion(const LocalPoint& localPos,
                                               const std::array<const float, 4>& layerBounds,
                                               int station,
                                               int ring,

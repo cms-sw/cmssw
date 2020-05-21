@@ -43,8 +43,8 @@ protected:
 
 private:
   std::string intToString(int num);
-  void readEBdigis(edm::Handle<EBDigiCollection> digis);
-  void readEEdigis(edm::Handle<EEDigiCollection> digis);
+  void readEBdigis(const edm::Handle<EBDigiCollection>& digis);
+  void readEEdigis(const edm::Handle<EEDigiCollection>& digis);
   void initHists(int FED);
 
   int runNum_;

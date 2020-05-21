@@ -39,7 +39,7 @@ void PVValHelper::fill(std::map<std::string, TH1*>& h, const std::string& s, dou
 }
 
 //*************************************************************
-void PVValHelper::fillByIndex(std::vector<TH1F*>& h, unsigned int index, double x, std::string tag)
+void PVValHelper::fillByIndex(std::vector<TH1F*>& h, unsigned int index, double x, const std::string& tag)
 //*************************************************************
 {
   assert(!h.empty());

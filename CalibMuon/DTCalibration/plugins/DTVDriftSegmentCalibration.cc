@@ -147,7 +147,7 @@ void DTVDriftSegmentCalibration::endJob() {
 }
 
 // Book a set of histograms for a given Chamber
-void DTVDriftSegmentCalibration::bookHistos(DTChamberId chId) {
+void DTVDriftSegmentCalibration::bookHistos(const DTChamberId& chId) {
   // Compose the chamber name
   std::string wheel = std::to_string(chId.wheel());
   std::string station = std::to_string(chId.station());

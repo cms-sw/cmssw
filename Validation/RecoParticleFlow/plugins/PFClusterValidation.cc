@@ -251,7 +251,7 @@ double PFClusterValidation::dR(double eta1, double phi1, double eta2, double phi
   return tmp;
 }
 
-double PFClusterValidation::sumEnergy(edm::Handle<reco::PFClusterCollection> pfCluster1) {
+double PFClusterValidation::sumEnergy(const edm::Handle<reco::PFClusterCollection>& pfCluster1) {
   reco::PFClusterCollection::const_iterator pf;
   double sumenergy = 0.;
   for (pf = pfCluster1->begin(); pf != pfCluster1->end(); ++pf) {

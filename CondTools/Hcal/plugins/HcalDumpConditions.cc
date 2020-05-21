@@ -60,7 +60,7 @@ namespace edmtest {
                 const edm::EventSetup& context,
                 const std::string name);
     template <class S>
-    void writeToFile(const S& myS, const edm::Event& e, const std::string name);
+    void writeToFile(const S& myS, const edm::Event& e, const std::string& name);
 
   private:
     std::string front;
@@ -109,7 +109,7 @@ namespace edmtest {
   }
 
   template <class S>
-  void HcalDumpConditions::writeToFile(const S& myS, const edm::Event& e, const std::string name) {
+  void HcalDumpConditions::writeToFile(const S& myS, const edm::Event& e, const std::string& name) {
     int myrun = e.id().run();
     std::ostringstream file;
     file << front << name.c_str() << "_Run" << myrun << ".txt";

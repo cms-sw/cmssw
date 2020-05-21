@@ -47,8 +47,8 @@ namespace edm {
   public:
     SubProcess(ParameterSet& parameterSet,
                ParameterSet const& topLevelParameterSet,
-               std::shared_ptr<ProductRegistry const> parentProductRegistry,
-               std::shared_ptr<BranchIDListHelper const> parentBranchIDListHelper,
+               const std::shared_ptr<ProductRegistry const>& parentProductRegistry,
+               const std::shared_ptr<BranchIDListHelper const>& parentBranchIDListHelper,
                ThinnedAssociationsHelper const& parentThinnedAssociationsHelper,
                SubProcessParentageHelper const& parentSubProcessParentageHelper,
                eventsetup::EventSetupsController& esController,

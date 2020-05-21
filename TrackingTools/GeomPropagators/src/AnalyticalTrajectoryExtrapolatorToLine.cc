@@ -24,7 +24,7 @@ TrajectoryStateOnSurface AnalyticalTrajectoryExtrapolatorToLine::extrapolate(con
   return extrapolateSingleState(fts, line);
 }
 
-TrajectoryStateOnSurface AnalyticalTrajectoryExtrapolatorToLine::extrapolate(const TrajectoryStateOnSurface tsos,
+TrajectoryStateOnSurface AnalyticalTrajectoryExtrapolatorToLine::extrapolate(const TrajectoryStateOnSurface& tsos,
                                                                              const Line& line) const {
   if (tsos.isValid())
     return extrapolateFullState(tsos, line);
@@ -33,7 +33,7 @@ TrajectoryStateOnSurface AnalyticalTrajectoryExtrapolatorToLine::extrapolate(con
 }
 
 TrajectoryStateOnSurface AnalyticalTrajectoryExtrapolatorToLine::extrapolateFullState(
-    const TrajectoryStateOnSurface tsos, const Line& line) const {
+    const TrajectoryStateOnSurface& tsos, const Line& line) const {
   //
   // first determine IP plane using propagation with (single) FTS
   // could be optimised (will propagate errors even if duplicated below)

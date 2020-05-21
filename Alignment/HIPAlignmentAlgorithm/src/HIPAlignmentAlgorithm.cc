@@ -989,7 +989,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo& e
 }
 
 // ----------------------------------------------------------------------------
-int HIPAlignmentAlgorithm::readIterationFile(std::string filename) {
+int HIPAlignmentAlgorithm::readIterationFile(const std::string& filename) {
   int result;
 
   std::ifstream inIterFile(filename.c_str(), std::ios::in);
@@ -1008,7 +1008,7 @@ int HIPAlignmentAlgorithm::readIterationFile(std::string filename) {
 }
 
 // ----------------------------------------------------------------------------
-void HIPAlignmentAlgorithm::writeIterationFile(std::string filename, int iter) {
+void HIPAlignmentAlgorithm::writeIterationFile(const std::string& filename, int iter) {
   std::ofstream outIterFile((filename.c_str()), std::ios::out);
   if (!outIterFile)
     edm::LogError("Alignment") << "[HIPAlignmentAlgorithm::writeIterationFile] ERROR: Unable to write Iteration file";

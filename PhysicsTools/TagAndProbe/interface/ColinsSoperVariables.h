@@ -4,7 +4,7 @@
 
 // calculate the Colins-Soper variables;
 // everything is in the lab frame
-void calCSVariables(TLorentzVector mu, TLorentzVector mubar, double *res, bool swap) {
+void calCSVariables(const TLorentzVector& mu, const TLorentzVector& mubar, double* res, bool swap) {
   // convention. beam direction is on the positive Z direction.
   // beam contains quark flux.
   TLorentzVector Pbeam(0, 0, CM_ENERGY / 2.0, CM_ENERGY / 2.0);

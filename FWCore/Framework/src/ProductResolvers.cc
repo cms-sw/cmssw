@@ -609,7 +609,7 @@ namespace edm {
         << "Contact a Framework developer\n";
   }
 
-  SwitchBaseProductResolver::SwitchBaseProductResolver(std::shared_ptr<BranchDescription const> bd,
+  SwitchBaseProductResolver::SwitchBaseProductResolver(const std::shared_ptr<BranchDescription const>& bd,
                                                        DataManagingOrAliasProductResolver& realProduct)
       : realProduct_(realProduct), productData_(std::move(bd)), prefetchRequested_(false) {
     // Parentage of this branch is always the same by construction, so we can compute the ID just "once" here.
@@ -953,7 +953,7 @@ namespace edm {
 
   void NoProcessProductResolver::setCache(bool iSkipCurrentProcess,
                                           ProductResolverIndex iIndex,
-                                          std::exception_ptr iExceptPtr) const {
+                                          const std::exception_ptr& iExceptPtr) const {
     if (not iSkipCurrentProcess) {
       lastCheckIndex_ = iIndex;
       waitingTasks_.doneWaiting(iExceptPtr);
@@ -977,7 +977,7 @@ namespace edm {
             principal_(iPrincipal),
             sra_(iSRA),
             mcc_(iMCC),
-            serviceToken_(iToken),
+            serviceToken_(std::move(iToken)),
             index_(iResolverIndex),
             skipCurrentProcess_(iSkipCurrentProcess) {}
 
@@ -1012,7 +1012,7 @@ namespace edm {
     std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
     auto k = lookupProcessOrder[iProcessingIndex];
 
-    setCache(iSkipCurrentProcess, k, iExceptPtr);
+    setCache(iSkipCurrentProcess, k, std::move(iExceptPtr));
   }
 
   bool NoProcessProductResolver::dataValidFromResolver(unsigned int iProcessingIndex,
@@ -1034,7 +1034,7 @@ namespace edm {
                                                           bool skipCurrentProcess,
                                                           SharedResourcesAcquirer* sra,
                                                           ModuleCallingContext const* mcc,
-                                                          ServiceToken token) const {
+                                                          const ServiceToken& token) const {
     std::vector<unsigned int> const& lookupProcessOrder = principal.lookupProcessOrder();
     auto index = iProcessingIndex;
 

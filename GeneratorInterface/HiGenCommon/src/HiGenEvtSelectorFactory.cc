@@ -6,7 +6,7 @@
 #include "GeneratorInterface/HiGenCommon/interface/PartonHadronDecayGenEvtSelector.h"
 #include "GeneratorInterface/HiGenCommon/interface/HadronDecayGenEvtSelector.h"
 
-BaseHiGenEvtSelector* HiGenEvtSelectorFactory::get(std::string filterType, const edm::ParameterSet& pset) {
+BaseHiGenEvtSelector* HiGenEvtSelectorFactory::get(const std::string& filterType, const edm::ParameterSet& pset) {
   if (filterType == "None") {
     return new BaseHiGenEvtSelector(pset);
   } else if (filterType == "EcalGenEvtSelector") {

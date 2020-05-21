@@ -95,7 +95,7 @@ public:
   }
 
   //! Find a trigger unit in the map
-  TU_iterator find(DTChamberId id) { /*check();*/
+  TU_iterator find(const DTChamberId& id) { /*check();*/
     return _cache.find(id);
   }
 
@@ -122,7 +122,7 @@ public:
   }
 
   //! Find a Sector Collector in the map
-  SC_iterator find1(DTSectCollId id) { /*check();*/
+  SC_iterator find1(const DTSectCollId& id) { /*check();*/
     return _cache1.find(id);
   }
 
@@ -132,13 +132,13 @@ public:
   }
 
   //! Return a trigger unit - Muon numbering
-  DTSCTrigUnit* trigUnit(DTChamberId sid);
+  DTSCTrigUnit* trigUnit(const DTChamberId& sid);
 
   //! Return a trigger unit - Muon numbering, MTTF numbering
   DTSCTrigUnit* trigUnit(int wheel, int stat, int sect);
 
   //! Return the first phi track segment in req. chamber/step
-  DTChambPhSegm* chPhiSegm1(DTChamberId sid, int step);
+  DTChambPhSegm* chPhiSegm1(const DTChamberId& sid, int step);
 
   //! Return the first phi track segment in req. chamber/step
   DTChambPhSegm* chPhiSegm1(DTSCTrigUnit* unit, int step);
@@ -147,7 +147,7 @@ public:
   DTChambPhSegm* chPhiSegm1(int wheel, int stat, int sect, int step);
 
   //! Return the second phi track segment in req. chamber/step
-  DTChambPhSegm* chPhiSegm2(DTChamberId sid, int step);
+  DTChambPhSegm* chPhiSegm2(const DTChamberId& sid, int step);
 
   //! Return the second phi track segment in req. chamber/step
   DTChambPhSegm* chPhiSegm2(DTSCTrigUnit* unit, int step);
@@ -156,7 +156,7 @@ public:
   DTChambPhSegm* chPhiSegm2(int wheel, int stat, int sect, int step);
 
   //! Return the theta candidates in req. chamber/step
-  DTChambThSegm* chThetaSegm(DTChamberId sid, int step);
+  DTChambThSegm* chThetaSegm(const DTChamberId& sid, int step);
 
   //! Return the theta candidates in req. chamber/step
   DTChambThSegm* chThetaSegm(DTSCTrigUnit* unit, int step);
@@ -239,13 +239,13 @@ public:
 private:
   // const version of the methods to access TUs and SCs are private to avoid misuse
   //! Return a trigger unit - Muon numbering - const version
-  DTSCTrigUnit const* constTrigUnit(DTChamberId sid) const;
+  DTSCTrigUnit const* constTrigUnit(const DTChamberId& sid) const;
 
   //! Return a trigger unit - Muon numbering, MTTF numbering - const version
   DTSCTrigUnit const* constTrigUnit(int wheel, int stat, int sect) const;
 
   //! Return a SC unit - Muon numbering - const version
-  DTSectColl const* SCUnit(DTSectCollId scid) const;
+  DTSectColl const* SCUnit(const DTSectCollId& scid) const;
 
   //! Return a SC Unit Muon Numbering, MTTF numbering - const version
   DTSectColl const* SCUnit(int wheel, int sect) const;

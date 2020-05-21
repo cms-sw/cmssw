@@ -25,7 +25,7 @@ public:
 
 private:
   edm::TriggerNames triggerNames(
-      const edm::TriggerResults
+      const edm::TriggerResults &
           triggerResults);  //FIXME: if we have to keep it local we may use PsetID check per event instead of run boundary
 
   edm::EDGetToken m_token;
@@ -44,7 +44,7 @@ private:
   long m_lastRun;
   unsigned long m_fills;
   std::string m_processName;
-  bool verifyBranchUniqueName(TTree &, std::string) const;
+  bool verifyBranchUniqueName(TTree &, const std::string &) const;
 
   template <typename T>
   void fillColumn(NamedBranchPtr &nb, const edm::TriggerResults &triggers) {

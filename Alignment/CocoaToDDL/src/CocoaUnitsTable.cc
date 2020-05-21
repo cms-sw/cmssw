@@ -339,7 +339,7 @@ CocoaBestUnit::~CocoaBestUnit() {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-std::ostream& operator<<(std::ostream& flux, CocoaBestUnit a) {
+std::ostream& operator<<(std::ostream& flux, const CocoaBestUnit& a) {
   CocoaUnitsTable& theUnitsTable = CocoaUnitDefinition::GetUnitsTable();
   CocoaUnitsContainer& List = theUnitsTable[a.IndexOfCategory]->GetUnitsList();
   ALIint len = theUnitsTable[a.IndexOfCategory]->GetSymbMxLen();

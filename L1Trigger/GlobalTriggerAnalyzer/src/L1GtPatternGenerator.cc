@@ -135,7 +135,7 @@ static std::vector<uint32_t> chopWords(const std::vector<bool>& aWord) {
 /** Split a vector<bool> of arbitrary size into uint32_t chunks and add them to a
     pattern file line with the given prefix.
 */
-static void extractGlobalTriggerWord(const std::vector<bool> input, L1GtPatternLine& line, const std::string& prefix) {
+static void extractGlobalTriggerWord(const std::vector<bool>& input, L1GtPatternLine& line, const std::string& prefix) {
   std::vector<uint32_t> resultWords = chopWords(input);
 
   // add in reverse order, so that higher-order words have lower indices

@@ -14,6 +14,8 @@ Dominik Beutel
 #include <ThePEG/Repository/Repository.h>
 #include <ThePEG/Handlers/SamplerBase.h>
 
+#include <utility>
+
 namespace Herwig {
 
   void HerwigUIProvider::quitWithHelp() const {
@@ -33,7 +35,7 @@ namespace Herwig {
         resume_(false),
         tics_(true),
         tag_(),
-        inputfile_(inputFileName),
+        inputfile_(std::move(inputFileName)),
         repository_(),
         setupfile_(),
         integrationList_(),
@@ -146,7 +148,9 @@ namespace Herwig {
       resume_ = true;
   }
 
-  void HerwigUIProvider::setRunMode(RunMode::Mode runMode, const edm::ParameterSet &pset, std::string inputFile) {
+  void HerwigUIProvider::setRunMode(RunMode::Mode runMode,
+                                    const edm::ParameterSet &pset,
+                                    const std::string &inputFile) {
     runMode_ = runMode;
     if (!inputFile.empty())
       inputfile_ = inputFile;

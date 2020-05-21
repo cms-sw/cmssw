@@ -416,7 +416,7 @@ std::map<int, int> l1t::Stage2Layer2JetAlgorithmFirmwareImp1::getSumEtEtaMap(con
 std::vector<int> l1t::Stage2Layer2JetAlgorithmFirmwareImp1::getChunkyRing(l1t::Jet& jet,
                                                                           int size,
                                                                           const std::vector<l1t::CaloTower>& towers,
-                                                                          const std::string chunkyString) {
+                                                                          const std::string& chunkyString) {
   int jetPhi = jet.hwPhi();
   int jetEta = CaloTools::mpEta(jet.hwEta());
 
@@ -562,7 +562,7 @@ int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkyDonutPUEstimate(l1t::Jet& j
 int l1t::Stage2Layer2JetAlgorithmFirmwareImp1::chunkySandwichPUEstimate(l1t::Jet& jet,
                                                                         int size,
                                                                         const std::vector<l1t::CaloTower>& towers,
-                                                                        const std::string chunkySandwichStr) {
+                                                                        const std::string& chunkySandwichStr) {
   //ring will be handled identically by all variants for now - could consider a different picking w/ ChunkySandwich8, say to exclude a downward fluctuation w/ 1,2,3 from ring, etc.
   std::vector<int> ring = getChunkyRing(jet, size, towers, chunkySandwichStr);
   for (unsigned int i = 0; i < 4; ++i)

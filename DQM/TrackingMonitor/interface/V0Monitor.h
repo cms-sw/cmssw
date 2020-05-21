@@ -48,29 +48,29 @@ public:
 protected:
   void bookHistograms(DQMStore::IBooker&, edm::Run const&, edm::EventSetup const&) override;
   MonitorElement* bookHisto1D(DQMStore::IBooker& ibooker,
-                              std::string name,
-                              std::string title,
-                              std::string xaxis,
-                              std::string yaxis,
+                              const std::string& name,
+                              const std::string& title,
+                              const std::string& xaxis,
+                              const std::string& yaxis,
                               MEbinning binning);
   MonitorElement* bookHisto2D(DQMStore::IBooker& ibooker,
-                              std::string name,
-                              std::string title,
-                              std::string xaxis,
-                              std::string yaxis,
+                              const std::string& name,
+                              const std::string& title,
+                              const std::string& xaxis,
+                              const std::string& yaxis,
                               MEbinning xbinning,
                               MEbinning ybinning);
   MonitorElement* bookProfile(DQMStore::IBooker& ibooker,
-                              std::string name,
-                              std::string title,
-                              std::string xaxis,
-                              std::string yaxis,
+                              const std::string& name,
+                              const std::string& title,
+                              const std::string& xaxis,
+                              const std::string& yaxis,
                               MEbinning xbinning,
                               MEbinning ybinning);
   void analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) override;
 
 private:
-  void getHistoPSet(edm::ParameterSet pset, MEbinning& mebinning);
+  void getHistoPSet(const edm::ParameterSet& pset, MEbinning& mebinning);
 
   std::string folderName_;
 

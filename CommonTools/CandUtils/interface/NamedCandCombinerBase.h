@@ -22,7 +22,7 @@ public:
   /// construct from four charge values
   NamedCandCombinerBase(std::string name, int, int, int, int);
   /// constructor from a selector, specifying optionally to check for charge
-  NamedCandCombinerBase(std::string name, bool checkCharge, bool checkOverlap, const std::vector<int> &);
+  NamedCandCombinerBase(const std::string &name, bool checkCharge, bool checkOverlap, const std::vector<int> &);
   /// destructor
   virtual ~NamedCandCombinerBase();
   /// return all selected candidate pairs

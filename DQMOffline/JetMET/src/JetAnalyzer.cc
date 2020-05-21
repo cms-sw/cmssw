@@ -1692,7 +1692,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRu
   map_of_MEs.insert(std::pair<std::string, MonitorElement*>("JetMET/vertices", verticesME));
 }
 
-void JetAnalyzer::bookMESetSelection(std::string DirName, DQMStore::IBooker& ibooker) {
+void JetAnalyzer::bookMESetSelection(const std::string& DirName, DQMStore::IBooker& ibooker) {
   ibooker.setCurrentFolder(DirName);
   // Generic jet parameters
   mPt = ibooker.book1D("Pt", "pt", ptBin_, ptMin_, ptMax_);

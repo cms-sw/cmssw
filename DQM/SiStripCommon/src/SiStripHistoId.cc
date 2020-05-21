@@ -13,6 +13,7 @@
 #include <iostream>
 #include <sstream>
 #include <cstdio>
+#include <utility>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiStripCommon/interface/SiStripHistoId.h"
@@ -23,7 +24,9 @@ SiStripHistoId::SiStripHistoId() {}
 
 SiStripHistoId::~SiStripHistoId() {}
 
-std::string SiStripHistoId::createHistoId(std::string description, std::string id_type, uint32_t component_id) {
+std::string SiStripHistoId::createHistoId(const std::string& description,
+                                          const std::string& id_type,
+                                          uint32_t component_id) {
   size_t pos1 = description.find("__", 0);  // check if std::string 'description' contains by mistake the 'separator1'
   size_t pos2 = description.find("__", 0);  // check if std::string 'description' contains by mistake the 'separator2'
   std::string local_histo_id;
@@ -48,10 +51,10 @@ std::string SiStripHistoId::createHistoId(std::string description, std::string i
   return local_histo_id;
 }
 
-std::string SiStripHistoId::createHistoLayer(std::string description,
-                                             std::string id_type,
-                                             std::string path,
-                                             std::string flag) {
+std::string SiStripHistoId::createHistoLayer(const std::string& description,
+                                             const std::string& id_type,
+                                             const std::string& path,
+                                             const std::string& flag) {
   size_t pos1 = description.find("__", 0);  // check if std::string 'description' contains by mistake the 'separator1'
   size_t pos2 = description.find("__", 0);  // check if std::string 'description' contains by mistake the 'separator2'
   std::string local_histo_id;
@@ -142,14 +145,14 @@ std::string SiStripHistoId::getSubdetid(uint32_t id, const TrackerTopology *tTop
 
 uint32_t SiStripHistoId::getComponentId(std::string histoid) {
   uint32_t local_component_id;
-  std::istringstream input(returnIdPart(histoid, 3));
+  std::istringstream input(returnIdPart(std::move(histoid), 3));
   input >> local_component_id;  // use std::istringstream for casting from std::string to uint32_t
   return local_component_id;
 }
 
-std::string SiStripHistoId::getComponentType(std::string histoid) { return returnIdPart(histoid, 2); }
+std::string SiStripHistoId::getComponentType(std::string histoid) { return returnIdPart(std::move(histoid), 2); }
 
-std::string SiStripHistoId::returnIdPart(std::string histoid, uint32_t whichpart) {
+std::string SiStripHistoId::returnIdPart(const std::string& histoid, uint32_t whichpart) {
   size_t length1 = histoid.find("__", 0);
   if (length1 == std::string::npos) {  // no separator1 found
     edm::LogWarning("SiStripTkDQM|UnregularInput") << "no regular histoid. Returning 0";

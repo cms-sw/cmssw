@@ -24,7 +24,7 @@ namespace pos {
   public:
     PixelROCTrimBits();
 
-    void setROCTrimBits(PixelROCName rocid, std::string bits);
+    void setROCTrimBits(PixelROCName rocid, const std::string& bits);
 
     int read(PixelROCName rocid, std::string in);
     int read(PixelROCName rocid, std::ifstream& in);

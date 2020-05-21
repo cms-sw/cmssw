@@ -129,7 +129,7 @@ void DTNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c) {
   }
 }
 
-void DTNoiseTask::bookHistos(DQMStore::IBooker& ibooker, DTChamberId chId) {
+void DTNoiseTask::bookHistos(DQMStore::IBooker& ibooker, const DTChamberId& chId) {
   // set the folder
   stringstream wheel;
   wheel << chId.wheel();
@@ -186,7 +186,7 @@ void DTNoiseTask::bookHistos(DQMStore::IBooker& ibooker, DTChamberId chId) {
   noiseHistos[chId]->setBinLabel(12, "SL3-L4", 2);
 }
 
-void DTNoiseTask::bookHistos(DQMStore::IBooker& ibooker, DTSuperLayerId slId) {
+void DTNoiseTask::bookHistos(DQMStore::IBooker& ibooker, const DTSuperLayerId& slId) {
   // set the folder
   stringstream wheel;
   wheel << slId.chamberId().wheel();

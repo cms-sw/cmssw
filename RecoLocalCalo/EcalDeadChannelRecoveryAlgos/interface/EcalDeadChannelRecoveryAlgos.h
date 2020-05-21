@@ -19,7 +19,7 @@ public:
   void setCaloTopology(const CaloTopology *topology);
   float correct(const DetIdT id,
                 const EcalRecHitCollection &hit_collection,
-                std::string algo,
+                const std::string &algo,
                 double single8Cut,
                 double sum8Cut,
                 bool *accFlag);

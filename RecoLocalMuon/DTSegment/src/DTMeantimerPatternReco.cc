@@ -291,7 +291,7 @@ void DTMeantimerPatternReco::addHits(DTSegmentCand* segCand,
   }
 }
 
-bool DTMeantimerPatternReco::geometryFilter(const DTWireId first, const DTWireId second) const {
+bool DTMeantimerPatternReco::geometryFilter(const DTWireId& first, const DTWireId& second) const {
   //  return true;
 
   const int layerLowerCut[4] = {0, -1, -2, -2};

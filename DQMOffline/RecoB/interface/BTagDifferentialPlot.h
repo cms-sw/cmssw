@@ -24,7 +24,7 @@ public:
 
   ~BTagDifferentialPlot();
 
-  void addBinPlotter(std::shared_ptr<JetTagPlotter> aPlotter) { theBinPlotters.push_back(aPlotter); }
+  void addBinPlotter(const std::shared_ptr<JetTagPlotter>& aPlotter) { theBinPlotters.push_back(aPlotter); }
 
   void process(DQMStore::IBooker& ibook);
 

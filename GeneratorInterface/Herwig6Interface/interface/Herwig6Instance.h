@@ -33,7 +33,7 @@ namespace gen {
     }
 
     // method to open External Particle Spectra Files
-    void openParticleSpecFile(const std::string fileName);
+    void openParticleSpecFile(const std::string &fileName);
 
     void setHerwigRandomEngine(CLHEP::HepRandomEngine *v) { randomEngine = v; }
 

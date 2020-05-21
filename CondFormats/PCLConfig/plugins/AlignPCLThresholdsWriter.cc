@@ -48,7 +48,7 @@ private:
   void beginJob() override;
   void analyze(const edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
-  DOFs::dof mapOntoEnum(std::string coord);
+  DOFs::dof mapOntoEnum(const std::string& coord);
 
   // ----------member data ---------------------------
   const std::string m_record;
@@ -189,7 +189,7 @@ void AlignPCLThresholdsWriter::beginJob() {}
 // ------------ method called once each job just after ending the event loop  ------------
 void AlignPCLThresholdsWriter::endJob() {}
 
-DOFs::dof AlignPCLThresholdsWriter::mapOntoEnum(std::string coord) {
+DOFs::dof AlignPCLThresholdsWriter::mapOntoEnum(const std::string& coord) {
   if (coord == "X") {
     return DOFs::X;
   } else if (coord == "Y") {

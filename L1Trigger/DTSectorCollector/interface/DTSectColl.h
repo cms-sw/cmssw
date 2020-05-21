@@ -57,7 +57,7 @@ class DTSectColl : public DTSCPhCache, public DTSCThCache {
 public:
   //!  Constructor
   //DTSectColl(edm::ParameterSet& sc_pset);
-  DTSectColl(DTSectCollId id);
+  DTSectColl(const DTSectCollId& id);
 
   //!  Destructor
   ~DTSectColl() override;

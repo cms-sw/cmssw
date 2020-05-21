@@ -53,7 +53,7 @@ void ME0TriggerPseudoBuilder::build(const ME0SegmentCollection* me0Segments, ME0
   }
 }
 
-ME0TriggerDigi ME0TriggerPseudoBuilder::segmentConversion(const ME0Segment segment) {
+ME0TriggerDigi ME0TriggerPseudoBuilder::segmentConversion(const ME0Segment& segment) {
   auto detid = segment.me0DetId();
   const ME0Chamber* chamber = me0_g->chamber(detid);
   const ME0Layer* keylayer = me0_g->chamber(detid)->layer(ME0TriggerPseudoBuilder::ME0KeyLayer);

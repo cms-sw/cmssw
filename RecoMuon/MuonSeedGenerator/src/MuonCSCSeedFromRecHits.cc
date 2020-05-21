@@ -121,7 +121,7 @@ bool MuonCSCSeedFromRecHits::makeSeed(const MuonRecHitContainer& hits1,
 }
 
 //typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
-int MuonCSCSeedFromRecHits::segmentQuality(ConstMuonRecHitPointer segment) const {
+int MuonCSCSeedFromRecHits::segmentQuality(const ConstMuonRecHitPointer& segment) const {
   int Nchi2 = 0;
   int quality = 0;
   int nhits = segment->recHits().size();
@@ -214,7 +214,7 @@ void MuonCSCSeedFromRecHits::makeDefaultSeed(TrajectorySeed& seed) const {
   }
 }
 
-bool MuonCSCSeedFromRecHits::createDefaultEndcapSeed(ConstMuonRecHitPointer last, TrajectorySeed& seed) const {
+bool MuonCSCSeedFromRecHits::createDefaultEndcapSeed(const ConstMuonRecHitPointer& last, TrajectorySeed& seed) const {
   //float momentum = computeDefaultPt(last);
   std::vector<double> momentum = thePtExtractor->pT_extract(last, last);
   seed = createSeed(momentum[0], momentum[1], last);

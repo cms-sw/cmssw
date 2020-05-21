@@ -302,7 +302,7 @@ std::vector<DTTracoChip *> DTTracoCard::tracoList() {
   return blist;
 }
 
-DTTracoTrig *DTTracoCard::storeTrigger(DTTracoTrigData td) {
+DTTracoTrig *DTTracoCard::storeTrigger(const DTTracoTrigData &td) {
   DTTracoId tracoid = td.parentId();
   if (!(tracoid.wheel() == wheel() && tracoid.sector() == sector() && tracoid.station() == station()))
     return nullptr;

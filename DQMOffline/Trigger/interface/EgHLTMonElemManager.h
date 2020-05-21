@@ -51,11 +51,15 @@ namespace egHLT {
     MonElemManagerHist& operator=(const MonElemManagerHist& rhs) { return *this; }
 
   public:
-    MonElemManagerHist(
-        DQMStore::IBooker& iBooker, std::string name, std::string title, int nrBins, double xMin, double xMax);
     MonElemManagerHist(DQMStore::IBooker& iBooker,
-                       std::string name,
-                       std::string title,
+                       const std::string& name,
+                       const std::string& title,
+                       int nrBins,
+                       double xMin,
+                       double xMax);
+    MonElemManagerHist(DQMStore::IBooker& iBooker,
+                       const std::string& name,
+                       const std::string& title,
                        int nrBinsX,
                        double xMin,
                        double xMax,
@@ -71,16 +75,20 @@ namespace egHLT {
   };
 
   template <class T>
-  MonElemManagerHist<T>::MonElemManagerHist(
-      DQMStore::IBooker& iBooker, std::string name, std::string title, int nrBins, double xMin, double xMax)
+  MonElemManagerHist<T>::MonElemManagerHist(DQMStore::IBooker& iBooker,
+                                            const std::string& name,
+                                            const std::string& title,
+                                            int nrBins,
+                                            double xMin,
+                                            double xMax)
       : monElem_(nullptr) {
     monElem_ = iBooker.book1D(name, title, nrBins, xMin, xMax);
   }
 
   template <class T>
   MonElemManagerHist<T>::MonElemManagerHist(DQMStore::IBooker& iBooker,
-                                            std::string name,
-                                            std::string title,
+                                            const std::string& name,
+                                            const std::string& title,
                                             int nrBinsX,
                                             double xMin,
                                             double xMax,
@@ -109,8 +117,8 @@ namespace egHLT {
 
   public:
     MonElemManager(DQMStore::IBooker& iBooker,
-                   std::string name,
-                   std::string title,
+                   const std::string& name,
+                   const std::string& title,
                    int nrBins,
                    double xMin,
                    double xMax,
@@ -143,8 +151,8 @@ namespace egHLT {
 
   public:
     MonElemManager2D(DQMStore::IBooker& iBooker,
-                     std::string name,
-                     std::string title,
+                     const std::string& name,
+                     const std::string& title,
                      int nrBinsX,
                      double xMin,
                      double xMax,

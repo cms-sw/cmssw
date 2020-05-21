@@ -29,13 +29,13 @@ public:
   void disconnect(void);
   void setAccessor(std::string _accessor);
   std::vector<unsigned int> getOnlineLUT(
-      std::string tag, int crate, int slot, int topbottom, int fiber, int channel, int luttype);
+      const std::string& tag, int crate, int slot, int topbottom, int fiber, int channel, int luttype);
   std::vector<unsigned int> getOnlineLUT(
-      std::string tag,
+      const std::string& tag,
       uint32_t _rawid,
       hcal::ConfigurationDatabase::LUTType _lt = hcal::ConfigurationDatabase::LinearizerLUT);
   std::vector<unsigned int> getOnlineLUTFromXML(
-      std::string tag,
+      const std::string& tag,
       uint32_t _rawid,
       hcal::ConfigurationDatabase::LUTType _lt = hcal::ConfigurationDatabase::LinearizerLUT);
 

@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "OnlineDB/EcalCondDB/interface/LMFPrimDat.h"
 
 LMFPrimDat::LMFPrimDat() : LMFColoredTable() { init(); }
@@ -10,14 +12,14 @@ LMFPrimDat::LMFPrimDat(EcalDBConnection *c) : LMFColoredTable(c) { init(); }
 
 LMFPrimDat::LMFPrimDat(std::string color, std::string system) : LMFColoredTable() {
   init();
-  setColor(color);
-  setSystem(system);
+  setColor(std::move(color));
+  setSystem(std::move(system));
 }
 
 LMFPrimDat::LMFPrimDat(int color, std::string system) : LMFColoredTable() {
   init();
   setColor(color);
-  setSystem(system);
+  setSystem(std::move(system));
 }
 
 LMFPrimDat::LMFPrimDat(oracle::occi::Environment *env,
@@ -26,27 +28,27 @@ LMFPrimDat::LMFPrimDat(oracle::occi::Environment *env,
                        std::string system)
     : LMFColoredTable(env, conn) {
   init();
-  setColor(color);
-  setSystem(system);
+  setColor(std::move(color));
+  setSystem(std::move(system));
 }
 
 LMFPrimDat::LMFPrimDat(oracle::occi::Environment *env, oracle::occi::Connection *conn, int color, std::string system)
     : LMFColoredTable(env, conn) {
   init();
   setColor(color);
-  setSystem(system);
+  setSystem(std::move(system));
 }
 
 LMFPrimDat::LMFPrimDat(EcalDBConnection *c, std::string color, std::string system) : LMFColoredTable(c) {
   init();
-  setColor(color);
-  setSystem(system);
+  setColor(std::move(color));
+  setSystem(std::move(system));
 }
 
 LMFPrimDat::LMFPrimDat(EcalDBConnection *c, int color, std::string system) : LMFColoredTable(c) {
   init();
   setColor(color);
-  setSystem(system);
+  setSystem(std::move(system));
 }
 
 void LMFPrimDat::init() {

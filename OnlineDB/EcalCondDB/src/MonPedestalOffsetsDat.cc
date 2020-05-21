@@ -70,7 +70,7 @@ void MonPedestalOffsetsDat::writeDB(const EcalLogicID* ecid,
 
 void MonPedestalOffsetsDat::fetchData(std::map<EcalLogicID, MonPedestalOffsetsDat>* fillMap,
                                       MonRunIOV* iov,
-                                      std::string mappa) noexcept(false) {
+                                      const std::string& mappa) noexcept(false) {
   this->checkConnection();
   fillMap->clear();
 

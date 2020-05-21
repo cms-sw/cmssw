@@ -11,13 +11,15 @@
 // $Id: AlignmentMonitorBase.cc,v 1.11 2010/01/06 15:23:09 mussgill Exp $
 //
 
+#include <utility>
+
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-AlignmentMonitorBase::AlignmentMonitorBase(const edm::ParameterSet &cfg, std::string name)
+AlignmentMonitorBase::AlignmentMonitorBase(const edm::ParameterSet &cfg, const std::string &name)
     : m_beamSpotTag(cfg.getUntrackedParameter<edm::InputTag>("beamSpotTag", edm::InputTag("offlineBeamSpot"))),
       m_iteration(0),
       mp_tracker(nullptr),
@@ -68,7 +70,7 @@ void AlignmentMonitorBase::duringLoop(const edm::Event &iEvent,
 
 void AlignmentMonitorBase::endOfLoop() { afterAlignment(); }
 
-TFileDirectory *AlignmentMonitorBase::directory(std::string dir) {
+TFileDirectory *AlignmentMonitorBase::directory(const std::string &dir) {
   std::string::size_type lastPos = dir.find_first_not_of("/", 0);
   std::string::size_type pos = dir.find_first_of("/", lastPos);
   std::vector<std::string> dirs;
@@ -105,13 +107,13 @@ TFileDirectory *AlignmentMonitorBase::directory(std::string dir) {
 }
 
 TH1F *AlignmentMonitorBase::book1D(
-    std::string dir, std::string name, std::string title, int nchX, double lowX, double highX) {
-  return directory(dir)->make<TH1F>(name.c_str(), title.c_str(), nchX, lowX, highX);
+    std::string dir, const std::string &name, const std::string &title, int nchX, double lowX, double highX) {
+  return directory(std::move(dir))->make<TH1F>(name.c_str(), title.c_str(), nchX, lowX, highX);
 }
 
-TProfile *AlignmentMonitorBase::bookProfile(std::string dir,
-                                            std::string name,
-                                            std::string title,
+TProfile *AlignmentMonitorBase::bookProfile(const std::string &dir,
+                                            const std::string &name,
+                                            const std::string &title,
                                             int nchX,
                                             double lowX,
                                             double highX,
@@ -127,13 +129,13 @@ TProfile *AlignmentMonitorBase::bookProfile(std::string dir,
 }
 
 TH2F *AlignmentMonitorBase::book2D(std::string dir,
-                                   std::string name,
-                                   std::string title,
+                                   const std::string &name,
+                                   const std::string &title,
                                    int nchX,
                                    double lowX,
                                    double highX,
                                    int nchY,
                                    double lowY,
                                    double highY) {
-  return directory(dir)->make<TH2F>(name.c_str(), title.c_str(), nchX, lowX, highX, nchY, lowY, highY);
+  return directory(std::move(dir))->make<TH2F>(name.c_str(), title.c_str(), nchX, lowX, highX, nchY, lowY, highY);
 }

@@ -46,7 +46,7 @@ public:
   DTTracoTrig(DTTracoChip *, int);
 
   /// Constructors
-  DTTracoTrig(DTTracoChip *, DTTracoTrigData);
+  DTTracoTrig(DTTracoChip *, const DTTracoTrigData &);
 
   /// Destructor
   ~DTTracoTrig() override;

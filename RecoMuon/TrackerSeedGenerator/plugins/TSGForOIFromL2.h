@@ -123,7 +123,7 @@ private:
                          std::vector<TrajectorySeed>& out) const;
 
   /// Calculate the dynamic error SF by analysing the L2
-  double calculateSFFromL2(const reco::TrackRef track) const;
+  double calculateSFFromL2(const reco::TrackRef& track) const;
 
   /// Find compatability between two TSOSs
   double match_Chi2(const TrajectoryStateOnSurface& tsos1, const TrajectoryStateOnSurface& tsos2) const;

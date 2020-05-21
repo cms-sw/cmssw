@@ -3,11 +3,12 @@
 
 #include "HtrXmlPatternSet.h"
 #include <ostream>
+#include <utility>
 
 class HtrXmlPatternWriter {
 public:
   HtrXmlPatternWriter();
-  void setTagName(std::string tn) { m_tagName = tn; }
+  void setTagName(std::string tn) { m_tagName = std::move(tn); }
   void writePattern(HalfHtrData* spigotData, int fiber, std::ostream& os, int level = 0);
 
 private:

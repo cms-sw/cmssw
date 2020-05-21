@@ -183,7 +183,7 @@ namespace hitTripletEDProducerT {
     DoNothing() {}
     explicit DoNothing(const SeedingLayerSetsHits* layers) {}
 
-    static void produces(edm::ProducesCollector) {}
+    static void produces(const edm::ProducesCollector&) {}
 
     void reserve(size_t, size_t) {}
 

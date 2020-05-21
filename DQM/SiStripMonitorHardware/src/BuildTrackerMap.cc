@@ -66,7 +66,7 @@ private:
   void endJob() override;
 
   void read(bool aMechView,
-            std::string aFile,
+            const std::string& aFile,
             const TkDetMap* tkDetMap,
             std::vector<std::unique_ptr<TkHistoMap>>& aTkMapVec,
             std::vector<bool>& aValidVec);
@@ -133,7 +133,7 @@ BuildTrackerMapPlugin::BuildTrackerMapPlugin(const edm::ParameterSet& iConfig)
 
 /*Check that is possible to load in tkhistomaps histograms already stored in a DQM root file (if the folder and name are known)*/
 void BuildTrackerMapPlugin::read(bool aMechView,
-                                 std::string aFile,
+                                 const std::string& aFile,
                                  const TkDetMap* tkDetMap,
                                  std::vector<std::unique_ptr<TkHistoMap>>& aTkMapVec,
                                  std::vector<bool>& aValidVec) {

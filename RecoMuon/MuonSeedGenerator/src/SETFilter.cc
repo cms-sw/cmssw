@@ -31,8 +31,8 @@
 struct sorter {
   //bigger first!
   sorter() {}
-  bool operator()(TransientTrackingRecHit::ConstRecHitPointer hit_1,
-                  TransientTrackingRecHit::ConstRecHitPointer hit_2) const {
+  bool operator()(const TransientTrackingRecHit::ConstRecHitPointer &hit_1,
+                  const TransientTrackingRecHit::ConstRecHitPointer &hit_2) const {
     if (hit_1->det()->subDetector() != GeomDetEnumerators::CSC ||
         hit_2->det()->subDetector() != GeomDetEnumerators::CSC) {
       // this is a piculiar "fix" for CSCs

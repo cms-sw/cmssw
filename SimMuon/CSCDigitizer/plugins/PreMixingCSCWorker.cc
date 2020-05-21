@@ -102,7 +102,9 @@ void PreMixingMuonWorker<CSCStripDigiCollection>::put(edm::Event &iEvent) {
 // CSC has three digi collections
 class PreMixingCSCWorker : public PreMixingWorker {
 public:
-  PreMixingCSCWorker(const edm::ParameterSet &ps, edm::ProducesCollector producesCollector, edm::ConsumesCollector &&iC)
+  PreMixingCSCWorker(const edm::ParameterSet &ps,
+                     const edm::ProducesCollector &producesCollector,
+                     edm::ConsumesCollector &&iC)
       : stripWorker_(ps.getParameter<edm::ParameterSet>("strip"), producesCollector, iC),
         wireWorker_(ps.getParameter<edm::ParameterSet>("wire"), producesCollector, iC),
         comparatorWorker_(ps.getParameter<edm::ParameterSet>("comparator"), producesCollector, iC) {}

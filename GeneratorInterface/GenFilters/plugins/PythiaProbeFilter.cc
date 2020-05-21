@@ -43,7 +43,8 @@ PythiaProbeFilter::~PythiaProbeFilter() {
   // (e.g. close files, deallocate resources etc.)
 }
 
-bool PythiaProbeFilter::AlreadyExcludedCheck(std::vector<unsigned int> excludedList, unsigned int current_part) const {
+bool PythiaProbeFilter::AlreadyExcludedCheck(const std::vector<unsigned int>& excludedList,
+                                             unsigned int current_part) const {
   bool result = false;
   for (unsigned int checkNow : excludedList) {
     if (current_part != checkNow)

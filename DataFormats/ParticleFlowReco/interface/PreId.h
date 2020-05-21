@@ -28,9 +28,9 @@ namespace reco {
       mva_.resize(nselection, -999.);
       geomMatching_.resize(5, -999.);
     }
-    void setTrack(reco::TrackRef trackref) { trackRef_ = trackref; }
+    void setTrack(const reco::TrackRef &trackref) { trackRef_ = trackref; }
 
-    void setECALMatchingProperties(PFClusterRef clusterRef,
+    void setECALMatchingProperties(const PFClusterRef &clusterRef,
                                    const math::XYZPoint &ecalpos,
                                    const math::XYZPoint &meanShower,
                                    float deta,

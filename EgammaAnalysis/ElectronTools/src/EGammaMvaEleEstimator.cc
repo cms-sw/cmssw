@@ -1,6 +1,8 @@
 #include <TFile.h>
 #include "EgammaAnalysis/ElectronTools/interface/EGammaMvaEleEstimator.h"
 #include <cmath>
+#include <utility>
+
 #include <vector>
 
 #ifndef STANDALONE
@@ -40,11 +42,11 @@ EGammaMvaEleEstimator::~EGammaMvaEleEstimator() {
 
 //--------------------------------------------------------------------------------------------------
 void EGammaMvaEleEstimator::initialize(std::string methodName,
-                                       std::string weightsfile,
+                                       const std::string& weightsfile,
                                        EGammaMvaEleEstimator::MVAType type) {
   std::vector<std::string> tempWeightFileVector;
   tempWeightFileVector.push_back(weightsfile);
-  initialize(methodName, type, kFALSE, tempWeightFileVector);
+  initialize(std::move(methodName), type, kFALSE, tempWeightFileVector);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,7 +65,7 @@ void EGammaMvaEleEstimator::initialize(std::string methodName,
   //initialize
   fisInitialized = kTRUE;
   fMVAType = type;
-  fMethodname = methodName;
+  fMethodname = std::move(methodName);
   fUseBinnedVersion = useBinnedVersion;
 
   //Define expected number of bins

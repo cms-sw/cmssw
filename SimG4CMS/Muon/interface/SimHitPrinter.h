@@ -22,18 +22,18 @@
 
 class SimHitPrinter {
 public:
-  SimHitPrinter(std::string);
+  SimHitPrinter(const std::string&);
   ~SimHitPrinter();
 
-  void startNewSimHit(std::string);
+  void startNewSimHit(const std::string&);
   void startNewEvent(int);
 
   void printId(int) const;
   void printTrack(int) const;
   void printPabs(float) const;
   void printEloss(float) const;
-  void printLocal(LocalPoint, LocalPoint) const;
-  void printGlobal(GlobalPoint) const;
+  void printLocal(const LocalPoint&, const LocalPoint&) const;
+  void printGlobal(const GlobalPoint&) const;
 
 private:
   static std::atomic<std::ofstream*> theFile;

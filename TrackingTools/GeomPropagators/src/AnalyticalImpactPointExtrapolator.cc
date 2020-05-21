@@ -26,7 +26,7 @@ TrajectoryStateOnSurface AnalyticalImpactPointExtrapolator::extrapolate(const Fr
   return extrapolateSingleState(fts, vtx);
 }
 
-TrajectoryStateOnSurface AnalyticalImpactPointExtrapolator::extrapolate(const TrajectoryStateOnSurface tsos,
+TrajectoryStateOnSurface AnalyticalImpactPointExtrapolator::extrapolate(const TrajectoryStateOnSurface& tsos,
                                                                         const GlobalPoint& vtx) const {
   if (tsos.isValid())
     return extrapolateFullState(tsos, vtx);
@@ -34,7 +34,7 @@ TrajectoryStateOnSurface AnalyticalImpactPointExtrapolator::extrapolate(const Tr
     return tsos;
 }
 
-TrajectoryStateOnSurface AnalyticalImpactPointExtrapolator::extrapolateFullState(const TrajectoryStateOnSurface tsos,
+TrajectoryStateOnSurface AnalyticalImpactPointExtrapolator::extrapolateFullState(const TrajectoryStateOnSurface& tsos,
                                                                                  const GlobalPoint& vertex) const {
   //
   // first determine IP plane using propagation with (single) FTS

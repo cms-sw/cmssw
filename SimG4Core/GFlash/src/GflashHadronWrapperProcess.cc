@@ -1,6 +1,8 @@
 //
 // S.Y. Jun, August 2007
 //
+#include <utility>
+
 #include "SimG4Core/GFlash/interface/GflashHadronWrapperProcess.h"
 
 #include "G4GPILSelection.hh"
@@ -14,7 +16,7 @@ using namespace CLHEP;
 
 GflashHadronWrapperProcess::GflashHadronWrapperProcess(G4String processName)
     : particleChange(nullptr), pmanager(nullptr), fProcessVector(nullptr), fProcess(nullptr) {
-  theProcessName = processName;
+  theProcessName = std::move(processName);
 }
 
 GflashHadronWrapperProcess::~GflashHadronWrapperProcess() {}

@@ -35,10 +35,10 @@ public:
   PFMETBenchmark();
   virtual ~PFMETBenchmark();
 
-  void setup(std::string Filename,
+  void setup(const std::string& Filename,
              bool debug,
              bool plotAgainstReco = false,
-             std::string benchmarkLabel_ = "ParticleFlow",
+             const std::string& benchmarkLabel_ = "ParticleFlow",
              DQMStore* dbe_store = nullptr);
   void process(const reco::PFMETCollection&,
                const reco::GenParticleCollection&,

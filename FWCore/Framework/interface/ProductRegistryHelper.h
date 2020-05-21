@@ -72,7 +72,7 @@ namespace edm {
 
       BranchAliasSetterT(BranchAliasSetter&& iS) : value_(iS.value_), token_(iS.token_.index()) {}
 
-      BranchAliasSetterT<T>& setBranchAlias(std::string alias) {
+      BranchAliasSetterT<T>& setBranchAlias(const std::string& alias) {
         value_.branchAlias_ = std::move(alias);
         return *this;
       }

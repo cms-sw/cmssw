@@ -25,7 +25,7 @@ TrajectoryStateOnSurface TransverseImpactPointExtrapolator::extrapolate(const Fr
   return doExtrapolation(fts, vtx, *thePropagator);
 }
 
-TrajectoryStateOnSurface TransverseImpactPointExtrapolator::extrapolate(const TrajectoryStateOnSurface tsos,
+TrajectoryStateOnSurface TransverseImpactPointExtrapolator::extrapolate(const TrajectoryStateOnSurface& tsos,
                                                                         const GlobalPoint& vtx) const {
   if (!tsos.isValid())
     return tsos;
@@ -42,7 +42,7 @@ TrajectoryStateOnSurface TransverseImpactPointExtrapolator::extrapolate(const Fr
   return doExtrapolation(fts, vtx, *(p_cloned.get()));
 }
 
-TrajectoryStateOnSurface TransverseImpactPointExtrapolator::extrapolate(const TrajectoryStateOnSurface tsos,
+TrajectoryStateOnSurface TransverseImpactPointExtrapolator::extrapolate(const TrajectoryStateOnSurface& tsos,
                                                                         const GlobalPoint& vtx,
                                                                         const Propagator& p) const {
   if (!tsos.isValid())
@@ -54,7 +54,7 @@ TrajectoryStateOnSurface TransverseImpactPointExtrapolator::extrapolate(const Tr
   return doExtrapolation(tsos, vtx, *(p_cloned.get()));
 }
 
-TrajectoryStateOnSurface TransverseImpactPointExtrapolator::doExtrapolation(const TrajectoryStateOnSurface tsos,
+TrajectoryStateOnSurface TransverseImpactPointExtrapolator::doExtrapolation(const TrajectoryStateOnSurface& tsos,
                                                                             const GlobalPoint& vtx,
                                                                             const Propagator& p) const {
   //

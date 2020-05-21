@@ -76,7 +76,7 @@ TrackingLayer TrackingLayer::createFromDetId(const DetId& detId, const TrackerTo
   return trackingLayer;
 }
 
-TrackingLayer TrackingLayer::createFromString(std::string layerSpecification) {
+TrackingLayer TrackingLayer::createFromString(const std::string& layerSpecification) {
   TrackingLayer trackingLayer;
   if (layerSpecification.substr(0, 4) == "BPix") {
     trackingLayer._subDet = TrackingLayer::Det::PXB;

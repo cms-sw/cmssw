@@ -33,7 +33,7 @@
 #include <pybind11/pybind11.h>
 
 PYBIND11_MODULE(libFWCorePythonParameterSet, m) {
-  pybind11::register_exception_translator([](std::exception_ptr p) {
+  pybind11::register_exception_translator([](const std::exception_ptr &p) {
     try {
       if (p)
         std::rethrow_exception(p);

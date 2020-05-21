@@ -36,8 +36,8 @@ void MuonMiniAOD::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 bool MuonMiniAOD::PassesCut_A(edm::View<pat::Muon>::const_iterator muon1,
-                              reco::Vertex thePrimaryVertex,
-                              TString WorkingPoint) {
+                              const reco::Vertex& thePrimaryVertex,
+                              const TString& WorkingPoint) {
   if (WorkingPoint == "tightMuons")
     return muon::isTightMuon(*muon1, thePrimaryVertex);
   else if (WorkingPoint == "mediumMuons")
@@ -55,8 +55,8 @@ bool MuonMiniAOD::PassesCut_A(edm::View<pat::Muon>::const_iterator muon1,
 }
 
 bool MuonMiniAOD::PassesCut_B(edm::View<pat::Muon>::const_iterator muon1,
-                              reco::Vertex thePrimaryVertex,
-                              TString WorkingPoint) {
+                              const reco::Vertex& thePrimaryVertex,
+                              const TString& WorkingPoint) {
   if (WorkingPoint == "tightMuons")
     return muon1->isTightMuon(thePrimaryVertex);
   else if (WorkingPoint == "mediumMuons")

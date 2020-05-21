@@ -51,7 +51,7 @@ namespace JME {
 
     float getScaleFactor(const JetParameters& parameters,
                          Variation variation = Variation::NOMINAL,
-                         std::string uncertaintySource = "") const;
+                         const std::string& uncertaintySource = "") const;
 
     void dump() const { m_object->dump(); }
 

@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <utility>
 
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 
@@ -24,10 +25,10 @@ public:
   inline void setDelay(int x) { m_delay = x; }
   inline int getDelay() const { return m_delay; }
 
-  inline void setGain(std::string x) { m_gain = x; }
+  inline void setGain(std::string x) { m_gain = std::move(x); }
   inline std::string getGain() const { return m_gain; }
 
-  inline void setMemGain(std::string x) { m_memgain = x; }
+  inline void setMemGain(std::string x) { m_memgain = std::move(x); }
   inline std::string getMemGain() const { return m_memgain; }
 
   inline void setOffsetHigh(int x) { m_offset_high = x; }
@@ -39,15 +40,15 @@ public:
   inline void setOffsetMid(int x) { m_offset_mid = x; }
   inline int getOffsetMid() const { return m_offset_mid; }
 
-  inline void setTrgMode(std::string x) { m_trg_mode = x; }
+  inline void setTrgMode(std::string x) { m_trg_mode = std::move(x); }
   inline std::string getTrgMode() const { return m_trg_mode; }
 
-  inline void setTrgFilter(std::string x) { m_trg_filter = x; }
+  inline void setTrgFilter(std::string x) { m_trg_filter = std::move(x); }
   inline std::string getTrgFilter() const { return m_trg_filter; }
 
   inline void setClock(int x) { m_clock = x; }
   inline int getClock() const { return m_clock; }
-  inline void setBGOSource(std::string x) { m_bgo = x; }
+  inline void setBGOSource(std::string x) { m_bgo = std::move(x); }
   inline std::string getBGOSource() const { return m_bgo; }
   inline void setTTSMask(int x) { m_tts_mask = x; }
   inline int getTTSMask() const { return m_tts_mask; }

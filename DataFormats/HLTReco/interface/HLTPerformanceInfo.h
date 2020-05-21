@@ -59,7 +59,7 @@ public:
     edm::HLTPathStatus status_;
 
   public:
-    Path(const std::string n = "unknown") : name_(n), moduleView_(), status_() {}
+    Path(const std::string &n = "unknown") : name_(n), moduleView_(), status_() {}
     std::string name() const { return name_; }
     void setStatus(const edm::HLTPathStatus &result) { status_ = result; }
 

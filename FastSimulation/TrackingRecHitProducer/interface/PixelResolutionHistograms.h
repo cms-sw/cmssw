@@ -24,30 +24,30 @@ public:
   //    We make empty histograms (which we own), but generator pointers
   //    remain null.
   //
-  PixelResolutionHistograms(std::string filename,     // ROOT file for histograms
-                            std::string rootdir,      // Subdirectory in the file, "" if none
-                            std::string descTitle,    // Descriptive title
-                            unsigned int detType,     // Where we are... (&&& do we need this?)
-                            double cotbetaBinWidth,   // cot(beta) : bin width,
-                            double cotbetaLowEdge,    //           : low endpoint,
-                            int cotbetaBins,          //           : # of bins
-                            double cotalphaBinWidth,  // cot(alpha): bin width,
-                            double cotalphaLowEdge,   //           : low endpoint,
-                            int cotalphaBins);        //           : # of bins
-                                                      //int	qbinWidth,
-                                                      //int	qbins )
+  PixelResolutionHistograms(const std::string& filename,   // ROOT file for histograms
+                            const std::string& rootdir,    // Subdirectory in the file, "" if none
+                            const std::string& descTitle,  // Descriptive title
+                            unsigned int detType,          // Where we are... (&&& do we need this?)
+                            double cotbetaBinWidth,        // cot(beta) : bin width,
+                            double cotbetaLowEdge,         //           : low endpoint,
+                            int cotbetaBins,               //           : # of bins
+                            double cotalphaBinWidth,       // cot(alpha): bin width,
+                            double cotalphaLowEdge,        //           : low endpoint,
+                            int cotalphaBins);             //           : # of bins
+                                                           //int	qbinWidth,
+                                                           //int	qbins )
 
   //--- Constructor to use when reading the histograms from a file (e.g. when
   //    inside a running FastSim job).  We get the histograms from a
   //    ROOT file, and we do *not* own them.  But we do own the
   //    generators.
   //
-  PixelResolutionHistograms(std::string filename,        // ROOT file for histograms
-                            std::string rootdir = "",    // ROOT dir, "" if none
-                            int detType = -1,            // default: read from ROOT file.
-                            bool ignore_multi = false,   // Forward Big is always single
-                            bool ignore_single = false,  // Edge does not need single pixels
-                            bool ignore_qBin = false);   // qBin histograms not used right now (future expansion)
+  PixelResolutionHistograms(const std::string& filename,      // ROOT file for histograms
+                            const std::string& rootdir = "",  // ROOT dir, "" if none
+                            int detType = -1,                 // default: read from ROOT file.
+                            bool ignore_multi = false,        // Forward Big is always single
+                            bool ignore_single = false,       // Edge does not need single pixels
+                            bool ignore_qBin = false);        // qBin histograms not used right now (future expansion)
 
   //--- Destructor (virtual, just in case)
   virtual ~PixelResolutionHistograms();

@@ -2,6 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
+#include <utility>
 
 HDQMSummary::HDQMSummary(std::vector<std::string>& userDBContent) {
   userDBContent_ = userDBContent;
@@ -70,7 +71,7 @@ std::vector<uint32_t> HDQMSummary::getDetIds() const {
   return DetIds_;
 }
 
-const short HDQMSummary::getPosition(std::string elementName) const {
+const short HDQMSummary::getPosition(const std::string& elementName) const {
   // returns position of elementName in UserDBContent_
 
   std::vector<std::string>::const_iterator it = find(userDBContent_.begin(), userDBContent_.end(), elementName);
@@ -83,7 +84,7 @@ const short HDQMSummary::getPosition(std::string elementName) const {
   return pos;
 }
 
-void HDQMSummary::setObj(const uint32_t& detID, std::string elementName, float value) {
+void HDQMSummary::setObj(const uint32_t& detID, const std::string& elementName, float value) {
   // modifies value of info "elementName" for the given detID
   // requires that an entry has be defined beforehand for detId in DB
   RegistryIterator p = std::lower_bound(indexes_.begin(), indexes_.end(), detID, HDQMSummary::StrictWeakOrdering());
@@ -141,7 +142,7 @@ std::vector<float> HDQMSummary::getSummaryObj() const { return v_sum_; }
 std::vector<float> HDQMSummary::getSummaryObj(std::string elementName) const {
   std::vector<float> vSumElement;
   std::vector<uint32_t> DetIds_ = getDetIds();
-  const short pos = getPosition(elementName);
+  const short pos = getPosition(std::move(elementName));
 
   if (pos != -1) {
     for (unsigned int i = 0; i < DetIds_.size(); i++) {

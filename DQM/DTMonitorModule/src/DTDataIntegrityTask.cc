@@ -168,7 +168,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker& ibooker, const int fedMi
   }
 }
 
-void DTDataIntegrityTask::bookHistos(DQMStore::IBooker& ibooker, string folder, const int fed) {
+void DTDataIntegrityTask::bookHistos(DQMStore::IBooker& ibooker, const string& folder, const int fed) {
   string wheel = "ZERO";
   if (fed == FEDIDmin)
     wheel = "NEG";

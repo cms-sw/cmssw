@@ -18,6 +18,7 @@
 
 // system include files
 #include <iostream>
+#include <utility>
 
 // user include files
 #include "DataFormats/FWLite/interface/Run.h"
@@ -84,7 +85,7 @@ namespace fwlite {
   }
 
   Run::Run(std::shared_ptr<BranchMapReader> branchMap)
-      : branchMap_(branchMap),
+      : branchMap_(std::move(branchMap)),
         pAux_(&aux_),
         pOldAux_(nullptr),
         fileVersion_(-1),

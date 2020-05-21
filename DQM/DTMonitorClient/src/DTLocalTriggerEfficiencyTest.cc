@@ -291,7 +291,9 @@ void DTLocalTriggerEfficiencyTest::makeEfficiencyME2D(TH2F* numerator, TH2F* den
   }
 }
 
-void DTLocalTriggerEfficiencyTest::bookChambHistos(DQMStore::IBooker& ibooker, DTChamberId chambId, string htype) {
+void DTLocalTriggerEfficiencyTest::bookChambHistos(DQMStore::IBooker& ibooker,
+                                                   const DTChamberId& chambId,
+                                                   const string& htype) {
   stringstream wheel;
   wheel << chambId.wheel();
   stringstream station;

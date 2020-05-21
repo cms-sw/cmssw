@@ -23,8 +23,8 @@ public:
   void analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) override;
 
 private:
-  bool shouldCopy(const edm::EventSetup& evtSetup, std::string container);
-  void copyToDB(const edm::EventSetup& evtSetup, std::string container);
+  bool shouldCopy(const edm::EventSetup& evtSetup, const std::string& container);
+  void copyToDB(const edm::EventSetup& evtSetup, const std::string& container);
 
   std::string m_timetype;
   std::map<std::string, unsigned long long> m_cacheIDs;

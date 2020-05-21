@@ -2,13 +2,15 @@
  * $Id: $
  */
 
+#include <utility>
+
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonDT13ChamberResidual.h"
 
 MuonDT13ChamberResidual::MuonDT13ChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
                                                  AlignableNavigator *navigator,
                                                  DetId chamberId,
-                                                 AlignableDetOrUnitPtr chamberAlignable)
-    : MuonHitsChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable) {
+                                                 const AlignableDetOrUnitPtr &chamberAlignable)
+    : MuonHitsChamberResidual(std::move(globalGeometry), navigator, chamberId, chamberAlignable) {
   m_type = MuonChamberResidual::kDT13;
   double rphiAngle = atan2(m_globalGeometry->idToDet(m_chamberId)->position().y(),
                            m_globalGeometry->idToDet(m_chamberId)->position().x()) +

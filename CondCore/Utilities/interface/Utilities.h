@@ -23,7 +23,7 @@ namespace cond {
 
   class Utilities {
   public:
-    Utilities(const std::string& commandName, std::string positionalParameter = std::string(""));
+    Utilities(const std::string& commandName, const std::string& positionalParameter = std::string(""));
 
     virtual ~Utilities();
 

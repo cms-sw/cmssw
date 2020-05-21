@@ -77,7 +77,7 @@ bool PFCheckHitPattern::barrel(uint32_t subDet) {
 pair<PFCheckHitPattern::PFTrackHitInfo, PFCheckHitPattern::PFTrackHitInfo> PFCheckHitPattern::analyze(
     const TrackerTopology* tkerTopo,
     const TrackerGeometry* tkerGeom,
-    const TrackBaseRef track,
+    const TrackBaseRef& track,
     const TransientVertex& vert) {
   // PFCheck if hit pattern of this track is consistent with it being produced
   // at given vertex. Pair.first gives number of hits on track in front of vertex.
@@ -153,7 +153,7 @@ pair<PFCheckHitPattern::PFTrackHitInfo, PFCheckHitPattern::PFTrackHitInfo> PFChe
   return pair<PFTrackHitInfo, PFTrackHitInfo>(trackToVertex, trackFromVertex);
 }
 
-void PFCheckHitPattern::print(const TrackBaseRef track) const {
+void PFCheckHitPattern::print(const TrackBaseRef& track) const {
   // Get hit patterns of this track
   const reco::HitPattern& hp = track.get()->hitPattern();
 

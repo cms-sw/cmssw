@@ -65,7 +65,7 @@ public:
   PileupMixingContent* getEventPileupInfo() override { return PileupInfo_.get(); }
 
 private:
-  void accumulateStripHits(edm::Handle<std::vector<PSimHit>>,
+  void accumulateStripHits(const edm::Handle<std::vector<PSimHit>>&,
                            const TrackerTopology* tTopo,
                            size_t globalSimHitIndex,
                            const unsigned int tofBin);

@@ -89,7 +89,7 @@ CachingVertex<5> GsfVertexUpdator::remove(const CachingVertex<5>& oldVertex, con
    */
 
 GsfVertexUpdator::VertexComponent GsfVertexUpdator::createNewComponent(const VertexState& oldVertex,
-                                                                       const RefCountedLinearizedTrackState linTrack,
+                                                                       const RefCountedLinearizedTrackState& linTrack,
                                                                        float weight,
                                                                        int sign) const {
   if (abs(sign) != 1)

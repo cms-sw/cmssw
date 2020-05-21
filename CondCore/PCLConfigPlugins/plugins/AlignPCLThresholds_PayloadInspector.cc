@@ -59,7 +59,7 @@ namespace {
       Thresholds->SetStats(false);
 
       std::function<float(types, std::string, AlignPCLThresholds::coordType)> cutFunctor =
-          [&payload](types my_type, std::string alignable, AlignPCLThresholds::coordType coord) {
+          [&payload](types my_type, const std::string& alignable, AlignPCLThresholds::coordType coord) {
             float ret(-999.);
             switch (my_type) {
               case DELTA:

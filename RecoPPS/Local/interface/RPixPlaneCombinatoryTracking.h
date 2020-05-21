@@ -48,12 +48,12 @@ private:
   CTPPSPixelLocalTrack fitTrack(PointInPlaneList pointList);
   void getHitCombinations(const std::map<CTPPSPixelDetId, PointInPlaneList> &mapOfAllHits,
                           std::map<CTPPSPixelDetId, PointInPlaneList>::iterator mapIterator,
-                          HitReferences tmpHitPlaneMap,
+                          const HitReferences &tmpHitPlaneMap,
                           const PointInPlaneList &tmpHitVector,
                           PointAndReferenceMap &outputMap);
-  PointAndReferenceMap produceAllHitCombination(PlaneCombinations inputPlaneCombination);
+  PointAndReferenceMap produceAllHitCombination(const PlaneCombinations &inputPlaneCombination);
   bool calculatePointOnDetector(CTPPSPixelLocalTrack *track, CTPPSPixelDetId planeId, GlobalPoint &planeLineIntercept);
-  static bool functionForPlaneOrdering(PointAndReferencePair a, PointAndReferencePair b) {
+  static bool functionForPlaneOrdering(const PointAndReferencePair &a, const PointAndReferencePair &b) {
     return (a.second.size() > b.second.size());
   }
   std::vector<PointAndReferencePair> orderCombinationsPerNumberOrPoints(PointAndReferenceMap inputMap);

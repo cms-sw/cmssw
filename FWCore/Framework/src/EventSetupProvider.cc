@@ -86,12 +86,12 @@ namespace edm {
       }
     }
 
-    void EventSetupProvider::add(std::shared_ptr<DataProxyProvider> iProvider) {
+    void EventSetupProvider::add(const std::shared_ptr<DataProxyProvider>& iProvider) {
       assert(iProvider.get() != nullptr);
       dataProviders_->push_back(iProvider);
     }
 
-    void EventSetupProvider::replaceExisting(std::shared_ptr<DataProxyProvider> dataProxyProvider) {
+    void EventSetupProvider::replaceExisting(const std::shared_ptr<DataProxyProvider>& dataProxyProvider) {
       ParameterSetIDHolder psetID(dataProxyProvider->description().pid_);
       std::set<EventSetupRecordKey> const& keysForPSetID = (*psetIDToRecordKey_)[psetID];
       for (auto const& key : keysForPSetID) {
@@ -99,7 +99,7 @@ namespace edm {
       }
     }
 
-    void EventSetupProvider::add(std::shared_ptr<EventSetupRecordIntervalFinder> iFinder) {
+    void EventSetupProvider::add(const std::shared_ptr<EventSetupRecordIntervalFinder>& iFinder) {
       assert(iFinder.get() != nullptr);
       finders_->push_back(iFinder);
     }

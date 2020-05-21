@@ -35,7 +35,7 @@ public:
      /param[in] depth of the vertex history
      /param[out] boolean that is true when history can be determined
   */
-  bool evaluate(TrackingVertexRef tvr) {
+  bool evaluate(const TrackingVertexRef &tvr) {
     if (enableSimToReco_) {
       std::pair<reco::VertexBaseRef, double> result = match(tvr, simToReco_, bestMatchByMaxValue_);
       recovertex_ = result.first;
@@ -50,7 +50,7 @@ public:
      /param[in] VertexRef to a reco::track
      /param[out] boolean that is false when a fake track is detected
   */
-  bool evaluate(reco::VertexBaseRef);
+  bool evaluate(const reco::VertexBaseRef &);
 
   //! Return a reference to the reconstructed track.
   const reco::VertexBaseRef &recoVertex() const { return recovertex_; }

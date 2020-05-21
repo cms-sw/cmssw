@@ -10,7 +10,7 @@ void L1Analysis::L1AnalysisRecoElectron::SetElectron(
     const edm::Event& event,
     const edm::EventSetup& setup,
     //const edm::Handle<edm::View<reco::GsfElectron>>& electrons,
-    edm::Handle<reco::GsfElectronCollection> electrons,
+    const edm::Handle<reco::GsfElectronCollection>& electrons,
     std::vector<edm::Handle<edm::ValueMap<bool> > > eleVIDDecisionHandles,
     const unsigned& maxElectron)
 

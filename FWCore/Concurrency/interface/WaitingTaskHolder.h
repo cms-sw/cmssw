@@ -60,13 +60,13 @@ namespace edm {
      a different, but related failure. You must later call doneWaiting
      in the same thread passing the same exceptoin.
      */
-    void presetTaskAsFailed(std::exception_ptr iExcept) {
+    void presetTaskAsFailed(const std::exception_ptr& iExcept) {
       if (iExcept) {
         m_task->dependentTaskFailed(iExcept);
       }
     }
 
-    void doneWaiting(std::exception_ptr iExcept) {
+    void doneWaiting(const std::exception_ptr& iExcept) {
       if (iExcept) {
         m_task->dependentTaskFailed(iExcept);
       }

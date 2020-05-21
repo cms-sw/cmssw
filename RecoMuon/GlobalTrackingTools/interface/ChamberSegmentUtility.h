@@ -40,7 +40,7 @@ public:
   std::vector<CSCSegment> getCSCSegmentsInChamber(CSCDetId);
 
   // Get the 4D segments in a DT chamber
-  std::vector<DTRecSegment4D> getDTSegmentsInChamber(DTChamberId);
+  std::vector<DTRecSegment4D> getDTSegmentsInChamber(const DTChamberId&);
 
 private:
   edm::ESHandle<CSCGeometry> cscGeometry;

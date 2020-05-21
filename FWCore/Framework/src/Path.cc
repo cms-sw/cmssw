@@ -11,6 +11,7 @@
 #include "FWCore/Concurrency/interface/WaitingTaskHolder.h"
 
 #include <algorithm>
+#include <utility>
 
 namespace edm {
   Path::Path(int bitpos,
@@ -29,8 +30,8 @@ namespace edm {
         failedModuleIndex_(workers.size()),
         state_(hlt::Ready),
         bitpos_(bitpos),
-        trptr_(trptr),
-        actReg_(areg),
+        trptr_(std::move(trptr)),
+        actReg_(std::move(areg)),
         act_table_(&actions),
         workers_(workers),
         pathContext_(path_name, streamContext, bitpos, pathType),
@@ -144,7 +145,7 @@ namespace edm {
     ex.addContext(ost.str());
   }
 
-  void Path::threadsafe_setFailedModuleInfo(int nwrwue, std::exception_ptr iExcept) {
+  void Path::threadsafe_setFailedModuleInfo(int nwrwue, const std::exception_ptr& iExcept) {
     bool expected = false;
     while (stateLock_.compare_exchange_strong(expected, true)) {
       expected = false;

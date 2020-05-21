@@ -96,7 +96,7 @@ private:
   double gainFactor(const edm::ESHandle<HcalDbService>&, const HcalDetId&);
   int depth16HE(int, int);
   bool goodCell(const HcalDetId&, const reco::Track*, const CaloGeometry*, const MagneticField*);
-  void fillTrackParameters(const reco::Track*, math::XYZPoint);
+  void fillTrackParameters(const reco::Track*, const math::XYZPoint&);
 
   // ----------member data ---------------------------
   const edm::InputTag labelEBRecHit_, labelEERecHit_, labelHBHERecHit_;
@@ -1023,7 +1023,7 @@ bool HcalHBHEMuonHighEtaAnalyzer::goodCell(const HcalDetId& hcid,
   return match;
 }
 
-void HcalHBHEMuonHighEtaAnalyzer::fillTrackParameters(const reco::Track* pTrack, math::XYZPoint leadPV) {
+void HcalHBHEMuonHighEtaAnalyzer::fillTrackParameters(const reco::Track* pTrack, const math::XYZPoint& leadPV) {
   trackDz_.emplace_back(pTrack->dz(leadPV));
   const reco::HitPattern& hitp = pTrack->hitPattern();
   trackLayerCrossed_.emplace_back(hitp.trackerLayersWithMeasurement());

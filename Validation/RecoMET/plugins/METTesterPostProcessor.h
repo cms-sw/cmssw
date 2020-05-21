@@ -34,7 +34,7 @@ private:
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
   std::vector<std::string> met_dirs;
 
-  void FillMETRes(std::string metdir, DQMStore::IGetter &);
+  void FillMETRes(const std::string &metdir, DQMStore::IGetter &);
   MonitorElement *mMETDifference_GenMETTrue_MET0to20;
   MonitorElement *mMETDifference_GenMETTrue_MET20to40;
   MonitorElement *mMETDifference_GenMETTrue_MET40to60;

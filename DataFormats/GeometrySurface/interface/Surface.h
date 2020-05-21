@@ -47,10 +47,10 @@ protected:
 
   Surface(const PositionType& pos, const RotationType& rot, Bounds* bounds) : Base(pos, rot), theBounds(bounds) {}
 
-  Surface(const PositionType& pos, const RotationType& rot, MediumProperties mp)
+  Surface(const PositionType& pos, const RotationType& rot, const MediumProperties& mp)
       : Base(pos, rot), theMediumProperties(mp) {}
 
-  Surface(const PositionType& pos, const RotationType& rot, MediumProperties mp, Bounds* bounds)
+  Surface(const PositionType& pos, const RotationType& rot, const MediumProperties& mp, Bounds* bounds)
       : Base(pos, rot), theMediumProperties(mp), theBounds(bounds) {}
 
   Surface(const Surface& iSurface)
@@ -76,7 +76,7 @@ public:
   using Base::toGlobal;
   using Base::toLocal;
 
-  GlobalPoint toGlobal(const Point2DBase<Scalar, LocalTag> lp) const {
+  GlobalPoint toGlobal(const Point2DBase<Scalar, LocalTag>& lp) const {
     return GlobalPoint(rotation().multiplyInverse(lp.basicVector()) + position().basicVector());
   }
 

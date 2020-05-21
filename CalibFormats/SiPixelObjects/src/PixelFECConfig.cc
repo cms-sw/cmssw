@@ -87,7 +87,7 @@ PixelFECConfig::PixelFECConfig(std::vector<std::vector<std::string> > &tableMat)
 
 //****************************************************************************************
 
-PixelFECConfig::PixelFECConfig(std::string filename) : PixelConfigBase(" ", " ", " ") {
+PixelFECConfig::PixelFECConfig(const std::string &filename) : PixelConfigBase(" ", " ", " ") {
   std::string mthn = "[[PixelFECConfig::PixelFECConfig()]\t\t\t   ";
 
   std::ifstream in(filename.c_str());

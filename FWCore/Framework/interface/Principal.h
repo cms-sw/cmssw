@@ -67,8 +67,8 @@ namespace edm {
     typedef std::shared_ptr<ProductResolverBase> SharedProductPtr;
     typedef std::string ProcessName;
 
-    Principal(std::shared_ptr<ProductRegistry const> reg,
-              std::shared_ptr<ProductResolverIndexHelper const> productLookup,
+    Principal(const std::shared_ptr<ProductRegistry const>& reg,
+              const std::shared_ptr<ProductResolverIndexHelper const>& productLookup,
               ProcessConfiguration const& pc,
               BranchType bt,
               HistoryAppender* historyAppender,

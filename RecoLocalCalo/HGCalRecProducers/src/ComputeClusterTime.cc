@@ -43,7 +43,7 @@ float ComputeClusterTime::timeResolution(float x) {
   return sqrt(funcVal);
 }
 
-float ComputeClusterTime::getTimeError(std::string type, float xVal) {
+float ComputeClusterTime::getTimeError(const std::string& type, float xVal) {
   if (type == "recHit") {
     //xVal is S/N
     //time is in ns units

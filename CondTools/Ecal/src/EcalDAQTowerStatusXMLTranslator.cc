@@ -126,7 +126,7 @@ std::string EcalDAQTowerStatusXMLTranslator::dumpXML(const EcalCondHeader& heade
   return dump;
 }
 
-void EcalDAQTowerStatusXMLTranslator::plot(std::string fn, const EcalDAQTowerStatus& record) {
+void EcalDAQTowerStatusXMLTranslator::plot(const std::string& fn, const EcalDAQTowerStatus& record) {
   std::ofstream fout(fn.c_str());
   int valEB[34][72];
   std::cout << " barrel size " << record.barrelItems().size() << std::endl;

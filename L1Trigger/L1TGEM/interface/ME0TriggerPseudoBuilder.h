@@ -55,7 +55,7 @@ private:
 
   double dphiresolution_;  //unit: trigger pad
 
-  ME0TriggerDigi segmentConversion(const ME0Segment segment);
+  ME0TriggerDigi segmentConversion(const ME0Segment& segment);
 
   edm::ParameterSet config_;
 };

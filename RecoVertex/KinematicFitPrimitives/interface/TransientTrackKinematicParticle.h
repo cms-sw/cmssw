@@ -27,7 +27,7 @@ public:
                                   float& chiSquared,
                                   float& degreesOfFr,
                                   KinematicConstraint* lastConstraint,
-                                  ReferenceCountingPointer<KinematicParticle> previousParticle,
+                                  const ReferenceCountingPointer<KinematicParticle>& previousParticle,
                                   KinematicStatePropagator* pr,
                                   const reco::TransientTrack* initialTrack = nullptr);
 

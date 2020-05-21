@@ -597,7 +597,7 @@ public:
   JsonVars vars;
 
 private:
-  unsigned int labelId(std::string labelName) {
+  unsigned int labelId(const std::string& labelName) {
     unsigned int id = std::find(vars.label.begin(), vars.label.end(), labelName) - vars.label.begin();
     if (id < vars.label.size())
       return id;
@@ -605,7 +605,7 @@ private:
     return vars.label.size() - 1;
   }
 
-  unsigned int typeId(std::string typeName) {
+  unsigned int typeId(const std::string& typeName) {
     unsigned int id = std::find(vars.type.begin(), vars.type.end(), typeName) - vars.type.begin();
     if (id < vars.type.size())
       return id;

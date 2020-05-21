@@ -44,7 +44,7 @@ EGEnergyCorrector::~EGEnergyCorrector() {
 }
 
 //--------------------------------------------------------------------------------------------------
-void EGEnergyCorrector::Initialize(const edm::EventSetup &iSetup, std::string regweights, bool weightsFromDB) {
+void EGEnergyCorrector::Initialize(const edm::EventSetup &iSetup, const std::string &regweights, bool weightsFromDB) {
   fIsInitialized = kTRUE;
 
   if (fVals)

@@ -119,7 +119,7 @@ public:
 
   // Load the private store with info from the file with the index (int) filenum from directory dir:
   //   ${dir}generror_summary_zp${filenum}.out
-  static bool pushfile(int filenum, std::vector<SiPixelGenErrorStore>& pixelTemp, std::string dir = "");
+  static bool pushfile(int filenum, std::vector<SiPixelGenErrorStore>& pixelTemp, const std::string& dir = "");
 
 #ifndef SI_PIXEL_TEMPLATE_STANDALONE
   // load the private store with info from db

@@ -62,7 +62,7 @@ private:
 
   ///Help function to trim spaces at beginning and end of a string
   ///@param s string to trim
-  static std::string trim(std::string s);
+  static std::string trim(const std::string& s);
 
   //fields
 private:

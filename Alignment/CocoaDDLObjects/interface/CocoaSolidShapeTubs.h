@@ -14,7 +14,7 @@
 class CocoaSolidShapeTubs : public CocoaSolidShape {
 public:
   //---------- Constructors / Destructor
-  CocoaSolidShapeTubs(const ALIstring pType,
+  CocoaSolidShapeTubs(const ALIstring& pType,
                       ALIfloat pRMin,
                       ALIfloat pRMax,
                       ALIfloat pDz,

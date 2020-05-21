@@ -35,9 +35,9 @@ public:
   L1TTwinMuxAlgorithm(){};
   ~L1TTwinMuxAlgorithm(){};
 
-  void run(edm::Handle<L1MuDTChambPhContainer> phiDigis,
-           edm::Handle<L1MuDTChambThContainer> thetaDigis,
-           edm::Handle<RPCDigiCollection> rpcDigis,
+  void run(const edm::Handle<L1MuDTChambPhContainer>& phiDigis,
+           const edm::Handle<L1MuDTChambThContainer>& thetaDigis,
+           const edm::Handle<RPCDigiCollection>& rpcDigis,
            const edm::EventSetup& c);
 
   ///Return Output PhContainer

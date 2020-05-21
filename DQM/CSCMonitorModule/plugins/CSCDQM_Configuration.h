@@ -191,7 +191,7 @@ namespace cscdqm {
     /** Include filtered item or not */
     bool include;
     /** Constructor */
-    MOFilterItem(const std::string pattern_, const bool include_) : pattern(pattern_.c_str()), include(include_) {}
+    MOFilterItem(const std::string& pattern_, const bool include_) : pattern(pattern_.c_str()), include(include_) {}
   };
 
   /** @brief Chamber level counter types */
@@ -564,7 +564,7 @@ namespace cscdqm {
        * @param  name MO name to book
        * @return true if MO is not excluded, false - otherwise
        */
-    const bool needBookMO(const std::string name) const {
+    const bool needBookMO(const std::string& name) const {
       bool result = true;
       for (unsigned int i = 0; i < MOFilterItems.size(); i++) {
         const MOFilterItem* filter = &MOFilterItems.at(i);

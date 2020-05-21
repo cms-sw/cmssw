@@ -268,20 +268,21 @@ public:
   void zero_storage();
   void zero_muon(ResidualRefitting::storage_muon* str);
   void zero_trackExtrap(ResidualRefitting::storage_trackExtrap* str);
-  void branchMuon(ResidualRefitting::storage_muon& storageTmp, std::string branchName);
-  void branchTrackExtrap(ResidualRefitting::storage_trackExtrap& storageTmp, std::string branchName);
+  void branchMuon(ResidualRefitting::storage_muon& storageTmp, const std::string& branchName);
+  void branchTrackExtrap(ResidualRefitting::storage_trackExtrap& storageTmp, const std::string& branchName);
 
   //	void collectTrackRecExtrap(reco::MuonCollection::const_iterator muon, ResidualRefitting::storage_trackExtrap& storeTemp);
-  void muonInfo(ResidualRefitting::storage_muon& storeMuon, reco::TrackRef muon, int val);
+  void muonInfo(ResidualRefitting::storage_muon& storeMuon, const reco::TrackRef& muon, int val);
 
-  void CollectTrackHits(edm::Handle<reco::TrackCollection> trackColl,
+  void CollectTrackHits(const edm::Handle<reco::TrackCollection>& trackColl,
                         ResidualRefitting::storage_trackExtrap& trackExtrap,
                         const edm::EventSetup& eventSetup);
   void StoreTrackerRecHits(DetId detid, const TrackerTopology* tTopo, int iTrack, int iRec);
-  void NewTrackMeasurements(edm::Handle<reco::TrackCollection> trackCollOrig,
-                            edm::Handle<reco::TrackCollection> trackColl,
+  void NewTrackMeasurements(const edm::Handle<reco::TrackCollection>& trackCollOrig,
+                            const edm::Handle<reco::TrackCollection>& trackColl,
                             ResidualRefitting::storage_trackExtrap& trackExtrap);
-  int MatchTrackWithRecHits(reco::TrackCollection::const_iterator trackIt, edm::Handle<reco::TrackCollection> ref);
+  int MatchTrackWithRecHits(reco::TrackCollection::const_iterator trackIt,
+                            const edm::Handle<reco::TrackCollection>& ref);
 
   bool IsSameHit(TrackingRecHit const& hit1, TrackingRecHit const& hit2);
 
@@ -293,14 +294,17 @@ public:
                  const LocalPoint& recPoint,
                  storage_trackExtrap& storeTemp);
 
-  void cylExtrapTrkSam(int recNum, reco::TrackRef track, ResidualRefitting::storage_trackExtrap& storage, double rho);
+  void cylExtrapTrkSam(int recNum,
+                       const reco::TrackRef& track,
+                       ResidualRefitting::storage_trackExtrap& storage,
+                       double rho);
 
   //Simplifiying functions
-  FreeTrajectoryState freeTrajStateMuon(reco::TrackRef muon);  //Returns a Free Trajectory State
-                                                               //Debug Data Dumps
+  FreeTrajectoryState freeTrajStateMuon(const reco::TrackRef& muon);  //Returns a Free Trajectory State
+                                                                      //Debug Data Dumps
   //	void dumpRecoMuonColl(reco::MuonCollection::const_iterator muon); //
   //	void dumpRecoTrack(reco::TrackCollection::const_iterator muon);
-  void dumpTrackRef(reco::TrackRef muon, std::string str);
+  void dumpTrackRef(const reco::TrackRef& muon, const std::string& str);
   void dumpTrackExtrap(const ResidualRefitting::storage_trackExtrap& track);
   void dumpTrackHits(const ResidualRefitting::storage_trackHit& hit);
   void dumpMuonRecHits(const ResidualRefitting::storage_hit& hit);

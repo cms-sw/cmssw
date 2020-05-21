@@ -54,7 +54,7 @@ void HcalDigisClient::runClient(DQMStore::IBooker& ib, DQMStore::IGetter& ig) {
 }
 
 int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*>& hcalMEs,
-                                     std::string subdet_,
+                                     const std::string& subdet_,
                                      DQMStore::IBooker& ib) {
   using namespace std;
   string strtmp;
@@ -195,7 +195,7 @@ int HcalDigisClient::HcalDigisEndjob(const std::vector<MonitorElement*>& hcalMEs
   return 1;
 }
 
-HcalDigisClient::MonitorElement* HcalDigisClient::monitor(std::string name) {
+HcalDigisClient::MonitorElement* HcalDigisClient::monitor(const std::string& name) {
   if (!msm_->count(name))
     return nullptr;
   else

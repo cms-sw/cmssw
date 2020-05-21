@@ -209,7 +209,7 @@ using std::cerr;
 namespace edm {
   namespace service {
 
-    MessageLoggerScribe::MessageLoggerScribe(std::shared_ptr<ThreadQueue> queue)
+    MessageLoggerScribe::MessageLoggerScribe(const std::shared_ptr<ThreadQueue>& queue)
         : admin_p(new ELadministrator()),
           early_dest(admin_p->attach(std::make_shared<ELoutput>(std::cerr, false))),
           file_ps(),
@@ -423,7 +423,7 @@ namespace edm {
       configure_statistics();             // Change Log 16
     }                                     // MessageLoggerScribe::configure_errorlog()
 
-    void MessageLoggerScribe::configure_dest(std::shared_ptr<ELdestination> dest_ctrl, String const& filename) {
+    void MessageLoggerScribe::configure_dest(const std::shared_ptr<ELdestination>& dest_ctrl, String const& filename) {
       static const int NO_VALUE_SET = -45654;  // change log 2
       vString empty_vString;
       PSet empty_PSet;

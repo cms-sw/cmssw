@@ -35,7 +35,7 @@ T sqr(const T& t) {
 
 MuonSeedFromRecHits::MuonSeedFromRecHits() : theField(nullptr) {}
 
-TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean, float sptmean, ConstMuonRecHitPointer last) const {
+TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean, float sptmean, const ConstMuonRecHitPointer& last) const {
   const std::string metname = "Muon|RecoMuon|MuonSeedFromRecHits";
 
   MuonPatternRecoDumper debug;

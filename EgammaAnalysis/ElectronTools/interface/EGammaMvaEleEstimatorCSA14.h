@@ -46,7 +46,7 @@ public:
     kNonTrigPhys14 = 2,  // MVA for non-triggering electrons in Phys14
   };
 
-  void initialize(std::string methodName, std::string weightsfile, EGammaMvaEleEstimatorCSA14::MVAType type);
+  void initialize(std::string methodName, const std::string& weightsfile, EGammaMvaEleEstimatorCSA14::MVAType type);
   void initialize(std::string methodName,
                   EGammaMvaEleEstimatorCSA14::MVAType type,
                   Bool_t useBinnedVersion,

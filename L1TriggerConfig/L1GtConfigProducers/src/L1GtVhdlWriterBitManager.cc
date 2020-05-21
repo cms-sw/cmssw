@@ -28,6 +28,8 @@
 #include <map>
 #include <string>
 #include <sstream>
+#include <utility>
+
 #include <vector>
 #include <iomanip>
 
@@ -58,7 +60,8 @@ L1GtVhdlWriterBitManager::L1GtVhdlWriterBitManager() {
   hex2binMap_["f"] = "1111";
 }
 
-std::string L1GtVhdlWriterBitManager::readMapInverse(const std::map<std::string, std::string> &map, std::string value) {
+std::string L1GtVhdlWriterBitManager::readMapInverse(const std::map<std::string, std::string> &map,
+                                                     const std::string &value) {
   std::map<std::string, std::string>::const_iterator iter = map.begin();
   while (iter != map.end()) {
     if ((*iter).second == value)
@@ -80,7 +83,7 @@ std::string L1GtVhdlWriterBitManager::hex2bin(std::string hexString) {
   return temp;
 }
 
-std::string L1GtVhdlWriterBitManager::bin2hex(std::string binString) {
+std::string L1GtVhdlWriterBitManager::bin2hex(const std::string &binString) {
   std::string temp;
   for (unsigned int i = 1; i <= binString.length(); i++) {
     //std::cout<<i%4<<std::endl;
@@ -156,7 +159,7 @@ std::string L1GtVhdlWriterBitManager::capitalLetters(std::string hexString) {
 }
 
 std::string L1GtVhdlWriterBitManager::shiftLeft(std::string hexString) {
-  std::string binString = hex2bin(hexString);
+  std::string binString = hex2bin(std::move(hexString));
 
   binString.erase(0, 1);
   binString += "0";

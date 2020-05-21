@@ -137,7 +137,7 @@ std::string HcalAssistant::getSubdetectorString(int _geomId) {
   return s_det;
 }
 
-HcalSubdetector HcalAssistant::getSubdetector(std::string _det) {
+HcalSubdetector HcalAssistant::getSubdetector(const std::string& _det) {
   if (_det.find("HB") != std::string::npos)
     return HcalBarrel;
   else if (_det.find("HE") != std::string::npos)
@@ -184,7 +184,7 @@ std::string HcalAssistant::getZDCSectionString(HcalZDCDetId::Section _section) {
   return zdcSection;
 }
 
-HcalZDCDetId::Section HcalAssistant::getZDCSection(std::string _section) {
+HcalZDCDetId::Section HcalAssistant::getZDCSection(const std::string& _section) {
   if (_section.find("ZDC EM") != std::string::npos)
     return HcalZDCDetId::EM;
   else if (_section.find("ZDC HAD") != std::string::npos)

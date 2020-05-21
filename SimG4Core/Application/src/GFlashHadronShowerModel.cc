@@ -32,7 +32,7 @@
 
 using namespace CLHEP;
 
-GFlashHadronShowerModel::GFlashHadronShowerModel(G4String modelName,
+GFlashHadronShowerModel::GFlashHadronShowerModel(const G4String& modelName,
                                                  G4Region* envelope,
                                                  const edm::ParameterSet& parSet)
     : G4VFastSimulationModel(modelName, envelope), theParSet(parSet) {

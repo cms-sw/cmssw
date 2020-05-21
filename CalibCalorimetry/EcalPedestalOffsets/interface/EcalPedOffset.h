@@ -43,7 +43,7 @@ public:
   void endJob(void) override;
 
   //! write the results into xml format
-  void writeXMLFiles(std::string fileName);
+  void writeXMLFiles(const std::string &fileName);
 
   //! WriteDB
   void writeDb();

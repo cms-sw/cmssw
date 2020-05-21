@@ -103,7 +103,7 @@ private:
   // Tag constructor
   void constructTag(std::map<int, SiPixelQuality*> siPixelQualityTag,
                     edm::Service<cond::service::PoolDBOutputService>& poolDbService,
-                    std::string tagName,
+                    const std::string& tagName,
                     edm::Run const& iRun);
 };
 

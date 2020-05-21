@@ -28,7 +28,7 @@ public:
   MiscalibReaderFromXML(CaloMiscalibMap &);
   virtual ~MiscalibReaderFromXML() {}
 
-  bool parseXMLMiscalibFile(std::string configFile);
+  bool parseXMLMiscalibFile(const std::string &configFile);
 
   virtual DetId parseCellEntry(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute) = 0;
   int getIntAttribute(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attribute, const std::string &attribute_name);

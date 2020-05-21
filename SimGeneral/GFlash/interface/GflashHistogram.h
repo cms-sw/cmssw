@@ -20,7 +20,7 @@ public:
   GflashHistogram();
   ~GflashHistogram() override;
 
-  void bookHistogram(std::string histFileName = "gflash_histogram.root");
+  void bookHistogram(const std::string &histFileName = "gflash_histogram.root");
   void setStoreFlag(bool flag) { theStoreFlag = flag; }
   bool getStoreFlag() { return theStoreFlag; }
 

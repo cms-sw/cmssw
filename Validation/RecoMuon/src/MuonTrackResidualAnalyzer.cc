@@ -265,9 +265,9 @@ bool MuonTrackResidualAnalyzer::isInTheAcceptance(double eta) {
 }
 
 // map the muon simhits by id
-map<DetId, const PSimHit *> MuonTrackResidualAnalyzer::mapMuSimHitsPerId(Handle<PSimHitContainer> dtSimhits,
-                                                                         Handle<PSimHitContainer> cscSimhits,
-                                                                         Handle<PSimHitContainer> rpcSimhits) {
+map<DetId, const PSimHit *> MuonTrackResidualAnalyzer::mapMuSimHitsPerId(const Handle<PSimHitContainer> &dtSimhits,
+                                                                         const Handle<PSimHitContainer> &cscSimhits,
+                                                                         const Handle<PSimHitContainer> &rpcSimhits) {
   MuonPatternRecoDumper debug;
 
   map<DetId, const PSimHit *> hitIdMap;
@@ -292,7 +292,7 @@ map<DetId, const PSimHit *> MuonTrackResidualAnalyzer::mapMuSimHitsPerId(Handle<
   return hitIdMap;
 }
 
-void MuonTrackResidualAnalyzer::mapMuSimHitsPerId(Handle<PSimHitContainer> simhits,
+void MuonTrackResidualAnalyzer::mapMuSimHitsPerId(const Handle<PSimHitContainer> &simhits,
                                                   map<DetId, const PSimHit *> &hitIdMap) {
   for (PSimHitContainer::const_iterator simhit = simhits->begin(); simhit != simhits->end(); ++simhit) {
     if (abs(simhit->particleType()) != 13 && theSimTkId != simhit->trackId())

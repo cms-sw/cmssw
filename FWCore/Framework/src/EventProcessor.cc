@@ -120,7 +120,7 @@ namespace edm {
                                          std::shared_ptr<BranchIDListHelper> branchIDListHelper,
                                          std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
                                          std::shared_ptr<ActivityRegistry> areg,
-                                         std::shared_ptr<ProcessConfiguration const> processConfiguration,
+                                         const std::shared_ptr<ProcessConfiguration const>& processConfiguration,
                                          PreallocationConfiguration const& allocations) {
     ParameterSet* main_input = params.getPSetForUpdate("@main_input");
     if (main_input == nullptr) {
@@ -160,9 +160,9 @@ namespace edm {
                          ModuleDescription::getUniqueID());
 
     InputSourceDescription isdesc(md,
-                                  preg,
-                                  branchIDListHelper,
-                                  thinnedAssociationsHelper,
+                                  std::move(preg),
+                                  std::move(branchIDListHelper),
+                                  std::move(thinnedAssociationsHelper),
                                   areg,
                                   common.maxEventsInput_,
                                   common.maxLumisInput_,
@@ -1701,7 +1701,7 @@ namespace edm {
     FDEBUG(1) << "\treadEvent\n";
   }
 
-  void EventProcessor::processEventAsync(WaitingTaskHolder iHolder, unsigned int iStreamIndex) {
+  void EventProcessor::processEventAsync(const WaitingTaskHolder& iHolder, unsigned int iStreamIndex) {
     tbb::task::spawn(
         *make_functor_task(tbb::task::allocate_root(), [=]() { processEventAsyncImpl(iHolder, iStreamIndex); }));
   }
@@ -1810,7 +1810,7 @@ namespace edm {
   bool EventProcessor::setDeferredException(std::exception_ptr iException) {
     bool expected = false;
     if (deferredExceptionPtrIsSet_.compare_exchange_strong(expected, true)) {
-      deferredExceptionPtr_ = iException;
+      deferredExceptionPtr_ = std::move(iException);
       return true;
     }
     return false;

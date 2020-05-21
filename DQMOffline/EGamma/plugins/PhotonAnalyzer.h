@@ -112,12 +112,12 @@ private:
   void fillHistogramsForHistogramCounts(DQMStore::IBooker&);
 
   MonitorElement* bookHisto(
-      DQMStore::IBooker&, std::string histoName, std::string title, int bin, double min, double max);
+      DQMStore::IBooker&, const std::string& histoName, const std::string& title, int bin, double min, double max);
   void book2DHistoVector(DQMStore::IBooker&,
                          std::vector<std::vector<MonitorElement*> >& toFill,
-                         std::string histoType,
-                         std::string histoName,
-                         std::string title,
+                         const std::string& histoType,
+                         const std::string& histoName,
+                         const std::string& title,
                          int xbin,
                          double xmin,
                          double xmax,
@@ -126,9 +126,9 @@ private:
                          double ymax = 2);
   void book3DHistoVector(DQMStore::IBooker&,
                          std::vector<std::vector<std::vector<MonitorElement*> > >& toFill,
-                         std::string histoType,
-                         std::string histoName,
-                         std::string title,
+                         const std::string& histoType,
+                         const std::string& histoName,
+                         const std::string& title,
                          int xbin,
                          double xmin,
                          double xmax,

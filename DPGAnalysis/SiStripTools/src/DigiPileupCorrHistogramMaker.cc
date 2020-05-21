@@ -64,12 +64,12 @@ DigiPileupCorrHistogramMaker::~DigiPileupCorrHistogramMaker() {
   }
 }
 
-void DigiPileupCorrHistogramMaker::book(const std::string dirname, const std::map<unsigned int, std::string>& labels) {
+void DigiPileupCorrHistogramMaker::book(const std::string& dirname, const std::map<unsigned int, std::string>& labels) {
   m_labels = labels;
   book(dirname);
 }
 
-void DigiPileupCorrHistogramMaker::book(const std::string dirname) {
+void DigiPileupCorrHistogramMaker::book(const std::string& dirname) {
   edm::Service<TFileService> tfserv;
   TFileDirectory subev = tfserv->mkdir(dirname);
 

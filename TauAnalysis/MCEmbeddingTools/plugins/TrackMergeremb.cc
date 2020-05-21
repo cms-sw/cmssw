@@ -1,5 +1,7 @@
 #include "TauAnalysis/MCEmbeddingTools/plugins/TrackMergeremb.h"
 
+#include <utility>
+
 #include "DataFormats/TrackReco/interface/TrackExtra.h"
 
 #include "DataFormats/GsfTrackReco/interface/GsfTrackExtra.h"
@@ -45,7 +47,7 @@ typedef TrackMergeremb<reco::PFCandidateCollection> PFColMerger;
 
 // Here some overloaded functions, which are needed such that the right merger function is called for the indivudal Collections
 template <typename T1>
-void TrackMergeremb<T1>::willproduce(std::string instance, std::string alias) {
+void TrackMergeremb<T1>::willproduce(std::string instance, const std::string& alias) {
   produces<TrackCollectionemb>(instance);
 }
 
@@ -279,7 +281,7 @@ void TrackMergeremb<reco::MuonCollection>::merg_and_put(
 
 template <>
 void TrackMergeremb<reco::PFCandidateCollection>::willproduce(std::string instance, std::string alias) {
-  produces<reco::PFCandidateCollection>(instance);
+  produces<reco::PFCandidateCollection>(std::move(instance));
   // std::cout<<"Produce PF Collection: "<<instance<<std::endl;
 }
 

@@ -22,11 +22,11 @@
 typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
 typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
-MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel,
-                                                   edm::InputTag csclabel,
-                                                   edm::InputTag rpclabel,
-                                                   edm::InputTag gemlabel,
-                                                   edm::InputTag me0label,
+MuonDetLayerMeasurements::MuonDetLayerMeasurements(const edm::InputTag& dtlabel,
+                                                   const edm::InputTag& csclabel,
+                                                   const edm::InputTag& rpclabel,
+                                                   const edm::InputTag& gemlabel,
+                                                   const edm::InputTag& me0label,
                                                    edm::ConsumesCollector& iC,
                                                    bool enableDT,
                                                    bool enableCSC,

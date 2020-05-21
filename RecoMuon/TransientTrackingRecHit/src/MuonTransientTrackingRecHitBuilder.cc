@@ -10,15 +10,17 @@
  *
  **/
 
+#include <utility>
+
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHitBuilder.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 
 MuonTransientTrackingRecHitBuilder::MuonTransientTrackingRecHitBuilder(
     edm::ESHandle<GlobalTrackingGeometry> trackingGeometry)
-    : theTrackingGeometry(trackingGeometry) {}
+    : theTrackingGeometry(std::move(trackingGeometry)) {}
 
 MuonTransientTrackingRecHitBuilder::RecHitPointer MuonTransientTrackingRecHitBuilder::build(
-    const TrackingRecHit* p, edm::ESHandle<GlobalTrackingGeometry> trackingGeometry) const {
+    const TrackingRecHit* p, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry) const {
   if (p->geographicalId().det() == DetId::Muon) {
     return MuonTransientTrackingRecHit::specificBuild(trackingGeometry->idToDet(p->geographicalId()), p);
   }

@@ -74,7 +74,7 @@ namespace edm {
         return t.str();
       }
 
-      double str2d(std::string s) { return atof(s.c_str()); }
+      double str2d(const std::string &s) { return atof(s.c_str()); }
 
       void trim(std::string &s, const std::string &drop = " \t") {
         std::string::size_type p = s.find_last_not_of(drop);

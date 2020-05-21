@@ -32,6 +32,8 @@
 
 #include <iomanip>
 #include <string>
+#include <utility>
+
 #include <vector>
 #include <sstream>
 #include <algorithm>
@@ -46,7 +48,7 @@ using namespace edm;
 using namespace angle_units::operators;
 
 MagGeoBuilder::MagGeoBuilder(string tableSet, int geometryVersion, bool debug)
-    : tableSet_(tableSet), geometryVersion_(geometryVersion), theGridFiles_(nullptr), debug_(debug) {
+    : tableSet_(std::move(tableSet)), geometryVersion_(geometryVersion), theGridFiles_(nullptr), debug_(debug) {
   LogTrace("MagGeoBuilder") << "Constructing a MagGeoBuilder";
 }
 

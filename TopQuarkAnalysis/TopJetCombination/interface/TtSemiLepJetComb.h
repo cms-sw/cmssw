@@ -115,7 +115,7 @@ public:
   double combinedBTagsForLightQuarks(JetComb::BTagAlgo algo, JetComb::Operator op) const;
 
   /// add an arbitary user defined variable with given key and value
-  double addUserVar(std::string key, double value) { return userVariables_[key] = value; };
+  double addUserVar(const std::string& key, double value) { return userVariables_[key] = value; };
   /// receive user defined variable value with given key
   double userVar(const std::string& key) const {
     return (userVariables_.find(key) != userVariables_.end() ? userVariables_.find(key)->second : -9999.);

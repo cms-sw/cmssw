@@ -348,7 +348,7 @@ FEDHistograms::MonitorElement* FEDHistograms::getFedvsAPVpointer() { return fedI
 
 void FEDHistograms::bookTopLevelHistograms(DQMStore::IBooker& ibooker,
                                            const TkDetMap* tkDetMap,
-                                           std::string topFolderName) {
+                                           const std::string& topFolderName) {
   //get FED IDs
   const unsigned int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
   const unsigned int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;

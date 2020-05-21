@@ -61,8 +61,8 @@ private:
   std::vector<double> elementTotalWeight;
   std::vector<double> elementWeightFraction;
   //
-  std::string stringLaTeXUnderscore(std::string stringname);
-  std::string stringLaTeXSuperscript(std::string stringname);
+  std::string stringLaTeXUnderscore(const std::string& stringname);
+  std::string stringLaTeXSuperscript(const std::string& stringname);
 };
 
 #endif

@@ -63,25 +63,25 @@ public:
 private:
   /// Construct Tracks to be put in the event
   bool buildTrack(
-      const Trajectory, AlgoProductCollection& algoResults, float, const reco::BeamSpot&, const reco::TrackRef*) const;
+      const Trajectory&, AlgoProductCollection& algoResults, float, const reco::BeamSpot&, const reco::TrackRef*) const;
 
   /// accomplishes the fitting-smoothing step for each annealing value
   Trajectory fit(const std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface>& hits,
                  const TrajectoryFitter* theFitter,
-                 Trajectory vtraj) const;
+                 const Trajectory& vtraj) const;
 
   //calculates the ndof according to the DAF prescription
-  float calculateNdof(const Trajectory vtraj) const;
+  float calculateNdof(const Trajectory& vtraj) const;
 
   //creates MultiRecHits out of a KF trajectory
   std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> collectHits(
-      const Trajectory vtraj,
+      const Trajectory& vtraj,
       const MultiRecHitCollector* measurementCollector,
       const MeasurementTrackerEvent* measTk) const;
 
   //updates the hits with the specified annealing factor
   std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface> updateHits(
-      const Trajectory vtraj,
+      const Trajectory& vtraj,
       const SiTrackerMultiRecHitUpdator* updator,
       const MeasurementTrackerEvent* theMTE,
       double annealing) const;
@@ -93,9 +93,9 @@ private:
               std::vector<Trajectory>& output,
               const TransientTrackingRecHitBuilder* builder) const;
 
-  int countingGoodHits(const Trajectory traj) const;
+  int countingGoodHits(const Trajectory& traj) const;
 
-  int checkHits(Trajectory iInitTraj, const Trajectory iFinalTraj) const;
+  int checkHits(Trajectory iInitTraj, const Trajectory& iFinalTraj) const;
 
   void PrintHit(const TrackingRecHit* const& hit, TrajectoryStateOnSurface& tsos) const;
 

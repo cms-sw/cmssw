@@ -38,7 +38,7 @@ namespace edm {
   class WorkerRegistry {
   public:
     explicit WorkerRegistry(std::shared_ptr<ActivityRegistry> areg);
-    WorkerRegistry(std::shared_ptr<ActivityRegistry> areg, std::shared_ptr<ModuleRegistry> iModReg);
+    WorkerRegistry(std::shared_ptr<ActivityRegistry> areg, const std::shared_ptr<ModuleRegistry>& iModReg);
     ~WorkerRegistry();
 
     WorkerRegistry(WorkerRegistry&&) = default;

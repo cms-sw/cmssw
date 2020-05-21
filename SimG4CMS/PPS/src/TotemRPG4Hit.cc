@@ -73,10 +73,10 @@ const TotemRPG4Hit& TotemRPG4Hit::operator=(const TotemRPG4Hit& right) {
 void TotemRPG4Hit::Print() { edm::LogInfo("TotemRP") << (*this); }
 
 G4ThreeVector TotemRPG4Hit::entry() const { return entry_; }
-void TotemRPG4Hit::setEntry(G4ThreeVector xyz) { entry_ = xyz; }
+void TotemRPG4Hit::setEntry(const G4ThreeVector& xyz) { entry_ = xyz; }
 
 G4ThreeVector TotemRPG4Hit::exit() const { return exit_; }
-void TotemRPG4Hit::setExit(G4ThreeVector xyz) { exit_ = xyz; }
+void TotemRPG4Hit::setExit(const G4ThreeVector& xyz) { exit_ = xyz; }
 
 G4ThreeVector TotemRPG4Hit::localEntry() const { return local_entry_; }
 void TotemRPG4Hit::setLocalEntry(const G4ThreeVector& xyz) { local_entry_ = xyz; }

@@ -23,7 +23,9 @@ const double defaultScaleFactor = 1.;
 
 const int verbosity = 0;
 
-void mapSubDirectoryStructure(TDirectory* directory, std::string directoryName, std::set<std::string>& subDirectories) {
+void mapSubDirectoryStructure(TDirectory* directory,
+                              const std::string& directoryName,
+                              std::set<std::string>& subDirectories) {
   //std::cout << "<mapSubDirectoryStructure>:" << std::endl;
   //std::cout << " directoryName = " << directoryName << std::endl;
 

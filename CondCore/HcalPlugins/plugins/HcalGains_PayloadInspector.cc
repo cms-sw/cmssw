@@ -20,13 +20,14 @@
 #include "TPaveStats.h"
 #include <string>
 #include <fstream>
+#include <utility>
 
 namespace {
 
   class HcalGainContainer : public HcalObjRepresent::HcalDataContainer<HcalGains, HcalGain> {
   public:
     HcalGainContainer(std::shared_ptr<HcalGains> payload, unsigned int run)
-        : HcalObjRepresent::HcalDataContainer<HcalGains, HcalGain>(payload, run) {}
+        : HcalObjRepresent::HcalDataContainer<HcalGains, HcalGain>(std::move(payload), run) {}
     float getValue(HcalGain* gain) override {
       return gain->getValue(0) + gain->getValue(1) + gain->getValue(2) + gain->getValue(3);
     }

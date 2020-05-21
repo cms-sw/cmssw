@@ -263,6 +263,6 @@ private:
   COND_SERIALIZABLE;
 };
 
-std::ostream& operator<<(std::ostream&, LHCInfo lhcInfo);
+std::ostream& operator<<(std::ostream&, const LHCInfo& lhcInfo);
 
 #endif  // CondFormats_RunInfo_LHCInfo_H

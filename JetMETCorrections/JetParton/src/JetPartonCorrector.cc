@@ -99,7 +99,7 @@ namespace JetPartonNamespace {
 
   class JetPartonCalibrationParameterSet {
   public:
-    JetPartonCalibrationParameterSet(string tag);
+    JetPartonCalibrationParameterSet(const string& tag);
     int neta() { return etavector.size(); }
     double eta(int ieta) { return etavector[ieta]; }
     int type(int ieta) { return typevector[ieta]; }
@@ -112,7 +112,7 @@ namespace JetPartonNamespace {
     vector<vector<double> > pars;
   };
 
-  JetPartonCalibrationParameterSet::JetPartonCalibrationParameterSet(string tag) {
+  JetPartonCalibrationParameterSet::JetPartonCalibrationParameterSet(const string& tag) {
     std::string file = "JetMETCorrections/JetParton/data/" + tag + ".txt";
 
     edm::FileInPath f1(file);
@@ -151,7 +151,9 @@ JetPartonCorrector::~JetPartonCorrector() {
     delete ip->second;
 }
 
-void JetPartonCorrector::setParameters(std::string aCalibrationType, double aJetFinderRadius, int aPartonMixture) {
+void JetPartonCorrector::setParameters(const std::string& aCalibrationType,
+                                       double aJetFinderRadius,
+                                       int aPartonMixture) {
   theJetFinderRadius = aJetFinderRadius;
   thePartonMixture = aPartonMixture;
 

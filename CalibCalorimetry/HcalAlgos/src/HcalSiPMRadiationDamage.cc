@@ -1,5 +1,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalSiPMRadiationDamage.h"
 
+#include <utility>
+
 #include <vector>
 #include <cmath>
 
@@ -8,7 +10,7 @@ HcalSiPMRadiationDamage::HcalSiPMRadiationDamage()
     : temperatureBase_(0.0), temperatureNew_(0.0), intlumiOffset_(0.0), depVsTemp_(0.0), intlumiToNeutrons_(0.0) {}
 
 HcalSiPMRadiationDamage::HcalSiPMRadiationDamage(std::vector<double> darkCurrentBase, const edm::ParameterSet& p)
-    : darkCurrentBase_(darkCurrentBase),
+    : darkCurrentBase_(std::move(darkCurrentBase)),
       temperatureBase_(p.getParameter<double>("temperatureBase")),
       temperatureNew_(p.getParameter<double>("temperatureNew")),
       intlumiOffset_(p.getParameter<double>("intlumiOffset")),

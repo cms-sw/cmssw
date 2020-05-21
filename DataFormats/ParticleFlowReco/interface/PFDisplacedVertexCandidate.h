@@ -4,6 +4,8 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include <utility>
+
 #include <vector>
 #include <map>
 #include <iostream>
@@ -32,7 +34,7 @@ namespace reco {
     /// is measurted.
     struct VertexLink {
       VertexLink() : distance_(-1), dcaPoint_(0, 0, 0), test_(0) {}
-      VertexLink(float d, GlobalPoint p, char t) : distance_(d), dcaPoint_(p), test_(t) {}
+      VertexLink(float d, GlobalPoint p, char t) : distance_(d), dcaPoint_(std::move(p)), test_(t) {}
       float distance_;
       GlobalPoint dcaPoint_;
       char test_;
@@ -53,7 +55,7 @@ namespace reco {
     PFDisplacedVertexCandidate();
 
     /// add a track Reference to the current Candidate
-    void addElement(const TrackBaseRef);
+    void addElement(const TrackBaseRef&);
 
     /// set a link between elements of indices i1 and i2, of "distance" dist
     /// the link is set in the linkData vector provided as an argument.

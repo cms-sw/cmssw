@@ -41,6 +41,7 @@
 #include <cctype>
 #include <cstring>
 #include <map>
+#include <utility>
 
 using std::abort;
 using std::atof;
@@ -141,7 +142,7 @@ namespace hitfit {
      @par Return:
      The value of the parameter in C++ string format.
    */
-    string get_val(string name) const;
+    string get_val(const string& name) const;
 
   private:
     // Read parameters from FILE and add them to our data.
@@ -150,7 +151,7 @@ namespace hitfit {
      to data.
      @param file The ASCII text file to read.
    */
-    void read_file(string file);
+    void read_file(const string& file);
 
     // Look for additional parameter settings in the argument list
     // ARGC, ARGV and add them to our data.
@@ -181,7 +182,7 @@ namespace hitfit {
   //                 Pass an empty string to skip reading a file.
   //
   {
-    read_file(file);
+    read_file(std::move(file));
   }
 
   Defaults_Textrep::Defaults_Textrep(string file, int argc, char** argv)
@@ -197,11 +198,11 @@ namespace hitfit {
   //   argv -        The arglist.
   //
   {
-    read_file(file);
+    read_file(std::move(file));
     process_args(argc, argv);
   }
 
-  void Defaults_Textrep::read_file(string file)
+  void Defaults_Textrep::read_file(const string& file)
   //
   // Purpose: Read parameters from FILE and add them to our data.
   //
@@ -262,7 +263,7 @@ namespace hitfit {
     }
   }
 
-  string Defaults_Textrep::get_val(string name) const
+  string Defaults_Textrep::get_val(const string& name) const
   //
   // Purpose: Look up parameter NAME and return its value.
   //          The parameter must exist.
@@ -327,7 +328,7 @@ namespace hitfit {
       //                 of the format for this and for the argument list.
       //                 Pass an empty string to skip reading a file.
       //
-      : _rep(new Defaults_Textrep(def_file)) {}
+      : _rep(new Defaults_Textrep(std::move(def_file))) {}
 
   Defaults_Text::Defaults_Text(std::string def_file, int argc, char** argv)
       //
@@ -341,7 +342,7 @@ namespace hitfit {
       //   argc -        The arglist length.
       //   argv -        The arglist.
       //
-      : _rep(new Defaults_Textrep(def_file, argc, argv)) {}
+      : _rep(new Defaults_Textrep(std::move(def_file), argc, argv)) {}
 
   Defaults_Text::~Defaults_Text()
   //

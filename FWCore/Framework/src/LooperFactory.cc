@@ -22,7 +22,7 @@ namespace edm {
   namespace eventsetup {
     std::string LooperMakerTraits::name() { return "CMS EDM Framework EDLooper"; }
 
-    void LooperMakerTraits::replaceExisting(EventSetupProvider&, std::shared_ptr<EDLooperBase>) {
+    void LooperMakerTraits::replaceExisting(EventSetupProvider&, const std::shared_ptr<EDLooperBase>&) {
       throw edm::Exception(edm::errors::LogicError) << "LooperMakerTraits::replaceExisting\n"
                                                     << "This function is not implemented and should never be called.\n"
                                                     << "Please report this to a Framework Developer\n";

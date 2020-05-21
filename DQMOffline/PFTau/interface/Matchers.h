@@ -59,7 +59,7 @@ namespace PFB {
              std::vector<int> &matchIndices,
              const edm::ParameterSet &parameterSet,
              // const MM& muonMatchedCandCollection,
-             edm::View<reco::Muon> muonMatchedCandCollection,
+             const edm::View<reco::Muon> &muonMatchedCandCollection,
              bool matchCharge = false,
              float dRMax = -1) {
     // compute distance to each candidate in the matchedCandCollection.

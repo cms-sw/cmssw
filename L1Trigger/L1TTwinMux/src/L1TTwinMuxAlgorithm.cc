@@ -29,9 +29,9 @@
 
 using namespace std;
 
-void L1TTwinMuxAlgorithm::run(edm::Handle<L1MuDTChambPhContainer> inphiDigis,
-                              edm::Handle<L1MuDTChambThContainer> thetaDigis,
-                              edm::Handle<RPCDigiCollection> rpcDigis,
+void L1TTwinMuxAlgorithm::run(const edm::Handle<L1MuDTChambPhContainer>& inphiDigis,
+                              const edm::Handle<L1MuDTChambThContainer>& thetaDigis,
+                              const edm::Handle<RPCDigiCollection>& rpcDigis,
                               const edm::EventSetup& c) {
   ///ES Parameters
   const L1TTwinMuxParamsRcd& tmParamsRcd = c.get<L1TTwinMuxParamsRcd>();

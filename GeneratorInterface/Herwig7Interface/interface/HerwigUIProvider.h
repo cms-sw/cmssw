@@ -76,7 +76,7 @@ namespace Herwig {
   *
   *  Function sets jobsize_ and maxjobs_ accordingly to the run modes.
   **/
-    void setRunMode(RunMode::Mode runMode, const edm::ParameterSet& pset, std::string inputFile = "");
+    void setRunMode(RunMode::Mode runMode, const edm::ParameterSet& pset, const std::string& inputFile = "");
 
   private:
     RunMode::Mode runMode_;

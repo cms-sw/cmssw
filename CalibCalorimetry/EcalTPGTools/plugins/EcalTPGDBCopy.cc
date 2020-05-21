@@ -74,7 +74,7 @@ void EcalTPGDBCopy::analyze(const edm::Event& evt, const edm::EventSetup& evtSet
   }
 }
 
-bool EcalTPGDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string container) {
+bool EcalTPGDBCopy::shouldCopy(const edm::EventSetup& evtSetup, const std::string& container) {
   unsigned long long cacheID = 0;
 
   if (container == "EcalTPGPedestals") {
@@ -121,7 +121,7 @@ bool EcalTPGDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string cont
   }
 }
 
-void EcalTPGDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container) {
+void EcalTPGDBCopy::copyToDB(const edm::EventSetup& evtSetup, const std::string& container) {
   edm::Service<cond::service::PoolDBOutputService> dbOutput;
   if (!dbOutput.isAvailable()) {
     throw cms::Exception("PoolDBOutputService is not available");

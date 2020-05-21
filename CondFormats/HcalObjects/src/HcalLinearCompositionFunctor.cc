@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "CondFormats/HcalObjects/interface/HcalLinearCompositionFunctor.h"
@@ -5,7 +7,7 @@
 HcalLinearCompositionFunctor::HcalLinearCompositionFunctor(std::shared_ptr<AbsHcalFunctor> p,
                                                            const double ia,
                                                            const double ib)
-    : other_(p), a_(ia), b_(ib) {
+    : other_(std::move(p)), a_(ia), b_(ib) {
   if (!other_.get())
     throw cms::Exception(
         "In HcalLinearCompositionFunctor constructor: "

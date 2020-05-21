@@ -25,12 +25,12 @@ public:
 
   RefCountedKinematicTree buildTree(const std::vector<RefCountedKinematicParticle>& initialParticles,
                                     const std::vector<KinematicState>& finalStates,
-                                    const RefCountedKinematicVertex vtx,
+                                    const RefCountedKinematicVertex& vtx,
                                     const AlgebraicMatrix& fCov) const;
 
 private:
-  RefCountedKinematicTree buildTree(const RefCountedKinematicParticle virtualParticle,
-                                    const RefCountedKinematicVertex vtx,
+  RefCountedKinematicTree buildTree(const RefCountedKinematicParticle& virtualParticle,
+                                    const RefCountedKinematicVertex& vtx,
                                     const std::vector<RefCountedKinematicParticle>& particles) const;
 
   /**

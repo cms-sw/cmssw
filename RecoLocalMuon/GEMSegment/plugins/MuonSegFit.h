@@ -29,6 +29,8 @@
 #include <Math/SVector.h>
 #include <Math/SMatrix.h>
 
+#include <utility>
+
 #include <vector>
 
 class MuonSegFit {
@@ -60,7 +62,7 @@ public:
   //@@ WANT OBJECT TO CACHE THE SET OF HITS SO CANNOT PASS BY REF
   // NOTE - We need local position of a RecHit w.r.t. the CHAMBER
   MuonSegFit(MuonRecHitContainer hits)
-      : hits_(hits), uslope_(.0), vslope_(.0), chi2_(.0), ndof_(0), scaleXError_(1.0), fitdone_(false) {}
+      : hits_(std::move(hits)), uslope_(.0), vslope_(.0), chi2_(.0), ndof_(0), scaleXError_(1.0), fitdone_(false) {}
 
   virtual ~MuonSegFit() {}
 

@@ -6,11 +6,12 @@
 //   Pedro Arce
 #include <fstream>
 #include <map>
+#include <utility>
 
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShapeBox.h"
 
 CocoaSolidShapeBox::CocoaSolidShapeBox(ALIstring type, ALIfloat xdim, ALIfloat ydim, ALIfloat zdim)
-    : CocoaSolidShape(type) {
+    : CocoaSolidShape(std::move(type)) {
   theXHalfLength = xdim;
   theYHalfLength = ydim;
   theZHalfLength = zdim;

@@ -14,9 +14,9 @@
 
 using namespace std;
 
-void IOPrinter::run(edm::Handle<L1MuDTChambPhContainer> inphiDigis,
+void IOPrinter::run(const edm::Handle<L1MuDTChambPhContainer>& inphiDigis,
                     const L1MuDTChambPhContainer& outphiDigis,
-                    edm::Handle<RPCDigiCollection> rpcDigis,
+                    const edm::Handle<RPCDigiCollection>& rpcDigis,
                     const edm::EventSetup& c) {
   cout << "======================================================" << endl;
   int bx = 0, wheel = 0, sector = 0, station = 1;

@@ -4,6 +4,8 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <set>
+#include <utility>
+
 #include <vector>
 #include <algorithm>
 #if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
@@ -28,7 +30,7 @@ public:
       mId = mRM = 0;
       mRBX = "";
     }
-    PrecisionItem(uint32_t fId, int fRM, std::string fRBX) : mId(fId), mRM(fRM), mRBX(fRBX) {}
+    PrecisionItem(uint32_t fId, int fRM, std::string fRBX) : mId(fId), mRM(fRM), mRBX(std::move(fRBX)) {}
     uint32_t mId;
     int mRM;
     std::string mRBX;
@@ -97,7 +99,7 @@ namespace HcalFrontEndMapAddons {
   public:
     Helper();
     /// load a new entry
-    bool loadObject(DetId fId, int rm, std::string rbx);
+    bool loadObject(DetId fId, int rm, const std::string& rbx);
 
     std::set<HcalFrontEndMap::PrecisionItem, LessById> mPItems;
   };

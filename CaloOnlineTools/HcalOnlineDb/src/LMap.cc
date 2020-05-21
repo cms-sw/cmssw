@@ -15,6 +15,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <utility>
+
 #include <vector>
 
 // user include files
@@ -32,7 +34,7 @@ public:
   impl() {}
   ~impl() {}
 
-  int read(std::string accessor, std::string type);
+  int read(const std::string& accessor, const std::string& type);
   std::map<int, LMapRow>& get_map(void) { return _lmap; };
 
 private:
@@ -44,11 +46,11 @@ LMap::LMap() : p_impl(new impl) {}
 
 LMap::~LMap() {}
 
-int LMap::read(std::string accessor, std::string type) { return p_impl->read(accessor, type); }
+int LMap::read(std::string accessor, std::string type) { return p_impl->read(std::move(accessor), std::move(type)); }
 
 std::map<int, LMapRow>& LMap::get_map(void) { return p_impl->get_map(); }
 
-int LMap::impl::read(std::string map_file, std::string type) {
+int LMap::impl::read(const std::string& map_file, const std::string& type) {
   RooGKCounter lines;
 
   std::string _row;
@@ -265,7 +267,7 @@ EMap::EMap(const HcalElectronicsMap* emap) {
   }
 }
 
-int EMap::read_map(std::string filename) {
+int EMap::read_map(const std::string& filename) {
   RooGKCounter lines;
 
   std::string _row;
@@ -319,7 +321,7 @@ bool EMap::EMapRow::operator<(const EMap::EMapRow& other) const { return rawId <
 
 // ===> test procedures for the EMap class
 int EMap_test::test_read_map(std::string filename) {
-  EMap map(filename);
+  EMap map(std::move(filename));
   return 0;
 }
 
@@ -327,6 +329,6 @@ int EMap_test::test_read_map(std::string filename) {
 LMap_test::LMap_test() : _lmap(new LMap) {}
 
 int LMap_test::test_read(std::string accessor, std::string type) {
-  _lmap->read(accessor, type);
+  _lmap->read(std::move(accessor), std::move(type));
   return 0;
 }

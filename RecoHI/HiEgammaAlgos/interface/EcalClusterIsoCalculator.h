@@ -18,13 +18,13 @@ class EcalClusterIsoCalculator {
 public:
   EcalClusterIsoCalculator(const edm::Event &iEvent,
                            const edm::EventSetup &iSetup,
-                           const edm::Handle<reco::BasicClusterCollection> barrel,
-                           const edm::Handle<reco::BasicClusterCollection> endcap);
+                           const edm::Handle<reco::BasicClusterCollection> &barrel,
+                           const edm::Handle<reco::BasicClusterCollection> &endcap);
 
   /// Return the ecal cluster energy in a cone around the SC
-  double getEcalClusterIso(const reco::SuperClusterRef clus, const double radius, const double threshold);
+  double getEcalClusterIso(const reco::SuperClusterRef &clus, const double radius, const double threshold);
   /// Return the background-subtracted ecal cluster energy in a cone around the SC
-  double getBkgSubEcalClusterIso(const reco::SuperClusterRef clus, const double radius, const double threshold);
+  double getBkgSubEcalClusterIso(const reco::SuperClusterRef &clus, const double radius, const double threshold);
 
 private:
   const reco::BasicClusterCollection *fEBclusters_;

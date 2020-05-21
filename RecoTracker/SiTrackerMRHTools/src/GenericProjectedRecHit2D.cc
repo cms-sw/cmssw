@@ -9,7 +9,7 @@ GenericProjectedRecHit2D::GenericProjectedRecHit2D(const LocalPoint& pos,
                                                    const LocalError& err,
                                                    const GeomDet* det,
                                                    const GeomDet* originalDet,
-                                                   const TransientTrackingRecHit::ConstRecHitPointer originalHit,
+                                                   const TransientTrackingRecHit::ConstRecHitPointer& originalHit,
                                                    const TrackingRecHitPropagator* propagator)
     : TrackingRecHit(*det)  //, originalHit->weight(), originalHit->getAnnealingFactor())
 {

@@ -64,7 +64,7 @@ L1MuGMTInputEvent::~L1MuGMTInputEvent() {}
 //--------------
 // Operations --
 //--------------
-void L1MuGMTInputEvent::addInputMuon(const std::string chipid, const L1MuRegionalCand& inMu) {
+void L1MuGMTInputEvent::addInputMuon(const std::string& chipid, const L1MuRegionalCand& inMu) {
   if (m_inputmuons.count(chipid) == 0)
     throw std::runtime_error("L1MuGMTInputEvent::addInputMuon: invalid chipid:" + chipid);
   m_inputmuons[chipid].push_back(inMu);
@@ -83,7 +83,7 @@ void L1MuGMTInputEvent::reset() {
   m_iso_bits.reset(true);  //see CTOR for info on this
 }
 
-const L1MuRegionalCand* L1MuGMTInputEvent::getInputMuon(std::string chipid, unsigned index) const {
+const L1MuRegionalCand* L1MuGMTInputEvent::getInputMuon(const std::string& chipid, unsigned index) const {
   if (m_inputmuons.count(chipid) == 0)
     throw std::runtime_error("L1GMTInputEvent::getInputMuon: invalid chipid:" + chipid);
 

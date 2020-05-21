@@ -15,7 +15,7 @@ template <typename DigiCollection>
 class PreMixingMuonWorker : public PreMixingWorker {
 public:
   PreMixingMuonWorker(const edm::ParameterSet& ps,
-                      edm::ProducesCollector producesCollector,
+                      const edm::ProducesCollector& producesCollector,
                       edm::ConsumesCollector&& iC)
       : PreMixingMuonWorker(ps, producesCollector, iC) {}
   PreMixingMuonWorker(const edm::ParameterSet& ps, edm::ProducesCollector, edm::ConsumesCollector& iC);

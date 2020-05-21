@@ -6,6 +6,7 @@
 
 #include <map>
 #include <string>
+#include <utility>
 
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
@@ -27,7 +28,7 @@ public:
   Tm getDBTime() const { return m_db_time; }
   void setDBTime(const Tm &x) { m_db_time = x; }
 
-  void setDescription(std::string x) { m_description = x; }
+  void setDescription(std::string x) { m_description = std::move(x); }
   std::string getDescription() const { return m_description; }
   //
   void setPedId(int x) { m_ped_id = x; }

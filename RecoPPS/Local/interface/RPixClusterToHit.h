@@ -19,7 +19,7 @@ public:
   void buildHits(unsigned int detId,
                  const std::vector<CTPPSPixelCluster> &clusters,
                  std::vector<CTPPSPixelRecHit> &hits);
-  void make_hit(CTPPSPixelCluster aCluster, std::vector<CTPPSPixelRecHit> &hits);
+  void make_hit(const CTPPSPixelCluster &aCluster, std::vector<CTPPSPixelRecHit> &hits);
   ~RPixClusterToHit();
 
 private:

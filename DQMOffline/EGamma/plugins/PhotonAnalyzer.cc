@@ -1228,7 +1228,7 @@ void PhotonAnalyzer::bookHistogramsConversions(DQMStore::IBooker& iBooker) {
 // Booking helper methods:
 
 PhotonAnalyzer::MonitorElement* PhotonAnalyzer::bookHisto(
-    DQMStore::IBooker& iBooker, string histoName, string title, int bin, double min, double max) {
+    DQMStore::IBooker& iBooker, const string& histoName, const string& title, int bin, double min, double max) {
   int histo_index = 0;
   stringstream histo_number_stream;
 
@@ -1252,9 +1252,9 @@ PhotonAnalyzer::MonitorElement* PhotonAnalyzer::bookHisto(
 
 void PhotonAnalyzer::book2DHistoVector(DQMStore::IBooker& iBooker,
                                        vector<vector<MonitorElement*> >& temp2DVector,
-                                       string histoType,
-                                       string histoName,
-                                       string title,
+                                       const string& histoType,
+                                       const string& histoName,
+                                       const string& title,
                                        int xbin,
                                        double xmin,
                                        double xmax,
@@ -1325,9 +1325,9 @@ void PhotonAnalyzer::book2DHistoVector(DQMStore::IBooker& iBooker,
 
 void PhotonAnalyzer::book3DHistoVector(DQMStore::IBooker& iBooker,
                                        vector<vector<vector<MonitorElement*> > >& temp3DVector,
-                                       string histoType,
-                                       string histoName,
-                                       string title,
+                                       const string& histoType,
+                                       const string& histoName,
+                                       const string& title,
                                        int xbin,
                                        double xmin,
                                        double xmax,

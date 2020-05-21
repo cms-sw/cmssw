@@ -107,7 +107,7 @@ public:  // without description
   size_t GetIndexOfCategory() const { return IndexOfCategory; }
 
 public:  // with description
-  friend std::ostream& operator<<(std::ostream&, CocoaBestUnit VU);
+  friend std::ostream& operator<<(std::ostream&, const CocoaBestUnit& VU);
   // Default format to print the objet VU above.
 
 private:

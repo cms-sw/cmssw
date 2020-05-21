@@ -11,7 +11,7 @@
 #include <iostream>
 #include <map>
 
-bool getHists(std::map<TString, TH1D*>& hists, TFile*& file, TString var, int var_val, float r);
+bool getHists(std::map<TString, TH1D*>& hists, TFile*& file, const TString& var, int var_val, float r);
 void setStyle();
 void setStack(THStack*& stack, std::map<TString, TH1D*>& hists);
 void split(const TString& str, TString& sub1, TString& sub2);
@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
   c.Print(outdir + "/stack_" + label + ".pdf");
 }
 
-bool getHists(std::map<TString, TH1D*>& hists, TFile*& file, TString var, int var_val, float r) {
+bool getHists(std::map<TString, TH1D*>& hists, TFile*& file, const TString& var, int var_val, float r) {
   for (auto& pair : hists) {
     TString name = Form("p_offset_eta_%s%i_%s", var.Data(), var_val, pair.first.Data());
     TProfile* p = (TProfile*)file->FindObjectAny(name);

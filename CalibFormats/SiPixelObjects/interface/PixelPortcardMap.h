@@ -30,7 +30,7 @@ namespace pos {
 */
   class PixelPortcardMap : public PixelConfigBase {
   public:
-    PixelPortcardMap(std::string filename);
+    PixelPortcardMap(const std::string &filename);
 
     PixelPortcardMap(std::vector<std::vector<std::string> > &tableMat);
 
@@ -51,13 +51,13 @@ namespace pos {
     const std::pair<std::string, int> PortCardAndAOH(const PixelChannel &aChannel) const;
 
     // set of all modules attached to a port card
-    std::set<PixelModuleName> modules(std::string portCardName) const;
+    std::set<PixelModuleName> modules(const std::string &portCardName) const;
 
     // all port cards in the map
     std::set<std::string> portcards(const PixelDetectorConfig *detconfig = nullptr);
 
     // Added by Dario for Debbie (the PixelPortcardMap::portcards is way to slow for the interactive tool)
-    bool getName(std::string moduleName, std::string &portcardName);
+    bool getName(const std::string &moduleName, std::string &portcardName);
 
     void writeASCII(std::string dir) const override;
     void writeXML(pos::PixelConfigKey key, int version, std::string path) const override { ; }

@@ -3,6 +3,8 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
+#include <utility>
+
 #include <vector>
 #include <string>
 #include <iostream>
@@ -13,7 +15,7 @@ public:
   ~SiStripRunSummary(){};
 
   bool put(std::string runSummary) {
-    runSummary_ = runSummary;
+    runSummary_ = std::move(runSummary);
     return true;
   }
   std::string getRunSummary() const { return runSummary_; }

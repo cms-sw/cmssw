@@ -36,7 +36,7 @@ TString MELaserPrim::separator = "__";
 
 //ClassImp( MELaserPrim )
 
-MELaserPrim::MELaserPrim(ME::Header header, ME::Settings settings, const char* inpath, const char* outfile)
+MELaserPrim::MELaserPrim(const ME::Header& header, ME::Settings settings, const char* inpath, const char* outfile)
     : init_ok(false), _isBarrel(true), _inpath(inpath), _outfile(outfile) {
   apdpn_file = nullptr;
   ab_file = nullptr;

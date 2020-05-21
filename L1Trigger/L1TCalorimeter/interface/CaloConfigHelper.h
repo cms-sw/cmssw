@@ -11,7 +11,7 @@ namespace l1t {
 
   class CaloConfigHelper {
   public:
-    CaloConfigHelper(CaloConfig& db, unsigned fwv, std::string epoch);
+    CaloConfigHelper(CaloConfig& db, unsigned fwv, const std::string& epoch);
     CaloConfigHelper(const CaloConfig& db);
     CaloConfigHelper();
     void UpdatePayload(const CaloConfig* db) { db_ = db; }

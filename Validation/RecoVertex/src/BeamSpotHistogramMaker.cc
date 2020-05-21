@@ -18,7 +18,7 @@ BeamSpotHistogramMaker::BeamSpotHistogramMaker(const edm::ParameterSet& iConfig,
 
 BeamSpotHistogramMaker::~BeamSpotHistogramMaker() { delete _currdir; }
 
-void BeamSpotHistogramMaker::book(const std::string dirname) {
+void BeamSpotHistogramMaker::book(const std::string& dirname) {
   edm::Service<TFileService> tfserv;
   TFileDirectory* currdir = &(tfserv->tFileDirectory());
 

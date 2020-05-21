@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "DQM/Physics/interface/TopDQMHelpers.h"
 
 Calculate::Calculate(int maxNJets, double wMass)
@@ -24,7 +26,7 @@ double Calculate::massTopQuark(const std::vector<reco::Jet>& jets) {
 
 double Calculate::massBTopQuark(const std::vector<reco::Jet>& jets, std::vector<double> VbtagWP, double btagWP_) {
   if (!failed_ && massBTopQuark_ < 0)
-    operator2(jets, VbtagWP, btagWP_);
+    operator2(jets, std::move(VbtagWP), btagWP_);
   return massBTopQuark_;
 }
 
@@ -178,7 +180,7 @@ double Calculate_miniAOD::massBTopQuark(const std::vector<pat::Jet>& jets,
                                         std::vector<double> VbtagWP,
                                         double btagWP_) {
   if (!failed_ && massBTopQuark_ < 0)
-    operator2(jets, VbtagWP, btagWP_);
+    operator2(jets, std::move(VbtagWP), btagWP_);
   return massBTopQuark_;
 }
 

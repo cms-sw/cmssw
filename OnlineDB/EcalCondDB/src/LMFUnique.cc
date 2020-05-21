@@ -11,7 +11,7 @@ std::string LMFUnique::sequencePostfix(const Tm& t) {
   return ts.substr(2, 2);
 }
 
-LMFUnique& LMFUnique::setString(std::string key, std::string value) {
+LMFUnique& LMFUnique::setString(const std::string& key, const std::string& value) {
   // check if this key exists
   std::map<std::string, std::string>::const_iterator i = m_stringFields.find(key);
   if (i != m_stringFields.end()) {
@@ -28,7 +28,7 @@ LMFUnique& LMFUnique::setString(std::string key, std::string value) {
   return *this;
 }
 
-LMFUnique& LMFUnique::setInt(std::string key, int value) {
+LMFUnique& LMFUnique::setInt(const std::string& key, int value) {
   // check if this key exists
   std::map<std::string, int>::const_iterator i = m_intFields.find(key);
   if (i != m_intFields.end()) {
@@ -45,7 +45,7 @@ LMFUnique& LMFUnique::setInt(std::string key, int value) {
   return *this;
 }
 
-void LMFUnique::attach(std::string name, LMFUnique* u) {
+void LMFUnique::attach(const std::string& name, LMFUnique* u) {
   std::map<std::string, LMFUnique*>::const_iterator i = m_foreignKeys.find(name);
   if (i != m_foreignKeys.end()) {
     if (i->second != u) {
@@ -175,7 +175,7 @@ LMFUnique* LMFUnique::createObject() const {
   return nullptr;
 }
 
-std::string LMFUnique::getString(std::string s) const {
+std::string LMFUnique::getString(const std::string& s) const {
   std::string rs = "";
   std::map<std::string, std::string>::const_iterator i = m_stringFields.find(s);
   if (i != m_stringFields.end()) {
@@ -184,7 +184,7 @@ std::string LMFUnique::getString(std::string s) const {
   return rs;
 }
 
-int LMFUnique::getInt(std::string s) const {
+int LMFUnique::getInt(const std::string& s) const {
   // this should be better defined
   int ret = 0;
   std::map<std::string, int>::const_iterator i = m_intFields.find(s);

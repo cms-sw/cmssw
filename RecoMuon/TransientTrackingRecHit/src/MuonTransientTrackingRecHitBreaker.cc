@@ -3,7 +3,7 @@
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 
 TransientTrackingRecHit::ConstRecHitContainer MuonTransientTrackingRecHitBreaker::breakInSubRecHits(
-    TransientTrackingRecHit::ConstRecHitPointer muonRecHit, int granularity) {
+    const TransientTrackingRecHit::ConstRecHitPointer& muonRecHit, int granularity) {
   const std::string metname = "Muon|RecoMuon|MuonTransientTrackingRecHitBreaker";
 
   TransientTrackingRecHit::ConstRecHitContainer recHitsForFit;

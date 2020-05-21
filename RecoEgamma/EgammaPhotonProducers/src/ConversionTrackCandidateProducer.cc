@@ -294,7 +294,7 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
 void ConversionTrackCandidateProducer::buildCollections(bool isBarrel,
                                                         const edm::Handle<edm::View<reco::CaloCluster> >& scHandle,
                                                         const edm::Handle<edm::View<reco::CaloCluster> >& bcHandle,
-                                                        edm::Handle<EcalRecHitCollection> ecalRecHitHandle,
+                                                        const edm::Handle<EcalRecHitCollection>& ecalRecHitHandle,
                                                         const EcalRecHitCollection& ecalRecHits,
                                                         const EcalSeverityLevelAlgo* sevLevel,
                                                         //edm::ESHandle<EcalChannelStatus>  chStatus,

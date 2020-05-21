@@ -45,13 +45,13 @@ namespace MultiGaussianStateTransform {
 
   /** Construct a MultiGaussianState from a TrajectoryStateOnSurface
    *  (local parameters) */
-  MultiGaussianState<5> multiState(const TrajectoryStateOnSurface);
+  MultiGaussianState<5> multiState(const TrajectoryStateOnSurface&);
   /** Construct a MultiGaussianState1D from a TrajectoryStateOnSurface
    *  (local parameters) */
-  MultiGaussianState1D multiState1D(const TrajectoryStateOnSurface, unsigned int);
+  MultiGaussianState1D multiState1D(const TrajectoryStateOnSurface&, unsigned int);
   /** Construct a TrajectoryStateOnSurface from a 5D SingleGaussianState
    *  (local parameters) and a reference TSOS (surface, charge, ..) */
-  TrajectoryStateOnSurface tsosFromSingleState(const SingleGaussianState<5>&, const TrajectoryStateOnSurface);
+  TrajectoryStateOnSurface tsosFromSingleState(const SingleGaussianState<5>&, const TrajectoryStateOnSurface&);
 
 }  // namespace MultiGaussianStateTransform
 

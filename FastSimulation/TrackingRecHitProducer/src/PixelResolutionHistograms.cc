@@ -59,10 +59,10 @@ const float cmtomicron = 10000.0;
 //  the class. (That is, once we make the histograms, we can't change the
 //  definition of the binning.)
 //------------------------------------------------------------------------------
-PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,   // ROOT file for histograms
-                                                     std::string rootdir,    // Subdirectory in the file, "" if none
-                                                     std::string descTitle,  // Descriptive title
-                                                     unsigned int detType,   // Where we are... (&&& do we need this?)
+PixelResolutionHistograms::PixelResolutionHistograms(const std::string& filename,  // ROOT file for histograms
+                                                     const std::string& rootdir,  // Subdirectory in the file, "" if none
+                                                     const std::string& descTitle,  // Descriptive title
+                                                     unsigned int detType,  // Where we are... (&&& do we need this?)
                                                      double cotbetaBinWidth,
                                                      double cotbetaLowEdge,
                                                      int cotbetaBins,
@@ -201,8 +201,8 @@ PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,   // 
 //  The other parameters are the same (needed later) and must correspond
 //  to the histograms we are loading from the file.
 //------------------------------------------------------------------------------
-PixelResolutionHistograms::PixelResolutionHistograms(std::string filename,
-                                                     std::string rootdir,
+PixelResolutionHistograms::PixelResolutionHistograms(const std::string& filename,
+                                                     const std::string& rootdir,
                                                      int detType,
                                                      bool ignore_multi,
                                                      bool ignore_single,

@@ -25,7 +25,7 @@ public:
 
   double correction(const LorentzVector& fJet) const override;
 
-  void setParameters(std::string aCalibrationType, double aJetFinderRadius, int aPartonMixture);
+  void setParameters(const std::string& aCalibrationType, double aJetFinderRadius, int aPartonMixture);
 
   /// if correction needs event information
   bool eventRequired() const override { return false; }

@@ -8,7 +8,7 @@ class TPNCor : public TObject {
 private:
 public:
   // Default Constructor, mainly for Root
-  TPNCor(std::string filename);
+  TPNCor(const std::string& filename);
 
   // Destructor: Does nothing
   ~TPNCor() override;

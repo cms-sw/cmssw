@@ -57,7 +57,7 @@ public:
   void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
 private:
-  void bookChamberHistos(DQMStore::IBooker&, const DTChamberId& dtCh, std::string histoType, int, float, float);
+  void bookChamberHistos(DQMStore::IBooker&, const DTChamberId& dtCh, const std::string& histoType, int, float, float);
 
   bool debug;
   int nMinHitsPhi;

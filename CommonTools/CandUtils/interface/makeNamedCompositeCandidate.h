@@ -9,7 +9,7 @@ namespace helpers {
   struct NamedCompositeCandidateMaker {
     NamedCompositeCandidateMaker(std::unique_ptr<reco::NamedCompositeCandidate> cmp) : cmp_(std::move(cmp)) {}
 
-    void addDaughter(const reco::Candidate& dau, std::string name) { cmp_->addDaughter(dau, name); }
+    void addDaughter(const reco::Candidate& dau, const std::string& name) { cmp_->addDaughter(dau, name); }
     template <typename S>
     std::unique_ptr<reco::Candidate> operator[](const S& setup) {
       setup.set(*cmp_);

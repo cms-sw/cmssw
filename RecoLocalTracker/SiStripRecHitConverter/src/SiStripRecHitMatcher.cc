@@ -9,6 +9,7 @@
 
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 #include <boost/bind.hpp>
+#include <utility>
 
 #include <DataFormats/TrackingRecHit/interface/AlignmentPositionError.h>
 
@@ -34,7 +35,7 @@ void SiStripRecHitMatcher::match(const SiStripRecHit2D* monoRH,
                                  LocalVector trackdirection) const {
   std::vector<SiStripMatchedRecHit2D*> result;
   result.reserve(end - begin);
-  match(monoRH, begin, end, result, gluedDet, trackdirection);
+  match(monoRH, begin, end, result, gluedDet, std::move(trackdirection));
   for (std::vector<SiStripMatchedRecHit2D*>::iterator p = result.begin(); p != result.end(); p++)
     collector.push_back(*p);
 }
@@ -46,7 +47,7 @@ void SiStripRecHitMatcher::match(const SiStripRecHit2D* monoRH,
                                  const GluedGeomDet* gluedDet,
                                  LocalVector trackdirection) const {
   Collector result(boost::bind(&pb1, boost::ref(collector), boost::bind(&SiStripMatchedRecHit2D::clone, _1)));
-  match(monoRH, begin, end, result, gluedDet, trackdirection);
+  match(monoRH, begin, end, result, gluedDet, std::move(trackdirection));
 }
 
 void SiStripRecHitMatcher::match(const SiStripRecHit2D* monoRH,
@@ -56,7 +57,7 @@ void SiStripRecHitMatcher::match(const SiStripRecHit2D* monoRH,
                                  const GluedGeomDet* gluedDet,
                                  LocalVector trackdirection) const {
   Collector result(boost::bind(pb2, boost::ref(collector), _1));
-  match(monoRH, begin, end, result, gluedDet, trackdirection);
+  match(monoRH, begin, end, result, gluedDet, std::move(trackdirection));
 }
 
 // this is the one used by the RecHitConverter
@@ -72,7 +73,7 @@ void SiStripRecHitMatcher::match(const SiStripRecHit2D* monoRH,
   for (RecHitIterator i = begin; i != end; ++i)
     stereoHits.push_back(&(*i));  // convert to simple pointer
 
-  return match(monoRH, stereoHits.begin(), stereoHits.end(), collector, gluedDet, trackdirection);
+  return match(monoRH, stereoHits.begin(), stereoHits.end(), collector, gluedDet, std::move(trackdirection));
 }
 
 // the "real implementation"
@@ -215,8 +216,8 @@ void SiStripRecHitMatcher::match(const SiStripRecHit2D* monoRH,
 
 SiStripRecHitMatcher::StripPosition SiStripRecHitMatcher::project(const GeomDetUnit* det,
                                                                   const GluedGeomDet* glueddet,
-                                                                  StripPosition strip,
-                                                                  LocalVector trackdirection) const {
+                                                                  const StripPosition& strip,
+                                                                  const LocalVector& trackdirection) const {
   GlobalPoint globalpointini = (det->surface()).toGlobal(strip.first);
   GlobalPoint globalpointend = (det->surface()).toGlobal(strip.second);
 

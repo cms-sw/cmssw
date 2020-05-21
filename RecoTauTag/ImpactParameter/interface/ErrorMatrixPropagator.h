@@ -18,7 +18,7 @@ namespace tauImpactParameter {
   public:
     ErrorMatrixPropagator(){};
     virtual ~ErrorMatrixPropagator(){};
-    static TMatrixTSym<double> propagateError(std::function<TVectorT<double>(const TVectorT<double>&)> f,
+    static TMatrixTSym<double> propagateError(const std::function<TVectorT<double>(const TVectorT<double>&)>& f,
                                               const TVectorT<double>& inPar,
                                               TMatrixTSym<double>& inCov,
                                               double epsilon = 0.001,

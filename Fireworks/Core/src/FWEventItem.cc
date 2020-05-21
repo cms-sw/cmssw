@@ -14,6 +14,8 @@
 #include <iostream>
 #include <algorithm>
 #include <exception>
+#include <utility>
+
 #include <TClass.h>
 
 // user include files
@@ -52,7 +54,7 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
       m_name(iDesc.name()),
       m_type(iDesc.type()),
       m_purpose(iDesc.purpose()),
-      m_accessor(iAccessor),
+      m_accessor(std::move(iAccessor)),
       m_displayProperties(iDesc.displayProperties()),
       m_layer(iDesc.layer()),
       m_moduleLabel(iDesc.moduleLabel()),

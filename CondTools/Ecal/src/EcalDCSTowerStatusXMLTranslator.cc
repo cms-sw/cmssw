@@ -126,7 +126,7 @@ std::string EcalDCSTowerStatusXMLTranslator::dumpXML(const EcalCondHeader& heade
   return dump;
 }
 
-void EcalDCSTowerStatusXMLTranslator::plot(std::string fn, const EcalDCSTowerStatus& record) {
+void EcalDCSTowerStatusXMLTranslator::plot(const std::string& fn, const EcalDCSTowerStatus& record) {
   std::ofstream fout(fn.c_str());
   int valEB[34][72];
   std::cout << " barrel size " << record.barrelItems().size() << std::endl;

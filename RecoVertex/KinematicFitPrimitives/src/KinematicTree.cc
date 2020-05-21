@@ -17,9 +17,9 @@ bool KinematicTree::isConsistent() const {
   return des;
 }
 
-void KinematicTree::addParticle(RefCountedKinematicVertex prodVtx,
-                                RefCountedKinematicVertex decVtx,
-                                RefCountedKinematicParticle part) {
+void KinematicTree::addParticle(const RefCountedKinematicVertex& prodVtx,
+                                const RefCountedKinematicVertex& decVtx,
+                                const RefCountedKinematicParticle& part) {
   part->setTreePointer(this);
   treeGraph.addEdge(prodVtx, decVtx, part);
   empt = false;
@@ -236,7 +236,7 @@ bool KinematicTree::movePointerToTheNextChild() const {
   return res;
 }
 
-bool KinematicTree::findParticle(const RefCountedKinematicParticle part) const {
+bool KinematicTree::findParticle(const RefCountedKinematicParticle& part) const {
   if (isEmpty() || !(isConsistent())) {
     throw VertexException("KinematicTree::findParticle; tree is empty or not consistent");
   } else {
@@ -267,7 +267,7 @@ bool KinematicTree::findParticle(const RefCountedKinematicParticle part) const {
   }
 }
 
-bool KinematicTree::leftBranchSearch(RefCountedKinematicParticle part) const {
+bool KinematicTree::leftBranchSearch(const RefCountedKinematicParticle& part) const {
   bool found = false;
   bool next = true;
   if (currentParticle() == part) {
@@ -283,7 +283,7 @@ bool KinematicTree::leftBranchSearch(RefCountedKinematicParticle part) const {
   return found;
 }
 
-bool KinematicTree::findDecayVertex(const RefCountedKinematicVertex vert) const {
+bool KinematicTree::findDecayVertex(const RefCountedKinematicVertex& vert) const {
   if (isEmpty() || !(isConsistent())) {
     throw VertexException("KinematicTree::findParticle; tree is empty or not consistent");
   } else {
@@ -339,7 +339,7 @@ bool KinematicTree::findDecayVertex(KinematicVertex *vert) const {
   }
 }
 
-bool KinematicTree::leftBranchVertexSearch(RefCountedKinematicVertex vtx) const {
+bool KinematicTree::leftBranchVertexSearch(const RefCountedKinematicVertex& vtx) const {
   bool found = false;
   if (currentDecayVertex() == vtx) {
     found = true;
@@ -356,7 +356,7 @@ bool KinematicTree::leftBranchVertexSearch(RefCountedKinematicVertex vtx) const 
   return found;
 }
 
-void KinematicTree::leftBranchAdd(KinematicTree *otherTree, RefCountedKinematicVertex vtx) {
+void KinematicTree::leftBranchAdd(KinematicTree* otherTree, const RefCountedKinematicVertex& vtx) {
   RefCountedKinematicVertex previous_decay = otherTree->currentDecayVertex();
 
   //children of current particle of the
@@ -374,21 +374,21 @@ void KinematicTree::leftBranchAdd(KinematicTree *otherTree, RefCountedKinematicV
   } while (next);
 }
 
-void KinematicTree::replaceCurrentParticle(RefCountedKinematicParticle newPart) const {
+void KinematicTree::replaceCurrentParticle(const RefCountedKinematicParticle& newPart) const {
   RefCountedKinematicParticle cDParticle = currentParticle();
   bool replace = treeGraph.replaceEdge(cDParticle, newPart);
   if (!replace)
     throw VertexException("KinematicTree::Particle To Replace not found");
 }
 
-void KinematicTree::replaceCurrentVertex(RefCountedKinematicVertex newVert) const {
+void KinematicTree::replaceCurrentVertex(const RefCountedKinematicVertex& newVert) const {
   RefCountedKinematicVertex cDVertex = currentDecayVertex();
   bool replace = treeGraph.replace(cDVertex, newVert);
   if (!replace)
     throw VertexException("KinematicTree::Vertex To Replace not found");
 }
 
-void KinematicTree::addTree(RefCountedKinematicVertex vtx, KinematicTree *tr) {
+void KinematicTree::addTree(const RefCountedKinematicVertex& vtx, KinematicTree* tr) {
   //adding new tree to the existing one:
   bool fnd = findDecayVertex(vtx);
   if (!fnd)

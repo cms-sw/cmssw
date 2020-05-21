@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/ProducesCollector.h"
 
 #include <sstream>
+#include <utility>
 
 namespace edm {
   ProducerBase::ProducerBase() : ProductRegistryHelper(), callWhenNewProductsRegistered_() {}
@@ -27,7 +28,11 @@ namespace edm {
                       std::function<void(BranchDescription const&)> iCallback,
                       ProductRegistry* iReg,
                       const ModuleDescription& iDesc)
-          : prod_(iProd), callback_(iCallback), reg_(iReg), mdesc_(iDesc), lastSize_(iProd->typeLabelList().size()) {}
+          : prod_(iProd),
+            callback_(std::move(iCallback)),
+            reg_(iReg),
+            mdesc_(iDesc),
+            lastSize_(iProd->typeLabelList().size()) {}
 
       void operator()(BranchDescription const& iDesc) {
         callback_(iDesc);

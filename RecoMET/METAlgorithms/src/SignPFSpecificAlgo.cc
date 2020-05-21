@@ -57,7 +57,7 @@ void metsig::SignPFSpecificAlgo::useOriginalPtrs(const edm::ProductID& productID
 }
 
 //____________________________________________________________________________||
-void metsig::SignPFSpecificAlgo::addPFCandidate(reco::PFCandidatePtr pf) {
+void metsig::SignPFSpecificAlgo::addPFCandidate(const reco::PFCandidatePtr& pf) {
   if (clusteredParticlePtrs_.find(pf) != clusteredParticlePtrs_.end()) {
     return;  //pf candidate already added in jet collection
   }

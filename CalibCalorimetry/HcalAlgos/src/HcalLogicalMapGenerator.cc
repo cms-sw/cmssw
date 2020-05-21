@@ -10,6 +10,7 @@
 #include <cstdio>
 #include <iostream>
 #include <cstring>
+#include <utility>
 
 using namespace std;
 
@@ -2600,7 +2601,7 @@ void HcalLogicalMapGenerator::ConstructTriggerTower(const HcalTopology* topo,
                                                     int ifi_ch,
                                                     int icrate,
                                                     int ihtr,
-                                                    std::string fpga,
+                                                    const std::string& fpga,
                                                     int ihtr_fi,
                                                     int ispigot,
                                                     int islb,
@@ -2628,7 +2629,7 @@ void HcalLogicalMapGenerator::ConstructTriggerTower(const HcalTopology* topo,
   t_iPhi = iphi;
   t_jPhi = idphi;
   t_iDep = idepth;
-  t_chDet = det;
+  t_chDet = std::move(det);
   t_wedge = iwedge;
   //  t_rm     = irm;
   //  t_pixel  = ipixel;
@@ -2642,13 +2643,13 @@ void HcalLogicalMapGenerator::ConstructTriggerTower(const HcalTopology* topo,
   //  t_htr_fi = ihtr_fi;
   t_spigo = ispigot;
   t_slb = islb;
-  t_slbin = slbin;
-  t_slbin2 = slbin2;
-  t_slnam = slnam;
+  t_slbin = std::move(slbin);
+  t_slbin2 = std::move(slbin2);
+  t_slnam = std::move(slnam);
   t_rctcra = irctcra;
   t_rctcar = irctcar;
   t_rctcon = irctcon;
-  t_rctnam = rctnam;
+  t_rctnam = std::move(rctnam);
   t_fedid = ifed;
 
   do {

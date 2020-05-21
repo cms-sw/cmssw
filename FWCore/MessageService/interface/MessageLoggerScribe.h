@@ -89,7 +89,7 @@ namespace edm {
 
       // ChangeLog 12
       /// --- If queue is NULL, this sets singleThread true
-      explicit MessageLoggerScribe(std::shared_ptr<ThreadQueue> queue);
+      explicit MessageLoggerScribe(const std::shared_ptr<ThreadQueue>& queue);
 
       ~MessageLoggerScribe() override;
 
@@ -116,7 +116,7 @@ namespace edm {
       void configure_errorlog();
       void configure_ordinary_destinations();  // Change Log 3
       void configure_statistics();             // Change Log 3
-      void configure_dest(std::shared_ptr<ELdestination> dest_ctrl, String const& filename);
+      void configure_dest(const std::shared_ptr<ELdestination>& dest_ctrl, String const& filename);
 
 #define VALIDATE_ELSEWHERE  // ChangeLog 11
 

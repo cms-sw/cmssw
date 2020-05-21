@@ -107,8 +107,8 @@ private:
   TransientTrackingRecHit::ConstRecHitContainer findThetaCluster(TransientTrackingRecHit::ConstRecHitContainer&,
                                                                  const GlobalPoint&) const;
   TransientTrackingRecHit::ConstRecHitContainer hitsFromSegments(const GeomDet*,
-                                                                 edm::Handle<DTRecSegment4DCollection>,
-                                                                 edm::Handle<CSCSegmentCollection>) const;
+                                                                 const edm::Handle<DTRecSegment4DCollection>&,
+                                                                 const edm::Handle<CSCSegmentCollection>&) const;
   std::vector<const GeomDet*> getCompatibleDets(const reco::Track&) const;
 
   struct LessMag {

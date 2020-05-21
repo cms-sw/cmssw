@@ -49,7 +49,7 @@ public:
     kTrigIDIsoCombinedPUCorrected  // ID+Iso Combined MVA for triggering electrons
   };
 
-  void initialize(std::string methodName, std::string weightsfile, EGammaMvaEleEstimator::MVAType type);
+  void initialize(std::string methodName, const std::string& weightsfile, EGammaMvaEleEstimator::MVAType type);
   void initialize(std::string methodName,
                   EGammaMvaEleEstimator::MVAType type,
                   Bool_t useBinnedVersion,

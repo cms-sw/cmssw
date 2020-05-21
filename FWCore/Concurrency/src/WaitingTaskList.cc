@@ -16,6 +16,7 @@
 // user include files
 #include "tbb/task.h"
 #include <cassert>
+#include <utility>
 
 #include "FWCore/Concurrency/interface/WaitingTaskList.h"
 #include "FWCore/Concurrency/interface/hardware_pause.h"
@@ -121,7 +122,7 @@ void WaitingTaskList::add(WaitingTask* iTask) {
   }
 }
 
-void WaitingTaskList::presetTaskAsFailed(std::exception_ptr iExcept) {
+void WaitingTaskList::presetTaskAsFailed(const std::exception_ptr& iExcept) {
   if (iExcept and m_waiting) {
     WaitNode* node = m_head.load();
     while (node) {
@@ -167,7 +168,7 @@ void WaitingTaskList::announce() {
 }
 
 void WaitingTaskList::doneWaiting(std::exception_ptr iPtr) {
-  m_exceptionPtr = iPtr;
+  m_exceptionPtr = std::move(iPtr);
   m_waiting = false;
   announce();
 }

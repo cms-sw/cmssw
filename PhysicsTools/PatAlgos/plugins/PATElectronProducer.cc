@@ -1194,7 +1194,7 @@ void PATElectronProducer::fillDescriptions(edm::ConfigurationDescriptions& descr
 // embed various impact parameters with errors
 // embed high level selection
 void PATElectronProducer::embedHighLevel(pat::Electron& anElectron,
-                                         reco::GsfTrackRef track,
+                                         const reco::GsfTrackRef& track,
                                          reco::TransientTrack& tt,
                                          reco::Vertex& primaryVertex,
                                          bool primaryVertexIsValid,

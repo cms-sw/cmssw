@@ -18,7 +18,7 @@ using namespace pos;
 PixelROCMaskBits::PixelROCMaskBits() {}
 
 /**********************Start Modification******************************/
-void PixelROCMaskBits::setROCMaskBits(PixelROCName& rocid, std::string bits) {
+void PixelROCMaskBits::setROCMaskBits(PixelROCName& rocid, const std::string& bits) {
   std::string mthn = "[PixelROCMaskBits::setROCMaskBits()]\t\t\t    ";
   rocid_ = rocid;
   char cpt[520];

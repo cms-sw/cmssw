@@ -8,6 +8,7 @@
  */
 
 #include <fstream>
+#include <utility>
 
 #include "TH1F.h"
 
@@ -23,10 +24,10 @@
 class CSCAlignmentCorrections {
 public:
   CSCAlignmentCorrections(std::string fitterName, double oldchi2, double newchi2)
-      : m_fitterName(fitterName), m_oldchi2(oldchi2), m_newchi2(newchi2){};
+      : m_fitterName(std::move(fitterName)), m_oldchi2(oldchi2), m_newchi2(newchi2){};
   virtual ~CSCAlignmentCorrections(){};
 
-  void insertCorrection(std::string name, CSCDetId id, double value) {
+  void insertCorrection(const std::string& name, CSCDetId id, double value) {
     m_name.push_back(name);
     m_id.push_back(id);
     m_value.push_back(value);
@@ -42,7 +43,8 @@ public:
     m_error.push_back(error);
   };
 
-  void insertResidual(std::string i, std::string j, double before, double uncert, double residual, double pull) {
+  void insertResidual(
+      const std::string& i, const std::string& j, double before, double uncert, double residual, double pull) {
     m_i.push_back(i);
     m_j.push_back(j);
     m_before.push_back(before);

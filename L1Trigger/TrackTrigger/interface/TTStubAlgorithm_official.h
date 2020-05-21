@@ -51,10 +51,10 @@ public:
   /// Constructor
   TTStubAlgorithm_official(const TrackerGeometry *const theTrackerGeom,
                            const TrackerTopology *const theTrackerTopo,
-                           std::vector<double> setBarrelCut,
-                           std::vector<std::vector<double>> setRingCut,
-                           std::vector<std::vector<double>> setTiltedCut,
-                           std::vector<double> setBarrelNTilt,
+                           const std::vector<double> &setBarrelCut,
+                           const std::vector<std::vector<double>> &setRingCut,
+                           const std::vector<std::vector<double>> &setTiltedCut,
+                           const std::vector<double> &setBarrelNTilt,
                            bool aPerformZMatchingPS,
                            bool aPerformZMatching2S)
       : TTStubAlgorithm<T>(theTrackerGeom, theTrackerTopo, __func__) {

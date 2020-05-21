@@ -3,6 +3,7 @@
 
 #include <map>
 #include <string>
+#include <utility>
 
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 
@@ -39,7 +40,7 @@ public:
   inline void setTriggerBadTTId(int x) { m_tbtt = x; }
   inline int getTriggerBadTTId() const { return m_tbtt; }
 
-  inline void setComment(std::string x) { m_com = x; }
+  inline void setComment(std::string x) { m_com = std::move(x); }
   inline std::string getComment() const { return m_com; }
 
   int fetchNextId() noexcept(false);

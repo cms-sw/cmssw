@@ -30,7 +30,7 @@ namespace hgcalsimclustertime {
     //time resolution parametrization
     float timeResolution(float xVal);
 
-    float getTimeError(std::string type, float xVal);
+    float getTimeError(const std::string& type, float xVal);
 
     //time-interval based on that ~210ps wide and with the highest number of hits
     //apply weights if provided => weighted mean

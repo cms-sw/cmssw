@@ -163,7 +163,7 @@ namespace reco {
     CLHEP::HepLorentzVector alternatrecJet_HepLV() const {
       return (thealternatrecJet_HepLV);
     }  // rec. pi+/- candidates + neutral ECAL clus. combined;
-    void setalternatrecJet_HepLV(CLHEP::HepLorentzVector x) { thealternatrecJet_HepLV = x; }
+    void setalternatrecJet_HepLV(const CLHEP::HepLorentzVector& x) { thealternatrecJet_HepLV = x; }
 
     // EtECAL*/Ptlead.tk        *using ECAL cell hits inside a DR cone around lead tk ECAL impact point direction;
     double ECALEt_o_leadTkPt() const {

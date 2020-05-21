@@ -18,7 +18,7 @@ public:
   inline double Charge() const { return charge_; }
 
   inline void setSigma(double s) { sigma_ = s; }
-  inline void setPosition(LocalPoint p) { pos_ = p; }
+  inline void setPosition(const LocalPoint& p) { pos_ = p; }
   inline void setCharge(double charge) { charge_ = charge; }
 
 private:

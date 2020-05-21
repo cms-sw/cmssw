@@ -19,7 +19,7 @@ namespace reco {
     /// Default constructor
     PFV0() {}
 
-    PFV0(const reco::VertexCompositeCandidateRef V0,
+    PFV0(const reco::VertexCompositeCandidateRef& V0,
          const std::vector<reco::PFRecTrackRef>& pftr,
          const std::vector<reco::TrackRef>& tr)
         : originalV0_(V0), pfTracks_(pftr), tracks_(tr) {}

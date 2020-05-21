@@ -505,7 +505,7 @@ void DTTrigGeom::IEEE32toDSP(float f, short int &DSPmantissa, short int &DSPexp)
 }
 //********************** end bug fix ****************
 
-LocalPoint DTTrigGeom::localPosition(const DTBtiId id) const {
+LocalPoint DTTrigGeom::localPosition(const DTBtiId &id) const {
   /* obsolete!
     float x = 0;
     float y = 0;
@@ -569,7 +569,7 @@ LocalPoint DTTrigGeom::localPosition(const DTBtiId id) const {
   return posInChamber;
 }
 
-LocalPoint DTTrigGeom::localPosition(const DTTracoId id) const {
+LocalPoint DTTrigGeom::localPosition(const DTTracoId &id) const {
   /* obsolete
     float x = Xwire1BTI1SL(1) +
       ( ( (float)(id.traco()) - 0.5 ) * DTConfig::NBTITC - 0.5 )*cellPitch();

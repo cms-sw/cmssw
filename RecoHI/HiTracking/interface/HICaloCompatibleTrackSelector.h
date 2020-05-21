@@ -68,12 +68,12 @@ namespace reco {
       double matchPFCandToTrack(const edm::Handle<PFCandidateCollection>& pfCandidates, unsigned it, double trkPt);
 
       bool selectByPFCands(TI ti,
-                           const edm::Handle<TrackCollection> hSrcTrack,
-                           const edm::Handle<PFCandidateCollection> pfCandidates,
+                           const edm::Handle<TrackCollection>& hSrcTrack,
+                           const edm::Handle<PFCandidateCollection>& pfCandidates,
                            bool isPFThere);
       bool selectByTowers(TI ti,
-                          const edm::Handle<TrackCollection> hSrcTrack,
-                          const edm::Handle<CaloTowerCollection> towers,
+                          const edm::Handle<TrackCollection>& hSrcTrack,
+                          const edm::Handle<CaloTowerCollection>& towers,
                           bool isTowerThere);
 
       /// source collection label

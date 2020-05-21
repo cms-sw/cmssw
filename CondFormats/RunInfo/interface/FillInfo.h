@@ -162,6 +162,6 @@ private:
   COND_SERIALIZABLE;
 };
 
-std::ostream &operator<<(std::ostream &, FillInfo fillInfo);
+std::ostream &operator<<(std::ostream &, const FillInfo &fillInfo);
 
 #endif  // CondFormats_RunInfo_FillInfo_H

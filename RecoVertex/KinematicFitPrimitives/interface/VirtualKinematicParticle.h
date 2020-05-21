@@ -24,7 +24,7 @@ public:
                            float& chiSquared,
                            float& degreesOfFr,
                            KinematicConstraint* lastConstraint,
-                           ReferenceCountingPointer<KinematicParticle> previousParticle,
+                           const ReferenceCountingPointer<KinematicParticle>& previousParticle,
                            KinematicStatePropagator* pr);
 
   ~VirtualKinematicParticle() override;

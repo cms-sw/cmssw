@@ -28,7 +28,7 @@ private:
   /// recursively add a new particle to the output collection
   std::pair<reco::GenParticleRef, reco::GenParticle*> add(reco::GenParticleCollection&,
                                                           const reco::GenParticle&,
-                                                          reco::GenParticleRefProd);
+                                                          const reco::GenParticleRefProd&);
 };
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -66,7 +66,7 @@ void GenParticleDecaySelector::produce(edm::Event& evt, const edm::EventSetup& e
 
 pair<GenParticleRef, GenParticle*> GenParticleDecaySelector::add(GenParticleCollection& decay,
                                                                  const GenParticle& p,
-                                                                 GenParticleRefProd ref) {
+                                                                 const GenParticleRefProd& ref) {
   size_t idx = decay.size();
   GenParticleRef r(ref, idx);
   decay.resize(idx + 1);

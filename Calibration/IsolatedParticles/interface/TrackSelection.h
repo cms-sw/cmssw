@@ -25,7 +25,7 @@ namespace spr {
   };
 
   bool goodTrack(const reco::Track* pTrack,
-                 math::XYZPoint leadPV,
+                 const math::XYZPoint& leadPV,
                  trackSelectionParameters parameters,
                  bool debug = false);
 

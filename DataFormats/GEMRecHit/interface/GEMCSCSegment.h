@@ -30,10 +30,10 @@ public:
 
   /// Constructor
   GEMCSCSegment(const CSCSegment* csc_segment,
-                const std::vector<const GEMRecHit*> gem_rhs,
+                const std::vector<const GEMRecHit*>& gem_rhs,
                 LocalPoint origin,
                 LocalVector direction,
-                AlgebraicSymMatrix errors,
+                const AlgebraicSymMatrix& errors,
                 double chi2);
 
   /// Destructor

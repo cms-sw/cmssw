@@ -45,19 +45,19 @@ public:
   // Operations
 
   /// Return the t_trig (ns) for a particular wire
-  float tTrig(DTWireId wireId) const;
+  float tTrig(const DTWireId& wireId) const;
 
   /// Return the sigma of the t_trig (ns) for a particular wire
-  float sigma_tTrig(DTWireId wireId) const;
+  float sigma_tTrig(const DTWireId& wireId) const;
 
   /// Return the kfactor for a particular wire
-  float kFactor(DTWireId wireId) const;
+  float kFactor(const DTWireId& wireId) const;
 
   /// Return the mean drift velocity for a particular wire (cm/ns)
-  float meanVDrift(DTWireId wireId) const;
+  float meanVDrift(const DTWireId& wireId) const;
 
   /// Return the sigma of the mean drift velocity for a particular wire (cm/ns)
-  float sigma_meanVDrift(DTWireId wireId) const;
+  float sigma_meanVDrift(const DTWireId& wireId) const;
 
   typedef std::vector<float> CalibConsts;
   typedef DTWireId Key;
@@ -68,20 +68,20 @@ public:
 
   // Get a particular number (field) between all the calibration
   // constants available for a particluar wire
-  float getField(DTWireId wireId, int field) const;
+  float getField(const DTWireId& wireId, int field) const;
 
   // Get from the map the calibration constants for a particular wire
-  const CalibConsts* getConsts(DTWireId wireId) const;
+  const CalibConsts* getConsts(const DTWireId& wireId) const;
 
   // Add to the map the calibration consts for a given key
-  void addCell(Key wireId, const CalibConsts& calibConst);
+  void addCell(const Key& wireId, const CalibConsts& calibConst);
 
   // Write the calibration consts to a file
   void writeConsts(const std::string& outputFileName) const;
 
   // Get a key to read calibration constants for a particular wire
   // with the given granularity
-  Key getKey(DTWireId wireId) const;
+  Key getKey(const DTWireId& wireId) const;
 
   const_iterator keyAndConsts_begin() const { return theMap.begin(); }
 
@@ -97,7 +97,7 @@ private:
   void readConsts(const std::string& inputFileName);
 
   // Check the consistency of a given key with the selected granularity
-  bool checkGranularity(Key aKey) const;
+  bool checkGranularity(const Key& aKey) const;
 
   // The number of fields (calibration numbers) to be read from file
   unsigned int nFields;

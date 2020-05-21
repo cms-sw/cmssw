@@ -14,7 +14,7 @@ class PixelGeomDetUnit;
 class SiPixelFedCablingMapBuilder {
 public:
   //SiPixelFedCablingMapBuilder(const std::string & associatorName);
-  SiPixelFedCablingMapBuilder(const std::string fileName, const bool phase1 = false);
+  SiPixelFedCablingMapBuilder(const std::string& fileName, const bool phase1 = false);
   SiPixelFedCablingTree* produce(const edm::EventSetup& setup);
 
 private:

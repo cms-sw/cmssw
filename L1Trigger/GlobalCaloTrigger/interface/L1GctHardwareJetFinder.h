@@ -61,7 +61,7 @@ private:
 
   /// The first stage of clustering, called by fetchInput()
   void findProtoJets();
-  L1GctRegion makeProtoJet(L1GctRegion localMax);
+  L1GctRegion makeProtoJet(const L1GctRegion& localMax);
   /// The second stage of clustering, called by process()
   void findJets();
 

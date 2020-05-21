@@ -1789,7 +1789,7 @@ void SiPixelTrackResidualSource::triplets(double x1,
 }
 
 void SiPixelTrackResidualSource::getepixrococcupancyontrk(const TrackerTopology *tTopo,
-                                                          TransientTrackingRecHit::ConstRecHitPointer hit,
+                                                          const TransientTrackingRecHit::ConstRecHitPointer &hit,
                                                           float xclust,
                                                           float yclust,
                                                           float z,

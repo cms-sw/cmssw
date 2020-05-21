@@ -7,6 +7,8 @@
 
 #include "RecoLocalMuon/CSCEfficiency/src/CSCEfficiency.h"
 
+#include <utility>
+
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
 #include "FWCore/Common/interface/TriggerNames.h"
@@ -1488,8 +1490,8 @@ FreeTrajectoryState CSCEfficiency::getFromCLHEP(const CLHEP::Hep3Vector &p3,
   return cov.kRows == 6 ? FreeTrajectoryState(tPars, tCov) : FreeTrajectoryState(tPars);
 }
 
-void CSCEfficiency::linearExtrapolation(GlobalPoint initialPosition,
-                                        GlobalVector initialDirection,
+void CSCEfficiency::linearExtrapolation(const GlobalPoint &initialPosition,
+                                        const GlobalVector &initialDirection,
                                         float zSurface,
                                         std::vector<float> &posZY) {
   double paramLine = lineParameter(initialPosition.z(), zSurface, initialDirection.z());
@@ -1532,7 +1534,7 @@ void CSCEfficiency::chooseDirection(CLHEP::Hep3Vector &innerPosition, CLHEP::Hep
 }
 //
 const Propagator *CSCEfficiency::propagator(std::string propagatorName) const {
-  return &*theService->propagator(propagatorName);
+  return &*theService->propagator(std::move(propagatorName));
 }
 
 //

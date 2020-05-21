@@ -2,7 +2,7 @@
 #include <set>
 #include "DPGAnalysis/SiStripTools/interface/APVCyclePhaseCollection.h"
 
-const int APVCyclePhaseCollection::getPhase(const std::string partition) const {
+const int APVCyclePhaseCollection::getPhase(const std::string& partition) const {
   int phase = empty;
 
   for (std::map<std::string, int>::const_iterator it = _apvmap.begin(); it != _apvmap.end(); it++) {
@@ -20,7 +20,7 @@ const int APVCyclePhaseCollection::getPhase(const std::string partition) const {
   return phase;
 }
 
-const std::vector<int> APVCyclePhaseCollection::getPhases(const std::string partition) const {
+const std::vector<int> APVCyclePhaseCollection::getPhases(const std::string& partition) const {
   std::set<int> phasesset;
 
   for (std::map<std::string, int>::const_iterator it = _apvmap.begin(); it != _apvmap.end(); it++) {

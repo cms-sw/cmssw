@@ -4,7 +4,7 @@ L1Analysis::L1AnalysisCSCTF::L1AnalysisCSCTF() {}
 
 L1Analysis::L1AnalysisCSCTF::~L1AnalysisCSCTF() {}
 
-void L1Analysis::L1AnalysisCSCTF::SetTracks(const edm::Handle<L1CSCTrackCollection> csctfTrks,
+void L1Analysis::L1AnalysisCSCTF::SetTracks(const edm::Handle<L1CSCTrackCollection>& csctfTrks,
                                             const L1MuTriggerScales* ts,
                                             const L1MuTriggerPtScale* tpts,
                                             CSCSectorReceiverLUT* srLUTs_[5][2],
@@ -215,7 +215,7 @@ void L1Analysis::L1AnalysisCSCTF::SetTracks(const edm::Handle<L1CSCTrackCollecti
 }
 
 //ALL csctf lcts
-void L1Analysis::L1AnalysisCSCTF::SetLCTs(const edm::Handle<CSCCorrelatedLCTDigiCollection> corrlcts,
+void L1Analysis::L1AnalysisCSCTF::SetLCTs(const edm::Handle<CSCCorrelatedLCTDigiCollection>& corrlcts,
                                           CSCSectorReceiverLUT* srLUTs_[5][2]) {
   int nLCT = 0;
   for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator corrLct = corrlcts.product()->begin();
@@ -341,7 +341,7 @@ void L1Analysis::L1AnalysisCSCTF::SetLCTs(const edm::Handle<CSCCorrelatedLCTDigi
   csctf_.lctSize = nLCT;
 }
 
-void L1Analysis::L1AnalysisCSCTF::SetStatus(const edm::Handle<L1CSCStatusDigiCollection> status) {
+void L1Analysis::L1AnalysisCSCTF::SetStatus(const edm::Handle<L1CSCStatusDigiCollection>& status) {
   int nStat = 0;
   for (std::vector<L1CSCSPStatusDigi>::const_iterator stat = status->second.begin(); stat != status->second.end();
        stat++) {
@@ -361,7 +361,7 @@ void L1Analysis::L1AnalysisCSCTF::SetStatus(const edm::Handle<L1CSCStatusDigiCol
 
 //DT Stubs added by Alex Ji
 //Code modeled from DQM/L1TMonitor/src/L1TCSCTF.cc, v1.36
-void L1Analysis::L1AnalysisCSCTF::SetDTStubs(const edm::Handle<CSCTriggerContainer<csctf::TrackStub> > dtStubs) {
+void L1Analysis::L1AnalysisCSCTF::SetDTStubs(const edm::Handle<CSCTriggerContainer<csctf::TrackStub> >& dtStubs) {
   //get the vector of DT Stubs
   std::vector<csctf::TrackStub> vstubs = dtStubs->get();
   //iterate through DT Stubs

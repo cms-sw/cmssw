@@ -10,7 +10,7 @@ GflashHistogram *GflashHistogram::instance() {
 
 GflashHistogram::GflashHistogram() : theStoreFlag(false) {}
 
-void GflashHistogram::bookHistogram(std::string histFileName) {
+void GflashHistogram::bookHistogram(const std::string &histFileName) {
   histFile_ = new TFile(histFileName.c_str(), "RECREATE");
 
   TH1::AddDirectory(kTRUE);

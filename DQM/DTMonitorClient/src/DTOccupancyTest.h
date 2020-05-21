@@ -56,10 +56,10 @@ protected:
 
 private:
   /// book the summary histograms
-  void bookHistos(DQMStore::IBooker &, const int wheelId, std::string folder, std::string histoTag);
+  void bookHistos(DQMStore::IBooker &, const int wheelId, const std::string &folder, const std::string &histoTag);
 
   /// Get the ME name
-  std::string getMEName(std::string histoTag, const DTChamberId &chId);
+  std::string getMEName(const std::string &histoTag, const DTChamberId &chId);
 
   int getIntegral(TH2F *histo, int, int, int, int, bool);
 

@@ -22,6 +22,7 @@
 #include "TStopwatch.h"
 #include <iostream>
 #include <fstream>
+#include <utility>
 
 //////////////////////////////////////////////////////////////////////////
 // _______________________Constructor(s)________________________________//
@@ -42,7 +43,7 @@ Node::Node() {
 }
 
 Node::Node(std::string cName) {
-  name = cName;
+  name = std::move(cName);
   leftDaughter = nullptr;
   rightDaughter = nullptr;
   parent = nullptr;
@@ -69,7 +70,7 @@ Node::~Node() {
 // ______________________Get/Set________________________________________//
 //////////////////////////////////////////////////////////////////////////
 
-void Node::setName(std::string sName) { name = sName; }
+void Node::setName(std::string sName) { name = std::move(sName); }
 
 std::string Node::getName() { return name; }
 

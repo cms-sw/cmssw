@@ -3,6 +3,8 @@
  *  \author V. Khotilovich - Texas A&M University <khotilov@cern.ch>
  */
 
+#include <utility>
+
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonChamberResidual.h"
 
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
@@ -11,10 +13,10 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 MuonChamberResidual::MuonChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
-                                         AlignableNavigator *navigator,
+                                         AlignableNavigator* navigator,
                                          DetId chamberId,
-                                         AlignableDetOrUnitPtr chamberAlignable)
-    : m_globalGeometry(globalGeometry),
+                                         const AlignableDetOrUnitPtr& chamberAlignable)
+    : m_globalGeometry(std::move(globalGeometry)),
       m_navigator(navigator),
       m_chamberId(chamberId),
       m_chamberAlignable(chamberAlignable),

@@ -363,7 +363,7 @@ std::pair<LocalPoint, LocalVector> SiStripRecHitsValid::projectHit(const PSimHit
   return std::pair<LocalPoint, LocalVector>(projectedPos, localStripDir);
 }
 //--------------------------------------------------------------------------------------------
-void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,
+void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const& rechit,
                                          const StripTopology& topol,
                                          TrackerHitAssociator& associate) {
   rechitpro.resx = -999999.;
@@ -432,7 +432,7 @@ void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,
 }
 
 //--------------------------------------------------------------------------------------------
-void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const rechit,
+void SiStripRecHitsValid::rechitanalysis_matched(SiStripMatchedRecHit2D const& rechit,
                                                  const GluedGeomDet* gluedDet,
                                                  TrackerHitAssociator& associate) {
   rechitpro.resx = -999999.;
@@ -654,7 +654,7 @@ void SiStripRecHitsValid::createTotalMEs(DQMStore::IBooker& ibooker) {
   }
 }
 //------------------------------------------------------------------------------------------
-void SiStripRecHitsValid::createLayerMEs(DQMStore::IBooker& ibooker, std::string label) {
+void SiStripRecHitsValid::createLayerMEs(DQMStore::IBooker& ibooker, const std::string& label) {
   SiStripHistoId hidmanager;
   LayerMEs layerMEs;
 
@@ -744,7 +744,7 @@ void SiStripRecHitsValid::createLayerMEs(DQMStore::IBooker& ibooker, std::string
   LayerMEsMap[label] = layerMEs;
 }
 //------------------------------------------------------------------------------------------
-void SiStripRecHitsValid::createStereoAndMatchedMEs(DQMStore::IBooker& ibooker, std::string label) {
+void SiStripRecHitsValid::createStereoAndMatchedMEs(DQMStore::IBooker& ibooker, const std::string& label) {
   SiStripHistoId hidmanager;
   StereoAndMatchedMEs stereoandmatchedMEs;
 
@@ -921,7 +921,7 @@ void SiStripRecHitsValid::createStereoAndMatchedMEs(DQMStore::IBooker& ibooker, 
   StereoAndMatchedMEsMap[label] = stereoandmatchedMEs;
 }
 //------------------------------------------------------------------------------------------
-void SiStripRecHitsValid::createSubDetMEs(DQMStore::IBooker& ibooker, std::string label) {
+void SiStripRecHitsValid::createSubDetMEs(DQMStore::IBooker& ibooker, const std::string& label) {
   SubDetMEs subdetMEs;
   subdetMEs.meNumrphi = nullptr;
   subdetMEs.meBunchrphi = nullptr;

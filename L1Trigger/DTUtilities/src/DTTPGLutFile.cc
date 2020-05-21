@@ -38,7 +38,7 @@ using namespace std;
 // Constructors --
 //----------------
 
-DTTPGLutFile::DTTPGLutFile(const string name) : m_file(name) {}
+DTTPGLutFile::DTTPGLutFile(const string &name) : m_file(name) {}
 
 DTTPGLutFile::DTTPGLutFile(const DTTPGLutFile &in) : m_file(in.m_file) {}
 

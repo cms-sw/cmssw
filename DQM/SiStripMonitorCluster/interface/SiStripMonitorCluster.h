@@ -134,9 +134,9 @@ public:
 
 private:
   void createMEs(const edm::EventSetup& es, DQMStore::IBooker& ibooker);
-  void createLayerMEs(std::string label, int ndets, DQMStore::IBooker& ibooker);
+  void createLayerMEs(const std::string& label, int ndets, DQMStore::IBooker& ibooker);
   void createModuleMEs(ModMEs& mod_single, uint32_t detid, DQMStore::IBooker& ibooker, const SiStripDetCabling&);
-  void createSubDetMEs(std::string label, DQMStore::IBooker& ibooker);
+  void createSubDetMEs(const std::string& label, DQMStore::IBooker& ibooker);
   int FindRegion(int nstrip, int npixel);
   void fillModuleMEs(ModMEs& mod_mes, ClusterProperties& cluster);
   void fillLayerMEs(LayerMEs&, ClusterProperties& cluster);

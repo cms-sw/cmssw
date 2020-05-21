@@ -13,7 +13,7 @@ SiPixelConfigParser::SiPixelConfigParser() {
                                       << "\n";
 }
 
-void SiPixelConfigParser::getDocument(std::string filename) {
+void SiPixelConfigParser::getDocument(const std::string &filename) {
   boost::property_tree::ptree xml;
   boost::property_tree::read_xml(filename, xml);
 

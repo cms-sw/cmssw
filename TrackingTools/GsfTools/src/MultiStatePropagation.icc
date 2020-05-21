@@ -71,7 +71,7 @@ std::pair<TrajectoryStateOnSurface, double> MultiStatePropagation<T>::propagateW
 }
 
 template <class T>
-TrajectoryStateOnSurface MultiStatePropagation<T>::setWeight(const TrajectoryStateOnSurface state,
+TrajectoryStateOnSurface MultiStatePropagation<T>::setWeight(const TrajectoryStateOnSurface& state,
                                                              const double weight) const {
   return TrajectoryStateOnSurface(weight,
                                   state.localParameters(),

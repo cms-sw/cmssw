@@ -28,9 +28,9 @@ class IOPrinter {
 public:
   IOPrinter(){};
   ~IOPrinter(){};
-  void run(edm::Handle<L1MuDTChambPhContainer>,
+  void run(const edm::Handle<L1MuDTChambPhContainer>&,
            const L1MuDTChambPhContainer&,
-           edm::Handle<RPCDigiCollection>,
+           const edm::Handle<RPCDigiCollection>&,
            const edm::EventSetup&);
   void run(L1MuDTChambPhContainer const*,
            const L1MuDTChambPhContainer&,

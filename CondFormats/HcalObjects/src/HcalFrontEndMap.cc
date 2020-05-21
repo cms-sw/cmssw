@@ -41,7 +41,7 @@ const HcalFrontEndMap::PrecisionItem* HcalFrontEndMap::findById(uint32_t fId) co
 
 HcalFrontEndMapAddons::Helper::Helper() {}
 
-bool HcalFrontEndMapAddons::Helper::loadObject(DetId fId, int rm, std::string rbx) {
+bool HcalFrontEndMapAddons::Helper::loadObject(DetId fId, int rm, const std::string& rbx) {
   HcalFrontEndMap::PrecisionItem target(fId.rawId(), rm, rbx);
   auto iter = mPItems.find(target);
   if (iter != mPItems.end()) {

@@ -312,7 +312,7 @@ bool BPHRecoBuilder::contained(ComponentSet& compSet, const reco::Candidate* can
   return false;
 }
 
-bool BPHRecoBuilder::contained(ComponentSet& compSet, BPHRecoConstCandPtr cCand) const {
+bool BPHRecoBuilder::contained(ComponentSet& compSet, const BPHRecoConstCandPtr& cCand) const {
   map<string, BPHRecoConstCandPtr>::const_iterator c_iter;
   map<string, BPHRecoConstCandPtr>::const_iterator c_iend = compMap.end();
   const vector<const reco::Candidate*>& dCand = cCand->daughFull();

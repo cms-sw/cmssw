@@ -46,9 +46,9 @@ namespace edm {
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------
-      void addProviderWeAreDependentOn(std::shared_ptr<EventSetupRecordProvider>);
+      void addProviderWeAreDependentOn(const std::shared_ptr<EventSetupRecordProvider>&);
 
-      void setAlternateFinder(std::shared_ptr<EventSetupRecordIntervalFinder>);
+      void setAlternateFinder(const std::shared_ptr<EventSetupRecordIntervalFinder>&);
 
     protected:
       void setIntervalFor(const EventSetupRecordKey&, const IOVSyncValue&, ValidityInterval&) override;

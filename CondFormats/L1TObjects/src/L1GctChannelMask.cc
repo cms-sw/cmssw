@@ -89,7 +89,7 @@ bool L1GctChannelMask::missingHtMask(unsigned ieta) const {
     return true;
 }
 
-std::ostream& operator<<(std::ostream& os, const L1GctChannelMask obj) {
+std::ostream& operator<<(std::ostream& os, const L1GctChannelMask& obj) {
   os << "L1GctChannelMask :" << std::endl;
 
   // get masks without changing interface, sigh

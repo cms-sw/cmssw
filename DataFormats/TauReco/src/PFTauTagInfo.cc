@@ -28,4 +28,4 @@ const std::vector<reco::CandidatePtr>& PFTauTagInfo::PFGammaCands() const { retu
 void PFTauTagInfo::setPFGammaCands(const std::vector<reco::CandidatePtr>& x) { PFGammaCands_ = x; }
 
 const JetBaseRef& PFTauTagInfo::pfjetRef() const { return PFJetRef_; }
-void PFTauTagInfo::setpfjetRef(const JetBaseRef x) { PFJetRef_ = x; }
+void PFTauTagInfo::setpfjetRef(const JetBaseRef& x) { PFJetRef_ = x; }

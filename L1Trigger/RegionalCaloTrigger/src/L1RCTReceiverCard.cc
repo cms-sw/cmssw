@@ -158,7 +158,7 @@ void L1RCTReceiverCard::fillTauBits() {
     tauBits.at(i) = calcTauBit(regions.at(i));
 }
 
-unsigned short L1RCTReceiverCard::calcTauBit(L1RCTRegion region) {
+unsigned short L1RCTReceiverCard::calcTauBit(const L1RCTRegion& region) {
   bitset<4> etaPattern;
   bitset<4> phiPattern;
 
@@ -204,7 +204,7 @@ void L1RCTReceiverCard::fillRegionSums() {
   }
 }
 
-unsigned short L1RCTReceiverCard::calcRegionSum(L1RCTRegion region) {
+unsigned short L1RCTReceiverCard::calcRegionSum(const L1RCTRegion& region) {
   unsigned short sum = 0;
   unsigned short overflow = 0;
   for (int i = 0; i < 4; i++) {
@@ -229,7 +229,7 @@ void L1RCTReceiverCard::fillMuonBits() {
     muonBits.at(i) = calcMuonBit(regions.at(i));
 }
 
-unsigned short L1RCTReceiverCard::calcMuonBit(L1RCTRegion region) {
+unsigned short L1RCTReceiverCard::calcMuonBit(const L1RCTRegion& region) {
   unsigned short muonBit = 0;
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {

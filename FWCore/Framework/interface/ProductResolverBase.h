@@ -19,6 +19,7 @@ ProductResolver: Class to handle access to a WrapperBase and its related informa
 #include <memory>
 
 #include <string>
+#include <utility>
 
 namespace edm {
   class MergeableRunProductMetadata;
@@ -113,7 +114,7 @@ namespace edm {
     bool singleProduct() const { return singleProduct_(); }
 
     // Sets the pointer to the event independent provenance.
-    void resetBranchDescription(std::shared_ptr<BranchDescription const> bd) { resetBranchDescription_(bd); }
+    void resetBranchDescription(std::shared_ptr<BranchDescription const> bd) { resetBranchDescription_(std::move(bd)); }
 
     // Retrieves a reference to the module label.
     std::string const& moduleLabel() const { return branchDescription().moduleLabel(); }

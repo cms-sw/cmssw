@@ -36,7 +36,7 @@ namespace cond {
 
     UntypedPayloadProxy& operator=(const UntypedPayloadProxy& rhs);
 
-    void init(Session session);
+    void init(const Session& session);
 
     void load(const std::string& tag);
 
@@ -131,7 +131,7 @@ cond::UntypedPayloadProxy& cond::UntypedPayloadProxy::operator=(const cond::Unty
   return *this;
 }
 
-void cond::UntypedPayloadProxy::init(Session session) {
+void cond::UntypedPayloadProxy::init(const Session& session) {
   m_session = session;
   reset();
 }

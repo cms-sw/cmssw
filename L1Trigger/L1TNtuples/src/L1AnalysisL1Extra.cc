@@ -4,7 +4,7 @@ L1Analysis::L1AnalysisL1Extra::L1AnalysisL1Extra() {}
 
 L1Analysis::L1AnalysisL1Extra::~L1AnalysisL1Extra() {}
 
-void L1Analysis::L1AnalysisL1Extra::SetIsoEm(const edm::Handle<l1extra::L1EmParticleCollection> isoEm,
+void L1Analysis::L1AnalysisL1Extra::SetIsoEm(const edm::Handle<l1extra::L1EmParticleCollection>& isoEm,
                                              unsigned maxL1Extra) {
   for (l1extra::L1EmParticleCollection::const_iterator it = isoEm->begin();
        it != isoEm->end() && l1extra_.nIsoEm < maxL1Extra;
@@ -17,7 +17,7 @@ void L1Analysis::L1AnalysisL1Extra::SetIsoEm(const edm::Handle<l1extra::L1EmPart
   }
 }
 
-void L1Analysis::L1AnalysisL1Extra::SetNonIsoEm(const edm::Handle<l1extra::L1EmParticleCollection> nonIsoEm,
+void L1Analysis::L1AnalysisL1Extra::SetNonIsoEm(const edm::Handle<l1extra::L1EmParticleCollection>& nonIsoEm,
                                                 unsigned maxL1Extra) {
   for (l1extra::L1EmParticleCollection::const_iterator it = nonIsoEm->begin();
        it != nonIsoEm->end() && l1extra_.nNonIsoEm < maxL1Extra;
@@ -30,7 +30,7 @@ void L1Analysis::L1AnalysisL1Extra::SetNonIsoEm(const edm::Handle<l1extra::L1EmP
   }
 }
 
-void L1Analysis::L1AnalysisL1Extra::SetCenJet(const edm::Handle<l1extra::L1JetParticleCollection> cenJet,
+void L1Analysis::L1AnalysisL1Extra::SetCenJet(const edm::Handle<l1extra::L1JetParticleCollection>& cenJet,
                                               unsigned maxL1Extra) {
   //      std::cout << "Filling L1 Extra cenJets" << maxL1Extra << " " << cenJet->size() << std::endl;
 
@@ -47,7 +47,7 @@ void L1Analysis::L1AnalysisL1Extra::SetCenJet(const edm::Handle<l1extra::L1JetPa
   }
 }
 
-void L1Analysis::L1AnalysisL1Extra::SetFwdJet(const edm::Handle<l1extra::L1JetParticleCollection> fwdJet,
+void L1Analysis::L1AnalysisL1Extra::SetFwdJet(const edm::Handle<l1extra::L1JetParticleCollection>& fwdJet,
                                               unsigned maxL1Extra) {
   //std::cout << "Filling L1 Extra fwdJets" << std::endl;
   for (l1extra::L1JetParticleCollection::const_iterator it = fwdJet->begin();
@@ -62,7 +62,7 @@ void L1Analysis::L1AnalysisL1Extra::SetFwdJet(const edm::Handle<l1extra::L1JetPa
   }
 }
 
-void L1Analysis::L1AnalysisL1Extra::SetTauJet(const edm::Handle<l1extra::L1JetParticleCollection> tauJet,
+void L1Analysis::L1AnalysisL1Extra::SetTauJet(const edm::Handle<l1extra::L1JetParticleCollection>& tauJet,
                                               unsigned maxL1Extra) {
   //std::cout << "Filling L1 Extra tauJets" << std::endl;
   for (l1extra::L1JetParticleCollection::const_iterator it = tauJet->begin();
@@ -77,7 +77,7 @@ void L1Analysis::L1AnalysisL1Extra::SetTauJet(const edm::Handle<l1extra::L1JetPa
   }
 }
 
-void L1Analysis::L1AnalysisL1Extra::SetIsoTauJet(const edm::Handle<l1extra::L1JetParticleCollection> isoTauJet,
+void L1Analysis::L1AnalysisL1Extra::SetIsoTauJet(const edm::Handle<l1extra::L1JetParticleCollection>& isoTauJet,
                                                  unsigned maxL1Extra) {
   // std::cout << "Filling L1 Extra isoTauJets" << std::endl;
   for (l1extra::L1JetParticleCollection::const_iterator it = isoTauJet->begin();
@@ -92,7 +92,7 @@ void L1Analysis::L1AnalysisL1Extra::SetIsoTauJet(const edm::Handle<l1extra::L1Je
   }
 }
 
-void L1Analysis::L1AnalysisL1Extra::SetMuon(const edm::Handle<l1extra::L1MuonParticleCollection> muon,
+void L1Analysis::L1AnalysisL1Extra::SetMuon(const edm::Handle<l1extra::L1MuonParticleCollection>& muon,
                                             unsigned maxL1Extra) {
   for (l1extra::L1MuonParticleCollection::const_iterator it = muon->begin();
        it != muon->end() && l1extra_.nMuons < maxL1Extra;
@@ -116,7 +116,7 @@ void L1Analysis::L1AnalysisL1Extra::SetMuon(const edm::Handle<l1extra::L1MuonPar
   }
 }
 
-void L1Analysis::L1AnalysisL1Extra::SetMet(const edm::Handle<l1extra::L1EtMissParticleCollection> mets) {
+void L1Analysis::L1AnalysisL1Extra::SetMet(const edm::Handle<l1extra::L1EtMissParticleCollection>& mets) {
   for (l1extra::L1EtMissParticleCollection::const_iterator it = mets->begin(); it != mets->end(); it++) {
     l1extra_.et.push_back(it->etTotal());
     l1extra_.met.push_back(it->et());
@@ -126,7 +126,7 @@ void L1Analysis::L1AnalysisL1Extra::SetMet(const edm::Handle<l1extra::L1EtMissPa
   }
 }
 
-void L1Analysis::L1AnalysisL1Extra::SetMht(const edm::Handle<l1extra::L1EtMissParticleCollection> mhts) {
+void L1Analysis::L1AnalysisL1Extra::SetMht(const edm::Handle<l1extra::L1EtMissParticleCollection>& mhts) {
   for (l1extra::L1EtMissParticleCollection::const_iterator it = mhts->begin(); it != mhts->end(); it++) {
     l1extra_.ht.push_back(it->etTotal());
     l1extra_.mht.push_back(it->et());
@@ -136,7 +136,7 @@ void L1Analysis::L1AnalysisL1Extra::SetMht(const edm::Handle<l1extra::L1EtMissPa
   }
 }
 
-void L1Analysis::L1AnalysisL1Extra::SetHFring(const edm::Handle<l1extra::L1HFRingsCollection> hfRings) {
+void L1Analysis::L1AnalysisL1Extra::SetHFring(const edm::Handle<l1extra::L1HFRingsCollection>& hfRings) {
   l1extra_.hfEtSum.resize(4);
   l1extra_.hfBitCnt.resize(4);
   l1extra_.hfBx.resize(4);

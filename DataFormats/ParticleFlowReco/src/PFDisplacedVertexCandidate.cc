@@ -8,7 +8,7 @@ using namespace reco;
 
 PFDisplacedVertexCandidate::PFDisplacedVertexCandidate() {}
 
-void PFDisplacedVertexCandidate::addElement(const TrackBaseRef element) { elements_.push_back(element); }
+void PFDisplacedVertexCandidate::addElement(const TrackBaseRef& element) { elements_.push_back(element); }
 
 void PFDisplacedVertexCandidate::setLink(
     const unsigned i1, const unsigned i2, const float dist, const GlobalPoint& dcaPoint, const VertexLinkTest test) {

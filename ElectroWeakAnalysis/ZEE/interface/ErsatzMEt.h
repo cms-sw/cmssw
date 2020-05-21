@@ -99,7 +99,7 @@ private:
   //							const edm::Handle<reco::SuperClusterCollection>&,
   //							const edm::Handle<reco::SuperClusterCollection>&);
   std::map<reco::GsfElectronRef, reco::GsfElectronRef> probeFinder(const std::vector<reco::GsfElectronRef>&,
-                                                                   const edm::Handle<reco::GsfElectronCollection>);
+                                                                   const edm::Handle<reco::GsfElectronCollection>&);
   reco::MET ersatzFabrik(const reco::GsfElectronRef&, const reco::SuperCluster&, const reco::MET&, const int);
   reco::MET ersatzFabrik(const reco::GsfElectronRef&, const reco::GsfElectronRef&, const reco::MET&);
   bool isInBarrel(double);

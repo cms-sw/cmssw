@@ -13,6 +13,7 @@
 
 #include <iomanip>
 #include <iostream>
+#include <utility>
 
 namespace edm {
 
@@ -20,7 +21,7 @@ namespace edm {
 
   StreamerInputFile::StreamerInputFile(std::string const& name,
                                        std::string const& LFN,
-                                       std::shared_ptr<EventSkipperByID> eventSkipperByID)
+                                       const std::shared_ptr<EventSkipperByID>& eventSkipperByID)
       : startMsg_(),
         currentEvMsg_(),
         headerBuf_(1000 * 1000),
@@ -41,10 +42,10 @@ namespace edm {
   }
 
   StreamerInputFile::StreamerInputFile(std::string const& name, std::shared_ptr<EventSkipperByID> eventSkipperByID)
-      : StreamerInputFile(name, name, eventSkipperByID) {}
+      : StreamerInputFile(name, name, std::move(eventSkipperByID)) {}
 
   StreamerInputFile::StreamerInputFile(std::vector<FileCatalogItem> const& names,
-                                       std::shared_ptr<EventSkipperByID> eventSkipperByID)
+                                       const std::shared_ptr<EventSkipperByID>& eventSkipperByID)
       : startMsg_(),
         currentEvMsg_(),
         headerBuf_(1000 * 1000),

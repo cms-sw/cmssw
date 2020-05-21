@@ -36,6 +36,6 @@ namespace edm {
 
   }  // eq_nocase()
 
-  bool eq(const ELstring& s1, const ELstring s2) { return s1 == s2; }  // eq()
+  bool eq(const ELstring& s1, const ELstring& s2) { return s1 == s2; }  // eq()
 
 }  // end of namespace edm  */

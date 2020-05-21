@@ -34,9 +34,9 @@ namespace helper {
     //--- we define also dictionaries for these two trivial functions that should be callable even by CINT
     //    because otherwise sometimes CINT crashes even on the creation and destruction of edm::ObjectWithDict
     /// Make a edm::ObjectWithDict(type, obj) and pass it to the selector
-    static bool test(const reco::parser::SelectorPtr &sel, const edm::TypeWithDict type, const void *obj);
+    static bool test(const reco::parser::SelectorPtr &sel, const edm::TypeWithDict &type, const void *obj);
     /// Make a edm::ObjectWithDict(type, obj) and pass it to the expression
-    static double eval(const reco::parser::ExpressionPtr &sel, const edm::TypeWithDict type, const void *obj);
+    static double eval(const reco::parser::ExpressionPtr &sel, const edm::TypeWithDict &type, const void *obj);
   };
 
   /** Class helper::ScannerBase: tool to print or histogram proprieties of an object using the dictionary,

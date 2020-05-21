@@ -101,7 +101,7 @@ private:
   void buildCollections(bool detector,
                         const edm::Handle<edm::View<reco::CaloCluster> >& scHandle,
                         const edm::Handle<edm::View<reco::CaloCluster> >& bcHandle,
-                        edm::Handle<EcalRecHitCollection> ecalRecHitHandle,
+                        const edm::Handle<EcalRecHitCollection>& ecalRecHitHandle,
                         const EcalRecHitCollection& ecalRecHits,
                         const EcalSeverityLevelAlgo* sevLev,
                         //edm::ESHandle<EcalChannelStatus>  chStatus,

@@ -19,7 +19,7 @@ class FactorizedJetCorrector;
 
 class LXXXCorrectorImplMaker : public JetCorrectorImplMakerBase {
 public:
-  LXXXCorrectorImplMaker(edm::ParameterSet const&, edm::ConsumesCollector);
+  LXXXCorrectorImplMaker(edm::ParameterSet const&, const edm::ConsumesCollector&);
   std::unique_ptr<reco::JetCorrectorImpl> make(edm::Event const&, edm::EventSetup const&);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& iDescriptions);

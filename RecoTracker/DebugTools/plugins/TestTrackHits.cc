@@ -1303,7 +1303,8 @@ std::pair<LocalPoint, LocalVector> TestTrackHits::projectHit(const PSimHit& hit,
 }
 
 template <unsigned int D>
-double TestTrackHits::computeChi2Increment(MeasurementExtractor me, TransientTrackingRecHit::ConstRecHitPointer rhit) {
+double TestTrackHits::computeChi2Increment(MeasurementExtractor me,
+                                           const TransientTrackingRecHit::ConstRecHitPointer& rhit) {
   typedef typename AlgebraicROOTObject<D>::Vector VecD;
   typedef typename AlgebraicROOTObject<D, D>::SymMatrix SMatDD;
   VecD r = asSVector<D>(rhit->parameters()) - me.measuredParameters<D>(*rhit);

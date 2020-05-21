@@ -17,6 +17,8 @@
 #include "Histogram.h"
 
 #include <string>
+#include <utility>
+
 #include <vector>
 
 class DTSuperLayer;
@@ -38,8 +40,8 @@ public:
   /// Constructor
   DTTMax(const std::vector<DTRecHit1D>& hits,
          const DTSuperLayer& isl,
-         GlobalVector dir,
-         GlobalPoint pos,
+         const GlobalVector& dir,
+         const GlobalPoint& pos,
          const DTTTrigBaseSync& sync,
          dtcalibration::Histograms& hist);
 
@@ -49,7 +51,7 @@ public:
   /// Information on each of the four TMax values in a SL
   struct TMax {
     TMax(float t_, TMaxCells cells_, std::string type_, SigmaFactor sigma_, unsigned t0Factor_, unsigned hSubGroup_)
-        : t(t_), cells(cells_), type(type_), sigma(sigma_), t0Factor(t0Factor_), hSubGroup(hSubGroup_) {}
+        : t(t_), cells(cells_), type(std::move(type_)), sigma(sigma_), t0Factor(t0Factor_), hSubGroup(hSubGroup_) {}
 
     float t;
     TMaxCells cells;
@@ -62,8 +64,11 @@ public:
 
   // All information on one of the layers crossed by the segment
   struct InfoLayer {
-    InfoLayer(
-        const DTRecHit1D& rh_, const DTSuperLayer& isl, GlobalVector dir, GlobalPoint pos, const DTTTrigBaseSync& sync);
+    InfoLayer(const DTRecHit1D& rh_,
+              const DTSuperLayer& isl,
+              const GlobalVector& dir,
+              const GlobalPoint& pos,
+              const DTTTrigBaseSync& sync);
     DTRecHit1D rh;
     DTWireId idWire;
     DTEnums::DTCellSide lr;

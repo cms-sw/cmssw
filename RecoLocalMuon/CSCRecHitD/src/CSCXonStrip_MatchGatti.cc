@@ -497,7 +497,7 @@ void CSCXonStrip_MatchGatti::initChamberSpecs() {
   k_1 = 0.25 * k_2 * sqrt_k_3 / std::atan(sqrt_k_3);
 }
 
-void CSCXonStrip_MatchGatti::getCorrectionValues(std::string estimator) { hardcodedCorrectionInitialization(); }
+void CSCXonStrip_MatchGatti::getCorrectionValues(const std::string& estimator) { hardcodedCorrectionInitialization(); }
 
 double CSCXonStrip_MatchGatti::estimated2GattiCorrection(double x_estimated, float stripWidth, bool ME1_1) {
   //---- 11 "nominal" strip widths : 0.6 - 1.6 cm; for ME1_1 just 6 "nominal" strip widths : 0.3 - 0.8 cm; see HardCodedCorrectionInitialization()

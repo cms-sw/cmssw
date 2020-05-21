@@ -46,7 +46,7 @@ public:
 
   static TrackingLayer createFromDetId(const DetId& detId, const TrackerTopology& trackerTopology);
 
-  static TrackingLayer createFromString(std::string layerSpecification);
+  static TrackingLayer createFromString(const std::string& layerSpecification);
 
   inline TrackingLayer::Det getSubDet() const { return _subDet; }
 

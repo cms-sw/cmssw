@@ -188,7 +188,7 @@ void SiStripConfigDb::clearLocalCache() {
 
 // -----------------------------------------------------------------------------
 //
-DeviceFactory* const SiStripConfigDb::deviceFactory(std::string method_name) const {
+DeviceFactory* const SiStripConfigDb::deviceFactory(const std::string& method_name) const {
   if (factory_) {
     return factory_;
   } else {
@@ -205,7 +205,7 @@ DeviceFactory* const SiStripConfigDb::deviceFactory(std::string method_name) con
 
 // -----------------------------------------------------------------------------
 //
-DbClient* const SiStripConfigDb::databaseCache(std::string method_name) const {
+DbClient* const SiStripConfigDb::databaseCache(const std::string& method_name) const {
   if (dbCache_) {
     return dbCache_;
   } else {
@@ -827,7 +827,7 @@ void SiStripConfigDb::runs(SiStripConfigDb::Runs& runs) const {
 //
 void SiStripConfigDb::runs(const SiStripConfigDb::Runs& in,
                            SiStripConfigDb::RunsByType& out,
-                           std::string optional_partition) const {
+                           const std::string& optional_partition) const {
   out.clear();
 
   // Check partition name (if not empty string)

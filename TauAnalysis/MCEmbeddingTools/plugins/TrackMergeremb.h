@@ -41,7 +41,7 @@ private:
 
   typedef T1 TrackCollectionemb;
 
-  void willproduce(std::string instance, std::string alias);
+  void willproduce(std::string instance, const std::string& alias);
   void willconsume(const edm::ParameterSet& iConfig);
   void merg_and_put(edm::Event&, std::string, std::vector<edm::EDGetTokenT<TrackCollectionemb> >&);
 

@@ -27,7 +27,7 @@ namespace XrdAdaptor {
     ClientRequest(RequestManager &manager, void *into, IOSize size, IOOffset off)
         : m_failure_count(0), m_into(into), m_size(size), m_off(off), m_iolist(nullptr), m_manager(manager) {}
 
-    ClientRequest(RequestManager &manager, std::shared_ptr<std::vector<IOPosBuffer>> iolist, IOSize size = 0)
+    ClientRequest(RequestManager &manager, const std::shared_ptr<std::vector<IOPosBuffer>> &iolist, IOSize size = 0)
         : m_failure_count(0), m_into(nullptr), m_size(size), m_off(0), m_iolist(iolist), m_manager(manager) {
       if (!m_iolist->empty() && !m_size) {
         for (IOPosBuffer const &buf : *m_iolist) {
@@ -36,7 +36,7 @@ namespace XrdAdaptor {
       }
     }
 
-    void setStatistics(std::shared_ptr<XrdReadStatistics> stats) { m_stats = stats; }
+    void setStatistics(const std::shared_ptr<XrdReadStatistics> &stats) { m_stats = stats; }
 
     ~ClientRequest() override;
 

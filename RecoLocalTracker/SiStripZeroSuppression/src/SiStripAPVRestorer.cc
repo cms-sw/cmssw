@@ -1014,10 +1014,10 @@ void SiStripAPVRestorer::createCMMapCMstored(const edm::DetSetVector<SiStripProc
   for (const auto& rawDigis : input) {
     std::vector<float> meanCMNValue;
     meanCMNValue.reserve(rawDigis.size());
-    std::transform(
-        std::begin(rawDigis), std::end(rawDigis), std::back_inserter(meanCMNValue), [](SiStripProcessedRawDigi cm) {
-          return cm.adc();
-        });
+    std::transform(std::begin(rawDigis),
+                   std::end(rawDigis),
+                   std::back_inserter(meanCMNValue),
+                   [](const SiStripProcessedRawDigi& cm) { return cm.adc(); });
     meanCMmap_.emplace(rawDigis.id, std::move(meanCMNValue));
   }
 }

@@ -79,7 +79,7 @@ inline std::string _toString(XMLCh const* toTranscode) {
   return tmp;
 }
 
-inline XMLCh* _toDOMS(std::string temp) {
+inline XMLCh* _toDOMS(const std::string& temp) {
   XMLCh* buff = XMLString::transcode(temp.c_str());
   return buff;
 }

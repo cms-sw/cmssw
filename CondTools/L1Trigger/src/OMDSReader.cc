@@ -76,7 +76,7 @@ namespace l1t {
                                                         const std::string& schemaName,
                                                         const std::string& tableName,
                                                         const std::string& conditionLHS,
-                                                        const QueryResults conditionRHS,
+                                                        const QueryResults& conditionRHS,
                                                         const std::string& conditionRHSName) {
     coral::ISessionProxy& coralSession = session.coralSession();
     coral::ISchema& schema = schemaName.empty() ? coralSession.nominalSchema() : coralSession.schema(schemaName);
@@ -128,7 +128,7 @@ namespace l1t {
                                                         const std::string& schemaName,
                                                         const std::string& tableName,
                                                         const std::string& conditionLHS,
-                                                        const QueryResults conditionRHS,
+                                                        const QueryResults& conditionRHS,
                                                         const std::string& conditionRHSName) {
     std::vector<std::string> columnNames;
     columnNames.push_back(columnName);
@@ -159,7 +159,7 @@ namespace l1t {
                                                             const std::string& schemaName,
                                                             const std::string& viewName,
                                                             const std::string& conditionLHS,
-                                                            const QueryResults conditionRHS,
+                                                            const QueryResults& conditionRHS,
                                                             const std::string& conditionRHSName) {
     coral::ISessionProxy& coralSession = session.coralSession();
     coral::ISchema& schema = schemaName.empty() ? coralSession.nominalSchema() : coralSession.schema(schemaName);
@@ -224,7 +224,7 @@ namespace l1t {
                                                             const std::string& schemaName,
                                                             const std::string& viewName,
                                                             const std::string& conditionLHS,
-                                                            const QueryResults conditionRHS,
+                                                            const QueryResults& conditionRHS,
                                                             const std::string& conditionRHSName) {
     std::vector<std::string> columnNames;
     columnNames.push_back(columnName);

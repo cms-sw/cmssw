@@ -191,7 +191,7 @@ uint32_t ViewTranslator::detToFec(const uint32_t& det_key_mask, const Mapping& i
 
 // -----------------------------------------------------------------------------
 //
-void ViewTranslator::writeMapsToFile(std::string fname, Mapping& det, Mapping& fed) {
+void ViewTranslator::writeMapsToFile(const std::string& fname, Mapping& det, Mapping& fed) {
   //   Mapping *det_to_fec;
   //   Mapping *fed_to_fec;
 

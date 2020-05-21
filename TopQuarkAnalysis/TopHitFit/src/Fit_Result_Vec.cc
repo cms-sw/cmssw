@@ -121,14 +121,14 @@ namespace hitfit {
     // Purpose: Helper for push().
     //
     {
-      bool operator()(std::shared_ptr<const Fit_Result> a, std::shared_ptr<const Fit_Result> b) const {
+      bool operator()(const std::shared_ptr<const Fit_Result>& a, const std::shared_ptr<const Fit_Result>& b) const {
         return *a < *b;
       }
     };
 
   }  // unnamed namespace
 
-  void Fit_Result_Vec::push(std::shared_ptr<Fit_Result> res)
+  void Fit_Result_Vec::push(const std::shared_ptr<Fit_Result>& res)
   //
   // Purpose: Add a new result to the vector.
   //

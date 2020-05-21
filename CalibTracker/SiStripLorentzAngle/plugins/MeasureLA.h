@@ -39,14 +39,14 @@ namespace sistrip {
     void summarize_module_muH_byLayer(const LA_Filler_Fitter&);
     void process_reports() const;
     template <class T>
-    void write_report_text(const std::string,
+    void write_report_text(const std::string&,
                            const LA_Filler_Fitter::Method&,
                            const std::map<T, LA_Filler_Fitter::Result>&) const;
-    void write_report_text_ms(const std::string, const LA_Filler_Fitter::Method) const;
-    void write_report_plots(const std::string, const LA_Filler_Fitter::Method, const GRANULARITY) const;
+    void write_report_text_ms(const std::string&, const LA_Filler_Fitter::Method) const;
+    void write_report_plots(const std::string&, const LA_Filler_Fitter::Method, const GRANULARITY) const;
 
     void calibrate(const std::pair<unsigned, LA_Filler_Fitter::Method>, LA_Filler_Fitter::Result&) const;
-    std::pair<unsigned, LA_Filler_Fitter::Method> calibration_key(const std::string layer,
+    std::pair<unsigned, LA_Filler_Fitter::Method> calibration_key(const std::string& layer,
                                                                   const LA_Filler_Fitter::Method) const;
     std::pair<unsigned, LA_Filler_Fitter::Method> calibration_key(const uint32_t detid,
                                                                   const LA_Filler_Fitter::Method) const;

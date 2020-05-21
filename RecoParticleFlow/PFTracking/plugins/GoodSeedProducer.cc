@@ -84,7 +84,7 @@ private:
   ///Find the bin in pt and eta
   int getBin(float, float);
 
-  void fillPreIdRefValueMap(edm::Handle<reco::TrackCollection> tkhandle,
+  void fillPreIdRefValueMap(const edm::Handle<reco::TrackCollection>& tkhandle,
                             const edm::OrphanHandle<reco::PreIdCollection>&,
                             edm::ValueMap<reco::PreIdRef>::Filler& filler);
   // ----------member data ---------------------------
@@ -647,7 +647,7 @@ int GoodSeedProducer::getBin(float eta, float pt) {
   return iep;
 }
 
-void GoodSeedProducer::fillPreIdRefValueMap(Handle<TrackCollection> tracks,
+void GoodSeedProducer::fillPreIdRefValueMap(const Handle<TrackCollection>& tracks,
                                             const edm::OrphanHandle<reco::PreIdCollection>& preidhandle,
                                             edm::ValueMap<reco::PreIdRef>::Filler& filler) {
   std::vector<reco::PreIdRef> values;

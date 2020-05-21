@@ -4,12 +4,14 @@
 #include "DataFormats/HeavyIonEvent/interface/Centrality.h"
 
 #include <iostream>
+#include <utility>
+
 using namespace std;
 using namespace reco;
 
 Centrality::Centrality(double d, std::string label)
     : value_(d),
-      label_(label),
+      label_(std::move(label)),
       etHFhitSumPlus_(0),
       etHFtowerSumPlus_(0),
       etHFtowerSumECutPlus_(0),

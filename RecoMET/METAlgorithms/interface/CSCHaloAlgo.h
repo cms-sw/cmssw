@@ -93,7 +93,7 @@ public:
   ~CSCHaloAlgo() {}
   reco::CSCHaloData Calculate(const CSCGeometry& TheCSCGeometry,
                               edm::Handle<reco::MuonCollection>& TheCosmicMuons,
-                              const edm::Handle<reco::MuonTimeExtraMap> TheCSCTimeMap,
+                              const edm::Handle<reco::MuonTimeExtraMap>& TheCSCTimeMap,
                               edm::Handle<reco::MuonCollection>& TheMuons,
                               edm::Handle<CSCSegmentCollection>& TheCSCSegments,
                               edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits,
@@ -172,7 +172,7 @@ private:
 
   const CaloGeometry* geo_;
   const HcalGeometry* hgeo_;
-  math::XYZPoint getPosition(const DetId& id, reco::Vertex::Point vtx);
+  math::XYZPoint getPosition(const DetId& id, const reco::Vertex::Point& vtx);
   bool HCALSegmentMatching(edm::Handle<HBHERecHitCollection>& rechitcoll,
                            float et_thresh_rh,
                            float dphi_thresh_segvsrh,

@@ -508,7 +508,7 @@ void PixelROCDACSettings::writeXML(ofstream* out) const {
 }
 
 //=============================================================================================
-void PixelROCDACSettings::checkTag(string tag, string dacName, const PixelROCName& rocid) {
+void PixelROCDACSettings::checkTag(const string& tag, string dacName, const PixelROCName& rocid) {
   std::string mthn = "[PixelROCDACSettings::checkTag()]\t\t\t\t    ";
   dacName += ":";
   if (tag != dacName) {
@@ -846,7 +846,7 @@ ostream& pos::operator<<(ostream& s, const PixelROCDACSettings& dacs) {
 }
 
 //Added by Umesh
-void PixelROCDACSettings::setDac(string dacName, int dacValue) {
+void PixelROCDACSettings::setDac(const string& dacName, int dacValue) {
   if (ToLower(dacName) == ToLower(k_DACName_Vdd)) {
     Vdd_ = dacValue;
   } else if (ToLower(dacName) == ToLower(k_DACName_Vana)) {
@@ -912,7 +912,7 @@ void PixelROCDACSettings::setDac(string dacName, int dacValue) {
   }
 }
 
-unsigned int PixelROCDACSettings::getDac(string dacName) const {
+unsigned int PixelROCDACSettings::getDac(const string& dacName) const {
   if (dacName == k_DACName_Vdd) {
     return Vdd_;
   } else if (dacName == k_DACName_Vana) {

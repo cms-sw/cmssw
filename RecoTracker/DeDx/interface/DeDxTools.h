@@ -54,8 +54,8 @@ namespace DeDxTools {
                           const unsigned int& m_off);
   void buildDiscrimMap(edm::Run const& run,
                        const edm::EventSetup& iSetup,
-                       std::string Reccord,
-                       std::string ProbabilityMode,
+                       const std::string& Reccord,
+                       const std::string& ProbabilityMode,
                        TH3F*& Prob_ChargePath);
   bool IsSpanningOver2APV(unsigned int FirstStrip, unsigned int ClusterSize);
   bool IsFarFromBorder(const TrajectoryStateOnSurface& trajState, const GeomDetUnit* it);

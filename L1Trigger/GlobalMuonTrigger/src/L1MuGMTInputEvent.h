@@ -55,7 +55,7 @@ public:
 
   void setEventNumber(unsigned long eventnr) { m_evtnr = eventnr; };
 
-  void addInputMuon(std::string chipid, const L1MuRegionalCand& inMu);
+  void addInputMuon(const std::string& chipid, const L1MuRegionalCand& inMu);
 
   //eta = [0,13], phi = [0,17]
   void setMipBit(unsigned etaIndex, unsigned phiIndex, bool val) { m_mip_bits(etaIndex, phiIndex) = val; };
@@ -76,7 +76,7 @@ public:
   /// @param chipid is the input chip ID (IND, INC, INB, INF)
   /// @param index  is the index of the muon in the input chip (starting with 0)
   /// @return the L1MuRegionalCand specified or 0 if index is out of range
-  const L1MuRegionalCand* getInputMuon(std::string chipid, unsigned index) const;
+  const L1MuRegionalCand* getInputMuon(const std::string& chipid, unsigned index) const;
 
   /// get the MIP / ISO bits
   const L1MuGMTMatrix<bool>& getMipBits() const { return m_mip_bits; };

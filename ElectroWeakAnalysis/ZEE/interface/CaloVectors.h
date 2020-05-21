@@ -8,7 +8,7 @@ math::XYZTLorentzVector DetectorVector(const reco::SuperClusterRef& sc) {
   math::XYZTLorentzVector detVec(pt * cos(sc->phi()), pt * sin(sc->phi()), pt * sinh(sc->eta()), sc->energy());
   return detVec;
 }
-math::XYZTLorentzVector DetectorVector(const reco::SuperCluster sc) {
+math::XYZTLorentzVector DetectorVector(const reco::SuperCluster& sc) {
   double pt = sc.energy() / cosh(sc.eta());
   math::XYZTLorentzVector detVec(pt * cos(sc.phi()), pt * sin(sc.phi()), pt * sinh(sc.eta()), sc.energy());
   return detVec;

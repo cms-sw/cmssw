@@ -42,7 +42,7 @@ public:
                               std::vector<double>& lengthRatio,
                               std::vector<std::vector<double> >& ratios,
                               std::map<int, int>& idMap,
-                              std::string inputFile,
+                              const std::string& inputFile,
                               unsigned int distAlgo,
                               double distCut);
 
@@ -53,7 +53,7 @@ public:
   void save() override;
 
   /// Read former nuclear interaction (from previous run)
-  bool read(std::string inputFile);
+  bool read(const std::string& inputFile);
 
 private:
   /// Generate a nuclear interaction according to the probability that it happens

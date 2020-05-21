@@ -228,7 +228,7 @@ int TangentCircle::charge(float magz) {
   return theCharge;
 }
 
-int TangentCircle::chargeLocally(float magz, GlobalVector v) const {
+int TangentCircle::chargeLocally(float magz, const GlobalVector& v) const {
   GlobalVector u = theOuterPoint - theVertexPoint;
   double tz = v.x() * u.y() - v.y() * u.x();
 

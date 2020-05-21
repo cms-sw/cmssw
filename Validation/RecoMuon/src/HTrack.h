@@ -14,7 +14,7 @@ public:
   typedef dqm::legacy::DQMStore DQMStore;
   typedef dqm::legacy::MonitorElement MonitorElement;
 
-  HTrack(DQMStore::IBooker &, std::string, std::string name, std::string whereIs = "");
+  HTrack(DQMStore::IBooker &, std::string, const std::string &name, const std::string &whereIs = "");
 
   double pull(double rec, double sim, double sigmarec);
 

@@ -38,8 +38,8 @@ SurveyInputCSCfromPins::SurveyInputCSCfromPins(const edm::ParameterSet &cfg)
       m_stationErrorPhiY(cfg.getParameter<double>("stationErrorPhiY")),
       m_stationErrorPhiZ(cfg.getParameter<double>("stationErrorPhiZ")) {}
 
-void SurveyInputCSCfromPins::orient(align::LocalVector LC1,
-                                    align::LocalVector LC2,
+void SurveyInputCSCfromPins::orient(const align::LocalVector &LC1,
+                                    const align::LocalVector &LC2,
                                     double a,
                                     double b,
                                     double &T,

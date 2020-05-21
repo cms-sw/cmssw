@@ -4,8 +4,8 @@
 #include "TVectorT.h"
 using namespace reco;
 
-PFTau3ProngSummary::PFTau3ProngSummary(reco::PFTauTransverseImpactParameterRef TIP,
-                                       TLorentzVector a1,
+PFTau3ProngSummary::PFTau3ProngSummary(const reco::PFTauTransverseImpactParameterRef& TIP,
+                                       const TLorentzVector& a1,
                                        double vertex_chi2,
                                        double vertex_ndf) {
   TIP_ = TIP;
@@ -25,12 +25,12 @@ PFTau3ProngSummary::PFTau3ProngSummary(reco::PFTauTransverseImpactParameterRef T
   vertex_ndf_ = vertex_ndf;
 }
 
-PFTau3ProngSummary::PFTau3ProngSummary(reco::PFTauTransverseImpactParameterRef TIP,
-                                       TLorentzVector a1,
+PFTau3ProngSummary::PFTau3ProngSummary(const reco::PFTauTransverseImpactParameterRef& TIP,
+                                       const TLorentzVector& a1,
                                        double vertex_chi2,
                                        double vertex_ndf,
-                                       TVector3 sv,
-                                       CovMatrix svcov) {
+                                       const TVector3& sv,
+                                       const CovMatrix& svcov) {
   TIP_ = TIP;
   for (unsigned int i = 0; i < nsolutions; i++) {
     has3ProngSolution_.push_back(false);

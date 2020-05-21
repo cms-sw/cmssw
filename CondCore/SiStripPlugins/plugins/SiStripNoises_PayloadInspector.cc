@@ -829,7 +829,7 @@ namespace {
       cond::payloadInspector::PlotBase::addInputParam("nsigma");
     }
 
-    std::map<unsigned int, float> computeEstimator(std::shared_ptr<SiStripNoises> payload) {
+    std::map<unsigned int, float> computeEstimator(const std::shared_ptr<SiStripNoises>& payload) {
       std::map<unsigned int, float> info_per_detid;
       SiStripNoises::RegistryIterator rit = payload->getRegistryVectorBegin(), erit = payload->getRegistryVectorEnd();
       uint16_t Nstrips;

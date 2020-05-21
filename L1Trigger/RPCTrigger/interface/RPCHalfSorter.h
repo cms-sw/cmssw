@@ -21,7 +21,7 @@ public:
 
   void maskHSBInput(L1RpcTBMuonsVec& newVec, int mask);
 
-  L1RpcTBMuonsVec2 run(L1RpcTBMuonsVec2& tcsMuonsVec2, edm::ESHandle<L1RPCHsbConfig> hsbConf);
+  L1RpcTBMuonsVec2 run(L1RpcTBMuonsVec2& tcsMuonsVec2, const edm::ESHandle<L1RPCHsbConfig>& hsbConf);
 
 private:
   L1RpcTBMuonsVec2 m_GBOutputMuons;

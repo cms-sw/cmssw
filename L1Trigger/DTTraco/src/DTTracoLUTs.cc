@@ -25,6 +25,7 @@
 #include <iomanip>
 #include <iostream>
 #include <string>
+#include <utility>
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -42,7 +43,7 @@ using namespace std;
 // Constructors --
 //----------------
 
-DTTracoLUTs::DTTracoLUTs(string testfile) : _testfile(testfile) {}
+DTTracoLUTs::DTTracoLUTs(string testfile) : _testfile(std::move(testfile)) {}
 
 //--------------
 // Destructor --

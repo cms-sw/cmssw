@@ -43,10 +43,10 @@ public:
   HcalQIEManager();
   ~HcalQIEManager();
 
-  std::map<HcalChannelId, HcalQIECaps>& getQIETableFromFile(std::string _filename);
-  void getTableFromDb(std::string query_file, std::string output_file);
-  int generateQieTable(std::string db_file, std::string old_file, std::string output_file);
-  int getHfQieTable(std::string input_file, std::string output_file);
+  std::map<HcalChannelId, HcalQIECaps>& getQIETableFromFile(const std::string& _filename);
+  void getTableFromDb(const std::string& query_file, const std::string& output_file);
+  int generateQieTable(std::string db_file, std::string old_file, const std::string& output_file);
+  int getHfQieTable(const std::string& input_file, const std::string& output_file);
 
   static std::vector<std::string> splitString(const std::string& fLine);
 

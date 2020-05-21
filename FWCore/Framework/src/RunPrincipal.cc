@@ -6,8 +6,8 @@
 #include "FWCore/Framework/interface/MergeableRunProductMetadata.h"
 
 namespace edm {
-  RunPrincipal::RunPrincipal(std::shared_ptr<RunAuxiliary> aux,
-                             std::shared_ptr<ProductRegistry const> reg,
+  RunPrincipal::RunPrincipal(const std::shared_ptr<RunAuxiliary>& aux,
+                             const std::shared_ptr<ProductRegistry const>& reg,
                              ProcessConfiguration const& pc,
                              HistoryAppender* historyAppender,
                              unsigned int iRunIndex,

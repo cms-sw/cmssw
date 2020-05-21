@@ -15,7 +15,9 @@
 class VertexFitterManager {
 public:
   static VertexFitterManager& Instance();
-  void registerFitter(const std::string& name, std::function<AbstractConfFitter*()> o, const std::string& description);
+  void registerFitter(const std::string& name,
+                      const std::function<AbstractConfFitter*()>& o,
+                      const std::string& description);
   std::string describe(const std::string&) const;
 
   std::unique_ptr<AbstractConfFitter> get(const std::string&) const;

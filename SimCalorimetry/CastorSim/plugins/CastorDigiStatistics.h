@@ -8,7 +8,7 @@
 
 class CastorDigiStatistics {
 public:
-  CastorDigiStatistics(std::string name,
+  CastorDigiStatistics(const std::string &name,
                        int maxBin,
                        float amplitudeThreshold,
                        float expectedPedestal,

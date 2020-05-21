@@ -151,7 +151,7 @@ void DQMProtobufReader::beginLuminosityBlock(edm::LuminosityBlock& lb) {
   }
 }
 
-void DQMProtobufReader::load(DQMStore* store, std::string filename) {
+void DQMProtobufReader::load(DQMStore* store, const std::string& filename) {
   using google::protobuf::io::ArrayInputStream;
   using google::protobuf::io::CodedInputStream;
   using google::protobuf::io::FileInputStream;

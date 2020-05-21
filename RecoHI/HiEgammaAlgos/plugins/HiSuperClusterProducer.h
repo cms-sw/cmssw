@@ -59,7 +59,7 @@ private:
 
   void produceSuperclustersForECALPart(edm::Event& evt,
                                        const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken,
-                                       std::string superclusterColection);
+                                       const std::string& superclusterColection);
 
   void outputValidationInfo(reco::SuperClusterCollection& superclusterCollection);
 

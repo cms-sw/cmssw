@@ -273,7 +273,7 @@ namespace edm {
     void readEvent(unsigned int iStreamIndex);
 
     //process the already read event using Stream iStreamIndex
-    void processEventAsync(WaitingTaskHolder iHolder, unsigned int iStreamIndex);
+    void processEventAsync(const WaitingTaskHolder& iHolder, unsigned int iStreamIndex);
 
     void processEventAsyncImpl(WaitingTaskHolder iHolder, unsigned int iStreamIndex);
 

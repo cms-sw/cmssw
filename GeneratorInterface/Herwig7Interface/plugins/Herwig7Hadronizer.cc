@@ -42,7 +42,7 @@ public:
   bool initializeForInternalPartons();
   bool initializeForExternalPartons();
   bool declareStableParticles(const std::vector<int>& pdgIds);
-  bool declareSpecialSettings(const std::vector<std::string>) { return true; }
+  bool declareSpecialSettings(const std::vector<std::string>&) { return true; }
 
   void statistics();
 

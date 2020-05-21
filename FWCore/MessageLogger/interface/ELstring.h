@@ -22,7 +22,7 @@ namespace edm {
 
   bool eq_nocase(const ELstring& s1, const char s2[]);
 
-  bool eq(const ELstring& s1, const ELstring s2);
+  bool eq(const ELstring& s1, const ELstring& s2);
 
   // ----------------------------------------------------------------------
 

@@ -31,7 +31,7 @@ public:
   void produce(edm::Event& ev, const edm::EventSetup& es) override;
 
 private:
-  bool clean(reco::TrackRef muRef,
+  bool clean(const reco::TrackRef& muRef,
              RectangularEtaPhiTrackingRegion* region,
              const BasicTrajectorySeed* aSeed,
              const SimTrack& theSimTrack);

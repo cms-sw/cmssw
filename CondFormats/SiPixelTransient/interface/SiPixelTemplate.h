@@ -284,7 +284,7 @@ public:
   static bool pushfile(int filenum,
                        std::vector<SiPixelTemplateStore>& pixelTemp,
                        // *&^%$#@!  Different default dir -- remove once FastSim is updated.
-                       std::string dir = "CalibTracker/SiPixelESProducers/data/");
+                       const std::string& dir = "CalibTracker/SiPixelESProducers/data/");
 
   //load from DB (default in CMSSW)
   static bool pushfile(const SiPixelTemplateDBObject& dbobject,

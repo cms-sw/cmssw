@@ -45,23 +45,23 @@ DTCalibrationMap::DTCalibrationMap(const ParameterSet& pset) {
 DTCalibrationMap::~DTCalibrationMap() {}
 
 // Return the t_trig (ns) for a particular wire
-float DTCalibrationMap::tTrig(DTWireId wireId) const { return getField(wireId, 0); }
+float DTCalibrationMap::tTrig(const DTWireId& wireId) const { return getField(wireId, 0); }
 
 // Return the sigma of the t_trig (ns) for a particular wire
-float DTCalibrationMap::sigma_tTrig(DTWireId wireId) const { return getField(wireId, 1); }
+float DTCalibrationMap::sigma_tTrig(const DTWireId& wireId) const { return getField(wireId, 1); }
 
 // Return the kfactor for a particular wire
-float DTCalibrationMap::kFactor(DTWireId wireId) const { return getField(wireId, 2); }
+float DTCalibrationMap::kFactor(const DTWireId& wireId) const { return getField(wireId, 2); }
 
 // Return the mean drift velocity for a particular wire (cm/ns)
-float DTCalibrationMap::meanVDrift(DTWireId wireId) const { return getField(wireId, 3); }
+float DTCalibrationMap::meanVDrift(const DTWireId& wireId) const { return getField(wireId, 3); }
 
 // Return the sigma of the mean drift velocity for a particular wire (cm/ns)
-float DTCalibrationMap::sigma_meanVDrift(DTWireId wireId) const { return getField(wireId, 4); }
+float DTCalibrationMap::sigma_meanVDrift(const DTWireId& wireId) const { return getField(wireId, 4); }
 
 // Get a key to read calibration constants for a particular wire
 // with the given granularity
-DTCalibrationMap::Key DTCalibrationMap::getKey(DTWireId wireId) const {
+DTCalibrationMap::Key DTCalibrationMap::getKey(const DTWireId& wireId) const {
   if (theGranularity == byChamber) {
     return Key(wireId.chamberId(), 0, 0, 0);
   } else if (theGranularity == bySL) {
@@ -74,7 +74,7 @@ DTCalibrationMap::Key DTCalibrationMap::getKey(DTWireId wireId) const {
 }
 
 // Get from the map the calibration constants for a particular key
-const DTCalibrationMap::CalibConsts* DTCalibrationMap::getConsts(DTWireId wireId) const {
+const DTCalibrationMap::CalibConsts* DTCalibrationMap::getConsts(const DTWireId& wireId) const {
   // Create a cache
   static pair<Key, CalibConsts> cache;
 
@@ -98,7 +98,7 @@ const DTCalibrationMap::CalibConsts* DTCalibrationMap::getConsts(DTWireId wireId
 
 // Get a particular number (field) between all the calibration
 // constants available for a particluar wire
-float DTCalibrationMap::getField(DTWireId wireId, int field) const {
+float DTCalibrationMap::getField(const DTWireId& wireId, int field) const {
   const CalibConsts* cals = getConsts(wireId);
   if (cals == nullptr) {
     throw cms::Exception("NoCalibConsts") << "DTCalibrationMap:" << endl
@@ -157,7 +157,7 @@ void DTCalibrationMap::readConsts(const string& inputFileName) {
 }
 
 // Add to the map the calibration consts for a given key
-void DTCalibrationMap::addCell(Key theKey, const CalibConsts& calibConst) {
+void DTCalibrationMap::addCell(const Key& theKey, const CalibConsts& calibConst) {
   if (!checkGranularity(theKey))
     throw cms::Exception("addCell") << "DTCalibrationMap:" << endl
                                     << "The added key is not compatible with the selected granularity" << endl;
@@ -177,7 +177,7 @@ void DTCalibrationMap::writeConsts(const string& outputFileName) const {
 }
 
 // Check the consistency of a given key with the selected granularity
-bool DTCalibrationMap::checkGranularity(Key aKey) const {
+bool DTCalibrationMap::checkGranularity(const Key& aKey) const {
   bool ret = true;
 
   // Check that the key is consistent with the given granularity

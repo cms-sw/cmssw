@@ -70,7 +70,7 @@ private:
   // Rec
   void processRec(const SiPixelRecHit& recHit,
                   ClusterShapeHitFilter const& theFilter,
-                  LocalVector ldir,
+                  const LocalVector& ldir,
                   const SiPixelClusterShapeCache& clusterShapeCache,
                   const vector<TH2F*>& histo) const;
 
@@ -198,7 +198,7 @@ bool PixelClusterShapeExtractor::isSuitable(const PSimHit& simHit, const GeomDet
 /*****************************************************************************/
 void PixelClusterShapeExtractor::processRec(const SiPixelRecHit& recHit,
                                             ClusterShapeHitFilter const& theClusterShape,
-                                            LocalVector ldir,
+                                            const LocalVector& ldir,
                                             const SiPixelClusterShapeCache& clusterShapeCache,
                                             const vector<TH2F*>& histo) const {
   int part;

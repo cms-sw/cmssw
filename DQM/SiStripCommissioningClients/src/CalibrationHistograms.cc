@@ -130,7 +130,7 @@ void CalibrationHistograms::printAnalyses() {
 
 //-----------------------------------------------------------------------------
 /** */
-void CalibrationHistograms::save(std::string& path, uint32_t run_number, std::string partitionName) {
+void CalibrationHistograms::save(std::string& path, uint32_t run_number, const std::string& partitionName) {
   // Construct path and filename
   std::stringstream ss;
   if (!path.empty()) {  // create with a specific outputName

@@ -8,7 +8,7 @@
 
 class HcalDigiStatistics {
 public:
-  HcalDigiStatistics(std::string name,
+  HcalDigiStatistics(const std::string &name,
                      int maxBin,
                      float amplitudeThreshold,
                      float expectedPedestal,

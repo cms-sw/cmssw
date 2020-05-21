@@ -47,14 +47,14 @@ private:
   /// calculate the mass of the Z boson from the tracker momenta by hand
   double mass(const math::XYZVector& t1, const math::XYZVector& t2) const;
   /// check if histogram was booked
-  bool booked(const std::string histName) const { return hists_.find(histName) != hists_.end(); };
+  bool booked(const std::string& histName) const { return hists_.find(histName) != hists_.end(); };
   /// fill histogram if it had been booked before
-  void fill(const std::string histName, double value) const {
+  void fill(const std::string& histName, double value) const {
     if (booked(histName))
       hists_.find(histName)->second->Fill(value);
   };
   /// fill a predefined set of histograms from inner outer or global tracks for first and second mu candidate
-  void fill(std::string hists, const reco::TrackRef& t1, const reco::TrackRef& t2) const;
+  void fill(const std::string& hists, const reco::TrackRef& t1, const reco::TrackRef& t2) const;
 
   /// input for muons
   edm::EDGetTokenT<edm::View<pat::Muon> > muonsToken_;
@@ -105,7 +105,7 @@ PatZToMuMuAnalyzer::PatZToMuMuAnalyzer(const edm::ParameterSet& cfg)
   hists_["deltaPhi"] = fileService->make<TH1D>("deltaPhi", "#Delta #phi", 100, -0.2, 0.2);
 }
 
-void PatZToMuMuAnalyzer::fill(std::string hists, const reco::TrackRef& t1, const reco::TrackRef& t2) const {
+void PatZToMuMuAnalyzer::fill(const std::string& hists, const reco::TrackRef& t1, const reco::TrackRef& t2) const {
   if (t1.isAvailable()) {
     // fill pt from global track for first muon
     fill(std::string(hists).append("Pt"), t1->pt());

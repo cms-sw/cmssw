@@ -30,9 +30,9 @@ private:
   void endJob() override;
 
 protected:
-  void readEBDigis(edm::Handle<EBDigiCollection> digis, int Mode);
-  void readEEDigis(edm::Handle<EEDigiCollection> digis, int Mode);
-  void readPNDigis(edm::Handle<EcalPnDiodeDigiCollection> PNs, int Mode);
+  void readEBDigis(const edm::Handle<EBDigiCollection>& digis, int Mode);
+  void readEEDigis(const edm::Handle<EEDigiCollection>& digis, int Mode);
+  void readPNDigis(const edm::Handle<EcalPnDiodeDigiCollection>& PNs, int Mode);
 
   EcalFedMap* fedMap;
 

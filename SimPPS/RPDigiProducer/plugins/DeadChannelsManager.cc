@@ -4,12 +4,14 @@
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "SimPPS/RPDigiProducer/plugins/RPDisplacementGenerator.h"
 #include <map>
+#include <utility>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 DeadChannelsManager::DeadChannelsManager() { analysisMaskPresent = false; }
 
 DeadChannelsManager::DeadChannelsManager(edm::ESHandle<TotemAnalysisMask> _analysisMask) {
-  analysisMask = _analysisMask;
+  analysisMask = std::move(_analysisMask);
   analysisMaskPresent = true;
 }
 

@@ -343,7 +343,7 @@ std::string MEtXYcorrectParametersCollection::findShiftDataFlavor(key_type k) {
     return shiftFlavors_[k - (shiftData + 1) * 100 - 1];
 }
 
-void MEtXYcorrectParametersCollection::getSections(std::string inputFile, std::vector<std::string>& outputs) {
+void MEtXYcorrectParametersCollection::getSections(const std::string& inputFile, std::vector<std::string>& outputs) {
   outputs.clear();
   std::ifstream input(inputFile.c_str());
   while (!input.eof()) {

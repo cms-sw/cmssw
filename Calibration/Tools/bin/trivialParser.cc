@@ -2,15 +2,16 @@
 #include "Calibration/Tools/bin/trivialParser.h"
 #include <iostream>
 #include <cstdlib>
+#include <utility>
 
 trivialParser::trivialParser(std::string configFile) {
-  parse(configFile);
+  parse(std::move(configFile));
   print("[ctor] ");
 }
 
 // ------------------------------------------------------------
 
-double trivialParser::getVal(std::string name) {
+double trivialParser::getVal(const std::string& name) {
   if (m_config.count(name))
     return m_config[name];
   std::cerr << "[trivialParser] no value for " << name << " found\n";
@@ -19,7 +20,7 @@ double trivialParser::getVal(std::string name) {
 
 // ------------------------------------------------------------
 
-void trivialParser::parse(std::string configFile) {
+void trivialParser::parse(const std::string& configFile) {
   std::ifstream input(configFile.c_str());
   do {
     std::string linea = getNextLine(input);
@@ -51,7 +52,7 @@ std::string trivialParser::getNextLine(std::ifstream& input) {
 
 // ------------------------------------------------------------
 
-void trivialParser::print(std::string prefix) {
+void trivialParser::print(const std::string& prefix) {
   std::cerr << "read parameters: " << std::endl;
   for (std::map<std::string, double>::const_iterator mapIT = m_config.begin(); mapIT != m_config.end(); ++mapIT) {
     std::cerr << prefix << mapIT->first << " = " << mapIT->second << "\n";

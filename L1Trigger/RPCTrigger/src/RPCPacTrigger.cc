@@ -4,6 +4,8 @@
 *  Warsaw University 2004                                                      *
 *                                                                              *
 *******************************************************************************/
+#include <utility>
+
 #include "L1Trigger/RPCTrigger/interface/RPCPacTrigger.h"
 #include "L1Trigger/RPCTrigger/interface/MuonsGrabber.h"
 
@@ -53,7 +55,7 @@ L1RpcTBMuonsVec2 RPCPacTrigger::runEvent(const L1RpcLogConesVec& logConesVec, ed
   }
 
   // It would be fine, if half sorters would just modify tcsMuonsVec2
-  L1RpcTBMuonsVec2 halfMuons = m_HalfSorters.run(tcsMuonsVec2, hsbConf);
+  L1RpcTBMuonsVec2 halfMuons = m_HalfSorters.run(tcsMuonsVec2, std::move(hsbConf));
   m_GBFinalMuons = m_FinalSorter.run(halfMuons);
 
 #ifdef GETCONES

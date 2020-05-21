@@ -30,7 +30,7 @@
 using namespace std;
 using namespace sipixelobjects;
 
-SiPixelFedCablingMapBuilder::SiPixelFedCablingMapBuilder(const string fileName,
+SiPixelFedCablingMapBuilder::SiPixelFedCablingMapBuilder(const string& fileName,
                                                          const bool phase1)
     : fileName_(fileName)  //, phase1_(phase1) not used anymore
 {}

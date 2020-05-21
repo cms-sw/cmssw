@@ -33,7 +33,7 @@ private:
   edm::EDGetTokenT<edm::Association<std::vector<reco::Muon>>> oldToNewMuons_;
 
   template <typename H1>
-  void writeValueMap(edm::Event &out, const H1 &from, const std::vector<int> values, const std::string &name) {
+  void writeValueMap(edm::Event &out, const H1 &from, const std::vector<int> &values, const std::string &name) {
     typedef edm::ValueMap<int> IntMap;
     std::unique_ptr<IntMap> intmap(new IntMap());
     typename IntMap::Filler filler(*intmap);

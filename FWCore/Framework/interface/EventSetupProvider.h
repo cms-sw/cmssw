@@ -76,9 +76,9 @@ namespace edm {
 
       EventSetupImpl const& eventSetupImpl() const { return *eventSetupImpl_; }
 
-      void add(std::shared_ptr<DataProxyProvider>);
-      void replaceExisting(std::shared_ptr<DataProxyProvider>);
-      void add(std::shared_ptr<EventSetupRecordIntervalFinder>);
+      void add(const std::shared_ptr<DataProxyProvider>&);
+      void replaceExisting(const std::shared_ptr<DataProxyProvider>&);
+      void add(const std::shared_ptr<EventSetupRecordIntervalFinder>&);
 
       void finishConfiguration(NumberOfConcurrentIOVs const&, bool& hasNonconcurrentFinder);
 

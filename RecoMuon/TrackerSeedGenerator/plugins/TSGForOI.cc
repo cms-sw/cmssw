@@ -285,7 +285,7 @@ void TSGForOI::findSeedsOnLayer(const TrackerTopology* tTopo,
                                 const TrajectoryStateOnSurface& tsosAtIP,
                                 const Propagator& propagatorAlong,
                                 const Propagator& propagatorOpposite,
-                                const reco::TrackRef l2,
+                                const reco::TrackRef& l2,
                                 edm::ESHandle<Chi2MeasurementEstimatorBase>& estimatorH,
                                 edm::Handle<MeasurementTrackerEvent>& measurementTrackerH,
                                 unsigned int& numSeedsMade,
@@ -353,7 +353,7 @@ void TSGForOI::findSeedsOnLayer(const TrackerTopology* tTopo,
     ++layerCount;
 }
 
-double TSGForOI::calculateSFFromL2(const reco::TrackRef track) const {
+double TSGForOI::calculateSFFromL2(const reco::TrackRef& track) const {
   double theSF = 1.0;
   //	L2 direction vs pT blowup - as was previously done:
   //	Split into 4 pT ranges: <pT1_, pT1_<pT2_, pT2_<pT3_, <pT4_: 13,30,70

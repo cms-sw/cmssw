@@ -12,13 +12,15 @@
 
 #include "CalibFormats/SiPixelObjects/interface/PixelTrimBase.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
+#include <utility>
+
 #include <vector>
 #include <iostream>
 
 using namespace pos;
 
 PixelTrimBase::PixelTrimBase(std::string description, std::string creator, std::string date)
-    : PixelConfigBase(description, creator, date) {}
+    : PixelConfigBase(std::move(description), std::move(creator), std::move(date)) {}
 
 PixelTrimBase::~PixelTrimBase() {}
 

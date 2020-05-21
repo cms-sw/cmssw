@@ -14,7 +14,7 @@ namespace converter {
     typedef reco::TrackCollection Components;
     typedef reco::RecoStandAloneMuonCandidate Candidate;
     StandAloneMuonTrackToCandidate(const edm::ParameterSet& cfg) : MassiveCandidateConverter(cfg) {}
-    void convert(reco::TrackRef trkRef, reco::RecoStandAloneMuonCandidate& c) const {
+    void convert(const reco::TrackRef& trkRef, reco::RecoStandAloneMuonCandidate& c) const {
       const reco::Track& trk = *trkRef;
       c.setCharge(trk.charge());
       c.setVertex(trk.vertex());

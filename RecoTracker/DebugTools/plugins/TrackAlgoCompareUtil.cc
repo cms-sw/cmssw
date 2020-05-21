@@ -230,7 +230,7 @@ void TrackAlgoCompareUtil::produce(edm::StreamID, edm::Event& iEvent, const edm:
 }
 
 // ------------ Producer Specific Meber Fucntions ----------------------------------------
-void TrackAlgoCompareUtil::SetTrackingParticleD0Dz(TrackingParticleRef tp,
+void TrackAlgoCompareUtil::SetTrackingParticleD0Dz(const TrackingParticleRef& tp,
                                                    const reco::BeamSpot& bs,
                                                    const MagneticField* bf,
                                                    TPtoRecoTrack& TPRT) const {
@@ -256,7 +256,7 @@ void TrackAlgoCompareUtil::SetTrackingParticleD0Dz(TrackingParticleRef tp,
   }
 }
 
-void TrackAlgoCompareUtil::SetTrackingParticleD0Dz(TrackingParticleRef tp,
+void TrackAlgoCompareUtil::SetTrackingParticleD0Dz(const TrackingParticleRef& tp,
                                                    const reco::BeamSpot& bs,
                                                    const MagneticField* bf,
                                                    RecoTracktoTP& RTTP) const {

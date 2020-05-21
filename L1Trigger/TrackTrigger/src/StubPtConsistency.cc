@@ -6,7 +6,7 @@
 
 namespace StubPtConsistency {
 
-  float getConsistency(TTTrack<Ref_Phase2TrackerDigi_> aTrack,
+  float getConsistency(const TTTrack<Ref_Phase2TrackerDigi_>& aTrack,
                        const TrackerGeometry* theTrackerGeom,
                        const TrackerTopology* tTopo,
                        double mMagneticFieldStrength,

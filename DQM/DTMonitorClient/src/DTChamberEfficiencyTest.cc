@@ -187,7 +187,7 @@ void DTChamberEfficiencyTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IG
   edm::LogVerbatim("DTDQM|DTMonitorClient|DTChamberEfficiencyTest") << "[DTChamberEfficiencyTest] endjob called!";
 }
 
-string DTChamberEfficiencyTest::getMEName(string histoTag, const DTChamberId& chID) {
+string DTChamberEfficiencyTest::getMEName(const string& histoTag, const DTChamberId& chID) {
   stringstream wheel;
   wheel << chID.wheel();
   stringstream station;

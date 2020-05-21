@@ -87,7 +87,7 @@ private:
 
   void transform_mumu_to_tautau(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton);
   const reco::Candidate *find_original_muon(const reco::Candidate *muon);
-  void assign_4vector(TLorentzVector &Lepton, const pat::Muon *muon, std::string FSRmode);
+  void assign_4vector(TLorentzVector &Lepton, const pat::Muon *muon, const std::string &FSRmode);
   void mirror(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton);
   void rotate180(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton);
 
@@ -370,7 +370,7 @@ void EmbeddingLHEProducer::transform_mumu_to_tautau(TLorentzVector &positiveLept
   return;
 }
 
-void EmbeddingLHEProducer::assign_4vector(TLorentzVector &Lepton, const pat::Muon *muon, std::string FSRmode) {
+void EmbeddingLHEProducer::assign_4vector(TLorentzVector &Lepton, const pat::Muon *muon, const std::string &FSRmode) {
   if ("afterFSR" == FSRmode && muon->genParticle() != nullptr) {
     const reco::GenParticle *afterFSRMuon = muon->genParticle();
     Lepton.SetPxPyPzE(

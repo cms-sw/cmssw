@@ -349,8 +349,12 @@ void DTCalibValidationFromMuons::bookHistograms(DQMStore::IBooker &ibooker,
 }
 
 // Fill a set of histograms for a given SL
-void DTCalibValidationFromMuons::fillHistos(
-    DTSuperLayerId slId, float distance, float residualOnDistance, float position, float residualOnPosition, int step) {
+void DTCalibValidationFromMuons::fillHistos(const DTSuperLayerId &slId,
+                                            float distance,
+                                            float residualOnDistance,
+                                            float position,
+                                            float residualOnPosition,
+                                            int step) {
   // FIXME: optimization of the number of searches
   vector<MonitorElement *> histos = histosPerSL[make_pair(slId, step)];
   histos[0]->Fill(residualOnDistance);

@@ -32,12 +32,12 @@ public:
   void buildClusters();
 
   /// draw a TH2F histograms showing the clusters
-  void drawClusters(std::string canvasName);
+  void drawClusters(const std::string& canvasName);
 
   /// get the cluster correspondig to "normal" cell occupancy.
   DTOccupancyCluster getBestCluster() const;
 
-  bool isProblematic(DTLayerId layerId) const;
+  bool isProblematic(const DTLayerId& layerId) const;
 
 protected:
 private:

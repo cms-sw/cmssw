@@ -112,7 +112,7 @@ private:
   void totalStatistics();
   void makeSummary();
   void makeSummaryVsBx();
-  void ComputeEff(vector<TH1F*>& vhfound, vector<TH1F*>& vhtotal, string name);
+  void ComputeEff(vector<TH1F*>& vhfound, vector<TH1F*>& vhtotal, const string& name);
   void makeSummaryVsLumi();
   void makeSummaryVsCM();
   TString GetLayerName(Long_t k);
@@ -1459,7 +1459,7 @@ TString SiStripHitEffFromCalibTree::GetLayerName(Long_t k) {
   return layername;
 }
 
-void SiStripHitEffFromCalibTree::ComputeEff(vector<TH1F*>& vhfound, vector<TH1F*>& vhtotal, string name) {
+void SiStripHitEffFromCalibTree::ComputeEff(vector<TH1F*>& vhfound, vector<TH1F*>& vhtotal, const string& name) {
   unsigned int nLayers = 22;
   if (_showRings)
     nLayers = 20;

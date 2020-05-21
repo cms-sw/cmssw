@@ -27,7 +27,7 @@ public:
 
   ~VertexHistogramMaker();
 
-  void book(const std::string dirname = "");
+  void book(const std::string& dirname = "");
   void beginRun(const edm::Run& iRun);
   void fill(const edm::Event& iEvent, const reco::VertexCollection& vertices, const double weight = 1.);
 

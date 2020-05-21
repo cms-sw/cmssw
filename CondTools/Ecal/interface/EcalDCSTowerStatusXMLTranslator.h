@@ -21,7 +21,7 @@ public:
 private:
   static std::string dumpXML(const EcalCondHeader& header, const EcalDCSTowerStatus& record);
 
-  static void plot(std::string, const EcalDCSTowerStatus& record);
+  static void plot(const std::string&, const EcalDCSTowerStatus& record);
 };
 
 #endif  // __EcalDCSTowerStatusXMLTranslator_h_

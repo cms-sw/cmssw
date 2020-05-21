@@ -5,6 +5,8 @@
 // 20.04.2009 sonne: Implemented mechanism to read in multi muon events and propagate each muon
 #define sim_cxx
 
+#include <utility>
+
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CosmicMuonGenerator.h"
 
 void CosmicMuonGenerator::runCMG() {
@@ -1201,7 +1203,7 @@ void CosmicMuonGenerator::setMultiMuon(bool MultiMu) {
 }
 void CosmicMuonGenerator::setMultiMuonFileName(std::string MultiMuFile) {
   if (NotInitialized)
-    MultiMuonFileName = MultiMuFile;
+    MultiMuonFileName = std::move(MultiMuFile);
 }
 void CosmicMuonGenerator::setMultiMuonFileFirstEvent(int MultiMuFile1stEvt) {
   if (NotInitialized)

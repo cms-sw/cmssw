@@ -81,10 +81,10 @@ public:
   void SetIsMIPISO(int idx, unsigned ismipiso) { _isMIPISO[_bx - _minbx][idx] = ismipiso; };
 
   /// Set pair matrices
-  void SetPairMatrix(int idx, L1MuGMTMatrix<bool> pm) { _pairMatrices[_bx - _minbx][idx] = pm; };
+  void SetPairMatrix(int idx, const L1MuGMTMatrix<bool>& pm) { _pairMatrices[_bx - _minbx][idx] = pm; };
 
   /// Set match quality matrices
-  void SetMQMatrix(int idx, L1MuGMTMatrix<int> mqm) { _mqMatrices[_bx - _minbx][idx] = mqm; };
+  void SetMQMatrix(int idx, const L1MuGMTMatrix<int>& mqm) { _mqMatrices[_bx - _minbx][idx] = mqm; };
 
   /// Set cancel bits
   void SetCancelBits(int idx, const std::vector<bool>& mine, const std::vector<bool>& others);

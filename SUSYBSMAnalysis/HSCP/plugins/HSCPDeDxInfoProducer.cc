@@ -142,7 +142,7 @@ void HSCPDeDxInfoProducer::processHit(const TrackingRecHit* recHit,
                                       float trackMomentum,
                                       float& cosine,
                                       susybsm::HSCPDeDxInfo& hscpDeDxInfo,
-                                      LocalPoint HitLocalPos) {
+                                      const LocalPoint& HitLocalPos) {
   auto const& thit = static_cast<BaseTrackerRecHit const&>(*recHit);
   if (!thit.isValid())
     return;

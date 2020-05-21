@@ -119,7 +119,7 @@ std::string EcalTPGTowerStatusXMLTranslator::dumpXML(const EcalCondHeader& heade
   return dump;
 }
 
-void EcalTPGTowerStatusXMLTranslator::plot(std::string fn, const EcalTPGTowerStatus& record) {
+void EcalTPGTowerStatusXMLTranslator::plot(const std::string& fn, const EcalTPGTowerStatus& record) {
   std::ofstream fout(fn.c_str());
   int valEB[34][72];
   for (int line = 0; line < 34; line++)

@@ -62,8 +62,8 @@ public:
 private:
   void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
-  std::tuple<float, float, float> calculatePtRatioRel(edm::Ptr<reco::Candidate> lep,
-                                                      edm::Ptr<pat::Jet> jet,
+  std::tuple<float, float, float> calculatePtRatioRel(const edm::Ptr<reco::Candidate>& lep,
+                                                      const edm::Ptr<pat::Jet>& jet,
                                                       const reco::Vertex& vtx) const;
 
   // ----------member data ---------------------------
@@ -146,8 +146,8 @@ void LeptonJetVarProducer<T>::produce(edm::StreamID streamID, edm::Event& iEvent
 }
 
 template <typename T>
-std::tuple<float, float, float> LeptonJetVarProducer<T>::calculatePtRatioRel(edm::Ptr<reco::Candidate> lep,
-                                                                             edm::Ptr<pat::Jet> jet,
+std::tuple<float, float, float> LeptonJetVarProducer<T>::calculatePtRatioRel(const edm::Ptr<reco::Candidate>& lep,
+                                                                             const edm::Ptr<pat::Jet>& jet,
                                                                              const reco::Vertex& vtx) const {
   auto rawp4 = jet->correctedP4("Uncorrected");
   auto lepp4 = lep->p4();

@@ -57,7 +57,7 @@ void VertexHistory::newEvent(const edm::Event &event, const edm::EventSetup &set
   }
 }
 
-bool VertexHistory::evaluate(reco::VertexBaseRef tv) {
+bool VertexHistory::evaluate(const reco::VertexBaseRef &tv) {
   if (!enableRecoToSim_)
     return false;
 

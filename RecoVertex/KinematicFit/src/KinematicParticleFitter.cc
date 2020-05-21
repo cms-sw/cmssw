@@ -27,7 +27,8 @@ std::vector<RefCountedKinematicTree> KinematicParticleFitter::fit(
   return tr;
 }
 
-RefCountedKinematicTree KinematicParticleFitter::fit(KinematicConstraint* cs, RefCountedKinematicTree tree) const {
+RefCountedKinematicTree KinematicParticleFitter::fit(KinematicConstraint* cs,
+                                                     const RefCountedKinematicTree& tree) const {
   std::vector<RefCountedKinematicTree> trees;
   trees.push_back(tree);
   std::vector<RefCountedKinematicTree> tr = parentFitter->fit(trees, cs);

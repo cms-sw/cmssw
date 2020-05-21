@@ -43,7 +43,7 @@ namespace reco {
     const metsig::SigInputObj& metSignObj() const { return pfMEtSignObj_; };
 
     //setting functions ================
-    void setP4(const reco::Candidate::LorentzVector p4) { p4_ = p4; };
+    void setP4(const reco::Candidate::LorentzVector& p4) { p4_ = p4; };
     void setDZ(float dZ) { dZ_ = dZ; };
 
     void setType(int type) { type_ = type; };
@@ -56,7 +56,7 @@ namespace reco {
     void setMvaVal(float mva) { mva_ = mva; };
     void setChargedEnFrac(float chEnF) { chargedEnFrac_ = chEnF; };
 
-    void setMEtSignObj(metsig::SigInputObj msig) { pfMEtSignObj_ = msig; };
+    void setMEtSignObj(const metsig::SigInputObj& msig) { pfMEtSignObj_ = msig; };
 
     //variables =================
   public:

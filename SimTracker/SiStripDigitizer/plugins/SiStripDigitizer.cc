@@ -105,7 +105,7 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf,
 // Virtual destructor needed.
 SiStripDigitizer::~SiStripDigitizer() {}
 
-void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit>> hSimHits,
+void SiStripDigitizer::accumulateStripHits(const edm::Handle<std::vector<PSimHit>>& hSimHits,
                                            const TrackerTopology* tTopo,
                                            size_t globalSimHitIndex,
                                            const unsigned int tofBin) {

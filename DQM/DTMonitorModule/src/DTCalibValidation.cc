@@ -168,7 +168,7 @@ map<DTWireId, std::vector<DTRecHit1D> > DTCalibValidation::map1DRecHitsPerWire(
 // Find the RecHit closest to the segment4D
 template <typename type>
 const type* DTCalibValidation::findBestRecHit(const DTLayer* layer,
-                                              DTWireId wireId,
+                                              const DTWireId& wireId,
                                               const vector<type>& recHits,
                                               const float segmDist) {
   float res = 99999;
@@ -452,8 +452,12 @@ void DTCalibValidation::bookHistograms(DQMStore::IBooker& ibooker,
 }
 
 // Fill a set of histograms for a given SL
-void DTCalibValidation::fillHistos(
-    DTSuperLayerId slId, float distance, float residualOnDistance, float position, float residualOnPosition, int step) {
+void DTCalibValidation::fillHistos(const DTSuperLayerId& slId,
+                                   float distance,
+                                   float residualOnDistance,
+                                   float position,
+                                   float residualOnPosition,
+                                   int step) {
   // FIXME: optimization of the number of searches
   vector<MonitorElement*> histos = histosPerSL[make_pair(slId, step)];
   histos[0]->Fill(residualOnDistance);

@@ -80,19 +80,19 @@ public:
 private:
   MonitorElement *getSummaryME(DQMStore::IBooker &iBooker,
                                DQMStore::IGetter &iGetter,
-                               std::string me_name,
+                               const std::string &me_name,
                                bool isUpgrade);
-  MonitorElement *getFEDSummaryME(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, std::string me_name);
+  MonitorElement *getFEDSummaryME(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, const std::string &me_name);
   void GetBladeSubdirs(DQMStore::IBooker &iBooker, DQMStore::IGetter &iGetter, std::vector<std::string> &blade_subdirs);
   void fillSummary(DQMStore::IBooker &iBooker,
                    DQMStore::IGetter &iGetter,
-                   std::string dir_name,
+                   const std::string &dir_name,
                    std::vector<std::string> &me_names,
                    bool isbarrel,
                    bool isUpgrade);
   void fillFEDErrorSummary(DQMStore::IBooker &iBooker,
                            DQMStore::IGetter &iGetter,
-                           std::string dir_name,
+                           const std::string &dir_name,
                            std::vector<std::string> &me_names);
   void fillGrandBarrelSummaryHistos(DQMStore::IBooker &iBooker,
                                     DQMStore::IGetter &iGetter,

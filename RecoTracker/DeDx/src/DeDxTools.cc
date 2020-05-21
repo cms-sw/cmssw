@@ -279,8 +279,8 @@ namespace DeDxTools {
 
   void buildDiscrimMap(edm::Run const& run,
                        const edm::EventSetup& iSetup,
-                       std::string Reccord,
-                       std::string ProbabilityMode,
+                       const std::string& Reccord,
+                       const std::string& ProbabilityMode,
                        TH3F*& Prob_ChargePath) {
     edm::ESHandle<PhysicsTools::Calibration::HistogramD3D> deDxMapHandle;
     if (strcmp(Reccord.c_str(), "SiStripDeDxMip_3D_Rcd") == 0) {

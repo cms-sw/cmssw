@@ -19,7 +19,7 @@ JetVertexMain::JetVertexMain(const ParameterSet& parameters) {
 }
 
 std::pair<double, bool> JetVertexMain::Main(const reco::CaloJet& jet,
-                                            edm::Handle<TrackCollection> tracks,
+                                            const edm::Handle<TrackCollection>& tracks,
                                             double signal_vert_Z,
                                             double signal_vert_z_error) {
   std::pair<double, bool> parameter;

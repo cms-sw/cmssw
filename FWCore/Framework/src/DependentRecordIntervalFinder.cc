@@ -26,11 +26,12 @@ namespace edm {
     DependentRecordIntervalFinder::~DependentRecordIntervalFinder() {}
 
     void DependentRecordIntervalFinder::addProviderWeAreDependentOn(
-        std::shared_ptr<EventSetupRecordProvider> iProvider) {
+        const std::shared_ptr<EventSetupRecordProvider>& iProvider) {
       providers_.push_back(iProvider);
     }
 
-    void DependentRecordIntervalFinder::setAlternateFinder(std::shared_ptr<EventSetupRecordIntervalFinder> iOther) {
+    void DependentRecordIntervalFinder::setAlternateFinder(
+        const std::shared_ptr<EventSetupRecordIntervalFinder>& iOther) {
       alternate_ = iOther;
     }
 

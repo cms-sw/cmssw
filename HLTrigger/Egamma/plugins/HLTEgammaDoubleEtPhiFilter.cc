@@ -17,7 +17,8 @@
 
 class EgammaHLTEtSortCriterium {
 public:
-  bool operator()(edm::Ref<reco::RecoEcalCandidateCollection> lhs, edm::Ref<reco::RecoEcalCandidateCollection> rhs) {
+  bool operator()(const edm::Ref<reco::RecoEcalCandidateCollection>& lhs,
+                  const edm::Ref<reco::RecoEcalCandidateCollection>& rhs) {
     return lhs->et() > rhs->et();
   }
 };

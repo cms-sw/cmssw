@@ -54,7 +54,7 @@ private:
   void endJob() override;
 
   //
-  void RocSummary(std::string tagname);
+  void RocSummary(const std::string &tagname);
   void RocSumOneModule(int maxr,
                        int maxc,
                        MonitorElement *const &me,

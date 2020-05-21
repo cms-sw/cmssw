@@ -34,17 +34,17 @@ namespace edm {
   public:
     typedef std::vector<Worker*> AllWorkers;
 
-    WorkerManager(std::shared_ptr<ActivityRegistry> actReg, ExceptionToActionTable const& actions);
+    WorkerManager(const std::shared_ptr<ActivityRegistry>& actReg, ExceptionToActionTable const& actions);
     WorkerManager(WorkerManager&&) = default;
 
     WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
-                  std::shared_ptr<ActivityRegistry> actReg,
+                  const std::shared_ptr<ActivityRegistry>& actReg,
                   ExceptionToActionTable const& actions);
     void addToUnscheduledWorkers(ParameterSet& pset,
                                  ProductRegistry& preg,
                                  PreallocationConfiguration const* prealloc,
-                                 std::shared_ptr<ProcessConfiguration> processConfiguration,
-                                 std::string label,
+                                 const std::shared_ptr<ProcessConfiguration>& processConfiguration,
+                                 const std::string& label,
                                  std::set<std::string>& unscheduledLabels,
                                  std::vector<std::string>& shouldBeUsedLabels);
 

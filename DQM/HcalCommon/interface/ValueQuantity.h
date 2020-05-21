@@ -1,6 +1,8 @@
 #ifndef ValueQuantity_h
 #define ValueQuantity_h
 
+#include <utility>
+
 #include "DQM/HcalCommon/interface/Flag.h"
 #include "DQM/HcalCommon/interface/Quantity.h"
 #include "boost/unordered_map.hpp"
@@ -434,7 +436,7 @@ namespace hcaldqm {
     class RunNumber : public ValueQuantity {
     public:
       RunNumber() {}
-      RunNumber(std::vector<int> runs) : _runs(runs) {}
+      RunNumber(std::vector<int> runs) : _runs(std::move(runs)) {}
       ~RunNumber() override {}
 
       std::string name() override { return "Run"; }

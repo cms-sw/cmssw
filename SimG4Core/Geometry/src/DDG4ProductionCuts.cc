@@ -148,7 +148,7 @@ void DDG4ProductionCuts::dd4hepInitialize() {
   }
 }
 
-void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart, G4Region* region) {
+void DDG4ProductionCuts::setProdCuts(const DDLogicalPart& lpart, G4Region* region) {
   //
   // search for production cuts
   // you must have four of them: e+ e- gamma proton

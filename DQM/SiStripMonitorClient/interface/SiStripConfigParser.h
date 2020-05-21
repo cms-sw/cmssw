@@ -21,7 +21,7 @@ public:
   // Constructor
   SiStripConfigParser();
 
-  void getDocument(std::string filepath);
+  void getDocument(const std::string& filepath);
 
   // get List of MEs for TrackerMap
   bool getMENamesForSummary(std::map<std::string, std::string>& me_names);

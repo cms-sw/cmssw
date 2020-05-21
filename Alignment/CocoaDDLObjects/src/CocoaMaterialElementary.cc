@@ -7,11 +7,12 @@
 #include <cmath>  // include floating-point std::abs functions
 #include <fstream>
 #include <map>
+#include <utility>
 
 #include "Alignment/CocoaDDLObjects/interface/CocoaMaterialElementary.h"
 
 CocoaMaterialElementary::CocoaMaterialElementary(ALIstring name, float density, ALIstring symbol, float A, ALIint Z)
-    : theName(name), theDensity(density), theSymbol(symbol), theA(A), theZ(Z) {}
+    : theName(std::move(name)), theDensity(density), theSymbol(std::move(symbol)), theA(A), theZ(Z) {}
 
 ALIbool CocoaMaterialElementary::operator==(const CocoaMaterialElementary &mate) const {
   // GM: Using numeric_limits<float>::epsilon() might be better instead of a

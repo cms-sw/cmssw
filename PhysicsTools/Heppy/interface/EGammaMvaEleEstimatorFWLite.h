@@ -28,7 +28,10 @@ namespace heppy {
       kNonTrigPhys14 = 5,  // MVA for non-triggering electrons
     };
 
-    void initialize(std::string methodName, MVAType type, bool useBinnedVersion, std::vector<std::string> weightsfiles);
+    void initialize(const std::string& methodName,
+                    MVAType type,
+                    bool useBinnedVersion,
+                    const std::vector<std::string>& weightsfiles);
 
     float mvaValue(
         const pat::Electron& ele, const reco::Vertex& vertex, double rho, bool full5x5, bool printDebug = false);

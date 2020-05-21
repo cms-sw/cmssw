@@ -364,7 +364,7 @@ namespace SiStripPI {
   /*--------------------------------------------------------------------*/
   void drawStatBox(std::map<std::string, std::shared_ptr<TH1F>> histos,
                    std::map<std::string, int> colormap,
-                   std::vector<std::string> legend,
+                   const std::vector<std::string>& legend,
                    double X = 0.15,
                    double Y = 0.93,
                    double W = 0.15,
@@ -498,7 +498,7 @@ namespace SiStripPI {
   // generic code to fill a SiStripDetSummary with Noise payload info
   /*--------------------------------------------------------------------*/
   void fillNoiseDetSummary(SiStripDetSummary& summaryNoise,
-                           std::shared_ptr<SiStripNoises> payload,
+                           const std::shared_ptr<SiStripNoises>& payload,
                            SiStripPI::estimator est)
   /*--------------------------------------------------------------------*/
   {

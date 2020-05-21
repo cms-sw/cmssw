@@ -378,7 +378,7 @@ namespace sistrip {
     return lPair;
   }
 
-  std::string SpyUtilities::print(const SpyUtilities::Frame& aFrame, std::string aErr) {
+  std::string SpyUtilities::print(const SpyUtilities::Frame& aFrame, const std::string& aErr) {
     std::ostringstream lOs;
     lOs << " ------------------------------------------------------" << std::endl
         << " -- Error: " << aErr << std::endl

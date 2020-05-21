@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "CalibTracker/SiStripAPVAnalysis/interface/ApvAnalysisFactory.h"
 //#include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 
@@ -13,7 +15,7 @@ ApvAnalysisFactory::ApvAnalysisFactory(string theAlgorithmType,
                                        float theCutToAvoidSignal,
                                        int theEventInitNumber,
                                        int theEventIterNumber) {
-  theAlgorithmType_ = theAlgorithmType;
+  theAlgorithmType_ = std::move(theAlgorithmType);
   theNumCMstripsInGroup_ = theNumCMstripsInGroup;
   theMaskCalcFlag_ = theMaskCalcFlag;
   theMaskNoiseCut_ = theMaskNoiseCut;

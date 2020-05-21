@@ -32,7 +32,7 @@ bool IsMuMatchedToHLTMu(const reco::Candidate* dau, std::vector<reco::Particle> 
   return (nPass > 0);
 }
 
-bool IsMuMatchedToHLTSingleMu(const reco::Candidate* dau, reco::Particle HLTMu, double DR, double DPtRel) {
+bool IsMuMatchedToHLTSingleMu(const reco::Candidate* dau, const reco::Particle& HLTMu, double DR, double DPtRel) {
   unsigned int nPass = 0;
   if ((deltaR(HLTMu, *dau) < DR) && (fabs(HLTMu.pt() - dau->pt()) / HLTMu.pt() < DPtRel)) {
     nPass++;

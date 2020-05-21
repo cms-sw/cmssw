@@ -52,7 +52,7 @@ FWTypeToRepresentations::~FWTypeToRepresentations() {}
 //
 // member functions
 //
-void FWTypeToRepresentations::add(std::shared_ptr<FWRepresentationCheckerBase> iChecker) {
+void FWTypeToRepresentations::add(const std::shared_ptr<FWRepresentationCheckerBase>& iChecker) {
   m_checkers.push_back(iChecker);
   if (!m_typeToReps.empty()) {
     //see if this works with types we already know about

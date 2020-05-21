@@ -135,7 +135,7 @@ void CovarianceParameterization::readFile(TFile &f) {
 }
 
 void CovarianceParameterization::addTheHistogram(
-    std::vector<TH3D *> *HistoVector, std::string StringToAddInTheName, int i, int j, TFile &fileToRead) {
+    std::vector<TH3D *> *HistoVector, const std::string &StringToAddInTheName, int i, int j, TFile &fileToRead) {
   std::string List_covName[5] = {"qoverp", "lambda", "phi", "dxy", "dsz"};
 
   std::string histoNameString = "covariance_" + List_covName[i] + "_" + List_covName[j] + StringToAddInTheName +

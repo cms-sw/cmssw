@@ -98,7 +98,7 @@ namespace APVGain {
   };
 
   std::vector<MonitorElement*> FetchMonitor(std::vector<APVmon>, uint32_t, const TrackerTopology* topo = nullptr);
-  std::vector<unsigned int> FetchIndices(std::map<unsigned int, APVloc>,
+  std::vector<unsigned int> FetchIndices(const std::map<unsigned int, APVloc>&,
                                          uint32_t,
                                          const TrackerTopology* topo = nullptr);
 

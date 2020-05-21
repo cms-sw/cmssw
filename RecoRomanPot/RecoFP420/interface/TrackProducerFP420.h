@@ -62,7 +62,7 @@ public:
   //  //std::vector<TrackFP420> trackFinderVar2(ClusterCollectionFP420 input);
 
   //    std::vector<TrackFP420> trackFinderSophisticated(ClusterCollectionFP420 input);
-  std::vector<TrackFP420> trackFinderSophisticated(edm::Handle<ClusterCollectionFP420> input, int det);
+  std::vector<TrackFP420> trackFinderSophisticated(const edm::Handle<ClusterCollectionFP420>& input, int det);
 
   //  std::vector<TrackFP420> trackFinder3D(ClusterCollectionFP420 input);
 

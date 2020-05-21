@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <sstream>
+#include <utility>
 
 #include "CondFormats/BTauObjects/interface/BTagEntry.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -15,8 +16,8 @@ BTagEntry::Parameters::Parameters(OperatingPoint op,
                                   float discr_min,
                                   float discr_max)
     : operatingPoint(op),
-      measurementType(measurement_type),
-      sysType(sys_type),
+      measurementType(std::move(measurement_type)),
+      sysType(std::move(sys_type)),
       jetFlavor(jf),
       etaMin(eta_min),
       etaMax(eta_max),
@@ -80,7 +81,7 @@ BTagEntry::BTagEntry(const std::string& csvLine) {
                                  stof(vec[9]));
 }
 
-BTagEntry::BTagEntry(const std::string& func, BTagEntry::Parameters p) : formula(func), params(p) {
+BTagEntry::BTagEntry(const std::string& func, BTagEntry::Parameters p) : formula(func), params(std::move(p)) {
   TF1 f1("", formula.c_str());  // compile formula to check validity
   if (f1.IsZombie()) {
     throw cms::Exception("BTagCalibration") << "Invalid func string; formula does not compile: " << func;
@@ -88,7 +89,7 @@ BTagEntry::BTagEntry(const std::string& func, BTagEntry::Parameters p) : formula
 }
 
 BTagEntry::BTagEntry(const TF1* func, BTagEntry::Parameters p)
-    : formula(std::string(func->GetExpFormula("p").Data())), params(p) {
+    : formula(std::string(func->GetExpFormula("p").Data())), params(std::move(p)) {
   if (func->IsZombie()) {
     throw cms::Exception("BTagCalibration") << "Invalid TF1 function; function is zombie: " << func->GetName();
   }
@@ -153,7 +154,7 @@ std::string th1ToFormulaBinTree(const TH1* hist, int start = 0, int end = -1) {
   return buff.str();
 }
 
-BTagEntry::BTagEntry(const TH1* hist, BTagEntry::Parameters p) : params(p) {
+BTagEntry::BTagEntry(const TH1* hist, BTagEntry::Parameters p) : params(std::move(p)) {
   int nbins = hist->GetNbinsX();
   TAxis const* axis = hist->GetXaxis();
 
@@ -204,7 +205,7 @@ std::string BTagEntry::makeCSVLine() const {
   return buff.str();
 }
 
-std::string BTagEntry::trimStr(std::string str) {
+std::string BTagEntry::trimStr(const std::string& str) {
   size_t s = str.find_first_not_of(" \n\r\t");
   size_t e = str.find_last_not_of(" \n\r\t");
 

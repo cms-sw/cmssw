@@ -21,6 +21,8 @@
 
 // system include files
 #include <memory>
+#include <utility>
+
 #include <vector>
 #include <sstream>
 #include <iostream>
@@ -66,7 +68,7 @@ public:
   }
   void setNumberOfEvents(double Nevents);
   void setOutputFileName(std::string OutputFileName, bool WriteOutputFile) {
-    OutFileName_ = OutputFileName;
+    OutFileName_ = std::move(OutputFileName);
     WriteOutputFile_ = WriteOutputFile;
   }
   void setTrackerGeometry(const TrackerGeometry* tkgeom) { TkGeom = tkgeom; }

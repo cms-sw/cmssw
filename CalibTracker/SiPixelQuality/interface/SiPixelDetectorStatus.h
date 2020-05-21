@@ -14,13 +14,13 @@ public:
   ~SiPixelDetectorStatus();
 
   // file I/O
-  void readFromFile(std::string filename);
-  void dumpToFile(std::string filename);
+  void readFromFile(const std::string& filename);
+  void dumpToFile(const std::string& filename);
 
   // add SiPixelModuleStatus for detID, specifying nrocs
   void addModule(int detid, int nrocs);
   // add a SiPixelModuleStatus obj for detID
-  void addModule(int detid, SiPixelModuleStatus a);
+  void addModule(int detid, const SiPixelModuleStatus& a);
 
   // fill hit in double idc in ROC roc into module detid
   void fillDIGI(int detid, int roc);

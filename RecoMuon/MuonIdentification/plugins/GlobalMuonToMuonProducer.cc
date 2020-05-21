@@ -31,7 +31,7 @@ GlobalMuonToMuonProducer::GlobalMuonToMuonProducer(const edm::ParameterSet& pSet
 GlobalMuonToMuonProducer::~GlobalMuonToMuonProducer() {}
 
 void GlobalMuonToMuonProducer::printTrackRecHits(const reco::Track& track,
-                                                 edm::ESHandle<GlobalTrackingGeometry> trackingGeometry) const {
+                                                 const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry) const {
   const std::string metname = "Muon|RecoMuon|MuonIdentification|GlobalMuonToMuonProducer";
 
   LogTrace(metname) << "Valid RecHits: " << track.found() << " invalid RecHits: " << track.lost();

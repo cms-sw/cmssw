@@ -67,8 +67,8 @@ private:
                     const TrackingRecHit* hit,
                     double hitwt);
 
-  int readIterationFile(std::string filename);
-  void writeIterationFile(std::string filename, int iter);
+  int readIterationFile(const std::string& filename);
+  void writeIterationFile(const std::string& filename, int iter);
   void setAlignmentPositionError(void);
   double calcAPE(double* par, int iter, int function);
   void bookRoot(void);

@@ -35,7 +35,8 @@ template <typename T1>
 EcalPFClusterIsolation<T1>::~EcalPFClusterIsolation() {}
 
 template <typename T1>
-double EcalPFClusterIsolation<T1>::getSum(const T1Ref candRef, edm::Handle<reco::PFClusterCollection> clusterHandle) {
+double EcalPFClusterIsolation<T1>::getSum(const T1Ref candRef,
+                                          const edm::Handle<reco::PFClusterCollection>& clusterHandle) {
   drVeto2_ = -1.;
   float etaStrip = -1;
 
@@ -72,7 +73,7 @@ double EcalPFClusterIsolation<T1>::getSum(const T1Ref candRef, edm::Handle<reco:
 }
 
 template <typename T1>
-bool EcalPFClusterIsolation<T1>::computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu) {
+bool EcalPFClusterIsolation<T1>::computedRVeto(T1Ref candRef, const reco::PFClusterRef& pfclu) {
   float dR2 = deltaR2(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
   if (dR2 > (drMax_ * drMax_))
     return false;

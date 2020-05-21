@@ -56,7 +56,7 @@ std::vector<std::string> FWOverlapTableManager::getTitles() const {
 }
 
 //---------------------------------------------------------------------------------
-void FWOverlapTableManager::importOverlaps(std::string iPath, double iPrecision) {
+void FWOverlapTableManager::importOverlaps(const std::string& iPath, double iPrecision) {
   m_entries.clear();
   m_mapNodeOverlaps.clear();
   m_browser->getMarker()->Reset(TEveQuadSet::kQT_FreeQuad, kFALSE, 32);

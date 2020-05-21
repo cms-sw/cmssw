@@ -6,6 +6,7 @@
 #include "include/Style.h"
 
 #include <fstream>
+#include <utility>
 
 #include <TCanvas.h>
 #include <TFile.h>
@@ -18,8 +19,8 @@
 #include <TText.h>
 using namespace std;
 
-PlotCompareUtility::PlotCompareUtility(std::string Reference,
-                                       std::string New,
+PlotCompareUtility::PlotCompareUtility(const std::string &Reference,
+                                       const std::string &New,
                                        std::string NewBasePath,
                                        std::string NewPrefix,
                                        std::string RefBasePath,
@@ -30,10 +31,10 @@ PlotCompareUtility::PlotCompareUtility(std::string Reference,
   newFile = new TFile(New.c_str(), "READ");
 
   // set the data path and prefix
-  newBasePath = NewBasePath;
-  newPrefix = NewPrefix;
-  refBasePath = RefBasePath;
-  refPrefix = RefPrefix;
+  newBasePath = std::move(NewBasePath);
+  newPrefix = std::move(NewPrefix);
+  refBasePath = std::move(RefBasePath);
+  refPrefix = std::move(RefPrefix);
 
   // set default thresholds
   ksThreshold = 0;
@@ -126,7 +127,7 @@ void PlotCompareUtility::makeHTML(HistoData *HD) {
   }
 }
 
-HistoData *PlotCompareUtility::addHistoData(string NewName, string RefName, int Type) {
+HistoData *PlotCompareUtility::addHistoData(const string &NewName, const string &RefName, int Type) {
   // location of this HistoData within the PCU
   static int bin = 0;
   bin++;
@@ -146,7 +147,7 @@ HistoData *PlotCompareUtility::addHistoData(string NewName, string RefName, int 
 HistoData *PlotCompareUtility::addProjectionXData(
     HistoData *Parent, std::string Name, int Type, int Bin, TH1 *NewHisto, TH1 *RefHisto) {
   // store the HistoData/projection information
-  HistoData hd(Name, Type, Bin, NewHisto, RefHisto);
+  HistoData hd(std::move(Name), Type, Bin, NewHisto, RefHisto);
   projectionsX[Parent].push_back(hd);
   return &(*projectionsX[Parent].rbegin());
 }
@@ -154,7 +155,7 @@ HistoData *PlotCompareUtility::addProjectionXData(
 HistoData *PlotCompareUtility::addProjectionYData(
     HistoData *Parent, std::string Name, int Type, int Bin, TH1 *NewHisto, TH1 *RefHisto) {
   // store the HistoData/projection information
-  HistoData hd(Name, Type, Bin, NewHisto, RefHisto);
+  HistoData hd(std::move(Name), Type, Bin, NewHisto, RefHisto);
   projectionsY[Parent].push_back(hd);
   return &(*projectionsY[Parent].rbegin());
 }
@@ -231,7 +232,7 @@ double PlotCompareUtility::getThreshold() const {
   return threshold;
 }
 
-void PlotCompareUtility::makeSummary(string Name) {
+void PlotCompareUtility::makeSummary(const string &Name) {
   // produce plot and html
   makeSummaryPlot(Name);
   makeSummaryHTML(Name);
@@ -247,7 +248,7 @@ void PlotCompareUtility::makeDefaultPlots() {
   noDataCanvas.Print("NoData_Results.gif");
 }
 
-void PlotCompareUtility::makeSummaryPlot(string Name) {
+void PlotCompareUtility::makeSummaryPlot(const string &Name) {
   // generate a reasonable height for the summary plot
   int numHistos = histos.size();
   summaryHeight = summaryBottomMargin + summaryTopMargin + int(float(numHistos * summaryBarsThickness) * 1.5);
@@ -294,7 +295,7 @@ void PlotCompareUtility::makeSummaryPlot(string Name) {
   summaryCanvas.Print(gifName.c_str());
 }
 
-void PlotCompareUtility::makeSummaryHTML(string Name) {
+void PlotCompareUtility::makeSummaryHTML(const string &Name) {
   // create HTML support code
   string gifName = Name + ".gif";
   string html = "index.html";

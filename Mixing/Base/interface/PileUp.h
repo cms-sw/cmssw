@@ -3,6 +3,8 @@
 
 #include <memory>
 #include <string>
+#include <utility>
+
 #include <vector>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Sources/interface/VectorInputSource.h"
@@ -30,7 +32,10 @@ namespace edm {
 
   struct PileUpConfig {
     PileUpConfig(std::string sourcename, double averageNumber, std::unique_ptr<TH1F>& histo, const bool playback)
-        : sourcename_(sourcename), averageNumber_(averageNumber), histo_(histo.release()), playback_(playback) {}
+        : sourcename_(std::move(sourcename)),
+          averageNumber_(averageNumber),
+          histo_(histo.release()),
+          playback_(playback) {}
     std::string sourcename_;
     double averageNumber_;
     std::shared_ptr<TH1F> histo_;

@@ -30,10 +30,10 @@ class LHCOpticsApproximator : public TNamed {
 public:
   LHCOpticsApproximator();
   /// begin and end position along the beam of the particle to transport, training_tree, prefix of data branch in the tree
-  LHCOpticsApproximator(std::string name,
-                        std::string title,
+  LHCOpticsApproximator(const std::string &name,
+                        const std::string &title,
                         TMultiDimFet::EMDFPolyType polynom_type,
-                        std::string beam_direction,
+                        const std::string &beam_direction,
                         double nominal_beam_momentum);
   LHCOpticsApproximator(const LHCOpticsApproximator &org);
   const LHCOpticsApproximator &operator=(const LHCOpticsApproximator &org);
@@ -41,7 +41,7 @@ public:
   enum polynomials_selection { AUTOMATIC, PREDEFINED };
   enum beam_type { lhcb1, lhcb2 };
   void Train(TTree *inp_tree,
-             std::string data_prefix = std::string("def"),
+             const std::string &data_prefix = std::string("def"),
              polynomials_selection mode = PREDEFINED,
              int max_degree_x = 10,
              int max_degree_tx = 10,
@@ -51,7 +51,7 @@ public:
              double *prec = nullptr);
   void Test(TTree *inp_tree,
             TFile *f_out,
-            std::string data_prefix = std::string("def"),
+            const std::string &data_prefix = std::string("def"),
             std::string base_out_dir = std::string(""));
   void TestAperture(TTree *in_tree,
                     TTree *out_tree);  ///< x, theta_x, y, theta_y, ksi, mad_accepted, parametriz_accepted
@@ -204,7 +204,7 @@ private:
                        TH2D *err_inp_cor_hists[4][5],
                        TH2D *err_out_cor_hists[4][5],
                        TFile *f_out,
-                       std::string base_out_dir);
+                       const std::string &base_out_dir);
 
   ClassDef(LHCOpticsApproximator, 1)  // Proton transport approximator
 };

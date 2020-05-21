@@ -12,6 +12,8 @@
 //
 
 // system include files
+#include <utility>
+
 #include "FWCore/Framework/interface/ESHandle.h"
 
 // user include files
@@ -38,7 +40,7 @@
 MuonAlignmentInputDB::MuonAlignmentInputDB() : m_dtLabel(""), m_cscLabel(""), m_getAPEs(false) {}
 
 MuonAlignmentInputDB::MuonAlignmentInputDB(std::string dtLabel, std::string cscLabel, bool getAPEs)
-    : m_dtLabel(dtLabel), m_cscLabel(cscLabel), m_getAPEs(getAPEs) {}
+    : m_dtLabel(std::move(dtLabel)), m_cscLabel(std::move(cscLabel)), m_getAPEs(getAPEs) {}
 
 // MuonAlignmentInputDB::MuonAlignmentInputDB(const MuonAlignmentInputDB& rhs)
 // {

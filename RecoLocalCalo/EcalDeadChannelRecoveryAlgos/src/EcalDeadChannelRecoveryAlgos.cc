@@ -26,7 +26,7 @@ void EcalDeadChannelRecoveryAlgos<T>::setCaloTopology(const CaloTopology *topo) 
 template <typename T>
 float EcalDeadChannelRecoveryAlgos<T>::correct(const T id,
                                                const EcalRecHitCollection &hit_collection,
-                                               std::string algo,
+                                               const std::string &algo,
                                                double single8Cut,
                                                double sum8Cut,
                                                bool *acceptFlag) {

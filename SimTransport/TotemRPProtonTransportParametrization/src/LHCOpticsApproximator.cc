@@ -1,6 +1,8 @@
 #include "SimTransport/TotemRPProtonTransportParametrization/interface/LHCOpticsApproximator.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <utility>
+
 #include <vector>
 #include <iostream>
 #include "TROOT.h"
@@ -32,10 +34,10 @@ void LHCOpticsApproximator::Init() {
   trained_ = false;
 }
 
-LHCOpticsApproximator::LHCOpticsApproximator(std::string name,
-                                             std::string title,
+LHCOpticsApproximator::LHCOpticsApproximator(const std::string &name,
+                                             const std::string &title,
                                              TMultiDimFet::EMDFPolyType polynom_type,
-                                             std::string beam_direction,
+                                             const std::string &beam_direction,
                                              double nominal_beam_momentum)
     : x_parametrisation(5, polynom_type, "k"),
       theta_x_parametrisation(5, polynom_type, "k"),
@@ -280,7 +282,7 @@ const LHCOpticsApproximator &LHCOpticsApproximator::operator=(const LHCOpticsApp
 }
 
 void LHCOpticsApproximator::Train(TTree *inp_tree,
-                                  std::string data_prefix,
+                                  const std::string &data_prefix,
                                   polynomials_selection mode,
                                   int max_degree_x,
                                   int max_degree_tx,
@@ -626,7 +628,10 @@ void LHCOpticsApproximator::SetTermsManually(TMultiDimFet &approximator,
   approximator.SetPowers(&powers[0], term_literals.size() / 5);
 }
 
-void LHCOpticsApproximator::Test(TTree *inp_tree, TFile *f_out, std::string data_prefix, std::string base_out_dir) {
+void LHCOpticsApproximator::Test(TTree *inp_tree,
+                                 TFile *f_out,
+                                 const std::string &data_prefix,
+                                 std::string base_out_dir) {
   if (inp_tree == nullptr || f_out == nullptr)
     return;
 
@@ -710,7 +715,7 @@ void LHCOpticsApproximator::Test(TTree *inp_tree, TFile *f_out, std::string data
     FillErrorDataCorHistograms(errors, out_var, err_out_cor_hists);
   }
 
-  WriteHistograms(err_hists, err_inp_cor_hists, err_out_cor_hists, f_out, base_out_dir);
+  WriteHistograms(err_hists, err_inp_cor_hists, err_out_cor_hists, f_out, std::move(base_out_dir));
 
   DeleteErrorHists(err_hists);
   DeleteErrorCorHistograms(err_inp_cor_hists);
@@ -866,7 +871,7 @@ void LHCOpticsApproximator::WriteHistograms(TH1D *err_hists[4],
                                             TH2D *err_inp_cor_hists[4][5],
                                             TH2D *err_out_cor_hists[4][5],
                                             TFile *f_out,
-                                            std::string base_out_dir) {
+                                            const std::string &base_out_dir) {
   if (f_out == nullptr)
     return;
 

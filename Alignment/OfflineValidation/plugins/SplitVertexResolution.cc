@@ -76,7 +76,7 @@ public:
   ~SplitVertexResolution() override;
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-  static bool mysorter(reco::Track i, reco::Track j) { return (i.pt() > j.pt()); }
+  static bool mysorter(const reco::Track& i, const reco::Track& j) { return (i.pt() > j.pt()); }
 
 private:
   void beginJob() override;
@@ -88,10 +88,10 @@ private:
 
   template <std::size_t SIZE>
   bool checkBinOrdering(std::array<float, SIZE>& bins);
-  std::vector<TH1F*> bookResidualsHistogram(TFileDirectory dir,
+  std::vector<TH1F*> bookResidualsHistogram(const TFileDirectory& dir,
                                             unsigned int theNOfBins,
                                             TString resType,
-                                            TString varType);
+                                            const TString& varType);
 
   void fillTrendPlotByIndex(TH1F* trendPlot, std::vector<TH1F*>& h, PVValHelper::estimator fitPar_);
   statmode::fitParams fitResiduals(TH1* hist, bool singleTime = false);
@@ -884,10 +884,10 @@ void SplitVertexResolution::beginJob() {
 //*************************************************************
 // Generic booker function
 //*************************************************************
-std::vector<TH1F*> SplitVertexResolution::bookResidualsHistogram(TFileDirectory dir,
+std::vector<TH1F*> SplitVertexResolution::bookResidualsHistogram(const TFileDirectory& dir,
                                                                  unsigned int theNOfBins,
                                                                  TString resType,
-                                                                 TString varType) {
+                                                                 const TString& varType) {
   TH1F::SetDefaultSumw2(kTRUE);
 
   double up = 500.;

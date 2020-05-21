@@ -42,11 +42,11 @@ class MuonDetLayerMeasurements {
 public:
   typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
-  MuonDetLayerMeasurements(edm::InputTag dtlabel,
-                           edm::InputTag csclabel,
-                           edm::InputTag rpclabel,
-                           edm::InputTag gemlabel,
-                           edm::InputTag me0label,
+  MuonDetLayerMeasurements(const edm::InputTag& dtlabel,
+                           const edm::InputTag& csclabel,
+                           const edm::InputTag& rpclabel,
+                           const edm::InputTag& gemlabel,
+                           const edm::InputTag& me0label,
                            edm::ConsumesCollector& iC,
                            bool enableDT = true,
                            bool enableCSC = true,

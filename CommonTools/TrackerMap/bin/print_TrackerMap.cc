@@ -4,12 +4,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 
-void printTrackerMap(const std::string filename,
-                     const std::string title,
-                     const std::string outfile,
+void printTrackerMap(const std::string& filename,
+                     const std::string& title,
+                     const std::string& outfile,
                      const int size,
-                     const std::string logscale,
-                     std::string withpixel,
+                     const std::string& logscale,
+                     const std::string& withpixel,
                      const float min,
                      const float max);
 
@@ -49,12 +49,12 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
-void printTrackerMap(const std::string filename,
-                     const std::string title,
-                     const std::string outfile,
+void printTrackerMap(const std::string& filename,
+                     const std::string& title,
+                     const std::string& outfile,
                      const int size,
-                     const std::string logscale,
-                     std::string withpixel,
+                     const std::string& logscale,
+                     const std::string& withpixel,
                      const float min,
                      const float max) {
   edm::ParameterSet pset;

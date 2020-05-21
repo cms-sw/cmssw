@@ -1,6 +1,8 @@
 #ifndef CondFormats_SiStripObjects_Phase2TrackerModule_H
 #define CondFormats_SiStripObjects_Phase2TrackerModule_H
 
+#include <utility>
+
 #include <vector>
 #include <algorithm>
 
@@ -34,7 +36,7 @@ public:
   void setPowerGroup(uint32_t pg) { powerGroup_ = pg; }
   void setModuleType(ModuleTypes moduleType) { moduleType_ = moduleType; }
   void addI2cDevice(unsigned int dev) { i2cDevices_.push_back(dev); }
-  void setI2cDevices(std::vector<unsigned int> i2cd) { i2cDevices_ = i2cd; }
+  void setI2cDevices(std::vector<unsigned int> i2cd) { i2cDevices_ = std::move(i2cd); }
 
   // getters
   uint32_t getDetid() const { return detid_; }

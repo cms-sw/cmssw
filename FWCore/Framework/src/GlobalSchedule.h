@@ -81,17 +81,17 @@ namespace edm {
     typedef std::shared_ptr<Worker> WorkerPtr;
     typedef std::vector<Worker*> Workers;
 
-    GlobalSchedule(std::shared_ptr<TriggerResultInserter> inserter,
+    GlobalSchedule(const std::shared_ptr<TriggerResultInserter>& inserter,
                    std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
                    std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
-                   std::shared_ptr<ModuleRegistry> modReg,
+                   const std::shared_ptr<ModuleRegistry>& modReg,
                    std::vector<std::string> const& modulesToUse,
                    ParameterSet& proc_pset,
                    ProductRegistry& pregistry,
                    PreallocationConfiguration const& prealloc,
                    ExceptionToActionTable const& actions,
-                   std::shared_ptr<ActivityRegistry> areg,
-                   std::shared_ptr<ProcessConfiguration> processConfiguration,
+                   const std::shared_ptr<ActivityRegistry>& areg,
+                   const std::shared_ptr<ProcessConfiguration>& processConfiguration,
                    ProcessContext const* processContext);
     GlobalSchedule(GlobalSchedule const&) = delete;
 

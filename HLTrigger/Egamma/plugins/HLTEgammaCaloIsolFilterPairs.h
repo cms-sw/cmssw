@@ -56,7 +56,7 @@ private:
 
   bool AlsoNonIso_1, AlsoNonIso_2;
 
-  bool PassCaloIsolation(edm::Ref<reco::RecoEcalCandidateCollection> ref,
+  bool PassCaloIsolation(const edm::Ref<reco::RecoEcalCandidateCollection>& ref,
                          const reco::RecoEcalCandidateIsolationMap& IsoMap,
                          const reco::RecoEcalCandidateIsolationMap& NonIsoMap,
                          int which,

@@ -42,7 +42,7 @@ private:
   edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
 
   struct ComparePt {
-    bool operator()(reco::WMuNuCandidate w1, reco::WMuNuCandidate w2) const {
+    bool operator()(const reco::WMuNuCandidate& w1, const reco::WMuNuCandidate& w2) const {
       double pt1 = w1.getMuon().pt();
       double pt2 = w2.getMuon().pt();
       return (pt1 > pt2);

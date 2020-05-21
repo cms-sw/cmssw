@@ -52,7 +52,7 @@ void ESDBCopy::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {
   }
 }
 
-bool ESDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string container) {
+bool ESDBCopy::shouldCopy(const edm::EventSetup& evtSetup, const std::string& container) {
   unsigned long long cacheID = 0;
   if (container == "ESPedestals") {
     cacheID = evtSetup.get<ESPedestalsRcd>().cacheIdentifier();
@@ -80,7 +80,7 @@ bool ESDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string container
   }
 }
 
-void ESDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container) {
+void ESDBCopy::copyToDB(const edm::EventSetup& evtSetup, const std::string& container) {
   edm::Service<cond::service::PoolDBOutputService> dbOutput;
   if (!dbOutput.isAvailable()) {
     throw cms::Exception("PoolDBOutputService is not available");

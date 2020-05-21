@@ -39,7 +39,7 @@ namespace edm {
     class MainThreadMLscribe : public AbstractMLscribe {
     public:
       // ---  birth/death:
-      MainThreadMLscribe(std::shared_ptr<ThreadQueue> tqp);
+      MainThreadMLscribe(const std::shared_ptr<ThreadQueue>& tqp);
       ~MainThreadMLscribe() override;
 
       // --- receive and act on messages:

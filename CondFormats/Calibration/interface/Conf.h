@@ -8,12 +8,13 @@
 
 #include "CondFormats/Common/interface/BaseKeyed.h"
 #include <string>
+#include <utility>
 
 namespace condex {
 
   struct ConfI : public cond::BaseKeyed {
     ConfI() : v(0), key(" ") {}
-    ConfI(std::string k, int i) : v(i), key(k) {}
+    ConfI(std::string k, int i) : v(i), key(std::move(k)) {}
     int v;
     std::string key;  // just for test
 
@@ -22,7 +23,7 @@ namespace condex {
 
   struct ConfF : public cond::BaseKeyed {
     ConfF() : v(0), key(" ") {}
-    ConfF(std::string k, float i) : v(i), key(k) {}
+    ConfF(std::string k, float i) : v(i), key(std::move(k)) {}
     float v;
     std::string key;  // just for test
 

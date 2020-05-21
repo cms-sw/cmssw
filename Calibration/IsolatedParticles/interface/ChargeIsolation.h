@@ -53,7 +53,7 @@ namespace spr {
   // in the collection to the ECAL surface in order to do the tests
   double chargeIsolationEcal(const DetId& coreDet,
                              reco::TrackCollection::const_iterator trkItr,
-                             edm::Handle<reco::TrackCollection> trkCollection,
+                             const edm::Handle<reco::TrackCollection>& trkCollection,
                              const CaloGeometry* geo,
                              const CaloTopology* caloTopology,
                              const MagneticField* bField,
@@ -76,7 +76,7 @@ namespace spr {
   // impact of a given track on the HCAL surface. It extrapolates all tracks
   // in the collection to the HCAL surface in order to do the tests
   double chargeIsolationHcal(reco::TrackCollection::const_iterator trkItr,
-                             edm::Handle<reco::TrackCollection> trkCollection,
+                             const edm::Handle<reco::TrackCollection>& trkCollection,
                              const DetId ClosestCell,
                              const HcalTopology* topology,
                              const CaloSubdetectorGeometry* gHB,
@@ -93,7 +93,7 @@ namespace spr {
   double coneChargeIsolation(const edm::Event& iEvent,
                              const edm::EventSetup& iSetup,
                              reco::TrackCollection::const_iterator trkItr,
-                             edm::Handle<reco::TrackCollection> trkCollection,
+                             const edm::Handle<reco::TrackCollection>& trkCollection,
                              TrackDetectorAssociator& associator,
                              TrackAssociatorParameters& parameters_,
                              const std::string& theTrackQuality,

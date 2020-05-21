@@ -13,7 +13,7 @@
 
 class HBHERecalibration {
 public:
-  HBHERecalibration(float intlumi, float cutoff, std::string meanenergies);
+  HBHERecalibration(float intlumi, float cutoff, const std::string& meanenergies);
   ~HBHERecalibration();
 
   //accessors

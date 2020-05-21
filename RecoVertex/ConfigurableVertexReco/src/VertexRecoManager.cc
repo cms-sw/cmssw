@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 #include "RecoVertex/ConfigurableVertexReco/interface/VertexRecoManager.h"
 
@@ -6,7 +8,7 @@ using namespace std;
 void VertexRecoManager::registerReconstructor(const string& name,
                                               std::function<AbstractConfReconstructor*()> o,
                                               const string& d) {
-  theAbstractConfReconstructors[name] = o;
+  theAbstractConfReconstructors[name] = std::move(o);
   theDescription[name] = d;
 }
 

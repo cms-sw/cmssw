@@ -29,7 +29,7 @@ public:
                                      reco::CaloCluster::AlgoId theAlgo,
                                      const CaloSubdetectorGeometry* geometry,
                                      EcalClusterFunctionBaseClass* energyCorrectionFunction,
-                                     std::string energyCorrectorName_,
+                                     const std::string& energyCorrectorName_,
                                      int modeEB_,
                                      int modeEE_);
 

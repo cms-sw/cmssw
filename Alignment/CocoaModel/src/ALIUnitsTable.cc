@@ -5,12 +5,16 @@
 #include <iomanip>
 #include <cstdlib>
 #include <cmath>  // include floating-point std::abs functions
+#include <utility>
 
 ALIUnitsTable ALIUnitDefinition::theUnitsTable;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-ALIUnitDefinition::ALIUnitDefinition(ALIstring name, ALIstring symbol, ALIstring category, ALIdouble value)
+ALIUnitDefinition::ALIUnitDefinition(const ALIstring& name,
+                                     const ALIstring& symbol,
+                                     const ALIstring& category,
+                                     ALIdouble value)
     : Name(name), SymbolName(symbol), Value(value) {
   //
   //does the Category objet already exist ?
@@ -62,7 +66,7 @@ ALIint ALIUnitDefinition::operator==(const ALIUnitDefinition& right) const { ret
 ALIint ALIUnitDefinition::operator!=(const ALIUnitDefinition& right) const { return (this != &right); }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
-ALIdouble ALIUnitDefinition::GetValueOf(ALIstring stri) {
+ALIdouble ALIUnitDefinition::GetValueOf(const ALIstring& stri) {
   if (theUnitsTable.empty())
     BuildUnitsTable();
   ALIstring name, symbol;
@@ -83,7 +87,7 @@ ALIdouble ALIUnitDefinition::GetValueOf(ALIstring stri) {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-ALIstring ALIUnitDefinition::GetCategory(ALIstring stri) {
+ALIstring ALIUnitDefinition::GetCategory(const ALIstring& stri) {
   if (theUnitsTable.empty())
     BuildUnitsTable();
   ALIstring name, symbol;
@@ -237,7 +241,7 @@ void ALIUnitDefinition::PrintUnitsTable() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-ALIUnitsCategory::ALIUnitsCategory(ALIstring name) : Name(name), NameMxLen(0), SymbMxLen(0) {
+ALIUnitsCategory::ALIUnitsCategory(ALIstring name) : Name(std::move(name)), NameMxLen(0), SymbMxLen(0) {
   UnitsList = *(new ALIUnitsContainer);
 }
 
@@ -279,7 +283,7 @@ void ALIUnitsCategory::PrintCategory() {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-ALIBestUnit::ALIBestUnit(ALIdouble value, ALIstring category) {
+ALIBestUnit::ALIBestUnit(ALIdouble value, const ALIstring& category) {
   // find the category
   ALIUnitsTable& theUnitsTable = ALIUnitDefinition::GetUnitsTable();
   size_t nbCat = theUnitsTable.size();
@@ -301,7 +305,7 @@ ALIBestUnit::ALIBestUnit(ALIdouble value, ALIstring category) {
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-ALIBestUnit::ALIBestUnit(const CLHEP::Hep3Vector& value, ALIstring category) {
+ALIBestUnit::ALIBestUnit(const CLHEP::Hep3Vector& value, const ALIstring& category) {
   // find the category
   ALIUnitsTable& theUnitsTable = ALIUnitDefinition::GetUnitsTable();
   size_t nbCat = theUnitsTable.size();
@@ -326,7 +330,7 @@ ALIBestUnit::~ALIBestUnit() {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-std::ostream& operator<<(std::ostream& flux, ALIBestUnit a) {
+std::ostream& operator<<(std::ostream& flux, const ALIBestUnit& a) {
   ALIUnitsTable& theUnitsTable = ALIUnitDefinition::GetUnitsTable();
   ALIUnitsContainer& List = theUnitsTable[a.IndexOfCategory]->GetUnitsList();
   ALIint len = theUnitsTable[a.IndexOfCategory]->GetSymbMxLen();

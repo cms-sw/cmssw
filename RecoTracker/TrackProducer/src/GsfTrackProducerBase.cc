@@ -234,7 +234,8 @@ void GsfTrackProducerBase::putInEvt(edm::Event& evt,
   }
 }
 
-void GsfTrackProducerBase::fillStates(TrajectoryStateOnSurface tsos, std::vector<reco::GsfComponent5D>& states) const {
+void GsfTrackProducerBase::fillStates(const TrajectoryStateOnSurface& tsos,
+                                      std::vector<reco::GsfComponent5D>& states) const {
   reco::GsfComponent5D::ParameterVector pLocS;
   reco::GsfComponent5D::CovarianceMatrix cLocS;
   GetComponents comps(tsos);
@@ -245,7 +246,7 @@ void GsfTrackProducerBase::fillStates(TrajectoryStateOnSurface tsos, std::vector
 }
 
 void GsfTrackProducerBase::fillMode(reco::GsfTrack& track,
-                                    const TrajectoryStateOnSurface innertsos,
+                                    const TrajectoryStateOnSurface& innertsos,
                                     const Propagator& gsfProp,
                                     const TransverseImpactPointExtrapolator& tipExtrapolator,
                                     TrajectoryStateClosestToBeamLineBuilder& tscblBuilder,
@@ -313,7 +314,7 @@ void GsfTrackProducerBase::fillMode(reco::GsfTrack& track,
   track.setMode(fts.charge(), mom, cov);
 }
 
-void GsfTrackProducerBase::localParametersFromQpMode(const TrajectoryStateOnSurface tsos,
+void GsfTrackProducerBase::localParametersFromQpMode(const TrajectoryStateOnSurface& tsos,
                                                      AlgebraicVector5& parameters,
                                                      AlgebraicSymMatrix55& covariance) const {
   //

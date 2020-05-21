@@ -52,9 +52,9 @@ public:
 
   std::string getUserName(void);
 
-  HcalSubdetector getSubdetector(std::string _det);
+  HcalSubdetector getSubdetector(const std::string& _det);
   std::string getSubdetectorString(HcalSubdetector _det);
-  HcalZDCDetId::Section getZDCSection(std::string _section);
+  HcalZDCDetId::Section getZDCSection(const std::string& _section);
   std::string getZDCSectionString(HcalZDCDetId::Section _section);
 
   int getListOfChannelsFromDb();

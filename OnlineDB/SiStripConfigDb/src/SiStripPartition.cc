@@ -5,6 +5,7 @@
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include <iostream>
 #include <cmath>
+#include <utility>
 
 using namespace sistrip;
 
@@ -49,7 +50,7 @@ SiStripPartition::SiStripPartition()
 // -----------------------------------------------------------------------------
 //
 SiStripPartition::SiStripPartition(std::string partition)
-    : partitionName_(partition),
+    : partitionName_(std::move(partition)),
       runNumber_(0),
       runType_(sistrip::UNDEFINED_RUN_TYPE),
       forceVersions_(false),

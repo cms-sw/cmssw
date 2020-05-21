@@ -14,7 +14,7 @@ namespace clangcms {
   void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,
                                  clang::ento::AnalysisManager &mgr,
                                  clang::ento::BugReporter &BR,
-                                 std::string tname) const {
+                                 const std::string &tname) const {
     const char *sfile = BR.getSourceManager().getPresumedLoc(RD->getLocation()).getFilename();
     if (!RD->hasDefinition())
       return;

@@ -107,7 +107,7 @@ private:
                           const edm::Handle<L1GctHtMissCollection> &missingHtE,
                           edm::Handle<L1CaloRegionCollection> &caloRegions,
                           const edm::Handle<L1GctInternJetDataCollection> &intjetsemu,
-                          const edm::Handle<L1GctInternHtMissCollection> intMissingHtD);
+                          const edm::Handle<L1GctInternHtMissCollection> &intMissingHtD);
   template <class T>
   bool checkCollections(const T &collection, const unsigned int &constraint, const std::string &label);
 
@@ -1772,7 +1772,7 @@ void GctErrorAnalyzer::plotMissingEErrors(const edm::Handle<L1GctEtMissCollectio
                                           const edm::Handle<L1GctHtMissCollection> &missingHtE,
                                           edm::Handle<L1CaloRegionCollection> &caloRegions,
                                           const edm::Handle<L1GctInternJetDataCollection> &intJetsE,
-                                          const edm::Handle<L1GctInternHtMissCollection> intMissingHtD) {
+                                          const edm::Handle<L1GctInternHtMissCollection> &intMissingHtD) {
   std::string errorDirName = "err_";
   if (isMissingEError)
     errorDirName.append("E");

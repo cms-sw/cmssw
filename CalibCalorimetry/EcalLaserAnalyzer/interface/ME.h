@@ -161,7 +161,7 @@ public:
   static TString path();               // MusEcal main working directory
   static TString primPath(int lmr);    // where the primitives are
   static TString lmdataPath(int lmr);  // where the LM data are
-  static TString rootFileName(ME::Header header, ME::Settings settings);
+  static TString rootFileName(const ME::Header& header, ME::Settings settings);
   static TString runListName(int lmr, int type, int color);
 
   virtual ~ME() {}

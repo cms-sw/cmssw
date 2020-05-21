@@ -4,7 +4,7 @@
 #include <cmath>
 
 //reuse parsing function to read mean energy table
-HBHERecalibration::HBHERecalibration(float intlumi, float cutoff, std::string meanenergies)
+HBHERecalibration::HBHERecalibration(float intlumi, float cutoff, const std::string& meanenergies)
     : intlumi_(intlumi),
       cutoff_(cutoff),
       ieta_shift_(0),

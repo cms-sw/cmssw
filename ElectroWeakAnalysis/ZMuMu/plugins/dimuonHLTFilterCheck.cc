@@ -45,8 +45,8 @@ public:
 
 private:
   void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-  vector<int> nDimuonsByType(const Handle<CandidateView> d);
-  vector<int> nMuonsByType(const Handle<CandidateView> d);
+  vector<int> nDimuonsByType(const Handle<CandidateView>& d);
+  vector<int> nMuonsByType(const Handle<CandidateView>& d);
   void endJob() override;
   EDGetTokenT<TriggerResults> triggerResultsToken;
   EDGetTokenT<CandidateView> tracksToken;
@@ -194,7 +194,7 @@ void dimuonHLTFilterCheck::analyze(const Event& event, const EventSetup& setup) 
   }
 }  // end analyze
 
-vector<int> dimuonHLTFilterCheck::nDimuonsByType(const Handle<CandidateView> d) {
+vector<int> dimuonHLTFilterCheck::nDimuonsByType(const Handle<CandidateView>& d) {
   vector<int> n_;
   int nCat =
       10;  // number of dimuon categories (0 = glb-glb, 1 = glb-trkSta, 2 = glb-sta, 3 = glb-trk, 4 = trkSta-trkSta, 5 = trkSta-sta, 6 = trkSta-trk, 7 = sta-sta, 8 = sta-trk, 9  trk-trk)
@@ -255,7 +255,7 @@ vector<int> dimuonHLTFilterCheck::nDimuonsByType(const Handle<CandidateView> d) 
   return n_;
 }
 
-vector<int> dimuonHLTFilterCheck::nMuonsByType(const Handle<CandidateView> d) {
+vector<int> dimuonHLTFilterCheck::nMuonsByType(const Handle<CandidateView>& d) {
   vector<int> n_;
   int nCat = 4;  // number of muon categories (0 = glb, 1 = trkSta, 2 = sta, 3 = trk)
   // reset vector

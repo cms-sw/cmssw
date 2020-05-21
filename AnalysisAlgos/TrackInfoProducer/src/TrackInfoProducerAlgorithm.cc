@@ -13,8 +13,8 @@
 
 using namespace reco;
 
-void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > traj_iterator,
-                                     TrackRef track,
+void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> >& traj_iterator,
+                                     const TrackRef& track,
                                      TrackInfo& output,
                                      const TrackerGeometry* tracker) {
   std::vector<TrajectoryMeasurement> measurements = traj_iterator->measurements();
@@ -171,8 +171,8 @@ void TrackInfoProducerAlgorithm::run(const edm::Ref<std::vector<Trajectory> > tr
 
 LocalPoint TrackInfoProducerAlgorithm::project(const GeomDet* det,
                                                const GeomDet* projdet,
-                                               LocalPoint position,
-                                               LocalVector trackdirection) const {
+                                               const LocalPoint& position,
+                                               const LocalVector& trackdirection) const {
   GlobalPoint globalpoint = (det->surface()).toGlobal(position);
 
   // position of the initial and final point of the strip in glued local coordinates

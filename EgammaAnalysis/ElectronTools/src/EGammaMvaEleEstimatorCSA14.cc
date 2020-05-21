@@ -1,6 +1,8 @@
 #include <TFile.h>
 #include "EgammaAnalysis/ElectronTools/interface/EGammaMvaEleEstimatorCSA14.h"
 #include <cmath>
+#include <utility>
+
 #include <vector>
 #include <cstdio>
 #include <zlib.h>
@@ -23,11 +25,11 @@ EGammaMvaEleEstimatorCSA14::~EGammaMvaEleEstimatorCSA14() {
 
 //--------------------------------------------------------------------------------------------------
 void EGammaMvaEleEstimatorCSA14::initialize(std::string methodName,
-                                            std::string weightsfile,
+                                            const std::string &weightsfile,
                                             EGammaMvaEleEstimatorCSA14::MVAType type) {
   std::vector<std::string> tempWeightFileVector;
   tempWeightFileVector.push_back(weightsfile);
-  initialize(methodName, type, kFALSE, tempWeightFileVector);
+  initialize(std::move(methodName), type, kFALSE, tempWeightFileVector);
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,7 +47,7 @@ void EGammaMvaEleEstimatorCSA14::initialize(std::string methodName,
   //initialize
   fisInitialized = kTRUE;
   fMVAType = type;
-  fMethodname = methodName;
+  fMethodname = std::move(methodName);
   fUseBinnedVersion = useBinnedVersion;
 
   //Define expected number of bins

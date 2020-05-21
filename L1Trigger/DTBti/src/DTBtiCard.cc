@@ -234,7 +234,7 @@ void DTBtiCard::localClear() {
 //   }//end if(ndigis)
 // }
 
-void DTBtiCard::loadBTI(const DTDigiCollection dtDigis) {
+void DTBtiCard::loadBTI(const DTDigiCollection& dtDigis) {
   localClear();
 
   if (debug()) {
@@ -457,7 +457,7 @@ std::vector<DTBtiChip*> DTBtiCard::btiList(int sl) {
   return blist;
 }
 
-DTBtiTrig* DTBtiCard::storeTrigger(DTBtiTrigData td) {
+DTBtiTrig* DTBtiCard::storeTrigger(const DTBtiTrigData& td) {
   DTBtiId btiid = td.parentId();
   if (!(btiid.wheel() == wheel() && btiid.sector() == sector() && btiid.station() == station()))
     return nullptr;

@@ -20,9 +20,9 @@ private:
   // when all else fails
   void makeDefaultSeed(TrajectorySeed& seed) const;
 
-  bool createDefaultEndcapSeed(ConstMuonRecHitPointer last, TrajectorySeed& seed) const;
+  bool createDefaultEndcapSeed(const ConstMuonRecHitPointer& last, TrajectorySeed& seed) const;
   float computeDefaultPt(ConstMuonRecHitPointer muon) const;
-  int segmentQuality(ConstMuonRecHitPointer muon) const;
+  int segmentQuality(const ConstMuonRecHitPointer& muon) const;
 
   void analyze() const;
 };

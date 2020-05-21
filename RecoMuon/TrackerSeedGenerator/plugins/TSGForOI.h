@@ -97,7 +97,7 @@ private:
                         const TrajectoryStateOnSurface& tsosAtIP,
                         const Propagator& propagatorAlong,
                         const Propagator& propagatorOpposite,
-                        const reco::TrackRef l2,
+                        const reco::TrackRef& l2,
                         edm::ESHandle<Chi2MeasurementEstimatorBase>& estimator_,
                         edm::Handle<MeasurementTrackerEvent>& measurementTrackerH,
                         unsigned int& numSeedsMade,
@@ -107,7 +107,7 @@ private:
                         std::unique_ptr<std::vector<TrajectorySeed> >& out) const;
 
   /// Function used to calculate the dynamic error SF by analysing the L2
-  double calculateSFFromL2(const reco::TrackRef track) const;
+  double calculateSFFromL2(const reco::TrackRef& track) const;
 
   /// Function to find hits on layers and create seeds from updated TSOS
   int makeSeedsFromHits(const TrackerTopology* tTopo,

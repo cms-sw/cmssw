@@ -98,7 +98,7 @@ namespace dqmoffline {
 
     std::vector<edm::InputTag> getHLTFilters(const std::vector<unsigned int> &triggers,
                                              const HLTConfigProvider &hltConfig,
-                                             const std::string triggerProcess) {
+                                             const std::string &triggerProcess) {
       std::vector<edm::InputTag> results;
       for (auto trigger : triggers) {
         unsigned int hltIndexOffset(2);
@@ -114,7 +114,7 @@ namespace dqmoffline {
     trigger::TriggerObjectCollection getMatchedTriggerObjects(double eta,
                                                               double phi,
                                                               double maxDeltaR,
-                                                              const trigger::TriggerObjectCollection triggerObjects) {
+                                                              const trigger::TriggerObjectCollection &triggerObjects) {
       trigger::TriggerObjectCollection results;
       typedef trigger::TriggerObject trigObj;
       std::copy_if(

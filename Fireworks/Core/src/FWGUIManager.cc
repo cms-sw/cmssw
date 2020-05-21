@@ -345,7 +345,7 @@ void FWGUIManager::eventChangedCallback() {
   m_detailViewManager->newEventCallback();
 }
 
-CSGAction* FWGUIManager::getAction(const std::string name) { return m_cmsShowMainFrame->getAction(name); }
+CSGAction* FWGUIManager::getAction(const std::string& name) { return m_cmsShowMainFrame->getAction(name); }
 
 CSGContinuousAction* FWGUIManager::playEventsAction() { return m_cmsShowMainFrame->playEventsAction(); }
 

@@ -51,6 +51,8 @@ Implementation:
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include <cstdlib>
+#include <utility>
+
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"
 #include "CondFormats/HIObjects/interface/RPFlatParams.h"
 #include "CondFormats/DataRecord/interface/HeavyIonRPRcd.h"
@@ -76,7 +78,7 @@ namespace hi {
   class GenPlane {
   public:
     GenPlane(string name, double etaminval1, double etamaxval1, double etaminval2, double etamaxval2, int orderval) {
-      epname = name;
+      epname = std::move(name);
       etamin1 = etaminval1;
       etamax1 = etamaxval1;
       etamin2 = etaminval2;

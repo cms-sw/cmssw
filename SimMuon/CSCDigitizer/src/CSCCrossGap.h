@@ -38,7 +38,7 @@ public:
   std::vector<float> eLossPerStep() const { return elosses; }
   int noOfElosses() const { return elosses.size(); }
 
-  void addCluster(LocalPoint here) { clusters.push_back(here); }
+  void addCluster(const LocalPoint& here) { clusters.push_back(here); }
   void addElectrons(int nelec = 1) { electronsInClusters.push_back(nelec); }
   void addElectronToBack() { ++electronsInClusters.back(); }
 

@@ -44,7 +44,7 @@ SingleEleCalibSelector::SingleEleCalibSelector(const edm::ParameterSet& iConfig)
 
 void 
 
-SingleEleCalibSelector::select (edm::Handle<collection> inputHandle, 
+SingleEleCalibSelector::select (const edm::Handle<collection>& inputHandle, 
 			const edm::Event& iEvent , const edm::EventSetup& iSetup) 
 {
   selected_.clear();

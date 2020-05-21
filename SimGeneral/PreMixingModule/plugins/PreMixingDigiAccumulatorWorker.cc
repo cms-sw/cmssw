@@ -14,7 +14,7 @@
 class PreMixingDigiAccumulatorWorker : public PreMixingWorker {
 public:
   PreMixingDigiAccumulatorWorker(const edm::ParameterSet& ps,
-                                 edm::ProducesCollector producesCollector,
+                                 const edm::ProducesCollector& producesCollector,
                                  edm::ConsumesCollector&& iC)
       : accumulator_(edm::DigiAccumulatorMixModFactory::get()->makeDigiAccumulator(
             ps.getParameter<edm::ParameterSet>("accumulator"), producesCollector, iC)) {}

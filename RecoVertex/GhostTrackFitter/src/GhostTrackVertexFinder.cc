@@ -208,7 +208,7 @@ static CachingVertex<5> vertexAtState(const TransientTrack &ghostTrack,
 
 static RefCountedVertexTrack relinearizeTrack(const RefCountedVertexTrack &track,
                                               const VertexState &state,
-                                              const VertexTrackFactory<5> factory) {
+                                              const VertexTrackFactory<5> &factory) {
   RefCountedLinearizedTrackState linTrack = track->linearizedTrack();
   linTrack = linTrack->stateWithNewLinearizationPoint(state.position());
   return factory.vertexTrack(linTrack, state);

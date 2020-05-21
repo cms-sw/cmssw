@@ -6,7 +6,7 @@ CustomUIsessionThreadPrefix::CustomUIsessionThreadPrefix(const std::string& thre
 CustomUIsessionThreadPrefix::~CustomUIsessionThreadPrefix() {}
 
 namespace {
-  std::string addThreadPrefix(const std::string& threadPrefix, const std::string str) {
+  std::string addThreadPrefix(const std::string& threadPrefix, const std::string& str) {
     // Add thread prefix to each line beginning
     std::string ret;
     std::string::size_type beg = 0;

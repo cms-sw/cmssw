@@ -931,7 +931,7 @@ bool QcdUeDQM::trackSelection(const reco::Track &trk, const reco::BeamSpot *bs, 
 }
 
 //--------------------------------------------------------------------------------------------------
-bool QcdUeDQM::fillVtxPlots(const reco::BeamSpot *bs, const edm::Handle<reco::VertexCollection> vtxColl) {
+bool QcdUeDQM::fillVtxPlots(const reco::BeamSpot *bs, const edm::Handle<reco::VertexCollection> &vtxColl) {
   const reco::VertexCollection theVertices = *(vtxColl.product());
   bool goodVtx = false;
   fill1D(hNvertices_, theVertices.size());
@@ -973,7 +973,7 @@ void QcdUeDQM::fillpTMaxRelated(const std::vector<const reco::Track *> &track) {
   }
 }
 
-void QcdUeDQM::fillChargedJetSpectra(const edm::Handle<reco::TrackJetCollection> trackJets) {
+void QcdUeDQM::fillChargedJetSpectra(const edm::Handle<reco::TrackJetCollection> &trackJets) {
   fill1D(hChargedJetMulti_, trackJets->size());
   for (reco::TrackJetCollection::const_iterator f = trackJets->begin(); f != trackJets->end(); f++) {
     if (f != trackJets->begin())

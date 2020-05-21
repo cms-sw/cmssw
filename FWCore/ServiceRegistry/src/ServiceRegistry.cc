@@ -79,7 +79,7 @@ namespace edm {
   }
 
   ServiceToken ServiceRegistry::createSet(std::vector<ParameterSet>& iPS,
-                                          ServiceToken iToken,
+                                          const ServiceToken& iToken,
                                           serviceregistry::ServiceLegacy iLegacy,
                                           bool associate) {
     using namespace serviceregistry;

@@ -16,7 +16,7 @@ inline std::string _toString(const XMLCh* toTranscode) {
   return tmp;
 }
 
-inline XMLCh* _toDOMS(std::string temp) {
+inline XMLCh* _toDOMS(const std::string& temp) {
   XMLCh* buff = XMLString::transcode(temp.c_str());
   return buff;
 }
@@ -66,7 +66,7 @@ double MiscalibReaderFromXML::getFloatAttribute(DOMNamedNodeMap* attribute, cons
 
 //////////////////////////////////////////////////////////////////////////////////
 
-bool MiscalibReaderFromXML::parseXMLMiscalibFile(std::string configFile) {
+bool MiscalibReaderFromXML::parseXMLMiscalibFile(const std::string& configFile) {
   XercesDOMParser* parser = new XercesDOMParser;
   parser->setValidationScheme(XercesDOMParser::Val_Auto);
   parser->setDoNamespaces(false);

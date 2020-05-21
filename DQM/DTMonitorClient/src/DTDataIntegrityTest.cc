@@ -248,7 +248,7 @@ void DTDataIntegrityTest::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGette
   LogTrace("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") << "[DTDataIntegrityTest] endjob called!";
 }
 
-string DTDataIntegrityTest::getMEName(string histoType, int FEDId) {
+string DTDataIntegrityTest::getMEName(const string& histoType, int FEDId) {
   //Use the DDU name to find the ME
   stringstream dduID_s;
   dduID_s << FEDId;

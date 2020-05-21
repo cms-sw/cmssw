@@ -13,14 +13,14 @@ DQMScaleToClient::DQMScaleToClient(const edm::ParameterSet& iConfig)
   scaled_ = nullptr;
 }
 
-MEPSet DQMScaleToClient::getHistoPSet(edm::ParameterSet pset) {
+MEPSet DQMScaleToClient::getHistoPSet(const edm::ParameterSet& pset) {
   return MEPSet{
       pset.getParameter<std::string>("name"),
       pset.getParameter<std::string>("folder"),
   };
 }
 
-OutputMEPSet DQMScaleToClient::getOutputHistoPSet(edm::ParameterSet pset) {
+OutputMEPSet DQMScaleToClient::getOutputHistoPSet(const edm::ParameterSet& pset) {
   return OutputMEPSet{
       pset.getParameter<std::string>("name"),
       pset.getParameter<std::string>("folder"),

@@ -775,7 +775,7 @@ void L1TSync::doFractionInSync(bool iForce, bool iBad) {
 // Variable: iEndLs   - Blocks end LS
 // Variable: iValue   - Value to be used to fill
 //_____________________________________________________________________
-void L1TSync::certifyLSBlock(string iTrigger, int iInitLs, int iEndLs, float iValue) {
+void L1TSync::certifyLSBlock(const string& iTrigger, int iInitLs, int iEndLs, float iValue) {
   // Finding correct bins in the histogram for this block
   int binInit = m_algoCertification[iTrigger]->getTH1()->FindBin(iInitLs);
   int binEnd = m_algoCertification[iTrigger]->getTH1()->FindBin(iEndLs);

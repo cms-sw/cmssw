@@ -95,7 +95,7 @@ DTTimingExtractor::~DTTimingExtractor() {}
 //
 void DTTimingExtractor::fillTiming(TimeMeasurementSequence& tmSequence,
                                    const std::vector<const DTRecSegment4D*>& segments,
-                                   reco::TrackRef muonTrack,
+                                   const reco::TrackRef& muonTrack,
                                    const edm::Event& iEvent,
                                    const edm::EventSetup& iSetup) {
   if (debug)
@@ -380,7 +380,7 @@ void DTTimingExtractor::fillTiming(TimeMeasurementSequence& tmSequence,
 
 // ------------ method called to produce the data  ------------
 void DTTimingExtractor::fillTiming(TimeMeasurementSequence& tmSequence,
-                                   reco::TrackRef muonTrack,
+                                   const reco::TrackRef& muonTrack,
                                    const edm::Event& iEvent,
                                    const edm::EventSetup& iSetup) {
   // get the DT segments that were used to construct the muon

@@ -1,4 +1,5 @@
 #include <memory>
+#include <utility>
 
 #include "RecoTracker/NuclearSeedGenerator/interface/SeedFromNuclearInteraction.h"
 
@@ -29,8 +30,8 @@ void SeedFromNuclearInteraction::setMeasurements(const TSOS& inner_TSOS,
   theHits.clear();
 
   // get the inner and outer transient TrackingRecHits
-  innerHit_ = ihit;
-  outerHit_ = ohit;
+  innerHit_ = std::move(ihit);
+  outerHit_ = std::move(ohit);
 
   //theHits.push_back(  inner_TM.recHit() ); // put temporarily - TODO: remove this line
   theHits.push_back(outerHit_);
@@ -57,8 +58,8 @@ void SeedFromNuclearInteraction::setMeasurements(TangentHelix& thePrimaryHelix,
   theHits.clear();
 
   // get the inner and outer transient TrackingRecHits
-  innerHit_ = ihit;
-  outerHit_ = ohit;
+  innerHit_ = std::move(ihit);
+  outerHit_ = std::move(ohit);
 
   GlobalPoint innerPos =
       theTrackerGeom->idToDet(innerHit_->geographicalId())->surface().toGlobal(innerHit_->localPosition());

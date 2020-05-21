@@ -82,12 +82,12 @@ public:
   //booking DQM histograms (for dynamic histogram creation)
 
   MonitorElement* bookDQMHistogram1D(
-      uint32_t detid, std::string name, std::string title, int nchX, double lowX, double highX);
+      uint32_t detid, std::string name, const std::string& title, int nchX, double lowX, double highX);
   MonitorElement* bookDQMHistogram1D(
-      uint32_t detid, std::string name, std::string title, int nchX, float* xbinsize);  //variable size bins
+      uint32_t detid, std::string name, const std::string& title, int nchX, float* xbinsize);  //variable size bins
   MonitorElement* bookDQMHistogram2D(uint32_t detid,
                                      std::string name,
-                                     std::string title,
+                                     const std::string& title,
                                      int nchX,
                                      double lowX,
                                      double highX,
@@ -98,11 +98,11 @@ public:
   MonitorElement* bookDQMHistoPlaquetteSummary2D(
       uint32_t detid,
       std::string name,
-      std::string
+      const std::string&
           title);  // take the detid to determine the size of rows and columns, this saves looking up everything in the cabling map by the user.
   void addTF1ToDQMMonitoringElement(MonitorElement* ele, TF1* func);
 
-  bool setDQMDirectory(std::string dirName);
+  bool setDQMDirectory(const std::string& dirName);
   bool setDQMDirectory(uint32_t detID);  //automatically create directory hierachy based on DetID
   static TF1* fitFunction_;
   static const std::vector<short>* getVcalValues();

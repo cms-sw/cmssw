@@ -19,6 +19,7 @@
 #include <iterator>
 #include <numeric>  // for std::accumulate
 #include <unordered_map>
+#include <utility>
 
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -294,7 +295,7 @@ namespace {
           caloParticles_(caloParticles),
           simHitBarcodeToIndex_(simHitBarcodeToIndex),
           simTrackDetIdEnergyMap_(simTrackDetIdEnergyMap),
-          selector_(selector) {}
+          selector_(std::move(selector)) {}
     template <typename Vertex, typename Graph>
     void discover_vertex(Vertex u, const Graph &g) {
       // If we reach the vertex 0, it means that we are backtracking with respect

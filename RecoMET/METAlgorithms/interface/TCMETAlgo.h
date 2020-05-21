@@ -163,18 +163,18 @@ private:
 
   bool isMuon(const reco::TrackRef& trackRef);
   bool isElectron(const reco::TrackRef& trackRef);
-  bool isGoodTrack(const reco::TrackRef trackRef);
-  bool closeToElectron(const reco::TrackRef);
-  void correctMETforMuon(const reco::TrackRef, reco::MuonRef& muonRef);
+  bool isGoodTrack(const reco::TrackRef& trackRef);
+  bool closeToElectron(const reco::TrackRef&);
+  void correctMETforMuon(const reco::TrackRef&, reco::MuonRef& muonRef);
   void correctMETforMuon(reco::MuonRef& muonRef);
-  void correctMETforTrack(const reco::TrackRef, TH2D* rf, const TVector3&);
-  void correctSumEtForTrack(const reco::TrackRef, TH2D* rf, const TVector3&);
-  class TVector3 propagateTrackToCalorimeterFace(const reco::TrackRef trackRef);
+  void correctMETforTrack(const reco::TrackRef&, TH2D* rf, const TVector3&);
+  void correctSumEtForTrack(const reco::TrackRef&, TH2D* rf, const TVector3&);
+  class TVector3 propagateTrackToCalorimeterFace(const reco::TrackRef& trackRef);
   void findGoodShowerTracks(std::vector<int>& goodShowerTracks);
-  bool nearGoodShowerTrack(const reco::TrackRef, const std::vector<int>& goodShowerTracks);
-  int nExpectedInnerHits(const reco::TrackRef);
-  int nExpectedOuterHits(const reco::TrackRef);
-  int nLayers(const reco::TrackRef);
+  bool nearGoodShowerTrack(const reco::TrackRef&, const std::vector<int>& goodShowerTracks);
+  int nExpectedInnerHits(const reco::TrackRef&);
+  int nExpectedOuterHits(const reco::TrackRef&);
+  int nLayers(const reco::TrackRef&);
   bool isValidVertex();
   void findDuplicateTracks();
   int vetoTrack(int i1, int i2);

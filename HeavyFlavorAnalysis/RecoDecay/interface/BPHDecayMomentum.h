@@ -109,7 +109,7 @@ protected:
   BPHDecayMomentum();
   BPHDecayMomentum(const std::map<std::string, Component>& daugMap);
   BPHDecayMomentum(const std::map<std::string, Component>& daugMap,
-                   const std::map<std::string, BPHRecoConstCandPtr> compMap);
+                   const std::map<std::string, BPHRecoConstCandPtr>& compMap);
 
   // get an object filled in the constructor
   // to be used in the creation of other bases of BPHRecoCandidate

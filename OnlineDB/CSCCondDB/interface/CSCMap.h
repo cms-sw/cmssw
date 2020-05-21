@@ -63,7 +63,7 @@ public:
 |   'crate0' - logical crate number.
 |   -100 returned means that 'chamber_id' format is incorrect.
 */
-  void chamber_crate(std::string chamber_id,
+  void chamber_crate(const std::string &chamber_id,
                      int *crate,
                      int *dmb,
                      int *sector,

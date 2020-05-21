@@ -245,7 +245,10 @@ private:
   // start Optical Objects that are components of current
   void createComponentOptOs(ALIFileIn& filein);
 
-  OpticalObject* createNewOptO(OpticalObject* parent, ALIstring optoType, ALIstring optoName, ALIbool fcopyComponents);
+  OpticalObject* createNewOptO(OpticalObject* parent,
+                               const ALIstring& optoType,
+                               const ALIstring& optoName,
+                               ALIbool fcopyComponents);
 
   // Set global centre and rotation matrix
   void setGlobalCentre();

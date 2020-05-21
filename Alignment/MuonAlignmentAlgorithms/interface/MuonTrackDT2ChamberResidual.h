@@ -15,7 +15,7 @@ public:
   MuonTrackDT2ChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
                               AlignableNavigator *navigator,
                               DetId chamberId,
-                              AlignableDetOrUnitPtr chamberAlignable);
+                              const AlignableDetOrUnitPtr &chamberAlignable);
 
   // dummy method
   void addResidual(edm::ESHandle<Propagator> prop,

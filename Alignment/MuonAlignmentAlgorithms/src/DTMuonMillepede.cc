@@ -1,6 +1,7 @@
 #include "Alignment/MuonAlignmentAlgorithms/interface/DTMuonMillepede.h"
 
 #include <iostream>
+#include <utility>
 
 DTMuonMillepede::DTMuonMillepede(std::string path,
                                  int n_files,
@@ -10,7 +11,7 @@ DTMuonMillepede::DTMuonMillepede(std::string path,
                                  int nThetahits,
                                  int workingmode,
                                  int nMtxSection) {
-  ntuplePath = path;
+  ntuplePath = std::move(path);
   numberOfRootFiles = n_files;
 
   ptMax = MaxPt;

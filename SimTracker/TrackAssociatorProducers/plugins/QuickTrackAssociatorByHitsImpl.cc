@@ -494,7 +494,7 @@ template <typename iter>
 double QuickTrackAssociatorByHitsImpl::getDoubleCount(const TrackerHitAssociator& hitAssociator,
                                                       iter startIterator,
                                                       iter endIterator,
-                                                      TrackingParticleRef associatedTrackingParticle) const {
+                                                      const TrackingParticleRef& associatedTrackingParticle) const {
   // This method is largely copied from the standard TrackAssociatorByHits. Once I've tested how much difference
   // it makes I'll go through and comment it properly.
 
@@ -539,7 +539,7 @@ template <typename iter>
 double QuickTrackAssociatorByHitsImpl::getDoubleCount(const ClusterTPAssociation& clusterToTPList,
                                                       iter startIterator,
                                                       iter endIterator,
-                                                      TrackingParticleRef associatedTrackingParticle) const {
+                                                      const TrackingParticleRef& associatedTrackingParticle) const {
   // This code here was written by Subir Sarkar. I'm just splitting it off into a
   // separate method. - Grimes 01/May/2014
 

@@ -1072,11 +1072,11 @@ std::pair<LocalPoint, LocalVector> SiStripTrackingRecHitsValid::projectHit(const
   return std::pair<LocalPoint, LocalVector>(projectedPos, localStripDir);
 }
 //--------------------------------------------------------------------------------------------
-void SiStripTrackingRecHitsValid::rechitanalysis_matched(LocalVector ldir,
+void SiStripTrackingRecHitsValid::rechitanalysis_matched(const LocalVector &ldir,
                                                          const TrackingRecHit *rechit,
                                                          const GluedGeomDet *gluedDet,
                                                          TrackerHitAssociator &associate,
-                                                         edm::ESHandle<StripClusterParameterEstimator> stripcpe,
+                                                         const edm::ESHandle<StripClusterParameterEstimator> &stripcpe,
                                                          const MatchStatus matchedmonorstereo) {
   rechitpro.resx = -999999.;
   rechitpro.resy = -999999.;
@@ -1260,10 +1260,10 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(LocalVector ldir,
   }
 }
 //--------------------------------------------------------------------------------------------
-void SiStripTrackingRecHitsValid::rechitanalysis(LocalVector ldir,
+void SiStripTrackingRecHitsValid::rechitanalysis(const LocalVector &ldir,
                                                  const TrackingRecHit *rechit,
                                                  const StripGeomDetUnit *stripdet,
-                                                 edm::ESHandle<StripClusterParameterEstimator> stripcpe,
+                                                 const edm::ESHandle<StripClusterParameterEstimator> &stripcpe,
                                                  TrackerHitAssociator &associate,
                                                  bool simplehit1or2D) {
   rechitpro.resx = -999999.;
@@ -1754,7 +1754,7 @@ void SiStripTrackingRecHitsValid::createSimpleHitsMEs(DQMStore::IBooker &ibooker
   }
 }
 //------------------------------------------------------------------------------------------
-void SiStripTrackingRecHitsValid::createLayerMEs(DQMStore::IBooker &ibooker, std::string label) {
+void SiStripTrackingRecHitsValid::createLayerMEs(DQMStore::IBooker &ibooker, const std::string &label) {
   SiStripHistoId hidmanager;
   LayerMEs layerMEs;
 
@@ -2314,7 +2314,7 @@ void SiStripTrackingRecHitsValid::createLayerMEs(DQMStore::IBooker &ibooker, std
   LayerMEsMap[label] = layerMEs;
 }
 //------------------------------------------------------------------------------------------
-void SiStripTrackingRecHitsValid::createStereoAndMatchedMEs(DQMStore::IBooker &ibooker, std::string label) {
+void SiStripTrackingRecHitsValid::createStereoAndMatchedMEs(DQMStore::IBooker &ibooker, const std::string &label) {
   SiStripHistoId hidmanager;
   StereoAndMatchedMEs stereoandmatchedMEs;
 

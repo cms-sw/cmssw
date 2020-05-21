@@ -237,8 +237,8 @@ public:
 
   // set the EE EB handles
 
-  void setEbHandle(const edm::Handle<EcalRecHitCollection> eb) { theEbHandle = eb; }
-  void setEeHandle(const edm::Handle<EcalRecHitCollection> ee) { theEeHandle = ee; }
+  void setEbHandle(const edm::Handle<EcalRecHitCollection>& eb) { theEbHandle = eb; }
+  void setEeHandle(const edm::Handle<EcalRecHitCollection>& ee) { theEeHandle = ee; }
 
   // Add methods to get the seperate positions for ECAL/HCAL
   // used in constructing the 4-vectors using new methods

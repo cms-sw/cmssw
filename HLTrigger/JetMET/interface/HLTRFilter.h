@@ -35,9 +35,9 @@ public:
 
   static double CalcMR(TLorentzVector ja, TLorentzVector jb);
   static double CalcR(double MR,
-                      TLorentzVector ja,
-                      TLorentzVector jb,
-                      edm::Handle<edm::View<reco::MET>> met,
+                      const TLorentzVector& ja,
+                      const TLorentzVector& jb,
+                      const edm::Handle<edm::View<reco::MET>>& met,
                       const std::vector<math::XYZTLorentzVector>& muons);
   //adds the values of MR and Rsq to the event as MET objects
   void addObjects(edm::Event&, trigger::TriggerFilterObjectWithRefs& filterproduct, double MR, double Rsq) const;

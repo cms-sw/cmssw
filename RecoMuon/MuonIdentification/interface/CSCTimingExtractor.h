@@ -70,11 +70,11 @@ public:
 
   void fillTiming(TimeMeasurementSequence &tmSequence,
                   const std::vector<const CSCSegment *> &segments,
-                  reco::TrackRef muonTrack,
+                  const reco::TrackRef &muonTrack,
                   const edm::Event &iEvent,
                   const edm::EventSetup &iSetup);
   void fillTiming(TimeMeasurementSequence &tmSequence,
-                  reco::TrackRef muonTrack,
+                  const reco::TrackRef &muonTrack,
                   const edm::Event &iEvent,
                   const edm::EventSetup &iSetup);
 

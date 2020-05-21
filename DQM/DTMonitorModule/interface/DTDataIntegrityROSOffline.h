@@ -53,8 +53,8 @@ protected:
 
 private:
   void bookHistos(DQMStore::IBooker&, const int fedMin, const int fedMax);
-  void bookHistos(DQMStore::IBooker&, std::string folder, DTROChainCoding code);
-  void bookHistosROS25(DQMStore::IBooker&, DTROChainCoding code);
+  void bookHistos(DQMStore::IBooker&, const std::string& folder, const DTROChainCoding& code);
+  void bookHistosROS25(DQMStore::IBooker&, const DTROChainCoding& code);
 
   void channelsInCEROS(int cerosId, int chMask, std::vector<int>& channels);
   void channelsInROS(int cerosMask, std::vector<int>& channels);

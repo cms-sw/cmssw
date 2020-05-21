@@ -52,7 +52,7 @@ public:
   DTBtiTrig(DTBtiChip* tparent, int, int, int, int, int, int, float*);
 
   //! Constructor
-  DTBtiTrig(DTBtiChip*, DTBtiTrigData);
+  DTBtiTrig(DTBtiChip*, const DTBtiTrigData&);
 
   //! Destructor
   ~DTBtiTrig() override;

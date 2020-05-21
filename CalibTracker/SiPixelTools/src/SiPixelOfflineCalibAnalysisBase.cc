@@ -17,6 +17,8 @@
 //
 //
 
+#include <utility>
+
 #include "CalibTracker/SiPixelTools/interface/SiPixelOfflineCalibAnalysisBase.h"
 
 #include "Geometry/CommonDetUnit/interface/PixelGeomDetUnit.h"
@@ -170,43 +172,44 @@ std::string SiPixelOfflineCalibAnalysisBase::translateDetIdToString(uint32_t det
 }
 
 SiPixelOfflineCalibAnalysisBase::MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistogram1D(
-    uint32_t detid, std::string name, std::string title, int nchX, double lowX, double highX) {
-  std::string hid = theHistogramIdWorker_->setHistoId(name, detid);
+    uint32_t detid, std::string name, const std::string& title, int nchX, double lowX, double highX) {
+  std::string hid = theHistogramIdWorker_->setHistoId(std::move(name), detid);
   return daqBE_->book1D(hid, title, nchX, lowX, highX);
 }
 
 SiPixelOfflineCalibAnalysisBase::MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistogram1D(
-    uint32_t detid, std::string name, std::string title, int nchX, float* xbinsize) {
-  std::string hid = theHistogramIdWorker_->setHistoId(name, detid);
+    uint32_t detid, std::string name, const std::string& title, int nchX, float* xbinsize) {
+  std::string hid = theHistogramIdWorker_->setHistoId(std::move(name), detid);
   return daqBE_->book1D(hid, title, nchX, xbinsize);
 }
 
-SiPixelOfflineCalibAnalysisBase::MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistogram2D(uint32_t detid,
-                                                                                                     std::string name,
-                                                                                                     std::string title,
-                                                                                                     int nchX,
-                                                                                                     double lowX,
-                                                                                                     double highX,
-                                                                                                     int nchY,
-                                                                                                     double lowY,
-                                                                                                     double highY) {
-  std::string hid = theHistogramIdWorker_->setHistoId(name, detid);
+SiPixelOfflineCalibAnalysisBase::MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistogram2D(
+    uint32_t detid,
+    std::string name,
+    const std::string& title,
+    int nchX,
+    double lowX,
+    double highX,
+    int nchY,
+    double lowY,
+    double highY) {
+  std::string hid = theHistogramIdWorker_->setHistoId(std::move(name), detid);
   return daqBE_->book2D(hid, title, nchX, lowX, highX, nchY, lowY, highY);
 }
 
 SiPixelOfflineCalibAnalysisBase::MonitorElement* SiPixelOfflineCalibAnalysisBase::bookDQMHistoPlaquetteSummary2D(
-    uint32_t detid, std::string name, std::string title) {
+    uint32_t detid, std::string name, const std::string& title) {
   DetId detId(detid);
   const TrackerGeometry& theTracker(*geom_);
   const PixelGeomDetUnit* theGeomDet = dynamic_cast<const PixelGeomDetUnit*>(theTracker.idToDet(detId));
   int maxcol = theGeomDet->specificTopology().ncolumns();
   int maxrow = theGeomDet->specificTopology().nrows();
 
-  std::string hid = theHistogramIdWorker_->setHistoId(name, detid);
+  std::string hid = theHistogramIdWorker_->setHistoId(std::move(name), detid);
   return daqBE_->book2D(hid, title, maxcol, 0, maxcol, maxrow, 0, maxrow);
 }
 
-bool SiPixelOfflineCalibAnalysisBase::setDQMDirectory(std::string dirName) {
+bool SiPixelOfflineCalibAnalysisBase::setDQMDirectory(const std::string& dirName) {
   daqBE_->setCurrentFolder(dirName);
   return daqBE_->dirExists(dirName);
 }

@@ -118,7 +118,9 @@ void TrackingActionExecutor::createShiftReport(DQMStore::IBooker& ibooker, DQMSt
 //
 //  -- Print Report Summary
 //
-void TrackingActionExecutor::printReportSummary(MonitorElement* me, std::ostringstream& str_val, std::string name) {
+void TrackingActionExecutor::printReportSummary(MonitorElement* me,
+                                                std::ostringstream& str_val,
+                                                const std::string& name) {
   //  std::cout << "[TrackingActionExecutor::printReportSummary]" << std::endl;
   str_val << " " << name << "  : ";
   std::string value;

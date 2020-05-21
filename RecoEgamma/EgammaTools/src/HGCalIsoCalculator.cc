@@ -5,6 +5,8 @@
  *      Author: jkiesele, ncsmith
  */
 
+#include <utility>
+
 #include "DataFormats/Math/interface/deltaR.h"
 #include "RecoEgamma/EgammaTools/interface/HGCalIsoCalculator.h"
 
@@ -18,9 +20,9 @@ HGCalIsoCalculator::~HGCalIsoCalculator() {}
 void HGCalIsoCalculator::setRecHits(edm::Handle<HGCRecHitCollection> hitsEE,
                                     edm::Handle<HGCRecHitCollection> hitsFH,
                                     edm::Handle<HGCRecHitCollection> hitsBH) {
-  recHitsEE_ = hitsEE;
-  recHitsFH_ = hitsFH;
-  recHitsBH_ = hitsBH;
+  recHitsEE_ = std::move(hitsEE);
+  recHitsFH_ = std::move(hitsFH);
+  recHitsBH_ = std::move(hitsBH);
 
   if (!rechittools_)
     throw cms::Exception("HGCalIsoCalculator::produceHGCalIso: rechittools not set");

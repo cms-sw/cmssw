@@ -5,7 +5,7 @@ namespace cond {
 
   namespace persistency {
 
-    void KeyList::init(IOVProxy iovProxy) {
+    void KeyList::init(const IOVProxy& iovProxy) {
       m_proxy = iovProxy;
       m_data.clear();
       m_keys.clear();

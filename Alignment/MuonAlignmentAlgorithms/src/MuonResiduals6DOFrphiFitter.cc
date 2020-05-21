@@ -655,7 +655,7 @@ double MuonResiduals6DOFrphiFitter::plot(std::string name, TFileDirectory *dir, 
   return (ndof > 0. ? chi2 / ndof : -1.);
 }
 
-TTree *MuonResiduals6DOFrphiFitter::readNtuple(std::string fname,
+TTree *MuonResiduals6DOFrphiFitter::readNtuple(const std::string &fname,
                                                unsigned int endcap,
                                                unsigned int station,
                                                unsigned int ring,

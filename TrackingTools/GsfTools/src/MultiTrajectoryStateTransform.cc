@@ -101,7 +101,7 @@ bool MultiTrajectoryStateTransform::checkGeometry() const {
   return false;
 }
 
-TrajectoryStateOnSurface MultiTrajectoryStateTransform::extrapolatedState(const TrajectoryStateOnSurface tsos,
+TrajectoryStateOnSurface MultiTrajectoryStateTransform::extrapolatedState(const TrajectoryStateOnSurface& tsos,
                                                                           const GlobalPoint& point) const {
   return checkExtrapolator() ? extrapolator_->extrapolate(tsos, point) : TrajectoryStateOnSurface();
 }

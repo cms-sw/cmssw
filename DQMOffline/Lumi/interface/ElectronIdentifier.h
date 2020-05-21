@@ -41,11 +41,11 @@ public:
   ElectronIdentifier(const edm::ParameterSet& c);
   float dEtaInSeed(const reco::GsfElectronPtr& ele);
   bool passID(const reco::GsfElectronPtr& ele,
-              edm::Handle<reco::BeamSpot> beamspot,
-              edm::Handle<reco::ConversionCollection> conversions);
+              const edm::Handle<reco::BeamSpot>& beamspot,
+              const edm::Handle<reco::ConversionCollection>& conversions);
   float isolation(const reco::GsfElectronPtr& ele);
 
-  void setID(std::string ID);
+  void setID(const std::string& ID);
   void setRho(double rho);
 
 private:

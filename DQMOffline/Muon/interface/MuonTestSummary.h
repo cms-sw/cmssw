@@ -40,22 +40,22 @@ protected:
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;  //performed in the endJob
 
   /// test operations
-  void doKinematicsTests(DQMStore::IGetter &, std::string, int);
-  void doResidualsTests(DQMStore::IGetter &, std::string, std::string, int);
+  void doKinematicsTests(DQMStore::IGetter &, const std::string &, int);
+  void doResidualsTests(DQMStore::IGetter &, const std::string &, const std::string &, int);
 
   void doMuonIDTests(DQMStore::IGetter &);
-  void doEnergyTests(DQMStore::IGetter &, std::string nameHisto, std::string muonType, int bin);
+  void doEnergyTests(DQMStore::IGetter &, const std::string &nameHisto, const std::string &muonType, int bin);
   void doMultiplicityTests(DQMStore::IGetter &);
   void ResidualCheck(DQMStore::IGetter &,
-                     std::string muType,
+                     const std::string &muType,
                      const std::vector<std::string> &resHistos,
                      int &numPlot,
                      double &Mean,
                      double &Mean_err,
                      double &Sigma,
                      double &Sigma_err);
-  void GaussFit(std::string type,
-                std::string parameter,
+  void GaussFit(const std::string &type,
+                const std::string &parameter,
                 MonitorElement *Histo,
                 float &mean,
                 float &mean_err,

@@ -34,7 +34,7 @@ public:
 private:
   typedef std::map<DTChamberId, std::vector<TH1F*> > ChamberHistosMapTH1F;
   typedef std::map<DTChamberId, std::vector<TH2F*> > ChamberHistosMapTH2F;
-  void bookHistos(DTChamberId);
+  void bookHistos(const DTChamberId&);
 
   DTSegmentSelector* select_;
 

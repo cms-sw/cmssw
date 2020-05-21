@@ -11,7 +11,7 @@ public:
                            const LocalError& err,
                            const GeomDet* det,
                            const GeomDet* originaldet,
-                           const TransientTrackingRecHit::ConstRecHitPointer originalHit,
+                           const TransientTrackingRecHit::ConstRecHitPointer& originalHit,
                            const TrackingRecHitPropagator* propagator);
 
   AlgebraicSymMatrix parametersError() const override {
@@ -59,7 +59,7 @@ public:
                              const LocalError& err,
                              const GeomDet* det,
                              const GeomDet* originaldet,
-                             const TransientTrackingRecHit::ConstRecHitPointer originalHit,
+                             const TransientTrackingRecHit::ConstRecHitPointer& originalHit,
                              const TrackingRecHitPropagator* propagator) {
     return RecHitPointer(new GenericProjectedRecHit2D(pos, err, det, originaldet, originalHit, propagator));
   }

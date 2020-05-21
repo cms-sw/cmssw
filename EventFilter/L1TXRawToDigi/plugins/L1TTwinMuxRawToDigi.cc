@@ -134,7 +134,7 @@ int L1TTwinMuxRawToDigi::benAngConversion(int benAng_) const {
 void L1TTwinMuxRawToDigi::processFed(int twinMuxFed,
                                      int twinMuxWheel,
                                      std::array<short, 12> const& twinMuxAmcSec,
-                                     edm::Handle<FEDRawDataCollection> data,
+                                     const edm::Handle<FEDRawDataCollection>& data,
                                      L1MuDTChambPhContainer::Phi_Container& phiSegments,
                                      L1MuDTChambThContainer::The_Container& theSegments,
                                      L1MuDTChambPhContainer::Phi_Container& phioutSegments) const {

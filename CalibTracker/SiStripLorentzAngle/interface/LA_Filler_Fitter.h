@@ -113,13 +113,13 @@ public:
   }
   static void make_and_fit_symmchi2(Book&);
   static void fit_width_profile(Book&);
-  static TH1* rms_profile(const std::string, const TProfile* const);
-  static TH1* subset_probability(const std::string name, const TH1* const, const TH1* const);
+  static TH1* rms_profile(const std::string&, const TProfile* const);
+  static TH1* subset_probability(const std::string& name, const TH1* const, const TH1* const);
   static unsigned find_rebin(const TH1* const);
 
   //Located in src/LA_Results.cc
   void summarize_ensembles(Book&) const;
-  static Result result(Method, const std::string name, const Book&);
+  static Result result(Method, const std::string& name, const Book&);
   static std::map<std::string, Result> layer_results(const Book&, const Method);
   static std::map<uint32_t, Result> module_results(const Book&, const Method);
   static std::map<std::string, std::vector<Result> > ensemble_results(const Book&, const Method);

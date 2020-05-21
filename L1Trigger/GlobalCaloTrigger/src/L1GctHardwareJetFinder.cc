@@ -216,7 +216,7 @@ void L1GctHardwareJetFinder::findProtoClusters() {
 }
 
 /// Method to make a single proto-jet
-L1GctRegion L1GctHardwareJetFinder::makeProtoJet(L1GctRegion localMax) {
+L1GctRegion L1GctHardwareJetFinder::makeProtoJet(const L1GctRegion& localMax) {
   unsigned eta = localMax.gctEta();
   unsigned phi = localMax.gctPhi();
   int16_t bx = localMax.bx();

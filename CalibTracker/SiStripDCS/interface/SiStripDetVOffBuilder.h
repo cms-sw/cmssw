@@ -69,7 +69,7 @@ public:
                    std::vector<std::pair<SiStripDetVOff*, cond::Time_t> >& resultVec,
                    const bool last,
                    const unsigned int first);
-  bool FileExists(std::string filename);
+  bool FileExists(const std::string& filename);
 
 private:
   // typedefs
@@ -89,7 +89,7 @@ private:
                   const std::vector<coral::TimeStamp>& settingDate);
 
   /** Returns the PSU channel setting, based on date.  Works from PSU channel name. Overloaded. */
-  int findSetting(std::string dpname,
+  int findSetting(const std::string& dpname,
                   const coral::TimeStamp& changeDate,
                   const std::vector<std::string>& settingDpname,
                   const std::vector<coral::TimeStamp>& settingDate);

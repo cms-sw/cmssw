@@ -11,6 +11,8 @@
 //Transition processing helpers
 
 #include <cassert>
+#include <utility>
+
 #include "FWCore/Utilities/interface/thread_safety_macros.h"
 
 struct FileResources {
@@ -39,7 +41,7 @@ struct FileResources {
 
 struct RunResources {
   RunResources(EventProcessor& iEP, edm::ProcessHistoryID iHist, edm::RunNumber_t iRun) noexcept
-      : ep_(iEP), history_(iHist), run_(iRun) {}
+      : ep_(iEP), history_(std::move(iHist)), run_(iRun) {}
 
   ~RunResources() noexcept {
     // Caught exception is propagated via EventProcessor::setDeferredException()

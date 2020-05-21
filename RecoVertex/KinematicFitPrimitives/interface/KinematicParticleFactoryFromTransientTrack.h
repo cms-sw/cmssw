@@ -75,7 +75,7 @@ public:
   RefCountedKinematicParticle particle(const KinematicState& kineState,
                                        float& chiSquared,
                                        float& ndf,
-                                       ReferenceCountingPointer<KinematicParticle> previousParticle,
+                                       const ReferenceCountingPointer<KinematicParticle>& previousParticle,
                                        KinematicConstraint* lastConstraint = nullptr) const;
 
 private:

@@ -524,7 +524,8 @@ void MuonRecoAnalyzer::bookHistograms(DQMStore::IBooker& ibooker,
       "muVStkSytemRotation_negMu", "pT_{TK} / pT_{GLB} vs pT_{GLB} for #mu^{-}", 50, 0, 200, 100, 0.8, 1.2));
 }
 
-void MuonRecoAnalyzer::GetRes(reco::TrackRef t1, reco::TrackRef t2, string par, float& res, float& pull) {
+void MuonRecoAnalyzer::GetRes(
+    const reco::TrackRef& t1, const reco::TrackRef& t2, const string& par, float& res, float& pull) {
   float p1 = 0, p2 = 0, p1e = 1, p2e = 1;
 
   if (par == "eta") {
@@ -987,7 +988,7 @@ void MuonRecoAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 }
 
 //Needed by MVA Soft Muon
-double MuonRecoAnalyzer::getDeltaR(reco::Track track1, reco::Track track2) {
+double MuonRecoAnalyzer::getDeltaR(const reco::Track& track1, const reco::Track& track2) {
   double dphi = acos(cos(track1.phi() - track2.phi()));
   double deta = track1.eta() - track2.eta();
   return sqrt(dphi * dphi + deta * deta);

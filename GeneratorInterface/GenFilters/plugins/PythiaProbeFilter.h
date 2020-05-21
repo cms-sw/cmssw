@@ -45,7 +45,7 @@ public:
   ~PythiaProbeFilter() override;
 
   bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  bool AlreadyExcludedCheck(std::vector<unsigned int> excludedList, unsigned int current_part) const;
+  bool AlreadyExcludedCheck(const std::vector<unsigned int>& excludedList, unsigned int current_part) const;
 
 private:
   // ----------memeber function----------------------

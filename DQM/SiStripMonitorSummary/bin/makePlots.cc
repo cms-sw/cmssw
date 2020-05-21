@@ -18,8 +18,8 @@ void setHistoStackStyle(TH1* h, const unsigned int lineColor);
 void setLegendStyle(TLegend* l, const unsigned int nColumns);
 void setPaveTextStyle(TPaveText* t, const bool isHorizontal=true);
 void fillNormFactorMaps();
-double findNormFactor(const std::string currentPlotType, const std::string currentPart, const bool stackOption);
-void makePlots(std::string inputFileName, std::string outputFileName);
+double findNormFactor(const std::string& currentPlotType, const std::string& currentPart, const bool stackOption);
+void makePlots(const std::string& inputFileName, const std::string& outputFileName);
 
 // Map with <name of tracker part, count of channels in the part>
 // It is static so it can be read by the functions fillNormFactorMaps() and findNormFactor(...)
@@ -53,9 +53,7 @@ int main(int argc , char *argv[]) {
 
 }
 
-
-void makePlots(std::string inputFileName, std::string outputFileName)
-{
+void makePlots(const std::string& inputFileName, const std::string& outputFileName) {
   //
   
   
@@ -431,10 +429,7 @@ void makePlots(std::string inputFileName, std::string outputFileName)
   
   inputFile->Close();
   outputFile->Close();
-  
 }
-
-
 
 void setCanvasStyle(TCanvas* c, const bool logScale)
 {
@@ -923,14 +918,10 @@ void fillNormFactorMaps()
   
 }
 
-
-
-double findNormFactor(const std::string currentPlotType, const std::string currentPart, const bool stackOption)
-{
-
-//   std::cout << "findNormFactor(): Finding normalization factor for this part: \"" << currentPart.c_str() << "\".\n";
-//   std::cout << "                  Plot type is: \"" << currentPlotType.c_str() << "\".\n";
-//   std::cout << "                  stack option is: " << stackOption << std::endl;
+double findNormFactor(const std::string& currentPlotType, const std::string& currentPart, const bool stackOption) {
+  //   std::cout << "findNormFactor(): Finding normalization factor for this part: \"" << currentPart.c_str() << "\".\n";
+  //   std::cout << "                  Plot type is: \"" << currentPlotType.c_str() << "\".\n";
+  //   std::cout << "                  stack option is: " << stackOption << std::endl;
   if(stackOption)
   {
     if(currentPlotType == "BadModules")

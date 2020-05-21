@@ -163,18 +163,18 @@ namespace edm {
 
     typedef std::vector<WorkerInPath> PathWorkers;
 
-    StreamSchedule(std::shared_ptr<TriggerResultInserter> inserter,
+    StreamSchedule(const std::shared_ptr<TriggerResultInserter>& inserter,
                    std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
                    std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
-                   std::shared_ptr<ModuleRegistry>,
+                   const std::shared_ptr<ModuleRegistry>&,
                    ParameterSet& proc_pset,
                    service::TriggerNamesService const& tns,
                    PreallocationConfiguration const& prealloc,
                    ProductRegistry& pregistry,
                    BranchIDListHelper& branchIDListHelper,
                    ExceptionToActionTable const& actions,
-                   std::shared_ptr<ActivityRegistry> areg,
-                   std::shared_ptr<ProcessConfiguration> processConfiguration,
+                   const std::shared_ptr<ActivityRegistry>& areg,
+                   const std::shared_ptr<ProcessConfiguration>& processConfiguration,
                    bool allowEarlyDelete,
                    StreamID streamID,
                    ProcessContext const* processContext);
@@ -297,7 +297,7 @@ namespace edm {
     void fillWorkers(ParameterSet& proc_pset,
                      ProductRegistry& preg,
                      PreallocationConfiguration const* prealloc,
-                     std::shared_ptr<ProcessConfiguration const> processConfiguration,
+                     const std::shared_ptr<ProcessConfiguration const>& processConfiguration,
                      std::string const& name,
                      bool ignoreFilters,
                      PathWorkers& out,
@@ -308,7 +308,7 @@ namespace edm {
                       std::shared_ptr<ProcessConfiguration const> processConfiguration,
                       int bitpos,
                       std::string const& name,
-                      TrigResPtr,
+                      const TrigResPtr&,
                       std::vector<std::string> const& endPathNames);
     void fillEndPath(ParameterSet& proc_pset,
                      ProductRegistry& preg,

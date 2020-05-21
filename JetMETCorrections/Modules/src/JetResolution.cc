@@ -55,7 +55,7 @@ namespace JME {
 
   float JetResolutionScaleFactor::getScaleFactor(const JetParameters& parameters,
                                                  Variation variation /* = Variation::NOMINAL*/,
-                                                 std::string uncertaintySource /* = ""*/) const {
+                                                 const std::string& uncertaintySource /* = ""*/) const {
     const JetResolutionObject::Record* record = m_object->getRecord(parameters);
     if (!record)
       return 1;

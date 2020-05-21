@@ -24,11 +24,11 @@ namespace dqmoffline {
 
     std::vector<edm::InputTag> getHLTFilters(const std::vector<unsigned int> &triggers,
                                              const HLTConfigProvider &hltConfig,
-                                             const std::string triggerProcess);
+                                             const std::string &triggerProcess);
 
     trigger::TriggerObjectCollection getMatchedTriggerObjects(double eta,
                                                               double phi,
                                                               double maxDeltaR,
-                                                              const trigger::TriggerObjectCollection triggerObjects);
+                                                              const trigger::TriggerObjectCollection &triggerObjects);
   }  // namespace l1t
 }  // namespace dqmoffline

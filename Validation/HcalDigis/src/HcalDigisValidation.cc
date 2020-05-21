@@ -174,7 +174,7 @@ void HcalDigisValidation::bookHistograms(DQMStore::IBooker& ib, edm::Run const& 
   }
 }
 
-void HcalDigisValidation::booking(DQMStore::IBooker& ib, const std::string bsubdet, int bnoise, int bmc) {
+void HcalDigisValidation::booking(DQMStore::IBooker& ib, const std::string& bsubdet, int bnoise, int bmc) {
   // Adjust/Optimize binning (JR Dittmann, 16-JUL-2015)
 
   HistLim Ndigis(2600, 0., 2600.);
@@ -1273,44 +1273,50 @@ void HcalDigisValidation::reco(const edm::Event& iEvent,
 
 }  //HcalDataFrameContainer
 
-void HcalDigisValidation::book1D(DQMStore::IBooker& ib, std::string name, int n, double min, double max) {
+void HcalDigisValidation::book1D(DQMStore::IBooker& ib, const std::string& name, int n, double min, double max) {
   if (!msm_->count(name))
     (*msm_)[name] = ib.book1D(name.c_str(), name.c_str(), n, min, max);
 }
 
-void HcalDigisValidation::book1D(DQMStore::IBooker& ib, std::string name, const HistLim& limX) {
+void HcalDigisValidation::book1D(DQMStore::IBooker& ib, const std::string& name, const HistLim& limX) {
   if (!msm_->count(name))
     (*msm_)[name] = ib.book1D(name.c_str(), name.c_str(), limX.n, limX.min, limX.max);
 }
 
-void HcalDigisValidation::fill1D(std::string name, double X, double weight) {
+void HcalDigisValidation::fill1D(const std::string& name, double X, double weight) {
   msm_->find(name)->second->Fill(X, weight);
 }
 
-void HcalDigisValidation::book2D(DQMStore::IBooker& ib, std::string name, const HistLim& limX, const HistLim& limY) {
+void HcalDigisValidation::book2D(DQMStore::IBooker& ib,
+                                 const std::string& name,
+                                 const HistLim& limX,
+                                 const HistLim& limY) {
   if (!msm_->count(name))
     (*msm_)[name] = ib.book2D(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max);
 }
 
-void HcalDigisValidation::fill2D(std::string name, double X, double Y, double weight) {
+void HcalDigisValidation::fill2D(const std::string& name, double X, double Y, double weight) {
   msm_->find(name)->second->Fill(X, Y, weight);
 }
 
-void HcalDigisValidation::bookPf(DQMStore::IBooker& ib, std::string name, const HistLim& limX, const HistLim& limY) {
+void HcalDigisValidation::bookPf(DQMStore::IBooker& ib,
+                                 const std::string& name,
+                                 const HistLim& limX,
+                                 const HistLim& limY) {
   if (!msm_->count(name))
     (*msm_)[name] = ib.bookProfile(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max);
 }
 
 void HcalDigisValidation::bookPf(
-    DQMStore::IBooker& ib, std::string name, const HistLim& limX, const HistLim& limY, const char* option) {
+    DQMStore::IBooker& ib, const std::string& name, const HistLim& limX, const HistLim& limY, const char* option) {
   if (!msm_->count(name))
     (*msm_)[name] =
         ib.bookProfile(name.c_str(), name.c_str(), limX.n, limX.min, limX.max, limY.n, limY.min, limY.max, option);
 }
 
-void HcalDigisValidation::fillPf(std::string name, double X, double Y) { msm_->find(name)->second->Fill(X, Y); }
+void HcalDigisValidation::fillPf(const std::string& name, double X, double Y) { msm_->find(name)->second->Fill(X, Y); }
 
-HcalDigisValidation::MonitorElement* HcalDigisValidation::monitor(std::string name) {
+HcalDigisValidation::MonitorElement* HcalDigisValidation::monitor(const std::string& name) {
   if (!msm_->count(name))
     return nullptr;
   else

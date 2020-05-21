@@ -88,7 +88,7 @@ namespace edm {
         looper::addFinderTo(iProvider, iComponent, static_cast<const T*>(nullptr));
       }
 
-      static void replaceExisting(EventSetupProvider& iProvider, std::shared_ptr<EDLooperBase> iComponent);
+      static void replaceExisting(EventSetupProvider& iProvider, const std::shared_ptr<EDLooperBase>& iComponent);
 
       static std::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
                                                                        ParameterSet const& iConfiguration);

@@ -25,6 +25,8 @@
 
 #include <sstream>
 #include <stdexcept>
+#include <utility>
+
 #include "TopQuarkAnalysis/TopHitFit/interface/EtaDepResElement.h"
 
 namespace hitfit {
@@ -33,7 +35,7 @@ namespace hitfit {
     SetEta(eta1, eta2);
   }
 
-  EtaDepResElement::EtaDepResElement(double eta1, double eta2, std::string res) : _Vector_Resolution(res) {
+  EtaDepResElement::EtaDepResElement(double eta1, double eta2, std::string res) : _Vector_Resolution(std::move(res)) {
     SetEta(eta1, eta2);
   }
 

@@ -318,7 +318,7 @@ void FillInfo::setBunchBitsetForBeam2(std::bitset<FillInfo::bunchSlots + 1> cons
   m_bunchConfiguration2 = bunchConfiguration;
 }
 
-std::ostream& operator<<(std::ostream& os, FillInfo fillInfo) {
+std::ostream& operator<<(std::ostream& os, const FillInfo& fillInfo) {
   std::stringstream ss;
   fillInfo.print(ss);
   os << ss.str();

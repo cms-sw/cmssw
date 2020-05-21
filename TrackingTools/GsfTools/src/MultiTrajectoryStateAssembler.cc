@@ -15,7 +15,7 @@ MultiTrajectoryStateAssembler::MultiTrajectoryStateAssembler()
   minFractionalWeight = 1.e-6;  // 4;
 }
 
-void MultiTrajectoryStateAssembler::addState(const TrajectoryStateOnSurface tsos) {
+void MultiTrajectoryStateAssembler::addState(const TrajectoryStateOnSurface &tsos) {
   //
   // refuse to add states after combination has been done
   //

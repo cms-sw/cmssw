@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include <string>
+#include <utility>
 
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
@@ -28,7 +29,7 @@ public:
   }
 
   L1GObject(unsigned int et, unsigned int eta, unsigned int phi, std::string name)
-      : myEt(et), myEta(eta), myPhi(phi), myName(name) {
+      : myEt(et), myEta(eta), myPhi(phi), myName(std::move(name)) {
     initialize();
   }
 
@@ -36,7 +37,7 @@ public:
     myEt = (packedObject & 0xFFFF0000) >> 16;
     myEta = (packedObject & 0x0000FF00) >> 8;
     myPhi = (packedObject & 0x000000FF);
-    myName = name;
+    myName = std::move(name);
     initialize();
   }
 
@@ -166,7 +167,7 @@ public:
   void setEt(unsigned int et) { myEt = et; }
   void setEta(unsigned int eta) { myEta = eta; }
   void setPhi(unsigned int phi) { myPhi = phi; }
-  void setName(std::string name) { myName = name; }
+  void setName(std::string name) { myName = std::move(name); }
   void setLSB(double lsb) { myLSB = lsb; }
 
   void initialize() {

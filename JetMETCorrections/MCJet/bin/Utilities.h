@@ -18,7 +18,7 @@ void GetMEAN(TH1F* histo, double& peak, double& error, double& sigma);
 void CalculateResponse(bool UseRatioForResponse, double x, double ex, double y, double ey, double& r, double& e);
 void CalculateCorrection(bool UseRatioForResponse, double x, double ex, double y, double ey, double& c, double& e);
 void Invert(TF1* f, double Min, double Max, double y, double& x);
-bool HistoExists(std::vector<std::string> LIST, std::string hname);
+bool HistoExists(std::vector<std::string> LIST, const std::string& hname);
 int getBin(double x, std::vector<double> boundaries);
 
 class CommandLine {
@@ -437,7 +437,7 @@ void CalculateCorrection(bool UseRatioForResponse, double x, double ex, double y
   }
 }
 ///////////////////////////////////////////////////////////////////////
-bool HistoExists(std::vector<std::string> LIST, std::string hname) {
+bool HistoExists(std::vector<std::string> LIST, const std::string& hname) {
   unsigned int i, N;
   bool found(false);
   N = LIST.size();

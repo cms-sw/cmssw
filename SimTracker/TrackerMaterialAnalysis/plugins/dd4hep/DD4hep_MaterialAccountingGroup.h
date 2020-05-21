@@ -24,8 +24,8 @@ class DD4hep_MaterialAccountingGroup {
 private:
   DD4hep_MaterialAccountingGroup(const DD4hep_MaterialAccountingGroup& layer) = delete;
   DD4hep_MaterialAccountingGroup& operator=(const DD4hep_MaterialAccountingGroup& layer) = delete;
-  void savePlot(std::shared_ptr<TH1F> plot, const std::string& name);
-  void savePlot(std::shared_ptr<TProfile> plot, float average, const std::string& name);
+  void savePlot(const std::shared_ptr<TH1F>& plot, const std::string& name);
+  void savePlot(const std::shared_ptr<TProfile>& plot, float average, const std::string& name);
 
   std::string m_name;
   std::vector<GlobalPoint> m_elements;

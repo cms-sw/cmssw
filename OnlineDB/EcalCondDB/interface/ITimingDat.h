@@ -4,6 +4,7 @@
 #include <map>
 #include <stdexcept>
 #include <string>
+#include <utility>
 
 #include "OnlineDB/EcalCondDB/interface/IDataItem.h"
 #include "OnlineDB/EcalCondDB/interface/MonRunTag.h"
@@ -35,7 +36,7 @@ public:
 
   // User data methods
   inline std::string getTable() override { return m_table_name; }
-  inline void setTable(std::string x) { m_table_name = x; }
+  inline void setTable(std::string x) { m_table_name = std::move(x); }
 
   inline void setTimingMean(float mean) { m_timingMean = mean; }
   inline float getTimingMean() const { return m_timingMean; }

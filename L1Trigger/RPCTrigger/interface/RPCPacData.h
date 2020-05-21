@@ -34,7 +34,7 @@ class RPCPacData {
   friend class RPCPac;
 
 public:
-  RPCPacData(std::string patFilesDir, int m_tower, int logSector, int logSegment);
+  RPCPacData(const std::string &patFilesDir, int m_tower, int logSector, int logSegment);
 
   RPCPacData(const RPCPattern::RPCPatVec &patVec, const RPCPattern::TQualityVec &qualVec);
 

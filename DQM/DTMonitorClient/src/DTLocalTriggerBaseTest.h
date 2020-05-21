@@ -62,13 +62,14 @@ protected:
   virtual void runClientDiagnostic(DQMStore::IBooker&, DQMStore::IGetter&) = 0;
 
   /// Book the new MEs (for each sector)
-  void bookSectorHistos(DQMStore::IBooker&, int wheel, int sector, std::string hTag, std::string folder = "");
+  void bookSectorHistos(
+      DQMStore::IBooker&, int wheel, int sector, const std::string& hTag, const std::string& folder = "");
 
   /// Book the new MEs (for each wheel)
-  void bookWheelHistos(DQMStore::IBooker&, int wheel, std::string hTag, std::string folder = "");
+  void bookWheelHistos(DQMStore::IBooker&, int wheel, const std::string& hTag, const std::string& folder = "");
 
   /// Book the new MEs (CMS summary)
-  void bookCmsHistos(DQMStore::IBooker&, std::string hTag, std::string folder = "", bool isGlb = false);
+  void bookCmsHistos(DQMStore::IBooker&, const std::string& hTag, const std::string& folder = "", bool isGlb = false);
 
   /// Calculate phi range for histograms
   std::pair<float, float> phiRange(const DTChamberId& id);
@@ -81,13 +82,13 @@ protected:
   void setConfig(const edm::ParameterSet& ps, std::string name);
 
   /// Create fullname from histo partial name
-  std::string fullName(std::string htype);
+  std::string fullName(const std::string& htype);
 
   /// Get the ME name (by chamber)
-  std::string getMEName(std::string histoTag, std::string subfolder, const DTChamberId& chambid);
+  std::string getMEName(std::string histoTag, const std::string& subfolder, const DTChamberId& chambid);
 
   /// Get the ME name (by wheel)
-  std::string getMEName(std::string histoTag, std::string subfolder, int wh);
+  std::string getMEName(std::string histoTag, const std::string& subfolder, int wh);
 
   /// Get top folder name
   inline std::string& topFolder() { return baseFolderTM; };

@@ -918,13 +918,13 @@ SeedingHitSet::RecHitPointer SeedForPhotonConversionFromQuadruplets::refitHit(
 // Below: stupid utils method by sguazz
 //
 //
-void SeedForPhotonConversionFromQuadruplets::stupidPrint(std::string s, float* d) {
+void SeedForPhotonConversionFromQuadruplets::stupidPrint(const std::string& s, float* d) {
   (*pss) << "\n" << s << "\t";
   for (size_t i = 0; i < 2; ++i)
     (*pss) << std::setw(60) << d[i] << std::setw(1) << " | ";
 }
 
-void SeedForPhotonConversionFromQuadruplets::stupidPrint(std::string s, double* d) {
+void SeedForPhotonConversionFromQuadruplets::stupidPrint(const std::string& s, double* d) {
   (*pss) << "\n" << s << "\t";
   for (size_t i = 0; i < 2; ++i)
     (*pss) << std::setw(60) << d[i] << std::setw(1) << " | ";
@@ -944,7 +944,7 @@ void SeedForPhotonConversionFromQuadruplets::stupidPrint(const char* s, GlobalPo
 
 #include "DataFormats/Math/interface/deltaPhi.h"
 
-void SeedForPhotonConversionFromQuadruplets::bubbleSortVsPhi(GlobalPoint arr[], int n, GlobalPoint vtx) {
+void SeedForPhotonConversionFromQuadruplets::bubbleSortVsPhi(GlobalPoint arr[], int n, const GlobalPoint& vtx) {
   bool swapped = true;
   int j = 0;
   GlobalPoint tmp;
@@ -962,7 +962,7 @@ void SeedForPhotonConversionFromQuadruplets::bubbleSortVsPhi(GlobalPoint arr[], 
   }
 }
 
-void SeedForPhotonConversionFromQuadruplets::bubbleReverseSortVsPhi(GlobalPoint arr[], int n, GlobalPoint vtx) {
+void SeedForPhotonConversionFromQuadruplets::bubbleReverseSortVsPhi(GlobalPoint arr[], int n, const GlobalPoint& vtx) {
   bool swapped = true;
   int j = 0;
   GlobalPoint tmp;

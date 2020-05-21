@@ -25,6 +25,7 @@
 //C++ headers
 #include <iostream>
 #include <sstream>
+#include <utility>
 
 using namespace edm;
 using namespace std;
@@ -291,14 +292,14 @@ int DTTriggerLutTest::performLutTest(double perc, double thresholdWarn, double t
   return result;
 }
 
-void DTTriggerLutTest::bookCmsHistos1d(DQMStore::IBooker& ibooker, string hTag, string folder) {
+void DTTriggerLutTest::bookCmsHistos1d(DQMStore::IBooker& ibooker, string hTag, const string& folder) {
   string basedir = topFolder();
   if (!folder.empty()) {
     basedir += folder + "/";
   }
   ibooker.setCurrentFolder(basedir);
 
-  string hName = fullName(hTag);
+  string hName = fullName(std::move(hTag));
   LogTrace(category()) << "[" << testName << "Test]: booking " << basedir << hName;
 
   MonitorElement* me = ibooker.book1D(hName.c_str(), hName.c_str(), 101, -0.005, 1.005);

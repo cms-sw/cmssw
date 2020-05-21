@@ -46,7 +46,7 @@ namespace pos {
     void writeBinary(std::ofstream& out) const;
 
     void writeASCII(std::ostream& out) const;
-    void writeXML(pos::PixelConfigKey key, int version, std::string path) const { ; }
+    void writeXML(pos::PixelConfigKey key, int version, const std::string& path) const { ; }
     virtual void writeXMLHeader(pos::PixelConfigKey key, int version, std::string path, std::ofstream* out) const { ; }
     virtual void writeXML(std::ofstream* out) const;
     virtual void writeXMLTrailer(std::ofstream* out) const { ; }
@@ -61,11 +61,11 @@ namespace pos {
                      std::map<std::string, bool>& changes,
                      std::map<std::string, unsigned int>& previous);
 
-    void checkTag(std::string tag, std::string dacName, const PixelROCName& rocid);
+    void checkTag(const std::string& tag, std::string dacName, const PixelROCName& rocid);
 
-    void setDac(std::string dacName, int value);
+    void setDac(const std::string& dacName, int value);
 
-    unsigned int getDac(std::string dacName) const;
+    unsigned int getDac(const std::string& dacName) const;
 
     bits4 getVdd() { return Vdd_; }
     void setVdd(bits4 vdd) { Vdd_ = vdd; }

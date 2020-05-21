@@ -69,7 +69,7 @@ DynamicTruncation::~DynamicTruncation() {
   delete getSegs;
 }
 
-void DynamicTruncation::update(TrajectoryStateOnSurface &tsos, ConstRecHitPointer rechit) {
+void DynamicTruncation::update(TrajectoryStateOnSurface &tsos, const ConstRecHitPointer &rechit) {
   TrajectoryStateOnSurface temp = updatorHandle->update(tsos, *rechit);
   if (temp.isValid())
     tsos = updatorHandle->update(tsos, *rechit);

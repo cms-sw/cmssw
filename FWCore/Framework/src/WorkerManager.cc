@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "FWCore/Framework/interface/WorkerManager.h"
 #include "UnscheduledConfigurator.h"
 
@@ -14,7 +16,7 @@ static const std::string kProducerType("EDProducer");
 namespace edm {
   // -----------------------------
 
-  WorkerManager::WorkerManager(std::shared_ptr<ActivityRegistry> areg, ExceptionToActionTable const& actions)
+  WorkerManager::WorkerManager(const std::shared_ptr<ActivityRegistry>& areg, ExceptionToActionTable const& actions)
       : workerReg_(areg),
         actionTable_(&actions),
         allWorkers_(),
@@ -22,9 +24,9 @@ namespace edm {
         lastSetupEventPrincipal_(nullptr) {}  // WorkerManager::WorkerManager
 
   WorkerManager::WorkerManager(std::shared_ptr<ModuleRegistry> modReg,
-                               std::shared_ptr<ActivityRegistry> areg,
+                               const std::shared_ptr<ActivityRegistry>& areg,
                                ExceptionToActionTable const& actions)
-      : workerReg_(areg, modReg),
+      : workerReg_(areg, std::move(modReg)),
         actionTable_(&actions),
         allWorkers_(),
         unscheduled_(*areg),
@@ -35,15 +37,15 @@ namespace edm {
                                    PreallocationConfiguration const* prealloc,
                                    std::shared_ptr<ProcessConfiguration const> processConfiguration,
                                    std::string const& label) {
-    WorkerParams params(&pset, preg, prealloc, processConfiguration, *actionTable_);
+    WorkerParams params(&pset, preg, prealloc, std::move(processConfiguration), *actionTable_);
     return workerReg_.getWorker(params, label);
   }
 
   void WorkerManager::addToUnscheduledWorkers(ParameterSet& pset,
                                               ProductRegistry& preg,
                                               PreallocationConfiguration const* prealloc,
-                                              std::shared_ptr<ProcessConfiguration> processConfiguration,
-                                              std::string label,
+                                              const std::shared_ptr<ProcessConfiguration>& processConfiguration,
+                                              const std::string& label,
                                               std::set<std::string>& unscheduledLabels,
                                               std::vector<std::string>& shouldBeUsedLabels) {
     //Need to

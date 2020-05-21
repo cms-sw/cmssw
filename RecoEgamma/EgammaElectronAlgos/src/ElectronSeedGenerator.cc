@@ -228,7 +228,7 @@ void ElectronSeedGenerator::run(edm::Event &e,
                                     << ", no. of ElectronSeeds found  = " << out.size();
 }
 
-void ElectronSeedGenerator::seedsFromThisCluster(edm::Ref<reco::SuperClusterCollection> seedCluster,
+void ElectronSeedGenerator::seedsFromThisCluster(const edm::Ref<reco::SuperClusterCollection> &seedCluster,
                                                  reco::BeamSpot const &beamSpot,
                                                  std::vector<reco::Vertex> const *vertices,
                                                  reco::ElectronSeedCollection &out) {

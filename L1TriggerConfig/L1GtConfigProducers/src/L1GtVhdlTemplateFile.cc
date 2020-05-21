@@ -197,7 +197,7 @@ bool L1GtVhdlTemplateFile::insert(const std::string &atLine, const std::vector<s
   return success;
 }
 
-bool L1GtVhdlTemplateFile::insert(const std::string atLine, const L1GtVhdlTemplateFile &_file) {
+bool L1GtVhdlTemplateFile::insert(const std::string &atLine, const L1GtVhdlTemplateFile &_file) {
   std::vector<std::string> temp = _file.returnLines();
 
   if (insert(atLine, temp))

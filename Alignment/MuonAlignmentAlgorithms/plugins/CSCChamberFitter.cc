@@ -115,7 +115,7 @@ CSCChamberFitter::CSCChamberFitter(const edm::ParameterSet &iConfig,
   }
 }
 
-int CSCChamberFitter::index(std::string alignable) const {
+int CSCChamberFitter::index(const std::string &alignable) const {
   int i = 0;
   for (std::vector<std::string>::const_iterator a = m_alignables.begin(); a != m_alignables.end(); ++a) {
     if (*a == alignable)

@@ -6,7 +6,7 @@ L1Analysis::L1AnalysisDTTF::L1AnalysisDTTF() {}
 
 L1Analysis::L1AnalysisDTTF::~L1AnalysisDTTF() {}
 
-void L1Analysis::L1AnalysisDTTF::SetDTPH(const edm::Handle<L1MuDTChambPhContainer> L1MuDTChambPhContainer,
+void L1Analysis::L1AnalysisDTTF::SetDTPH(const edm::Handle<L1MuDTChambPhContainer>& L1MuDTChambPhContainer,
                                          unsigned int maxDTPH) {
   const L1MuDTChambPhContainer::Phi_Container *PhContainer = L1MuDTChambPhContainer->getContainer();
 
@@ -39,7 +39,7 @@ void L1Analysis::L1AnalysisDTTF::SetDTPH(const edm::Handle<L1MuDTChambPhContaine
   }
 }
 
-void L1Analysis::L1AnalysisDTTF::SetDTTH(const edm::Handle<L1MuDTChambThContainer> L1MuDTChambThContainer,
+void L1Analysis::L1AnalysisDTTF::SetDTTH(const edm::Handle<L1MuDTChambThContainer>& L1MuDTChambThContainer,
                                          unsigned int maxDTTH) {
   const L1MuDTChambThContainer::The_Container *ThContainer = L1MuDTChambThContainer->getContainer();
 
@@ -71,7 +71,7 @@ void L1Analysis::L1AnalysisDTTF::SetDTTH(const edm::Handle<L1MuDTChambThContaine
   }
 }
 
-void L1Analysis::L1AnalysisDTTF::SetDTTR(const edm::Handle<L1MuDTTrackContainer> L1MuDTTrackContainer,
+void L1Analysis::L1AnalysisDTTF::SetDTTR(const edm::Handle<L1MuDTTrackContainer>& L1MuDTTrackContainer,
                                          unsigned int maxDTTR) {
   double pig = acos(-1);
   const L1MuDTTrackContainer::TrackContainer *tr = L1MuDTTrackContainer->getContainer();

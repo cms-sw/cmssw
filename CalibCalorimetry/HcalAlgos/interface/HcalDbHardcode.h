@@ -31,6 +31,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
 
+#include <utility>
+
 #include <vector>
 #include <map>
 #include <utility>
@@ -51,31 +53,31 @@ public:
   virtual ~HcalDbHardcode() {}
 
   //setters
-  void setHB(HcalHardcodeParameters p) {
+  void setHB(const HcalHardcodeParameters& p) {
     theHBParameters_ = p;
     setHB_ = true;
   }
-  void setHE(HcalHardcodeParameters p) {
+  void setHE(const HcalHardcodeParameters& p) {
     theHEParameters_ = p;
     setHE_ = true;
   }
-  void setHF(HcalHardcodeParameters p) {
+  void setHF(const HcalHardcodeParameters& p) {
     theHFParameters_ = p;
     setHF_ = true;
   }
-  void setHO(HcalHardcodeParameters p) {
+  void setHO(const HcalHardcodeParameters& p) {
     theHOParameters_ = p;
     setHO_ = true;
   }
-  void setHBUpgrade(HcalHardcodeParameters p) {
+  void setHBUpgrade(const HcalHardcodeParameters& p) {
     theHBUpgradeParameters_ = p;
     setHBUpgrade_ = true;
   }
-  void setHEUpgrade(HcalHardcodeParameters p) {
+  void setHEUpgrade(const HcalHardcodeParameters& p) {
     theHEUpgradeParameters_ = p;
     setHEUpgrade_ = true;
   }
-  void setHFUpgrade(HcalHardcodeParameters p) {
+  void setHFUpgrade(const HcalHardcodeParameters& p) {
     theHFUpgradeParameters_ = p;
     setHFUpgrade_ = true;
   }
@@ -85,7 +87,7 @@ public:
   void useHFUpgrade(bool b) { useHFUpgrade_ = b; }
   void testHFQIE10(bool b) { testHFQIE10_ = b; }
   void testHEPlan1(bool b) { testHEPlan1_ = b; }
-  void setSiPMCharacteristics(std::vector<edm::ParameterSet> vps) { theSiPMCharacteristics_ = vps; }
+  void setSiPMCharacteristics(std::vector<edm::ParameterSet> vps) { theSiPMCharacteristics_ = std::move(vps); }
   void setKillHE(bool b) { killHE_ = b; }
 
   //getters

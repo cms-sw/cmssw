@@ -176,7 +176,7 @@ void ALIUtils::SetOutputAngleDimensionFactors() {
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ Calculate dimension factor to convert any length values and errors to meters
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-ALIdouble ALIUtils::CalculateLengthDimensionFactorFromString(ALIstring dimstr) {
+ALIdouble ALIUtils::CalculateLengthDimensionFactorFromString(const ALIstring& dimstr) {
   ALIdouble valsig = 1.;
   ALIstring internalDim = "m";
   if (internalDim == "m") {
@@ -215,7 +215,7 @@ ALIdouble ALIUtils::CalculateLengthDimensionFactorFromString(ALIstring dimstr) {
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@ Calculate dimension factor to convert any angle values and errors to radians
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-ALIdouble ALIUtils::CalculateAngleDimensionFactorFromString(ALIstring dimstr) {
+ALIdouble ALIUtils::CalculateAngleDimensionFactorFromString(const ALIstring& dimstr) {
   ALIdouble valsig;
   if (dimstr == "rad") {
     valsig = 1.;

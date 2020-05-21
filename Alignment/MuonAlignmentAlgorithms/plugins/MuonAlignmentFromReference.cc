@@ -92,7 +92,7 @@ public:
 
 private:
   bool numeric(std::string s);
-  int number(std::string s);
+  int number(const std::string& s);
   std::string chamberPrettyNameFromId(unsigned int idx);
 
   void parseReference(align::Alignables& reference,
@@ -285,7 +285,7 @@ void MuonAlignmentFromReference::bookNtuple() {
 
 bool MuonAlignmentFromReference::numeric(std::string s) { return s.length() == 1 && std::isdigit(s[0]); }
 
-int MuonAlignmentFromReference::number(std::string s) {
+int MuonAlignmentFromReference::number(const std::string& s) {
   if (!numeric(s))
     assert(false);
   return atoi(s.c_str());

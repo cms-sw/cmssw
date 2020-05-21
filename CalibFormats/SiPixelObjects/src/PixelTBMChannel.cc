@@ -3,7 +3,7 @@
 
 using namespace pos;
 
-PixelTBMChannel::PixelTBMChannel(std::string TBMChannel) {
+PixelTBMChannel::PixelTBMChannel(const std::string& TBMChannel) {
   if (TBMChannel == "A")
     isChannelB_ = false;
   else if (TBMChannel == "B")

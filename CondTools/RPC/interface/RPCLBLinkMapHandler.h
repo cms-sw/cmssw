@@ -16,8 +16,12 @@ namespace edm {
 
 class RPCLBLinkMapHandler : public popcon::PopConSourceHandler<RPCLBLinkMap> {
 public:
-  static RPCDetId getRPCDetId(
-      int region, int disk_or_wheel, int layer, int sector, std::string subsector_string, std::string partition);
+  static RPCDetId getRPCDetId(int region,
+                              int disk_or_wheel,
+                              int layer,
+                              int sector,
+                              const std::string& subsector_string,
+                              const std::string& partition);
 
 public:
   RPCLBLinkMapHandler(edm::ParameterSet const& config);

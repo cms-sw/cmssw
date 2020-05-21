@@ -31,7 +31,7 @@ void DTSurvey::CalculateChambers() {
 
 const DTSurveyChamber *DTSurvey::getChamber(int station, int sector) const { return chambers[station][sector]; }
 
-void DTSurvey::ReadChambers(edm::ESHandle<DTGeometry> pDD) {
+void DTSurvey::ReadChambers(const edm::ESHandle<DTGeometry> &pDD) {
   //Create the chambers
   chambers = new DTSurveyChamber **[4];
   for (int cont_stat = 0; cont_stat < 4; cont_stat++) {

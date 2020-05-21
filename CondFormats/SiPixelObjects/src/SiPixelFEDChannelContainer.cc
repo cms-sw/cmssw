@@ -129,7 +129,7 @@ std::vector<std::string> SiPixelFEDChannelContainer::getScenarioList() const {
 }
 
 //****************************************************************************//
-std::ostream &operator<<(std::ostream &os, SiPixelFEDChannelContainer FEDChannels) {
+std::ostream &operator<<(std::ostream &os, const SiPixelFEDChannelContainer &FEDChannels) {
   std::stringstream ss;
   FEDChannels.print(ss);
   os << ss.str();

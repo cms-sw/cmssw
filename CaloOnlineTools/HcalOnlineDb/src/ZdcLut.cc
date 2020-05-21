@@ -211,7 +211,7 @@ std::vector<int> ZdcLut::get_lut(int emap_side, int emap_htr_fiber, int emap_fi_
 }
 
 // get LUT by proper ZDC channel
-std::vector<int> ZdcLut::get_lut(std::string zdc_section, int zdc_side, int zdc_channel) {
+std::vector<int> ZdcLut::get_lut(const std::string& zdc_section, int zdc_side, int zdc_channel) {
   int side_num = (1 - zdc_side) / 2;
   int fiber_num = -1;
   int channel_num = -1;

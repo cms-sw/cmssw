@@ -17,7 +17,7 @@ using namespace pos;
 
 PixelROCTrimBits::PixelROCTrimBits() {}
 //This part has been modified from the orignal
-void PixelROCTrimBits::setROCTrimBits(PixelROCName rocid, std::string bits) {
+void PixelROCTrimBits::setROCTrimBits(PixelROCName rocid, const std::string& bits) {
   rocid_ = rocid;
   char cpt[2080];
   bits.copy(cpt, 2080);

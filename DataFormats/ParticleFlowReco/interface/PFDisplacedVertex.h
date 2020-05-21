@@ -5,6 +5,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
+#include <utility>
+
 #include <vector>
 #include <string>
 #include <iostream>
@@ -156,17 +158,17 @@ namespace reco {
     /// Momentum of secondary tracks calculated with a mass hypothesis. Some of those
     /// hypothesis are default: "PI" , "KAON", "LAMBDA", "MASSLESS", "CUSTOM"
     /// the value of custom shall be then provided in mass variable
-    const math::XYZTLorentzVector secondaryMomentum(std::string massHypo = "PI",
+    const math::XYZTLorentzVector secondaryMomentum(const std::string& massHypo = "PI",
                                                     bool useRefitted = true,
                                                     double mass = 0.0) const {
-      return momentum(massHypo, T_FROM_VERTEX, useRefitted, mass);
+      return momentum(std::move(massHypo), T_FROM_VERTEX, useRefitted, mass);
     }
 
     /// Momentum of primary or merged track calculated with a mass hypothesis.
-    const math::XYZTLorentzVector primaryMomentum(std::string massHypo = "PI",
+    const math::XYZTLorentzVector primaryMomentum(const std::string& massHypo = "PI",
                                                   bool useRefitted = true,
                                                   double mass = 0.0) const {
-      return momentum(massHypo, T_TO_VERTEX, useRefitted, mass);
+      return momentum(std::move(massHypo), T_TO_VERTEX, useRefitted, mass);
     }
 
     /// Momentum of secondary tracks calculated with a mass hypothesis. Some of those
@@ -233,7 +235,7 @@ namespace reco {
     const int nKindTracks(VertexTrackType) const;
 
     /// Common tool to calculate the momentum vector of tracks with a given Kind
-    const math::XYZTLorentzVector momentum(std::string, VertexTrackType, bool, double mass) const;
+    const math::XYZTLorentzVector momentum(const std::string&, VertexTrackType, bool, double mass) const;
 
     /// Common tool to calculate the momentum vector of tracks with a given Kind
     const math::XYZTLorentzVector momentum(M_Hypo massHypo, VertexTrackType, bool, double mass) const;

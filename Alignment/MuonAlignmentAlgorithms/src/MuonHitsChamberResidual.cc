@@ -3,13 +3,15 @@
  *  \author V. Khotilovich - Texas A&M University <khotilov@cern.ch>
  */
 
+#include <utility>
+
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonHitsChamberResidual.h"
 
 MuonHitsChamberResidual::MuonHitsChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
                                                  AlignableNavigator* navigator,
                                                  DetId chamberId,
                                                  const AlignableDetOrUnitPtr& chamberAlignable)
-    : MuonChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable),
+    : MuonChamberResidual(std::move(globalGeometry), navigator, chamberId, chamberAlignable),
       m_chamber_width(0.),
       m_chamber_length(0.),
       m_residual_1(0.),

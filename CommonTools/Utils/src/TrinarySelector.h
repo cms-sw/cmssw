@@ -10,6 +10,8 @@
  * \version $Revision: 1.2 $
  *
  */
+#include <utility>
+
 #include "CommonTools/Utils/src/SelectorBase.h"
 #include "CommonTools/Utils/src/ExpressionBase.h"
 #include "CommonTools/Utils/src/ComparisonBase.h"
@@ -22,7 +24,11 @@ namespace reco {
                       std::shared_ptr<ExpressionBase> mid,
                       std::shared_ptr<ComparisonBase> cmp2,
                       std::shared_ptr<ExpressionBase> rhs)
-          : lhs_(lhs), cmp1_(cmp1), mid_(mid), cmp2_(cmp2), rhs_(rhs) {}
+          : lhs_(std::move(lhs)),
+            cmp1_(std::move(cmp1)),
+            mid_(std::move(mid)),
+            cmp2_(std::move(cmp2)),
+            rhs_(std::move(rhs)) {}
       bool operator()(const edm::ObjectWithDict& o) const override {
         return cmp1_->compare(lhs_->value(o), mid_->value(o)) && cmp2_->compare(mid_->value(o), rhs_->value(o));
       }

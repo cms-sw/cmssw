@@ -87,8 +87,8 @@ private:  // member functions
 
   // Overloaded methods to retrieve reco::TrackRef
 
-  reco::TrackRef getBaseRef(edm::Handle<std::vector<reco::Track> > handle, int idx) const;
-  reco::TrackRef getBaseRef(edm::Handle<std::vector<reco::PFRecTrack> > handle, int idx) const;
+  reco::TrackRef getBaseRef(const edm::Handle<std::vector<reco::Track> >& handle, int idx) const;
+  reco::TrackRef getBaseRef(const edm::Handle<std::vector<reco::PFRecTrack> >& handle, int idx) const;
 
   // Overloaded methods to populate PreIds (using PF or KF tracks)
 
@@ -272,11 +272,12 @@ void LowPtGsfElectronSeedProducer::produce(edm::Event& event, const edm::EventSe
 //////////////////////////////////////////////////////////////////////////////////////////
 // Return reco::Track from edm::Ref<T>
 
-reco::TrackRef LowPtGsfElectronSeedProducer::getBaseRef(edm::Handle<std::vector<reco::Track> > handle, int idx) const {
+reco::TrackRef LowPtGsfElectronSeedProducer::getBaseRef(const edm::Handle<std::vector<reco::Track> >& handle,
+                                                        int idx) const {
   return reco::TrackRef(handle, idx);
 }
 
-reco::TrackRef LowPtGsfElectronSeedProducer::getBaseRef(edm::Handle<std::vector<reco::PFRecTrack> > handle,
+reco::TrackRef LowPtGsfElectronSeedProducer::getBaseRef(const edm::Handle<std::vector<reco::PFRecTrack> >& handle,
                                                         int idx) const {
   return reco::PFRecTrackRef(handle, idx)->trackRef();
 }

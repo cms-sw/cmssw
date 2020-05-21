@@ -45,7 +45,7 @@ HistogramManager::HistogramManager(const edm::ParameterSet& iconfig, GeometryInt
   }
 }
 
-void HistogramManager::addSpec(SummationSpecification spec) {
+void HistogramManager::addSpec(const SummationSpecification& spec) {
   specs.push_back(spec);
   tables.push_back(Table());
   counters.push_back(Table());

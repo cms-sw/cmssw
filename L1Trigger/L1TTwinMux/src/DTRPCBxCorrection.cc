@@ -18,7 +18,8 @@
 
 using namespace std;
 
-DTRPCBxCorrection::DTRPCBxCorrection(L1MuDTChambPhContainer inphiDTDigis, L1MuDTChambPhContainer inphiRPCDigis)
+DTRPCBxCorrection::DTRPCBxCorrection(const L1MuDTChambPhContainer& inphiDTDigis,
+                                     const L1MuDTChambPhContainer& inphiRPCDigis)
     : m_phiDTDigis(inphiDTDigis),
       m_phiRPCDigis(inphiRPCDigis){
           //  m_phiDTDigis=inphiDTDigis;
@@ -205,7 +206,7 @@ int DTRPCBxCorrection::sign(float inv) {
   return 0;
 }
 
-int DTRPCBxCorrection::nRPCHits(L1MuTMChambPhContainer inCon, int bx, int wh, int sec, int st) {
+int DTRPCBxCorrection::nRPCHits(const L1MuTMChambPhContainer& inCon, int bx, int wh, int sec, int st) {
   int size = 0;
   const std::vector<L1MuDTChambPhDigi>* vInCon = inCon.getContainer();
   for (auto& i : *vInCon) {
@@ -216,7 +217,7 @@ int DTRPCBxCorrection::nRPCHits(L1MuTMChambPhContainer inCon, int bx, int wh, in
   return size;
 }
 
-int DTRPCBxCorrection::nRPCHits(L1MuDTChambPhContainer inCon, int bx, int wh, int sec, int st) {
+int DTRPCBxCorrection::nRPCHits(const L1MuDTChambPhContainer& inCon, int bx, int wh, int sec, int st) {
   int size = 0;
   const std::vector<L1MuDTChambPhDigi>* vInCon = inCon.getContainer();
   for (auto& i : *vInCon) {

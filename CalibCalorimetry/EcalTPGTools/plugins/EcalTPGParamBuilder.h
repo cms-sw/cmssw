@@ -66,12 +66,12 @@ public:
 
 private:
   bool computeLinearizerParam(
-      double theta, double gainRatio, double calibCoeff, std::string subdet, int& mult, int& shift);
+      double theta, double gainRatio, double calibCoeff, const std::string& subdet, int& mult, int& shift);
   void create_header();
   int uncodeWeight(double weight, int complement2 = 7);
   double uncodeWeight(int iweight, int complement2 = 7);
   std::vector<unsigned int> computeWeights(EcalShapeBase& shape, TH1F* histo);
-  void computeLUT(int* lut, std::string det = "EB");
+  void computeLUT(int* lut, const std::string& det = "EB");
   //void getCoeff(coeffStruc & coeff, const EcalIntercalibConstantMap & calibMap, uint rawId) ; //modif-alex-27-july-2015 uncomment to go back
   void getCoeff(coeffStruc& coeff, const EcalGainRatioMap& gainMap, uint rawId);
   void getCoeff(coeffStruc& coeff, const EcalPedestalsMap& pedMap, uint rawId);

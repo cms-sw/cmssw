@@ -28,6 +28,9 @@
 #include <DataFormats/GeometrySurface/interface/Surface.h>
 #include <DataFormats/GeometrySurface/interface/GloballyPositioned.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
+
+#include <utility>
+
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
@@ -86,11 +89,11 @@ public:
   const_iterator end() const { return selected_.end(); }
 
   void initEvent(edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssocToSet) const {
-    simHitsTPAssoc = simHitsTPAssocToSet;
+    simHitsTPAssoc = std::move(simHitsTPAssocToSet);
   }
 
   // Operator() performs the selection: e.g. if (tPSelector(tp, bs, event, evtsetup)) {...
-  bool operator()(const TrackingParticleRef tpr,
+  bool operator()(const TrackingParticleRef& tpr,
                   const reco::BeamSpot* bs,
                   const edm::Event& iEvent,
                   const edm::EventSetup& iSetup) const {

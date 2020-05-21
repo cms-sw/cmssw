@@ -229,7 +229,10 @@ void DTDigiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup
   }
 }
 
-void DTDigiTask::bookHistos(DQMStore::IBooker& ibooker, const DTSuperLayerId& dtSL, string folder, string histoTag) {
+void DTDigiTask::bookHistos(DQMStore::IBooker& ibooker,
+                            const DTSuperLayerId& dtSL,
+                            const string& folder,
+                            const string& histoTag) {
   // set the folder
   stringstream wheel;
   wheel << dtSL.wheel();
@@ -294,7 +297,10 @@ void DTDigiTask::bookHistos(DQMStore::IBooker& ibooker, const DTSuperLayerId& dt
   }
 }
 
-void DTDigiTask::bookHistos(DQMStore::IBooker& ibooker, const DTChamberId& dtCh, string folder, string histoTag) {
+void DTDigiTask::bookHistos(DQMStore::IBooker& ibooker,
+                            const DTChamberId& dtCh,
+                            const string& folder,
+                            const string& histoTag) {
   // set the current folder
   stringstream wheel;
   wheel << dtCh.wheel();
@@ -390,7 +396,10 @@ void DTDigiTask::bookHistos(DQMStore::IBooker& ibooker, const DTChamberId& dtCh,
   }
 }
 
-void DTDigiTask::bookHistos(DQMStore::IBooker& ibooker, const int wheelId, string folder, string histoTag) {
+void DTDigiTask::bookHistos(DQMStore::IBooker& ibooker,
+                            const int wheelId,
+                            const string& folder,
+                            const string& histoTag) {
   // Set the current folder
   stringstream wheel;
   wheel << wheelId;
@@ -716,7 +725,7 @@ string DTDigiTask::topFolder() const {
   return string("DT/01-Digi/");
 }
 
-void DTDigiTask::channelsMap(const DTChamberId& dtCh, string histoTag) {
+void DTDigiTask::channelsMap(const DTChamberId& dtCh, const string& histoTag) {
   // n max channels
   int nWires_max = (digiHistos[histoTag])[dtCh.rawId()]->getNbinsX();
 

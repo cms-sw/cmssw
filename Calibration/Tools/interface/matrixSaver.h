@@ -24,17 +24,17 @@ public:
   matrixSaver();
   ~matrixSaver();
 
-  int saveMatrix(std::string outputFileName, const CLHEP::HepGenMatrix* saveMe);
+  int saveMatrix(const std::string& outputFileName, const CLHEP::HepGenMatrix* saveMe);
 
-  int saveMatrixVector(std::string outputFileName, const std::vector<CLHEP::HepGenMatrix*>& saveMe);
+  int saveMatrixVector(const std::string& outputFileName, const std::vector<CLHEP::HepGenMatrix*>& saveMe);
 
-  bool touch(std::string inputFileName);
+  bool touch(const std::string& inputFileName);
 
-  CLHEP::HepGenMatrix* getMatrix(std::string inputFileName);
+  CLHEP::HepGenMatrix* getMatrix(const std::string& inputFileName);
 
-  std::vector<CLHEP::HepGenMatrix*>* getMatrixVector(std::string inputFileName);
+  std::vector<CLHEP::HepGenMatrix*>* getMatrixVector(const std::string& inputFileName);
 
-  std::vector<CLHEP::HepMatrix> getConcreteMatrixVector(std::string inputFileName);
+  std::vector<CLHEP::HepMatrix> getConcreteMatrixVector(const std::string& inputFileName);
 
 private:
 };

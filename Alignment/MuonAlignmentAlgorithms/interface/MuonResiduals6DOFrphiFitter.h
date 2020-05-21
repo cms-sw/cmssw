@@ -67,7 +67,7 @@ public:
 
   void correctBField() override;
 
-  TTree *readNtuple(std::string fname,
+  TTree *readNtuple(const std::string &fname,
                     unsigned int endcap,
                     unsigned int station,
                     unsigned int ring,

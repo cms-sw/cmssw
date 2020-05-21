@@ -90,7 +90,7 @@ SiPixelGainCalibrationAnalysis::~SiPixelGainCalibrationAnalysis() {}
 //
 // ------------ method called once each job just before starting event loop  ------------
 
-std::vector<float> SiPixelGainCalibrationAnalysis::CalculateAveragePerColumn(uint32_t detid, std::string label) {
+std::vector<float> SiPixelGainCalibrationAnalysis::CalculateAveragePerColumn(uint32_t detid, const std::string &label) {
   std::vector<float> result;
   int ncols = bookkeeper_[detid][label]->getNbinsX();
   int nrows = bookkeeper_[detid][label]->getNbinsY();

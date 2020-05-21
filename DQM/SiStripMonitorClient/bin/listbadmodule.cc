@@ -35,7 +35,7 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-void listbadmodule(std::string filename, std::string pclfilename) {
+void listbadmodule(const std::string &filename, const std::string &pclfilename) {
   int debug = 1;
 
   // extract fully bad modules from PCLBadComponents txt file

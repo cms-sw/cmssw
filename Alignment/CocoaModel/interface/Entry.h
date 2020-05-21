@@ -10,6 +10,8 @@
 #ifndef _ENTRY_HH
 #define _ENTRY_HH
 #include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
+#include <utility>
+
 #include <vector>
 class OpticalObject;
 class EntryData;
@@ -74,7 +76,7 @@ public:
 public:
   // Set DATA MEMBERS
   void setName(const ALIstring& name) { name_ = name; }
-  void setType(ALIstring type) { type_ = type; }
+  void setType(ALIstring type) { type_ = std::move(type); }
   void setValue(ALIdouble val) { value_ = val; }
   void setSigma(ALIdouble sig) { sigma_ = sig; }
   void setQuality(ALIuint qual) { quality_ = qual; }

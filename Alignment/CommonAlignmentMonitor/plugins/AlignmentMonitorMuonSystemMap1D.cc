@@ -8,6 +8,8 @@
  * $Id: AlignmentMonitorMuonSystemMap1D.cc,v 1.5 2011/04/15 23:09:37 khotilov Exp $
  */
 
+#include <utility>
+
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorPluginFactory.h"
 #include "Alignment/CommonAlignmentMonitor/interface/AlignmentMonitorBase.h"
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsFromTrack.h"
@@ -497,7 +499,7 @@ void AlignmentMonitorMuonSystemMap1D::afterAlignment() {
 
 AlignmentMonitorMuonSystemMap1D::MuonSystemMapPlot1D::MuonSystemMapPlot1D(
     std::string name, AlignmentMonitorMuonSystemMap1D *module, int bins, double low, double high, bool xy, bool add_1d)
-    : m_name(name), m_bins(bins), m_xy(xy), m_1d(add_1d) {
+    : m_name(std::move(name)), m_bins(bins), m_xy(xy), m_1d(add_1d) {
   m_x_2d = m_y_2d = m_dxdz_2d = m_dydz_2d = nullptr;
   std::stringstream name_x_2d, name_y_2d, name_dxdz_2d, name_dydz_2d;
   name_x_2d << m_name << "_x_2d";

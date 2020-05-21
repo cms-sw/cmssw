@@ -3,6 +3,7 @@
 
 #include <map>
 #include <stdexcept>
+#include <utility>
 
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 
@@ -18,7 +19,7 @@ public:
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
 
-  inline void setTriggerType(std::string x) { m_trg_type = x; }
+  inline void setTriggerType(std::string x) { m_trg_type = std::move(x); }
   inline std::string getTriggerType() const { return m_trg_type; }
 
   inline void setNumberOfEvents(int x) { m_num = x; }

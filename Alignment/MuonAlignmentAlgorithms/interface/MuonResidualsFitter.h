@@ -168,8 +168,8 @@ public:
   // demonstration plots; return reduced chi**2
   virtual double plot(std::string name, TFileDirectory *dir, Alignable *ali) = 0;
 
-  void plotsimple(std::string name, TFileDirectory *dir, int which, double multiplier);
-  void plotweighted(std::string name, TFileDirectory *dir, int which, int whichredchi2, double multiplier);
+  void plotsimple(const std::string &name, TFileDirectory *dir, int which, double multiplier);
+  void plotweighted(const std::string &name, TFileDirectory *dir, int which, int whichredchi2, double multiplier);
 
 #ifdef STANDALONE_FITTER
   Alignable m_ali;

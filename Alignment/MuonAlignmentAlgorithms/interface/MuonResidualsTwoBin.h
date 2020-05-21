@@ -85,7 +85,7 @@ public:
   };
 
   // demonstration plots
-  double plot(std::string name, TFileDirectory *dir, Alignable *ali) {
+  double plot(const std::string &name, TFileDirectory *dir, Alignable *ali) {
     if (m_twoBin) {
       std::string namePos = name + std::string("Pos");
       std::string nameNeg = name + std::string("Neg");
@@ -206,7 +206,7 @@ public:
     return sqrt(sum2 / n - pow(sum / n, 2));
   };
 
-  void plotsimple(std::string name, TFileDirectory *dir, int which, double multiplier) {
+  void plotsimple(const std::string &name, TFileDirectory *dir, int which, double multiplier) {
     if (m_twoBin) {
       std::string namePos = name + std::string("Pos");
       std::string nameNeg = name + std::string("Neg");
@@ -217,7 +217,7 @@ public:
     }
   };
 
-  void plotweighted(std::string name, TFileDirectory *dir, int which, int whichredchi2, double multiplier) {
+  void plotweighted(const std::string &name, TFileDirectory *dir, int which, int whichredchi2, double multiplier) {
     if (m_twoBin) {
       std::string namePos = name + std::string("Pos");
       std::string nameNeg = name + std::string("Neg");

@@ -49,7 +49,7 @@ public:
   /// Rows and columns to get rid of Digi collection
   std::vector<int> findRows() const;
   std::vector<int> findCols() const;
-  void setCoordinates(std::vector<int> a, std::vector<int> b) {
+  void setCoordinates(const std::vector<int>& a, const std::vector<int>& b) {
     theRows = a;
     theCols = b;
   }

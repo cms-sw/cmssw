@@ -20,7 +20,7 @@ SiPixelDetectorStatus::SiPixelDetectorStatus() : fLS0(99999999), fLS1(0), fRun0(
 SiPixelDetectorStatus::~SiPixelDetectorStatus() {}
 
 // ----------------------------------------------------------------------
-void SiPixelDetectorStatus::readFromFile(std::string filename) {
+void SiPixelDetectorStatus::readFromFile(const std::string& filename) {
   std::ifstream INS;
   std::string sline;
   INS.open(filename.c_str());
@@ -81,7 +81,7 @@ void SiPixelDetectorStatus::readFromFile(std::string filename) {
 }
 
 // ----------------------------------------------------------------------
-void SiPixelDetectorStatus::dumpToFile(std::string filename) {
+void SiPixelDetectorStatus::dumpToFile(const std::string& filename) {
   std::ofstream OD(filename.c_str());
   OD << "# SiPixelDetectorStatus START" << std::endl;
   OD << "# SiPixelDetectorStatus for LS  " << fLS0 << " .. " << fLS1 << std::endl;
@@ -108,7 +108,9 @@ void SiPixelDetectorStatus::addModule(int detid, int nrocs) {
 }
 
 // ----------------------------------------------------------------------
-void SiPixelDetectorStatus::addModule(int detid, SiPixelModuleStatus a) { fModules.insert(std::make_pair(detid, a)); }
+void SiPixelDetectorStatus::addModule(int detid, const SiPixelModuleStatus& a) {
+  fModules.insert(std::make_pair(detid, a));
+}
 
 // ----------------------------------------------------------------------
 void SiPixelDetectorStatus::fillDIGI(int detid, int roc) {

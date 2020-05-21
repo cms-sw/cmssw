@@ -42,11 +42,11 @@ class RPCConeBuilderFromES {
 public:
   RPCConeBuilderFromES();
   virtual ~RPCConeBuilderFromES();
-  L1RpcLogConesVec getConesFromES(edm::Handle<RPCDigiCollection> rpcDigis,
-                                  edm::ESHandle<L1RPCConeBuilder> coneBuilder,
-                                  edm::ESHandle<L1RPCConeDefinition> coneDef,
-                                  edm::ESHandle<L1RPCBxOrConfig> bxOrDef,
-                                  edm::ESHandle<L1RPCHwConfig> hwConfig,
+  L1RpcLogConesVec getConesFromES(const edm::Handle<RPCDigiCollection>& rpcDigis,
+                                  const edm::ESHandle<L1RPCConeBuilder>& coneBuilder,
+                                  const edm::ESHandle<L1RPCConeDefinition>& coneDef,
+                                  const edm::ESHandle<L1RPCBxOrConfig>& bxOrDef,
+                                  const edm::ESHandle<L1RPCHwConfig>& hwConfig,
                                   int bx);
   // ---------- const member functions ---------------------
 

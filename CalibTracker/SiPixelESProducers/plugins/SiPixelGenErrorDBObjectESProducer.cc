@@ -43,7 +43,7 @@ SiPixelGenErrorDBObjectESProducer::SiPixelGenErrorDBObjectESProducer(const edm::
   setWhatProduced(this)
       .setMayConsume(
           genErrorToken_,
-          [](const auto& get, edm::ESTransientHandle<MagneticField> iMagfield) {
+          [](const auto& get, const edm::ESTransientHandle<MagneticField>& iMagfield) {
             const GlobalPoint center(0.0, 0.0, 0.0);
             const float theMagField = iMagfield->inTesla(center).mag();
             if (theMagField >= -0.1 && theMagField < 1.0)

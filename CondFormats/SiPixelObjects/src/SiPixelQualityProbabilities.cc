@@ -74,7 +74,7 @@ std::vector<unsigned int> SiPixelQualityProbabilities::getPileUpBins() const {
 }
 
 //****************************************************************************//
-std::ostream &operator<<(std::ostream &os, SiPixelQualityProbabilities theProbabilities) {
+std::ostream &operator<<(std::ostream &os, const SiPixelQualityProbabilities &theProbabilities) {
   std::stringstream ss;
   theProbabilities.print(ss);
   os << ss.str();

@@ -13,7 +13,7 @@ using namespace std;
 
 CalibElectron::CalibElectron() : theElectron_(nullptr), theHits_(nullptr), theEEHits_(nullptr) {}
 
-std::vector<std::pair<int, float> > CalibElectron::getCalibModulesWeights(TString calibtype) {
+std::vector<std::pair<int, float> > CalibElectron::getCalibModulesWeights(const TString& calibtype) {
   std::vector<std::pair<int, float> > theWeights;
 
   if (calibtype == "RING") {

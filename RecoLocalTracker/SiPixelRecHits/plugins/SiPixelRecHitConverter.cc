@@ -109,7 +109,7 @@ namespace cms {
              SiPixelRecHitCollectionNew& output,
              TrackerGeometry const& geom);
 
-    void run(edm::Handle<edmNew::DetSetVector<SiPixelCluster>> inputhandle,
+    void run(const edm::Handle<edmNew::DetSetVector<SiPixelCluster>>& inputhandle,
              SiPixelRecHitCollectionNew& output,
              TrackerGeometry const& geom);
 
@@ -170,7 +170,7 @@ namespace cms {
   //!  and make a RecHit to store the result.
   //!  New interface reading DetSetVector by V.Chiochia (May 30th, 2006)
   //---------------------------------------------------------------------------
-  void SiPixelRecHitConverter::run(edm::Handle<edmNew::DetSetVector<SiPixelCluster>> inputhandle,
+  void SiPixelRecHitConverter::run(const edm::Handle<edmNew::DetSetVector<SiPixelCluster>>& inputhandle,
                                    SiPixelRecHitCollectionNew& output,
                                    TrackerGeometry const& geom) {
     if (!cpe_) {

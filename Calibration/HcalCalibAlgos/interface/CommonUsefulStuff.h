@@ -50,7 +50,7 @@ struct MaxHit_struct {
   MaxHit_struct() : iphihitm(0), ietahitm(0), depthhit(0), hitenergy(-100), dr(0) {}
 };
 
-inline double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoint rechitPoint) {
+inline double getDistInPlaneSimple(const GlobalPoint& caloPoint, const GlobalPoint& rechitPoint) {
   // Simplified version of getDistInPlane
   // Assume track direction is origin -> point of hcal intersection
 
@@ -77,9 +77,9 @@ inline double getDistInPlaneSimple(const GlobalPoint caloPoint, const GlobalPoin
   }
 }
 
-inline double getDistInPlaneTrackDir(const GlobalPoint caloPoint,
-                                     const GlobalVector caloVector,
-                                     const GlobalPoint rechitPoint) {
+inline double getDistInPlaneTrackDir(const GlobalPoint& caloPoint,
+                                     const GlobalVector& caloVector,
+                                     const GlobalPoint& rechitPoint) {
   // Simplified version of getDistInPlane : no cone "within" Hcal, but
   // don't assume track direction is origin -> point of hcal
   // intersection.
@@ -103,9 +103,9 @@ inline double getDistInPlaneTrackDir(const GlobalPoint caloPoint,
   }
 }
 
-inline double getDistInPlane(const GlobalVector trackDirection,
-                             const GlobalPoint caloPoint,
-                             const GlobalPoint rechitPoint,
+inline double getDistInPlane(const GlobalVector& trackDirection,
+                             const GlobalPoint& caloPoint,
+                             const GlobalPoint& rechitPoint,
                              double coneHeight) {
   // The iso track candidate hits the Calo (Ecal or Hcal) at "caloPoint"
   // with direction "trackDirection".
@@ -173,9 +173,9 @@ inline double getDistInPlane(const GlobalVector trackDirection,
 }
 
 /*  Function to calculate Ecal Energy in Cone (given in cm) */
-inline double ecalEnergyInCone(const GlobalPoint center,
+inline double ecalEnergyInCone(const GlobalPoint& center,
                                double radius,
-                               const EcalRecHitCollection ecalCol,
+                               const EcalRecHitCollection& ecalCol,
                                const CaloGeometry* geo) {
   double eECALcone = 0;
   std::vector<int> usedHitsEcal;
@@ -212,10 +212,10 @@ inline double ecalEnergyInCone(const GlobalPoint center,
 }
 
 /*  This is another version of ecalEnergy calculation using the getDistInPlaneTrackDir()  */
-inline double ecalEnergyInCone(const GlobalVector trackMom,
-                               const GlobalPoint center,
+inline double ecalEnergyInCone(const GlobalVector& trackMom,
+                               const GlobalPoint& center,
                                double radius,
-                               const EcalRecHitCollection ecalCol,
+                               const EcalRecHitCollection& ecalCol,
                                const CaloGeometry* geo) {
   double eECALcone = 0;
   std::vector<int> usedHitsEcal;

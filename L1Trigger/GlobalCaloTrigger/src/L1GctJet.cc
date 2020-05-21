@@ -99,7 +99,7 @@ unsigned L1GctJet::hwPhi() const {
 }
 
 /// Function to convert from internal format to external jet candidates at the output of the jetFinder
-L1GctJetCand L1GctJet::jetCand(const lutPtr lut) const {
+L1GctJetCand L1GctJet::jetCand(const lutPtr& lut) const {
   return L1GctJetCand(rank(lut), hwPhi(), hwEta(), isTauJet(), isForwardJet(), (uint16_t)0, (uint16_t)0, m_bx);
 }
 
@@ -112,12 +112,12 @@ L1GctJetCand L1GctJet::jetCand(const std::vector<lutPtr>& luts) const {
 }
 
 /// The two separate Lut outputs
-uint16_t L1GctJet::rank(const lutPtr lut) const { return lutValue(lut); }
+uint16_t L1GctJet::rank(const lutPtr& lut) const { return lutValue(lut); }
 
-unsigned L1GctJet::calibratedEt(const lutPtr lut) const { return m_rawsum; }
+unsigned L1GctJet::calibratedEt(const lutPtr& lut) const { return m_rawsum; }
 
 // internal function to find the lut contents for a jet
-uint16_t L1GctJet::lutValue(const lutPtr lut) const {
+uint16_t L1GctJet::lutValue(const lutPtr& lut) const {
   uint16_t result;
   if (m_overFlow) {
     // Set output values to maximum

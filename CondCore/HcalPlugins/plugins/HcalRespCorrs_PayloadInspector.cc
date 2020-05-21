@@ -18,13 +18,14 @@
 #include "TPaveStats.h"
 #include <string>
 #include <fstream>
+#include <utility>
 
 namespace {
 
   class HcalRespCorrContainer : public HcalObjRepresent::HcalDataContainer<HcalRespCorrs, HcalRespCorr> {
   public:
     HcalRespCorrContainer(std::shared_ptr<HcalRespCorrs> payload, unsigned int run)
-        : HcalObjRepresent::HcalDataContainer<HcalRespCorrs, HcalRespCorr>(payload, run) {}
+        : HcalObjRepresent::HcalDataContainer<HcalRespCorrs, HcalRespCorr>(std::move(payload), run) {}
     float getValue(HcalRespCorr* rCor) override { return rCor->getValue(); }
   };
 

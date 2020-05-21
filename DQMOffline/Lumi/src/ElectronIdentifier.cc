@@ -117,7 +117,7 @@ void ElectronIdentifier::setRho(double rho) {
                                        << "Rho should be a real, positive number.\n";
   }
 }
-void ElectronIdentifier::setID(std::string ID) {
+void ElectronIdentifier::setID(const std::string& ID) {
   if (ID == "TIGHT")
     ID_ = EleIDWorkingPoints::TIGHT;
   else if (ID == "MEDIUM")
@@ -151,8 +151,8 @@ float ElectronIdentifier::isolation(const reco::GsfElectronPtr& ele) {
 }
 
 bool ElectronIdentifier::passID(const reco::GsfElectronPtr& ele,
-                                edm::Handle<reco::BeamSpot> beamspot,
-                                edm::Handle<reco::ConversionCollection> conversions) {
+                                const edm::Handle<reco::BeamSpot>& beamspot,
+                                const edm::Handle<reco::ConversionCollection>& conversions) {
   if (ID_ == -1)
     throw;
   unsigned int region = fabs(ele->superCluster()->eta()) < 1.479 ? EleIDEtaBins::BARREL : EleIDEtaBins::BARREL;

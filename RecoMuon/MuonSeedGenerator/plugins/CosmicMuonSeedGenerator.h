@@ -15,6 +15,8 @@
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 
+#include <utility>
+
 #include <vector>
 
 class MuonDetLayerGeometry;
@@ -45,7 +47,7 @@ private:
     MuonRecHitPair(const MuonTransientTrackingRecHit::MuonRecHitPointer& a,
                    const MuonTransientTrackingRecHit::MuonRecHitPointer& b,
                    std::string c = "")
-        : first(a), second(b), type(c) {}
+        : first(a), second(b), type(std::move(c)) {}
 
     MuonTransientTrackingRecHit::MuonRecHitPointer first;
     MuonTransientTrackingRecHit::MuonRecHitPointer second;
@@ -76,7 +78,7 @@ private:
 
   std::vector<MuonRecHitPair> makeSegPairs(const MuonTransientTrackingRecHit::MuonRecHitContainer&,
                                            const MuonTransientTrackingRecHit::MuonRecHitContainer&,
-                                           std::string) const;
+                                           const std::string&) const;
 
   /// create TrajectorySeed from MuonRecHitPair
   std::vector<TrajectorySeed> createSeed(const MuonRecHitPair&, const edm::EventSetup&) const;

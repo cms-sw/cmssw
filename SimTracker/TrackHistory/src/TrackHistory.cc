@@ -54,7 +54,7 @@ void TrackHistory::newEvent(const edm::Event &event, const edm::EventSetup &setu
   }
 }
 
-bool TrackHistory::evaluate(reco::TrackBaseRef tr) {
+bool TrackHistory::evaluate(const reco::TrackBaseRef &tr) {
   if (!enableRecoToSim_)
     return false;
 

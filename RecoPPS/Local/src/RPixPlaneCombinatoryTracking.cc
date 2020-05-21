@@ -86,7 +86,7 @@ void RPixPlaneCombinatoryTracking::getPlaneCombinations(const std::vector<uint32
 //This allows to erase the points already used for the track fit
 void RPixPlaneCombinatoryTracking::getHitCombinations(const std::map<CTPPSPixelDetId, PointInPlaneList> &mapOfAllHits,
                                                       std::map<CTPPSPixelDetId, PointInPlaneList>::iterator mapIterator,
-                                                      HitReferences tmpHitPlaneMap,
+                                                      const HitReferences &tmpHitPlaneMap,
                                                       const PointInPlaneList &tmpHitVector,
                                                       PointAndReferenceMap &outputMap) {
   //At this point I selected one hit per plane
@@ -107,7 +107,7 @@ void RPixPlaneCombinatoryTracking::getHitCombinations(const std::map<CTPPSPixelD
 //------------------------------------------------------------------------------------------------//
 
 RPixPlaneCombinatoryTracking::PointAndReferenceMap RPixPlaneCombinatoryTracking::produceAllHitCombination(
-    PlaneCombinations inputPlaneCombination) {
+    const PlaneCombinations &inputPlaneCombination) {
   PointAndReferenceMap mapOfAllPoints;
   CTPPSPixelDetId tmpRpId = romanPotId_;  //in order to avoid to modify the data member
 

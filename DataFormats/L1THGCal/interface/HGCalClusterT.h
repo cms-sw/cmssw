@@ -25,7 +25,7 @@ namespace l1t {
 
   public:
     HGCalClusterT() {}
-    HGCalClusterT(const LorentzVector p4, int pt = 0, int eta = 0, int phi = 0)
+    HGCalClusterT(const LorentzVector& p4, int pt = 0, int eta = 0, int phi = 0)
         : L1Candidate(p4, pt, eta, phi),
           valid_(true),
           detId_(0),

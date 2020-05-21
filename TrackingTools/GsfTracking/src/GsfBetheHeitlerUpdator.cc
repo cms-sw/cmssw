@@ -50,7 +50,7 @@ namespace {
 }
 */
 
-GsfBetheHeitlerUpdator::GsfBetheHeitlerUpdator(const std::string fileName, const int correctionFlag)
+GsfBetheHeitlerUpdator::GsfBetheHeitlerUpdator(const std::string& fileName, const int correctionFlag)
     : GsfMaterialEffectsUpdator(0.000511, 6), theNrComponents(0), theCorrectionFlag(correctionFlag) {
   if (theCorrectionFlag == 1)
     edm::LogInfo("GsfBetheHeitlerUpdator") << "1st moment of mixture will be corrected";
@@ -62,7 +62,7 @@ GsfBetheHeitlerUpdator::GsfBetheHeitlerUpdator(const std::string fileName, const
   resize(theNrComponents);
 }
 
-void GsfBetheHeitlerUpdator::readParameters(const std::string fileName) {
+void GsfBetheHeitlerUpdator::readParameters(const std::string& fileName) {
   std::string name = "TrackingTools/GsfTracking/data/";
   name += fileName;
 

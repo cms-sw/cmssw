@@ -35,7 +35,7 @@
 class DTTPGLutFile {
 public:
   /// constructor
-  DTTPGLutFile(const std::string name = "");
+  DTTPGLutFile(const std::string &name = "");
 
   /// copy constructor
   DTTPGLutFile(const DTTPGLutFile &);

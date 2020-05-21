@@ -37,7 +37,7 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
   void produce(edm::Event& evt, const edm::EventSetup& es) override;
-  void run(edm::Handle<edmNew::DetSetVector<FTLCluster> > inputHandle, MTDTrackingDetSetVector& output);
+  void run(const edm::Handle<edmNew::DetSetVector<FTLCluster> >& inputHandle, MTDTrackingDetSetVector& output);
 
 private:
   const edm::EDGetTokenT<FTLClusterCollection> ftlbClusters_;  // collection of barrel digis
@@ -89,7 +89,8 @@ void MTDTrackingRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& 
 //!  Iterate over DetUnits, then over Clusters and invoke the CPE on each,
 //!  and make a RecHit to store the result.
 //---------------------------------------------------------------------------
-void MTDTrackingRecHitProducer::run(edm::Handle<FTLClusterCollection> inputHandle, MTDTrackingDetSetVector& output) {
+void MTDTrackingRecHitProducer::run(const edm::Handle<FTLClusterCollection>& inputHandle,
+                                    MTDTrackingDetSetVector& output) {
   const edmNew::DetSetVector<FTLCluster>& input = *inputHandle;
   edmNew::DetSetVector<FTLCluster>::const_iterator DSViter = input.begin();
 

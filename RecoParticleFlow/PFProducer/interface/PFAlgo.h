@@ -236,7 +236,7 @@ private:
                            std::vector<bool>& active,
                            std::vector<double>& psEne);
 
-  bool isFromSecInt(const reco::PFBlockElement& eTrack, std::string order) const;
+  bool isFromSecInt(const reco::PFBlockElement& eTrack, const std::string& order) const;
 
   // Post HF Cleaning
   void postCleaning();

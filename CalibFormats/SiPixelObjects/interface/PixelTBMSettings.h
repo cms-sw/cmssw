@@ -8,6 +8,8 @@
 *
 */
 
+#include <utility>
+
 #include <vector>
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigBase.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelFECConfigInterface.h"
@@ -39,7 +41,7 @@ namespace pos {
                                bool physics = false,
                                bool doResets = true) const;
 
-    void writeBinary(std::string filename) const;
+    void writeBinary(const std::string &filename) const;
 
     void writeASCII(std::string dir) const override;
     void writeXML(pos::PixelConfigKey key, int version, std::string path) const override { ; }
@@ -68,10 +70,10 @@ namespace pos {
     void setMode(bool mode) { singlemode_ = mode; }
     PixelROCName const &getROCName() const { return rocid_; }
     void setROCName(std::string rocname) {
-      PixelROCName tmp(rocname);
+      PixelROCName tmp(std::move(rocname));
       rocid_ = tmp;
     }
-    void setTBMGenericValue(std::string, int);
+    void setTBMGenericValue(const std::string &, int);
 
   private:
     PixelROCName rocid_;

@@ -75,7 +75,7 @@ private:
   bool hasPhotons_;
 
   double dZcut_;
-  std::unique_ptr<float[]> createFloatVector(std::vector<std::string> variableNames);
+  std::unique_ptr<float[]> createFloatVector(const std::vector<std::string>& variableNames);
   const float GetResponse(const GBRForest* Reader, std::vector<std::string>& variableNames);
   void computeMET();
   std::map<std::string, float> var_;

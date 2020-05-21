@@ -6,6 +6,8 @@
  */
 
 // L1TMonitor includes
+#include <utility>
+
 #include "DQMOffline/L1Trigger/interface/L1TEfficiencyHarvesting.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
@@ -18,7 +20,7 @@ namespace dqmoffline {
         : numeratorDir_(ps.getUntrackedParameter<std::string>("numeratorDir")),
           denominatorDir_(ps.getUntrackedParameter<std::string>("denominatorDir", numeratorDir_)),
           outputDir_(ps.getUntrackedParameter<std::string>("outputDir", numeratorDir_)),
-          plotName_(plotName),
+          plotName_(std::move(plotName)),
           numeratorSuffix_(ps.getUntrackedParameter<std::string>("numeratorSuffix", "Num")),
           denominatorSuffix_(ps.getUntrackedParameter<std::string>("denominatorSuffix", "Den")),
           h_efficiency_() {}

@@ -19,7 +19,7 @@
 // here. At this point we did not think it worth the time to implement.
 
 PYBIND11_MODULE(libFWCorePythonFramework, m) {
-  pybind11::register_exception_translator([](std::exception_ptr p) {
+  pybind11::register_exception_translator([](const std::exception_ptr &p) {
     try {
       if (p)
         std::rethrow_exception(p);

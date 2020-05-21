@@ -100,7 +100,7 @@ public:
 
 protected:
   /// Parser of the parameters file
-  void readParameters(TString fileName);
+  void readParameters(const TString& fileName);
 
   resolutionFunctionBase<double*>** resolutionFunction_;
   std::vector<resolutionFunctionBase<double*>*> resolutionFunctionVec_;

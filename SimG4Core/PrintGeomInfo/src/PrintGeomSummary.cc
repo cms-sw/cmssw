@@ -155,7 +155,7 @@ void PrintGeomSummary::fillPV(G4VPhysicalVolume* pv) {
     fillPV(pv->GetLogicalVolume()->GetDaughter(ii));
 }
 
-void PrintGeomSummary::dumpSummary(std::ostream& out, std::string name) {
+void PrintGeomSummary::dumpSummary(std::ostream& out, const std::string& name) {
   //---------- Dump number of objects of each class
   out << G4endl << G4endl << "@@@@@@@@@@@@@@@@@@ Dumping Summary For Node " << name << G4endl;
   out << " Number of G4VSolid's: " << sls_.size() << G4endl;

@@ -22,6 +22,8 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 
+#include <utility>
+
 #include <vector>
 #include <iostream>
 #include <TFile.h>
@@ -52,7 +54,7 @@ public:
 
   void fillSeedHist(CTTRHp h1, CTTRHp h2, TrajectoryStateOnSurface t) {
     //edm::LogVerbatim("CkfDebugger") << "CkfDebugger::fillSeedHist";
-    hchi2seedAll->Fill(testSeed(h1, h2, t));
+    hchi2seedAll->Fill(testSeed(std::move(h1), std::move(h2), t));
   }
 
   bool analyseCompatibleMeasurements(const Trajectory&,
@@ -109,12 +111,12 @@ private:
 
   bool correctTrajectory(const Trajectory&, unsigned int&) const;
 
-  int assocTrackId(CTTRHp rechit) const;
+  int assocTrackId(const CTTRHp& rechit) const;
 
   //const PSimHit* nextCorrectHit( const Trajectory&, unsigned int&) ;
   std::vector<const PSimHit*> nextCorrectHits(const Trajectory&, unsigned int&);
 
-  bool associated(CTTRHp rechit, const PSimHit& sh) const;
+  bool associated(const CTTRHp& rechit, const PSimHit& sh) const;
 
   bool goodSimHit(const PSimHit& sh) const;
 
@@ -122,9 +124,9 @@ private:
 
   std::pair<CTTRHp, double> analyseRecHitExistance(const PSimHit& sh, const TSOS& startingState);
 
-  int analyseRecHitNotFound(const Trajectory&, CTTRHp);
+  int analyseRecHitNotFound(const Trajectory&, const CTTRHp&);
 
-  double testSeed(CTTRHp, CTTRHp, TrajectoryStateOnSurface);
+  double testSeed(const CTTRHp&, const CTTRHp&, const TrajectoryStateOnSurface&);
 
   const PSimHit* pSimHit(unsigned int tkId, DetId detId);
 
@@ -152,7 +154,7 @@ private:
   }
 
   template <unsigned int D>
-  std::pair<double, double> computePulls(CTTRHp recHit, TSOS startingState) {
+  std::pair<double, double> computePulls(const CTTRHp& recHit, const TSOS& startingState) {
     typedef typename AlgebraicROOTObject<D>::Vector VecD;
     typedef typename AlgebraicROOTObject<D, D>::SymMatrix SMatDD;
     TSOS detState = theForwardPropagator->propagate(startingState, recHit->det()->surface());
@@ -178,7 +180,7 @@ private:
     LogTrace("CkfDebugger") << "pullY=" << pullY;
     return std::pair<double, double>(pullX, pullY);
   }
-  std::pair<double, double> computePulls(CTTRHp recHit, TSOS startingState) {
+  std::pair<double, double> computePulls(const CTTRHp& recHit, TSOS startingState) {
     switch (recHit->dimension()) {
       case 1:
         return computePulls<1>(recHit, startingState);

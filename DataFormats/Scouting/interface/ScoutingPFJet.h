@@ -1,6 +1,8 @@
 #ifndef DataFormats_ScoutingPFJet_h
 #define DataFormats_ScoutingPFJet_h
 
+#include <utility>
+
 #include <vector>
 
 //class for holding PF jet information, for use in data scouting
@@ -53,7 +55,7 @@ public:
         HOEnergy_(HOEnergy),
         csv_(csv),
         mvaDiscriminator_(mvaDiscriminator),
-        constituents_(constituents) {}
+        constituents_(std::move(constituents)) {}
   //default constructor
   ScoutingPFJet()
       : pt_(0),

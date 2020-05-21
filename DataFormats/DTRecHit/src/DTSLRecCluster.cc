@@ -31,10 +31,10 @@ static AlgebraicMatrix initMatrix() {
 const AlgebraicMatrix DTSLRecCluster::theProjectionMatrix = initMatrix();
 
 /* Constructor */
-DTSLRecCluster::DTSLRecCluster(const DTSuperLayerId id, const std::vector<DTRecHit1DPair>& pairs)
+DTSLRecCluster::DTSLRecCluster(const DTSuperLayerId& id, const std::vector<DTRecHit1DPair>& pairs)
     : theSlid(id), thePairs(pairs) {}
 
-DTSLRecCluster::DTSLRecCluster(const DTSuperLayerId id,
+DTSLRecCluster::DTSLRecCluster(const DTSuperLayerId& id,
                                const LocalPoint& pos,
                                const LocalError& err,
                                const std::vector<DTRecHit1DPair>& pairs)

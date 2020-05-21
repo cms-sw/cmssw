@@ -3,6 +3,8 @@
 
 #include <map>
 #include <stdexcept>
+#include <utility>
+
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 #define USE_NORM 1
@@ -24,15 +26,15 @@ public:
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
 
-  inline void setTTCciConfigurationFile(std::string x) { m_ttcci_file = x; }
+  inline void setTTCciConfigurationFile(std::string x) { m_ttcci_file = std::move(x); }
   inline std::string getTTCciConfigurationFile() const { return m_ttcci_file; }
 
-  inline void setConfigurationScript(std::string x) { m_configuration_script = x; }
+  inline void setConfigurationScript(std::string x) { m_configuration_script = std::move(x); }
   inline std::string getConfigurationScript() const { return m_configuration_script; }
-  inline void setConfigurationScriptParams(std::string x) { m_configuration_script_params = x; }
+  inline void setConfigurationScriptParams(std::string x) { m_configuration_script_params = std::move(x); }
   inline std::string getConfigurationScriptParams() const { return m_configuration_script_params; }
 
-  inline void setTrgMode(std::string x) { m_trg_mode = x; }
+  inline void setTrgMode(std::string x) { m_trg_mode = std::move(x); }
   inline std::string getTrgMode() const { return m_trg_mode; }
   inline void setTrgSleep(int id) { m_trg_sleep = id; }
   inline int getTrgSleep() const { return m_trg_sleep; }

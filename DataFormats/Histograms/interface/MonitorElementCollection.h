@@ -34,6 +34,8 @@
 
 #include <cstdint>
 #include <cassert>
+#include <utility>
+
 #include <vector>
 #include <string>
 #include <regex>
@@ -115,9 +117,9 @@ struct MonitorElementData {
     /// (not relevant for all quality tests!)
     const std::vector<DQMChannel>& getBadChannels() const { return badChannels_; }
 
-    void setBadChannels(std::vector<DQMChannel> badChannels) { badChannels_ = badChannels; }
+    void setBadChannels(std::vector<DQMChannel> badChannels) { badChannels_ = std::move(badChannels); }
 
-    QReport(QValue value) : qvalue_(value) {}
+    QReport(QValue value) : qvalue_(std::move(value)) {}
 
   private:
     QValue qvalue_;                        //< Pointer to the actual data.
@@ -179,7 +181,7 @@ struct MonitorElementData {
     // Type of string `path` could be just directory name, or
     // directory name followed by the name of the monitor element
     void set(std::string path, Path::Type type) {
-      std::string in(path);
+      std::string in(std::move(path));
       std::vector<std::string> buf;
       static std::regex const dir("^/*([^/]+)");
       std::smatch m;

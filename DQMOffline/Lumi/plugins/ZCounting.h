@@ -61,8 +61,8 @@ private:
   bool passMuonIso(const reco::Muon& muon, const MuonIsoTypes& isoType, const float isoCut);
 
   // Electron-specific functions
-  bool isElectronTrigger(ZCountingTrigger::TTrigger triggerMenu, TriggerBits hltBits);
-  bool isElectronTriggerObj(ZCountingTrigger::TTrigger triggerMenu, TriggerObjects hltMatchBits);
+  bool isElectronTrigger(const ZCountingTrigger::TTrigger& triggerMenu, TriggerBits hltBits);
+  bool isElectronTriggerObj(const ZCountingTrigger::TTrigger& triggerMenu, TriggerObjects hltMatchBits);
   bool ele_probe_selection(double pt, double abseta);
   bool ele_tag_selection(double pt, double abseta);
 

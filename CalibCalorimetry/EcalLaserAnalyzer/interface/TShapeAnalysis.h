@@ -66,7 +66,7 @@ public:
   void putflagInit(int, int);
   void putetaInit(int, int);
   void putphiInit(int, int);
-  void computeShape(std::string namefile, TTree *);
+  void computeShape(const std::string &namefile, TTree *);
   void computetmaxVal(int, double *);
   void printshapeData(int);
   std::vector<double> getVals(int);

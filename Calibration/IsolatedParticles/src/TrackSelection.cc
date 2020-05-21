@@ -8,7 +8,7 @@
 namespace spr {
 
   bool goodTrack(const reco::Track* pTrack,
-                 math::XYZPoint leadPV,
+                 const math::XYZPoint& leadPV,
                  spr::trackSelectionParameters parameters,
                  bool
 #ifdef EDM_ML_DEBUG

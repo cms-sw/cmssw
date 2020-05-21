@@ -19,7 +19,7 @@ typedef std::shared_ptr<GenericTransientTrackingRecHit> MTDRecHitPointer;
 typedef std::vector<GenericTransientTrackingRecHit::RecHitPointer> MTDRecHitContainer;
 typedef MTDDetLayerMeasurements::MeasurementContainer MeasurementContainer;
 
-MTDDetLayerMeasurements::MTDDetLayerMeasurements(edm::InputTag mtdlabel, edm::ConsumesCollector& iC)
+MTDDetLayerMeasurements::MTDDetLayerMeasurements(const edm::InputTag& mtdlabel, edm::ConsumesCollector& iC)
     : theMTDRecHits(), theMTDEventCacheID(0), theEvent(nullptr) {
   mtdToken_ = iC.consumes<MTDTrackingRecHit>(mtdlabel);
 }

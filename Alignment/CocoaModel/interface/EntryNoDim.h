@@ -15,7 +15,7 @@
 class EntryNoDim : public Entry {
 public:
   //-  EntryNoDim(){ };
-  EntryNoDim(const ALIstring type) : Entry(type) {
+  EntryNoDim(const ALIstring& type) : Entry(type) {
     theDimType = ED_nodim;
     //std::cout << "entryNoDim" << std::endl;
   };

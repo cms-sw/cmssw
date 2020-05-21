@@ -134,8 +134,8 @@ namespace edm {
              ThinnedAssociationsHelper& thinnedAssociationsHelper,
              SubProcessParentageHelper const* subProcessParentageHelper,
              ExceptionToActionTable const& actions,
-             std::shared_ptr<ActivityRegistry> areg,
-             std::shared_ptr<ProcessConfiguration> processConfiguration,
+             const std::shared_ptr<ActivityRegistry>& areg,
+             const std::shared_ptr<ProcessConfiguration>& processConfiguration,
              bool hasSubprocesses,
              PreallocationConfiguration const& config,
              ProcessContext const* processContext);

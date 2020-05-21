@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <cmath>
+#include <utility>
 
 using std::cout;
 using std::endl;
@@ -112,7 +113,7 @@ std::string LMFDat::getIovIdFieldName() const { return "LMF_IOV_ID"; }
 
 void LMFDat::setWhereClause(std::string where) {
   // to be used by experts to restrict the results of a query
-  _where = where;
+  _where = std::move(where);
 }
 
 void LMFDat::setWhereClause(std::string where, const std::vector<std::string> &parameters) {
@@ -122,7 +123,7 @@ void LMFDat::setWhereClause(std::string where, const std::vector<std::string> &p
   // float parameters. The parameters are all passed as strings
   // in parameters
   _wherePars = parameters;
-  _where = where;
+  _where = std::move(where);
 }
 
 std::string LMFDat::buildSelectSql(int logic_id, int direction) {

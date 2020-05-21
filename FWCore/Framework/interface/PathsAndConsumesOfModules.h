@@ -30,7 +30,7 @@ namespace edm {
   public:
     ~PathsAndConsumesOfModules() override;
 
-    void initialize(Schedule const*, std::shared_ptr<ProductRegistry const>);
+    void initialize(Schedule const*, const std::shared_ptr<ProductRegistry const>&);
 
   private:
     std::vector<std::string> const& doPaths() const override { return paths_; }

@@ -43,7 +43,7 @@ public:
   static bool getViewIds(int logicId, int &channelView, int &id1, int &id2);
 
   // constructor
-  MELaserPrim(ME::Header header, ME::Settings settings, const char *inpath, const char *outfile);
+  MELaserPrim(const ME::Header &header, ME::Settings settings, const char *inpath, const char *outfile);
 
   // destructor
   virtual ~MELaserPrim();

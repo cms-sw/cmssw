@@ -1,5 +1,8 @@
 #include "EgammaAnalysis/ElectronTools/interface/ElectronEnergyCalibratorRun2.h"
 #include <CLHEP/Random/RandGaussQ.h>
+
+#include <utility>
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -12,7 +15,7 @@ ElectronEnergyCalibratorRun2::ElectronEnergyCalibratorRun2(EpCombinationTool &co
       isMC_(isMC),
       synchronization_(synchronization),
       rng_(nullptr),
-      _correctionRetriever(correctionFile)  // here is opening the files and reading the corrections
+      _correctionRetriever(std::move(correctionFile))  // here is opening the files and reading the corrections
 {
   if (isMC_) {
     _correctionRetriever.doScale = false;

@@ -19,7 +19,7 @@ using namespace std;
 //ClassImp(TPNCor)
 
 // Constructor...
-TPNCor::TPNCor(string filename) {
+TPNCor::TPNCor(const string& filename) {
   // Initialize
 
   isFileOK = 0;

@@ -47,7 +47,7 @@ private:  // ---------- Private methods ----------
   SiStripCommissioningSource() = delete;
 
   /** */
-  DQMStore* const dqm(std::string method = "") const;
+  DQMStore* const dqm(const std::string& method = "") const;
 
   /** */
   void createRunNumber();

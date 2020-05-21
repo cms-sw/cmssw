@@ -219,7 +219,7 @@ vector<typename SequentialVertexFitter<N>::RefCountedVertexTrack> SequentialVert
 //
 template <unsigned int N>
 CachingVertex<N> SequentialVertexFitter<N>::fit(const std::vector<RefCountedVertexTrack>& tracks,
-                                                const VertexState priorVertex,
+                                                const VertexState& priorVertex,
                                                 bool withPrior) const {
   std::vector<RefCountedVertexTrack> initialTracks;
   GlobalPoint priorVertexPosition = priorVertex.position();

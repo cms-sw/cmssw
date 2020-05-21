@@ -65,7 +65,7 @@ namespace reco {
 
     // functions to access the PFTauTagInfoRef used by HLT
     const PFTauTagInfoRef& pfTauTagInfoRef() const;
-    void setpfTauTagInfoRef(const PFTauTagInfoRef);
+    void setpfTauTagInfoRef(const PFTauTagInfoRef&);
 
     PFRecoTauChargedHadronRef leadTauChargedHadronCandidate() const;
     const CandidatePtr& leadChargedHadrCand() const;

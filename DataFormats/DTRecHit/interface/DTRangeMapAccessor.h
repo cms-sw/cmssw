@@ -15,7 +15,7 @@ class DTSuperLayerIdComparator {
 public:
   // Operations
   /// Compare two superLayerId
-  bool operator()(DTSuperLayerId sl1, DTSuperLayerId sl2) const {
+  bool operator()(const DTSuperLayerId& sl1, const DTSuperLayerId& sl2) const {
     if (sl1 == sl2)
       return false;
     return (sl1 < sl2);
@@ -34,7 +34,7 @@ class DTChamberIdComparator {
 public:
   // Operations
   /// Compare two ChamberId
-  bool operator()(DTChamberId ch1, DTChamberId ch2) const {
+  bool operator()(const DTChamberId& ch1, const DTChamberId& ch2) const {
     if (ch1 == ch2)
       return false;
     return (ch1 < ch2);
@@ -51,7 +51,7 @@ private:
 
 class DTChamberIdDetLayerComparator {
 public:
-  bool operator()(DTChamberId ch1, DTChamberId ch2) const {
+  bool operator()(const DTChamberId& ch1, const DTChamberId& ch2) const {
     if (ch1.station() == ch2.station())
       return false;
 
@@ -76,16 +76,16 @@ public:
   // Operations
 
   /// Access by SL objects written into a RangeMap by layer.
-  static std::pair<DTLayerId, DTSuperLayerIdComparator> layersBySuperLayer(DTSuperLayerId slId);
+  static std::pair<DTLayerId, DTSuperLayerIdComparator> layersBySuperLayer(const DTSuperLayerId& slId);
 
   /// Access by chamber objects written into a RangeMap by layer.
-  static std::pair<DTLayerId, DTChamberIdComparator> layersByChamber(DTChamberId chamberId);
+  static std::pair<DTLayerId, DTChamberIdComparator> layersByChamber(const DTChamberId& chamberId);
 
   /// Access by chamber objects written into a RangeMap by SL.
-  static std::pair<DTSuperLayerId, DTChamberIdComparator> superLayersByChamber(DTChamberId chamberId);
+  static std::pair<DTSuperLayerId, DTChamberIdComparator> superLayersByChamber(const DTChamberId& chamberId);
 
   /// Access chambers in a RangeMap by DetLayer.
-  static std::pair<DTChamberId, DTChamberIdDetLayerComparator> chambersByDetLayer(DTChamberId id);
+  static std::pair<DTChamberId, DTChamberIdDetLayerComparator> chambersByDetLayer(const DTChamberId& id);
 
 private:
 };

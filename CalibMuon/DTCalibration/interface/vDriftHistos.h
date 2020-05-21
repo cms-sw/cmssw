@@ -10,7 +10,7 @@
 // A set of histograms on chamber angle and position
 class h4DSegm {
 public:
-  h4DSegm(std::string name_) {
+  h4DSegm(const std::string &name_) {
     TString N = name_.c_str();
     name = name_.c_str();
     h4DSegmXPosInCham = new TH1F(N + "_h4DSegmXPosInCham", "4D Segment x position (cm) in Chamber RF", 200, -200, 200);
@@ -69,7 +69,7 @@ public:
 // A set of histograms on SL angle and position
 class h2DSegm {
 public:
-  h2DSegm(std::string name_) {
+  h2DSegm(const std::string &name_) {
     TString N = name_.c_str();
     name = name_.c_str();
     h2DSegmPosInCham = new TH1F(N + "_h2DSegmPosInCham", "2D Segment position (cm) in Chamber RF", 200, -200, 200);

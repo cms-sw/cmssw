@@ -266,7 +266,7 @@ CurvilinearTrajectoryError MuonErrorMatrix::get(GlobalVector momentum, bool conv
   return CurvilinearTrajectoryError(V);
 }
 
-CurvilinearTrajectoryError MuonErrorMatrix::getFast(GlobalVector momentum) {
+CurvilinearTrajectoryError MuonErrorMatrix::getFast(const GlobalVector &momentum) {
   //will be faster but make assumptions that could be broken at some point
   //  same bining for all TProfile
   AlgebraicSymMatrix55 V;

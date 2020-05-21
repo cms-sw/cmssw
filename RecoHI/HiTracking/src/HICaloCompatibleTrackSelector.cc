@@ -190,8 +190,8 @@ void HICaloCompatibleTrackSelector::produce(edm::Event& evt, const edm::EventSet
 }
 
 bool HICaloCompatibleTrackSelector::selectByPFCands(TI ti,
-                                                    edm::Handle<TrackCollection> hSrcTrack,
-                                                    edm::Handle<PFCandidateCollection> pfCandidates,
+                                                    const edm::Handle<TrackCollection>& hSrcTrack,
+                                                    const edm::Handle<PFCandidateCollection>& pfCandidates,
                                                     bool isPFThere) {
   const reco::Track& trk = *ti;
 
@@ -237,8 +237,8 @@ bool HICaloCompatibleTrackSelector::selectByPFCands(TI ti,
 }
 
 bool HICaloCompatibleTrackSelector::selectByTowers(TI ti,
-                                                   edm::Handle<TrackCollection> hSrcTrack,
-                                                   edm::Handle<CaloTowerCollection> towers,
+                                                   const edm::Handle<TrackCollection>& hSrcTrack,
+                                                   const edm::Handle<CaloTowerCollection>& towers,
                                                    bool isTowerThere) {
   // Not up to date! use PF towers instead
 

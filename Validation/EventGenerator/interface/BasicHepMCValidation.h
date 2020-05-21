@@ -9,6 +9,8 @@
  */
 
 // framework & common header files
+#include <utility>
+
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Run.h"
@@ -50,7 +52,7 @@ private:
   class ParticleMonitor {
   public:
     ParticleMonitor(std::string name_, int pdgid_, DQMStore::IBooker &i, bool nlog_ = false)
-        : name(name_), pdgid(pdgid_), count(0), nlog(nlog_) {
+        : name(std::move(name_)), pdgid(pdgid_), count(0), nlog(nlog_) {
       DQMHelper dqm(&i);
       // Number of analyzed events
       if (!nlog) {

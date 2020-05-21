@@ -20,7 +20,7 @@ private:
                             const std::string &sysType,
                             const std::vector<std::string> &otherSysTypes = {});
 
-  void load(const BTagCalibration &c, BTagEntry::JetFlavor jf, std::string measurementType);
+  void load(const BTagCalibration &c, BTagEntry::JetFlavor jf, const std::string &measurementType);
 
   double eval(BTagEntry::JetFlavor jf, float eta, float pt, float discr) const;
 
@@ -51,7 +51,7 @@ BTagCalibrationReader::BTagCalibrationReaderImpl::BTagCalibrationReaderImpl(
 
 void BTagCalibrationReader::BTagCalibrationReaderImpl::load(const BTagCalibration &c,
                                                             BTagEntry::JetFlavor jf,
-                                                            std::string measurementType) {
+                                                            const std::string &measurementType) {
   if (!tmpData_[jf].empty()) {
     throw cms::Exception("BTagCalibrationReader") << "Data for this jet-flavor is already loaded: " << jf;
   }

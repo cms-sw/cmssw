@@ -131,7 +131,7 @@ PixelDelay25Calib::PixelDelay25Calib(vector<vector<string> > &tableMat)
   // End of temporary patch
 }
 
-PixelDelay25Calib::PixelDelay25Calib(std::string filename) : PixelCalibBase(), PixelConfigBase("", "", "") {
+PixelDelay25Calib::PixelDelay25Calib(const std::string &filename) : PixelCalibBase(), PixelConfigBase("", "", "") {
   std::string mthn = "[PixelDelay25Calib::PixelDelay25Calib()]\t\t\t    ";
 
   std::ifstream in(filename.c_str());
@@ -223,7 +223,7 @@ PixelDelay25Calib::PixelDelay25Calib(std::string filename) : PixelCalibBase(), P
 
 PixelDelay25Calib::~PixelDelay25Calib() {}
 
-void PixelDelay25Calib::openFiles(std::string portcardName, std::string moduleName, std::string path) {
+void PixelDelay25Calib::openFiles(const std::string &portcardName, const std::string &moduleName, std::string path) {
   if (!path.empty())
     path += "/";
   graph_ = path + "graph_" + portcardName + "_" + moduleName + ".dat";
@@ -231,7 +231,7 @@ void PixelDelay25Calib::openFiles(std::string portcardName, std::string moduleNa
   return;
 }
 
-void PixelDelay25Calib::writeSettings(std::string portcardName, std::string moduleName) {
+void PixelDelay25Calib::writeSettings(const std::string &portcardName, const std::string &moduleName) {
   graphout_ << "Portcard: " << portcardName << endl;
   graphout_ << "Module: " << moduleName << endl;
   graphout_ << "SDaOrigin: " << origSDa_ << endl;
@@ -243,7 +243,7 @@ void PixelDelay25Calib::writeSettings(std::string portcardName, std::string modu
   return;
 }
 
-void PixelDelay25Calib::writeFiles(std::string tmp) {
+void PixelDelay25Calib::writeFiles(const std::string &tmp) {
   graphout_ << tmp << endl;
   return;
 }

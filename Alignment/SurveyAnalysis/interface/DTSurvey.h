@@ -27,7 +27,7 @@ public:
   DTSurvey(const std::string &, const std::string &, int);
   ~DTSurvey();
 
-  void ReadChambers(edm::ESHandle<DTGeometry>);
+  void ReadChambers(const edm::ESHandle<DTGeometry> &);
   void CalculateChambers();
 
   const DTSurveyChamber *getChamber(int, int) const;

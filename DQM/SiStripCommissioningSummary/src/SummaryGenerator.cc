@@ -6,6 +6,8 @@
 #include <iostream>
 #include <sstream>
 #include <cmath>
+#include <utility>
+
 #include "TH2F.h"
 #include "TProfile.h"
 
@@ -14,7 +16,12 @@ using namespace sistrip;
 // -----------------------------------------------------------------------------
 //
 SummaryGenerator::SummaryGenerator(std::string name)
-    : map_(), entries_(-1.), max_(-1. * sistrip::invalid_), min_(1. * sistrip::invalid_), label_(""), myName_(name) {
+    : map_(),
+      entries_(-1.),
+      max_(-1. * sistrip::invalid_),
+      min_(1. * sistrip::invalid_),
+      label_(""),
+      myName_(std::move(name)) {
   // TH1::SetDefaultSumw2(true); // use square of weights to calc error
 }
 

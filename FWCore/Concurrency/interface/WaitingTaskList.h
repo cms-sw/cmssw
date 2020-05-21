@@ -115,7 +115,7 @@ namespace edm {
        a different, but related failure. You must later call doneWaiting
        with same exception later in the same thread.
        */
-    void presetTaskAsFailed(std::exception_ptr iExcept);
+    void presetTaskAsFailed(const std::exception_ptr& iExcept);
 
     ///Adds task to the waiting list
     /**If doneWaiting() has already been called then the added task will immediately be spawned.

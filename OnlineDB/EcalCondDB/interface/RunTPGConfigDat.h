@@ -1,6 +1,8 @@
 #ifndef RUNTPGCONFIGDAT_H
 #define RUNTPGCONFIGDAT_H
 
+#include <utility>
+
 #include <vector>
 #include <stdexcept>
 
@@ -18,7 +20,7 @@ public:
   inline std::string getTable() override { return "RUN_TPGCONFIG_DAT"; }
 
   inline std::string getConfigTag() const { return m_config; }
-  inline void setConfigTag(std::string x) { m_config = x; }
+  inline void setConfigTag(std::string x) { m_config = std::move(x); }
   inline int getVersion() const { return m_version; }
   inline void setVersion(int x) { m_version = x; }
 

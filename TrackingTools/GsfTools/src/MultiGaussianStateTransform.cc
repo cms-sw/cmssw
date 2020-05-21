@@ -65,7 +65,7 @@ MultiGaussianState1D MultiGaussianStateTransform::multiState1D(
   return MultiGaussianState1D(components);
 }
 
-MultiGaussianState<5> MultiGaussianStateTransform::multiState(const TrajectoryStateOnSurface tsos) {
+MultiGaussianState<5> MultiGaussianStateTransform::multiState(const TrajectoryStateOnSurface& tsos) {
   GetComponents comps(tsos);
   auto const& tsosComponents = comps();
   MultiGaussianState<5>::SingleStateContainer components;
@@ -78,7 +78,7 @@ MultiGaussianState<5> MultiGaussianStateTransform::multiState(const TrajectorySt
   return MultiGaussianState<5>(components);
 }
 
-MultiGaussianState1D MultiGaussianStateTransform::multiState1D(const TrajectoryStateOnSurface tsos,
+MultiGaussianState1D MultiGaussianStateTransform::multiState1D(const TrajectoryStateOnSurface& tsos,
                                                                unsigned int index) {
   if (index >= N)
     throw cms::Exception("LogicError") << "MultiGaussianStateTransform: index out of range";
@@ -94,7 +94,7 @@ MultiGaussianState1D MultiGaussianStateTransform::multiState1D(const TrajectoryS
 }
 
 TrajectoryStateOnSurface MultiGaussianStateTransform::tsosFromSingleState(const SingleGaussianState<5>& singleState,
-                                                                          const TrajectoryStateOnSurface refTsos) {
+                                                                          const TrajectoryStateOnSurface& refTsos) {
   const LocalTrajectoryParameters& refPars(refTsos.localParameters());
   double pzSign = refPars.pzSign();
   bool charged = refPars.charge() != 0;

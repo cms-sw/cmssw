@@ -17,7 +17,7 @@ public:
 
   DTOccupancyPoint(double mean, double rms);
 
-  DTOccupancyPoint(double mean, double rms, DTLayerId layerId);
+  DTOccupancyPoint(double mean, double rms, const DTLayerId& layerId);
 
   /// Destructor
   virtual ~DTOccupancyPoint();
@@ -43,7 +43,7 @@ public:
 
   bool operator<(const DTOccupancyPoint& other) const;
 
-  void setLayerId(DTLayerId layerId);
+  void setLayerId(const DTLayerId& layerId);
 
   DTLayerId layerId() const;
 

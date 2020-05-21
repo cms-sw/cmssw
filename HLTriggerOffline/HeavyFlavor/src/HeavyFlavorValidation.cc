@@ -9,6 +9,8 @@
 
 #include <memory>
 #include <initializer_list>
+#include <utility>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -68,38 +70,42 @@ private:
              double deltaRMatchingCut,
              vector<int> &map);
   void myBook2D(DQMStore::IBooker &ibooker,
-                TString name,
+                const TString &name,
                 vector<double> &xBins,
-                TString xLabel,
+                const TString &xLabel,
                 vector<double> &yBins,
-                TString yLabel,
-                TString title);
+                const TString &yLabel,
+                const TString &title);
   void myBook2D(DQMStore::IBooker &ibooker,
-                TString name,
+                const TString &name,
                 vector<double> &xBins,
                 TString xLabel,
                 vector<double> &yBins,
                 TString yLabel) {
-    myBook2D(ibooker, name, xBins, xLabel, yBins, yLabel, name);
+    myBook2D(ibooker, name, xBins, std::move(xLabel), yBins, std::move(yLabel), name);
   }
   void myBookProfile2D(DQMStore::IBooker &ibooker,
-                       TString name,
+                       const TString &name,
                        vector<double> &xBins,
-                       TString xLabel,
+                       const TString &xLabel,
                        vector<double> &yBins,
-                       TString yLabel,
-                       TString title);
+                       const TString &yLabel,
+                       const TString &title);
   void myBookProfile2D(DQMStore::IBooker &ibooker,
-                       TString name,
+                       const TString &name,
                        vector<double> &xBins,
                        TString xLabel,
                        vector<double> &yBins,
                        TString yLabel) {
-    myBookProfile2D(ibooker, name, xBins, xLabel, yBins, yLabel, name);
+    myBookProfile2D(ibooker, name, xBins, std::move(xLabel), yBins, std::move(yLabel), name);
   }
-  void myBook1D(DQMStore::IBooker &ibooker, TString name, vector<double> &xBins, TString label, TString title);
-  void myBook1D(DQMStore::IBooker &ibooker, TString name, vector<double> &xBins, TString label) {
-    myBook1D(ibooker, name, xBins, label, name);
+  void myBook1D(DQMStore::IBooker &ibooker,
+                const TString &name,
+                vector<double> &xBins,
+                const TString &label,
+                const TString &title);
+  void myBook1D(DQMStore::IBooker &ibooker, const TString &name, vector<double> &xBins, TString label) {
+    myBook1D(ibooker, name, xBins, std::move(label), name);
   }
 
   /**
@@ -799,12 +805,12 @@ void HeavyFlavorValidation::match(MonitorElement *me,
 }
 
 void HeavyFlavorValidation::myBook2D(DQMStore::IBooker &ibooker,
-                                     TString name,
+                                     const TString &name,
                                      vector<double> &ptBins,
-                                     TString ptLabel,
+                                     const TString &ptLabel,
                                      vector<double> &etaBins,
-                                     TString etaLabel,
-                                     TString title) {
+                                     const TString &etaLabel,
+                                     const TString &title) {
   //   dqmStore->setCurrentFolder(dqmFolder+"/"+folder);
   int ptN = ptBins.size() == 3 ? (int)ptBins[0] + 1 : ptBins.size();
   Double_t *pt = new Double_t[ptN];
@@ -825,12 +831,12 @@ void HeavyFlavorValidation::myBook2D(DQMStore::IBooker &ibooker,
 }
 
 void HeavyFlavorValidation::myBookProfile2D(DQMStore::IBooker &ibooker,
-                                            TString name,
+                                            const TString &name,
                                             vector<double> &ptBins,
-                                            TString ptLabel,
+                                            const TString &ptLabel,
                                             vector<double> &etaBins,
-                                            TString etaLabel,
-                                            TString title) {
+                                            const TString &etaLabel,
+                                            const TString &title) {
   //   dqmStore->setCurrentFolder(dqmFolder+"/"+folder);
   int ptN = ptBins.size() == 3 ? (int)ptBins[0] + 1 : ptBins.size();
   Double_t *pt = new Double_t[ptN];
@@ -851,7 +857,7 @@ void HeavyFlavorValidation::myBookProfile2D(DQMStore::IBooker &ibooker,
 }
 
 void HeavyFlavorValidation::myBook1D(
-    DQMStore::IBooker &ibooker, TString name, vector<double> &bins, TString label, TString title) {
+    DQMStore::IBooker &ibooker, const TString &name, vector<double> &bins, const TString &label, const TString &title) {
   //   dqmStore->setCurrentFolder(dqmFolder+"/"+folder);
   int binsN = bins.size() == 3 ? (int)bins[0] + 1 : bins.size();
   Double_t *myBins = new Double_t[binsN];

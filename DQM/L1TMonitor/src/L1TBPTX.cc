@@ -582,4 +582,4 @@ void L1TBPTX::doFractionInSync(bool iForce, bool iBad) {}
 // Variable: iEndLs   - Blocks end LS
 // Variable: iValue   - Value to be used to fill
 //_____________________________________________________________________
-void L1TBPTX::certifyLSBlock(string iTrigger, int iInitLs, int iEndLs, float iValue) {}
+void L1TBPTX::certifyLSBlock(const string& iTrigger, int iInitLs, int iEndLs, float iValue) {}

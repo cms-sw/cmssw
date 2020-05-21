@@ -18,7 +18,7 @@ RunTypeDef::~RunTypeDef() {}
 
 string RunTypeDef::getRunType() const { return m_runType; }
 
-void RunTypeDef::setRunType(string runtype) {
+void RunTypeDef::setRunType(const string& runtype) {
   if (runtype != m_runType) {
     m_ID = 0;
     m_runType = runtype;

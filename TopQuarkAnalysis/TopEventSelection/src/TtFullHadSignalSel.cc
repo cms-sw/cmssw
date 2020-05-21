@@ -9,7 +9,7 @@ TtFullHadSignalSel::TtFullHadSignalSel() {}
 
 std::vector<math::XYZVector> makeVecForEventShape(std::vector<pat::Jet> jets,
                                                   bool only6Jets = true,
-                                                  ROOT::Math::Boost boost = ROOT::Math::Boost(0., 0., 0.)) {
+                                                  const ROOT::Math::Boost& boost = ROOT::Math::Boost(0., 0., 0.)) {
   std::vector<math::XYZVector> p;
   bool doBoost = (boost == ROOT::Math::Boost(0., 0., 0.)) ? false : true;
   for (std::vector<pat::Jet>::const_iterator jet = jets.begin(); jet != jets.end(); ++jet) {

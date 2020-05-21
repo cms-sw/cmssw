@@ -147,7 +147,7 @@ void Tm::setToLocalTime(time_t t) { m_tm = *localtime(&t); }
 
 void Tm::setToGMTime(time_t t) { m_tm = *gmtime(&t); }
 
-void Tm::setToString(const string s) noexcept(false) {
+void Tm::setToString(const string &s) noexcept(false) {
   sscanf(s.c_str(),
          "%04d-%02d-%02d %02d:%02d:%02d",
          &m_tm.tm_year,

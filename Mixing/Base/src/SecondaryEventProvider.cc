@@ -8,7 +8,7 @@
 namespace edm {
   SecondaryEventProvider::SecondaryEventProvider(std::vector<ParameterSet>& psets,
                                                  ProductRegistry& preg,
-                                                 std::shared_ptr<ProcessConfiguration> processConfiguration)
+                                                 const std::shared_ptr<ProcessConfiguration>& processConfiguration)
       : exceptionToActionTable_(new ExceptionToActionTable),
         workerManager_(std::make_shared<ActivityRegistry>(), *exceptionToActionTable_) {
     std::vector<std::string> shouldBeUsedLabels;

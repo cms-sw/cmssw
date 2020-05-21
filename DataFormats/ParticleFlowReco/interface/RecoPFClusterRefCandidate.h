@@ -12,7 +12,7 @@ namespace reco {
   class RecoPFClusterRefCandidate : public LeafRefCandidateT {
   public:
     RecoPFClusterRefCandidate() : LeafRefCandidateT() {}
-    RecoPFClusterRefCandidate(PFClusterRef ref, float m) : LeafRefCandidateT(ref, m) {}
+    RecoPFClusterRefCandidate(const PFClusterRef& ref, float m) : LeafRefCandidateT(ref, m) {}
 
     ~RecoPFClusterRefCandidate() override {}
 

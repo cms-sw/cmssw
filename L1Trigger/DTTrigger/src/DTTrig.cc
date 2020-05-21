@@ -244,11 +244,11 @@ void DTTrig::clear() {
   _cache1.clear();
 }
 
-DTSCTrigUnit* DTTrig::trigUnit(DTChamberId chid) { /*check();*/
+DTSCTrigUnit* DTTrig::trigUnit(const DTChamberId& chid) { /*check();*/
   return const_cast<DTSCTrigUnit*>(constTrigUnit(chid));
 }
 
-DTSCTrigUnit const* DTTrig::constTrigUnit(DTChamberId chid) const {
+DTSCTrigUnit const* DTTrig::constTrigUnit(const DTChamberId& chid) const {
   //    std::cout << " SC: running DTTrig::constTrigUnit(DTChamberId chid)" << std::endl;
   TU_const_iterator it = _cache.find(chid);
   if (it == _cache.end()) {
@@ -263,7 +263,7 @@ DTSCTrigUnit const* DTTrig::constTrigUnit(DTChamberId chid) const {
   return &(*it).second;
 }
 
-DTSectColl const* DTTrig::SCUnit(DTSectCollId scid) const {
+DTSectColl const* DTTrig::SCUnit(const DTSectCollId& scid) const {
   SC_const_iterator it = _cache1.find(scid);
   if (it == _cache1.end()) {
     std::cout << "DTTrig::SCUnit: Trigger Unit not in the map: ";
@@ -314,11 +314,11 @@ DTChambThSegm* DTTrig::chThetaSegm(DTSCTrigUnit* unit, int step) {
   return const_cast<DTChambThSegm*>(unit->thetaSegment(step, 1));
 }
 
-DTChambPhSegm* DTTrig::chPhiSegm1(DTChamberId sid, int step) { return chPhiSegm1(trigUnit(sid), step); }
+DTChambPhSegm* DTTrig::chPhiSegm1(const DTChamberId& sid, int step) { return chPhiSegm1(trigUnit(sid), step); }
 
-DTChambPhSegm* DTTrig::chPhiSegm2(DTChamberId sid, int step) { return chPhiSegm2(trigUnit(sid), step); }
+DTChambPhSegm* DTTrig::chPhiSegm2(const DTChamberId& sid, int step) { return chPhiSegm2(trigUnit(sid), step); }
 
-DTChambThSegm* DTTrig::chThetaSegm(DTChamberId sid, int step) {
+DTChambThSegm* DTTrig::chThetaSegm(const DTChamberId& sid, int step) {
   if (sid.station() == 4)
     return nullptr;
   return chThetaSegm(trigUnit(sid), step);

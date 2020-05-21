@@ -14,6 +14,8 @@
 #include <iostream>
 #include <string>
 #include <ctime>
+#include <utility>
+
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/dom/DOM.hpp>
@@ -52,7 +54,7 @@ XMLDOMBlock::XMLDOMBlock() {
 XMLDOMBlock::XMLDOMBlock(std::string _root, int rootElementName) {
   //std::cout << "XMLDOMBlock (or derived): default constructor called - this is meaningless!" << std::endl;
   //std::cout << "XMLDOMBlock (or derived): use yourClass( loaderBaseConfig & ) instead." << std::endl;
-  init(_root);
+  init(std::move(_root));
 }
 
 XMLDOMBlock::XMLDOMBlock(InputSource& _source) {
@@ -156,8 +158,8 @@ int XMLDOMBlock::init(std::string _root) {
 
   document = impl->createDocument(nullptr,  // root element namespace URI.
                                   //XMLString::transcode("ROOT"), // root element name
-                                  XMLProcessor::_toXMLCh(_root),  // root element name
-                                  nullptr);                       // document type object (DTD).
+                                  XMLProcessor::_toXMLCh(std::move(_root)),  // root element name
+                                  nullptr);                                  // document type object (DTD).
 
   the_string = nullptr;
 
@@ -194,7 +196,7 @@ XMLDOMBlock::XMLDOMBlock(std::string xmlFileName) {
 
   theProcessor = XMLProcessor::getInstance();
 
-  theFileName = xmlFileName;
+  theFileName = std::move(xmlFileName);
 
   // initialize the parser
   parser = new XercesDOMParser();
@@ -231,7 +233,7 @@ DOMDocument* XMLDOMBlock::getNewDocument(std::string xmlFileName) {
 
   theProcessor = XMLProcessor::getInstance();
 
-  theFileName = xmlFileName;
+  theFileName = std::move(xmlFileName);
 
   // initialize the parser
   parser = new XercesDOMParser();
@@ -270,7 +272,7 @@ DOMDocument* XMLDOMBlock::getDocument(void) { return document; }
 DOMDocument* XMLDOMBlock::getDocumentConst(void) const { return document; }
 
 int XMLDOMBlock::write(std::string target) {
-  theProcessor->write(this, target);
+  theProcessor->write(this, std::move(target));
 
   return 0;
 }

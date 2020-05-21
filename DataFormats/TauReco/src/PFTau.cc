@@ -57,7 +57,7 @@ namespace reco {
 
   const PFTauTagInfoRef& PFTau::pfTauTagInfoRef() const { return PFTauTagInfoRef_; }
 
-  void PFTau::setpfTauTagInfoRef(const PFTauTagInfoRef x) { PFTauTagInfoRef_ = x; }
+  void PFTau::setpfTauTagInfoRef(const PFTauTagInfoRef& x) { PFTauTagInfoRef_ = x; }
 
   const CandidatePtr& PFTau::leadChargedHadrCand() const { return leadChargedHadrCand_; }
   const CandidatePtr& PFTau::leadNeutralCand() const { return leadNeutralCand_; }

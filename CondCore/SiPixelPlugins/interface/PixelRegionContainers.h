@@ -168,9 +168,9 @@ namespace PixelRegions {
     ~PixelRegionContainers() {}
 
     //============================================================================
-    void bookAll(std::string title_label,
-                 std::string x_label,
-                 std::string y_label,
+    void bookAll(const std::string& title_label,
+                 const std::string& x_label,
+                 const std::string& y_label,
                  const int nbins,
                  const float xmin,
                  const float xmax) {

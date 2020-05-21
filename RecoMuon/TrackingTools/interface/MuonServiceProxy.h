@@ -62,7 +62,7 @@ public:
   edm::ESHandle<MuonDetLayerGeometry> detLayerGeometry() const { return theDetLayerGeometry; }
 
   /// get the propagator
-  edm::ESHandle<Propagator> propagator(std::string propagatorName) const;
+  edm::ESHandle<Propagator> propagator(const std::string& propagatorName) const;
 
   /// get the whole EventSetup
   /// (Note: this is a dangerous function. I would delete it if modules were

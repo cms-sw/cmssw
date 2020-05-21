@@ -24,7 +24,7 @@ namespace helper {
     size_t size() const { return selCands_->size(); }
 
   private:
-    reco::CandidateRef add(reco::CandidateRefProd cands, const reco::Candidate& c) {
+    reco::CandidateRef add(const reco::CandidateRefProd& cands, const reco::Candidate& c) {
       using namespace reco;
       using namespace std;
       auto cmp = std::make_unique<CompositeRefCandidate>(c);

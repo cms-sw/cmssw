@@ -252,7 +252,7 @@ int Phase1PixelBlade::findBin(float R, int diskSectorIndex) const {
   return theBin;
 }
 
-int Phase1PixelBlade::findBin2(GlobalPoint thispoint, int diskSectorIndex) const {
+int Phase1PixelBlade::findBin2(const GlobalPoint& thispoint, int diskSectorIndex) const {
   const vector<const GeomDet*>& localDets = diskSectorIndex == 0 ? theFrontDets : theBackDets;
 
   int theBin = 0;

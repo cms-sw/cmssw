@@ -21,7 +21,7 @@ public:
   /** destructor*/
   ~SiStripCoralIface();
   /** Method to retrieve information from status change table or lastValue table.  queryType defines which table is to be accessed.*/
-  void doQuery(std::string queryType,
+  void doQuery(const std::string& queryType,
                const coral::TimeStamp& startTime,
                const coral::TimeStamp& endTime,
                std::vector<coral::TimeStamp>&,

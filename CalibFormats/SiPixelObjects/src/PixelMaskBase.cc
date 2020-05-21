@@ -10,12 +10,14 @@
 //
 //
 
+#include <utility>
+
 #include "CalibFormats/SiPixelObjects/interface/PixelMaskBase.h"
 
 using namespace pos;
 
 PixelMaskBase::PixelMaskBase(std::string description, std::string creator, std::string date)
-    : PixelConfigBase(description, creator, date) {}
+    : PixelConfigBase(std::move(description), std::move(creator), std::move(date)) {}
 
 PixelMaskBase::~PixelMaskBase() {}
 

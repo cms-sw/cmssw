@@ -8,7 +8,7 @@ TransientTrackKinematicParticle::TransientTrackKinematicParticle(
     float& chiSquared,
     float& degreesOfFr,
     KinematicConstraint* lastConstraint,
-    ReferenceCountingPointer<KinematicParticle> previousParticle,
+    const ReferenceCountingPointer<KinematicParticle>& previousParticle,
     KinematicStatePropagator* pr,
     const TransientTrack* initialTrack) {
   theField = kineState.magneticField();

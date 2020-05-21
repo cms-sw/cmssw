@@ -37,7 +37,7 @@ public:
   /// Run the algorithm
   void run(const edm::EventSetup& setup, const EventInfo& eventInfo) override;
 
-  void updateInfo(const AlgebraicMatrix&, const AlgebraicMatrix&, const AlgebraicMatrix&, std::string);
+  void updateInfo(const AlgebraicMatrix&, const AlgebraicMatrix&, const AlgebraicMatrix&, const std::string&);
 
   void toTMat(AlgebraicMatrix*, TMatrixD*);
 

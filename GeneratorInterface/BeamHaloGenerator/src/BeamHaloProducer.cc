@@ -156,7 +156,7 @@ void BeamHaloProducer::endRunProduce(Run& run, const EventSetup& es) {
   run.put(std::move(genRunInfo));
 }
 
-bool BeamHaloProducer::call_bh_set_parameters(int* ival, float* fval, const std::string cval_string) {
+bool BeamHaloProducer::call_bh_set_parameters(int* ival, float* fval, const std::string& cval_string) {
   BHSETPARAM(ival, fval, cval_string.c_str(), cval_string.length());
   return true;
 }

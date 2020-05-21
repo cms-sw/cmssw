@@ -3,7 +3,7 @@
 #include "H_BeamParticle.h"
 #include "TLorentzVector.h"
 
-TLorentzVector PPSTools::HectorParticle2LorentzVector(H_BeamParticle hp, int direction) {
+TLorentzVector PPSTools::HectorParticle2LorentzVector(const H_BeamParticle& hp, int direction) {
   double partP = sqrt(pow(hp.getE(), 2) - ProtonMassSQ);
   double theta = sqrt(pow(hp.getTX(), 2) + pow(hp.getTY(), 2)) * urad;
   double pz = partP * cos(theta);
@@ -13,7 +13,7 @@ TLorentzVector PPSTools::HectorParticle2LorentzVector(H_BeamParticle hp, int dir
   return TLorentzVector(px, py, pz, hp.getE());
 }
 
-H_BeamParticle PPSTools::LorentzVector2HectorParticle(TLorentzVector p) {
+H_BeamParticle PPSTools::LorentzVector2HectorParticle(const TLorentzVector& p) {
   H_BeamParticle h_p;
   h_p.set4Momentum(p.Px(), p.Py(), abs(p.Pz()), p.E());
   return h_p;

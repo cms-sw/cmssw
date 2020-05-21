@@ -89,7 +89,7 @@ namespace edm {
   public:  // Made public (temporarily) at the request of Emilio Meschi.
     static ServiceToken createSet(std::vector<ParameterSet>&);
     static ServiceToken createSet(std::vector<ParameterSet>&,
-                                  ServiceToken,
+                                  const ServiceToken&,
                                   serviceregistry::ServiceLegacy,
                                   bool associate = true);
     /// create a service token that holds the service defined by iService
@@ -103,7 +103,7 @@ namespace edm {
     }
     template <typename T>
     static ServiceToken createContaining(std::unique_ptr<T> iService,
-                                         ServiceToken iToken,
+                                         const ServiceToken& iToken,
                                          serviceregistry::ServiceLegacy iLegacy) {
       std::vector<edm::ParameterSet> config;
       auto manager = std::make_shared<serviceregistry::ServicesManager>(iToken, iLegacy, config);
@@ -121,7 +121,7 @@ namespace edm {
     }
     template <typename T>
     static ServiceToken createContaining(std::shared_ptr<serviceregistry::ServiceWrapper<T> > iWrapper,
-                                         ServiceToken iToken,
+                                         const ServiceToken& iToken,
                                          serviceregistry::ServiceLegacy iLegacy) {
       std::vector<edm::ParameterSet> config;
       auto manager = std::make_shared<serviceregistry::ServicesManager>(iToken, iLegacy, config);

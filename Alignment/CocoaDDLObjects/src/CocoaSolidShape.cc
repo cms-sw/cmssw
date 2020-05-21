@@ -6,7 +6,8 @@
 //   Pedro Arce
 #include <fstream>
 #include <map>
+#include <utility>
 
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShape.h"
 
-CocoaSolidShape::CocoaSolidShape(ALIstring type) { theType = type; }
+CocoaSolidShape::CocoaSolidShape(ALIstring type) { theType = std::move(type); }

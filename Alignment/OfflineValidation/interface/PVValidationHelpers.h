@@ -122,7 +122,7 @@ namespace PVValHelper {
 
   void fill(std::map<std::string, TH1*>& h, const std::string& s, double x, double y);
 
-  void fillByIndex(std::vector<TH1F*>& h, unsigned int index, double x, std::string tag = "");
+  void fillByIndex(std::vector<TH1F*>& h, unsigned int index, double x, const std::string& tag = "");
 
   void shrinkHistVectorToFit(std::vector<TH1F*>& h, unsigned int desired_size);
 

@@ -121,7 +121,7 @@ MessageLoggerQ *MessageLoggerQ::instance() {
   return &queue;
 }  // MessageLoggerQ::instance()
 
-void MessageLoggerQ::setMLscribe_ptr(std::shared_ptr<edm::service::AbstractMLscribe> m)  // changeLog 8, 14
+void MessageLoggerQ::setMLscribe_ptr(const std::shared_ptr<edm::service::AbstractMLscribe> &m)  // changeLog 8, 14
 {
   if (!m) {
     mlscribe_ptr = obtainStandAloneScribePtr();

@@ -60,7 +60,7 @@ namespace edm {
     static void MLqJRS(std::map<std::string, double>* sum_p);
 
     // ---  bookkeeping for single-thread mode
-    static void setMLscribe_ptr(std::shared_ptr<edm::service::AbstractMLscribe> m);
+    static void setMLscribe_ptr(const std::shared_ptr<edm::service::AbstractMLscribe>& m);
 
     // ---  helper for scribes
     static bool handshaked(const OpCode& op);

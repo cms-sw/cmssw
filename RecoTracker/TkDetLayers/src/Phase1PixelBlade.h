@@ -69,7 +69,7 @@ private:
   // of a GeneralBinFinderInR
 
   int findBin(float R, int layer) const;
-  int findBin2(GlobalPoint thispoint, int layer) const;
+  int findBin2(const GlobalPoint& thispoint, int layer) const;
 
   GlobalPoint findPosition(int index, int diskSectorIndex) const;
 

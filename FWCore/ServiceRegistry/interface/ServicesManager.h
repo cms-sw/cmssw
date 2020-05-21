@@ -44,7 +44,7 @@ namespace edm {
     class ServicesManager {
     public:
       struct MakerHolder {
-        MakerHolder(std::shared_ptr<ServiceMakerBase> iMaker, ParameterSet& iPSet, ActivityRegistry&);
+        MakerHolder(const std::shared_ptr<ServiceMakerBase>& iMaker, ParameterSet& iPSet, ActivityRegistry&);
         bool add(ServicesManager&) const;
 
         edm::propagate_const<std::shared_ptr<ServiceMakerBase>> maker_;
@@ -62,7 +62,7 @@ namespace edm {
              Conflicts over Services provided by both the iToken and iConfiguration
              are resolved based on the value of iLegacy
          */
-      ServicesManager(ServiceToken iToken,
+      ServicesManager(const ServiceToken& iToken,
                       ServiceLegacy iLegacy,
                       std::vector<ParameterSet>& iConfiguration,
                       bool associate = true);

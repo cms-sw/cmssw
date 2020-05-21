@@ -51,7 +51,7 @@ namespace edm {
     typedef Base::ConstProductResolverPtr ConstProductResolverPtr;
     static int const invalidBunchXing = EventAuxiliary::invalidBunchXing;
     static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
-    EventPrincipal(std::shared_ptr<ProductRegistry const> reg,
+    EventPrincipal(const std::shared_ptr<ProductRegistry const>& reg,
                    std::shared_ptr<BranchIDListHelper const> branchIDListHelper,
                    std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper,
                    ProcessConfiguration const& pc,

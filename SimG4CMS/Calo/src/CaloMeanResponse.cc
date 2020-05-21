@@ -91,7 +91,7 @@ double CaloMeanResponse::getWeight(int genPID, double genP) {
   return weight;
 }
 
-void CaloMeanResponse::readResponse(std::string fName) {
+void CaloMeanResponse::readResponse(const std::string& fName) {
   std::ifstream infile;
   infile.open(fName.c_str(), std::ios::in);
 

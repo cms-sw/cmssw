@@ -83,7 +83,7 @@ namespace XrdAdaptor {
     void recomputeProperties(std::map<std::string, std::string> &props);
 
     static std::shared_ptr<XrdReadStatistics> startRead(std::shared_ptr<XrdSiteStatistics> parent,
-                                                        std::shared_ptr<ClientRequest> req);
+                                                        const std::shared_ptr<ClientRequest> &req);
 
     void finishRead(XrdReadStatistics const &);
 
@@ -113,7 +113,7 @@ namespace XrdAdaptor {
     XrdReadStatistics &operator=(const XrdReadStatistics &) = delete;
 
   private:
-    XrdReadStatistics(std::shared_ptr<XrdSiteStatistics> parent, IOSize size, size_t count);
+    XrdReadStatistics(const std::shared_ptr<XrdSiteStatistics> &parent, IOSize size, size_t count);
 
     uint64_t elapsedNS() const;
     int readCount() const { return m_count; }

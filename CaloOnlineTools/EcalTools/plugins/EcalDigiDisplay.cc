@@ -252,7 +252,7 @@ void EcalDigiDisplay::analyze(edm::Event const& e, edm::EventSetup const& c) {
 // FUNCTIONS
 //////////////////////////////////
 
-void EcalDigiDisplay::readEBDigis(edm::Handle<EBDigiCollection> digis, int Mode) {
+void EcalDigiDisplay::readEBDigis(const edm::Handle<EBDigiCollection>& digis, int Mode) {
   for (EBDigiCollection::const_iterator digiItr = digis->begin(); digiItr != digis->end(); ++digiItr) {
     EBDetId detId = EBDetId((*digiItr).id());
     EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(detId);
@@ -305,7 +305,7 @@ void EcalDigiDisplay::readEBDigis(edm::Handle<EBDigiCollection> digis, int Mode)
 }
 
 //Function for EE Digis
-void EcalDigiDisplay::readEEDigis(edm::Handle<EEDigiCollection> digis, int Mode) {
+void EcalDigiDisplay::readEEDigis(const edm::Handle<EEDigiCollection>& digis, int Mode) {
   //For Endcap so far works only  Mode 2
   if (Mode != 2) {
     std::cout << "For Endcap mode needs to be set to 2" << std::endl;
@@ -350,7 +350,7 @@ void EcalDigiDisplay::readEEDigis(edm::Handle<EEDigiCollection> digis, int Mode)
   }
 }
 
-void EcalDigiDisplay::readPNDigis(edm::Handle<EcalPnDiodeDigiCollection> PNs, int Mode) {
+void EcalDigiDisplay::readPNDigis(const edm::Handle<EcalPnDiodeDigiCollection>& PNs, int Mode) {
   int pnDigiCounter = 0;
 
   //Loop over PN digis

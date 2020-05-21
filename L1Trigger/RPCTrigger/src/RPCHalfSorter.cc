@@ -115,7 +115,7 @@ void RPCHalfSorter::maskHSBInput(L1RpcTBMuonsVec &newVec, int mask) {
  * @return 4 munons from barrel (m_GBOutputMuons[0]),
  * and 4 from endcaps (m_GBOutputMuons[1]).
 */
-L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2, edm::ESHandle<L1RPCHsbConfig> hsbConf) {
+L1RpcTBMuonsVec2 RPCHalfSorter::run(L1RpcTBMuonsVec2 &tcsMuonsVec2, const edm::ESHandle<L1RPCHsbConfig> &hsbConf) {
   m_GBOutputMuons[0].clear();
   m_GBOutputMuons[1].clear();
 

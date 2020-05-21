@@ -1,6 +1,6 @@
 #include "MuonAnalysis/MomentumScaleCalibration/interface/ResolutionFunction.h"
 
-void ResolutionFunction::readParameters(TString fileName) {
+void ResolutionFunction::readParameters(const TString& fileName) {
   iterationNum_ = 0;
   parArray_ = nullptr;
   // std::vector<double> parameterErrors;

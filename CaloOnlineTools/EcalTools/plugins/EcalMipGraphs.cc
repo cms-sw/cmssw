@@ -232,7 +232,9 @@ TGraph* EcalMipGraphs::selectDigi(DetId thisDet, int ievt) {
   return oneGraph;
 }
 
-void EcalMipGraphs::selectHits(Handle<EcalRecHitCollection> hits, int ievt, ESHandle<CaloTopology> caloTopo) {
+void EcalMipGraphs::selectHits(const Handle<EcalRecHitCollection>& hits,
+                               int ievt,
+                               const ESHandle<CaloTopology>& caloTopo) {
   for (EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr) {
     EcalRecHit hit = (*hitItr);
     DetId det = hit.id();

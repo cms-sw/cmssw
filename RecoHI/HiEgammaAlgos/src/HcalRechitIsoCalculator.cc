@@ -15,9 +15,9 @@ using namespace reco;
 
 HcalRechitIsoCalculator::HcalRechitIsoCalculator(const edm::Event &iEvent,
                                                  const edm::EventSetup &iSetup,
-                                                 const edm::Handle<HBHERecHitCollection> hbhe,
-                                                 const edm::Handle<HFRecHitCollection> hf,
-                                                 const edm::Handle<HORecHitCollection> ho) {
+                                                 const edm::Handle<HBHERecHitCollection> &hbhe,
+                                                 const edm::Handle<HFRecHitCollection> &hf,
+                                                 const edm::Handle<HORecHitCollection> &ho) {
   if (hf.isValid())
     fHFRecHits_ = hf.product();
   else
@@ -41,7 +41,7 @@ HcalRechitIsoCalculator::HcalRechitIsoCalculator(const edm::Event &iEvent,
     geometry_ = nullptr;
 }
 
-double HcalRechitIsoCalculator::getHcalRechitIso(const reco::SuperClusterRef cluster,
+double HcalRechitIsoCalculator::getHcalRechitIso(const reco::SuperClusterRef &cluster,
                                                  const double x,
                                                  const double threshold,
                                                  const double innerR) {
@@ -73,7 +73,7 @@ double HcalRechitIsoCalculator::getHcalRechitIso(const reco::SuperClusterRef clu
   return TotalEt;
 }
 
-double HcalRechitIsoCalculator::getBkgSubHcalRechitIso(const reco::SuperClusterRef cluster,
+double HcalRechitIsoCalculator::getBkgSubHcalRechitIso(const reco::SuperClusterRef &cluster,
                                                        const double x,
                                                        const double threshold,
                                                        const double innerR) {

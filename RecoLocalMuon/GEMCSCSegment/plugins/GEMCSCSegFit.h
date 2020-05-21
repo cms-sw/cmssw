@@ -42,6 +42,8 @@
 #include <Math/SVector.h>
 #include <Math/SMatrix.h>
 
+#include <utility>
+
 #include <vector>
 
 class GEMCSCSegFit {
@@ -69,9 +71,9 @@ public:
   //@@ WANT OBJECT TO CACHE THE SET OF HITS SO CANNOT PASS BY REF
   GEMCSCSegFit(std::map<uint32_t, const CSCLayer*> csclayermap,
                std::map<uint32_t, const GEMEtaPartition*> gemrollmap,
-               const std::vector<const TrackingRecHit*> hits)
-      : csclayermap_(csclayermap),
-        gemetapartmap_(gemrollmap),
+               const std::vector<const TrackingRecHit*>& hits)
+      : csclayermap_(std::move(csclayermap)),
+        gemetapartmap_(std::move(gemrollmap)),
         hits_(hits),
         scaleXError_(1.0),
         refid_(csclayermap_.begin()->first),

@@ -49,7 +49,7 @@ namespace spr {
   };
 
   void eGenSimInfo(const DetId& coreDet,
-                   HepMC::GenEvent::particle_const_iterator trkItr,
+                   const HepMC::GenEvent::particle_const_iterator& trkItr,
                    std::vector<spr::propagatedGenTrackID>& trackIds,
                    const CaloGeometry* geo,
                    const CaloTopology* caloTopology,
@@ -59,7 +59,7 @@ namespace spr {
                    bool debug = false);
 
   void eGenSimInfo(const DetId& coreDet,
-                   HepMC::GenEvent::particle_const_iterator trkItr,
+                   const HepMC::GenEvent::particle_const_iterator& trkItr,
                    std::vector<spr::propagatedGenTrackID>& trackIds,
                    const CaloGeometry* geo,
                    const CaloTopology* caloTopology,
@@ -89,7 +89,7 @@ namespace spr {
                    bool debug = false);
 
   void hGenSimInfo(const DetId& coreDet,
-                   HepMC::GenEvent::particle_const_iterator trkItr,
+                   const HepMC::GenEvent::particle_const_iterator& trkItr,
                    std::vector<spr::propagatedGenTrackID>& trackIds,
                    const HcalTopology* topology,
                    int ieta,
@@ -99,7 +99,7 @@ namespace spr {
                    bool debug = false);
 
   void hGenSimInfo(const DetId& coreDet,
-                   HepMC::GenEvent::particle_const_iterator trkItr,
+                   const HepMC::GenEvent::particle_const_iterator& trkItr,
                    std::vector<spr::propagatedGenTrackID>& trackIds,
                    const CaloGeometry* geo,
                    const HcalTopology* topology,
@@ -131,7 +131,7 @@ namespace spr {
                    bool debug = false);
 
   void cGenSimInfo(std::vector<DetId>& vdets,
-                   HepMC::GenEvent::particle_const_iterator trkItr,
+                   const HepMC::GenEvent::particle_const_iterator& trkItr,
                    std::vector<spr::propagatedGenTrackID>& trackIds,
                    bool ifECAL,
                    spr::genSimInfo& info,

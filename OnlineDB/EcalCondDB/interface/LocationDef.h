@@ -18,7 +18,7 @@ public:
 
   // Methods for user data
   std::string getLocation() const;
-  void setLocation(std::string loc);
+  void setLocation(const std::string& loc);
 
   // Methods from IUniqueDBObject
   int fetchID() noexcept(false) override;

@@ -28,7 +28,7 @@ TkDetMapESProducer::TkDetMapESProducer(const edm::ParameterSet&) {
 }
 
 namespace {
-  TkLayerMap makeTkLayerMap(int layer, const TrackerTopology* tTopo, const std::vector<uint32_t> tkDetIdList) {
+  TkLayerMap makeTkLayerMap(int layer, const TrackerTopology* tTopo, const std::vector<uint32_t>& tkDetIdList) {
     LogTrace("TkLayerMap") << " TkLayerMap::constructor for layer " << layer;
     uint32_t nStringExt, nRod;
     std::vector<uint32_t> SingleExtString;

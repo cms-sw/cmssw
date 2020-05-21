@@ -216,7 +216,7 @@ namespace edm {
       configure_statistics();             // Change Log 16
     }                                     // ThreadSafeLogMessageLoggerScribe::configure_errorlog()
 
-    void ThreadSafeLogMessageLoggerScribe::configure_dest(std::shared_ptr<ELdestination> dest_ctrl,
+    void ThreadSafeLogMessageLoggerScribe::configure_dest(const std::shared_ptr<ELdestination>& dest_ctrl,
                                                           String const& filename) {
       static const int NO_VALUE_SET = -45654;  // change log 2
       vString empty_vString;

@@ -17,13 +17,14 @@
 #include "TPaveStats.h"
 #include <string>
 #include <fstream>
+#include <utility>
 
 namespace {
 
   class HcalPedestalWidthContainer : public HcalObjRepresent::HcalDataContainer<HcalPedestalWidths, HcalPedestalWidth> {
   public:
     HcalPedestalWidthContainer(std::shared_ptr<HcalPedestalWidths> payload, unsigned int run)
-        : HcalObjRepresent::HcalDataContainer<HcalPedestalWidths, HcalPedestalWidth>(payload, run) {}
+        : HcalObjRepresent::HcalDataContainer<HcalPedestalWidths, HcalPedestalWidth>(std::move(payload), run) {}
     float getValue(HcalPedestalWidth* ped) override {
       return (ped->getWidth(0) + ped->getWidth(1) + ped->getWidth(2) + ped->getWidth(3)) / 4;
     }

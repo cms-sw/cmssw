@@ -1,6 +1,8 @@
 #ifndef _TRACKER_GLOBALTRAJECTORYPARAMETERS_H_
 #define _TRACKER_GLOBALTRAJECTORYPARAMETERS_H_
 
+#include <utility>
+
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"
@@ -34,7 +36,7 @@ public:
                              TrackCharge aCharge,
                              const MagneticField* fieldProvider,
                              GlobalVector fieldValue)
-      : theField(fieldProvider), theX(aX), theP(aP), cachedMagneticField(fieldValue), theCharge(aCharge) {}
+      : theField(fieldProvider), theX(aX), theP(aP), cachedMagneticField(std::move(fieldValue)), theCharge(aCharge) {}
 
   /** Constructing class from global position, direction (unit length) 
    *  and transverse curvature. The fourth int argument is dummy, 

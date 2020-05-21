@@ -38,9 +38,9 @@ struct linearityCorrectionValues {
 
 class ElectronEnergyCalibrator {
 public:
-  ElectronEnergyCalibrator(const std::string pathData,
-                           const std::string pathLinData,
-                           const std::string dataset,
+  ElectronEnergyCalibrator(const std::string &pathData,
+                           const std::string &pathLinData,
+                           const std::string &dataset,
                            int correctionsType,
                            bool applyLinearityCorrection,
                            double lumiRatio,

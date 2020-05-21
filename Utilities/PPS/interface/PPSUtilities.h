@@ -30,9 +30,9 @@ namespace PPSTools {
   const double ProtonMass = CLHEP::proton_mass_c2 / GeV;
   const double ProtonMassSQ = pow(ProtonMass, 2);
 
-  TLorentzVector HectorParticle2LorentzVector(H_BeamParticle hp, int);
+  TLorentzVector HectorParticle2LorentzVector(const H_BeamParticle& hp, int);
 
-  H_BeamParticle LorentzVector2HectorParticle(TLorentzVector p);
+  H_BeamParticle LorentzVector2HectorParticle(const TLorentzVector& p);
 
   void LorentzBoost(H_BeamParticle& h_p, int dir, const std::string& frame, FullBeamInfo const& bi);
 

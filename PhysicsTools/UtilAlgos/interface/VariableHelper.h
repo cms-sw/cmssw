@@ -18,12 +18,12 @@ public:
   }
   typedef std::map<std::string, const CachingVariable*>::const_iterator iterator;
 
-  const CachingVariable* variable(std::string name) const;
+  const CachingVariable* variable(const std::string& name) const;
 
   iterator begin() { return variables_.begin(); }
   iterator end() { return variables_.end(); }
 
-  void setHolder(std::string hn);
+  void setHolder(const std::string& hn);
   void print() const;
   std::string printValues(const edm::Event& event) const;
 
@@ -57,7 +57,7 @@ public:
     }
   }
 
-  VariableHelper& init(std::string user, const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC) {
+  VariableHelper& init(const std::string& user, const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC) {
     if (multipleInstance_.find(user) != multipleInstance_.end()) {
       std::cerr << user << " VariableHelper user already defined." << std::endl;
       throw;
@@ -105,7 +105,7 @@ public:
     */
   }
 
-  VariableHelper& set(std::string user) {
+  VariableHelper& set(const std::string& user) {
     std::map<std::string, VariableHelper*>::iterator f = multipleInstance_.find(user);
     if (f == multipleInstance_.end()) {
       std::cerr << user << " VariableHelper user not defined." << std::endl;

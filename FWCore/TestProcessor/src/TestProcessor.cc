@@ -81,7 +81,7 @@ namespace edm {
     //
     // constructors and destructor
     //
-    TestProcessor::TestProcessor(Config const& iConfig, ServiceToken iToken)
+    TestProcessor::TestProcessor(Config const& iConfig, const ServiceToken& iToken)
         : espController_(std::make_unique<eventsetup::EventSetupsController>()),
           historyAppender_(std::make_unique<HistoryAppender>()),
           moduleRegistry_(std::make_shared<ModuleRegistry>()) {

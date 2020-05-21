@@ -55,12 +55,12 @@ public:
 
   //
   // Some utility methods added by sguazz
-  void stupidPrint(std::string s, float* d);
-  void stupidPrint(std::string s, double* d);
+  void stupidPrint(const std::string& s, float* d);
+  void stupidPrint(const std::string& s, double* d);
   void stupidPrint(const char* s, GlobalPoint* d);
   void stupidPrint(const char* s, GlobalPoint* d, int n);
-  void bubbleSortVsPhi(GlobalPoint arr[], int n, GlobalPoint vtx);
-  void bubbleReverseSortVsPhi(GlobalPoint arr[], int n, GlobalPoint vtx);
+  void bubbleSortVsPhi(GlobalPoint arr[], int n, const GlobalPoint& vtx);
+  void bubbleReverseSortVsPhi(GlobalPoint arr[], int n, const GlobalPoint& vtx);
   //
   //
 

@@ -118,8 +118,8 @@ namespace edm {
     return s_nextIdentifier.fetch_add(1, std::memory_order_acq_rel);
   }
 
-  Principal::Principal(std::shared_ptr<ProductRegistry const> reg,
-                       std::shared_ptr<ProductResolverIndexHelper const> productLookup,
+  Principal::Principal(const std::shared_ptr<ProductRegistry const>& reg,
+                       const std::shared_ptr<ProductResolverIndexHelper const>& productLookup,
                        ProcessConfiguration const& pc,
                        BranchType bt,
                        HistoryAppender* historyAppender,

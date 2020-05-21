@@ -20,7 +20,7 @@ void BeamSpotObjects::print(std::stringstream& ss) const {
      << "-----------------------------------------------------\n\n";
 }
 
-std::ostream& operator<<(std::ostream& os, BeamSpotObjects beam) {
+std::ostream& operator<<(std::ostream& os, const BeamSpotObjects& beam) {
   std::stringstream ss;
   beam.print(ss);
   os << ss.str();

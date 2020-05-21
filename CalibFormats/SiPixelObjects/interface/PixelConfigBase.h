@@ -15,6 +15,8 @@
 //
 
 #include <string>
+#include <utility>
+
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigKey.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelBase64.h"
 
@@ -65,8 +67,8 @@ namespace pos {
     }
     virtual void writeXMLTrailer(std::ofstream *out) const { ; }
 
-    void setAuthor(std::string author) { creator_ = author; }
-    void setComment(std::string comment) { comment_ = comment; }
+    void setAuthor(std::string author) { creator_ = std::move(author); }
+    void setComment(std::string comment) { comment_ = std::move(comment); }
     std::string getAuthor() const { return creator_; }
     std::string getComment() const { return base64_encode((unsigned char *)comment_.c_str(), comment_.length()); }
 

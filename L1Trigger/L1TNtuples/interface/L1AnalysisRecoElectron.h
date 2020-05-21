@@ -28,7 +28,7 @@ namespace L1Analysis {
     void SetElectron(const edm::Event& event,
                      const edm::EventSetup& setup,
                      //const edm::Handle<edm::View<reco::GsfElectron>>& electrons,
-                     const edm::Handle<reco::GsfElectronCollection> electrons,
+                     const edm::Handle<reco::GsfElectronCollection>& electrons,
                      const std::vector<edm::Handle<edm::ValueMap<bool> > > eleVIDDecisionHandles,
                      const unsigned& maxElectron);
 

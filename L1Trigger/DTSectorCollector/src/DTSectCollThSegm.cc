@@ -29,7 +29,7 @@
 //----------------
 // Constructors --
 //----------------
-DTSectCollThSegm::DTSectCollThSegm(DTSectCollId scid, int step, const DTChambThSegm* tstheta_seg)
+DTSectCollThSegm::DTSectCollThSegm(const DTSectCollId& scid, int step, const DTChambThSegm* tstheta_seg)
     : m_sectcollid(scid), m_step(step), m_tsthetatrig(tstheta_seg) {}
 
 DTSectCollThSegm::DTSectCollThSegm(const DTSectCollThSegm& seg)

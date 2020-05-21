@@ -156,7 +156,8 @@ public:
 
   static void setMeasurementsTime(struct tm& tim) { theMeasurementsTime = tim; }
 
-  static ALIbool readMeasurementsFromFile(ALIstring only1Date = ALIstring(""), ALIstring only1Time = ALIstring(""));
+  static ALIbool readMeasurementsFromFile(const ALIstring& only1Date = ALIstring(""),
+                                          const ALIstring& only1Time = ALIstring(""));
 
   ///********** private METHODS
 private:

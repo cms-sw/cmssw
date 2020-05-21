@@ -162,7 +162,7 @@ StoreESCondition::~StoreESCondition() {}
 
 void StoreESCondition::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup) {}
 
-void StoreESCondition::writeToLogFile(string a, string b, unsigned long long since) {
+void StoreESCondition::writeToLogFile(const string& a, const string& b, unsigned long long since) {
   FILE* outFile;  // output log file for appending
   outFile = fopen(logfile_.c_str(), "a");
   if (!outFile) {

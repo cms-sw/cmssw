@@ -212,7 +212,7 @@ namespace cscdqm {
    * @param  value handler for parameter value
    * @return true if parameter found and filled, false - otherwise
    */
-  const bool Collection::checkHistoValue(const CoHistoProps& h, const std::string name, double& value) {
+  const bool Collection::checkHistoValue(const CoHistoProps& h, const std::string& name, double& value) {
     CoHistoProps::const_iterator i = h.find(name);
     if (i == h.end()) {
       return false;
@@ -264,7 +264,7 @@ namespace cscdqm {
    * @param  def_value default value if parameter not found 
    * @return pointer to value
    */
-  double& Collection::getHistoValue(const CoHistoProps& h, const std::string name, double& value, const int def_value) {
+  double& Collection::getHistoValue(const CoHistoProps& h, const std::string& name, double& value, const int def_value) {
     if (!checkHistoValue(h, name, value)) {
       value = def_value;
     }

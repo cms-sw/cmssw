@@ -735,7 +735,7 @@ void PFMuonAlgo::postClean(reco::PFCandidateCollection* cands) {
   removeDeadCandidates(cands, maskedIndices_);
 }
 
-void PFMuonAlgo::addMissingMuons(edm::Handle<reco::MuonCollection> muons, reco::PFCandidateCollection* cands) {
+void PFMuonAlgo::addMissingMuons(const edm::Handle<reco::MuonCollection>& muons, reco::PFCandidateCollection* cands) {
   if (!postCleaning_)
     return;
 

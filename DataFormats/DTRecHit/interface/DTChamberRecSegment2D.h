@@ -34,10 +34,10 @@ public:
   DTChamberRecSegment2D() {}
 
   /// c'tor from hits
-  DTChamberRecSegment2D(DTChamberId id, const std::vector<DTRecHit1D> &hits);
+  DTChamberRecSegment2D(const DTChamberId &id, const std::vector<DTRecHit1D> &hits);
 
   /// complete constructor
-  DTChamberRecSegment2D(DTChamberId id,
+  DTChamberRecSegment2D(const DTChamberId &id,
                         LocalPoint &position,
                         LocalVector &direction,
                         AlgebraicSymMatrix &covMatrix,
@@ -59,7 +59,7 @@ private:
   // in DTSegmentCand, setPosition and setDirection can be used
   friend class DTSegmentCand;
   friend class DTSegmentUpdator;
-  void setChamberId(DTChamberId chId) { setId(chId); }
+  void setChamberId(const DTChamberId &chId) { setId(chId); }
 
 protected:
 };

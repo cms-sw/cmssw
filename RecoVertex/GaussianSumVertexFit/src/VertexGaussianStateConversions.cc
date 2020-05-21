@@ -5,7 +5,7 @@
 
 namespace GaussianStateConversions {
 
-  MultiGaussianState<3> multiGaussianStateFromVertex(const VertexState aState) {
+  MultiGaussianState<3> multiGaussianStateFromVertex(const VertexState& aState) {
     typedef std::shared_ptr<SingleGaussianState<3> > SingleStatePtr;
     const std::vector<VertexState> components = aState.components();
     MultiGaussianState<3>::SingleStateContainer singleStates;

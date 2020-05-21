@@ -3,6 +3,7 @@
 
 // system include files
 #include <memory>
+#include <utility>
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -42,23 +43,23 @@ public:
   void configFromDB(l1t::TriggerSystem& trgSys);
 
   std::string AssLUTPath() const { return !pnodes_[CONFIG].sparams_.empty() ? pnodes_[CONFIG].sparams_[0] : ""; }
-  void setAssLUTPath(std::string path) { pnodes_[CONFIG].sparams_.push_back(path); }
+  void setAssLUTPath(const std::string& path) { pnodes_[CONFIG].sparams_.push_back(path); }
 
-  void setpta_lut(std::vector<LUT> ptalut) { lutparams_.pta_lut_ = ptalut; };
+  void setpta_lut(std::vector<LUT> ptalut) { lutparams_.pta_lut_ = std::move(ptalut); };
   std::vector<LUT> pta_lut() const { return lutparams_.pta_lut_; };
-  void setpta_threshold(std::vector<int> ptathresh) { lutparams_.pta_threshold_ = ptathresh; };
+  void setpta_threshold(std::vector<int> ptathresh) { lutparams_.pta_threshold_ = std::move(ptathresh); };
   std::vector<int> pta_threshold() const { return lutparams_.pta_threshold_; };
 
-  void setphi_lut(std::vector<LUT> philut) { lutparams_.phi_lut_ = philut; };
+  void setphi_lut(std::vector<LUT> philut) { lutparams_.phi_lut_ = std::move(philut); };
   std::vector<LUT> phi_lut() const { return lutparams_.phi_lut_; };
 
-  void setext_lut(std::vector<LUTParams::extLUT> extlut) { lutparams_.ext_lut_ = extlut; };
+  void setext_lut(std::vector<LUTParams::extLUT> extlut) { lutparams_.ext_lut_ = std::move(extlut); };
   std::vector<LUTParams::extLUT> ext_lut() const { return lutparams_.ext_lut_; };
 
-  void setqp_lut(qpLUT qplut) { lutparams_.qp_lut_ = qplut; };
+  void setqp_lut(qpLUT qplut) { lutparams_.qp_lut_ = std::move(qplut); };
   qpLUT qp_lut() const { return lutparams_.qp_lut_; };
 
-  void seteta_lut(etaLUT eta_lut) { lutparams_.eta_lut_ = eta_lut; };
+  void seteta_lut(etaLUT eta_lut) { lutparams_.eta_lut_ = std::move(eta_lut); };
   etaLUT eta_lut() const { return lutparams_.eta_lut_; };
 
   void set_PT_Assignment_nbits_Phi(int par1) { pnodes_[CONFIG].iparams_[PT_Assignment_nbits_Phi] = par1; }
@@ -107,8 +108,8 @@ public:
   L1MuBMTEtaPatternLut l1mudttfetaplut;
 
 private:
-  int load_pt(std::vector<LUT>&, std::vector<int>&, unsigned short int, std::string);
-  int load_phi(std::vector<LUT>&, unsigned short int, unsigned short int, std::string);
+  int load_pt(std::vector<LUT>&, std::vector<int>&, unsigned short int, const std::string&);
+  int load_phi(std::vector<LUT>&, unsigned short int, unsigned short int, const std::string&);
   int load_ext(std::vector<L1TMuonBarrelParams::LUTParams::extLUT>&, unsigned short int, unsigned short int);
 };
 

@@ -30,7 +30,7 @@ public:
 
   int clearChannelList(void);
   int size(void);
-  int addListFromLmapAscii(std::string filename);
+  int addListFromLmapAscii(const std::string& filename);
   int initHBEFListFromLmapAscii(void);
   int init(const std::vector<HcalGenericDetId>& map);
 

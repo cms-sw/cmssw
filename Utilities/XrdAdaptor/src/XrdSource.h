@@ -28,7 +28,7 @@ namespace XrdAdaptor {
 
     ~Source();
 
-    void handle(std::shared_ptr<ClientRequest>);
+    void handle(const std::shared_ptr<ClientRequest> &);
 
     void handle(RequestList &);
 
@@ -48,7 +48,7 @@ namespace XrdAdaptor {
 
     static bool getDomain(const std::string &host, std::string &domain);
     static bool getXrootdSite(XrdCl::File &file, std::string &site);
-    static bool getXrootdSiteFromURL(std::string url, std::string &site);
+    static bool getXrootdSiteFromURL(const std::string &url, std::string &site);
 
     // Given a file and (possibly) a host list, determine the exclude string.
     static void determineHostExcludeString(XrdCl::File &file, const XrdCl::HostList *hostList, std::string &exclude);

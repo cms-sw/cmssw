@@ -25,7 +25,7 @@ public:
 
   ~BeamSpotHistogramMaker();
 
-  void book(const std::string dirname = "");
+  void book(const std::string& dirname = "");
   void beginRun(const unsigned int nrun);
   void fill(const unsigned int orbit, const reco::BeamSpot& bs);
 

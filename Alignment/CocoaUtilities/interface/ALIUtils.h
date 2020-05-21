@@ -54,8 +54,8 @@ public:
   static void SetOutputAngleDimensionFactors();
   static ALIdouble CalculateLengthDimensionFactorFromInt(ALIint ad);
   static ALIdouble CalculateAngleDimensionFactorFromInt(ALIint ad);
-  static ALIdouble CalculateLengthDimensionFactorFromString(ALIstring dimstr);
-  static ALIdouble CalculateAngleDimensionFactorFromString(ALIstring dimstr);
+  static ALIdouble CalculateLengthDimensionFactorFromString(const ALIstring& dimstr);
+  static ALIdouble CalculateAngleDimensionFactorFromString(const ALIstring& dimstr);
 
   static void dumpDimensions(std::ofstream& fout);
 

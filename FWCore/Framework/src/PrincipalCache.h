@@ -60,16 +60,16 @@ namespace edm {
 
     EventPrincipal& eventPrincipal(unsigned int iStreamIndex) const { return *(eventPrincipals_[iStreamIndex]); }
 
-    void merge(std::shared_ptr<RunAuxiliary> aux, std::shared_ptr<ProductRegistry const> reg);
+    void merge(const std::shared_ptr<RunAuxiliary>& aux, const std::shared_ptr<ProductRegistry const>& reg);
 
     void setNumberOfConcurrentPrincipals(PreallocationConfiguration const&);
-    void insert(std::shared_ptr<RunPrincipal> rp);
+    void insert(const std::shared_ptr<RunPrincipal>& rp);
     void insert(std::unique_ptr<LuminosityBlockPrincipal> lbp);
-    void insert(std::shared_ptr<EventPrincipal> ep);
+    void insert(const std::shared_ptr<EventPrincipal>& ep);
 
     void deleteRun(ProcessHistoryID const& phid, RunNumber_t run);
 
-    void adjustEventsToNewProductRegistry(std::shared_ptr<ProductRegistry const> reg);
+    void adjustEventsToNewProductRegistry(const std::shared_ptr<ProductRegistry const>& reg);
 
     void adjustIndexesAfterProductRegistryAddition();
 

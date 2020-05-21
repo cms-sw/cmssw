@@ -125,7 +125,7 @@ public:
 
   void setslotsize(int slot, int size) { rsize_[slot - 1] = size; }
 
-  void setuROS(int slot, DTuROSROSData rwords) { rdata_[slot - 1] = rwords; }
+  void setuROS(int slot, const DTuROSROSData& rwords) { rdata_[slot - 1] = rwords; }
 
   int getfed() const { return fed_; }
 

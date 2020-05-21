@@ -13,6 +13,7 @@
 // system include files
 #include <cassert>
 #include <iostream>
+#include <utility>
 
 // user include files
 #include "DataFormats/FWLite/interface/DataGetterHelper.h"
@@ -50,17 +51,17 @@ namespace fwlite {
   // constructors and destructor
   //
   DataGetterHelper::DataGetterHelper(TTree* tree,
-                                     std::shared_ptr<HistoryGetterBase> historyGetter,
+                                     const std::shared_ptr<HistoryGetterBase>& historyGetter,
                                      std::shared_ptr<BranchMapReader> branchMap,
-                                     std::shared_ptr<edm::EDProductGetter> getter,
+                                     const std::shared_ptr<edm::EDProductGetter>& getter,
                                      bool useCache,
                                      std::function<void(TBranch const&)> baFunc)
-      : branchMap_(branchMap),
+      : branchMap_(std::move(branchMap)),
         historyGetter_(historyGetter),
         getter_(getter),
         tcTrained_(false),
         tcUse_(useCache),
-        branchAccessFunc_(baFunc) {
+        branchAccessFunc_(std::move(baFunc)) {
     if (nullptr == tree) {
       throw cms::Exception("NoTree") << "The TTree pointer passed to the constructor was null";
     }

@@ -3,6 +3,7 @@
 // $Id:
 
 #include <fstream>
+#include <utility>
 
 #include "CaloOnlineTools/HcalOnlineDb/interface/HcalQIEManager.h"
 #include "CaloOnlineTools/HcalOnlineDb/interface/RooGKCounter.h"
@@ -51,7 +52,7 @@ bool HcalChannelId::operator<(const HcalChannelId& other) const {
   return _res_this < _res_other;
 }
 
-std::map<HcalChannelId, HcalQIECaps>& HcalQIEManager::getQIETableFromFile(std::string _filename) {
+std::map<HcalChannelId, HcalQIECaps>& HcalQIEManager::getQIETableFromFile(const std::string& _filename) {
   std::map<HcalChannelId, HcalQIECaps>* result_sup = new std::map<HcalChannelId, HcalQIECaps>;
   std::map<HcalChannelId, HcalQIECaps>& result = (*result_sup);
 
@@ -113,7 +114,7 @@ std::vector<std::string> HcalQIEManager::splitString(const std::string& fLine) {
   return result;
 }
 
-void HcalQIEManager::getTableFromDb(std::string query_file, std::string output_file) {
+void HcalQIEManager::getTableFromDb(const std::string& query_file, const std::string& output_file) {
   std::cout << "Creating the output file: " << output_file << "... ";
   ofstream out_file;
   out_file.open(output_file.c_str());
@@ -208,7 +209,7 @@ void HcalQIEManager::getTableFromDb(std::string query_file, std::string output_f
 // of the database query from db_file.
 // Missing channels are filled from the old table old_file.
 // The result is placed in output_file.
-int HcalQIEManager::generateQieTable(std::string db_file, std::string old_file, std::string output_file) {
+int HcalQIEManager::generateQieTable(std::string db_file, std::string old_file, const std::string& output_file) {
   std::cout << "Creating the output file: " << output_file << "... ";
   ofstream out_file;
   out_file.open(output_file.c_str());
@@ -220,8 +221,8 @@ int HcalQIEManager::generateQieTable(std::string db_file, std::string old_file, 
   bad_file.open(badchan_file.c_str());
   std::cout << " done" << std::endl;
 
-  std::map<HcalChannelId, HcalQIECaps>& _old = getQIETableFromFile(old_file);
-  std::map<HcalChannelId, HcalQIECaps>& _new = getQIETableFromFile(db_file);
+  std::map<HcalChannelId, HcalQIECaps>& _old = getQIETableFromFile(std::move(old_file));
+  std::map<HcalChannelId, HcalQIECaps>& _new = getQIETableFromFile(std::move(db_file));
   //std::map<HcalChannelId,HcalQIECaps> & _old = _manager . getQIETableFromFile( "qie_normalmode_v3.txt" );
   //std::map<HcalChannelId,HcalQIECaps> & _new = _manager . getQIETableFromFile( "qie_adc_table_after.txt" );
 
@@ -275,7 +276,7 @@ int HcalQIEManager::generateQieTable(std::string db_file, std::string old_file, 
 // associate QIEs with channels, then append respective ADC slopes and offsets
 // based on QIE normmode table info from the database
 // finally, generate the QIE table ascii file for HF
-int HcalQIEManager::getHfQieTable(std::string input_file, std::string output_file) {
+int HcalQIEManager::getHfQieTable(const std::string& input_file, const std::string& output_file) {
   std::cout << "Creating the output file: " << output_file << "... ";
   std::ofstream out_file;
   out_file.open(output_file.c_str());

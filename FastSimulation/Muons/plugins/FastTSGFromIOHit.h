@@ -37,7 +37,7 @@ public:
                     std::vector<TrajectorySeed>&) override;
 
 private:
-  bool clean(reco::TrackRef muRef,
+  bool clean(const reco::TrackRef& muRef,
              const RectangularEtaPhiTrackingRegion& region,
              const BasicTrajectorySeed* aSeed,
              const SimTrack& theSimTrack);

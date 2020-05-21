@@ -5,6 +5,8 @@
 #include <iostream>
 #include <unordered_map>
 #include <array>
+#include <utility>
+
 #include <TKey.h>
 class CompressionElement {
 public:
@@ -12,7 +14,7 @@ public:
   enum Target { realValue = 0, ratioToRef = 1, differenceToRef = 2 };
   CompressionElement() : method(zero), target(realValue) {}
   CompressionElement(Method m, Target t, int bitsUsed, std::vector<float> p)
-      : method(m), target(t), bits(bitsUsed), params(p) {}
+      : method(m), target(t), bits(bitsUsed), params(std::move(p)) {}
   Method method;
   Target target;
   int bits;
@@ -65,7 +67,7 @@ public:
 private:
   void readFile(TFile &);
   void addTheHistogram(
-      std::vector<TH3D *> *HistoVector, std::string StringToAddInTheName, int i, int j, TFile &fileToRead);
+      std::vector<TH3D *> *HistoVector, const std::string &StringToAddInTheName, int i, int j, TFile &fileToRead);
   int loadedVersion_;
   TFile *fileToRead_;
   std::unordered_map<uint16_t, CompressionSchema> schemas;

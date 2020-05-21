@@ -51,12 +51,12 @@ DigiVtxPosCorrHistogramMaker::~DigiVtxPosCorrHistogramMaker() {
   }
 }
 
-void DigiVtxPosCorrHistogramMaker::book(const std::string dirname, const std::map<unsigned int, std::string>& labels) {
+void DigiVtxPosCorrHistogramMaker::book(const std::string& dirname, const std::map<unsigned int, std::string>& labels) {
   m_labels = labels;
   book(dirname);
 }
 
-void DigiVtxPosCorrHistogramMaker::book(const std::string dirname) {
+void DigiVtxPosCorrHistogramMaker::book(const std::string& dirname) {
   edm::Service<TFileService> tfserv;
   TFileDirectory subev = tfserv->mkdir(dirname);
 

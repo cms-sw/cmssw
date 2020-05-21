@@ -282,7 +282,8 @@ PixelCalibConfiguration::PixelCalibConfiguration(std::vector<std::vector<std::st
   return;
 }
 
-PixelCalibConfiguration::PixelCalibConfiguration(std::string filename) : PixelCalibBase(), PixelConfigBase("", "", "") {
+PixelCalibConfiguration::PixelCalibConfiguration(const std::string& filename)
+    : PixelCalibBase(), PixelConfigBase("", "", "") {
   std::string mthn = "[PixelCalibConfiguration::PixelCalibConfiguration()]\t    ";
 
   _bufferData = true;
@@ -755,7 +756,7 @@ void PixelCalibConfiguration::buildObjectsDependingOnTheNameTranslation(const Pi
   objectsDependingOnTheNameTranslationBuilt_ = true;
 }
 
-unsigned int PixelCalibConfiguration::iScan(std::string dac) const {
+unsigned int PixelCalibConfiguration::iScan(const std::string& dac) const {
   for (unsigned int i = 0; i < dacs_.size(); i++) {
     if (dac == dacs_[i].name())
       return i;
@@ -1444,7 +1445,7 @@ void PixelCalibConfiguration::disablePixels(PixelFECConfigInterface* pixelFEC,
   }
 }
 
-std::string PixelCalibConfiguration::parameterValue(std::string parameterName) const {
+std::string PixelCalibConfiguration::parameterValue(const std::string& parameterName) const {
   std::map<std::string, std::string>::const_iterator itr = parameters_.find(parameterName);
   if (itr == parameters_.end())  // parameterName is not in the list
   {
@@ -1567,7 +1568,7 @@ std::set<std::pair<unsigned int, unsigned int> > PixelCalibConfiguration::pixels
   return pixels;
 }
 
-bool PixelCalibConfiguration::containsScan(std::string name) const {
+bool PixelCalibConfiguration::containsScan(const std::string& name) const {
   for (unsigned int i = 0; i < numberOfScanVariables(); i++) {
     if (scanName(i) == name) {
       return true;

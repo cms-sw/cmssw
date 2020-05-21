@@ -31,7 +31,7 @@ public:
   void GetSeedHighestE(const reco::Photon* photon,
                        const edm::Event& iEvent,
                        const edm::EventSetup& iSetup,
-                       edm::Handle<EcalRecHitCollection> Brechit,
+                       const edm::Handle<EcalRecHitCollection>& Brechit,
                        int& seedIEta,
                        int& seedIPhi,
                        double& seedE);
@@ -40,7 +40,7 @@ public:
   std::vector<double> GetMipTrailFit(const reco::Photon* photon,
                                      const edm::Event& iEvent,
                                      const edm::EventSetup& iSetup,
-                                     edm::Handle<EcalRecHitCollection> ecalhitsCollEB,
+                                     const edm::Handle<EcalRecHitCollection>& ecalhitsCollEB,
                                      double inputRangeY,
                                      double inputRangeX,
                                      double inputResWidth,

@@ -1,7 +1,9 @@
+#include <utility>
+
 #include "Alignment/MuonAlignmentAlgorithms/interface/DTMuonSLToSL.h"
 
 DTMuonSLToSL::DTMuonSLToSL(std::string path, int n_files, float MaxPt, float MinPt, TFile *f_) {
-  ntuplePath = path;
+  ntuplePath = std::move(path);
   numberOfRootFiles = n_files;
 
   f = f_;

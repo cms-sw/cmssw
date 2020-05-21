@@ -26,7 +26,7 @@ private:
   void produce(edm::Event&, const edm::EventSetup&) override;
   void endJob() override;
 
-  reco::TrackRef findNewRef(reco::TrackRef oldTrackRef, edm::Handle<reco::TrackCollection>& newTrackCollection);
+  reco::TrackRef findNewRef(const reco::TrackRef& oldTrackRef, edm::Handle<reco::TrackCollection>& newTrackCollection);
 
   edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
   edm::EDGetTokenT<reco::TrackCollection> oldTrackToken_;
@@ -109,7 +109,7 @@ void UpdatedMuonInnerTrackRef::produce(edm::Event& ev, const edm::EventSetup& iS
   ev.put(std::move(newmuons));
 }
 
-reco::TrackRef UpdatedMuonInnerTrackRef::findNewRef(reco::TrackRef oldTrackRef,
+reco::TrackRef UpdatedMuonInnerTrackRef::findNewRef(const reco::TrackRef& oldTrackRef,
                                                     edm::Handle<reco::TrackCollection>& newTrackCollection) {
   float dRMin = 1000;
   int found = -1;

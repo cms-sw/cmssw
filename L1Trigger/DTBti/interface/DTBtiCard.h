@@ -94,7 +94,7 @@ public:
      * Returns a DTBtiTrig corresponding to a DTBtiTrigData.
      * Creates the corresponding BTI chip if needed and stores the trigger
      */
-  DTBtiTrig* storeTrigger(DTBtiTrigData);
+  DTBtiTrig* storeTrigger(const DTBtiTrigData&);
 
   using BTICache::reconstruct;
   // run the trigger algorithm
@@ -112,7 +112,7 @@ public:
 
 private:
   /// store digi's in DTBtiChip's
-  void loadBTI(const DTDigiCollection dtDigis);
+  void loadBTI(const DTDigiCollection& dtDigis);
 
   /// run DTBtiChip algorithm
   void runBTI();

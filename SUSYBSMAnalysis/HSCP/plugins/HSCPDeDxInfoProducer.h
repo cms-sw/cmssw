@@ -44,7 +44,7 @@ private:
                   float trackMomentum,
                   float& cosine,
                   susybsm::HSCPDeDxInfo& hscpDeDxInfo,
-                  LocalPoint HitLocalPos);
+                  const LocalPoint& HitLocalPos);
 
   // ----------member data ---------------------------
 

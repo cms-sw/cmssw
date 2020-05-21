@@ -5,7 +5,7 @@
 
 using namespace reco;
 
-NamedCompositeCandidate::NamedCompositeCandidate(std::string name,
+NamedCompositeCandidate::NamedCompositeCandidate(const std::string& name,
                                                  const NamedCompositeCandidate::role_collection& roles,
                                                  const Candidate& c)
     : CompositeCandidate(c), name_(name), roles_(roles) {

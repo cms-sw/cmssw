@@ -50,14 +50,14 @@ edm::TypeWithDict helper::Parser::elementType(const edm::TypeWithDict &wrapperTy
   return edm::TypeWithDict();
 }
 
-bool helper::Parser::test(const reco::parser::SelectorPtr &sel, const edm::TypeWithDict type, const void *ptr) {
+bool helper::Parser::test(const reco::parser::SelectorPtr &sel, const edm::TypeWithDict &type, const void *ptr) {
   if (sel.get() == nullptr)
     return false;
   edm::ObjectWithDict obj(type, const_cast<void *>(ptr));
   return (*sel)(obj);
 }
 
-double helper::Parser::eval(const reco::parser::ExpressionPtr &expr, const edm::TypeWithDict type, const void *ptr) {
+double helper::Parser::eval(const reco::parser::ExpressionPtr &expr, const edm::TypeWithDict &type, const void *ptr) {
   if (expr.get() == nullptr)
     return 0;
   edm::ObjectWithDict obj(type, const_cast<void *>(ptr));

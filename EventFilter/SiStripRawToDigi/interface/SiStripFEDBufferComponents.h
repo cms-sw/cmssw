@@ -445,7 +445,7 @@ namespace sistrip {
     FEDBufferState getBufferState(const uint8_t bufferPosition) const;
     //set the state of the buffer in position 'bufferPosition' to state 'state'
     void setBufferSate(const uint8_t bufferPosition, const FEDBufferState state);
-    void printFlagsForBuffer(const FEDBufferState bufferState, const std::string name, std::ostream& os) const;
+    void printFlagsForBuffer(const FEDBufferState bufferState, const std::string& name, std::ostream& os) const;
     //constants marking order of flags in buffer
     //eg. bit offset for L1A/BX FIFO Partial full flag is STATE_OFFSET_PARTIAL_FULL+BUFFER_POSITION_L1ABX_FIFO
     //    bit offset for total length FIFO empty flag is STATE_OFFSET_EMPTY+BUFFER_POSITION_TOTAL_LENGTH_FIFO

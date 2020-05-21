@@ -70,7 +70,7 @@ std::unique_ptr<L1MuCSCPtLut> CSCTFConfigProducer::produceL1MuCSCPtLutRcd(const 
   return pt_lut;
 }
 
-void CSCTFConfigProducer::readLUT(std::string path, unsigned short* lut, unsigned long length) {
+void CSCTFConfigProducer::readLUT(const std::string& path, unsigned short* lut, unsigned long length) {
   // Reading
   if (path.find(".bin") != std::string::npos) {  // Binary format
     std::ifstream file(path.c_str(), std::ios::binary);

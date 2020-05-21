@@ -26,7 +26,7 @@
  * filled with patterns from file (the method ParsePatternFile() is called).
  * 
  */
-RPCPacData::RPCPacData(std::string patFilesDir, int tower, int logSector, int logSegment) {
+RPCPacData::RPCPacData(const std::string& patFilesDir, int tower, int logSector, int logSegment) {
   //: RPCPacBase(tower, logSector, logSegment) {
   m_MaxQuality = 0;
   std::string patFileName;

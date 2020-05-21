@@ -19,7 +19,7 @@ namespace reco {
     MuonTrackLinks() {}
 
     /// Constructor
-    MuonTrackLinks(reco::TrackRef tk, reco::TrackRef sta, reco::TrackRef glb)
+    MuonTrackLinks(const reco::TrackRef& tk, const reco::TrackRef& sta, const reco::TrackRef& glb)
         : theTkTrack(tk), theStaTrack(sta), theGlbTrack(glb) {}
 
     /// Destructor
@@ -37,13 +37,13 @@ namespace reco {
     inline reco::TrackRef globalTrack() const { return theGlbTrack; }
 
     /// set the ref to tracker's track
-    inline void setTrackerTrack(reco::TrackRef tk) { theTkTrack = tk; }
+    inline void setTrackerTrack(const reco::TrackRef& tk) { theTkTrack = tk; }
 
     /// set the ref to stand alone track
-    inline void setStandAloneTrack(reco::TrackRef sta) { theStaTrack = sta; }
+    inline void setStandAloneTrack(const reco::TrackRef& sta) { theStaTrack = sta; }
 
     /// set the ref to combined track
-    inline void setGlobalTrack(reco::TrackRef glb) { theGlbTrack = glb; }
+    inline void setGlobalTrack(const reco::TrackRef& glb) { theGlbTrack = glb; }
 
   protected:
   private:

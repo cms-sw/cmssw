@@ -29,8 +29,8 @@ PFDisplacedVertexCandidateFinder::~PFDisplacedVertexCandidateFinder() {
 #endif
 }
 
-void PFDisplacedVertexCandidateFinder::setPrimaryVertex(edm::Handle<reco::VertexCollection> mainVertexHandle,
-                                                        edm::Handle<reco::BeamSpot> beamSpotHandle) {
+void PFDisplacedVertexCandidateFinder::setPrimaryVertex(const edm::Handle<reco::VertexCollection>& mainVertexHandle,
+                                                        const edm::Handle<reco::BeamSpot>& beamSpotHandle) {
   const math::XYZPoint beamSpot = beamSpotHandle.isValid()
                                       ? math::XYZPoint(beamSpotHandle->x0(), beamSpotHandle->y0(), beamSpotHandle->z0())
                                       : math::XYZPoint(0, 0, 0);

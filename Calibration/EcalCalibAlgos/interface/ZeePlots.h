@@ -64,7 +64,7 @@ public:
   void fillZMCInfo(const HepMC::GenEvent*);
   void fillEleMCInfo(const HepMC::GenEvent*);
   void fillEleInfo(const reco::GsfElectronCollection*);
-  void fillHLTInfo(edm::Handle<edm::TriggerResults>);
+  void fillHLTInfo(const edm::Handle<edm::TriggerResults>&);
   void fillZInfo(std::pair<calib::CalibElectron*, calib::CalibElectron*> myZeeCandidate);
   void fillEleClassesPlots(calib::CalibElectron*);
 

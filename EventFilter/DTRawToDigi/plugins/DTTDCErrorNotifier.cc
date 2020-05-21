@@ -10,7 +10,7 @@ using namespace std;
 
 #include <iostream>
 
-DTTDCErrorNotifier::DTTDCErrorNotifier(DTTDCErrorWord error) : error_(error) {}
+DTTDCErrorNotifier::DTTDCErrorNotifier(const DTTDCErrorWord& error) : error_(error) {}
 
 DTTDCErrorNotifier::~DTTDCErrorNotifier() {}
 

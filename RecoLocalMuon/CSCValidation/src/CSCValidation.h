@@ -139,53 +139,54 @@ private:
   // these are the "modules"
   // if you would like to add code to CSCValidation, please do so by adding an
   // extra module in the form of an additional private member function
-  void doOccupancies(edm::Handle<CSCStripDigiCollection> strips,
-                     edm::Handle<CSCWireDigiCollection> wires,
-                     edm::Handle<CSCRecHit2DCollection> recHits,
-                     edm::Handle<CSCSegmentCollection> cscSegments);
-  void doStripDigis(edm::Handle<CSCStripDigiCollection> strips);
-  void doWireDigis(edm::Handle<CSCWireDigiCollection> wires);
-  void doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::ESHandle<CSCGeometry> cscGeom);
-  void doSimHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<edm::PSimHitContainer> simHits);
-  void doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips);
-  void doSegments(edm::Handle<CSCSegmentCollection> cscSegments, edm::ESHandle<CSCGeometry> cscGeom);
-  void doResolution(edm::Handle<CSCSegmentCollection> cscSegments, edm::ESHandle<CSCGeometry> cscGeom);
-  void doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
-                      edm::Handle<CSCStripDigiCollection> strips,
-                      edm::Handle<CSCRecHit2DCollection> recHits,
-                      edm::Handle<CSCSegmentCollection> cscSegments,
-                      edm::ESHandle<CSCGeometry> cscGeom);
+  void doOccupancies(const edm::Handle<CSCStripDigiCollection> &strips,
+                     const edm::Handle<CSCWireDigiCollection> &wires,
+                     const edm::Handle<CSCRecHit2DCollection> &recHits,
+                     const edm::Handle<CSCSegmentCollection> &cscSegments);
+  void doStripDigis(const edm::Handle<CSCStripDigiCollection> &strips);
+  void doWireDigis(const edm::Handle<CSCWireDigiCollection> &wires);
+  void doRecHits(const edm::Handle<CSCRecHit2DCollection> &recHits, const edm::ESHandle<CSCGeometry> &cscGeom);
+  void doSimHits(const edm::Handle<CSCRecHit2DCollection> &recHits, const edm::Handle<edm::PSimHitContainer> &simHits);
+  void doPedestalNoise(const edm::Handle<CSCStripDigiCollection> &strips);
+  void doSegments(const edm::Handle<CSCSegmentCollection> &cscSegments, const edm::ESHandle<CSCGeometry> &cscGeom);
+  void doResolution(const edm::Handle<CSCSegmentCollection> &cscSegments, const edm::ESHandle<CSCGeometry> &cscGeom);
+  void doEfficiencies(const edm::Handle<CSCWireDigiCollection> &wires,
+                      const edm::Handle<CSCStripDigiCollection> &strips,
+                      const edm::Handle<CSCRecHit2DCollection> &recHits,
+                      const edm::Handle<CSCSegmentCollection> &cscSegments,
+                      const edm::ESHandle<CSCGeometry> &cscGeom);
   void doGasGain(const CSCWireDigiCollection &, const CSCStripDigiCollection &, const CSCRecHit2DCollection &);
   void doCalibrations(const edm::EventSetup &eventSetup);
   void doAFEBTiming(const CSCWireDigiCollection &);
   void doCompTiming(const CSCComparatorDigiCollection &);
   void doADCTiming(const CSCRecHit2DCollection &);
-  void doNoiseHits(edm::Handle<CSCRecHit2DCollection> recHits,
-                   edm::Handle<CSCSegmentCollection> cscSegments,
+  void doNoiseHits(const edm::Handle<CSCRecHit2DCollection> &recHits,
+                   const edm::Handle<CSCSegmentCollection> &cscSegments,
                    edm::ESHandle<CSCGeometry> cscGeom,
-                   edm::Handle<CSCStripDigiCollection> strips);
-  bool doTrigger(edm::Handle<L1MuGMTReadoutCollection> pCollection);
-  void doStandalone(edm::Handle<reco::TrackCollection> saMuons);
-  void doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
-                        edm::Handle<CSCSegmentCollection> cscSegments,
-                        edm::Handle<CSCALCTDigiCollection> alcts,
-                        edm::Handle<CSCCLCTDigiCollection> clcts,
-                        edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts,
-                        edm::Handle<L1MuGMTReadoutCollection> pCollection,
-                        edm::ESHandle<CSCGeometry> cscGeom,
+                   const edm::Handle<CSCStripDigiCollection> &strips);
+  bool doTrigger(const edm::Handle<L1MuGMTReadoutCollection> &pCollection);
+  void doStandalone(const edm::Handle<reco::TrackCollection> &saMuons);
+  void doTimeMonitoring(const edm::Handle<CSCRecHit2DCollection> &recHits,
+                        const edm::Handle<CSCSegmentCollection> &cscSegments,
+                        const edm::Handle<CSCALCTDigiCollection> &alcts,
+                        const edm::Handle<CSCCLCTDigiCollection> &clcts,
+                        const edm::Handle<CSCCorrelatedLCTDigiCollection> &correlatedlcts,
+                        const edm::Handle<L1MuGMTReadoutCollection> &pCollection,
+                        const edm::ESHandle<CSCGeometry> &cscGeom,
                         const edm::EventSetup &eventSetup,
                         const edm::Event &event);
-  bool doHLT(edm::Handle<edm::TriggerResults> hltResults);
+  bool doHLT(const edm::Handle<edm::TriggerResults> &hltResults);
 
   // some useful functions
-  bool filterEvents(edm::Handle<CSCRecHit2DCollection> recHits,
-                    edm::Handle<CSCSegmentCollection> cscSegments,
-                    edm::Handle<reco::TrackCollection> saMuons);
+  bool filterEvents(const edm::Handle<CSCRecHit2DCollection> &recHits,
+                    const edm::Handle<CSCSegmentCollection> &cscSegments,
+                    const edm::Handle<reco::TrackCollection> &saMuons);
   float fitX(const CLHEP::HepMatrix &sp, const CLHEP::HepMatrix &ep);
   float getSignal(const CSCStripDigiCollection &stripdigis, CSCDetId idRH, int centerStrip);
   float getthisSignal(const CSCStripDigiCollection &stripdigis, CSCDetId idRH, int centerStrip);
   int getWidth(const CSCStripDigiCollection &stripdigis, CSCDetId idRH, int centerStrip);
-  void findNonAssociatedRecHits(edm::ESHandle<CSCGeometry> cscGeom, edm::Handle<CSCStripDigiCollection> strips);
+  void findNonAssociatedRecHits(const edm::ESHandle<CSCGeometry> &cscGeom,
+                                const edm::Handle<CSCStripDigiCollection> &strips);
   int chamberSerial(CSCDetId id);
   int ringSerial(CSCDetId id);
 
@@ -201,7 +202,7 @@ private:
     double extrapolatedPosition = initPosition + initDirection * parameterOfTheLine;
     return extrapolatedPosition;
   }
-  bool withinSensitiveRegion(LocalPoint localPos,
+  bool withinSensitiveRegion(const LocalPoint &localPos,
                              const std::array<const float, 4> &layerBounds,
                              int station,
                              int ring,

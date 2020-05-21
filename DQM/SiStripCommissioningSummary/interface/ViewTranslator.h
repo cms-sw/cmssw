@@ -35,15 +35,15 @@ public:
 
   //arguments are the root file name, the uint32_t det key to be unpacked, and the map to be filled with
   //the matching complete fed and fec keys
-  void detToFec(std::string root_filename, uint32_t& det_key_mask, Mapping& det_to_fec) { ; }
+  void detToFec(const std::string& root_filename, uint32_t& det_key_mask, Mapping& det_to_fec) { ; }
 
   //arguments are the root file name, the uint32_t fed key to be unpacked, and the map to be filled with
   //the matching complete fed and fec keys
-  void fedToFec(std::string root_filename, uint32_t& fed_key_mask, Mapping& fed_to_fec) { ; }
+  void fedToFec(const std::string& root_filename, uint32_t& fed_key_mask, Mapping& fed_to_fec) { ; }
 
   //arguments are the root file name, the det to fec translation map and the fed to fec translational
   //maps (from makemaps)
-  void writeMapsToFile(std::string root_filename, Mapping& det_to_fec, Mapping& fed_to_fec);
+  void writeMapsToFile(const std::string& root_filename, Mapping& det_to_fec, Mapping& fed_to_fec);
 
 private:
   /** Root filename. */

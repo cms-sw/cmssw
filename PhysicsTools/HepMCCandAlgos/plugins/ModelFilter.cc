@@ -60,7 +60,7 @@ void ModelFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
   desc.setUnknown();
   descriptions.addDefault(desc);
 }
-vector<string> ModelFilter::split(string fstring, string splitter) {
+vector<string> ModelFilter::split(const string& fstring, const string& splitter) {
   vector<string> returnVector;
   size_t cursor;
   string beforeSplitter;

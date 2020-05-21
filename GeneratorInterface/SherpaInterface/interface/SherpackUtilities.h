@@ -29,7 +29,7 @@ namespace spu {
   int def(FILE*, FILE*, int);
   int inf(FILE*, FILE*);
   void zerr(int);
-  int Unzip(std::string, std::string);
+  int Unzip(const std::string&, const std::string&);
 
   // functions for untaring Sherpacks, based on
   // http://www.opensource.apple.com/source/libarchive/libarchive-23/libarchive/contrib/untar.c
@@ -48,7 +48,7 @@ namespace spu {
   void Untar(FILE*, const char*);
 
   // function for calculating the MD5 checksum of a file
-  void md5_File(std::string, char*);
+  void md5_File(const std::string&, char*);
 
 }  // End namespace spu
 #endif

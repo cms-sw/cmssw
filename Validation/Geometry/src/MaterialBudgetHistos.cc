@@ -1,10 +1,12 @@
+#include <utility>
+
 #include "Validation/Geometry/interface/MaterialBudgetHistos.h"
 #include "Validation/Geometry/interface/MaterialBudgetData.h"
 
 MaterialBudgetHistos::MaterialBudgetHistos(std::shared_ptr<MaterialBudgetData> data,
                                            std::shared_ptr<TestHistoMgr> mgr,
                                            const std::string& fileName)
-    : MaterialBudgetFormat(data), hmgr(mgr) {
+    : MaterialBudgetFormat(std::move(data)), hmgr(std::move(mgr)) {
   theFileName = fileName;
   book();
 }

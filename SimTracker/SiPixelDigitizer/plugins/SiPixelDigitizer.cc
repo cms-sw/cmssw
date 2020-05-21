@@ -123,7 +123,7 @@ namespace cms {
   // member functions
   //
 
-  void SiPixelDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits,
+  void SiPixelDigitizer::accumulatePixelHits(const edm::Handle<std::vector<PSimHit> >& hSimHits,
                                              size_t globalSimHitIndex,
                                              const unsigned int tofBin,
                                              edm::EventSetup const& iSetup) {

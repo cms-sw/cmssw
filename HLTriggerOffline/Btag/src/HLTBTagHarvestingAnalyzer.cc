@@ -169,8 +169,8 @@ void HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::
 
 bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(DQMStore::IBooker &ibooker,
                                                    DQMStore::IGetter &igetter,
-                                                   std::string num,
-                                                   std::string den,
+                                                   const std::string &num,
+                                                   const std::string &den,
                                                    TH1 *&ptrnum,
                                                    TH1 *&ptrden,
                                                    int type) {
@@ -275,7 +275,7 @@ bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(DQMStore::IBooker &ibooker,
 }
 
 void HLTBTagHarvestingAnalyzer::mistagrate(
-    DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, TH1F *num, TH1F *den, std::string effName) {
+    DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, TH1F *num, TH1F *den, const std::string &effName) {
   // do the efficiency_vs_mistag_rate plot
   TH1F *eff;
   eff = new TH1F(effName.c_str(), effName.c_str(), 100, 0, 1);
@@ -312,7 +312,7 @@ void HLTBTagHarvestingAnalyzer::mistagrate(
 }
 
 void HLTBTagHarvestingAnalyzer::modulesrate(
-    DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, TH1F *num, TH1F *den, std::string effName) {
+    DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, TH1F *num, TH1F *den, const std::string &effName) {
   // do the eff_vs_disc_HEP17 / eff_vs_disc_HEM17 plot
   TH1F *eff = new TH1F(*num);
   // eff = new TH1F(effName.c_str(),effName.c_str(),100,0,1);
@@ -338,7 +338,7 @@ void HLTBTagHarvestingAnalyzer::modulesrate(
 }
 
 TH1F HLTBTagHarvestingAnalyzer::calculateEfficiency1D(
-    DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, TH1 &num, TH1 &den, std::string effName) {
+    DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, TH1 &num, TH1 &den, const std::string &effName) {
   // calculate the efficiency as num/den ratio
   TH1F eff;
   if (num.GetXaxis()->GetXbins()->GetSize() == 0) {

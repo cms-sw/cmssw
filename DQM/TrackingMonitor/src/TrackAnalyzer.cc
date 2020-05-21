@@ -235,7 +235,7 @@ void TrackAnalyzer::initHisto(DQMStore::IBooker& ibooker,
 
 void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker& ibooker,
                                                          const edm::EventSetup& iSetup,
-                                                         const std::string suffix,
+                                                         const std::string& suffix,
                                                          bool useInac) {
   ibooker.setCurrentFolder(TopFolder_ + "/HitEffFromHitPattern" + (useInac ? "All" : "") + suffix);
 
@@ -1411,7 +1411,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 }
 
 void TrackAnalyzer::fillHistosForEfficiencyFromHitPatter(const reco::Track& track,
-                                                         const std::string suffix,
+                                                         const std::string& suffix,
                                                          const float monitoring,
                                                          bool useInac) {
   int mon = -1;
@@ -1466,7 +1466,7 @@ void TrackAnalyzer::fillHistosForEfficiencyFromHitPatter(const reco::Track& trac
 
 // book histograms at differnt measurement points
 // ---------------------------------------------------------------------------------//
-void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker& ibooker) {
+void TrackAnalyzer::bookHistosForState(const std::string& sname, DQMStore::IBooker& ibooker) {
   // parameters from the configuration
   std::string QualName = conf_->getParameter<std::string>("Quality");
   std::string AlgoName = conf_->getParameter<std::string>("AlgoName");
@@ -1939,7 +1939,9 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker& ibo
 
 // fill histograms at differnt measurement points
 // ---------------------------------------------------------------------------------//
-void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco::Track& track, std::string sname) {
+void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup,
+                                       const reco::Track& track,
+                                       const std::string& sname) {
   //get the kinematic parameters
   double p, px, py, pz, pt, theta, phi, eta, q;
   double pxerror, pyerror, pzerror, pterror, perror, phierror, etaerror;

@@ -140,7 +140,7 @@ void fillEEMap_DiffIOV(std::shared_ptr<floatCondObj> payload,
 }
 
 void fillTableWithSummary(TH2F*& align,
-                          std::string title,
+                          const std::string& title,
                           const float& mean_x_EB,
                           const float& rms_EB,
                           const int& num_x_EB,

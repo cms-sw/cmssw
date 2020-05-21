@@ -5,6 +5,8 @@
  *  \author:  Mia Tosi,40 3-B32,+41227671609 
  */
 
+#include <utility>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -22,7 +24,7 @@ VertexMonitor::VertexMonitor(const edm::ParameterSet& iConfig,
     : conf_(iConfig),
       primaryVertexInputTag_(primaryVertexInputTag),
       selectedPrimaryVertexInputTag_(selectedPrimaryVertexInputTag),
-      label_(pvLabel),
+      label_(std::move(pvLabel)),
       NumberOfPVtx(nullptr),
       NumberOfPVtxVsBXlumi(nullptr),
       NumberOfPVtxVsGoodPVtx(nullptr),
@@ -61,7 +63,7 @@ VertexMonitor::VertexMonitor(const edm::ParameterSet& iConfig,
                              const edm::InputTag& selectedPrimaryVertexInputTag,
                              std::string pvLabel,
                              edm::ConsumesCollector& iC)
-    : VertexMonitor(iConfig, primaryVertexInputTag, selectedPrimaryVertexInputTag, pvLabel) {
+    : VertexMonitor(iConfig, primaryVertexInputTag, selectedPrimaryVertexInputTag, std::move(pvLabel)) {
   if (doPlotsVsBXlumi_)
     lumiDetails_ = new GetLumi(iConfig.getParameter<edm::ParameterSet>("BXlumiSetup"), iC);
 

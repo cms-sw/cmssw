@@ -89,7 +89,7 @@ CSCTimingExtractor::~CSCTimingExtractor() {}
 
 void CSCTimingExtractor::fillTiming(TimeMeasurementSequence& tmSequence,
                                     const std::vector<const CSCSegment*>& segments,
-                                    reco::TrackRef muonTrack,
+                                    const reco::TrackRef& muonTrack,
                                     const edm::Event& iEvent,
                                     const edm::EventSetup& iSetup) {
   theService->update(iSetup);
@@ -249,7 +249,7 @@ void CSCTimingExtractor::fillTiming(TimeMeasurementSequence& tmSequence,
 
 // ------------ method called to produce the data  ------------
 void CSCTimingExtractor::fillTiming(TimeMeasurementSequence& tmSequence,
-                                    reco::TrackRef muonTrack,
+                                    const reco::TrackRef& muonTrack,
                                     const edm::Event& iEvent,
                                     const edm::EventSetup& iSetup) {
   if (debug)

@@ -4,6 +4,8 @@
 
 #include "DataFormats/SiStripCommon/interface/SiStripConstants.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include <utility>
+
 #include <vector>
 #include <string>
 #include <ostream>
@@ -218,7 +220,7 @@ inline std::string SiStripPartition::inputDcuInfoXml() const { return inputDcuIn
 inline std::vector<std::string> SiStripPartition::inputFecXml() const { return inputFecXml_; }
 inline std::vector<std::string> SiStripPartition::inputFedXml() const { return inputFedXml_; }
 
-inline void SiStripPartition::partitionName(std::string name) { partitionName_ = name; }
+inline void SiStripPartition::partitionName(std::string name) { partitionName_ = std::move(name); }
 inline void SiStripPartition::runNumber(uint32_t run) { runNumber_ = run; }
 inline void SiStripPartition::forceVersions(bool force) { forceVersions_ = force; }
 inline void SiStripPartition::forceCurrentState(bool force) { forceCurrentState_ = force; }

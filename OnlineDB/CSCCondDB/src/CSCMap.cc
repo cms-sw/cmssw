@@ -87,7 +87,7 @@ void cscmap::crate_chamber(int crate,
   con->terminateStatement(stmt);
 }  //end of crate_chamber
 
-void cscmap::chamber_crate(std::string chamber_id,
+void cscmap::chamber_crate(const std::string &chamber_id,
                            int *crate,
                            int *dmb,
                            int *sector,

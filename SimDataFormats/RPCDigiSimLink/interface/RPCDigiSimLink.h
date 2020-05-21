@@ -9,8 +9,8 @@
 class RPCDigiSimLink {
 public:
   RPCDigiSimLink(std::pair<unsigned int, int> digi,
-                 Local3DPoint entryPoint,
-                 LocalVector momentumAtEntry,
+                 const Local3DPoint& entryPoint,
+                 const LocalVector& momentumAtEntry,
                  float timeOfFlight,
                  float energyLoss,
                  int particleType,

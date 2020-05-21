@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "FWCore/Utilities/interface/Likely.h"
@@ -21,7 +23,7 @@ GlobalTrajectoryParameters::GlobalTrajectoryParameters(const GlobalPoint& aX,
                                                        int,
                                                        const MagneticField* fieldProvider,
                                                        GlobalVector fieldValue)
-    : theField(fieldProvider), theX(aX), cachedMagneticField(fieldValue) {
+    : theField(fieldProvider), theX(aX), cachedMagneticField(std::move(fieldValue)) {
   float bza = -2.99792458e-3f * cachedMagneticField.z();
   float qbpi = bza / (direction.perp() * transverseCurvature);
   theP = direction * std::abs(qbpi);

@@ -683,7 +683,7 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es) {
 }
 
 std::map<reco::GsfElectronRef, reco::GsfElectronRef> ErsatzMEt::probeFinder(
-    const std::vector<reco::GsfElectronRef>& tags, const edm::Handle<reco::GsfElectronCollection> pElectrons) {
+    const std::vector<reco::GsfElectronRef>& tags, const edm::Handle<reco::GsfElectronCollection>& pElectrons) {
   const reco::GsfElectronCollection* probeCands = pElectrons.product();
   std::map<reco::GsfElectronRef, reco::GsfElectronRef> TagProbes;
   for (std::vector<reco::GsfElectronRef>::const_iterator tagelec = tags.begin(); tagelec != tags.end(); ++tagelec) {

@@ -708,7 +708,10 @@ TriggerObjectCollection HLTMuonMatchAndPlot::selectedTriggerObjects(
   return selectedObjects;
 }
 
-void HLTMuonMatchAndPlot::book1D(DQMStore::IBooker& iBooker, string name, const string& binningType, string title) {
+void HLTMuonMatchAndPlot::book1D(DQMStore::IBooker& iBooker,
+                                 const string& name,
+                                 const string& binningType,
+                                 const string& title) {
   /* Properly delete the array of floats that has been allocated on
    * the heap by fillEdges.  Avoid multiple copies and internal ROOT
    * clones by simply creating the histograms directly in the DQMStore

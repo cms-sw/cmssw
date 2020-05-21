@@ -39,7 +39,7 @@ private:
 
   void fetchData(std::map<EcalLogicID, MonPedestalOffsetsDat>* fillMap,
                  MonRunIOV* iov,
-                 std::string mappa = " cv.maps_to ") noexcept(false);
+                 const std::string& mappa = " cv.maps_to ") noexcept(false);
 
   // User data
   int m_dacG1;

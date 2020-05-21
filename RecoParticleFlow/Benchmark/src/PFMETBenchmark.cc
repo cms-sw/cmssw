@@ -48,7 +48,7 @@ void PFMETBenchmark::write() {
 }
 
 void PFMETBenchmark::setup(
-    string Filename, bool debug, bool plotAgainstReco, string benchmarkLabel_, DQMStore* dbe_store) {
+    const string& Filename, bool debug, bool plotAgainstReco, const string& benchmarkLabel_, DQMStore* dbe_store) {
   debug_ = debug;
   plotAgainstReco_ = plotAgainstReco;
   outputFile_ = Filename;

@@ -193,8 +193,8 @@ void Phase2TrackerValidateDigi::analyze(const edm::Event& iEvent, const edm::Eve
 }
 
 int Phase2TrackerValidateDigi::fillSimHitInfo(const edm::Event& iEvent,
-                                              const SimTrack simTrk,
-                                              const edm::ESHandle<TrackerGeometry> gHandle) {
+                                              const SimTrack& simTrk,
+                                              const edm::ESHandle<TrackerGeometry>& gHandle) {
   const TrackerTopology* tTopo = tTopoHandle_.product();
   const TrackerGeometry* tGeom = gHandle.product();
   int totalHits = 0;

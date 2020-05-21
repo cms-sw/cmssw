@@ -214,7 +214,10 @@ void DTOccupancyTestML::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter&
 
 // --------------------------------------------------
 
-void DTOccupancyTestML::bookHistos(DQMStore::IBooker& ibooker, const int wheelId, string folder, string histoTag) {
+void DTOccupancyTestML::bookHistos(DQMStore::IBooker& ibooker,
+                                   const int wheelId,
+                                   const string& folder,
+                                   const string& histoTag) {
   // Set the current folder
   stringstream wheel;
   wheel << wheelId;
@@ -241,7 +244,7 @@ void DTOccupancyTestML::bookHistos(DQMStore::IBooker& ibooker, const int wheelId
   wheelHistos[wheelId]->setAxisTitle("sector", 1);
 }
 
-string DTOccupancyTestML::getMEName(string histoTag, const DTChamberId& chId) {
+string DTOccupancyTestML::getMEName(const string& histoTag, const DTChamberId& chId) {
   stringstream wheel;
   wheel << chId.wheel();
   stringstream station;

@@ -45,7 +45,7 @@ private:
   typedef std::pair<VertexState, double> VertexChi2Pair;
 
   VertexComponent createNewComponent(const VertexState& oldVertex,
-                                     const RefCountedLinearizedTrackState linTrack,
+                                     const RefCountedLinearizedTrackState& linTrack,
                                      float weight,
                                      int sign) const;
 

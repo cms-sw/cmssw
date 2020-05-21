@@ -1,5 +1,6 @@
 // system include files
 #include <memory>
+#include <utility>
 
 // user include files
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -35,7 +36,7 @@ MuonME0DigisHarvestor::MuonME0DigisHarvestor(const edm::ParameterSet &ps) {
 
 MuonME0DigisHarvestor::~MuonME0DigisHarvestor() {}
 
-TProfile *MuonME0DigisHarvestor::ComputeEff(TH1F *num, TH1F *denum, std::string nameHist) {
+TProfile *MuonME0DigisHarvestor::ComputeEff(TH1F *num, TH1F *denum, const std::string &nameHist) {
   std::string name = "eff_" + nameHist;
   std::string title = "Digi Efficiency" + std::string(num->GetTitle());
   TProfile *efficHist = new TProfile(name.c_str(),
@@ -72,7 +73,7 @@ TProfile *MuonME0DigisHarvestor::ComputeEff(TH1F *num, TH1F *denum, std::string 
 void MuonME0DigisHarvestor::ProcessBooking(
     DQMStore::IBooker &ibooker, DQMStore::IGetter &ig, std::string nameHist, TH1F *num, TH1F *den) {
   if (num != nullptr && den != nullptr) {
-    TProfile *profile = ComputeEff(num, den, nameHist);
+    TProfile *profile = ComputeEff(num, den, std::move(nameHist));
 
     TString x_axis_title = TString(num->GetXaxis()->GetTitle());
     TString title = TString::Format("Digi Efficiency;%s;Eff.", x_axis_title.Data());
@@ -92,7 +93,7 @@ void MuonME0DigisHarvestor::ProcessBooking(
   return;
 }
 
-TH1F *MuonME0DigisHarvestor::ComputeBKG(TH1F *hist1, TH1F *hist2, std::string nameHist) {
+TH1F *MuonME0DigisHarvestor::ComputeBKG(TH1F *hist1, TH1F *hist2, const std::string &nameHist) {
   std::string name = "rate_" + nameHist;
   hist1->SetName(name.c_str());
   for (int bin = 1; bin <= hist1->GetNbinsX(); ++bin) {
@@ -114,7 +115,7 @@ TH1F *MuonME0DigisHarvestor::ComputeBKG(TH1F *hist1, TH1F *hist2, std::string na
 void MuonME0DigisHarvestor::ProcessBookingBKG(
     DQMStore::IBooker &ibooker, DQMStore::IGetter &ig, std::string nameHist, TH1F *hist1, TH1F *hist2) {
   if (hist1 != nullptr && hist2 != nullptr) {
-    TH1F *rate = ComputeBKG(hist1, hist2, nameHist);
+    TH1F *rate = ComputeBKG(hist1, hist2, std::move(nameHist));
 
     TString x_axis_title = TString(hist1->GetXaxis()->GetTitle());
     TString origTitle = TString(hist1->GetTitle());

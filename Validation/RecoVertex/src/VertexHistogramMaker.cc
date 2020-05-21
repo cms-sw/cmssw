@@ -45,7 +45,7 @@ VertexHistogramMaker::VertexHistogramMaker(const edm::ParameterSet& iConfig, edm
 
 VertexHistogramMaker::~VertexHistogramMaker() { delete m_currdir; }
 
-void VertexHistogramMaker::book(const std::string dirname) {
+void VertexHistogramMaker::book(const std::string& dirname) {
   edm::Service<TFileService> tfserv;
   TFileDirectory* currdir = &(tfserv->tFileDirectory());
 

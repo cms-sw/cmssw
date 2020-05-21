@@ -1,4 +1,7 @@
 #include "SiHitDigitizer.h"
+
+#include <utility>
+
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SiLinearChargeCollectionDrifter.h"
 #include "SiLinearChargeDivider.h"
@@ -39,7 +42,7 @@ void SiHitDigitizer::processHit(const PSimHit* hit,
   // Compute the drift direction for this det
   double moduleThickness = det.specificSurface().bounds().thickness();  // active detector thicness
   double timeNormalisation = (moduleThickness * moduleThickness) / (2. * depletionVoltage * chargeMobility);
-  LocalVector driftDir = DriftDirection(&det, bfield, langle);
+  LocalVector driftDir = DriftDirection(&det, std::move(bfield), langle);
 
   // Fully process one SimHit
   theSiInduceChargeOnStrips->induce(

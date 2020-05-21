@@ -19,7 +19,7 @@ VariableHelper::VariableHelper(const edm::ParameterSet& iConfig, edm::ConsumesCo
   }
 }
 
-void VariableHelper::setHolder(std::string hn) {
+void VariableHelper::setHolder(const std::string& hn) {
   iterator it = variables_.begin();
   iterator it_end = variables_.end();
   for (; it != it_end; ++it)
@@ -46,7 +46,7 @@ std::string VariableHelper::printValues(const edm::Event& event) const {
   }
   return ss.str();
 }
-const CachingVariable* VariableHelper::variable(std::string name) const {
+const CachingVariable* VariableHelper::variable(const std::string& name) const {
   iterator v = variables_.find(name);
   if (v != variables_.end())
     return v->second;

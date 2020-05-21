@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -172,7 +174,7 @@ void TagProbeFitTreeAnalyzer::calculateEfficiency(string name, const edm::Parame
   }
 
   fitter.calculateEfficiency(
-      name, effCats, effStates, unbinnedVariables, binnedVariables, mappedCategories, binToPDFmap);
+      std::move(name), effCats, effStates, unbinnedVariables, binnedVariables, mappedCategories, binToPDFmap);
 }
 
 //define this as a plug-in

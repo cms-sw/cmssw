@@ -18,7 +18,7 @@ public:
     for (std::vector<std::string>::iterator i = inpuTags.begin(); i != inpuTags.end(); ++i)
       inputTags_[*i] = pset.getParameter<edm::InputTag>(*i);
   }
-  const edm::InputTag& inputTag(std::string s) {
+  const edm::InputTag& inputTag(const std::string& s) {
     std::map<std::string, edm::InputTag>::iterator findMe = inputTags_.find(s);
     if (findMe != inputTags_.end())
       return findMe->second;
@@ -47,7 +47,7 @@ public:
   };
   ~InputTagDistributorService(){};
 
-  InputTagDistributor& init(std::string user, const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC) {
+  InputTagDistributor& init(const std::string& user, const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC) {
     if (multipleInstance_.find(user) != multipleInstance_.end()) {
       std::cerr << user << " InputTagDistributor user already defined." << std::endl;
       throw;
@@ -86,7 +86,7 @@ public:
     }
   }
 
-  edm::InputTag retrieve(std::string src, const edm::ParameterSet& pset) {
+  edm::InputTag retrieve(const std::string& src, const edm::ParameterSet& pset) {
     //if used without setting any InputTag mapping
     if (multipleInstance_.empty())
       return pset.getParameter<edm::InputTag>(src);

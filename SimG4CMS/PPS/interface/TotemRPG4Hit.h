@@ -40,9 +40,9 @@ public:
 
 public:
   G4ThreeVector entry() const;
-  void setEntry(G4ThreeVector xyz);
+  void setEntry(const G4ThreeVector &xyz);
   G4ThreeVector exit() const;
-  void setExit(G4ThreeVector xyz);
+  void setExit(const G4ThreeVector &xyz);
 
   void setLocalEntry(const G4ThreeVector &theLocalEntryPoint);
   void setLocalExit(const G4ThreeVector &theLocalExitPoint);

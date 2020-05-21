@@ -15,7 +15,7 @@ ConstrainedTreeBuilder::~ConstrainedTreeBuilder() {
 RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(
     const std::vector<RefCountedKinematicParticle>& initialParticles,
     const std::vector<KinematicState>& finalStates,
-    const RefCountedKinematicVertex vertex,
+    const RefCountedKinematicVertex& vertex,
     const AlgebraicMatrix& fullCov) const {
   if (!vertex->vertexIsValid()) {
     LogDebug("ConstrainedTreeBuilder") << "Vertex is invalid\n";
@@ -120,8 +120,8 @@ RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(
 }
 
 RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(
-    const RefCountedKinematicParticle virtualParticle,
-    const RefCountedKinematicVertex vtx,
+    const RefCountedKinematicParticle& virtualParticle,
+    const RefCountedKinematicVertex& vtx,
     const std::vector<RefCountedKinematicParticle>& particles) const {
   //making a resulting tree:
   RefCountedKinematicTree resTree = ReferenceCountingPointer<KinematicTree>(new KinematicTree());

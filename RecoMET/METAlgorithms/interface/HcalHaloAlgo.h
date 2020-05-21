@@ -101,7 +101,7 @@ private:
 
   const CaloGeometry* geo_;
   const HcalGeometry* hgeo_;
-  math::XYZPoint getPosition(const DetId& id, reco::Vertex::Point vtx);
+  math::XYZPoint getPosition(const DetId& id, const reco::Vertex::Point& vtx);
 };
 
 #endif

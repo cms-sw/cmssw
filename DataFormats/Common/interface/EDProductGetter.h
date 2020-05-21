@@ -80,7 +80,7 @@ namespace edm {
   };
 
   EDProductGetter const* mustBeNonZero(EDProductGetter const* prodGetter,
-                                       std::string refType,
+                                       const std::string& refType,
                                        ProductID const& productID);
 }  // namespace edm
 #endif

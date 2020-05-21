@@ -37,7 +37,7 @@ public:
                const HLTTauDQMOfflineObjects &refCollection);
 
 private:
-  LV findTrgObject(std::string, const trigger::TriggerEvent &);
+  LV findTrgObject(const std::string &, const trigger::TriggerEvent &);
 
   const int nbinsPt_;
   const double ptmin_, ptmax_;

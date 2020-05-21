@@ -75,7 +75,7 @@ void DTLocalTriggerLutTask::dqmBeginRun(const edm::Run& run, const edm::EventSet
   trigGeomUtils = new DTTrigGeomUtils(muonGeom);
 }
 
-void DTLocalTriggerLutTask::bookHistos(DQMStore::IBooker& ibooker, DTChamberId chId) {
+void DTLocalTriggerLutTask::bookHistos(DQMStore::IBooker& ibooker, const DTChamberId& chId) {
   stringstream wheel;
   wheel << chId.wheel();
   stringstream sector;

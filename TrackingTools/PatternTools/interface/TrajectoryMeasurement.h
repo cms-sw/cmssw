@@ -5,6 +5,7 @@
 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include <algorithm>
+#include <utility>
 
 class DetLayer;
 
@@ -33,7 +34,7 @@ public:
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdTrajectoryStateOnSurface, ConstRecHitPointer aRecHit)
       : theFwdPredictedState(fwdTrajectoryStateOnSurface),
         theUpdatedState(fwdTrajectoryStateOnSurface),
-        theRecHit(aRecHit),
+        theRecHit(std::move(aRecHit)),
         theLayer(nullptr),
         theEstimate(0) {}
 
@@ -43,7 +44,7 @@ public:
                         float aEstimate)
       : theFwdPredictedState(fwdTrajectoryStateOnSurface),
         theUpdatedState(fwdTrajectoryStateOnSurface),
-        theRecHit(aRecHit),
+        theRecHit(std::move(aRecHit)),
         theLayer(nullptr),
         theEstimate(aEstimate) {}
 
@@ -97,7 +98,7 @@ public:
       : theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
         theBwdPredictedState(bwdPredTrajectoryStateOnSurface),
         theUpdatedState(uTrajectoryStateOnSurface),
-        theRecHit(aRecHit),
+        theRecHit(std::move(aRecHit)),
         theLayer(nullptr),
         theEstimate(0) {}
 
@@ -112,7 +113,7 @@ public:
       : theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
         theBwdPredictedState(bwdPredTrajectoryStateOnSurface),
         theUpdatedState(uTrajectoryStateOnSurface),
-        theRecHit(aRecHit),
+        theRecHit(std::move(aRecHit)),
         theLayer(nullptr),
         theEstimate(aEstimate) {}
 
@@ -125,7 +126,7 @@ public:
       : theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
         theBwdPredictedState(bwdPredTrajectoryStateOnSurface),
         theUpdatedState(uTrajectoryStateOnSurface),
-        theRecHit(aRecHit),
+        theRecHit(std::move(aRecHit)),
         theLayer(layer),
         theEstimate(aEstimate) {}
 

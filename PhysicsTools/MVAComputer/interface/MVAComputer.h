@@ -99,7 +99,7 @@ namespace PhysicsTools {
       /// number of times each appearance of that variable can appear while computing the discriminator
       unsigned int multiplicity;
 
-      bool operator<(AtomicId id) const { return var.getName() < id; }
+      bool operator<(const AtomicId &id) const { return var.getName() < id; }
 
       bool operator<(const InputVar &other) const { return var.getName() < other.var.getName(); }
     };
@@ -180,7 +180,7 @@ namespace PhysicsTools {
     void setup(const Calibration::MVAComputer *calib);
 
     /// map variable identifier \a name to the numerical position in the array
-    int getVariableId(AtomicId name) const;
+    int getVariableId(const AtomicId &name) const;
 
     /// evaluate discriminator from flattened variable array
     template <class T>

@@ -274,7 +274,7 @@ void PrintMaterialBudgetInfo::dumpElementMassFraction(std::ostream& elementOut) 
              << totalFraction << std::endl;
 }
 
-std::string PrintMaterialBudgetInfo::stringLaTeXUnderscore(std::string stringname) {
+std::string PrintMaterialBudgetInfo::stringLaTeXUnderscore(const std::string& stringname) {
   // To replace '\' with '\_' to compile LaTeX output
   std::string stringoutput;
 
@@ -289,7 +289,7 @@ std::string PrintMaterialBudgetInfo::stringLaTeXUnderscore(std::string stringnam
   return stringoutput;
 }
 
-std::string PrintMaterialBudgetInfo::stringLaTeXSuperscript(std::string stringname) {
+std::string PrintMaterialBudgetInfo::stringLaTeXSuperscript(const std::string& stringname) {
   // To replace 'm3' with 'm$^3$' to compile LaTeX output
   std::string stringoutput = stringname.substr(0, 1);
 

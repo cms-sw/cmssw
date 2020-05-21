@@ -3,6 +3,8 @@
 
 #include <map>
 #include <stdexcept>
+#include <utility>
+
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 #define USE_NORM 1
@@ -24,13 +26,13 @@ public:
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
 
-  inline void setTCCConfigurationFile(std::string x) { m_tcc_file = x; }
+  inline void setTCCConfigurationFile(std::string x) { m_tcc_file = std::move(x); }
   inline std::string getTCCConfigurationFile() const { return m_tcc_file; }
-  inline void setLUTConfigurationFile(std::string x) { m_lut_file = x; }
+  inline void setLUTConfigurationFile(std::string x) { m_lut_file = std::move(x); }
   inline std::string getLUTConfigurationFile() const { return m_lut_file; }
-  inline void setSLBConfigurationFile(std::string x) { m_slb_file = x; }
+  inline void setSLBConfigurationFile(std::string x) { m_slb_file = std::move(x); }
   inline std::string getSLBConfigurationFile() const { return m_slb_file; }
-  inline void setTestPatternFileUrl(std::string x) { m_test_url = x; }
+  inline void setTestPatternFileUrl(std::string x) { m_test_url = std::move(x); }
   inline std::string getTestPatternFileUrl() const { return m_test_url; }
   inline void setNTestPatternsToLoad(int id) { m_ntest = id; }
   inline int getNTestPatternsToLoad() const { return m_ntest; }

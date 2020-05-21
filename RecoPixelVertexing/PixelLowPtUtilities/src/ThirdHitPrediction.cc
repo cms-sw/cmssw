@@ -16,12 +16,12 @@ using namespace std;
 
 /*****************************************************************************/
 ThirdHitPrediction::ThirdHitPrediction(const TrackingRegion& region,
-                                       GlobalPoint inner,
-                                       GlobalPoint outer,
+                                       const GlobalPoint& inner,
+                                       const GlobalPoint& outer,
                                        const edm::EventSetup& es,
                                        double nSigMultipleScattering,
                                        double maxAngleRatio,
-                                       string builderName) {
+                                       const string& builderName) {
   using namespace edm;
   ESHandle<MagneticField> magfield;
   es.get<IdealMagneticFieldRecord>().get(magfield);
@@ -342,7 +342,7 @@ void ThirdHitPrediction::getRanges(const DetLayer* layer, float phi[], float rz[
 void ThirdHitPrediction::getRanges(float rz3, float phi[], float rz[]) { calculateRanges(rz3, phi, rz); }
 
 /*****************************************************************************/
-bool ThirdHitPrediction::isCompatibleWithMultipleScattering(GlobalPoint g3,
+bool ThirdHitPrediction::isCompatibleWithMultipleScattering(const GlobalPoint& g3,
                                                             const vector<const TrackingRecHit*>& h,
                                                             vector<GlobalVector>& globalDirs,
                                                             const edm::EventSetup& es) {

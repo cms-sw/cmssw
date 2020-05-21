@@ -51,14 +51,14 @@ namespace edm {
 
     EventSetupRecordImpl const& EventSetupRecordProvider::firstRecordImpl() const { return recordImpls_[0]; }
 
-    void EventSetupRecordProvider::add(std::shared_ptr<DataProxyProvider> iProvider) {
+    void EventSetupRecordProvider::add(const std::shared_ptr<DataProxyProvider>& iProvider) {
       assert(iProvider->isUsingRecord(key_));
       edm::propagate_const<std::shared_ptr<DataProxyProvider>> pProvider(iProvider);
       assert(!search_all(providers_, pProvider));
       providers_.emplace_back(iProvider);
     }
 
-    void EventSetupRecordProvider::addFinder(std::shared_ptr<EventSetupRecordIntervalFinder> iFinder) {
+    void EventSetupRecordProvider::addFinder(const std::shared_ptr<EventSetupRecordIntervalFinder>& iFinder) {
       auto oldFinder = finder();
       finder_ = iFinder;
       if (nullptr != multipleFinders_.get()) {
@@ -113,7 +113,7 @@ namespace edm {
       multipleFinders_.reset(nullptr);
     }
 
-    void EventSetupRecordProvider::addProxiesToRecord(std::shared_ptr<DataProxyProvider> iProvider,
+    void EventSetupRecordProvider::addProxiesToRecord(const std::shared_ptr<DataProxyProvider>& iProvider,
                                                       const EventSetupRecordProvider::DataToPreferredProviderMap& iMap) {
       typedef DataProxyProvider::KeyedProxies ProxyList;
       typedef EventSetupRecordProvider::DataToPreferredProviderMap PreferredMap;

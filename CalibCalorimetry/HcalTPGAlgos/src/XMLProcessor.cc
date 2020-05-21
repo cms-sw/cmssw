@@ -11,6 +11,8 @@
 //
 
 // system include files
+#include <utility>
+
 #include <vector>
 #include <string>
 #include <iostream>
@@ -75,7 +77,7 @@ XMLProcessor::DBConfig::_DBConfig() {
 }
 
 XMLDOMBlock* XMLProcessor::createLMapHBEFXMLBase(std::string templateFileName) {
-  XMLDOMBlock* result = new XMLDOMBlock(templateFileName);
+  XMLDOMBlock* result = new XMLDOMBlock(std::move(templateFileName));
   DOMDocument* loader = result->getDocument();
   //DOMElement * root = loader -> getDocumentElement();
 
@@ -93,7 +95,7 @@ int XMLProcessor::addLMapHBEFDataset(XMLDOMBlock* doc, LMapRowHBEF* row, std::st
   DOMDocument* loader = doc->getDocument();
   DOMElement* root = loader->getDocumentElement();
 
-  XMLDOMBlock dataSetDoc(templateFileName);
+  XMLDOMBlock dataSetDoc(std::move(templateFileName));
   DOMDocument* dataSet = dataSetDoc.getDocument();
 
   //Dataset
@@ -144,7 +146,7 @@ int XMLProcessor::addLMapHBEFDataset(XMLDOMBlock* doc, LMapRowHBEF* row, std::st
 }
 
 XMLDOMBlock* XMLProcessor::createLMapHOXMLBase(std::string templateFileName) {
-  XMLDOMBlock* result = new XMLDOMBlock(templateFileName);
+  XMLDOMBlock* result = new XMLDOMBlock(std::move(templateFileName));
   DOMDocument* loader = result->getDocument();
   //DOMElement * root = loader -> getDocumentElement();
 
@@ -159,7 +161,7 @@ int XMLProcessor::addLMapHODataset(XMLDOMBlock* doc, LMapRowHO* row, std::string
   DOMDocument* loader = doc->getDocument();
   DOMElement* root = loader->getDocumentElement();
 
-  XMLDOMBlock dataSetDoc(templateFileName);
+  XMLDOMBlock dataSetDoc(std::move(templateFileName));
   DOMDocument* dataSet = dataSetDoc.getDocument();
 
   //Dataset
@@ -209,7 +211,7 @@ int XMLProcessor::write(XMLDOMBlock* doc, std::string target) {
   //DOMElement * root = loader -> getDocumentElement();
 
   XMLCh* _t;
-  _t = serializeDOM(loader, target);
+  _t = serializeDOM(loader, std::move(target));
   delete _t;
 
   return 0;
@@ -242,7 +244,7 @@ int XMLProcessor::test(void) {
   return 0;
 }
 
-XMLCh* XMLProcessor::serializeDOM(DOMNode* node, std::string target) {
+XMLCh* XMLProcessor::serializeDOM(DOMNode* node, const std::string& target) {
   XMLCh tempStr[100];
   XMLString::transcode("LS", tempStr, 99);
   DOMImplementation* impl = DOMImplementationRegistry::getDOMImplementation(tempStr);

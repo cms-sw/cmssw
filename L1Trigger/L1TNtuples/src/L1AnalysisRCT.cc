@@ -11,7 +11,7 @@ L1Analysis::L1AnalysisRCT::L1AnalysisRCT(int maxRCTREG) {
 
 L1Analysis::L1AnalysisRCT::~L1AnalysisRCT() {}
 
-void L1Analysis::L1AnalysisRCT::SetHdRCT(const edm::Handle<L1CaloRegionCollection> rgn) {
+void L1Analysis::L1AnalysisRCT::SetHdRCT(const edm::Handle<L1CaloRegionCollection>& rgn) {
   // Regions
   rct_.RegSize = rgn->size();
   for (L1CaloRegionCollection::const_iterator ireg = rgn->begin(); ireg != rgn->end(); ireg++) {
@@ -31,7 +31,7 @@ void L1Analysis::L1AnalysisRCT::SetHdRCT(const edm::Handle<L1CaloRegionCollectio
   }
 }
 
-void L1Analysis::L1AnalysisRCT::SetEmRCT(const edm::Handle<L1CaloEmCollection> em) {
+void L1Analysis::L1AnalysisRCT::SetEmRCT(const edm::Handle<L1CaloEmCollection>& em) {
   // Isolated and non-isolated EM
   rct_.EmSize = em->size();
   for (L1CaloEmCollection::const_iterator emit = em->begin(); emit != em->end(); emit++) {

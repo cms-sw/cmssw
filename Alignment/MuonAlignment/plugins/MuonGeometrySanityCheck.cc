@@ -46,10 +46,10 @@
 
 class MuonGeometrySanityCheckCustomFrame {
 public:
-  MuonGeometrySanityCheckCustomFrame(const edm::ParameterSet &iConfig, std::string name);
+  MuonGeometrySanityCheckCustomFrame(const edm::ParameterSet &iConfig, const std::string &name);
 
-  GlobalPoint transform(GlobalPoint point) const;
-  GlobalPoint transformInverse(GlobalPoint point) const;
+  GlobalPoint transform(const GlobalPoint &point) const;
+  GlobalPoint transformInverse(const GlobalPoint &point) const;
   AlgebraicMatrix matrix;
   AlgebraicMatrix matrixInverse;
 };
@@ -77,8 +77,8 @@ public:
   const MuonGeometrySanityCheckCustomFrame *outputCustomFrame;
 
 private:
-  bool numeric(std::string s);
-  int number(std::string s);
+  bool numeric(const std::string &s);
+  int number(const std::string &s);
 };
 
 class MuonGeometrySanityCheck : public edm::EDAnalyzer {
@@ -145,7 +145,7 @@ MuonGeometrySanityCheck::~MuonGeometrySanityCheck() {
 }
 
 MuonGeometrySanityCheckCustomFrame::MuonGeometrySanityCheckCustomFrame(const edm::ParameterSet &iConfig,
-                                                                       std::string name) {
+                                                                       const std::string &name) {
   std::vector<double> numbers = iConfig.getParameter<std::vector<double> >("matrix");
   if (numbers.size() != 9) {
     throw cms::Exception("BadConfig") << "Custom frame \"" << name << "\" has a matrix which is not 3x3." << std::endl;
@@ -170,7 +170,7 @@ MuonGeometrySanityCheckCustomFrame::MuonGeometrySanityCheckCustomFrame(const edm
   }
 }
 
-GlobalPoint MuonGeometrySanityCheckCustomFrame::transform(GlobalPoint point) const {
+GlobalPoint MuonGeometrySanityCheckCustomFrame::transform(const GlobalPoint &point) const {
   AlgebraicVector input(3);
   input[0] = point.x();
   input[1] = point.x();
@@ -179,7 +179,7 @@ GlobalPoint MuonGeometrySanityCheckCustomFrame::transform(GlobalPoint point) con
   return GlobalPoint(output[0], output[1], output[3]);
 }
 
-GlobalPoint MuonGeometrySanityCheckCustomFrame::transformInverse(GlobalPoint point) const {
+GlobalPoint MuonGeometrySanityCheckCustomFrame::transformInverse(const GlobalPoint &point) const {
   AlgebraicVector input(3);
   input[0] = point.x();
   input[1] = point.x();
@@ -188,13 +188,13 @@ GlobalPoint MuonGeometrySanityCheckCustomFrame::transformInverse(GlobalPoint poi
   return GlobalPoint(output[0], output[1], output[3]);
 }
 
-bool MuonGeometrySanityCheckPoint::numeric(std::string s) {
+bool MuonGeometrySanityCheckPoint::numeric(const std::string &s) {
   return (s == std::string("0") || s == std::string("1") || s == std::string("2") || s == std::string("3") ||
           s == std::string("4") || s == std::string("5") || s == std::string("6") || s == std::string("7") ||
           s == std::string("8") || s == std::string("9"));
 }
 
-int MuonGeometrySanityCheckPoint::number(std::string s) {
+int MuonGeometrySanityCheckPoint::number(const std::string &s) {
   if (s == std::string("0"))
     return 0;
   else if (s == std::string("1"))

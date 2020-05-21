@@ -4,6 +4,8 @@
 #include "FWCore/Framework/interface/ProducesCollector.h"
 
 #include <string>
+#include <utility>
+
 #include <vector>
 #include <memory>
 
@@ -32,7 +34,7 @@ namespace fastsim {
     /*!
             \param name Enique name for every instance.
         */
-    InteractionModel(std::string name) : name_(name) {}
+    InteractionModel(std::string name) : name_(std::move(name)) {}
 
     //! Default destructor.
     virtual ~InteractionModel() { ; }

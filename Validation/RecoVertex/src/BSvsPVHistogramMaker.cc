@@ -36,7 +36,7 @@ BSvsPVHistogramMaker::BSvsPVHistogramMaker(const edm::ParameterSet& iConfig, edm
 
 BSvsPVHistogramMaker::~BSvsPVHistogramMaker() { delete _currdir; }
 
-void BSvsPVHistogramMaker::book(const std::string dirname) {
+void BSvsPVHistogramMaker::book(const std::string& dirname) {
   edm::Service<TFileService> tfserv;
   TFileDirectory* currdir = &(tfserv->tFileDirectory());
 

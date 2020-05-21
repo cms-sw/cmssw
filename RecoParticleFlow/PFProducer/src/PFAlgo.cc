@@ -8,6 +8,7 @@
 
 #include <numeric>
 #include <fstream>
+#include <utility>
 
 using namespace std;
 using namespace reco;
@@ -25,7 +26,7 @@ PFAlgo::PFAlgo(double nSigmaECAL,
       nSigmaHCAL_(nSigmaHCAL),
       nSigmaHFEM_(nSigmaHFEM),
       nSigmaHFHAD_(nSigmaHFHAD),
-      resolHF_square_(resolHF_square),
+      resolHF_square_(std::move(resolHF_square)),
       calibration_(calibration),
       thepfEnergyCalibrationHF_(thepfEnergyCalibrationHF),
       connector_() {
@@ -3461,7 +3462,7 @@ void PFAlgo::associatePSClusters(unsigned iEcal,
   }
 }
 
-bool PFAlgo::isFromSecInt(const reco::PFBlockElement& eTrack, string order) const {
+bool PFAlgo::isFromSecInt(const reco::PFBlockElement& eTrack, const string& order) const {
   reco::PFBlockElement::TrackType T_TO_DISP = reco::PFBlockElement::T_TO_DISP;
   reco::PFBlockElement::TrackType T_FROM_DISP = reco::PFBlockElement::T_FROM_DISP;
   //  reco::PFBlockElement::TrackType T_FROM_GAMMACONV = reco::PFBlockElement::T_FROM_GAMMACONV;

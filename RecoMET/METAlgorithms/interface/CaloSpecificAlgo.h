@@ -36,7 +36,7 @@ struct SpecificCaloMETData;
 //____________________________________________________________________________||
 class CaloSpecificAlgo {
 public:
-  reco::CaloMET addInfo(edm::Handle<edm::View<reco::Candidate> > towers,
+  reco::CaloMET addInfo(const edm::Handle<edm::View<reco::Candidate> > &towers,
                         const CommonMETData &met,
                         bool noHF,
                         double globalThreshold);

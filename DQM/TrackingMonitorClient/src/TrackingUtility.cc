@@ -5,7 +5,7 @@
 //
 // Get a list of MEs in a folder
 //
-int TrackingUtility::getMEList(std::string name, std::vector<std::string>& values) {
+int TrackingUtility::getMEList(const std::string& name, std::vector<std::string>& values) {
   values.clear();
   std::string prefix_str = name.substr(0, (name.find(":")));
   prefix_str += "/";
@@ -18,7 +18,7 @@ int TrackingUtility::getMEList(std::string name, std::vector<std::string>& value
 //
 // Get a list of MEs in a folder and the path name
 //
-int TrackingUtility::getMEList(std::string name, std::string& dir_path, std::vector<std::string>& values) {
+int TrackingUtility::getMEList(const std::string& name, std::string& dir_path, std::vector<std::string>& values) {
   values.clear();
   dir_path = name.substr(0, (name.find(":")));
   dir_path += "/";
@@ -28,7 +28,7 @@ int TrackingUtility::getMEList(std::string name, std::string& dir_path, std::vec
 }
 
 // Check if the requested ME exists in a folder
-bool TrackingUtility::checkME(std::string name, std::string me_name, std::string& full_path) {
+bool TrackingUtility::checkME(const std::string& name, const std::string& me_name, std::string& full_path) {
   if (name.find(name) == std::string::npos)
     return false;
   std::string prefix_str = name.substr(0, (name.find(":")));
@@ -190,7 +190,7 @@ void TrackingUtility::getMEValue(MonitorElement* me, std::string& val) {
 //
 // -- go to a given Directory
 //
-bool TrackingUtility::goToDir(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, std::string name) {
+bool TrackingUtility::goToDir(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const std::string& name) {
   std::string currDir = ibooker.pwd();
   std::string dirName = currDir.substr(currDir.find_last_of("/") + 1);
   if (dirName.find(name) == 0) {
@@ -250,7 +250,7 @@ void TrackingUtility::getBadModuleStatus(uint16_t flag, std::string& message) {
 //
 void TrackingUtility::getTopFolderPath(DQMStore::IBooker& ibooker,
                                        DQMStore::IGetter& igetter,
-                                       std::string top_dir,
+                                       const std::string& top_dir,
                                        std::string& path) {
   path = "";
   ibooker.cd();

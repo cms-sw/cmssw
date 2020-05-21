@@ -136,7 +136,7 @@ namespace pat {
     // embed various impact parameters with errors
     // embed high level selection
     void embedHighLevel(pat::Electron& anElectron,
-                        reco::GsfTrackRef track,
+                        const reco::GsfTrackRef& track,
                         reco::TransientTrack& tt,
                         reco::Vertex& primaryVertex,
                         bool primaryVertexIsValid,

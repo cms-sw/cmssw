@@ -651,7 +651,7 @@ bool SiPixelStatusHarvester::equal(SiPixelQuality* a, SiPixelQuality* b) {
 //--------------------------------------------------------------------------------------------------
 void SiPixelStatusHarvester::constructTag(std::map<int, SiPixelQuality*> siPixelQualityTag,
                                           edm::Service<cond::service::PoolDBOutputService>& poolDbService,
-                                          std::string tagName,
+                                          const std::string& tagName,
                                           edm::Run const& iRun) {
   for (std::map<int, SiPixelQuality*>::iterator qIt = siPixelQualityTag.begin(); qIt != siPixelQualityTag.end();
        ++qIt) {

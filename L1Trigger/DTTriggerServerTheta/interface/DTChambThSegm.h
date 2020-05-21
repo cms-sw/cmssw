@@ -39,7 +39,7 @@ typedef unsigned char myint8;
 class DTChambThSegm : public DTTrigData {
 public:
   /// Constructor
-  DTChambThSegm(DTChamberId, int, int*, int*);
+  DTChambThSegm(const DTChamberId&, int, int*, int*);
 
   /// Constructor
   DTChambThSegm(const DTChambThSegm& seg);

@@ -55,9 +55,9 @@ HTrackAssociator::~HTrackAssociator() {
 }
 
 //-----------------------------------------------------------------------------
-void HTrackAssociator::addDataLabels(const std::string className,
-                                     const std::string moduleLabel,
-                                     const std::string productInstanceLabel) {
+void HTrackAssociator::addDataLabels(const std::string& className,
+                                     const std::string& moduleLabel,
+                                     const std::string& productInstanceLabel) {
   if (className == "EBRecHitCollection") {
     EBRecHitCollectionLabels.clear();
     EBRecHitCollectionLabels.push_back(moduleLabel);

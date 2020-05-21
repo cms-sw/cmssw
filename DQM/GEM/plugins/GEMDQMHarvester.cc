@@ -35,9 +35,9 @@ protected:
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override{};  // Cannot use; it is called after dqmSaver
 
   void refineSummaryHistogram(edm::Service<DQMStore> &);
-  void refineSummaryHistogramCore(TH3F *, std::string &, TH2F *&, std::string strTmpPrefix = "tmp_");
+  void refineSummaryHistogramCore(TH3F *, std::string &, TH2F *&, const std::string &strTmpPrefix = "tmp_");
 
-  void fillUnderOverflowBunchCrossing(edm::Service<DQMStore> &, std::string);
+  void fillUnderOverflowBunchCrossing(edm::Service<DQMStore> &, const std::string &);
 
   Float_t m_fReportSummary;
   std::string strOutFile_;
@@ -92,7 +92,7 @@ void GEMDQMHarvester::refineSummaryHistogram(edm::Service<DQMStore> &store) {
 void GEMDQMHarvester::refineSummaryHistogramCore(TH3F *h3Src,
                                                  std::string &strNewName,
                                                  TH2F *&h2New,
-                                                 std::string strTmpPrefix) {
+                                                 const std::string &strTmpPrefix) {
   Int_t i, j;
 
   Int_t nNBinX = h3Src->GetNbinsX();
@@ -132,7 +132,7 @@ void GEMDQMHarvester::refineSummaryHistogramCore(TH3F *h3Src,
     m_fReportSummary = fNumPass / fNumTotal;
 }
 
-void GEMDQMHarvester::fillUnderOverflowBunchCrossing(edm::Service<DQMStore> &store, std::string strNameSrc) {
+void GEMDQMHarvester::fillUnderOverflowBunchCrossing(edm::Service<DQMStore> &store, const std::string &strNameSrc) {
   std::string strDirCurr = "GEM/StatusDigi";
 
   store->setCurrentFolder(strDirCurr);

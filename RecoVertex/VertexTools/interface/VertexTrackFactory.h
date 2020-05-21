@@ -25,13 +25,13 @@ public:
   ~VertexTrackFactory() {}
 
   RefCountedVertexTrack vertexTrack(const RefCountedLinearizedTrackState lt,
-                                    const VertexState vs,
+                                    const VertexState& vs,
                                     float weight = 1.0) const {
     return RefCountedVertexTrack(new VertexTrack<N>(lt, vs, weight));
   };
 
   RefCountedVertexTrack vertexTrack(const RefCountedLinearizedTrackState lt,
-                                    const VertexState vs,
+                                    const VertexState& vs,
                                     const RefCountedRefittedTrackState& refittedState,
                                     float smoothedChi2,
                                     float weight = 1.0) const {
@@ -39,7 +39,7 @@ public:
   };
 
   RefCountedVertexTrack vertexTrack(const RefCountedLinearizedTrackState lt,
-                                    const VertexState vs,
+                                    const VertexState& vs,
                                     const RefCountedRefittedTrackState& refittedState,
                                     float smoothedChi2,
                                     const AlgebraicSymMatrixOO& tVCov,

@@ -164,7 +164,7 @@ void RPCSeedOverlapper::CheckOverlap(const edm::EventSetup &iSetup,
 
 bool RPCSeedOverlapper::isShareHit(const edm::OwnVector<TrackingRecHit> &RecHits,
                                    const TrackingRecHit &hit,
-                                   edm::ESHandle<RPCGeometry> rpcGeometry) {
+                                   const edm::ESHandle<RPCGeometry> &rpcGeometry) {
   bool istheSame = false;
   unsigned int n = 1;
   cout << "Checking from " << RecHits.size() << " temp recHits" << endl;

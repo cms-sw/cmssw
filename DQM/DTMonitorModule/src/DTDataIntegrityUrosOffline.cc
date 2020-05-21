@@ -143,7 +143,7 @@ void DTDataIntegrityUrosOffline::bookHistos(DQMStore::IBooker& ibooker, const in
   }
 }
 
-void DTDataIntegrityUrosOffline::bookHistos(DQMStore::IBooker& ibooker, string folder, const int fed) {
+void DTDataIntegrityUrosOffline::bookHistos(DQMStore::IBooker& ibooker, const string& folder, const int fed) {
   string wheel = "ZERO";
   if (fed == FEDIDmin)
     wheel = "NEG";

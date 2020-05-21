@@ -134,7 +134,9 @@ namespace mtd_digitizer {
     typedef typename Traits::ElectronicsSim ElectronicsSim;
     typedef typename Traits::DigiCollection DigiCollection;
 
-    MTDDigitizer(const edm::ParameterSet& config, edm::ProducesCollector producesCollector, edm::ConsumesCollector& iC)
+    MTDDigitizer(const edm::ParameterSet& config,
+                 const edm::ProducesCollector& producesCollector,
+                 edm::ConsumesCollector& iC)
         : MTDDigitizerBase(config, producesCollector, iC),
           geom_(nullptr),
           deviceSim_(config.getParameterSet("DeviceSimulation")),

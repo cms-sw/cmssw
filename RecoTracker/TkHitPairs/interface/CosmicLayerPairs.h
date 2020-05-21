@@ -12,13 +12,15 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "RecoTracker/TkHitPairs/interface/LayerWithHits.h"
 //#include "RecoTracker/TkDetLayers/interface/PixelForwardLayer.h"
+#include <utility>
+
 #include <vector>
 
 class TrackerTopology;
 
 class CosmicLayerPairs : public SeedLayerPairs {
 public:
-  CosmicLayerPairs(std::string geometry) : _geometry(geometry){};  //:isFirstCall(true){};
+  CosmicLayerPairs(std::string geometry) : _geometry(std::move(geometry)){};  //:isFirstCall(true){};
   ~CosmicLayerPairs() override;
   //  explicit PixelSeedLayerPairs(const edm::EventSetup& iSetup);
 

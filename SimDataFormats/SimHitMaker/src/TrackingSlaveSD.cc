@@ -3,12 +3,14 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <iostream>
+#include <utility>
+
 //#define DEBUG
 
 using std::cout;
 using std::endl;
 
-TrackingSlaveSD::TrackingSlaveSD(std::string myName) : name_(myName) {
+TrackingSlaveSD::TrackingSlaveSD(std::string myName) : name_(std::move(myName)) {
   LogDebug("HitBuildInfo") << " TrackingSlaveSD " << name_;
 }
 

@@ -125,7 +125,7 @@ G4VPhysicalVolume* CheckOverlap::getTopPV() {
   return G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking()->GetWorldVolume();
 }
 
-void CheckOverlap::dumpLV(G4LogicalVolume* lv, std::string str) {
+void CheckOverlap::dumpLV(G4LogicalVolume* lv, const std::string& str) {
   G4cout << "Dump of " << str << " Logical Volume " << lv->GetName() << "  Solid: " << lv->GetSolid()->GetName()
          << "  Material: " << lv->GetMaterial()->GetName() << G4endl;
   G4cout << *(lv->GetSolid()) << G4endl;

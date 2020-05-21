@@ -7,6 +7,8 @@
  */
 #include "RecoLocalMuon/CSCValidation/src/CSCValidation.h"
 
+#include <utility>
+
 using namespace std;
 using namespace edm;
 
@@ -333,9 +335,9 @@ void CSCValidation::analyze(const Event& event, const EventSetup& eventSetup) {
 //
 // ==============================================
 
-bool CSCValidation::filterEvents(edm::Handle<CSCRecHit2DCollection> recHits,
-                                 edm::Handle<CSCSegmentCollection> cscSegments,
-                                 edm::Handle<reco::TrackCollection> saMuons) {
+bool CSCValidation::filterEvents(const edm::Handle<CSCRecHit2DCollection>& recHits,
+                                 const edm::Handle<CSCSegmentCollection>& cscSegments,
+                                 const edm::Handle<reco::TrackCollection>& saMuons) {
   //int  nGoodSAMuons = 0;
 
   if (recHits->size() < 4 || recHits->size() > 100)
@@ -414,10 +416,10 @@ bool CSCValidation::filterEvents(edm::Handle<CSCRecHit2DCollection> recHits,
 //
 // ==============================================
 
-void CSCValidation::doOccupancies(edm::Handle<CSCStripDigiCollection> strips,
-                                  edm::Handle<CSCWireDigiCollection> wires,
-                                  edm::Handle<CSCRecHit2DCollection> recHits,
-                                  edm::Handle<CSCSegmentCollection> cscSegments) {
+void CSCValidation::doOccupancies(const edm::Handle<CSCStripDigiCollection>& strips,
+                                  const edm::Handle<CSCWireDigiCollection>& wires,
+                                  const edm::Handle<CSCRecHit2DCollection>& recHits,
+                                  const edm::Handle<CSCSegmentCollection>& cscSegments) {
   bool wireo[2][4][4][36];
   bool stripo[2][4][4][36];
   bool rechito[2][4][4][36];
@@ -551,7 +553,7 @@ void CSCValidation::doOccupancies(edm::Handle<CSCStripDigiCollection> strips,
 //
 // ==============================================
 
-bool CSCValidation::doTrigger(edm::Handle<L1MuGMTReadoutCollection> pCollection) {
+bool CSCValidation::doTrigger(const edm::Handle<L1MuGMTReadoutCollection>& pCollection) {
   std::vector<L1MuGMTReadoutRecord> L1Mrec = pCollection->getRecords();
   std::vector<L1MuGMTReadoutRecord>::const_iterator igmtrr;
 
@@ -672,7 +674,7 @@ bool CSCValidation::doTrigger(edm::Handle<L1MuGMTReadoutCollection> pCollection)
 //
 // ==============================================
 
-bool CSCValidation::doHLT(Handle<TriggerResults> hlt) {
+bool CSCValidation::doHLT(const Handle<TriggerResults>& hlt) {
   // HLT stuff
   int hltSize = hlt->size();
   for (int i = 0; i < hltSize; ++i) {
@@ -772,7 +774,7 @@ void CSCValidation::doCalibrations(const edm::EventSetup& eventSetup) {
 //
 // ==============================================
 
-void CSCValidation::doWireDigis(edm::Handle<CSCWireDigiCollection> wires) {
+void CSCValidation::doWireDigis(const edm::Handle<CSCWireDigiCollection>& wires) {
   int nWireGroupsTotal = 0;
   for (CSCWireDigiCollection::DigiRangeIterator dWDiter = wires->begin(); dWDiter != wires->end(); dWDiter++) {
     CSCDetId id = (CSCDetId)(*dWDiter).first;
@@ -807,7 +809,7 @@ void CSCValidation::doWireDigis(edm::Handle<CSCWireDigiCollection> wires) {
 //
 // ==============================================
 
-void CSCValidation::doStripDigis(edm::Handle<CSCStripDigiCollection> strips) {
+void CSCValidation::doStripDigis(const edm::Handle<CSCStripDigiCollection>& strips) {
   int nStripsFired = 0;
   for (CSCStripDigiCollection::DigiRangeIterator dSDiter = strips->begin(); dSDiter != strips->end(); dSDiter++) {
     CSCDetId id = (CSCDetId)(*dSDiter).first;
@@ -849,7 +851,7 @@ void CSCValidation::doStripDigis(edm::Handle<CSCStripDigiCollection> strips) {
 //
 //=======================================================
 
-void CSCValidation::doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips) {
+void CSCValidation::doPedestalNoise(const edm::Handle<CSCStripDigiCollection>& strips) {
   for (CSCStripDigiCollection::DigiRangeIterator dPNiter = strips->begin(); dPNiter != strips->end(); dPNiter++) {
     CSCDetId id = (CSCDetId)(*dPNiter).first;
     std::vector<CSCStripDigi>::const_iterator pedIt = (*dPNiter).second.first;
@@ -899,7 +901,8 @@ void CSCValidation::doPedestalNoise(edm::Handle<CSCStripDigiCollection> strips) 
 //
 // ==============================================
 
-void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::ESHandle<CSCGeometry> cscGeom) {
+void CSCValidation::doRecHits(const edm::Handle<CSCRecHit2DCollection>& recHits,
+                              const edm::ESHandle<CSCGeometry>& cscGeom) {
   // Get the RecHits collection :
   int nRecHits = recHits->size();
 
@@ -1032,7 +1035,8 @@ void CSCValidation::doRecHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::E
 //
 // ==============================================
 
-void CSCValidation::doSimHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::Handle<PSimHitContainer> simHits) {
+void CSCValidation::doSimHits(const edm::Handle<CSCRecHit2DCollection>& recHits,
+                              const edm::Handle<PSimHitContainer>& simHits) {
   CSCRecHit2DCollection::const_iterator dSHrecIter;
   for (dSHrecIter = recHits->begin(); dSHrecIter != recHits->end(); dSHrecIter++) {
     CSCDetId idrec = (CSCDetId)(*dSHrecIter).cscDetId();
@@ -1084,7 +1088,8 @@ void CSCValidation::doSimHits(edm::Handle<CSCRecHit2DCollection> recHits, edm::H
 //
 // ===============================================
 
-void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, edm::ESHandle<CSCGeometry> cscGeom) {
+void CSCValidation::doSegments(const edm::Handle<CSCSegmentCollection>& cscSegments,
+                               const edm::ESHandle<CSCGeometry>& cscGeom) {
   // get CSC segment collection
   int nSegments = cscSegments->size();
 
@@ -1178,7 +1183,8 @@ void CSCValidation::doSegments(edm::Handle<CSCSegmentCollection> cscSegments, ed
 //
 // ===============================================
 
-void CSCValidation::doResolution(edm::Handle<CSCSegmentCollection> cscSegments, edm::ESHandle<CSCGeometry> cscGeom) {
+void CSCValidation::doResolution(const edm::Handle<CSCSegmentCollection>& cscSegments,
+                                 const edm::ESHandle<CSCGeometry>& cscGeom) {
   for (CSCSegmentCollection::const_iterator dSiter = cscSegments->begin(); dSiter != cscSegments->end(); dSiter++) {
     CSCDetId id = (CSCDetId)(*dSiter).cscDetId();
 
@@ -1259,7 +1265,7 @@ void CSCValidation::doResolution(edm::Handle<CSCSegmentCollection> cscSegments, 
 //
 // ==============================================
 
-void CSCValidation::doStandalone(Handle<reco::TrackCollection> saMuons) {
+void CSCValidation::doStandalone(const Handle<reco::TrackCollection>& saMuons) {
   int nSAMuons = saMuons->size();
   histos->fill1DHist(nSAMuons, "trNSAMuons", "N Standalone Muons per Event", 6, -0.5, 5.5, "STAMuons");
 
@@ -1465,11 +1471,11 @@ float CSCValidation::fitX(const CLHEP::HepMatrix& points, const CLHEP::HepMatrix
 // Author: S. Stoynev
 //----------------------------------------------------------------------------
 
-void CSCValidation::doEfficiencies(edm::Handle<CSCWireDigiCollection> wires,
-                                   edm::Handle<CSCStripDigiCollection> strips,
-                                   edm::Handle<CSCRecHit2DCollection> recHits,
-                                   edm::Handle<CSCSegmentCollection> cscSegments,
-                                   edm::ESHandle<CSCGeometry> cscGeom) {
+void CSCValidation::doEfficiencies(const edm::Handle<CSCWireDigiCollection>& wires,
+                                   const edm::Handle<CSCStripDigiCollection>& strips,
+                                   const edm::Handle<CSCRecHit2DCollection>& recHits,
+                                   const edm::Handle<CSCSegmentCollection>& cscSegments,
+                                   const edm::ESHandle<CSCGeometry>& cscGeom) {
   bool allWires[2][4][4][36][6];
   bool allStrips[2][4][4][36][6];
   bool AllRecHits[2][4][4][36][6];
@@ -1800,7 +1806,7 @@ void CSCValidation::histoEfficiency(TH1F* readHisto, TH1F* writeHisto) {
   }
 }
 
-bool CSCValidation::withinSensitiveRegion(LocalPoint localPos,
+bool CSCValidation::withinSensitiveRegion(const LocalPoint& localPos,
                                           const std::array<const float, 4>& layerBounds,
                                           int station,
                                           int ring,
@@ -1968,10 +1974,10 @@ float CSCValidation::getSignal(const CSCStripDigiCollection& stripdigis, CSCDetI
 // Author: P. Jindal
 //---------------------------------------------------------------------------------------
 
-void CSCValidation::doNoiseHits(edm::Handle<CSCRecHit2DCollection> recHits,
-                                edm::Handle<CSCSegmentCollection> cscSegments,
+void CSCValidation::doNoiseHits(const edm::Handle<CSCRecHit2DCollection>& recHits,
+                                const edm::Handle<CSCSegmentCollection>& cscSegments,
                                 edm::ESHandle<CSCGeometry> cscGeom,
-                                edm::Handle<CSCStripDigiCollection> strips) {
+                                const edm::Handle<CSCStripDigiCollection>& strips) {
   CSCRecHit2DCollection::const_iterator recIt;
   for (recIt = recHits->begin(); recIt != recHits->end(); recIt++) {
     CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();
@@ -2020,7 +2026,7 @@ void CSCValidation::doNoiseHits(edm::Handle<CSCRecHit2DCollection> recHits,
     }
   }
 
-  findNonAssociatedRecHits(cscGeom, strips);
+  findNonAssociatedRecHits(std::move(cscGeom), strips);
 }
 
 //---------------------------------------------------------------------------------------
@@ -2029,8 +2035,8 @@ void CSCValidation::doNoiseHits(edm::Handle<CSCRecHit2DCollection> recHits,
 //
 //---------------------------------------------------------------------------------------
 
-void CSCValidation::findNonAssociatedRecHits(edm::ESHandle<CSCGeometry> cscGeom,
-                                             edm::Handle<CSCStripDigiCollection> strips) {
+void CSCValidation::findNonAssociatedRecHits(const edm::ESHandle<CSCGeometry>& cscGeom,
+                                             const edm::Handle<CSCStripDigiCollection>& strips) {
   for (std::multimap<CSCDetId, CSCRecHit2D>::iterator allRHiter = AllRechits.begin(); allRHiter != AllRechits.end();
        ++allRHiter) {
     CSCDetId idRH = allRHiter->first;
@@ -2938,13 +2944,13 @@ void CSCValidation::doADCTiming(const CSCRecHit2DCollection& rechitcltn) {
 // Author: A. Deisher
 //---------------------------------------------------------------------------------------
 
-void CSCValidation::doTimeMonitoring(edm::Handle<CSCRecHit2DCollection> recHits,
-                                     edm::Handle<CSCSegmentCollection> cscSegments,
-                                     edm::Handle<CSCALCTDigiCollection> alcts,
-                                     edm::Handle<CSCCLCTDigiCollection> clcts,
-                                     edm::Handle<CSCCorrelatedLCTDigiCollection> correlatedlcts,
-                                     edm::Handle<L1MuGMTReadoutCollection> pCollection,
-                                     edm::ESHandle<CSCGeometry> cscGeom,
+void CSCValidation::doTimeMonitoring(const edm::Handle<CSCRecHit2DCollection>& recHits,
+                                     const edm::Handle<CSCSegmentCollection>& cscSegments,
+                                     const edm::Handle<CSCALCTDigiCollection>& alcts,
+                                     const edm::Handle<CSCCLCTDigiCollection>& clcts,
+                                     const edm::Handle<CSCCorrelatedLCTDigiCollection>& correlatedlcts,
+                                     const edm::Handle<L1MuGMTReadoutCollection>& pCollection,
+                                     const edm::ESHandle<CSCGeometry>& cscGeom,
                                      const edm::EventSetup& eventSetup,
                                      const edm::Event& event) {
   map<CSCDetId, float> segment_median_map;          //structure for storing the median time for segments in a chamber

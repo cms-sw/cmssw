@@ -5,7 +5,7 @@
 #include <cfloat>
 
 double GsfVertexWeightCalculator::calculate(const VertexState& oldVertex,
-                                            const RefCountedLinearizedTrackState track,
+                                            const RefCountedLinearizedTrackState& track,
                                             double cov) const {
   double previousWeight = oldVertex.weightInMixture() * track->weightInMixture();
   // Jacobians

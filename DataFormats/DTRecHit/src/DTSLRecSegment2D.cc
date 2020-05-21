@@ -5,11 +5,11 @@
 #include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"
 
 /// c'tor from hits
-DTSLRecSegment2D::DTSLRecSegment2D(const DTSuperLayerId id, const std::vector<DTRecHit1D> &hits)
+DTSLRecSegment2D::DTSLRecSegment2D(const DTSuperLayerId &id, const std::vector<DTRecHit1D> &hits)
     : DTRecSegment2D(id, hits) {}
 
 /// complete constructor
-DTSLRecSegment2D::DTSLRecSegment2D(const DTSuperLayerId id,
+DTSLRecSegment2D::DTSLRecSegment2D(const DTSuperLayerId &id,
                                    LocalPoint &position,
                                    LocalVector &direction,
                                    AlgebraicSymMatrix &covMatrix,

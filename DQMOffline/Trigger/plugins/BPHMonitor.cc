@@ -60,8 +60,8 @@ protected:
   template <typename T>
   bool matchToTrigger(const std::string& theTriggerName, T t);
 
-  double Prescale(const std::string num,
-                  const std::string den,
+  double Prescale(const std::string& num,
+                  const std::string& den,
                   edm::Event const& iEvent,
                   edm::EventSetup const& iSetup,
                   HLTPrescaleProvider* hltPrescale_);
@@ -187,7 +187,7 @@ private:
 
   HLTConfigProvider hltConfig_;
   edm::Handle<edm::TriggerResults> HLTR;
-  std::string getTriggerName(std::string partialName);
+  std::string getTriggerName(const std::string& partialName);
 };
 
 BPHMonitor::BPHMonitor(const edm::ParameterSet& iConfig)
@@ -1312,7 +1312,7 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   descriptions.add("bphMonitoring", desc);
 }
 
-std::string BPHMonitor::getTriggerName(std::string partialName) {
+std::string BPHMonitor::getTriggerName(const std::string& partialName) {
   const std::string trigger_name_tmp = partialName.substr(0, partialName.find("v*"));
   const unsigned int Ntriggers(hltConfig_.size());
   std::string trigger_name = "";
@@ -1365,8 +1365,8 @@ bool BPHMonitor::matchToTrigger(const std::string& theTriggerName, T t) {
   return matched;
 }
 
-double BPHMonitor::Prescale(const std::string hltpath1,
-                            const std::string hltpath,
+double BPHMonitor::Prescale(const std::string& hltpath1,
+                            const std::string& hltpath,
                             edm::Event const& iEvent,
                             edm::EventSetup const& iSetup,
                             HLTPrescaleProvider* hltPrescale_) {

@@ -97,7 +97,10 @@ private:
   vector<hltPlot*> plotList;
   //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  double dxyFinder(double, double, edm::Handle<reco::RecoChargedCandidateCollection>, edm::Handle<reco::BeamSpot>);
+  double dxyFinder(double,
+                   double,
+                   const edm::Handle<reco::RecoChargedCandidateCollection>&,
+                   const edm::Handle<reco::BeamSpot>&);
   double get_wall_time(void);
   // ----------member data ---------------------------
 
@@ -823,8 +826,8 @@ void HLTObjectMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const
 
 double HLTObjectMonitor::dxyFinder(double eta,
                                    double phi,
-                                   edm::Handle<reco::RecoChargedCandidateCollection> recoChargedCands,
-                                   edm::Handle<reco::BeamSpot> recoBeamSpot) {
+                                   const edm::Handle<reco::RecoChargedCandidateCollection>& recoChargedCands,
+                                   const edm::Handle<reco::BeamSpot>& recoBeamSpot) {
   double dxy = -99.;
   for (reco::RecoChargedCandidateCollection::const_iterator l3Muon = recoChargedCands->begin();
        l3Muon != recoChargedCands->end();

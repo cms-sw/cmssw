@@ -668,7 +668,7 @@ int Vx3DHLTAnalyzer::MyFit(vector<double>* vals) {
   return -1;
 }
 
-void Vx3DHLTAnalyzer::reset(string ResetType) {
+void Vx3DHLTAnalyzer::reset(const string& ResetType) {
   if ((debugMode == true) && (outputDebugFile.is_open() == true)) {
     outputDebugFile << "Runnumber " << runNumber << endl;
     outputDebugFile << "BeginTimeOfFit " << formatTime(beginTimeOfFit >> 32) << " " << (beginTimeOfFit >> 32) << endl;
