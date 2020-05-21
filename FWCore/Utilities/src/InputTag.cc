@@ -83,9 +83,9 @@ namespace edm {
   }
 
   InputTag::InputTag(InputTag&& other)
-      : label_(std::move(other.label())),
-        instance_(std::move(other.instance())),
-        process_(std::move(other.process())),
+      : label_(other.label()),
+        instance_(other.instance()),
+        process_(other.process()),
         typeID_(),
         productRegistry_(nullptr),
         index_(ProductResolverIndexInvalid),

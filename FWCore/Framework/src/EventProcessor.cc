@@ -1259,11 +1259,11 @@ namespace edm {
     unsigned int streamIndex = 0;
     for (; streamIndex < preallocations_.numberOfStreams() - 1; ++streamIndex) {
       tbb::task::enqueue(*edm::make_functor_task(tbb::task::allocate_root(), [this, streamIndex, h = iHolder]() {
-        handleNextEventForStreamAsync(std::move(h), streamIndex);
+        handleNextEventForStreamAsync(h, streamIndex);
       }));
     }
     tbb::task::spawn(*edm::make_functor_task(tbb::task::allocate_root(), [this, streamIndex, h = std::move(iHolder)]() {
-      handleNextEventForStreamAsync(std::move(h), streamIndex);
+      handleNextEventForStreamAsync(h, streamIndex);
     }));
   }
 
@@ -1734,7 +1734,7 @@ namespace edm {
         }));
     WaitingTaskHolder afterProcessTask;
     if (subProcesses_.empty()) {
-      afterProcessTask = std::move(finalizeEventTask);
+      afterProcessTask = finalizeEventTask;
     } else {
       //Need to run SubProcesses after schedule has finished
       // with the event

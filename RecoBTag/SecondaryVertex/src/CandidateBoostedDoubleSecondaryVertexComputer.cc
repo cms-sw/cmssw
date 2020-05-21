@@ -24,7 +24,7 @@ CandidateBoostedDoubleSecondaryVertexComputer::CandidateBoostedDoubleSecondaryVe
                       : edm::FileInPath()),
       useGBRForest_(parameters.existsAs<bool>("useGBRForest") ? parameters.getParameter<bool>("useGBRForest") : false),
       useAdaBoost_(parameters.existsAs<bool>("useAdaBoost") ? parameters.getParameter<bool>("useAdaBoost") : false),
-      tokens_{std::move(tokens)} {
+      tokens_{tokens} {
   uses(0, "svTagInfos");
 
   mvaID.reset(new TMVAEvaluator());

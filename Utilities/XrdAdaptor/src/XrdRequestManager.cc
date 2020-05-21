@@ -401,7 +401,7 @@ void RequestManager::checkSourcesImpl(timespec &now,
             inactiveSources.erase(it);
             break;
           }
-        inactiveSources.emplace_back(std::move(*worstActiveSource));
+        inactiveSources.emplace_back(*worstActiveSource);
         auto oldSources = activeSources;
         activeSources.erase(worstActiveSource);
         activeSources.emplace_back(std::move(*bestInactiveSource));

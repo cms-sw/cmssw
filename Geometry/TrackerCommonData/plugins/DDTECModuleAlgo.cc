@@ -343,7 +343,7 @@ void DDTECModuleAlgo::doPos(DDLogicalPart toPos, double x, double y, double z, s
   if (rotName == "NULL")
     rotName = standardRot;
 
-  doPos(move(toPos), parent(), copyNr, x, y, z, rotName, cpv);
+  doPos(toPos, parent(), copyNr, x, y, z, rotName, cpv);
 }
 
 void DDTECModuleAlgo::execute(DDCompactView& cpv) {

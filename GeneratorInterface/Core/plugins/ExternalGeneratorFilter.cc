@@ -342,7 +342,7 @@ void ExternalGeneratorFilter::streamEndLuminosityBlockSummary(edm::StreamID iID,
 void ExternalGeneratorFilter::globalEndLuminosityBlockProduce(edm::LuminosityBlock& iLuminosityBlock,
                                                               edm::EventSetup const&,
                                                               GenLumiInfoProduct const* iProduct) const {
-  iLuminosityBlock.emplace(lumiInfoToken_, std::move(*iProduct));
+  iLuminosityBlock.emplace(lumiInfoToken_, *iProduct);
 }
 
 DEFINE_FWK_MODULE(ExternalGeneratorFilter);

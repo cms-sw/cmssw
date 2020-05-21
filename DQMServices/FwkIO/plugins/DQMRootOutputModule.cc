@@ -338,7 +338,7 @@ void DQMRootOutputModule::openFile(edm::FileBlock const&) {
                                    std::string(),
                                    "DQMRootOutputModule",
                                    description().moduleLabel(),
-                                   std::move(guid),
+                                   guid,
                                    std::string(),
                                    branchHash.digest().toString(),
                                    std::vector<std::string>());

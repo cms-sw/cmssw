@@ -381,7 +381,7 @@ namespace edm {
         }));
     WaitingTaskHolder afterProcessTask;
     if (subProcesses_.empty()) {
-      afterProcessTask = std::move(finalizeEventTask);
+      afterProcessTask = finalizeEventTask;
     } else {
       afterProcessTask = WaitingTaskHolder(
           make_waiting_task(tbb::task::allocate_root(),

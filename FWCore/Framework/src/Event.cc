@@ -196,7 +196,7 @@ namespace edm {
         previousBranchIDs_->assign(gotBranchIDVector.begin(), gotBranchIDVector.end());
 
         Parentage p;
-        p.setParents(std::move(gotBranchIDVector));
+        p.setParents(gotBranchIDVector);
         *previousParentageId = p.id();
         ParentageRegistry::instance()->insertMapped(p);
       }

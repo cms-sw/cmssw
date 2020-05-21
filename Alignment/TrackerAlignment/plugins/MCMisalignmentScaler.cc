@@ -205,7 +205,7 @@ void MCMisalignmentScaler::analyze(const edm::Event&, const edm::EventSetup& iSe
                            (*ideal)->rotation().zz() + scaleFactor * zz_diff}};
 
       const AlignTransform rescaledTransform{rescaledTranslation, rescaledRotation, misaligned->rawId()};
-      rescaledAlignments.m_align.emplace_back(std::move(rescaledTransform));
+      rescaledAlignments.m_align.emplace_back(rescaledTransform);
     }
   }
 

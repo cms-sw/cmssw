@@ -254,7 +254,7 @@ namespace pat {
           track_(iOther.track_.exchange(nullptr)),
           pdgId_(iOther.pdgId_),
           qualityFlags_(iOther.qualityFlags_),
-          pvRefProd_(std::move(iOther.pvRefProd_)),
+          pvRefProd_(iOther.pvRefProd_),
           pvRefKey_(iOther.pvRefKey_),
           m_(iOther.m_.exchange(nullptr)),
           packedHits_(iOther.packedHits_),

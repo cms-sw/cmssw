@@ -99,7 +99,7 @@ namespace pat {
           dphi_(iOther.dphi_),
           pdgId_(iOther.pdgId_),
           charge_(iOther.charge_),
-          mother_(std::move(iOther.mother_)),
+          mother_(iOther.mother_),
           statusFlags_(iOther.statusFlags_) {
       if (iOther.p4c_) {
         p4_.store(p4_.exchange(nullptr));
@@ -126,7 +126,7 @@ namespace pat {
         dphi_ = iOther.dphi_;
         pdgId_ = iOther.pdgId_;
         charge_ = iOther.charge_;
-        mother_ = std::move(iOther.mother_);
+        mother_ = iOther.mother_;
         statusFlags_ = iOther.statusFlags_;
       }
       return *this;

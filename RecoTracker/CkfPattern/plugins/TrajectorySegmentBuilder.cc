@@ -194,7 +194,7 @@ void TrajectorySegmentBuilder::updateTrajectory(TempTrajectory& traj, TM tm) con
 
   if (hit->isValid()) {
     auto&& upState = theUpdator.update(predictedState, *hit);
-    traj.emplace(std::move(predictedState), std::move(upState), std::move(hit), tm.estimate(), tm.layer());
+    traj.emplace(predictedState, std::move(upState), hit, tm.estimate(), tm.layer());
 
     //     TrajectoryMeasurement tm(traj.lastMeasurement());
     //     if ( tm.updatedState().isValid() ) {
@@ -209,7 +209,7 @@ void TrajectorySegmentBuilder::updateTrajectory(TempTrajectory& traj, TM tm) con
     //       }
     //     }
   } else {
-    traj.emplace(std::move(predictedState), std::move(hit), 0, tm.layer());
+    traj.emplace(predictedState, hit, 0, tm.layer());
   }
 }
 
@@ -252,7 +252,7 @@ TrajectorySegmentBuilder::TempTrajectoryContainer TrajectorySegmentBuilder::addG
       if (theBestHitOnly) {
         updateCandidatesWithBestHit(traj, std::move(meas.front()), updatedTrajectories);
       } else {
-        updateCandidates(traj, std::move(meas), updatedTrajectories);
+        updateCandidates(traj, meas, updatedTrajectories);
       }
       if
         UNLIKELY(theDbgFlg)

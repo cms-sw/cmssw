@@ -18,7 +18,7 @@ namespace helpers {
   private:
     std::unique_ptr<reco::CompositeCandidate> cmp_;
     std::unique_ptr<reco::Candidate> release() {
-      std::unique_ptr<reco::Candidate> ret(std::move(cmp_.get()));
+      std::unique_ptr<reco::Candidate> ret(cmp_.get());
       cmp_.release();
       return ret;
     }

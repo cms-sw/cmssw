@@ -36,7 +36,7 @@ GenericMVAJetTagComputer::Tokens::Tokens(const edm::ParameterSet &params, edm::E
 }
 
 GenericMVAJetTagComputer::GenericMVAJetTagComputer(const edm::ParameterSet &params, Tokens tokens)
-    : computerCache_(getCalibrationLabels(params, categorySelector_)), tokens_{std::move(tokens)} {}
+    : computerCache_(getCalibrationLabels(params, categorySelector_)), tokens_{tokens} {}
 
 GenericMVAJetTagComputer::~GenericMVAJetTagComputer() {}
 

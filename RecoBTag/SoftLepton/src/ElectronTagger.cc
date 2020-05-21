@@ -25,7 +25,7 @@ ElectronTagger::ElectronTagger(const edm::ParameterSet& cfg, Tokens tokens)
                                                                : edm::FileInPath()),
       m_useGBRForest(cfg.existsAs<bool>("useGBRForest") ? cfg.getParameter<bool>("useGBRForest") : false),
       m_useAdaBoost(cfg.existsAs<bool>("useAdaBoost") ? cfg.getParameter<bool>("useAdaBoost") : false),
-      m_tokens{std::move(tokens)} {
+      m_tokens{tokens} {
   uses("seTagInfos");
   mvaID.reset(new TMVAEvaluator());
 }

@@ -60,7 +60,7 @@ namespace edm {
 
     LuminosityBlockNumber_t luminosityBlock() const { return aux().luminosityBlock(); }
 
-    void setAux(LuminosityBlockAuxiliary iAux) { aux_ = std::move(iAux); }
+    void setAux(LuminosityBlockAuxiliary iAux) { aux_ = iAux; }
     LuminosityBlockAuxiliary const& aux() const { return aux_; }
 
     RunNumber_t run() const { return aux().run(); }

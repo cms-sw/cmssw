@@ -29,7 +29,7 @@ CharmTagger::CharmTagger(const edm::ParameterSet &configuration, Tokens tokens)
       use_GBRForest_(configuration.getParameter<bool>("useGBRForest")),
       use_adaBoost_(configuration.getParameter<bool>("useAdaBoost")),
       defaultValueNoTracks_(configuration.getParameter<bool>("defaultValueNoTracks")),
-      tokens_{std::move(tokens)} {
+      tokens_{tokens} {
   vpset vars_definition = configuration.getParameter<vpset>("variables");
   for (auto &var : vars_definition) {
     MVAVar mva_var;
