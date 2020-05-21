@@ -56,7 +56,6 @@ from RecoVertex.Configuration.RecoVertex_EventContent_cff import *
 from RecoPixelVertexing.Configuration.RecoPixelVertexing_EventContent_cff import *
 from RecoEgamma.Configuration.RecoEgamma_EventContent_cff import *
 from RecoParticleFlow.Configuration.RecoParticleFlow_EventContent_cff import *
-from L1Trigger.Configuration.L1Trigger_EventContent_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_EventContent_cff import *
 from CommonTools.ParticleFlow.EITopPAG_EventContent_cff import EITopPAGEventContent
 from RecoPPS.Configuration.RecoCTPPS_EventContent_cff import *
@@ -82,6 +81,12 @@ from SimCalorimetry.Configuration.SimCalorimetry_EventContent_cff import *
 from SimFastTiming.Configuration.SimFastTiming_EventContent_cff import *
 from SimGeneral.Configuration.SimGeneral_EventContent_cff import *
 from IOMC.RandomEngine.IOMC_EventContent_cff import *
+#
+#
+# L1
+#
+#
+from L1Trigger.Configuration.L1Trigger_EventContent_cff import *
 #
 #
 # HLT
@@ -112,6 +117,16 @@ fastSim.toModify(RecoLocalTrackerRECO, outputCommands = fastSimEC.RecoLocalTrack
 fastSim.toModify(RecoLocalTrackerFEVT, outputCommands = fastSimEC.RecoLocalTracker.outputCommands)
 fastSim.toReplaceWith(SimG4CoreRAW, fastSimEC.SimRAW)
 fastSim.toReplaceWith(SimG4CoreRECO, fastSimEC.SimRECO)
+
+def SwapKeepAndDrop(l):	
+    r=[]	
+    for item in l:	
+        if 'keep ' in item:	
+            r.append(item.replace('keep ','drop '))	
+        elif 'drop ' in item:	
+            r.append(item.replace('drop ','keep '))	
+    return r
+
 #
 #
 # Top level additional keep statements
@@ -354,6 +369,13 @@ RECOSIMEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(SimFastTimingRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
 RECOSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
+
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+from RecoLocalFastTime.Configuration.RecoLocalFastTime_EventContent_cff import RecoLocalFastTimeFEVT, RecoLocalFastTimeRECO, RecoLocalFastTimeAOD
+phase2_timing_layer.toModify(RECOSIMEventContent, 
+    outputCommands = RECOSIMEventContent.outputCommands + RecoLocalFastTimeRECO.outputCommands)
+phase2_timing_layer.toModify(RECOSIMEventContent, 
+    outputCommands = RECOSIMEventContent.outputCommands + RecoMTDRECO.outputCommands)
 #
 #
 # GENRAW Data Tier definition
@@ -399,6 +421,11 @@ AODSIMEventContent.outputCommands.extend(RecoGenJetsAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(RecoGenMETAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(SimGeneralAOD.outputCommands)
 AODSIMEventContent.outputCommands.extend(MEtoEDMConverterAOD.outputCommands)
+
+phase2_timing_layer.toModify(AODSIMEventContent, 
+    outputCommands = AODSIMEventContent.outputCommands + RecoLocalFastTimeAOD.outputCommands)
+phase2_timing_layer.toModify(AODSIMEventContent, 
+    outputCommands = AODSIMEventContent.outputCommands + RecoMTDAOD.outputCommands)
 #
 #
 # FEVT Data Tier definition
@@ -435,10 +462,37 @@ FEVTEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 FEVTEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
 
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
+from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
+from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
+from RecoLocalFastTime.Configuration.RecoLocalFastTime_EventContent_cff import RecoLocalFastTimeFEVT, RecoLocalFastTimeRECO, RecoLocalFastTimeAOD
+from RecoMTD.Configuration.RecoMTD_EventContent_cff import RecoMTDFEVT, RecoMTDRECO, RecoMTDAOD
+
 ctpps_2016.toModify(FEVTEventContent, 
     outputCommands = FEVTEventContent.outputCommands + RecoCTPPSFEVT.outputCommands)
 phase2_hgcal.toModify(FEVTEventContent,
     outputCommands = FEVTEventContent.outputCommands + TICL_FEVT.outputCommands)
+phase2_tracker.toModify(FEVTEventContent, 
+    outputCommands = FEVTEventContent.outputCommands + [
+        'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',
+        'keep *_TTClustersFromPhase2TrackerDigis_*_*',
+        'keep *_TTStubsFromPhase2TrackerDigis_*_*',
+        'keep *_TrackerDTC_*_*'])
+phase2_muon.toModify(FEVTEventContent, 
+    outputCommands = FEVTEventContent.outputCommands + ['keep *_muonGEMDigis_*_*'])
+run2_GEM_2017.toModify(FEVTEventContent, 
+    outputCommands = FEVTEventContent.outputCommands + ['keep *_muonGEMDigis_*_*'])
+run3_GEM.toModify(FEVTEventContent, 
+    outputCommands = FEVTEventContent.outputCommands + ['keep *_muonGEMDigis_*_*'])
+pp_on_AA_2018.toModify(FEVTEventContent, 
+    outputCommands = FEVTEventContent.outputCommands + ['keep FEDRawDataCollection_rawDataRepacker_*_*'])
+phase2_timing_layer.toModify(FEVTEventContent, 
+    outputCommands = FEVTEventContent.outputCommands + RecoLocalFastTimeFEVT.outputCommands)
+phase2_timing_layer.toModify(FEVTEventContent, 
+    outputCommands = FEVTEventContent.outputCommands + RecoMTDFEVT.outputCommands)
 
 FEVTHLTALLEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
@@ -455,7 +509,7 @@ FEVTSIMEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
 )
-FEVTSIMEventContent.outputCommands.extend(RAWEventContent.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(FEVTEventContent.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimMuonRAW.outputCommands)
@@ -467,27 +521,7 @@ FEVTSIMEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(IOMCRAW.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoLocalCaloRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoEcalRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(TrackingToolsRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoTrackerRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoJetsRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoMETRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoMuonRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoBTauRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoBTagRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoTauTagRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoVertexRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoEgammaRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoPixelVertexingRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(RecoParticleFlowRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(BeamSpotRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(L1TriggerRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(HLTriggerRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
+FEVTSIMEventContent.outputCommands.extend(IOMCRAW.outputCommands) 
 FEVTSIMEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(RecoGenMETRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(RecoGenJetsRECO.outputCommands)
@@ -497,15 +531,6 @@ FEVTSIMEventContent.outputCommands.extend(SimMuonRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimFastTimingRECO.outputCommands)
 FEVTSIMEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(MEtoEDMConverterRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(EvtScalersRECO.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(CommonEventContent.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(EITopPAGEventContent.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(OnlineMetaDataContent.outputCommands)
-FEVTSIMEventContent.outputCommands.extend(TcdsEventContent.outputCommands)
-
-phase2_hgcal.toModify(FEVTSIMEventContent,
-    outputCommands = FEVTSIMEventContent.outputCommands + TICL_FEVT.outputCommands)
 #
 #
 # RAWDEBUG Data Tier definition
@@ -562,8 +587,6 @@ FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_StripDigiSimLink_*')
 FEVTDEBUGHLTEventContent.outputCommands.append('keep *_*_PixelDigiSimLink_*')
 
 from Configuration.ProcessModifiers.premix_stage2_cff import premix_stage2
-from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
-from Configuration.Eras.Modifier_phase2_muon_cff import phase2_muon
 
 (premix_stage2 & phase2_tracker).toModify(FEVTDEBUGHLTEventContent, 
     outputCommands = FEVTDEBUGHLTEventContent.outputCommands+[
@@ -804,13 +827,9 @@ RAWMINIAODSIMEventContent= cms.PSet(
     compressionAlgorithm=cms.untracked.string("LZMA"),
     compressionLevel=cms.untracked.int32(4)
 )
+RAWMINIAODSIMEventContent.outputCommands.extend(RAWMINIAODEventContent.outputCommands)
 RAWMINIAODSIMEventContent.outputCommands.extend(MicroEventContentMC.outputCommands)
 RAWMINIAODSIMEventContent.outputCommands.extend(SimG4CoreHLTAODSIM.outputCommands)
-RAWMINIAODSIMEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
-RAWMINIAODSIMEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
-RAWMINIAODSIMEventContent.outputCommands.extend(cms.untracked.vstring(
-	'keep FEDRawDataCollection_rawDataCollector_*_*',
-	'keep FEDRawDataCollection_source_*_*'))
 #
 #
 # RAWSIM Data Tier definition
@@ -834,32 +853,3 @@ for _entry in [FEVTDEBUGHLTEventContent,FEVTDEBUGEventContent,RECOSIMEventConten
     fastSim.toModify(_entry, outputCommands = _entry.outputCommands + fastSimEC.dropSimDigis)
 for _entry in [MINIAODEventContent, MINIAODSIMEventContent]:
     fastSim.toModify(_entry, outputCommands = _entry.outputCommands + fastSimEC.dropPatTrigger)
-
-from Configuration.Eras.Modifier_run2_GEM_2017_cff import run2_GEM_2017
-from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
-from Configuration.Eras.Modifier_pp_on_AA_2018_cff import pp_on_AA_2018
-from Configuration.Eras.Modifier_phase2_timing_layer_cff import phase2_timing_layer
-from RecoLocalFastTime.Configuration.RecoLocalFastTime_EventContent_cff import RecoLocalFastTimeFEVT, RecoLocalFastTimeRECO, RecoLocalFastTimeAOD
-from RecoMTD.Configuration.RecoMTD_EventContent_cff import RecoMTDFEVT, RecoMTDRECO, RecoMTDAOD
-
-for _entry in [FEVTDEBUGEventContent,FEVTDEBUGHLTEventContent,FEVTEventContent]:
-    phase2_tracker.toModify(_entry, outputCommands = _entry.outputCommands + [
-        'keep Phase2TrackerDigiedmDetSetVector_mix_*_*',
-        'keep *_TTClustersFromPhase2TrackerDigis_*_*',
-        'keep *_TTStubsFromPhase2TrackerDigis_*_*',
-        'keep *_TrackerDTC_*_*'])
-    phase2_muon.toModify(_entry, outputCommands = _entry.outputCommands + ['keep *_muonGEMDigis_*_*'])
-    run2_GEM_2017.toModify(_entry, outputCommands = _entry.outputCommands + ['keep *_muonGEMDigis_*_*'])
-    run3_GEM.toModify(_entry, outputCommands = _entry.outputCommands + ['keep *_muonGEMDigis_*_*'])
-    pp_on_AA_2018.toModify(_entry, outputCommands = _entry.outputCommands + ['keep FEDRawDataCollection_rawDataRepacker_*_*'])
-    phase2_timing_layer.toModify(_entry, outputCommands = _entry.outputCommands + RecoLocalFastTimeFEVT.outputCommands)
-    phase2_timing_layer.toModify(_entry, outputCommands = _entry.outputCommands + RecoMTDFEVT.outputCommands)
-
-phase2_timing_layer.toModify(RECOSIMEventContent, 
-    outputCommands = RECOSIMEventContent.outputCommands + RecoLocalFastTimeRECO.outputCommands)
-phase2_timing_layer.toModify(RECOSIMEventContent, 
-    outputCommands = RECOSIMEventContent.outputCommands + RecoMTDRECO.outputCommands)
-phase2_timing_layer.toModify(AODSIMEventContent, 
-    outputCommands = AODSIMEventContent.outputCommands + RecoLocalFastTimeAOD.outputCommands)
-phase2_timing_layer.toModify(AODSIMEventContent, 
-    outputCommands = AODSIMEventContent.outputCommands + RecoMTDAOD.outputCommands)
