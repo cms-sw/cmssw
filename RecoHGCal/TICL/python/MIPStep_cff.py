@@ -53,7 +53,7 @@ ticlTrackstersHFNoseMIP = ticlTrackstersMIP.clone(
     layer_clusters_hfnose_tiles = "ticlLayerTileHFNose",
     original_mask = cms.InputTag("hgcalLayerClustersHFNose","InitialLayerClustersMask"),
     filtered_mask = cms.InputTag("filteredLayerClustersHFNoseMIP","MIPn"),
-    seeding_regions = "hfnticlSeedingGlobal",
+    seeding_regions = "ticlSeedingGlobalHFNose",
     time_layerclusters = cms.InputTag("hgcalLayerClustersHFNose","timeLayerCluster"),
     min_clusters_per_ntuplet = 6
 )
