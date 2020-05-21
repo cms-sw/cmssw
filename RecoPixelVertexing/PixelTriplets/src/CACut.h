@@ -69,10 +69,10 @@ public:
       thisCACut.hasValueByInnerLayerId = false;
     }
 
-    setCutValuesByInnerLayerIds(caLayers);
+    setCutValuesByInnerLayerIds();
   }
 
-  void setCutValuesByInnerLayerIds(CAGraph &caLayers) {  //TODO: Is "const {" needed here?
+  void setCutValuesByInnerLayerIds() {
 
     for (auto &thisTriplet : valuesByLayerIds_) {
       if (thisTriplet.hasValueByInnerLayerId)
@@ -80,9 +80,6 @@ public:
       auto it = std::find(thisTriplet.layerIds.begin(), thisTriplet.layerIds.end(), -1);
       if (it != thisTriplet.layerIds.end())
         continue;
-
-      std::cout << "(" << thisTriplet.layerIds[0] << ", " << thisTriplet.layerIds[1] << ", " << thisTriplet.layerIds[2]
-                << "), " << thisTriplet.cutValue << std::endl;
 
       bool foundOuterDoublet = false;
 
@@ -92,6 +89,7 @@ public:
           thisOuterDoublet.innerLayerIds.emplace_back(thisTriplet.layerIds[0]);
           thisOuterDoublet.cutValues.emplace_back(thisTriplet.cutValue);
           foundOuterDoublet = true;
+          break;
         }
       }
 
