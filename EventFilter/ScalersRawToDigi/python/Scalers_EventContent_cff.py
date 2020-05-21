@@ -22,7 +22,6 @@ EvtScalersAOD = cms.PSet(
 # RECO content
 EvtScalersRECO = cms.PSet(
    outputCommands = cms.untracked.vstring(
-       #'keep L1AcceptBunchCrossings_*_*_*',
        'keep DcsStatuss_hltScalersRawToDigi_*_*')
 )
 EvtScalersRECO.outputCommands.extend(EvtScalersAOD.outputCommands)
