@@ -577,11 +577,17 @@ run2_common.toModify( g4SimHits.HFShower, ProbMax = 0.5)
 
 
 from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
-ctpps_2016.toModify( g4SimHits.Generator, HepMCProductLabel = 'LHCTransport')
-ctpps_2016.toModify( g4SimHits.Generator, MinEtaCut = cms.double(-13.0))
-ctpps_2016.toModify( g4SimHits.Generator, MaxEtaCut = cms.double( 13.0))
-ctpps_2016.toModify( g4SimHits.SteppingAction, MaxTrackTime = cms.double(2000.0))
-ctpps_2016.toModify( g4SimHits.StackingAction, MaxTrackTime = cms.double(2000.0))
+ctpps_2016.toModify(g4SimHits,
+    Generator = dict(
+        HepMCProductLabel = 'LHCTransport',
+        MinEtaCut = -13.0,
+        MaxEtaCut = 13.0
+    ),
+    SteppingAction = dict(
+        MaxTrackTime = 2000.0,
+        MaxTrackTime = 2000.0
+    )
+)
 
 
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
