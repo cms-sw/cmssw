@@ -1,3 +1,12 @@
+// -*- C++ -*-
+// //
+// // Package:    RecoPixelVertexing/PixelTriplets
+// // Class:      CACut
+// //
+// // Original Author:  Karla Josefina Pena Rodriguez
+// //         Created:  Wed, 14 Feb 2019 10:30:00 GMT
+// //
+
 #ifndef RecoPixelVertexing_PixelTriplets_src_CACut_h
 #define RecoPixelVertexing_PixelTriplets_src_CACut_h
 
@@ -73,7 +82,6 @@ public:
   }
 
   void setCutValuesByInnerLayerIds() {
-
     for (auto &thisTriplet : valuesByLayerIds_) {
       if (thisTriplet.hasValueByInnerLayerId)
         continue;
