@@ -76,7 +76,7 @@ void TrackMergeremb<T1>::merg_and_put(edm::Event& iEvent,
 }
 
 template <>
-void TrackMergeremb<reco::TrackCollection>::willproduce(std::string instance, std::string alias) {
+void TrackMergeremb<reco::TrackCollection>::willproduce(std::string instance, const std::string& alias) {
   produces<reco::TrackCollection>(instance).setBranchAlias(alias + "Tracks");
   produces<reco::TrackExtraCollection>(instance).setBranchAlias(alias + "TrackExtras");
   produces<TrackingRecHitCollection>(instance).setBranchAlias(alias + "RecHits");
@@ -130,7 +130,7 @@ void TrackMergeremb<reco::TrackCollection>::merg_and_put(
 }
 
 template <>
-void TrackMergeremb<reco::GsfTrackCollection>::willproduce(std::string instance, std::string alias) {
+void TrackMergeremb<reco::GsfTrackCollection>::willproduce(std::string instance, const std::string& alias) {
   produces<reco::GsfTrackCollection>(instance).setBranchAlias(alias + "GsfTracks");
   produces<reco::TrackExtraCollection>(instance).setBranchAlias(alias + "TrackExtras");
   produces<reco::GsfTrackExtraCollection>(instance).setBranchAlias(alias + "GsfTrackExtras");
@@ -178,7 +178,7 @@ void TrackMergeremb<reco::GsfTrackCollection>::merg_and_put(
 }
 
 template <>
-void TrackMergeremb<reco::MuonCollection>::willproduce(std::string instance, std::string alias) {
+void TrackMergeremb<reco::MuonCollection>::willproduce(std::string instance, const std::string& alias) {
   produces<reco::MuonCollection>();
   produces<reco::CaloMuonCollection>();
   produces<reco::MuonTimeExtraMap>("combined");
@@ -280,7 +280,7 @@ void TrackMergeremb<reco::MuonCollection>::merg_and_put(
 }
 
 template <>
-void TrackMergeremb<reco::PFCandidateCollection>::willproduce(std::string instance, std::string alias) {
+void TrackMergeremb<reco::PFCandidateCollection>::willproduce(std::string instance, const std::string& alias) {
   produces<reco::PFCandidateCollection>(std::move(instance));
   // std::cout<<"Produce PF Collection: "<<instance<<std::endl;
 }
