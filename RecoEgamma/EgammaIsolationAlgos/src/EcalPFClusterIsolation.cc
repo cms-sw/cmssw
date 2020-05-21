@@ -93,7 +93,7 @@ bool EcalPFClusterIsolation<T1>::computedRVeto(T1Ref candRef, const reco::PFClus
 }
 
 template <>
-bool EcalPFClusterIsolation<reco::RecoChargedCandidate>::computedRVeto(T1Ref candRef, reco::PFClusterRef pfclu) {
+bool EcalPFClusterIsolation<reco::RecoChargedCandidate>::computedRVeto(T1Ref candRef, const reco::PFClusterRef& pfclu) {
   float dR2 = deltaR2(candRef->eta(), candRef->phi(), pfclu->eta(), pfclu->phi());
   if (dR2 > (drMax_ * drMax_) || dR2 < drVeto2_)
     return false;
