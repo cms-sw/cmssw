@@ -44,7 +44,10 @@ MuonGeometryArrange::MuonGeometryArrange(const edm::ParameterSet& cfg)
       _levelStrings(cfg.getUntrackedParameter<std::vector<std::string> >("levels")),
       _writeToDB(false),
       _commonMuonLevel(align::invalid),
-      firstEvent_(true) {
+      firstEvent_(true),
+      idealLabel1("MuonGeometryArrangeLabel1"),
+      idealLabel2("MuonGeometryArrangeLabel2"),
+      idealLabel3("MuonGeometryArrangeLabel3") {
   referenceMuon = nullptr;
   currentMuon = nullptr;
   // Input is XML
@@ -620,13 +623,13 @@ void MuonGeometryArrange::createROOTGeometry(const edm::EventSetup& iSetup) {}
 void MuonGeometryArrange::analyze(const edm::Event&, const edm::EventSetup& iSetup) {
   if (firstEvent_) {
     // My stuff
-    MuonAlignmentInputXML inputMethod1(_inputXMLCurrent);
+    MuonAlignmentInputXML inputMethod1(_inputXMLCurrent, idealLabel1);
     inputAlign1 = new MuonAlignment(iSetup, inputMethod1);
     inputAlign1->fillGapsInSurvey(0, 0);
-    MuonAlignmentInputXML inputMethod2(_inputXMLReference);
+    MuonAlignmentInputXML inputMethod2(_inputXMLReference, idealLabel2);
     inputAlign2 = new MuonAlignment(iSetup, inputMethod2);
     inputAlign2->fillGapsInSurvey(0, 0);
-    MuonAlignmentInputXML inputMethod3(_inputXMLReference);
+    MuonAlignmentInputXML inputMethod3(_inputXMLReference, idealLabel3);
     inputAlign2a = new MuonAlignment(iSetup, inputMethod3);
     inputAlign2a->fillGapsInSurvey(0, 0);
 

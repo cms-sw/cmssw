@@ -6,6 +6,63 @@ process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")
 
+process.DTGeometryMuonGeometryArrange1 = cms.ESProducer("DTGeometryESModule",
+    appendToDataLabel = cms.string('MuonGeometryArrangeLabel1'),
+    applyAlignment = cms.bool(False), 
+    alignmentsLabel = cms.string(''),
+    fromDDD = cms.bool(True)
+)
+
+process.CSCGeometryMuonGeometryArrange1 = cms.ESProducer("CSCGeometryESModule",
+    appendToDataLabel = cms.string('MuonGeometryArrangeLabel1'),
+    debugV = cms.untracked.bool(False),
+    useGangedStripsInME1a = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    useOnlyWiresInME1a = cms.bool(False),
+    useRealWireGeometry = cms.bool(True),
+    useCentreTIOffsets = cms.bool(False),
+    applyAlignment = cms.bool(False), 
+    useDDD = cms.bool(True)
+)
+
+process.DTGeometryMuonGeometryArrange2 = cms.ESProducer("DTGeometryESModule",
+    appendToDataLabel = cms.string('MuonGeometryArrangeLabel2'),
+    applyAlignment = cms.bool(False), 
+    alignmentsLabel = cms.string(''),
+    fromDDD = cms.bool(True)
+)
+
+process.CSCGeometryMuonGeometryArrange2 = cms.ESProducer("CSCGeometryESModule",
+    appendToDataLabel = cms.string('MuonGeometryArrangeLabel2'),
+    debugV = cms.untracked.bool(False),
+    useGangedStripsInME1a = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    useOnlyWiresInME1a = cms.bool(False),
+    useRealWireGeometry = cms.bool(True),
+    useCentreTIOffsets = cms.bool(False),
+    applyAlignment = cms.bool(False), 
+    useDDD = cms.bool(True)
+)
+
+process.DTGeometryMuonGeometryArrange3 = cms.ESProducer("DTGeometryESModule",
+    appendToDataLabel = cms.string('MuonGeometryArrangeLabel3'),
+    applyAlignment = cms.bool(False), 
+    alignmentsLabel = cms.string(''),
+    fromDDD = cms.bool(True)
+)
+
+process.CSCGeometryMuonGeometryArrange3 = cms.ESProducer("CSCGeometryESModule",
+    appendToDataLabel = cms.string('MuonGeometryArrangeLabel3'),
+    debugV = cms.untracked.bool(False),
+    useGangedStripsInME1a = cms.bool(False),
+    alignmentsLabel = cms.string(''),
+    useOnlyWiresInME1a = cms.bool(False),
+    useRealWireGeometry = cms.bool(True),
+    useCentreTIOffsets = cms.bool(False),
+    applyAlignment = cms.bool(False), 
+    useDDD = cms.bool(True)
+)
+
 process.MessageLogger = cms.Service("MessageLogger",
      info_txt = cms.untracked.PSet(
          threshold = cms.untracked.string('INFO')
@@ -24,7 +81,8 @@ process.maxEvents = cms.untracked.PSet(
  
 
 # Full configuration for Muon Geometry Comparison Tool
-process.MuonGeometryCompare = cms.EDFilter("MuonGeometryArrange",
+#process.MuonGeometryCompare = cms.EDFilter("MuonGeometryArrange",
+process.MuonGeometryCompare = cms.EDAnalyzer("MuonGeometryArrange",
     outputFile = cms.untracked.string('output.root'),
 
     detIdFlag = cms.untracked.bool(False),

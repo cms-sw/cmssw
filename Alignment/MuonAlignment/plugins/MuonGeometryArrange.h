@@ -169,6 +169,8 @@ private:
   double _surRot[9];
 
   bool firstEvent_;
+
+  std::string idealLabel1, idealLabel2, idealLabel3;
 };
 
 #endif

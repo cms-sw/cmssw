@@ -237,7 +237,7 @@ private:
   const bool saveToDB_, saveApeToDB_, saveDeformationsToDB_;
   const bool useSurvey_;
   const bool enableAlignableUpdates_;
-
+  std::string idealGeometryLabel;
   /*** ESWatcher ***/
 
   edm::ESWatcher<IdealGeometryRecord> watchIdealGeometryRcd_;
