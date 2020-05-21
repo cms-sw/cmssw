@@ -96,7 +96,7 @@ TrackstersProducer::TrackstersProducer(const edm::ParameterSet& ps, const Tracks
       filter_on_categories_(ps.getParameter<std::vector<int>>("filter_on_categories")),
       pid_threshold_(ps.getParameter<double>("pid_threshold")),
       itername_(ps.getParameter<std::string>("itername")) {
-  doNose_ = (detector_ == "HFNose") ? true : false;
+  doNose_ = (detector_ == "HFNose");
 
   produces<std::vector<Trackster>>();
   produces<std::vector<float>>();  // Mask to be applied at the next iteration

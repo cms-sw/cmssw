@@ -35,7 +35,7 @@ TICLLayerTileProducer::TICLLayerTileProducer(const edm::ParameterSet &ps)
       consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_HFNose_clusters"));
   clusters_token_ = consumes<std::vector<reco::CaloCluster>>(ps.getParameter<edm::InputTag>("layer_clusters"));
 
-  doNose_ = (detector_ == "HFNose") ? true : false;
+  doNose_ = (detector_ == "HFNose");
 
   if (doNose_)
     produces<TICLLayerTilesHFNose>();
