@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <iterator>
+#include <memory>
+
 #include <vector>
 #include <map>
 #include <set>
@@ -267,7 +269,7 @@ GhostTrackVertexFinder::~GhostTrackVertexFinder() {}
 
 GhostTrackFitter &GhostTrackVertexFinder::ghostTrackFitter() const {
   if (!ghostTrackFitter_.get())
-    ghostTrackFitter_.reset(new GhostTrackFitter);
+    ghostTrackFitter_ = std::make_unique<GhostTrackFitter>();
 
   return *ghostTrackFitter_;
 }
@@ -275,7 +277,7 @@ GhostTrackFitter &GhostTrackVertexFinder::ghostTrackFitter() const {
 VertexFitter<5> &GhostTrackVertexFinder::vertexFitter(bool primary) const {
   std::unique_ptr<VertexFitter<5> > *ptr = primary ? &primVertexFitter_ : &secVertexFitter_;
   if (!ptr->get())
-    ptr->reset(new AdaptiveVertexFitter(GeometricAnnealing(primary ? primcut_ : seccut_)));
+    *ptr = std::make_unique<AdaptiveVertexFitter>(GeometricAnnealing(primary ? primcut_ : seccut_));
 
   return **ptr;
 }

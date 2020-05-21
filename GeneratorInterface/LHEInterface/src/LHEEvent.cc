@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <iostream>
 #include <iomanip>
+#include <memory>
+
 #include <sstream>
 #include <cstring>
 #include <string>
@@ -83,7 +85,7 @@ namespace lhef {
       std::string tag;
       ss >> tag;
       if (tag == "#pdf") {
-        pdf.reset(new PDF);
+        pdf = std::make_unique<PDF>();
         ss >> pdf->id.first >> pdf->id.second >> pdf->x.first >> pdf->x.second >> pdf->scalePDF >> pdf->xPDF.first >>
             pdf->xPDF.second;
         if (ss.bad()) {

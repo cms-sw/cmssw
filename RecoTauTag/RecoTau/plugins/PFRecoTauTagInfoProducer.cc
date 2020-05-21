@@ -63,7 +63,7 @@ PFRecoTauTagInfoProducer::PFRecoTauTagInfoProducer(const edm::ParameterSet& iCon
   smearedPVsigmaX_ = iConfig.getParameter<double>("smearedPVsigmaX");
   smearedPVsigmaY_ = iConfig.getParameter<double>("smearedPVsigmaY");
   smearedPVsigmaZ_ = iConfig.getParameter<double>("smearedPVsigmaZ");
-  PFRecoTauTagInfoAlgo_.reset(new PFRecoTauTagInfoAlgorithm(iConfig));
+  PFRecoTauTagInfoAlgo_ = std::make_unique<PFRecoTauTagInfoAlgorithm>(iConfig);
   PFCandidate_token = consumes<PFCandidateCollection>(PFCandidateProducer_);
   PFJetTracksAssociator_token = consumes<JetTracksAssociationCollection>(PFJetTracksAssociatorProducer_);
   PV_token = consumes<VertexCollection>(PVProducer_);

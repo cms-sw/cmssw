@@ -7,6 +7,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <iomanip>
 
@@ -17,7 +19,7 @@ using namespace sistrip;
 /** */
 ApvTimingHistograms::ApvTimingHistograms(const edm::ParameterSet& pset, DQMStore* bei)
     : CommissioningHistograms(pset.getParameter<edm::ParameterSet>("ApvTimingParameters"), bei, sistrip::APV_TIMING) {
-  factory_ = unique_ptr<ApvTimingSummaryFactory>(new ApvTimingSummaryFactory);
+  factory_ = std::make_unique<ApvTimingSummaryFactory>();
   LogTrace(mlDqmClient_) << "[ApvTimingHistograms::" << __func__ << "]"
                          << " Constructing object...";
 }

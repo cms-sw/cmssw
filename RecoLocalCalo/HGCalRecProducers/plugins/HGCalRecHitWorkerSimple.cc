@@ -1,4 +1,7 @@
 #include "RecoLocalCalo/HGCalRecProducers/plugins/HGCalRecHitWorkerSimple.h"
+
+#include <memory>
+
 #include "DataFormats/ForwardDetId/interface/HGCalDetId.h"
 #include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -9,8 +12,8 @@
 #include "RecoLocalCalo/HGCalRecProducers/interface/ComputeClusterTime.h"
 
 HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet& ps) : HGCalRecHitWorkerBaseClass(ps) {
-  rechitMaker_.reset(new HGCalRecHitSimpleAlgo());
-  tools_.reset(new hgcal::RecHitTools());
+  rechitMaker_ = std::make_unique<HGCalRecHitSimpleAlgo>();
+  tools_ = std::make_unique<hgcal::RecHitTools>();
   constexpr float keV2GeV = 1e-6;
   // HGCee constants
   hgcEE_keV2DIGI_ = ps.getParameter<double>("HGCEE_keV2DIGI");

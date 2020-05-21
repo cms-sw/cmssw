@@ -9,12 +9,13 @@
 
 #include <iostream>
 #include <cmath>
+#include <memory>
 
 //#define EDM_ML_DEBUG
 
 HcalTestHistoManager::HcalTestHistoManager(const std::string& file) : tree_(nullptr), kount_(0) {
   if (fs_.isAvailable()) {
-    h_.reset(new HcalTestHistoClass());
+    h_ = std::make_unique<HcalTestHistoClass>();
 
     tree_ = fs_->make<TTree>("HcalTest", "HcalTest");
     tree_->SetAutoSave(10000);

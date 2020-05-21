@@ -6,6 +6,8 @@
 *
 ****************************************************************************/
 
+#include <memory>
+
 #include "RecoPPS/Local/interface/CTPPSDiamondRecHitProducerAlgorithm.h"
 #include "FWCore/Utilities/interface/isFinite.h"
 
@@ -17,7 +19,7 @@ CTPPSDiamondRecHitProducerAlgorithm::CTPPSDiamondRecHitProducerAlgorithm(const e
 
 void CTPPSDiamondRecHitProducerAlgorithm::setCalibration(const PPSTimingCalibration& calib) {
   calib_ = calib;
-  calib_fct_.reset(new reco::FormulaEvaluator(calib_.formula()));
+  calib_fct_ = std::make_unique<reco::FormulaEvaluator>(calib_.formula());
 }
 
 void CTPPSDiamondRecHitProducerAlgorithm::build(const CTPPSGeometry& geom,

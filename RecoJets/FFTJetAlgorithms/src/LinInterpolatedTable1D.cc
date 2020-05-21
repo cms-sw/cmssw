@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoJets/FFTJetAlgorithms/interface/LinInterpolatedTable1D.h"
 
 namespace fftjetcms {
@@ -54,8 +56,7 @@ namespace fftjetcms {
       points.push_back(std::pair<double, double>(data_[0], xmin_));
     }
 
-    return std::unique_ptr<LinInterpolatedTable1D>(
-        new LinInterpolatedTable1D(points, npoints, leftExtrapolationLinear, rightExtrapolationLinear));
+    return std::make_unique<LinInterpolatedTable1D>(points, npoints, leftExtrapolationLinear, rightExtrapolationLinear);
   }
 
   double LinInterpolatedTable1D::operator()(const double& x) const {

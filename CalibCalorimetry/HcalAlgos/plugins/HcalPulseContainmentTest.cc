@@ -48,7 +48,7 @@ void HcalPulseContainmentTest::analyze(const edm::Event& iEvent, const edm::Even
   float fixedphase_ns = 6.0;
   float max_fracerror = 0.02;
   std::unique_ptr<HcalPulseContainmentManager> manager;
-  manager = std::unique_ptr<HcalPulseContainmentManager>(new HcalPulseContainmentManager(max_fracerror));
+  manager = std::make_unique<HcalPulseContainmentManager>(max_fracerror);
   manager->setTimeSlew(hcalTimeSlew_delay_);
 
   HcalDetId hb1(HcalBarrel, 1, 1, 1);

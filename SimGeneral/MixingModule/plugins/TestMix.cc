@@ -217,7 +217,7 @@ void TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       cfvec.push_back(cf_simhit.product());
       std::cout << " \nSecond container " << track_containers_[1] << " Nr signals " << cf_simhit->getNrSignals()
                 << ", Nr pileups " << cf_simhit->getNrPileups() << std::endl;
-      all_trackhits = std::unique_ptr<MixCollection<PSimHit>>(new MixCollection<PSimHit>(cfvec));
+      all_trackhits = std::make_unique<MixCollection<PSimHit>>(cfvec);
 
       std::cout << " \nFor all containers we got " << all_trackhits->sizeSignal() << " signal hits and "
                 << all_trackhits->sizePileup() << " pileup hits, total: " << all_trackhits->size() << std::endl;
@@ -246,7 +246,7 @@ void TestMix::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     got2 = iEvent.getByToken(TrackerToken4_, cf_simhit);
     if (got2) {
       cfvec2.push_back(cf_simhit.product());
-      all_trackhits2 = std::unique_ptr<MixCollection<PSimHit>>(new MixCollection<PSimHit>(cfvec2));
+      all_trackhits2 = std::make_unique<MixCollection<PSimHit>>(cfvec2);
       std::cout << " \nSame containers, different order: we got " << all_trackhits2->sizeSignal() << " signal hits and "
                 << all_trackhits2->sizePileup() << " pileup hits, total: " << all_trackhits2->size() << std::endl;
       for (it2 = all_trackhits2->begin(); it2 != all_trackhits2->end(); it2++) {

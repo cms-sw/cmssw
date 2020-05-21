@@ -1,5 +1,7 @@
 #include <algorithm>
 #include <iostream>
+#include <memory>
+
 #include <string>
 #include <memory>
 
@@ -19,7 +21,7 @@ using namespace PhysicsTools;
 static std::vector<std::string> getCalibrationLabels(const edm::ParameterSet &params,
                                                      std::unique_ptr<TagInfoMVACategorySelector> &selector) {
   if (params.getParameter<bool>("useCategories")) {
-    selector = std::unique_ptr<TagInfoMVACategorySelector>(new TagInfoMVACategorySelector(params));
+    selector = std::make_unique<TagInfoMVACategorySelector>(params);
 
     return selector->getCategoryLabels();
   } else {

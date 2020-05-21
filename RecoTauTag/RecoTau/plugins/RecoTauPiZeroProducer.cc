@@ -15,6 +15,7 @@
 #include <boost/ptr_container/ptr_list.hpp>
 #include <algorithm>
 #include <functional>
+#include <memory>
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -103,12 +104,12 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset) {
   }
 
   // Build the sorting predicate
-  predicate_ = std::unique_ptr<PiZeroPredicate>(new PiZeroPredicate(rankers_));
+  predicate_ = std::make_unique<PiZeroPredicate>(rankers_);
 
   // now all producers apply a final output selection
   std::string selection = pset.getParameter<std::string>("outputSelection");
   if (!selection.empty()) {
-    outputSelector_.reset(new StringCutObjectSelector<reco::RecoTauPiZero>(selection));
+    outputSelector_ = std::make_unique<StringCutObjectSelector<reco::RecoTauPiZero>>(selection);
   }
 
   verbosity_ = pset.getParameter<int>("verbosity");

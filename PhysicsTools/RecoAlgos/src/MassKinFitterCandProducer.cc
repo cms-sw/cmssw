@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "PhysicsTools/RecoAlgos/interface/MassKinFitterCandProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -7,7 +9,7 @@
 MassKinFitterCandProducer::MassKinFitterCandProducer(const edm::ParameterSet& cfg, CandMassKinFitter* f)
     : srcToken_(consumes<reco::CandidateCollection>(cfg.getParameter<edm::InputTag>("src"))), fitter_(f) {
   if (f == nullptr)
-    fitter_.reset(new CandMassKinFitter(cfg.getParameter<double>("mass")));
+    fitter_ = std::make_unique<CandMassKinFitter>(cfg.getParameter<double>("mass"));
   produces<reco::CandidateCollection>();
 }
 

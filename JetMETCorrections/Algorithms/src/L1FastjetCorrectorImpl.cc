@@ -6,6 +6,8 @@
 //            08/09/2009 Philipp Schieferdecker <philipp.schieferdecker@cern.ch>
 ////////////////////////////////////////////////////////////////////////////////
 
+#include <memory>
+
 #include "JetMETCorrections/Algorithms/interface/L1FastjetCorrectorImpl.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 #include "JetMETCorrections/Objects/interface/JetCorrectionsRecord.h"
@@ -39,7 +41,7 @@ std::unique_ptr<reco::JetCorrectorImpl> L1FastjetCorrectorImplMaker::make(edm::E
 
   edm::Handle<double> hRho;
   fEvent.getByToken(rhoToken_, hRho);
-  return std::unique_ptr<L1FastjetCorrectorImpl>(new L1FastjetCorrectorImpl(corrector, *hRho));
+  return std::make_unique<L1FastjetCorrectorImpl>(corrector, *hRho);
 }
 
 void L1FastjetCorrectorImplMaker::fillDescriptions(edm::ConfigurationDescriptions& iDescriptions) {

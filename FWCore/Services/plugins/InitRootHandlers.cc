@@ -21,6 +21,8 @@
 #include "tbb/task.h"
 #include "tbb/task_scheduler_observer.h"
 #include "tbb/concurrent_unordered_set.h"
+#include <memory>
+
 #include <thread>
 #include <sys/wait.h>
 #include <sstream>
@@ -933,7 +935,7 @@ namespace edm {
         throw except;
       }
 
-      helperThread_.reset(new std::thread(stacktraceHelperThread));
+      helperThread_ = std::make_unique<std::thread>(stacktraceHelperThread);
       helperThread_->detach();
     }
 

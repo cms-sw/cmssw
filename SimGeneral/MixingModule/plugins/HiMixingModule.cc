@@ -17,6 +17,8 @@
 //
 
 // system include files
+#include <memory>
+
 #include <vector>
 #include <memory>
 #include <iostream>
@@ -251,8 +253,7 @@ namespace edm {
       (workers_[i])->addSignals(iEvent);
     }
 
-    std::unique_ptr<PileupMixingContent> PileupMixing_ =
-        std::unique_ptr<PileupMixingContent>(new PileupMixingContent());
+    std::unique_ptr<PileupMixingContent> PileupMixing_ = std::make_unique<PileupMixingContent>();
     iEvent.put(std::move(PileupMixing_));
   }
 

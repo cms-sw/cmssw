@@ -15,6 +15,7 @@
 #include <fcntl.h>
 #include <libgen.h>
 #include <fstream>
+#include <memory>
 
 //using namespace edm;
 using namespace std;
@@ -376,7 +377,7 @@ edm::StreamerInputFile* WatcherStreamFileReader::getInputFile() {
         cout << "[WatcherSource " << now() << "]"
              << " Opening file " << fileName_ << "\n"
              << flush;
-        streamerInputFile_ = unique_ptr<edm::StreamerInputFile>(new edm::StreamerInputFile(fileName_));
+        streamerInputFile_ = std::make_unique<edm::StreamerInputFile>(fileName_);
 
         ofstream f(".watcherfile");
         f << fileName_;

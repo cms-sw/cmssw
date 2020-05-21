@@ -113,7 +113,7 @@ HcalTB02Analysis::HcalTB02Analysis(const edm::ParameterSet& p) {
                             << "BeginOfJob/BeginOfEvent/EndOfEvent with "
                             << "Parameter values:\n \thcalOnly = " << hcalOnly;
 
-  histo.reset(new HcalTB02Histo(m_Anal));
+  histo = std::make_unique<HcalTB02Histo>(m_Anal);
 }
 
 HcalTB02Analysis::~HcalTB02Analysis() { finish(); }

@@ -204,7 +204,7 @@ void PFTrackProducer::produce(Event& iEvent, const EventSetup& iSetup) {
 void PFTrackProducer::beginRun(const edm::Run& run, const EventSetup& iSetup) {
   ESHandle<MagneticField> magneticField;
   iSetup.get<IdealMagneticFieldRecord>().get(magneticField);
-  pfTransformer_.reset(new PFTrackTransformer(math::XYZVector(magneticField->inTesla(GlobalPoint(0, 0, 0)))));
+  pfTransformer_ = std::make_unique<PFTrackTransformer>(math::XYZVector(magneticField->inTesla(GlobalPoint(0, 0, 0))));
   if (!trajinev_)
     pfTransformer_->OnlyProp();
 }

@@ -24,6 +24,7 @@
 #include <iostream>
 #include <fstream>
 #include <iomanip>
+#include <memory>
 
 //#define EDM_ML_DEBUG
 
@@ -207,9 +208,9 @@ void HGCalSD::update(const BeginOfJob* job) {
                                << mouseBite;
 #endif
 
-    numberingScheme_.reset(new HGCalNumberingScheme(*hgcons_, mydet_, nameX_));
+    numberingScheme_ = std::make_unique<HGCalNumberingScheme>(*hgcons_, mydet_, nameX_);
     if (rejectMB_)
-      mouseBite_.reset(new HGCMouseBite(*hgcons_, angles_, mouseBiteCut_, waferRot_));
+      mouseBite_ = std::make_unique<HGCMouseBite>(*hgcons_, angles_, mouseBiteCut_, waferRot_);
   } else {
     throw cms::Exception("Unknown", "HGCalSD") << "Cannot find HGCalDDDConstants for " << nameX_ << "\n";
   }

@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <vector>
 #include <string>
 #include <iostream>
@@ -201,11 +203,11 @@ void JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& s
     setup.get<JetCorrectionsRecord>().get(payload(), parameters);
     // initialize jet correctors
     for (FlavorCorrLevelMap::const_iterator flavor = levels_.begin(); flavor != levels_.end(); ++flavor) {
-      correctors_[flavor->first].reset(new FactorizedJetCorrector(params(*parameters, flavor->second)));
+      correctors_[flavor->first] = std::make_unique<FactorizedJetCorrector>(params(*parameters, flavor->second));
     }
     // initialize extra jet corrector for jpt if needed
     if (!extraJPTOffset_.empty()) {
-      extraJPTOffsetCorrector_.reset(new FactorizedJetCorrector(params(*parameters, extraJPTOffset_)));
+      extraJPTOffsetCorrector_ = std::make_unique<FactorizedJetCorrector>(params(*parameters, extraJPTOffset_));
     }
     cacheId_ = rec.cacheIdentifier();
   }

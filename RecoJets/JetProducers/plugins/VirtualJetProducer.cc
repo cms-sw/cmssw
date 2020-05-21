@@ -158,7 +158,7 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig) {
       input_weights_token_ = consumes<edm::ValueMap<float>>(srcWeights);
   }
 
-  anomalousTowerDef_ = unique_ptr<AnomalousTower>(new AnomalousTower(iConfig));
+  anomalousTowerDef_ = std::make_unique<AnomalousTower>(iConfig);
 
   input_vertex_token_ = consumes<reco::VertexCollection>(srcPVs_);
   input_candidateview_token_ = consumes<reco::CandidateView>(src_);

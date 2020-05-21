@@ -4,6 +4,8 @@
 //
 // Originally created by:  Roberval Walsh
 //                         June 2017
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -89,8 +91,8 @@ TagAndProbeBtagTriggerMonitor::TagAndProbeBtagTriggerMonitor(const edm::Paramete
   triggerSummaryToken_ = consumes<trigger::TriggerEvent>(triggerSummaryLabel_);
   offlineBtagToken_ = consumes<reco::JetTagCollection>(iConfig.getParameter<edm::InputTag>("offlineBtag"));
 
-  genTriggerEventFlag_.reset(new GenericTriggerEventFlag(
-      iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this));
+  genTriggerEventFlag_ = std::make_unique<GenericTriggerEventFlag>(
+      iConfig.getParameter<edm::ParameterSet>("genericTriggerEventPSet"), consumesCollector(), *this);
 
   jetPtbins_ = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetPt");
   jetEtabins_ = iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("jetEta");

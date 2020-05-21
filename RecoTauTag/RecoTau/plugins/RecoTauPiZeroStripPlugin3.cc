@@ -136,7 +136,7 @@ namespace reco {
       //qcuts_ = new RecoTauQualityCuts(qcuts_pset);
       //std::unique_ptr<RecoTauQualityCuts> qcuts_(new RecoTauQualityCuts(qcuts_pset));
 
-      qcuts_.reset(new RecoTauQualityCuts(qcuts_pset));
+      qcuts_ = std::make_unique<RecoTauQualityCuts>(qcuts_pset);
 
       inputParticleIds_ = pset.getParameter<std::vector<int> >("stripCandidatesParticleIds");
       const edm::ParameterSet& stripSize_eta_pset = pset.getParameterSet("stripEtaAssociationDistanceFunc");

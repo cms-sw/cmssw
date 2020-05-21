@@ -256,7 +256,7 @@ bool PixelSLinkDataInputSource::setRunAndEventInfo(edm::EventID &id,
   Storage &m_file = *storage;
 
   // create product (raw data)
-  buffers.reset(new FEDRawDataCollection);
+  buffers = std::make_unique<FEDRawDataCollection>();
 
   //  uint32_t currenteventnumber = (m_data >> 32)&0x00ffffff;
   uint32_t eventnumber = (m_data >> 32) & 0x00ffffff;

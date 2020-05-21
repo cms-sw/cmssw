@@ -40,6 +40,8 @@
 
 #include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
+#include <memory>
+
 #include <string>
 #include <type_traits>
 
@@ -245,9 +247,9 @@ private:
     for (typename std::vector<type2BinningEntryType*>::const_iterator type2BinningEntry = type2Binning_.begin();
          type2BinningEntry != type2Binning_.end();
          ++type2BinningEntry) {
-      evt.put(std::unique_ptr<CorrMETData>(new CorrMETData((*type2BinningEntry)->binUnclEnergySum_)),
+      evt.put(std::make_unique<CorrMETData>((*type2BinningEntry)->binUnclEnergySum_),
               (*type2BinningEntry)->getInstanceLabel_full("type2"));
-      evt.put(std::unique_ptr<CorrMETData>(new CorrMETData((*type2BinningEntry)->binOffsetEnergySum_)),
+      evt.put(std::make_unique<CorrMETData>((*type2BinningEntry)->binOffsetEnergySum_),
               (*type2BinningEntry)->getInstanceLabel_full("offset"));
     }
   }

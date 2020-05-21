@@ -31,6 +31,7 @@
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimGeneral/MixingModule/interface/PileUpEventPrincipal.h"
 #include <boost/foreach.hpp>
+#include <memory>
 
 //#define DebugLog
 
@@ -235,7 +236,7 @@ HcalDigitizer::HcalDigitizer(const edm::ParameterSet &ps, edm::ConsumesCollector
   }
 
   if (agingFlagHF)
-    m_HFRecalibration.reset(new HFRecalibration(ps.getParameter<edm::ParameterSet>("HFRecalParameterBlock")));
+    m_HFRecalibration = std::make_unique<HFRecalibration>(ps.getParameter<edm::ParameterSet>("HFRecalParameterBlock"));
 }
 
 HcalDigitizer::~HcalDigitizer() {}

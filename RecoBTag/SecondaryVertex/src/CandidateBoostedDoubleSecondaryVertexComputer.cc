@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoBTag/SecondaryVertex/interface/CandidateBoostedDoubleSecondaryVertexComputer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -27,7 +29,7 @@ CandidateBoostedDoubleSecondaryVertexComputer::CandidateBoostedDoubleSecondaryVe
       tokens_{std::move(tokens)} {
   uses(0, "svTagInfos");
 
-  mvaID.reset(new TMVAEvaluator());
+  mvaID = std::make_unique<TMVAEvaluator>();
 }
 
 void CandidateBoostedDoubleSecondaryVertexComputer::initialize(const JetTagComputerRecord& record) {

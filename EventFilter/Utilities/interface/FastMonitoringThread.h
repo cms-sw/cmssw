@@ -4,6 +4,8 @@
 #include "EventFilter/Utilities/interface/FastMonitor.h"
 
 #include <iostream>
+#include <memory>
+
 #include <vector>
 #include <thread>
 #include <mutex>
@@ -199,7 +201,7 @@ namespace evf {
 
     void resetFastMonitor(std::string const& microStateDefPath, std::string const& fastMicroStateDefPath) {
       std::string defGroup = "data";
-      jsonMonitor_.reset(new jsoncollector::FastMonitor(microStateDefPath, defGroup, false));
+      jsonMonitor_ = std::make_unique<jsoncollector::FastMonitor>(microStateDefPath, defGroup, false);
       if (!fastMicroStateDefPath.empty())
         jsonMonitor_->addFastPathDefinition(fastMicroStateDefPath, defGroup, false);
     }

@@ -234,7 +234,7 @@ void MuonSimClassifier::produce(edm::Event &iEvent, const edm::EventSetup &iSetu
   std::vector<int> muToPrimary(nmu, -1), muToSecondary(nmu,
                                                        -1);  // map from input into (index) in output, -1 for null
   if (linkToGenParticles_)
-    secondaries.reset(new reco::GenParticleCollection());
+    secondaries = std::make_unique<reco::GenParticleCollection>();
 
   // loop on reco muons
   for (size_t i = 0; i < nmu; ++i) {

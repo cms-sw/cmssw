@@ -221,7 +221,7 @@ edm::RawInputSource::Next FedRawDataInputSource::checkNext() {
     //this thread opens new files and dispatches reading to worker readers
     //threadInit_.store(false,std::memory_order_release);
     std::unique_lock<std::mutex> lk(startupLock_);
-    readSupervisorThread_.reset(new std::thread(&FedRawDataInputSource::readSupervisor, this));
+    readSupervisorThread_ = std::make_unique<std::thread>(&FedRawDataInputSource::readSupervisor, this);
     startedSupervisorThread_ = true;
     startupCv_.wait(lk);
   }
@@ -490,7 +490,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
       }
     }
 
-    event_.reset(new FRDEventMsgView(dataPosition));
+    event_ = std::make_unique<FRDEventMsgView>(dataPosition);
     if (event_->size() > eventChunkSize_) {
       throw cms::Exception("FedRawDataInputSource::getNextEvent")
           << " event id:" << event_->event() << " lumi:" << event_->lumi() << " run:" << event_->run()
@@ -508,7 +508,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
       readNextChunkIntoBuffer(currentFile_.get());
       //recalculate chunk position
       dataPosition = currentFile_->chunks_[0]->buf_ + currentFile_->chunkPosition_;
-      event_.reset(new FRDEventMsgView(dataPosition));
+      event_ = std::make_unique<FRDEventMsgView>(dataPosition);
     }
     currentFile_->bufferPosition_ += event_->size();
     currentFile_->chunkPosition_ += event_->size();
@@ -535,7 +535,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
     //read header, copy it to a single chunk if necessary
     bool chunkEnd = currentFile_->advance(dataPosition, FRDHeaderVersionSize[detectedFRDversion_]);
 
-    event_.reset(new FRDEventMsgView(dataPosition));
+    event_ = std::make_unique<FRDEventMsgView>(dataPosition);
     if (event_->size() > eventChunkSize_) {
       throw cms::Exception("FedRawDataInputSource::getNextEvent")
           << " event id:" << event_->event() << " lumi:" << event_->lumi() << " run:" << event_->run()
@@ -564,7 +564,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent() {
         assert(chunkEnd);
         chunkIsFree_ = true;
         //header is moved
-        event_.reset(new FRDEventMsgView(dataPosition));
+        event_ = std::make_unique<FRDEventMsgView>(dataPosition);
       } else {
         //everything is in a single chunk, only move pointers forward
         chunkEnd = currentFile_->advance(dataPosition, msgSize);

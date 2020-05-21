@@ -97,8 +97,8 @@ L1TMuonEndCapForestESProducer::ReturnType L1TMuonEndCapForestESProducer::produce
   std::unique_ptr<PtAssignmentEngine> pt_assign_engine_2016_;
   std::unique_ptr<PtAssignmentEngine> pt_assign_engine_2017_;
 
-  pt_assign_engine_2016_.reset(new PtAssignmentEngine2016());
-  pt_assign_engine_2017_.reset(new PtAssignmentEngine2017());
+  pt_assign_engine_2016_ = std::make_unique<PtAssignmentEngine2016>();
+  pt_assign_engine_2017_ = std::make_unique<PtAssignmentEngine2017>();
 
   if (ptLUTVersion <= 5)
     pt_assign_engine_ = pt_assign_engine_2016_.get();

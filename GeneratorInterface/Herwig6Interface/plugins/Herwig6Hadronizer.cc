@@ -1,4 +1,6 @@
 #include <cstring>
+#include <memory>
+
 #include <sstream>
 #include <string>
 #include <vector>
@@ -689,7 +691,7 @@ bool Herwig6Hadronizer::hadronize() {
   if (lheEvent())
     lheEvent()->count(lhef::LHERunInfo::kAccepted);
 
-  event().reset(new HepMC::GenEvent);
+  event() = std::make_unique<HepMC::GenEvent>();
   if (!conv.fill_next_event(event().get()))
     throw cms::Exception("Herwig6Error") << "HepMC Conversion problems in event." << std::endl;
 
@@ -808,7 +810,7 @@ void Herwig6Hadronizer::finalizeEvent() {
       finalParton = (*it);
 
   // add GenEventInfo & binning Values
-  eventInfo().reset(new GenEventInfoProduct(event().get()));
+  eventInfo() = std::make_unique<GenEventInfoProduct>(event().get());
   if (finalParton) {
     double thisPt = finalParton->momentum().perp();
     eventInfo()->setBinningValues(std::vector<double>(1, thisPt));

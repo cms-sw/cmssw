@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <memory>
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -43,7 +44,7 @@ l1t::L1TGlobalUtil::L1TGlobalUtil(edm::ParameterSet const& pset,
                                   edm::ConsumesCollector& iC,
                                   UseEventSetupIn useEventSetupIn)
     : L1TGlobalUtil() {
-  m_l1tGlobalUtilHelper.reset(new L1TGlobalUtilHelper(pset, iC));
+  m_l1tGlobalUtilHelper = std::make_unique<L1TGlobalUtilHelper>(pset, iC);
   m_readPrescalesFromFile = m_l1tGlobalUtilHelper->readPrescalesFromFile();
   eventSetupConsumes(iC, useEventSetupIn);
 }

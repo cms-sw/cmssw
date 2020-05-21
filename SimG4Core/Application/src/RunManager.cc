@@ -80,6 +80,8 @@
 #include "G4SystemOfUnits.hh"
 
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <fstream>
 #include <memory>
@@ -261,7 +263,7 @@ void RunManager::initG4(const edm::EventSetup& es) {
   }
 
   // we need the track manager now
-  m_trackManager = std::unique_ptr<SimTrackManager>(new SimTrackManager);
+  m_trackManager = std::make_unique<SimTrackManager>();
 
   // attach sensitive detector
   AttachSD attach;
@@ -345,7 +347,7 @@ void RunManager::initG4(const edm::EventSetup& es) {
   std::vector<int> vt = m_p.getUntrackedParameter<std::vector<int> >("VerboseTracks");
 
   if (sv > 0) {
-    m_sVerbose.reset(new CMSSteppingVerbose(sv, elim, ve, vn, vt));
+    m_sVerbose = std::make_unique<CMSSteppingVerbose>(sv, elim, ve, vn, vt);
   }
   initializeUserActions();
 

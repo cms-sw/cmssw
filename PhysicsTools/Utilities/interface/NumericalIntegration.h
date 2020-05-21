@@ -10,6 +10,8 @@
 #include "Math/Functor.h"
 #include "Math/Integrator.h"
 #include "Math/AllIntegrationTypes.h"
+#include <memory>
+
 #include <vector>
 #include <cmath>
 #include <memory>
@@ -142,7 +144,7 @@ namespace funct {
       relTol_ = o.relTol_;
       size_ = o.size_;
       rule_ = o.rule_;
-      integrator_.reset(new ROOT::Math::Integrator(type_, absTol_, relTol_, size_, rule_));
+      integrator_ = std::make_unique<ROOT::Math::Integrator>(type_, absTol_, relTol_, size_, rule_);
     }
     RootIntegrator& operator=(const RootIntegrator& o) {
       type_ = o.type_;
@@ -150,7 +152,7 @@ namespace funct {
       relTol_ = o.relTol_;
       size_ = o.size_;
       rule_ = o.rule_;
-      integrator_.reset(new ROOT::Math::Integrator(type_, absTol_, relTol_, size_, rule_));
+      integrator_ = std::make_unique<ROOT::Math::Integrator>(type_, absTol_, relTol_, size_, rule_);
       return *this;
     }
     template <typename F>

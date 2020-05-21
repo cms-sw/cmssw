@@ -29,6 +29,8 @@
 
 #include "G4SystemOfUnits.hh"
 
+#include <memory>
+
 #include <vector>
 #include <iostream>
 
@@ -72,7 +74,7 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(const std::stri
 
   // No Rotation given in input, automagically choose one based upon the name
   std::string rotType;
-  theRotation.reset(new TrackerFrameRotation());
+  theRotation = std::make_unique<TrackerFrameRotation>();
   rotType = "TrackerFrameRotation";
 
 #ifdef FAKEFRAMEROTATION
@@ -89,15 +91,15 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(const std::stri
                                  << " allowZeroEnergyLoss: " << allowZeroEnergyLoss
                                  << " neverAccumulate: " << neverAccumulate << " printHits: " << printHits;
 
-  slaveLowTof.reset(new TrackingSlaveSD(name + "LowTof"));
-  slaveHighTof.reset(new TrackingSlaveSD(name + "HighTof"));
+  slaveLowTof = std::make_unique<TrackingSlaveSD>(name + "LowTof");
+  slaveHighTof = std::make_unique<TrackingSlaveSD>(name + "HighTof");
 
   std::vector<std::string> temp;
   temp.push_back(slaveLowTof.get()->name());
   temp.push_back(slaveHighTof.get()->name());
   setNames(temp);
 
-  theG4ProcTypeEnumerator.reset(new G4ProcessTypeEnumerator);
+  theG4ProcTypeEnumerator = std::make_unique<G4ProcessTypeEnumerator>();
   theNumberingScheme = nullptr;
 }
 

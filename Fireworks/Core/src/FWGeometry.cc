@@ -17,6 +17,8 @@
 
 #include <iostream>
 #include <cassert>
+#include <memory>
+
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
@@ -190,8 +192,8 @@ void FWGeometry::loadMap(const char* iFileName) {
   TNamed* ttopology = static_cast<TNamed*>(file->Get("TrackerTopology"));
   if (ttopology) {
     std::string xml = ttopology->GetTitle();
-    m_trackerTopology = std::unique_ptr<TrackerTopology>(
-        new TrackerTopology(StandaloneTrackerTopology::fromTrackerParametersXMLString(xml)));
+    m_trackerTopology =
+        std::make_unique<TrackerTopology>(StandaloneTrackerTopology::fromTrackerParametersXMLString(xml));
   }
 
   file->Close();

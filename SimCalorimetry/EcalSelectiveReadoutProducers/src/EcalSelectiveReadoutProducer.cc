@@ -47,7 +47,7 @@ EcalSelectiveReadoutProducer::EcalSelectiveReadoutProducer(const edm::ParameterS
                                                "Selective readout configuration will be read from python file.";
   }
   if (!useCondDb_) {
-    settingsFromFile_ = unique_ptr<EcalSRSettings>(new EcalSRSettings());
+    settingsFromFile_ = std::make_unique<EcalSRSettings>();
     EcalSRCondTools::importParameterSet(*settingsFromFile_, params);
     settings_ = settingsFromFile_.get();
   }
@@ -111,13 +111,13 @@ void EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSe
   unique_ptr<EESrFlagCollection> eeSrFlags;
 
   if (produceDigis_) {
-    selectedEBDigis = unique_ptr<EBDigiCollection>(new EBDigiCollection);
-    selectedEEDigis = unique_ptr<EEDigiCollection>(new EEDigiCollection);
+    selectedEBDigis = std::make_unique<EBDigiCollection>();
+    selectedEEDigis = std::make_unique<EEDigiCollection>();
   }
 
   if (writeSrFlags_) {
-    ebSrFlags = unique_ptr<EBSrFlagCollection>(new EBSrFlagCollection);
-    eeSrFlags = unique_ptr<EESrFlagCollection>(new EESrFlagCollection);
+    ebSrFlags = std::make_unique<EBSrFlagCollection>();
+    eeSrFlags = std::make_unique<EESrFlagCollection>();
   }
 
   if (suppressor_.get() == nullptr) {
@@ -125,7 +125,7 @@ void EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSe
     checkValidity(*settings_);
 
     //instantiates the selective readout algorithm:
-    suppressor_ = unique_ptr<EcalSelectiveReadoutSuppressor>(new EcalSelectiveReadoutSuppressor(params_, settings_));
+    suppressor_ = std::make_unique<EcalSelectiveReadoutSuppressor>(params_, settings_);
 
     // check that everything is up-to-date
     checkGeometry(eventSetup);

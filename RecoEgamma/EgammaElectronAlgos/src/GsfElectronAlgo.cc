@@ -28,6 +28,8 @@
 #include "RecoEgamma/EgammaTools/interface/ConversionTools.h"
 
 #include <Math/Point3D.h>
+#include <memory>
+
 #include <sstream>
 #include <algorithm>
 
@@ -38,11 +40,11 @@ GsfElectronAlgo::HeavyObjectCache::HeavyObjectCache(const edm::ParameterSet& con
   // soft electron MVA
   SoftElectronMVAEstimator::Configuration sconfig;
   sconfig.vweightsfiles = conf.getParameter<std::vector<std::string>>("SoftElecMVAFilesString");
-  sElectronMVAEstimator.reset(new SoftElectronMVAEstimator(sconfig));
+  sElectronMVAEstimator = std::make_unique<SoftElectronMVAEstimator>(sconfig);
   // isolated electron MVA
   ElectronMVAEstimator::Configuration iconfig;
   iconfig.vweightsfiles = conf.getParameter<std::vector<std::string>>("ElecMVAFilesString");
-  iElectronMVAEstimator.reset(new ElectronMVAEstimator(iconfig));
+  iElectronMVAEstimator = std::make_unique<ElectronMVAEstimator>(iconfig);
 }
 
 //===================================================================

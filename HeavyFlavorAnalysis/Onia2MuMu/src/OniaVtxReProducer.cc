@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "HeavyFlavorAnalysis/Onia2MuMu/interface/OniaVtxReProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
@@ -66,7 +68,7 @@ void OniaVtxReProducer::configure(const edm::ParameterSet &iConfig) {
   config_ = iConfig;
   tracksTag_ = iConfig.getParameter<edm::InputTag>("TrackLabel");
   beamSpotTag_ = iConfig.getParameter<edm::InputTag>("beamSpotLabel");
-  algo_.reset(new PrimaryVertexProducerAlgorithm(iConfig));
+  algo_ = std::make_unique<PrimaryVertexProducerAlgorithm>(iConfig);
 }
 
 std::vector<TransientVertex> OniaVtxReProducer::makeVertices(const reco::TrackCollection &tracks,

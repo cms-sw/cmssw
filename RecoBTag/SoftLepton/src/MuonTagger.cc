@@ -3,6 +3,8 @@
 // * January 16, 2015
 
 #include <limits>
+#include <memory>
+
 #include <random>
 
 #include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
@@ -28,7 +30,7 @@ MuonTagger::MuonTagger(const edm::ParameterSet& cfg, Tokens tokens)
       m_useAdaBoost(cfg.existsAs<bool>("useAdaBoost") ? cfg.getParameter<bool>("useAdaBoost") : false),
       m_tokens{std::move(tokens)} {
   uses("smTagInfos");
-  mvaID.reset(new TMVAEvaluator());
+  mvaID = std::make_unique<TMVAEvaluator>();
 }
 
 void MuonTagger::initialize(const JetTagComputerRecord& record) {

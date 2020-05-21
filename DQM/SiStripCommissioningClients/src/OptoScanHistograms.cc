@@ -7,6 +7,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <iomanip>
 
@@ -17,7 +19,7 @@ using namespace sistrip;
 /** */
 OptoScanHistograms::OptoScanHistograms(const edm::ParameterSet& pset, DQMStore* bei)
     : CommissioningHistograms(pset.getParameter<edm::ParameterSet>("OptoScanParameters"), bei, sistrip::OPTO_SCAN) {
-  factory_ = unique_ptr<OptoScanSummaryFactory>(new OptoScanSummaryFactory);
+  factory_ = std::make_unique<OptoScanSummaryFactory>();
   LogTrace(mlDqmClient_) << "[OptoScanHistograms::" << __func__ << "]"
                          << " Constructing object...";
 }

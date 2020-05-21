@@ -257,7 +257,7 @@ namespace {
 
       std::string titleMap = "APE #sqrt{d_{" + getStringFromIndex(i) + "}} value (payload : " + std::get<1>(iov) + ")";
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("APE_dii"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("APE_dii");
       tmap->setTitle(titleMap);
       tmap->setPalette(1);
 

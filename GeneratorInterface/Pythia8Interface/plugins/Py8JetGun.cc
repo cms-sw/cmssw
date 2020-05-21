@@ -1,4 +1,6 @@
 
+#include <memory>
+
 #include "GeneratorInterface/Core/interface/GeneratorFilter.h"
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 
@@ -106,7 +108,7 @@ namespace gen {
     if (!fMasterGen->next())
       return false;
 
-    event().reset(new HepMC::GenEvent);
+    event() = std::make_unique<HepMC::GenEvent>();
     return toHepMC.fill_next_event(fMasterGen->event, event().get());
   }
 

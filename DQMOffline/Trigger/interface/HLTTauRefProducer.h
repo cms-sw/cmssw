@@ -47,6 +47,8 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 
+#include <memory>
+
 #include <vector>
 #include <string>
 
@@ -59,7 +61,7 @@ public:
   void produce(edm::StreamID, edm::Event&, edm::EventSetup const&) const override;
 
   std::unique_ptr<TauIDConfigCache> beginStream(edm::StreamID) const override {
-    return std::unique_ptr<TauIDConfigCache>(new TauIDConfigCache());
+    return std::make_unique<TauIDConfigCache>();
   }
 
 private:

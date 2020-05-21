@@ -10,6 +10,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include <memory>
+
 #include <string>
 #include <memory>
 
@@ -62,7 +64,7 @@ std::unique_ptr<Propagator> SteppingHelixPropagatorESProducer::produce(const Tra
     dir = anyDirection;
 
   std::unique_ptr<SteppingHelixPropagator> shProp;
-  shProp.reset(new SteppingHelixPropagator(&magfield, dir));
+  shProp = std::make_unique<SteppingHelixPropagator>(&magfield, dir);
 
   bool useInTeslaFromMagField = pset_.getParameter<bool>("useInTeslaFromMagField");
   bool useMagVolumes = pset_.getParameter<bool>("useMagVolumes");

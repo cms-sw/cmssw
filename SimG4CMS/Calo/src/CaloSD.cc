@@ -21,6 +21,7 @@
 #include "G4PhysicalConstants.hh"
 
 #include <fstream>
+#include <memory>
 
 //#define EDM_ML_DEBUG
 
@@ -73,12 +74,12 @@ CaloSD::CaloSD(const std::string& name,
       if (k < tmaxHits.size())
         tmaxHit = tmaxHits[k] * CLHEP::ns;
       if (k < useResMap.size() && useResMap[k] > 0) {
-        meanResponse.reset(new CaloMeanResponse(p));
+        meanResponse = std::make_unique<CaloMeanResponse>(p);
         break;
       }
     }
   }
-  slave.reset(new CaloSlaveSD(name));
+  slave = std::make_unique<CaloSlaveSD>(name);
 
   currentID = CaloHitID(timeSlice, ignoreTrackID);
   previousID = CaloHitID(timeSlice, ignoreTrackID);

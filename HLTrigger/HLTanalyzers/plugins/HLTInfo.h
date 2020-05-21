@@ -1,6 +1,8 @@
 #ifndef HLTINFO_H
 #define HLTINFO_H
 
+#include <memory>
+
 #include <vector>
 #include <map>
 
@@ -109,7 +111,7 @@ HLTInfo::HLTInfo(edm::ParameterSet const& pset, edm::ConsumesCollector&& iC, T& 
 
 template <typename T>
 HLTInfo::HLTInfo(edm::ParameterSet const& pset, edm::ConsumesCollector& iC, T& module) : HLTInfo() {
-  hltPrescaleProvider_.reset(new HLTPrescaleProvider(pset, iC, module));
+  hltPrescaleProvider_ = std::make_unique<HLTPrescaleProvider>(pset, iC, module);
 }
 
 #endif

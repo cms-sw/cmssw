@@ -156,7 +156,7 @@ void HLTScoutingCaloProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
   Handle<double> rho;
   std::unique_ptr<double> outRho(new double(-999));
   if (iEvent.getByToken(rho_, rho)) {
-    outRho.reset(new double(*rho));
+    outRho = std::make_unique<double>(*rho);
   }
 
   //get MET
@@ -164,8 +164,8 @@ void HLTScoutingCaloProducer::produce(edm::StreamID sid, edm::Event& iEvent, edm
   std::unique_ptr<double> outMetPt(new double(-999));
   std::unique_ptr<double> outMetPhi(new double(-999));
   if (doMet && iEvent.getByToken(metCollection_, metCollection)) {
-    outMetPt.reset(new double(metCollection->front().pt()));
-    outMetPhi.reset(new double(metCollection->front().phi()));
+    outMetPt = std::make_unique<double>(metCollection->front().pt());
+    outMetPhi = std::make_unique<double>(metCollection->front().phi());
   }
 
   //put output

@@ -1,6 +1,8 @@
 
 // See http://stackoverflow.com/questions/12523122/what-is-glibcxx-use-nanosleep-all-about
 #define _GLIBCXX_USE_NANOSLEEP
+#include <memory>
+
 #include <thread>
 #include <chrono>
 #include <atomic>
@@ -138,7 +140,7 @@ private:
       // On exit from the block, make sure m_status is set; it needs to be set before we notify threads.
       std::unique_ptr<char, std::function<void(char *)>> exit_guard(nullptr, [&](char *) {
         if (!l_state->m_status)
-          l_state->m_status.reset(new XrdCl::XRootDStatus(XrdCl::stError, XrdCl::errInternal));
+          l_state->m_status = std::make_unique<XrdCl::XRootDStatus>(XrdCl::stError, XrdCl::errInternal);
       });
       if (!status) {
         return;

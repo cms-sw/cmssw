@@ -6,6 +6,8 @@
 
 #include "DataFormats/L1GlobalTrigger/interface/L1GtLogicParser.h"
 
+#include <memory>
+
 #include <vector>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -21,7 +23,7 @@ GenericTriggerEventFlag::GenericTriggerEventFlag(const edm::ParameterSet& config
     : GenericTriggerEventFlag(config, iC, false) {
   if (config.exists("andOrL1")) {
     if (stage2_) {
-      l1uGt_.reset(new l1t::L1TGlobalUtil(config, iC, use));
+      l1uGt_ = std::make_unique<l1t::L1TGlobalUtil>(config, iC, use);
     }
   }
 }

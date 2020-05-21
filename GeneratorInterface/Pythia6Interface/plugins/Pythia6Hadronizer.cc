@@ -32,6 +32,7 @@ HepMC::IO_HEPEVT conv;
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Declarations.h"
 
 #include <iomanip>
+#include <memory>
 
 namespace gen {
 
@@ -339,7 +340,7 @@ namespace gen {
     // now create the GenEventInfo product from the GenEvent and fill
     // the missing pieces
 
-    eventInfo().reset(new GenEventInfoProduct(event().get()));
+    eventInfo() = std::make_unique<GenEventInfoProduct>(event().get());
 
     // in Pythia6 pthat is used to subdivide samples into different bins
     // in LHE mode the binning is done by the external ME generator

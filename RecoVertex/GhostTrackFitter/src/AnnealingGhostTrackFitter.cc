@@ -1,3 +1,5 @@
+#include <memory>
+
 #include <vector>
 
 #include "RecoVertex/VertexTools/interface/GeometricAnnealing.h"
@@ -10,7 +12,7 @@
 using namespace reco;
 
 AnnealingGhostTrackFitter::AnnealingGhostTrackFitter() : firstStep(true) {
-  annealing.reset(new GeometricAnnealing(3.0, 64.0, 0.25));
+  annealing = std::make_unique<GeometricAnnealing>(3.0, 64.0, 0.25);
 }
 
 void AnnealingGhostTrackFitter::postFit(const GhostTrackFitter::PredictionUpdater &updater,

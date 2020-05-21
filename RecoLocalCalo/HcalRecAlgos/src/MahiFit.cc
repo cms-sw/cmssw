@@ -1,4 +1,6 @@
 #define EIGEN_NO_DEBUG  // kill throws in eigen code
+#include <memory>
+
 #include "RecoLocalCalo/HcalRecAlgos/interface/MahiFit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -461,7 +463,7 @@ void MahiFit::resetPulseShapeTemplate(const HcalPulseShapes::Shape& ps, bool has
 
   // only the pulse shape itself from PulseShapeFunctor is used for Mahi
   // the uncertainty terms calculated inside PulseShapeFunctor are used for Method 2 only
-  psfPtr_.reset(new FitterFuncs::PulseShapeFunctor(ps, false, false, false, 1, 0, 0, HcalConst::maxSamples));
+  psfPtr_ = std::make_unique<FitterFuncs::PulseShapeFunctor>(ps, false, false, false, 1, 0, 0, HcalConst::maxSamples);
 
   // 1 sigma time constraint
   nnlsWork_.dt = hasTimeInfo ? timeSigmaSiPM_ : timeSigmaHPD_;

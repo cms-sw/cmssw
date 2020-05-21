@@ -6,6 +6,8 @@
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <iomanip>
 #include "TProfile.h"
@@ -17,7 +19,7 @@ using namespace sistrip;
 /** */
 PedsOnlyHistograms::PedsOnlyHistograms(const edm::ParameterSet& pset, DQMStore* bei)
     : CommissioningHistograms(pset.getParameter<edm::ParameterSet>("PedsOnlyParameters"), bei, sistrip::PEDS_ONLY) {
-  factory_ = unique_ptr<PedsOnlySummaryFactory>(new PedsOnlySummaryFactory);
+  factory_ = std::make_unique<PedsOnlySummaryFactory>();
   LogTrace(mlDqmClient_) << "[PedsOnlyHistograms::" << __func__ << "]"
                          << " Constructing object...";
 }

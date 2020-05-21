@@ -7,6 +7,8 @@
 #include "DQM/SiStripCommon/interface/ExtractTObject.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <iomanip>
 #include "TProfile.h"
@@ -20,7 +22,7 @@ SamplingHistograms::SamplingHistograms(const edm::ParameterSet& pset, DQMStore* 
     : CommissioningHistograms(pset.getParameter<edm::ParameterSet>("SamplingParameters"), bei, task), sOnCut_(3) {
   LogTrace(mlDqmClient_) << "[SamplingHistograms::" << __func__ << "]"
                          << " Constructing object...";
-  factory_ = unique_ptr<SamplingSummaryFactory>(new SamplingSummaryFactory);
+  factory_ = std::make_unique<SamplingSummaryFactory>();
   // retreive the latency code from the root file
   std::string dataPath = std::string(sistrip::collate_) + "/" + sistrip::root_ + "/latencyCode";
   MonitorElement* codeElement = bei->get(dataPath);

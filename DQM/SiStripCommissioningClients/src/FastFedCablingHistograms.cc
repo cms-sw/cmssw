@@ -7,6 +7,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TProfile.h"
 #include <iostream>
+#include <memory>
+
 #include <sstream>
 #include <iomanip>
 
@@ -18,7 +20,7 @@ using namespace sistrip;
 FastFedCablingHistograms::FastFedCablingHistograms(const edm::ParameterSet& pset, DQMStore* bei)
     : CommissioningHistograms(
           pset.getParameter<edm::ParameterSet>("FastFedCablingParameters"), bei, sistrip::FAST_CABLING) {
-  factory_ = unique_ptr<FastFedCablingSummaryFactory>(new FastFedCablingSummaryFactory);
+  factory_ = std::make_unique<FastFedCablingSummaryFactory>();
   LogTrace(mlDqmClient_) << "[FastFedCablingHistograms::" << __func__ << "]"
                          << " Constructing object...";
 }

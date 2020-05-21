@@ -125,7 +125,7 @@ template <typename T>
 TriggerHelper::TriggerHelper(const edm::ParameterSet &config, edm::ConsumesCollector &iC, T &module)
     : TriggerHelper(config) {
   if (onL1_ && (!l1DBKey_.empty() || !l1LogicalExpressions_.empty())) {
-    l1Gt_.reset(new L1GtUtils(config, iC, false, module, L1GtUtils::UseEventSetupIn::Event));
+    l1Gt_ = std::make_unique<L1GtUtils>(config, iC, false, module, L1GtUtils::UseEventSetupIn::Event);
   }
 }
 

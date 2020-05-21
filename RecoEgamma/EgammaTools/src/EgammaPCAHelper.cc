@@ -10,6 +10,7 @@
 
 #include <algorithm>
 #include <iostream>
+#include <memory>
 
 using namespace hgcal;
 
@@ -131,7 +132,7 @@ void EGammaPCAHelper::storeRecHits(const std::vector<std::pair<DetId, float>>& h
 
 void EGammaPCAHelper::computePCA(float radius, bool withHalo) {
   // very important - to reset
-  pca_.reset(new TPrincipal(3, "D"));
+  pca_ = std::make_unique<TPrincipal>(3, "D");
   bool initialCalculation = radius < 0;
   if (debug_)
     std::cout << " Initial calculation " << initialCalculation << std::endl;

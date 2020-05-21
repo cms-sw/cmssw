@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "SimG4Core/Application/interface/OscarMTMasterThread.h"
 
 #include "SimG4Core/Application/interface/RunManagerMT.h"
@@ -46,7 +48,7 @@ OscarMTMasterThread::OscarMTMasterThread(const edm::ParameterSet& iConfig)
     edm::LogVerbatim("SimG4CoreApplication") << "OscarMTMasterThread: initializing RunManagerMT";
 
     //UIsession manager for message handling
-    uiSession.reset(new CustomUIsession());
+    uiSession = std::make_unique<CustomUIsession>();
 
     // Create the master run manager, and share it to the CMSSW thread
     runManagerMaster = std::make_shared<RunManagerMT>(iConfig);

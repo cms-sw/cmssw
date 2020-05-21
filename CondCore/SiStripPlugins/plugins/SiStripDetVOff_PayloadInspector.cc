@@ -55,7 +55,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<SiStripDetVOff> payload = fetchPayload(std::get<1>(iov));
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripIsModuleVOff"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripIsModuleVOff");
       tmap->setPalette(1);
       std::string titleMap = "TrackerMap of VOff modules (HV or LV), payload : " + std::get<1>(iov);
       tmap->setTitle(titleMap);
@@ -90,7 +90,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<SiStripDetVOff> payload = fetchPayload(std::get<1>(iov));
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripIsModuleHVOff"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripIsModuleHVOff");
       tmap->setPalette(1);
       std::string titleMap = "TrackerMap of HV Off modules, payload : " + std::get<1>(iov);
       tmap->setTitle(titleMap);
@@ -125,7 +125,7 @@ namespace {
       auto iov = iovs.front();
       std::shared_ptr<SiStripDetVOff> payload = fetchPayload(std::get<1>(iov));
 
-      std::unique_ptr<TrackerMap> tmap = std::unique_ptr<TrackerMap>(new TrackerMap("SiStripIsModuleLVOff"));
+      std::unique_ptr<TrackerMap> tmap = std::make_unique<TrackerMap>("SiStripIsModuleLVOff");
       tmap->setPalette(1);
       std::string titleMap = "TrackerMap of LV Off modules, payload : " + std::get<1>(iov);
       tmap->setTitle(titleMap);
@@ -242,10 +242,10 @@ namespace {
 
       TCanvas canvas("DetVOff Partion summary", "SiStripDetVOff region summary", 1200, 1000);
       canvas.cd();
-      auto h_HV = std::unique_ptr<TH1F>(new TH1F(
-          "HVbyRegion", "SiStrip HV/LV summary by region;; modules with HV off", mapHV.size(), 0., mapHV.size()));
-      auto h_LV = std::unique_ptr<TH1F>(new TH1F(
-          "LVbyRegion", "SiStrip HV/LV summary by region;; modules with LV off", mapLV.size(), 0., mapLV.size()));
+      auto h_HV = std::make_unique<TH1F>(
+          "HVbyRegion", "SiStrip HV/LV summary by region;; modules with HV off", mapHV.size(), 0., mapHV.size());
+      auto h_LV = std::make_unique<TH1F>(
+          "LVbyRegion", "SiStrip HV/LV summary by region;; modules with LV off", mapLV.size(), 0., mapLV.size());
 
       h_HV->SetStats(false);
       h_LV->SetStats(false);
@@ -349,8 +349,8 @@ namespace {
       h_LV.get()->GetYaxis()->SetTitleOffset(999);
 
       //draw an axis on the left side
-      auto l_axis = std::unique_ptr<TGaxis>(
-          new TGaxis(gPad->GetUxmin(), gPad->GetUymin(), gPad->GetUxmin(), gPad->GetUymax(), 0, extrema.second, 510));
+      auto l_axis = std::make_unique<TGaxis>(
+          gPad->GetUxmin(), gPad->GetUymin(), gPad->GetUxmin(), gPad->GetUymax(), 0, extrema.second, 510);
       l_axis->SetLineColor(kRed);
       l_axis->SetTextColor(kRed);
       l_axis->SetLabelColor(kRed);
@@ -360,8 +360,8 @@ namespace {
       l_axis->Draw();
 
       //draw an axis on the right side
-      auto r_axis = std::unique_ptr<TGaxis>(new TGaxis(
-          gPad->GetUxmax(), gPad->GetUymin(), gPad->GetUxmax(), gPad->GetUymax(), 0, extrema.second, 510, "+L"));
+      auto r_axis = std::make_unique<TGaxis>(
+          gPad->GetUxmax(), gPad->GetUymin(), gPad->GetUxmax(), gPad->GetUymax(), 0, extrema.second, 510, "+L");
       r_axis->SetLineColor(kBlue);
       r_axis->SetTextColor(kBlue);
       r_axis->SetLabelColor(kBlue);

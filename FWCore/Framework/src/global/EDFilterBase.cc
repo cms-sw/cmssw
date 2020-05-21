@@ -13,6 +13,8 @@
 // system include files
 
 // user include files
+#include <memory>
+
 #include "FWCore/Framework/interface/global/EDFilterBase.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -78,11 +80,11 @@ namespace edm {
 
     void EDFilterBase::doPreallocate(PreallocationConfiguration const& iPrealloc) {
       const auto nStreams = iPrealloc.numberOfStreams();
-      previousParentages_.reset(new std::vector<BranchID>[nStreams]);
+      previousParentages_ = std::make_unique<std::vector<BranchID>[]>(nStreams);
       if (hasAcquire()) {
-        gotBranchIDsFromAcquire_.reset(new std::vector<BranchID>[nStreams]);
+        gotBranchIDsFromAcquire_ = std::make_unique<std::vector<BranchID>[]>(nStreams);
       }
-      previousParentageIds_.reset(new ParentageID[nStreams]);
+      previousParentageIds_ = std::make_unique<ParentageID[]>(nStreams);
       preallocStreams(nStreams);
       preallocLumis(iPrealloc.numberOfLuminosityBlocks());
       preallocLumisSummary(iPrealloc.numberOfLuminosityBlocks());

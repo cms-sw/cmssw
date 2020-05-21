@@ -11,6 +11,8 @@
 //
 
 // system include files
+#include <memory>
+
 #include <stdexcept>
 #include <algorithm>
 #include <boost/bind.hpp>
@@ -59,7 +61,7 @@ FWConfiguration& FWConfiguration::addKeyValue(const std::string& iKey, const FWC
     throw std::runtime_error("adding key/value to configuration containing string values");
   }
   if (not m_keyValues) {
-    m_keyValues.reset(new KeyValues(1, std::make_pair(iKey, iConfig)));
+    m_keyValues = std::make_unique<KeyValues>(1, std::make_pair(iKey, iConfig));
   } else {
     m_keyValues->push_back(std::make_pair(iKey, iConfig));
   }
@@ -74,9 +76,9 @@ FWConfiguration& FWConfiguration::addKeyValue(const std::string& iKey, FWConfigu
   }
   if (not m_keyValues) {
     if (not iDoSwap) {
-      m_keyValues.reset(new KeyValues(1, std::make_pair(iKey, iConfig)));
+      m_keyValues = std::make_unique<KeyValues>(1, std::make_pair(iKey, iConfig));
     } else {
-      m_keyValues.reset(new KeyValues(1, std::make_pair(iKey, FWConfiguration())));
+      m_keyValues = std::make_unique<KeyValues>(1, std::make_pair(iKey, FWConfiguration()));
       m_keyValues->back().second.swap(iConfig);
     }
   } else {
@@ -95,7 +97,7 @@ FWConfiguration& FWConfiguration::addValue(const std::string& iValue) {
     throw std::runtime_error("adding string value to configuration containing key/value pairs");
   }
   if (not m_stringValues) {
-    m_stringValues.reset(new std::vector<std::string>(1, iValue));
+    m_stringValues = std::make_unique<std::vector<std::string>>(1, iValue);
   } else {
     m_stringValues->push_back(iValue);
   }

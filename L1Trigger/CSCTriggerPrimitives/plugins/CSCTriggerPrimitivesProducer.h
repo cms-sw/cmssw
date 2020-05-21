@@ -28,6 +28,8 @@
  * authors: Sven Dildick (TAMU), Tao Huang (TAMU)
  */
 
+#include <memory>
+
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -53,7 +55,7 @@ private:
   edm::ParameterSet config_;
 
   std::unique_ptr<CSCTriggerPrimitivesBuilder> beginStream(edm::StreamID) const override {
-    return std::unique_ptr<CSCTriggerPrimitivesBuilder>(new CSCTriggerPrimitivesBuilder(config_));
+    return std::make_unique<CSCTriggerPrimitivesBuilder>(config_);
   }
 
   // input tags for input collections

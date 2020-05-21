@@ -8,6 +8,8 @@
 #include "PhysicsTools/MXNet/interface/Predictor.h"
 
 #include <cassert>
+#include <memory>
+
 #include "FWCore/Utilities/interface/Exception.h"
 
 namespace mxnet {
@@ -135,7 +137,7 @@ namespace mxnet {
       }
 
       // bind executor
-      exec_.reset(new Executor(sym_, context_, arg_arrays, grad_arrays, grad_reqs, aux_arrays));
+      exec_ = std::make_unique<Executor>(sym_, context_, arg_arrays, grad_arrays, grad_reqs, aux_arrays);
     }
 
   }  // namespace cpp

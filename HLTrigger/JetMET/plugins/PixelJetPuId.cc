@@ -173,7 +173,7 @@ void PixelJetPuId::produce(edm::StreamID sid, edm::Event& iEvent, const edm::Eve
   //init JetTagCollection
   if (!generaljets.product()->empty()) {
     edm::RefToBase<reco::Jet> jj = edm::RefToBase<reco::Jet>(generaljets, 0);
-    pOut_jetTagCollection.reset(new reco::JetTagCollection(edm::makeRefToBaseProdFrom(jj, iEvent)));
+    pOut_jetTagCollection = std::make_unique<reco::JetTagCollection>(edm::makeRefToBaseProdFrom(jj, iEvent));
   }
 
   //loop on trackIPTagInfos

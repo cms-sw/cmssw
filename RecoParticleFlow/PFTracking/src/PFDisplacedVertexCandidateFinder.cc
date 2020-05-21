@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoParticleFlow/PFTracking/interface/PFDisplacedVertexCandidateFinder.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -85,7 +87,7 @@ void PFDisplacedVertexCandidateFinder::findDisplacedVertexCandidates() {
   if (vertexCandidates_.get())
     vertexCandidates_->clear();
   else
-    vertexCandidates_.reset(new PFDisplacedVertexCandidateCollection);
+    vertexCandidates_ = std::make_unique<PFDisplacedVertexCandidateCollection>();
 
   vertexCandidates_->reserve(vertexCandidatesSize_);
   for (IE ie = eventTracks_.begin(); ie != eventTracks_.end();) {

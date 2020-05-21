@@ -191,7 +191,7 @@ PreMixingSiStripWorker::PreMixingSiStripWorker(const edm::ParameterSet& ps,
                                            "in the configuration file or remove the modules that require it.";
   }
 
-  theSiNoiseAdder.reset(new SiGaussianTailNoiseAdder(theThreshold));
+  theSiNoiseAdder = std::make_unique<SiGaussianTailNoiseAdder>(theThreshold);
 }
 
 void PreMixingSiStripWorker::initializeEvent(const edm::Event& e, edm::EventSetup const& iSetup) {

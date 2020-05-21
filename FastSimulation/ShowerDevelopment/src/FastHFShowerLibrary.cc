@@ -31,6 +31,8 @@
 #include "G4ParticleTypes.hh"
 
 // STL headers
+#include <memory>
+
 #include <vector>
 #include <iostream>
 #include <mutex>
@@ -56,8 +58,8 @@ void const FastHFShowerLibrary::initHFShowerLibrary(const edm::EventSetup& iSetu
   const HcalDDDSimulationConstants* hsps = hdsc.product();
 
   std::string name = "HcalHits";
-  numberingFromDDD.reset(new HcalNumberingFromDDD(hcalConstants));
-  hfshower.reset(new HFShowerLibrary(name, hcalConstants, hsps->hcalsimpar(), fast));
+  numberingFromDDD = std::make_unique<HcalNumberingFromDDD>(hcalConstants);
+  hfshower = std::make_unique<HFShowerLibrary>(name, hcalConstants, hsps->hcalsimpar(), fast);
 
   //only one thread can be allowed to setup the G4 physics table.
   std::call_once(initializeOnce, []() {

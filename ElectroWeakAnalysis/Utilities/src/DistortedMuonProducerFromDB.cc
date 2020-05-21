@@ -67,17 +67,17 @@ DistortedMuonProducerFromDB::~DistortedMuonProducerFromDB() {}
 void DistortedMuonProducerFromDB::beginRun(const edm::Run&, const edm::EventSetup& iSetup) {
   edm::ESHandle<MuScleFitDBobject> dbObject1;
   iSetup.get<MuScleFitDBobjectRcd>().get(dbScaleLabel_, dbObject1);
-  momCorrector_.reset(new MomentumScaleCorrector(dbObject1.product()));
+  momCorrector_ = std::make_unique<MomentumScaleCorrector>(dbObject1.product());
 
   LogTrace("") << ">>> Using database for momentum scale corrections !!";
 
   edm::ESHandle<MuScleFitDBobject> dbObject2;
   iSetup.get<MuScleFitDBobjectRcd>().get(dbDataResolutionLabel_, dbObject2);
-  momResolutionData_.reset(new ResolutionFunction(dbObject2.product()));
+  momResolutionData_ = std::make_unique<ResolutionFunction>(dbObject2.product());
 
   edm::ESHandle<MuScleFitDBobject> dbObject3;
   iSetup.get<MuScleFitDBobjectRcd>().get(dbMCResolutionLabel_, dbObject3);
-  momResolutionMC_.reset(new ResolutionFunction(dbObject3.product()));
+  momResolutionMC_ = std::make_unique<ResolutionFunction>(dbObject3.product());
 
   LogTrace("") << ">>> Using database for momentum resolution corrections !!";
 }

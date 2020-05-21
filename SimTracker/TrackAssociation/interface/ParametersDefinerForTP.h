@@ -65,7 +65,7 @@ public:
   virtual void initEvent(edm::Handle<SimHitTPAssociationProducer::SimHitTPAssociationList> simHitsTPAssocToSet) {}
 
   virtual std::unique_ptr<ParametersDefinerForTP> clone() const {
-    return std::unique_ptr<ParametersDefinerForTP>(new ParametersDefinerForTP(*this));
+    return std::make_unique<ParametersDefinerForTP>(*this);
   }
 
   edm::InputTag beamSpotInputTag_;

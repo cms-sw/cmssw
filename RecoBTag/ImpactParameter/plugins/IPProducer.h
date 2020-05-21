@@ -300,8 +300,8 @@ void IPProducer<Container, Base, Helper>::produce(edm::Event& iEvent, const edm:
       reco::GhostTrackFitter fitter;
       GlobalPoint origin = RecoVertex::convertPos(pv->position());
       GlobalError error = RecoVertex::convertError(pv->error());
-      ghostTrack.reset(
-          new reco::GhostTrack(fitter.fit(origin, error, direction, m_ghostTrackPriorDeltaR, transientTracks)));
+      ghostTrack = std::make_unique<reco::GhostTrack>(
+          fitter.fit(origin, error, direction, m_ghostTrackPriorDeltaR, transientTracks));
 
       /*
 	if (std::sqrt(jetMomentum.Perp2()) > 30) {

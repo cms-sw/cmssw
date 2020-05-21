@@ -12,6 +12,8 @@
  *
  */
 
+#include <memory>
+
 #include <utility>
 #include <vector>
 #include <memory>
@@ -63,10 +65,10 @@ namespace reco {
         edm::Handle<reco::TrackCollection> hSrcTrack;
         evt.getByToken(hSrcTrackToken_, hSrcTrack);
 
-        selTracks_ = std::unique_ptr<reco::TrackCollection>(new reco::TrackCollection());
+        selTracks_ = std::make_unique<reco::TrackCollection>();
         if (copyExtras_) {
-          selTrackExtras_ = std::unique_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection());
-          selHits_ = std::unique_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection());
+          selTrackExtras_ = std::make_unique<reco::TrackExtraCollection>();
+          selHits_ = std::make_unique<TrackingRecHitCollection>();
         }
 
         TrackRefProd rTracks = evt.template getRefBeforePut<TrackCollection>();
@@ -125,8 +127,8 @@ namespace reco {
           evt.getByToken(hTTAssToken_, hTTAss);
           evt.getByToken(hTrajToken_, hTraj);
           edm::RefProd<std::vector<Trajectory> > TrajRefProd = evt.template getRefBeforePut<std::vector<Trajectory> >();
-          selTrajs_ = std::unique_ptr<std::vector<Trajectory> >(new std::vector<Trajectory>());
-          selTTAss_ = std::unique_ptr<TrajTrackAssociationCollection>(new TrajTrackAssociationCollection());
+          selTrajs_ = std::make_unique<std::vector<Trajectory> >();
+          selTTAss_ = std::make_unique<TrajTrackAssociationCollection>();
           for (size_t i = 0, n = hTraj->size(); i < n; ++i) {
             edm::Ref<std::vector<Trajectory> > trajRef(hTraj, i);
             TrajTrackAssociationCollection::const_iterator match = hTTAss->find(trajRef);

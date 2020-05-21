@@ -14,6 +14,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "boost/algorithm/string.hpp"
 
+#include <memory>
+
 #include <vector>
 #include <unordered_map>
 #include <iostream>
@@ -320,17 +322,17 @@ public:
       const DynamicWeightChoiceGenInfo* weightChoice = &(streamCache(id)->weightChoice);
       fillLHEPdfWeightTablesFromGenInfo(
           counter, weightChoice, weight, *genInfo, lheScaleTab, lhePdfTab, lheNamedTab, genPSTab);
-      lheRwgtTab.reset(new nanoaod::FlatTable(1, "LHEReweightingWeights", true));
+      lheRwgtTab = std::make_unique<nanoaod::FlatTable>(1, "LHEReweightingWeights", true);
       //lheNamedTab.reset(new nanoaod::FlatTable(1, "LHENamedWeights", true));
       //genPSTab.reset(new nanoaod::FlatTable(1, "PSWeight", true));
     } else {
       // Still try to add the PS weights
       fillOnlyPSWeightTable(counter, weight, *genInfo, genPSTab);
       // make dummy values
-      lheScaleTab.reset(new nanoaod::FlatTable(1, "LHEScaleWeights", true));
-      lhePdfTab.reset(new nanoaod::FlatTable(1, "LHEPdfWeights", true));
-      lheRwgtTab.reset(new nanoaod::FlatTable(1, "LHEReweightingWeights", true));
-      lheNamedTab.reset(new nanoaod::FlatTable(1, "LHENamedWeights", true));
+      lheScaleTab = std::make_unique<nanoaod::FlatTable>(1, "LHEScaleWeights", true);
+      lhePdfTab = std::make_unique<nanoaod::FlatTable>(1, "LHEPdfWeights", true);
+      lheRwgtTab = std::make_unique<nanoaod::FlatTable>(1, "LHEReweightingWeights", true);
+      lheNamedTab = std::make_unique<nanoaod::FlatTable>(1, "LHENamedWeights", true);
       if (!hasIssuedWarning_.exchange(true)) {
         edm::LogWarning("LHETablesProducer") << "No LHEEventProduct, so there will be no LHE Tables\n";
       }
@@ -393,7 +395,7 @@ public:
         wPS[i - 6] = (genProd.weights()[i]) / nominal;
       }
     }
-    outPS.reset(new nanoaod::FlatTable(wPS.size(), "PSWeight", false));
+    outPS = std::make_unique<nanoaod::FlatTable>(wPS.size(), "PSWeight", false);
     outPS->addColumn<float>("",
                             wPS,
                             vectorSize > 1 ? "PS weights (w_var / w_nominal); [0] is ISR=0.5 FSR=1; [1] is ISR=1 "
@@ -402,19 +404,19 @@ public:
                             nanoaod::FlatTable::FloatColumn,
                             lheWeightPrecision_);
 
-    outScale.reset(new nanoaod::FlatTable(wScale.size(), "LHEScaleWeight", false));
+    outScale = std::make_unique<nanoaod::FlatTable>(wScale.size(), "LHEScaleWeight", false);
     outScale->addColumn<float>(
         "", wScale, weightChoice->scaleWeightsDoc, nanoaod::FlatTable::FloatColumn, lheWeightPrecision_);
 
-    outPdf.reset(new nanoaod::FlatTable(wPDF.size(), "LHEPdfWeight", false));
+    outPdf = std::make_unique<nanoaod::FlatTable>(wPDF.size(), "LHEPdfWeight", false);
     outPdf->addColumn<float>(
         "", wPDF, weightChoice->pdfWeightsDoc, nanoaod::FlatTable::FloatColumn, lheWeightPrecision_);
 
-    outRwgt.reset(new nanoaod::FlatTable(wRwgt.size(), "LHEReweightingWeight", false));
+    outRwgt = std::make_unique<nanoaod::FlatTable>(wRwgt.size(), "LHEReweightingWeight", false);
     outRwgt->addColumn<float>(
         "", wRwgt, weightChoice->rwgtWeightDoc, nanoaod::FlatTable::FloatColumn, lheWeightPrecision_);
 
-    outNamed.reset(new nanoaod::FlatTable(1, "LHEWeight", true));
+    outNamed = std::make_unique<nanoaod::FlatTable>(1, "LHEWeight", true);
     outNamed->addColumnValue<float>("originalXWGTUP",
                                     lheProd.originalXWGTUP(),
                                     "Nominal event weight in the LHE file",
@@ -459,15 +461,15 @@ public:
     } else
       wPS.push_back(1.0);
 
-    outScale.reset(new nanoaod::FlatTable(wScale.size(), "LHEScaleWeight", false));
+    outScale = std::make_unique<nanoaod::FlatTable>(wScale.size(), "LHEScaleWeight", false);
     outScale->addColumn<float>(
         "", wScale, weightChoice->scaleWeightsDoc, nanoaod::FlatTable::FloatColumn, lheWeightPrecision_);
 
-    outPdf.reset(new nanoaod::FlatTable(wPDF.size(), "LHEPdfWeight", false));
+    outPdf = std::make_unique<nanoaod::FlatTable>(wPDF.size(), "LHEPdfWeight", false);
     outPdf->addColumn<float>(
         "", wPDF, weightChoice->pdfWeightsDoc, nanoaod::FlatTable::FloatColumn, lheWeightPrecision_);
 
-    outPS.reset(new nanoaod::FlatTable(wPS.size(), "PSWeight", false));
+    outPS = std::make_unique<nanoaod::FlatTable>(wPS.size(), "PSWeight", false);
     outPS->addColumn<float>("",
                             wPS,
                             wPS.size() > 1 ? "PS weights (w_var / w_nominal); [0] is ISR=0.5 FSR=1; [1] is ISR=1 "
@@ -476,7 +478,7 @@ public:
                             nanoaod::FlatTable::FloatColumn,
                             lheWeightPrecision_);
 
-    outNamed.reset(new nanoaod::FlatTable(1, "LHEWeight", true));
+    outNamed = std::make_unique<nanoaod::FlatTable>(1, "LHEWeight", true);
     outNamed->addColumnValue<float>(
         "originalXWGTUP", originalXWGTUP, "Nominal event weight in the LHE file", nanoaod::FlatTable::FloatColumn);
     /*for (unsigned int i = 0, n = wNamed.size(); i < n; ++i) {
@@ -500,7 +502,7 @@ public:
       }
     }
 
-    outPS.reset(new nanoaod::FlatTable(wPS.size(), "PSWeight", false));
+    outPS = std::make_unique<nanoaod::FlatTable>(wPS.size(), "PSWeight", false);
     outPS->addColumn<float>("",
                             wPS,
                             vectorSize > 1 ? "PS weights (w_var / w_nominal); [0] is ISR=0.5 FSR=1; [1] is ISR=1 "

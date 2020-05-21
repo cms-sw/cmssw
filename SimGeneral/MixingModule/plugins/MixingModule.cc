@@ -603,8 +603,8 @@ namespace edm {
 
     std::unique_ptr<PileupMixingContent> PileupMixing_;
 
-    PileupMixing_ = std::unique_ptr<PileupMixingContent>(new PileupMixingContent(
-        bunchCrossingList, numInteractionList, TrueInteractionList, eventInfoList, bunchSpace_));
+    PileupMixing_ = std::make_unique<PileupMixingContent>(
+        bunchCrossingList, numInteractionList, TrueInteractionList, eventInfoList, bunchSpace_);
 
     e.put(std::move(PileupMixing_));
 

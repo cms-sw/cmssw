@@ -2,6 +2,8 @@
 #include <cassert>
 #include <iostream>
 #include <algorithm>
+#include <memory>
+
 #include <netdb.h>
 
 #include "XrdCl/XrdClFile.hh"
@@ -137,7 +139,7 @@ void RequestManager::initialize(std::weak_ptr<RequestManager> self) {
   const int retries = 5;
   std::string excludeString;
   for (int idx = 0; idx < retries; idx++) {
-    file.reset(new XrdCl::File());
+    file = std::make_unique<XrdCl::File>();
     auto opaque = prepareOpaqueString();
     std::string new_filename =
         m_name + (!opaque.empty() ? ((m_name.find("?") == m_name.npos) ? "?" : "&") + opaque : "");
@@ -1073,7 +1075,7 @@ std::shared_future<std::shared_ptr<Source>> XrdAdaptor::RequestManager::OpenHand
   auto opaque = manager.prepareOpaqueString();
   std::string new_name = manager.m_name + ((manager.m_name.find("?") == manager.m_name.npos) ? "?" : "&") + opaque;
   edm::LogVerbatim("XrdAdaptorInternal") << "Trying to open URL: " << new_name;
-  m_file.reset(new XrdCl::File());
+  m_file = std::make_unique<XrdCl::File>();
   m_outstanding_open = true;
 
   // Always make sure we release m_file and set m_outstanding_open to false on error.

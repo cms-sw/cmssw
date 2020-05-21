@@ -7,6 +7,8 @@
 #include "CondFormats/DataRecord/interface/GBRWrapperRcd.h"
 
 #include <iostream>
+#include <memory>
+
 #include <vector>
 #include <algorithm>
 #include <map>
@@ -49,7 +51,7 @@ CharmTagger::CharmTagger(const edm::ParameterSet &configuration, Tokens tokens)
 }
 
 void CharmTagger::initialize(const JetTagComputerRecord &record) {
-  mvaID_.reset(new TMVAEvaluator());
+  mvaID_ = std::make_unique<TMVAEvaluator>();
 
   std::vector<std::string> variable_names;
   variable_names.reserve(variables_.size());

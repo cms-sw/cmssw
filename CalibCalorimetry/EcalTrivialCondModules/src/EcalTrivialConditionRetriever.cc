@@ -4,6 +4,8 @@
 //
 #include <iostream>
 #include <fstream>
+#include <memory>
+
 #include "TRandom3.h"
 
 #include "CalibCalorimetry/EcalTrivialCondModules/interface/EcalTrivialConditionRetriever.h"
@@ -3434,7 +3436,7 @@ std::unique_ptr<Alignments> EcalTrivialConditionRetriever::produceEcalAlignmentE
 }
 
 std::unique_ptr<EcalSampleMask> EcalTrivialConditionRetriever::produceEcalSampleMask(const EcalSampleMaskRcd&) {
-  return std::unique_ptr<EcalSampleMask>(new EcalSampleMask(sampleMaskEB_, sampleMaskEE_));
+  return std::make_unique<EcalSampleMask>(sampleMaskEB_, sampleMaskEE_);
 }
 
 std::unique_ptr<EcalTimeBiasCorrections> EcalTrivialConditionRetriever::produceEcalTimeBiasCorrections(

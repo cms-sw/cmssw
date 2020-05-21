@@ -13,6 +13,8 @@
 // system include files
 #include <algorithm>
 #include <iostream>
+#include <memory>
+
 #include <string>
 #include <map>
 #include <memory>
@@ -324,10 +326,10 @@ bool DQMRootOutputModule::isFileOpen() const { return nullptr != m_file.get(); }
 void DQMRootOutputModule::openFile(edm::FileBlock const&) {
   //NOTE: I need to also set the I/O performance settings
 
-  m_file = std::unique_ptr<TFile>(new TFile(m_fileName.c_str(),
-                                            "RECREATE",
-                                            "1"  //This is the file format version number
-                                            ));
+  m_file = std::make_unique<TFile>(m_fileName.c_str(),
+                                   "RECREATE",
+                                   "1"  //This is the file format version number
+  );
 
   edm::Service<edm::JobReport> jr;
   cms::Digest branchHash;

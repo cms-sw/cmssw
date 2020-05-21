@@ -112,6 +112,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <CLHEP/Vector/LorentzVector.h>
+#include <memory>
+
 #include <vector>
 
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -556,16 +558,16 @@ MuScleFit::MuScleFit(const edm::ParameterSet& pset) : MuScleFitBase(pset), total
   MuScleFitUtils::massWindowHalfWidth[2][4] = 0.2;
   MuScleFitUtils::massWindowHalfWidth[2][5] = 0.2;
 
-  muonSelector_.reset(new MuScleFitMuonSelector(theMuonLabel_,
-                                                theMuonType_,
-                                                PATmuons_,
-                                                MuScleFitUtils::resfind,
-                                                MuScleFitUtils::speedup,
-                                                genParticlesName_,
-                                                compareToSimTracks_,
-                                                simTracksCollection_,
-                                                MuScleFitUtils::sherpa_,
-                                                debug_));
+  muonSelector_ = std::make_unique<MuScleFitMuonSelector>(theMuonLabel_,
+                                                          theMuonType_,
+                                                          PATmuons_,
+                                                          MuScleFitUtils::resfind,
+                                                          MuScleFitUtils::speedup,
+                                                          genParticlesName_,
+                                                          compareToSimTracks_,
+                                                          simTracksCollection_,
+                                                          MuScleFitUtils::sherpa_,
+                                                          debug_);
 
   MuScleFitUtils::backgroundHandler =
       new BackgroundHandler(pset.getParameter<std::vector<int> >("BgrFitType"),

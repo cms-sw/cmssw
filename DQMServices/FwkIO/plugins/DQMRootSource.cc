@@ -11,6 +11,8 @@
 //
 
 // system include files
+#include <memory>
+
 #include <vector>
 #include <string>
 #include <map>
@@ -599,7 +601,7 @@ std::unique_ptr<edm::FileBlock> DQMRootSource::readFile_() {
     m_nextItemType = edm::InputSource::IsRun;
 
   // We have to return something but not sure why
-  return std::unique_ptr<edm::FileBlock>(new edm::FileBlock);
+  return std::make_unique<edm::FileBlock>();
 }
 
 std::shared_ptr<edm::RunAuxiliary> DQMRootSource::readRunAuxiliary_() {

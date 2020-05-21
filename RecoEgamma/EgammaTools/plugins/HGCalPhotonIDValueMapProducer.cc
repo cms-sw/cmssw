@@ -79,7 +79,7 @@ HGCalPhotonIDValueMapProducer::HGCalPhotonIDValueMapProducer(const edm::Paramete
     produces<edm::ValueMap<float>>(key);
   }
 
-  phoIDHelper_.reset(new HGCalEgammaIDHelper(iConfig, consumesCollector()));
+  phoIDHelper_ = std::make_unique<HGCalEgammaIDHelper>(iConfig, consumesCollector());
 }
 
 HGCalPhotonIDValueMapProducer::~HGCalPhotonIDValueMapProducer() {}

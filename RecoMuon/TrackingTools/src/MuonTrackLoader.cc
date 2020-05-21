@@ -6,6 +6,8 @@
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
+#include <memory>
+
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
@@ -115,7 +117,7 @@ MuonTrackLoader::MuonTrackLoader(ParameterSet& parameterSet,
   theL2SeededTkLabel = parameterSet.getUntrackedParameter<string>("MuonSeededTracksInstance", string());
 
   ParameterSet updatorPar = parameterSet.getParameter<ParameterSet>("MuonUpdatorAtVertexParameters");
-  theUpdatorAtVtx.reset(new MuonUpdatorAtVertex(updatorPar, service));
+  theUpdatorAtVtx = std::make_unique<MuonUpdatorAtVertex>(updatorPar, service);
 
   thePutTkTrackFlag = parameterSet.getUntrackedParameter<bool>("PutTkTrackIntoEvent", false);
   theSmoothTkTrackFlag = parameterSet.getUntrackedParameter<bool>("SmoothTkTrack", false);

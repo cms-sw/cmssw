@@ -143,7 +143,7 @@ void NoiseTask::book() {
     eventSetup()->get<SiStripPedestalsRcd>().get(pedestals);
 
     // Cache Pedestals
-    pDBPedestals.reset(new SiStripPedestals(*pedestals));
+    pDBPedestals = std::make_unique<SiStripPedestals>(*pedestals);
 
     LogTrace(mlDqmSource_) << "[NoiseTask::" << __func__ << "] "
                            << "Done Retrieving Pedestals from DB";
@@ -160,7 +160,7 @@ void NoiseTask::book() {
     eventSetup()->get<SiStripNoisesRcd>().get(noises);
 
     // Cache Pedestals
-    pDBNoises.reset(new SiStripNoises(*noises));
+    pDBNoises = std::make_unique<SiStripNoises>(*noises);
 
     LogTrace(mlDqmSource_) << "[NoiseTask::" << __func__ << "] "
                            << "Done Retrieving Noises from DB";

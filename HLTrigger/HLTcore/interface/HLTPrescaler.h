@@ -13,6 +13,8 @@
  */
 
 #include <atomic>
+#include <memory>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/stream/EDFilter.h"
@@ -46,7 +48,7 @@ public:
   ~HLTPrescaler() override;
 
   static std::unique_ptr<trigger::Efficiency> initializeGlobalCache(edm::ParameterSet const&) {
-    return std::unique_ptr<trigger::Efficiency>(new trigger::Efficiency());
+    return std::make_unique<trigger::Efficiency>();
   }
 
   //

@@ -149,7 +149,7 @@ namespace {
         canvas.Modified();
         canvas.SetGrid();
 
-        auto h2_TemplateHeaders = std::unique_ptr<TH2F>(new TH2F("Header", ";;", tempSize, 0, tempSize, 6, 0., 6.));
+        auto h2_TemplateHeaders = std::make_unique<TH2F>("Header", ";;", tempSize, 0, tempSize, 6, 0., 6.);
         h2_TemplateHeaders->SetStats(false);
 
         for (const auto& theTemp : thePixelTemp_ | boost::adaptors::indexed(1)) {

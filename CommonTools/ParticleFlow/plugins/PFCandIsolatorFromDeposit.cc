@@ -20,6 +20,8 @@
 #include "DataFormats/Candidate/interface/CandAssociation.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <memory>
+
 #include <string>
 #include <regex>
 
@@ -201,7 +203,7 @@ void PFCandIsolatorFromDeposits::produce(Event &event, const EventSetup &eventSe
   const IsoDepositMap &map = begin->map();
 
   if (map.empty()) {  // !!???
-    event.put(std::unique_ptr<CandDoubleMap>(new CandDoubleMap()));
+    event.put(std::make_unique<CandDoubleMap>());
     return;
   }
   std::unique_ptr<CandDoubleMap> ret(new CandDoubleMap());

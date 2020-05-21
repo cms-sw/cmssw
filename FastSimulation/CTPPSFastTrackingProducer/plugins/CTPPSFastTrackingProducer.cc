@@ -86,14 +86,14 @@ CTPPSFastTrackingProducer::CTPPSFastTrackingProducer(const edm::ParameterSet& iC
   // Take care: the z inside the station is in meters
   //
   //Tracker Detector Description
-  det1F = std::unique_ptr<CTPPSTrkDetector>(
-      new CTPPSTrkDetector(fTrackerWidth, fTrackerHeight, fTrackerInsertion * fBeamXRMS_Trk1 + fTrk1XOffset));
-  det2F = std::unique_ptr<CTPPSTrkDetector>(
-      new CTPPSTrkDetector(fTrackerWidth, fTrackerHeight, fTrackerInsertion * fBeamXRMS_Trk2 + fTrk2XOffset));
-  det1B = std::unique_ptr<CTPPSTrkDetector>(
-      new CTPPSTrkDetector(fTrackerWidth, fTrackerHeight, fTrackerInsertion * fBeamXRMS_Trk1 + fTrk1XOffset));
-  det2B = std::unique_ptr<CTPPSTrkDetector>(
-      new CTPPSTrkDetector(fTrackerWidth, fTrackerHeight, fTrackerInsertion * fBeamXRMS_Trk2 + fTrk2XOffset));
+  det1F = std::make_unique<CTPPSTrkDetector>(
+      fTrackerWidth, fTrackerHeight, fTrackerInsertion * fBeamXRMS_Trk1 + fTrk1XOffset);
+  det2F = std::make_unique<CTPPSTrkDetector>(
+      fTrackerWidth, fTrackerHeight, fTrackerInsertion * fBeamXRMS_Trk2 + fTrk2XOffset);
+  det1B = std::make_unique<CTPPSTrkDetector>(
+      fTrackerWidth, fTrackerHeight, fTrackerInsertion * fBeamXRMS_Trk1 + fTrk1XOffset);
+  det2B = std::make_unique<CTPPSTrkDetector>(
+      fTrackerWidth, fTrackerHeight, fTrackerInsertion * fBeamXRMS_Trk2 + fTrk2XOffset);
 
   //Timing Detector Description
   std::vector<double> vToFCellWidth;
@@ -101,10 +101,10 @@ CTPPSFastTrackingProducer::CTPPSFastTrackingProducer(const edm::ParameterSet& iC
     vToFCellWidth.push_back(fToFCellWidth[i]);
   }
   double pos_tof = fToFInsertion * fBeamXRMS_ToF + fToFXOffset;
-  detToF_F = std::unique_ptr<CTPPSToFDetector>(new CTPPSToFDetector(
-      fToFNCellX, fToFNCellY, vToFCellWidth, fToFCellHeight, fToFPitchX, fToFPitchY, pos_tof, fTimeSigma));
-  detToF_B = std::unique_ptr<CTPPSToFDetector>(new CTPPSToFDetector(
-      fToFNCellX, fToFNCellY, vToFCellWidth, fToFCellHeight, fToFPitchX, fToFPitchY, pos_tof, fTimeSigma));
+  detToF_F = std::make_unique<CTPPSToFDetector>(
+      fToFNCellX, fToFNCellY, vToFCellWidth, fToFCellHeight, fToFPitchX, fToFPitchY, pos_tof, fTimeSigma);
+  detToF_B = std::make_unique<CTPPSToFDetector>(
+      fToFNCellX, fToFNCellY, vToFCellWidth, fToFCellHeight, fToFPitchX, fToFPitchY, pos_tof, fTimeSigma);
   //
 }
 CTPPSFastTrackingProducer::~CTPPSFastTrackingProducer() {
@@ -197,8 +197,8 @@ void CTPPSFastTrackingProducer::ReadRecHits(edm::Handle<CTPPSFastRecHitContainer
 
   }  //LOOP TRK
   //creating Stations
-  TrkStation_F = std::unique_ptr<CTPPSTrkStation>(new std::pair<CTPPSTrkDetector, CTPPSTrkDetector>(*det1F, *det2F));
-  TrkStation_B = std::unique_ptr<CTPPSTrkStation>(new std::pair<CTPPSTrkDetector, CTPPSTrkDetector>(*det1B, *det2B));
+  TrkStation_F = std::make_unique<CTPPSTrkStation>(*det1F, *det2F);
+  TrkStation_B = std::make_unique<CTPPSTrkStation>(*det1B, *det2B);
 }  // end function
 
 void CTPPSFastTrackingProducer::Reconstruction() {
@@ -431,14 +431,14 @@ bool CTPPSFastTrackingProducer::SetBeamLine() {
   edm::FileInPath b2(beam2filename.c_str());
   if (lengthctpps <= 0)
     return false;
-  m_beamlineCTPPS1 = std::unique_ptr<H_BeamLine>(new H_BeamLine(-1, lengthctpps + 0.1));  // (direction, length)
+  m_beamlineCTPPS1 = std::make_unique<H_BeamLine>(-1, lengthctpps + 0.1);  // (direction, length)
   m_beamlineCTPPS1->fill(b2.fullPath(), 1, "IP5");
-  m_beamlineCTPPS2 = std::unique_ptr<H_BeamLine>(new H_BeamLine(1, lengthctpps + 0.1));  //
+  m_beamlineCTPPS2 = std::make_unique<H_BeamLine>(1, lengthctpps + 0.1);  //
   m_beamlineCTPPS2->fill(b1.fullPath(), 1, "IP5");
   m_beamlineCTPPS1->offsetElements(120, 0.097);
   m_beamlineCTPPS2->offsetElements(120, -0.097);
-  pps_stationF = std::unique_ptr<H_RecRPObject>(new H_RecRPObject(fz_tracker1, fz_tracker2, *m_beamlineCTPPS1));
-  pps_stationB = std::unique_ptr<H_RecRPObject>(new H_RecRPObject(fz_tracker1, fz_tracker2, *m_beamlineCTPPS2));
+  pps_stationF = std::make_unique<H_RecRPObject>(fz_tracker1, fz_tracker2, *m_beamlineCTPPS1);
+  pps_stationB = std::make_unique<H_RecRPObject>(fz_tracker1, fz_tracker2, *m_beamlineCTPPS2);
   return true;
 }
 //define this as a plug-in

@@ -11,6 +11,8 @@
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "SimMuon/MCTruth/interface/MuonAssociatorByHits.h"
 #include "SimMuon/MCTruth/interface/TrackerMuonHitExtractor.h"
+#include <memory>
+
 #include <sstream>
 
 using namespace reco;
@@ -142,7 +144,7 @@ MuonAssociatorByHits::MuonAssociatorByHits(const edm::ParameterSet &conf, edm::C
   DTHitAssociator dttruth(conf, std::move(iC));
   CSCHitAssociator muonTruth(conf, std::move(iC));
   if (conf.getUntrackedParameter<bool>("dumpInputCollections")) {
-    diagnostics_.reset(new InputDumper(conf, std::move(iC)));
+    diagnostics_ = std::make_unique<InputDumper>(conf, std::move(iC));
   }
 }
 

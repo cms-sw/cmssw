@@ -43,6 +43,8 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/ptr_container/ptr_list.hpp>
 
+#include <memory>
+
 #include <string>
 #include <vector>
 #include <list>
@@ -121,12 +123,12 @@ PFRecoTauChargedHadronProducer::PFRecoTauChargedHadronProducer(const edm::Parame
   }
 
   // build the sorting predicate
-  predicate_ = std::unique_ptr<ChargedHadronPredicate>(new ChargedHadronPredicate(rankers_));
+  predicate_ = std::make_unique<ChargedHadronPredicate>(rankers_);
 
   // check if we want to apply a final output selection
   std::string selection = cfg.getParameter<std::string>("outputSelection");
   if (!selection.empty()) {
-    outputSelector_.reset(new StringCutObjectSelector<reco::PFRecoTauChargedHadron>(selection));
+    outputSelector_ = std::make_unique<StringCutObjectSelector<reco::PFRecoTauChargedHadron>>(selection);
   }
 
   produces<reco::PFJetChargedHadronAssociation>();

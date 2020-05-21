@@ -20,6 +20,7 @@
 #include "CondFormats/HcalObjects/interface/OOTPileupCorrData.h"
 #include <iostream>
 #include <fstream>
+#include <memory>
 
 /*  Hcal Hit reconstructor allows for CaloRecHits with status words */
 
@@ -194,7 +195,7 @@ void HcalHitReconstructor::beginRun(edm::Run const& r, edm::EventSetup const& es
   if (digiTimeFromDB_ == true) {
     edm::ESHandle<HcalFlagHFDigiTimeParams> p;
     es.get<HcalFlagHFDigiTimeParamsRcd>().get(p);
-    HFDigiTimeParams.reset(new HcalFlagHFDigiTimeParams(*p));
+    HFDigiTimeParams = std::make_unique<HcalFlagHFDigiTimeParams>(*p);
     HFDigiTimeParams->setTopo(htopo.product());
   }
 

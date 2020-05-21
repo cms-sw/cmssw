@@ -28,6 +28,8 @@
 #include <Math/Functions.h>
 #include <Math/SVector.h>
 #include <Math/SMatrix.h>
+#include <memory>
+
 #include <typeinfo>
 #include <memory>
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -276,11 +278,15 @@ void V0Fitter::fitAll(const edm::Event& iEvent,
         }
         if (thePositiveRefTrack == nullptr || theNegativeRefTrack == nullptr)
           continue;
-        trajPlus.reset(new TrajectoryStateClosestToPoint(thePositiveRefTrack->trajectoryStateClosestToPoint(vtxPos)));
-        trajMins.reset(new TrajectoryStateClosestToPoint(theNegativeRefTrack->trajectoryStateClosestToPoint(vtxPos)));
+        trajPlus =
+            std::make_unique<TrajectoryStateClosestToPoint>(thePositiveRefTrack->trajectoryStateClosestToPoint(vtxPos));
+        trajMins =
+            std::make_unique<TrajectoryStateClosestToPoint>(theNegativeRefTrack->trajectoryStateClosestToPoint(vtxPos));
       } else {
-        trajPlus.reset(new TrajectoryStateClosestToPoint(posTransTkPtr->trajectoryStateClosestToPoint(vtxPos)));
-        trajMins.reset(new TrajectoryStateClosestToPoint(negTransTkPtr->trajectoryStateClosestToPoint(vtxPos)));
+        trajPlus =
+            std::make_unique<TrajectoryStateClosestToPoint>(posTransTkPtr->trajectoryStateClosestToPoint(vtxPos));
+        trajMins =
+            std::make_unique<TrajectoryStateClosestToPoint>(negTransTkPtr->trajectoryStateClosestToPoint(vtxPos));
       }
 
       if (trajPlus.get() == nullptr || trajMins.get() == nullptr || !trajPlus->isValid() || !trajMins->isValid())

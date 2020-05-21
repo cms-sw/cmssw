@@ -1,3 +1,5 @@
+#include <memory>
+
 #include "RecoBTag/Combined/interface/CandidateChargeBTagComputer.h"
 
 CandidateChargeBTagComputer::Tokens::Tokens(const edm::ParameterSet& parameters, edm::ESConsumesCollector&& cc) {
@@ -17,7 +19,7 @@ CandidateChargeBTagComputer::CandidateChargeBTagComputer(const edm::ParameterSet
   uses(2, "softPFMuonsTagInfos");
   uses(3, "softPFElectronsTagInfos");
 
-  mvaID.reset(new TMVAEvaluator());
+  mvaID = std::make_unique<TMVAEvaluator>();
 }
 
 CandidateChargeBTagComputer::~CandidateChargeBTagComputer() {}
