@@ -38,10 +38,6 @@ namespace tmtt {
                 float etaMaxSector,
                 float phiCentreSector);
 
-    struct SortStubsByLayer {
-      inline bool operator()(const Stub* stub1, const Stub* stub2) { return (stub1->layerId() < stub2->layerId()); }
-    };
-
     // Filters track candidates (found by the r-phi Hough transform), removing inconsistent stubs from the tracks,
     // also killing some of the tracks altogether if they are left with too few stubs.
     // Also adds an estimate of r-z helix parameters to the selected track objects, returning the tracks as L1track3D type.
@@ -95,8 +91,8 @@ namespace tmtt {
     bool useSeedFilter_;
 
     // Options for Seed filter.
-    float seedResCut_;
     bool keepAllSeed_;
+    float seedResCut_;
 
     // Number of seed combinations considered by the Seed Filter, for each input track.
     std::vector<unsigned int> numSeedCombsPerTrk_;

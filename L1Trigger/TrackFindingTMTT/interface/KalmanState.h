@@ -3,8 +3,8 @@
 
 #include "L1Trigger/TrackFindingTMTT/interface/Stub.h"
 #include "L1Trigger/TrackFindingTMTT/interface/KFbase.h"
-#include "TMatrixD.h"
-#include "TVectorD.h"
+#include <TMatrixD.h>
+#include <TVectorD.h>
 
 #include <map>
 
@@ -21,7 +21,6 @@ namespace tmtt {
 
   class KalmanState {
   public:
-    KalmanState();
     KalmanState(const Settings *settings,
                 const L1track3D &candidate,
                 unsigned nSkipped,
@@ -34,11 +33,6 @@ namespace tmtt {
                 Stub *stub,
                 double chi2rphi,
                 double chi2rz);
-
-    KalmanState(const KalmanState &p);
-    ~KalmanState() {}
-
-    KalmanState &operator=(const KalmanState &other);
 
     const Settings *settings() const { return settings_; }
     // KF layer where next stub to extend this state should be sought.

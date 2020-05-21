@@ -397,6 +397,11 @@ namespace tmtt {
             << "Settings: Invalid cfg parameters - You are setting the minimum number of layers incorrectly : type E.";
     }
 
+    constexpr float verySmall = 0.1;
+    if (houghMinPt_ < verySmall)
+      throw cms::Exception("BadConfig") << "Settings: Invalid cfg parameters -- HoughMinPt must be positive.";
+    miniHoughMinPt_ = std::max(miniHoughMinPt_, houghMinPt_);
+
     for (const unsigned int& iEtaReg : etaSecsReduceLayers_) {
       if (iEtaReg >= etaRegions_.size())
         throw cms::Exception("BadConfig") << "Settings: You specified an eta sector number in EtaSecsReduceLayers "

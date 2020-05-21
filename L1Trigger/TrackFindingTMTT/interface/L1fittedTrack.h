@@ -66,10 +66,10 @@ namespace tmtt {
           phi0_bcon_(phi0),
           chi2rphi_bcon_(chi2rphi),
           nHelixParam_(nHelixParam),
-          accepted_(accepted),
           nSkippedLayers_(0),
           numUpdateCalls_(0),
-          numIterations_(0) {
+          numIterations_(0),
+          accepted_(accepted) {
       if (l1track3D != nullptr) {
         iPhiSec_ = l1track3D->iPhiSec();
         iEtaReg_ = l1track3D->iEtaReg();
@@ -108,7 +108,7 @@ namespace tmtt {
     // Creates track rejected by fitter.
     L1fittedTrack() : L1fittedTrack(nullptr, nullptr, noStubs_, 0, 0., 0., 0., 0., 0., 0., 0., 0, false) {}
 
-    ~L1fittedTrack() override {}
+    ~L1fittedTrack() override = default;
 
     //--- Optionally std::set track helix params & chi2 if beam-spot constraint is used (for 5-parameter fit).
     void setBeamConstr(float qOverPt_bcon, float phi0_bcon, float chi2rphi_bcon) {
@@ -384,9 +384,6 @@ namespace tmtt {
     std::vector<const Stub*> matchedStubs_;
     unsigned int nMatchedLayers_;
 
-    //--- Has the track fit declared this to be a valid track?
-    bool accepted_;
-
     //--- Sector class used to check if fitted track trajectory is in same sector as HT used to find it.
     std::shared_ptr<Sector> secTmp_;  // shared so as to allow copy of L1fittedTrack.
     //--- r-phi HT class used to determine HT cell location that corresponds to fitted track helix parameters.
@@ -402,9 +399,12 @@ namespace tmtt {
 
     std::shared_ptr<DigitalTrack> digitalTrack_;  // Class used to digitize track if required.
 
+    static const std::vector<Stub*> noStubs_;  // Empty vector used to initialize rejected tracks.
+
     bool consistentCell_;
 
-    static const std::vector<Stub*> noStubs_;  // Empty vector used to initialize rejected tracks.
+    //--- Has the track fit declared this to be a valid track?
+    bool accepted_;
   };
 
 }  // namespace tmtt

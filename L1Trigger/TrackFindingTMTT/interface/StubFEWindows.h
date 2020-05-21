@@ -14,7 +14,6 @@ namespace tmtt {
 
   class StubFEWindows {
   public:
-    StubFEWindows(){};
     // Initialize stub window sizes from TTStubProducer cfg.
     StubFEWindows(const edm::ParameterSet& pSetStubAlgo);
 

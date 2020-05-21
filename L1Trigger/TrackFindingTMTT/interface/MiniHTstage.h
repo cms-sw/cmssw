@@ -15,8 +15,6 @@ namespace tmtt {
   public:
     MiniHTstage(const Settings* settings);
 
-    ~MiniHTstage(){};
-
     void exec(matrix<std::unique_ptr<HTrphi>>& mHtRphis);
 
   private:

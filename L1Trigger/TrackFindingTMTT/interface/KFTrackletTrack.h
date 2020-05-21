@@ -65,14 +65,10 @@ namespace tmtt {
           iPhiSec_(iPhiSec),
           iEtaReg_(iEtaReg),
           optoLinkID_(l1track3D->optoLinkID()),
-          accepted_(accepted),
           nSkippedLayers_(0),
           numUpdateCalls_(0),
-          numIterations_(0) {}
-
-    KFTrackletTrack(){};  // Creates track object, but doesn't std::set any variables.
-
-    ~KFTrackletTrack() {}
+          numIterations_(0),
+          accepted_(accepted) {}
 
     //--- Optionally std::set track helix params & chi2 if beam-spot constraint is used (for 5-parameter fit).
     void setBeamConstr(float qOverPt_bcon, float phi0_bcon, float chi2rphi_bcon) {
@@ -235,9 +231,6 @@ namespace tmtt {
     std::vector<const Stub*> matchedStubs_;
     unsigned int nMatchedLayers_;
 
-    //--- Has the track fit declared this to be a valid track?
-    bool accepted_;
-
     //--- Info specific to KF fitter.
     unsigned int nSkippedLayers_;
     unsigned int numUpdateCalls_;
@@ -247,6 +240,9 @@ namespace tmtt {
     std::unordered_map<std::string, int> stateCalls_;
 
     std::shared_ptr<DigitalTrack> digitalTrack_;  // Class used to digitize track if required.
+
+    //--- Has the track fit declared this to be a valid track?
+    bool accepted_;
   };
 
 }  // namespace tmtt

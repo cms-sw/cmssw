@@ -30,10 +30,10 @@ namespace tmtt {
 
         //=== Characteristics of this phi region.
         chosenRofPhi_(settings->chosenRofPhi()),
-        useStubPhi_(settings->useStubPhi()),
         minPt_(settings->houghMinPt()),  // Min Pt covered by  HT array.
-        useStubPhiTrk_(settings->useStubPhiTrk()),
         assumedPhiTrkRes_(settings->assumedPhiTrkRes()),
+        useStubPhi_(settings->useStubPhi()),
+        useStubPhiTrk_(settings->useStubPhiTrk()),
         calcPhiTrkRes_(settings->calcPhiTrkRes()),
         //=== Check if subsectors in eta are being used within each sector.
         numSubSecsEta_(settings->numSubSecsEta()) {

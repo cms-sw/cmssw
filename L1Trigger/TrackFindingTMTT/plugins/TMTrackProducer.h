@@ -56,8 +56,6 @@ namespace tmtt {
     void produce(edm::Event &, const edm::EventSetup &) override;
 
   private:
-    bool debug_;
-
     // ES tokens
     edm::ESGetToken<MagneticField, IdealMagneticFieldRecord> magneticFieldToken_;
     edm::ESGetToken<TrackerGeometry, TrackerDigiGeometryRecord> trackerGeometryToken_;
@@ -91,6 +89,8 @@ namespace tmtt {
     HTrphi::ErrorMonitor &htRphiErrMon_;
 
     std::map<std::string, std::unique_ptr<TrackFitGeneric>> fitterWorkerMap_;
+
+    bool debug_;
   };
 
 }  // namespace tmtt

@@ -32,8 +32,6 @@ namespace tmtt {
                  float etaMaxSector,
                  float phiCentreSector);
 
-    ~Make3Dtracks() {}
-
     //=== Main routines to make 3D tracks.
 
     // Make 3D track collections.

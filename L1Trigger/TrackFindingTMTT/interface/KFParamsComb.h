@@ -3,9 +3,6 @@
 
 #include "L1Trigger/TrackFindingTMTT/interface/KFbase.h"
 #include "L1Trigger/TrackFindingTMTT/interface/L1track3D.h"
-#include "TMatrixD.h"
-
-#include <vector>
 
 ///=== This is the Kalman Combinatorial Filter for 4 & 5 helix parameters track fit algorithm.
 ///=== All variable names & equations come from Fruhwirth KF paper
@@ -17,7 +14,7 @@ namespace tmtt {
   public:
     KFParamsComb(const Settings* settings, const uint nHelixPar, const std::string& fitterName);
 
-    ~KFParamsComb() override {}
+    ~KFParamsComb() override = default;
 
   protected:
     //--- Input data

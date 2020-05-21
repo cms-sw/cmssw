@@ -21,13 +21,11 @@ namespace tmtt {
   public:
     SimpleLR4(const Settings* settings);
 
-    ~SimpleLR4() override{};
+    ~SimpleLR4() override = default;
 
     L1fittedTrack fit(const L1track3D& l1track3D) override;
 
   protected:
-    bool debug_;
-
     float phiSectorWidth_;
     float phiSectorCentre_;
     float phiNonantWidth_;
@@ -51,7 +49,6 @@ namespace tmtt {
     float chosenRofPhi_;
     unsigned int minStubLayersRed_;
 
-    bool digitize_;
     unsigned int dividerBitsHelix_;
     unsigned int dividerBitsHelixZ_;
     unsigned int dividerBitsChi2_;
@@ -61,6 +58,9 @@ namespace tmtt {
     unsigned int shiftingBitsPt_;
     unsigned int shiftingBitsz0_;
     unsigned int shiftingBitsLambda_;
+    bool digitize_;
+
+    bool debug_;
   };
 
 }  // namespace tmtt

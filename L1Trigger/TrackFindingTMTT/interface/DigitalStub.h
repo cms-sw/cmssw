@@ -29,8 +29,6 @@ namespace tmtt {
                 double bend_orig,
                 unsigned int iPhiSec);
 
-    ~DigitalStub() {}
-
     // Redo phi digitisation assigning stub to a different phi sector;
     // (Return arg indicates if any work done).
     bool changePhiSec(unsigned int iPhiSec);

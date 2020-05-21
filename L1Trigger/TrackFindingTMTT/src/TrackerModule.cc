@@ -81,12 +81,7 @@ namespace tmtt {
     tiltedBarrel_ = barrel_ && (trackerTopology->tobSide(detId) != BarrelModuleType::flat);
     float deltaR = std::abs(R1 - R0);
     float deltaZ = (R1 - R0 > 0) ? (Z1 - Z0) : -(Z1 - Z0);
-    tiltAngle_ = atan2(deltaR, deltaZ);
-    // Put in range -PI/2 to +PI/2.
-    if (tiltAngle_ > M_PI / 2.)
-      tiltAngle_ -= M_PI;
-    if (tiltAngle_ < -M_PI / 2.)
-      tiltAngle_ += M_PI;
+    tiltAngle_ = atan(deltaR / deltaZ);
 
     // Get sensor strip or pixel pitch using innermost sensor of pair.
 

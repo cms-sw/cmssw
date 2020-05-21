@@ -18,7 +18,7 @@ namespace tmtt {
   public:
     L1trackBase() {}
 
-    virtual ~L1trackBase() {}
+    virtual ~L1trackBase() = default;
 
     //--- Get information about the reconstructed track.
 

@@ -4,7 +4,8 @@
 #include "L1Trigger/TrackFindingTMTT/interface/HTcell.h"
 #include "L1Trigger/TrackFindingTMTT/interface/L1track2D.h"
 
-#include "boost/numeric/ublas/matrix.hpp"
+#include <boost/numeric/ublas/matrix.hpp>
+
 #include <vector>
 #include <list>
 #include <utility>
@@ -27,7 +28,7 @@ namespace tmtt {
     HTbase(
         const Settings* settings, unsigned int iPhiSec, unsigned int iEtaReg, unsigned int nBinsX, unsigned int nBinsY);
 
-    virtual ~HTbase() {}
+    virtual ~HTbase() = default;
 
     // Termination. Causes HT array to search for tracks etc.
     virtual void end();

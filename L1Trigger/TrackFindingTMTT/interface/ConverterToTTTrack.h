@@ -18,7 +18,7 @@ namespace tmtt {
   class ConverterToTTTrack {
   public:
     // Initialize constants.
-    ConverterToTTTrack(const Settings* settings) : settings_(settings) { invPtToInvR_ = settings->invPtToInvR(); }
+    ConverterToTTTrack(const Settings* settings) : settings_(settings), invPtToInvR_(settings->invPtToInvR()) {}
 
     // Convert L1fittedTrack or L1track3D (track candidates after/before fit) to TTTrack format.
     TTTrack<Ref_Phase2TrackerDigi_> makeTTTrack(const L1trackBase* trk,

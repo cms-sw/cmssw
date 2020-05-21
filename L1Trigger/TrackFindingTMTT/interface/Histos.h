@@ -7,7 +7,7 @@
 #include "L1Trigger/TrackFindingTMTT/interface/L1track3D.h"
 #include "L1Trigger/TrackFindingTMTT/interface/TrackerModule.h"
 
-#include "boost/numeric/ublas/matrix.hpp"
+#include <boost/numeric/ublas/matrix.hpp>
 using boost::numeric::ublas::matrix;
 
 #include <vector>
@@ -39,7 +39,7 @@ namespace tmtt {
     // Store cfg parameters.
     Histos(const Settings* settings);
 
-    virtual ~Histos() {}
+    virtual ~Histos() = default;
 
     // Book & fill all histograms.
     virtual void book();
@@ -112,6 +112,8 @@ namespace tmtt {
     virtual void printHybridDupRemovalPerformance(){};
 
   protected:
+    edm::Service<TFileService> fs_;
+
     // Configuration parameters.
     const Settings* settings_;
     unsigned int genMinStubLayers_;
@@ -125,8 +127,6 @@ namespace tmtt {
     std::vector<std::string> useRZfilter_;
     bool ranRZfilter_;
     bool resPlotOpt_;
-
-    edm::Service<TFileService> fs_;
 
     bool oldSumW2opt_;
 
@@ -217,7 +217,6 @@ namespace tmtt {
     std::map<std::string, TH1F*> hisNumFitTrks_;
     std::map<std::string, TH1F*> hisNumFitTrksPerNon_;
     std::map<std::string, TH1F*> hisNumFitTrksPerSect_;
-
     std::map<std::string, TH1F*> hisStubsPerFitTrack_;
     std::map<std::string, TProfile*> profStubsOnFitTracks_;
 
@@ -241,15 +240,13 @@ namespace tmtt {
     std::map<std::string, TH1F*> hisKalmanChi2DofSkipLay1Unmatched_;
     std::map<std::string, TH1F*> hisKalmanChi2DofSkipLay2Unmatched_;
 
-    std::map<std::string, TH1F*> hisFitChi2DofMatched_;
     std::map<std::string, TH1F*> hisFitChi2DofRphiMatched_;
     std::map<std::string, TH1F*> hisFitChi2DofRzMatched_;
-    std::map<std::string, TProfile*> profFitChi2DofVsInvPtMatched_;
+    std::map<std::string, TProfile*> profFitChi2DofRphiVsInvPtMatched_;
 
-    std::map<std::string, TH1F*> hisFitChi2DofUnmatched_;
     std::map<std::string, TH1F*> hisFitChi2DofRphiUnmatched_;
     std::map<std::string, TH1F*> hisFitChi2DofRzUnmatched_;
-    std::map<std::string, TProfile*> profFitChi2DofVsInvPtUnmatched_;
+    std::map<std::string, TProfile*> profFitChi2DofRphiVsInvPtUnmatched_;
 
     std::map<std::string, TProfile*> hisQoverPtResVsTrueEta_;
     std::map<std::string, TProfile*> hisPhi0ResVsTrueEta_;

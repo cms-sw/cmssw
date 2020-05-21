@@ -24,7 +24,6 @@ namespace tmtt {
   public:
     // Fill useful info about tracking particle.
     TP(const TrackingParticlePtr& tpPtr, unsigned int index_in_vTPs, const Settings* settings);
-    ~TP() {}
 
     // Return pointer to original tracking particle.
     const TrackingParticlePtr& trackingParticlePtr() const { return trackingParticlePtr_; }
@@ -126,12 +125,12 @@ namespace tmtt {
     float d0_;  // d0 impact parameter with respect to (x,y) = (0,0)
     float z0_;  // z0 impact parameter with respect to (x,y) = (0,0)
 
+    std::vector<const Stub*> assocStubs_;
+    unsigned int nLayersWithStubs_;  // Number of tracker layers with stubs from this TP.
+
     bool use_;           // TP is worth keeping (e.g. for fake rate measurement)
     bool useForEff_;     // TP can be used for tracking efficiency measurement.
     bool useForAlgEff_;  // TP can be used for tracking algorithmic efficiency measurement.
-
-    std::vector<const Stub*> assocStubs_;
-    unsigned int nLayersWithStubs_;  // Number of tracker layers with stubs from this TP.
 
     bool tpInJet_;
     float nearestJetPt_;

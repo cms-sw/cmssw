@@ -42,14 +42,14 @@ namespace tmtt {
         iphi_(iphi),
         alpha_(alpha),
         digitalStub_(std::make_unique<DigitalStub>(settings, r, phi, z, iPhiSec)),
-        psModule_(psModule),
         layerId_(layerId),
         layerIdReduced_(TrackerModule::calcLayerIdReduced(layerId)),
-        barrel_(barrel),
-        tiltedBarrel_(tiltedBarrel),
         stripPitch_(stripPitch),
         stripLength_(stripLength),
-        nStrips_(nStrips) {}
+        nStrips_(nStrips),
+        psModule_(psModule),
+        barrel_(barrel),
+        tiltedBarrel_(tiltedBarrel) {}
 
   //=== TMTT L1 tracking: stub constructor.
 
@@ -64,20 +64,20 @@ namespace tmtt {
         settings_(settings),
         index_in_vStubs_(index_in_vStubs),
         assocTP_(nullptr),  // Initialize in case job is using no MC truth info.
-        digitizeWarningsOn_(true),
         lastDigiStep_(Stub::DigiStage::NONE),
+        digitizeWarningsOn_(true),
         trackerModule_(trackerModule),  // Info about tracker module containing stub
         degradeBend_(degradeBend),      // Used to degrade stub bend information.
         // Module related variables (need to be stored for Hybrid)
-        psModule_(trackerModule->psModule()),
         layerId_(trackerModule->layerId()),
         layerIdReduced_(trackerModule->layerIdReduced()),
-        barrel_(trackerModule->barrel()),
-        tiltedBarrel_(trackerModule->tiltedBarrel()),
         tiltAngle_(trackerModule->tiltAngle()),
         stripPitch_(trackerModule->stripPitch()),
         stripLength_(trackerModule->stripLength()),
-        nStrips_(trackerModule->nStrips()) {
+        nStrips_(trackerModule->nStrips()),
+        psModule_(trackerModule->psModule()),
+        barrel_(trackerModule->barrel()),
+        tiltedBarrel_(trackerModule->tiltedBarrel()) {
     // Get coordinates of stub.
     const TTStub<Ref_Phase2TrackerDigi_>* ttStubP = ttStubRef_.get();
 

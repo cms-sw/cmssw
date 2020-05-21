@@ -5,6 +5,8 @@
 #include "L1Trigger/TrackFindingTMTT/interface/Stub.h"
 #include "L1Trigger/TrackFindingTMTT/interface/PrintL1trk.h"
 
+#include <array>
+
 using namespace std;
 
 namespace tmtt {
@@ -54,10 +56,10 @@ namespace tmtt {
     rzFilterName_ = settings->rzFilterName();
 
     // --- Options for Seed filter.
-    //Added resolution for a tracklet-like filter algorithm, beyond that estimated from hit resolution.
-    seedResCut_ = settings->seedResCut();
     // Keep stubs compatible with all possible good seed.
     keepAllSeed_ = settings->keepAllSeed();
+    //Added resolution for a tracklet-like filter algorithm, beyond that estimated from hit resolution.
+    seedResCut_ = settings->seedResCut();
     // Maximum number of seed combinations to bother checking per track candidate.
     maxSeedCombinations_ = settings->maxSeedCombinations();
     // Maximum number of seed combinations consistent with sector (z0,eta) constraints to bother checking per track candidate.
@@ -144,8 +146,8 @@ namespace tmtt {
     std::vector<Stub*> filtStubs = stubs;  // Copy stubs vector in filtStubs
     bool FirstSeed = true;
     //Allowed layers for the first & second seeding stubs
-    static const std::vector<unsigned int> FirstSeedLayers = {1, 2, 11, 21, 3, 12, 22, 4};
-    static const std::vector<unsigned int> SecondSeedLayers = {1, 2, 11, 3, 21, 22, 12, 23, 13, 4};
+    constexpr std::array<unsigned int, 8> FirstSeedLayers = {{1, 2, 11, 21, 3, 12, 22, 4}};
+    constexpr std::array<unsigned int, 10> SecondSeedLayers = {{1, 2, 11, 3, 21, 22, 12, 23, 13, 4}};
     set<Stub*> uniqueFilteredStubs;
 
     unsigned int numSeedCombinations = 0;      // Counter for number of seed combinations considered.
@@ -154,7 +156,8 @@ namespace tmtt {
 
     unsigned int oldNumLay = 0;  //Number of Layers counter, used to keep the seed with more layers
 
-    std::sort(filtStubs.begin(), filtStubs.end(), SortStubsByLayer());
+    auto orderByLayer = [](const Stub* a, const Stub* b) { return bool(a->layerId() < b->layerId()); };
+    std::sort(filtStubs.begin(), filtStubs.end(), orderByLayer);
 
     // Loop over stubs in the HT Cell
     for (Stub* s0 : filtStubs) {

@@ -159,10 +159,10 @@ namespace tmtt {
 
     unsigned int numUpdateCalls_;
 
-    const TP *tpa_;
-
     // All helix states KF produces for current track.
     std::vector<std::unique_ptr<const KalmanState>> listAllStates_;
+
+    const TP *tpa_;
   };
 
 }  // namespace tmtt

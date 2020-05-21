@@ -14,10 +14,6 @@ using namespace std;
 
 namespace tmtt {
 
-  namespace {
-    std::once_flag printOnce;
-  }
-
   //=== Initialize constants from configuration parameters.
 
   MuxHToutputs::MuxHToutputs(const Settings* settings)
@@ -48,6 +44,7 @@ namespace tmtt {
     std::stringstream text;
     text << "=== The R-PHI HT output is multiplexed onto " << this->numLinksPerNonant()
          << " pairs of opto-links per nonant.";
+    static std::once_flag printOnce;
     std::call_once(
         printOnce, [](string t) { PrintL1trk() << t; }, text.str());
   }

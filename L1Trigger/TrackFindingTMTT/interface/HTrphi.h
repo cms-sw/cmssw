@@ -46,7 +46,7 @@ namespace tmtt {
            float phiCentreSector,
            ErrorMonitor* errMon = nullptr);
 
-    ~HTrphi() override {}
+    ~HTrphi() override = default;
 
     // Add stub to HT array.
     // If eta subsectors are being used within each sector, specify which ones the stub is compatible with.
@@ -143,12 +143,12 @@ namespace tmtt {
     unsigned int killSomeHTCellsRphi_;
     // Options for killing stubs/tracks that cant be sent within time-multiplexed period.
     bool busyInputSectorKill_;
-    unsigned int busyInputSectorNumStubs_;
     bool busySectorKill_;
+    unsigned int busyInputSectorNumStubs_;
     unsigned int busySectorNumStubs_;
     std::vector<unsigned int> busySectorMbinRanges_;
-    bool busySectorUseMbinRanges_;
     std::vector<unsigned int> busySectorMbinOrder_;
+    bool busySectorUseMbinRanges_;
     bool busySectorUseMbinOrder_;
     std::vector<unsigned int> busySectorMbinLow_;
     std::vector<unsigned int> busySectorMbinHigh_;

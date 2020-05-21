@@ -48,9 +48,7 @@ namespace tmtt {
                                        matchedStubs_);  // Find associated truth particle & calculate info about match.
     }
 
-    L1track2D() : L1trackBase(){};  // Creates track object, but doesn't std::set any variables.
-
-    ~L1track2D() override {}
+    ~L1track2D() override = default;
 
     //--- Get information about the reconstructed track.
 

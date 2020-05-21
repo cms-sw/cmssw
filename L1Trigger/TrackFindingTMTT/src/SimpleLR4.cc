@@ -19,8 +19,6 @@ using namespace std;
 namespace tmtt {
 
   SimpleLR4::SimpleLR4(const Settings* settings) : TrackFitGeneric(settings) {
-    debug_ = false;  // Enable debug printout.
-
     // Initialize digitization parameters
     phiMult_ = pow(2., settings_->phiSBits()) / settings_->phiSRange();
     rTMult_ = pow(2., settings_->rtBits()) / settings_->rtRange();
@@ -39,16 +37,15 @@ namespace tmtt {
     denominatorMult_ = rTMult_ * rTMult_;
     resMult_ = rTMult_ * qOverPtMult_;
 
-    digitize_ = settings_->digitizeSLR() and settings_->enableDigitize();
     dividerBitsHelix_ = settings_->dividerBitsHelix();
     dividerBitsHelixZ_ = settings_->dividerBitsHelixZ();
     shiftingBitsDenRPhi_ = settings_->ShiftingBitsDenRPhi();
     shiftingBitsDenRZ_ = settings_->ShiftingBitsDenRZ();
-
     shiftingBitsPhi_ = settings_->ShiftingBitsPhi();
     shiftingBitsz0_ = settings_->ShiftingBitsZ0();
     shiftingBitsPt_ = settings_->ShiftingBitsPt();
     shiftingBitsLambda_ = settings_->ShiftingBitsLambda();
+    digitize_ = settings_->digitizeSLR() and settings_->enableDigitize();
 
     phiSectorWidth_ = 2. * M_PI / float(settings_->numPhiSectors());
     phiNonantWidth_ = 2. * M_PI / float(settings_->numPhiNonants());
@@ -57,6 +54,8 @@ namespace tmtt {
     chosenRofPhi_ = settings_->chosenRofPhi();
     if (digitize_)
       chosenRofPhi_ = floor(chosenRofPhi_ * rTMult_) / rTMult_;
+
+    debug_ = false;  // Enable debug printout.
   };
 
   static bool pair_compare(std::pair<const Stub*, float> a, std::pair<const Stub*, float> b) {

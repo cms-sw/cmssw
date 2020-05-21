@@ -21,7 +21,7 @@ namespace tmtt {
     TrackFitGeneric(const Settings* settings, const std::string& fitterName = "")
         : settings_(settings), fitterName_(fitterName) {}
 
-    virtual ~TrackFitGeneric() {}
+    virtual ~TrackFitGeneric() = default;
 
     // Fit a track candidate obtained from the Hough Transform.
     virtual L1fittedTrack fit(const L1track3D& l1track3D) { return L1fittedTrack(); }

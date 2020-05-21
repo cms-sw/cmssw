@@ -1,12 +1,12 @@
-#include <L1Trigger/TrackFindingTMTT/plugins/TMTrackProducer.h>
-#include <L1Trigger/TrackFindingTMTT/interface/InputData.h>
-#include <L1Trigger/TrackFindingTMTT/interface/Sector.h>
-#include <L1Trigger/TrackFindingTMTT/interface/HTrphi.h>
-#include <L1Trigger/TrackFindingTMTT/interface/Make3Dtracks.h>
-#include <L1Trigger/TrackFindingTMTT/interface/DupFitTrkKiller.h>
-#include <L1Trigger/TrackFindingTMTT/interface/TrackFitFactory.h>
-#include <L1Trigger/TrackFindingTMTT/interface/L1fittedTrack.h>
-#include <L1Trigger/TrackFindingTMTT/interface/ConverterToTTTrack.h>
+#include "L1Trigger/TrackFindingTMTT/plugins/TMTrackProducer.h"
+#include "L1Trigger/TrackFindingTMTT/interface/InputData.h"
+#include "L1Trigger/TrackFindingTMTT/interface/Sector.h"
+#include "L1Trigger/TrackFindingTMTT/interface/HTrphi.h"
+#include "L1Trigger/TrackFindingTMTT/interface/Make3Dtracks.h"
+#include "L1Trigger/TrackFindingTMTT/interface/DupFitTrkKiller.h"
+#include "L1Trigger/TrackFindingTMTT/interface/TrackFitFactory.h"
+#include "L1Trigger/TrackFindingTMTT/interface/L1fittedTrack.h"
+#include "L1Trigger/TrackFindingTMTT/interface/ConverterToTTTrack.h"
 #include "L1Trigger/TrackFindingTMTT/interface/HTcell.h"
 #include "L1Trigger/TrackFindingTMTT/interface/MuxHToutputs.h"
 #include "L1Trigger/TrackFindingTMTT/interface/MiniHTstage.h"
@@ -15,7 +15,8 @@
 #include "FWCore/MessageService/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "boost/numeric/ublas/matrix.hpp"
+#include <boost/numeric/ublas/matrix.hpp>
+
 #include <iostream>
 #include <vector>
 #include <list>
@@ -38,11 +39,11 @@ namespace tmtt {
   }
 
   TMTrackProducer::TMTrackProducer(const edm::ParameterSet& iConfig, GlobalCacheTMTT const* globalCacheTMTT)
-      : debug_(true),                                              // Debug printout
-        settings_(iConfig),                                        // Set configuration parameters
+      : settings_(iConfig),                                        // Set configuration parameters
         stubWindowSuggest_(globalCacheTMTT->stubWindowSuggest()),  // For tuning FE stub window sizes
         hists_(globalCacheTMTT->hists()),                          // Initialize histograms
-        htRphiErrMon_(globalCacheTMTT->htRphiErrMon())             // rphi HT error monitoring
+        htRphiErrMon_(globalCacheTMTT->htRphiErrMon()),            // rphi HT error monitoring
+        debug_(true)                                               // Debug printout
   {
     using namespace edm;
 

@@ -25,8 +25,6 @@ namespace tmtt {
   */
     DupFitTrkKiller(const Settings* settings);
 
-    ~DupFitTrkKiller() {}
-
     /**
   *  Eliminate duplicate tracks from the input collection, and so return a reduced list of tracks.
   */

@@ -16,8 +16,6 @@ namespace tmtt {
     // Initialization.
     Sector(const Settings* settings, unsigned int iPhiSec, unsigned int iEtaSec);
 
-    ~Sector() {}
-
     // Check if stub within the eta and/or phi boundaries of this sector.
     bool inside(const Stub* stub) const { return (this->insideEta(stub) && this->insidePhi(stub)); }
     bool insideEta(const Stub* stub) const;
@@ -83,13 +81,13 @@ namespace tmtt {
     float zOuterMax_;
 
     // Define phi sector.
-    float phiCentre_;        // phi of centre of sector.
-    float sectorHalfWidth_;  // sector half-width excluding overlaps.
-    float chosenRofPhi_;     // Use phi of track at radius="chosenRofPhi" to define phi sectors.
-    bool useStubPhi_;  // Require stub phi to be consistent with track of Pt > HTArraySpec.HoughMinPt that crosses HT phi axis?
-    float minPt_;         // Min Pt covered by HT array.
-    bool useStubPhiTrk_;  // Require stub phi0 (or phi65 etc.) as estimated from stub bend, to lie within HT phi axis, allowing tolerance specified below?
+    float phiCentre_;         // phi of centre of sector.
+    float sectorHalfWidth_;   // sector half-width excluding overlaps.
+    float chosenRofPhi_;      // Use phi of track at radius="chosenRofPhi" to define phi sectors.
+    float minPt_;             // Min Pt covered by HT array.
     float assumedPhiTrkRes_;  // Tolerance in stub phi0 (or phi65) assumed to be this fraction of phi sector width. (N.B. If > 0.5, then stubs can be shared by more than 2 phi sectors).
+    bool useStubPhi_;  // Require stub phi to be consistent with track of Pt > HTArraySpec.HoughMinPt that crosses HT phi axis?
+    bool useStubPhiTrk_;  // Require stub phi0 (or phi65 etc.) as estimated from stub bend, to lie within HT phi axis, allowing tolerance specified below?
     bool calcPhiTrkRes_;  // If true, tolerance in stub phi0 (or phi65 etc.) will be reduced below AssumedPhiTrkRes if stub bend resolution specified in HTFilling.BendResolution suggests it is safe to do so.
 
     // Possible subsectors in eta within each sector.

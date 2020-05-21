@@ -18,10 +18,6 @@
 
 namespace tmtt {
 
-  namespace {
-    std::mutex myMutex;
-  }
-
   class GlobalCacheTMTT {
   public:
     GlobalCacheTMTT(const edm::ParameterSet& iConfig)
@@ -43,6 +39,7 @@ namespace tmtt {
     // Set functions
     void setListTrackerModule(const std::list<TrackerModule>& list) const {
       // Allow only one thread to run this function at a time
+      static std::mutex myMutex;
       std::lock_guard<std::mutex> myGuard(myMutex);
 
       // Only need one copy of tracker geometry for histogramming.

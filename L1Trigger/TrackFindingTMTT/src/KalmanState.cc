@@ -6,17 +6,6 @@ using namespace std;
 
 namespace tmtt {
 
-  KalmanState::KalmanState()
-      : settings_(nullptr),
-        kLayer_(0),
-        last_state_(nullptr),
-        stub_(nullptr),
-        chi2rphi_(0),
-        chi2rz_(0),
-        barrel_(true),
-        nSkipped_(0),
-        hitPattern_(0) {}
-
   KalmanState::KalmanState(const Settings *settings,
                            const L1track3D &candidate,
                            unsigned nSkipped,
@@ -64,47 +53,6 @@ namespace tmtt {
     }
 
     n_stubs_ = 1 + kLayer_ - nSkipped_;
-  }
-
-  KalmanState::KalmanState(const KalmanState &p)
-      : settings_(p.settings()),
-        kLayer_(p.layer()),
-        r_(p.r()),
-        z_(p.z()),
-        last_state_(p.last_state()),
-        vecX_(p.vectorX()),
-        matC_(p.matrixC()),
-        matK_(p.matrixK()),
-        matV_(p.matrixV()),
-        stub_(p.stub()),
-        chi2rphi_(p.chi2rphi()),
-        chi2rz_(p.chi2rz()),
-        n_stubs_(p.nStubLayers()),
-        barrel_(p.barrel()),
-        nSkipped_(p.nSkippedLayers()),
-        l1track3D_(p.candidate()) {}
-
-  KalmanState &KalmanState::operator=(const KalmanState &other) {
-    if (&other == this)
-      return *this;
-
-    settings_ = other.settings();
-    kLayer_ = other.layer();
-    r_ = other.r();
-    z_ = other.z();
-    last_state_ = other.last_state();
-    vecX_ = other.vectorX();
-    matC_ = other.matrixC();
-    matK_ = other.matrixK();
-    matV_ = other.matrixV();
-    stub_ = other.stub();
-    chi2rphi_ = other.chi2rphi();
-    chi2rz_ = other.chi2rz();
-    n_stubs_ = other.nStubLayers();
-    barrel_ = other.barrel();
-    nSkipped_ = other.nSkippedLayers();
-    l1track3D_ = other.candidate();
-    return *this;
   }
 
   bool KalmanState::good(const TP *tp) const {

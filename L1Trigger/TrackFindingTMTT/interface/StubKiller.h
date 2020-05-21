@@ -26,8 +26,6 @@ namespace tmtt {
                const TrackerGeometry* trackerGeometry,
                const edm::Event& iEvent);
 
-    ~StubKiller() {}
-
     // Indicate if given stub was killed by dead tracker module, based on dead module scenario.
     bool killStub(const TTStub<Ref_Phase2TrackerDigi_>* stub) const;
 

@@ -24,10 +24,6 @@ namespace tmtt {
   //=== Its axes are (q/Pt, phiTrk), where phiTrk is the phi at which the track crosses a
   //=== user-configurable radius from the beam-line.
 
-  namespace {
-    std::once_flag printOnce;
-  }
-
   //=== Initialise
 
   HTrphi::HTrphi(const Settings* settings,
@@ -94,18 +90,18 @@ namespace tmtt {
     // Used to kill excess stubs or tracks that can't be transmitted within time-multiplexed period.
     nReceivedStubs_ = 0;
     busyInputSectorKill_ = settings_->busyInputSectorKill();  // Kill excess stubs going fron GP to HT?
-    busyInputSectorNumStubs_ =
-        settings_->busyInputSectorNumStubs();  // Max. num. of stubs that can be sent from GP to HT within TM period
-    busySectorKill_ = settings_->busySectorKill();  // Kill excess tracks flowing out of HT?
-    busySectorNumStubs_ =
-        settings_->busySectorNumStubs();  // Max. num. of stubs that can be sent out of HT within TM period
-    busySectorMbinRanges_ =
-        settings_->busySectorMbinRanges();  // or individual m bin (=q/Pt) ranges to be output to optical links.
-    busySectorUseMbinRanges_ = (!busySectorMbinRanges_.empty());  // m bin ranges option disabled if vector empty.
-    busySectorMbinOrder_ =
-        settings_
-            ->busySectorMbinOrder();  // Specifies which m bins should be grouped together by BusySectorMbinRanges. If empty, then they are grouped in order 0,1,2,3,4,5 ...
-    busySectorUseMbinOrder_ = (!busySectorMbinOrder_.empty());
+    busySectorKill_ = settings_->busySectorKill();            // Kill excess tracks flowing out of HT?
+    // Max. num. of stubs that can be sent from GP to HT within TM period
+    busyInputSectorNumStubs_ = settings_->busyInputSectorNumStubs();
+    // Max. num. of stubs that can be sent out of HT within TM period
+    busySectorNumStubs_ = settings_->busySectorNumStubs();
+    // or individual m bin (=q/Pt) ranges to be output to optical links.
+    busySectorMbinRanges_ = settings_->busySectorMbinRanges();
+    // Specifies which m bins should be grouped together by BusySectorMbinRanges. If empty, then they are grouped in order 0,1,2,3,4,5 ...
+    busySectorMbinOrder_ = settings_->busySectorMbinOrder();
+    // m bin ranges option disabled if vector empty
+    busySectorUseMbinRanges_ = (not busySectorMbinRanges_.empty());
+    busySectorUseMbinOrder_ = (not busySectorMbinOrder_.empty());
 
     bool rescaleMbins = false;
     if (busySectorUseMbinRanges_) {
@@ -147,6 +143,7 @@ namespace tmtt {
     }
 
     std::stringstream text;
+    text << "\n";
     text << "=== R-PHI HOUGH TRANSFORM AXES RANGES: abs(q/Pt) < " << maxAbsQoverPtAxis_ << " & abs(track-phi) < "
          << maxAbsPhiTrkAxis_ << " ===\n";
     text << "=== R-PHI HOUGH TRANSFORM ARRAY SIZE: q/Pt bins = " << nBinsQoverPtAxis_
@@ -161,6 +158,8 @@ namespace tmtt {
         text << " " << (busySectorMbinHigh_[i] - busySectorMbinLow_[i] + 1);
       }
     }
+    text << "\n";
+    static std::once_flag printOnce;
     std::call_once(
         printOnce, [](string t) { PrintL1trk() << t; }, text.str());
 

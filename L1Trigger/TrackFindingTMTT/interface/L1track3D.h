@@ -72,9 +72,7 @@ namespace tmtt {
         : L1track3D(
               settings, stubs, cellLocationHT, helixRphi, helixRz, 0.0, iPhiSec, iEtaReg, optoLinkID, mergedHTcell) {}
 
-    L1track3D() : L1trackBase(){};  // Creates track object, but doesn't std::set any variables.
-
-    ~L1track3D() override {}
+    ~L1track3D() override = default;
 
     //--- Set/get optional info for tracklet tracks.
 

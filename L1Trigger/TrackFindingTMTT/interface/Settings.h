@@ -22,8 +22,6 @@ namespace tmtt {
     // Constructor for TMTT (reads config from python cfg)
     Settings(const edm::ParameterSet& iConfig);
 
-    ~Settings() {}
-
     // Input tags for ES & ED data.
     edm::ESInputTag magneticFieldInputTag() const { return magneticFieldInputTag_; }
     edm::ESInputTag trackerGeometryInputTag() const { return trackerGeometryInputTag_; }

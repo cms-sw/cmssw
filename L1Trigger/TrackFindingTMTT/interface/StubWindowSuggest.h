@@ -5,6 +5,7 @@
 #include "L1Trigger/TrackFindingTMTT/interface/StubFEWindows.h"
 
 #include <vector>
+#include <memory>
 
 class TrackerTopology;
 
@@ -29,13 +30,8 @@ namespace tmtt {
     // Configure
     StubWindowSuggest(const Settings* settings) : settings_(settings), ptMin_(settings->houghMinPt()) {}
 
-    ~StubWindowSuggest() {}
-
     // Get FE window size arrays (via copy) used with stub producer, but set to zero.
-    void setFEWindows(const StubFEWindows* sw) {
-      sw_ = *sw;
-      sw_.setZero();
-    }
+    void setFEWindows(const StubFEWindows* sw);
 
     // Analyse stub window required for this stub.
     void process(const TrackerTopology* trackerTopo, const Stub* stub);
@@ -53,7 +49,7 @@ namespace tmtt {
     const float ptMin_;
 
     // Stub window sizes as encoded in L1Trigger/TrackTrigger/interface/TTStubAlgorithm_official.h
-    StubFEWindows sw_;
+    std::unique_ptr<StubFEWindows> sw_;
   };
 
 }  // namespace tmtt

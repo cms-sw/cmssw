@@ -11,15 +11,24 @@
 
 using namespace std;
 
-namespace {
-  std::mutex myMutex;
-}
-
 namespace tmtt {
+
+  //=== Get FE window size arrays (via copy) used with stub producer, but set to zero.
+
+  void StubWindowSuggest::setFEWindows(const StubFEWindows* sw) {
+    static std::mutex myMutex;
+    std::lock_guard<std::mutex> myGuard(myMutex);  // Allow only one thread.
+    // Only need to create FE windows once.
+    if (not sw_) {
+      sw_ = std::make_unique<StubFEWindows>(*sw);  // Copy
+      sw_->setZero();
+    }
+  }
 
   //=== Analyse stub window required for this stub.
 
   void StubWindowSuggest::process(const TrackerTopology* trackerTopo, const Stub* stub) {
+    static std::mutex myMutex;
     std::lock_guard<std::mutex> myGuard(myMutex);  // Allow only one thread.
 
     // Half-size of FE chip bend window corresponding to Pt range in which tracks are to be found.
@@ -43,37 +52,8 @@ namespace tmtt {
 
     DetId stDetId(stub->trackerModule()->detId());
 
-    double* storedHalfWindow = sw_.storedWindowSize(trackerTopo, stDetId);
-    /*
-    if (stDetId.subdetId() == StripSubdetector::TOB) {
-      unsigned int layer = trackerTopo->layer(stDetId);
-      unsigned int ladder = trackerTopo->tobRod(stDetId);
-      int type = 2 * trackerTopo->tobSide(stDetId) - 3;  // -1 for tilted-, 1 for tilted+, 3 for flat
-      double corr = 0;
+    double* storedHalfWindow = sw_->storedWindowSize(trackerTopo, stDetId);
 
-      if (type != TrackerModule::BarrelModuleType::flat)  // Only for tilted modules
-      {
-        corr = (sw_.numTiltedLayerRings().at(layer) + 1) / 2.;
-	// Corrected ring number, between 0 and barrelNTilt.at(layer), in ascending |z|
-        ladder = corr - (corr - ladder) * type;  
-        double& storedHalfWindow = (sw_.windowSizeTiltedLayersRings().at(layer)).at(ladder);
-        if (storedHalfWindow < bendHalfWind)
-          storedHalfWindow = bendHalfWind;
-      } else  // Classic barrel window otherwise
-      {
-        double& storedHalfWindow = sw_.windowSizeBarrelLayers().at(layer);
-        if (storedHalfWindow < bendHalfWind)
-          storedHalfWindow = bendHalfWind;
-      }
-
-    } else if (stDetId.subdetId() == StripSubdetector::TID) {
-      unsigned int wheel = trackerTopo->tidWheel(stDetId);
-      unsigned int ring = trackerTopo->tidRing(stDetId);
-      double& storedHalfWindow = sw_.windowSizeEndcapDisksRings().at(wheel).at(ring);
-      if (storedHalfWindow < bendHalfWind)
-        storedHalfWindow = bendHalfWind;
-    }
-*/
     if (*storedHalfWindow < bendHalfWind)
       *storedHalfWindow = bendHalfWind;
   }
@@ -93,7 +73,7 @@ namespace tmtt {
 
     text << "BarrelCut = cms.vdouble( ";
     div = "";
-    for (const auto& cut : sw_.windowSizeBarrelLayers()) {
+    for (const auto& cut : sw_->windowSizeBarrelLayers()) {
       text << div << cut;
       div = ", ";
     }
@@ -101,7 +81,7 @@ namespace tmtt {
     PrintL1trk(1) << text.str();
 
     PrintL1trk(1) << "TiltedBarrelCutSet = cms.VPSET( ";
-    for (const auto& cutVec : sw_.windowSizeTiltedLayersRings()) {
+    for (const auto& cutVec : sw_->windowSizeTiltedLayersRings()) {
       text.str("");
       text << "     cms.PSet( TiltedCut = cms.vdouble(";
       if (cutVec.empty())
@@ -117,7 +97,7 @@ namespace tmtt {
     PrintL1trk(1) << "),";
 
     PrintL1trk(1) << "EndcapCutSet = cms.VPSET( ";
-    for (const auto& cutVec : sw_.windowSizeEndcapDisksRings()) {
+    for (const auto& cutVec : sw_->windowSizeEndcapDisksRings()) {
       text.str("");
       text << "     cms.PSet( EndcapCut = cms.vdouble(";
       if (cutVec.empty())

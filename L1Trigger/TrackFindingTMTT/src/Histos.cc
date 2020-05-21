@@ -12,15 +12,15 @@
 #include "DataFormats/Math/interface/deltaR.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include "TH1F.h"
-#include "TH2F.h"
-#include "TH2Poly.h"
-#include "TF1.h"
-#include "TPad.h"
-#include "TProfile.h"
-#include "TGraphAsymmErrors.h"
-#include "TGraph.h"
-#include "TEfficiency.h"
+#include <TH1F.h>
+#include <TH2F.h>
+#include <TH2Poly.h>
+#include <TF1.h>
+#include <TPad.h>
+#include <TProfile.h>
+#include <TGraphAsymmErrors.h>
+#include <TGraph.h>
+#include <TEfficiency.h>
 
 #include <algorithm>
 #include <array>
@@ -33,11 +33,6 @@
 using namespace std;
 
 namespace tmtt {
-
-  namespace {
-    std::once_flag printOnce;
-    std::mutex myMutex[6];
-  }  // namespace
 
   //=== Store cfg parameters.
 
@@ -130,43 +125,36 @@ namespace tmtt {
     hisStubsVsR_ = inputDir.make<TH1F>("StubsVsR", "; radius (cm); No. stubs in tracker", 1200, 0., 120.);
 
     hisNumLayersPerTP_ =
-        inputDir.make<TH1F>("NumLayersPerTP", "; Number of layers per TP for alg. eff.", 50, -0.5, 49.5);
+        inputDir.make<TH1F>("NumLayersPerTP", "; Number of layers per TP for alg. eff.", 20, -0.5, 19.5);
     hisNumPSLayersPerTP_ =
-        inputDir.make<TH1F>("NumPSLayersPerTP", "; Number of PS layers per TP for alg. eff.", 50, -0.5, 49.5);
+        inputDir.make<TH1F>("NumPSLayersPerTP", "; Number of PS layers per TP for alg. eff.", 20, -0.5, 19.5);
 
     // Study efficiency of tightened front end-electronics cuts.
 
     hisStubKillFE_ = inputDir.make<TProfile>(
-        "StubKillFE", "; barrelLayer or 10+endcapRing; Stub fraction rejected by readout chip", 30, -0.5, 29.5);
+        "StubKillFE", "; barrelLayer or 10+endcapRing; Stub fraction rejected by FE chip", 30, -0.5, 29.5);
     hisStubIneffiVsInvPt_ =
-        inputDir.make<TProfile>("StubIneffiVsPt", "; 1/Pt; Inefficiency of readout chip for good stubs", 30, 0.0, 1.0);
-    hisStubIneffiVsEta_ = inputDir.make<TProfile>(
-        "StubIneffiVsEta", "; |#eta|; Inefficiency of readout chip for good stubs", 30, 0.0, 3.0);
+        inputDir.make<TProfile>("StubIneffiVsPt", "; 1/Pt; Inefficiency of FE chip for good stubs", 25, 0.0, 0.5);
+    hisStubIneffiVsEta_ =
+        inputDir.make<TProfile>("StubIneffiVsEta", "; |#eta|; Inefficiency of FE chip for good stubs", 15, 0.0, 3.0);
 
     // Study stub resolution.
 
-    hisBendStub_ = inputDir.make<TH1F>("BendStub", "; Stub bend in units of strips", 57, -7.125, 7.125);
+    hisBendStub_ = inputDir.make<TH1F>("BendStub", "; Stub bend in units of strips", 59, -7.375, 7.375);
     hisBendResStub_ = inputDir.make<TH1F>("BendResStub", "; Stub bend minus TP bend in units of strips", 100, -5., 5.);
 
     // Histos for denominator of tracking efficiency
-    float maxAbsQoverPt = 1. / houghMinPt_;  // Max. |q/Pt| covered by  HT array.
-    hisTPinvptForEff_ =
-        inputDir.make<TH1F>("TPinvptForEff", "; 1/Pt of TP (used for effi. measurement);", 24, 0., 1.5 * maxAbsQoverPt);
-    hisTPetaForEff_ = inputDir.make<TH1F>("TPetaForEff", "; #eta of TP (used for effi. measurement);", 20, -3., 3.);
-    hisTPphiForEff_ = inputDir.make<TH1F>("TPphiForEff", "; #phi of TP (used for effi. measurement);", 20, -M_PI, M_PI);
-    hisTPd0ForEff_ = inputDir.make<TH1F>("TPd0ForEff", "; d0 of TP (used for effi. measurement);", 40, 0., 4.);
-    hisTPz0ForEff_ = inputDir.make<TH1F>("TPz0ForEff", "; z0 of TP (used for effi. measurement);", 50, 0., 25.);
+    hisTPinvptForEff_ = inputDir.make<TH1F>("TPinvptForEff", "; TP 1/Pt (for effi.);", 50, 0., 0.5);
+    hisTPetaForEff_ = inputDir.make<TH1F>("TPetaForEff", "; TP #eta (for effi.);", 20, -3., 3.);
+    hisTPphiForEff_ = inputDir.make<TH1F>("TPphiForEff", "; TP #phi (for effi.);", 20, -M_PI, M_PI);
+    hisTPd0ForEff_ = inputDir.make<TH1F>("TPd0ForEff", "; TP d0 (for effi.);", 40, 0., 4.);
+    hisTPz0ForEff_ = inputDir.make<TH1F>("TPz0ForEff", "; TP z0 (for effi.);", 50, 0., 25.);
     //
-    hisTPinvptForAlgEff_ = inputDir.make<TH1F>(
-        "TPinvptForAlgEff", "; 1/Pt of TP (used for alg. effi. measurement);", 24, 0., 1.5 * maxAbsQoverPt);
-    hisTPetaForAlgEff_ =
-        inputDir.make<TH1F>("TPetaForAlgEff", "; #eta of TP (used for alg. effi. measurement);", 20, -3., 3.);
-    hisTPphiForAlgEff_ =
-        inputDir.make<TH1F>("TPphiForAlgEff", "; #phi of TP (used for alg. effi. measurement);", 20, -M_PI, M_PI);
-    hisTPd0ForAlgEff_ =
-        inputDir.make<TH1F>("TPd0ForAlgEff", "; d0 of TP (used for alg. effi. measurement);", 40, 0., 4.);
-    hisTPz0ForAlgEff_ =
-        inputDir.make<TH1F>("TPz0ForAlgEff", "; z0 of TP (used for alg. effi. measurement);", 50, 0., 25.);
+    hisTPinvptForAlgEff_ = inputDir.make<TH1F>("TPinvptForAlgEff", "; TP 1/Pt (for alg. effi.);", 50, 0., 0.5);
+    hisTPetaForAlgEff_ = inputDir.make<TH1F>("TPetaForAlgEff", "; TP #eta (for alg. effi.);", 20, -3., 3.);
+    hisTPphiForAlgEff_ = inputDir.make<TH1F>("TPphiForAlgEff", "; TP #phi (for alg. effi.);", 20, -M_PI, M_PI);
+    hisTPd0ForAlgEff_ = inputDir.make<TH1F>("TPd0ForAlgEff", "; TP d0 (for alg. effi.);", 40, 0., 4.);
+    hisTPz0ForAlgEff_ = inputDir.make<TH1F>("TPz0ForAlgEff", "; TP z0 (for alg. effi.);", 50, 0., 25.);
 
     return inputDir;
   }
@@ -175,7 +163,8 @@ namespace tmtt {
 
   void Histos::fillInputData(const InputData& inputData) {
     // Allow only one thread to run this function at a time
-    std::lock_guard<std::mutex> myGuard(myMutex[0]);
+    static std::mutex myMutex;
+    std::lock_guard<std::mutex> myGuard(myMutex);
 
     const list<const Stub*>& vStubs = inputData.stubsConst();
     const list<TP>& vTPs = inputData.getTPs();
@@ -382,12 +371,12 @@ namespace tmtt {
 
     // Check if stubs excessively duplicated between overlapping sectors.
     hisNumEtaSecsPerStub_ =
-        inputDir.make<TH1F>("NumEtaSecPerStub", "; Number of #eta sectors each stub appears in", 20, -0.5, 19.5);
+        inputDir.make<TH1F>("NumEtaSecPerStub", "; No. of #eta sectors each stub in", 20, -0.5, 19.5);
     hisNumPhiSecsPerStub_ =
-        inputDir.make<TH1F>("NumPhiSecPerStub", "; Number of #phi sectors each stub appears in", 20, -0.5, 19.5);
+        inputDir.make<TH1F>("NumPhiSecPerStub", "; No. of #phi sectors each stub in", 20, -0.5, 19.5);
 
     // Count stubs per (eta,phi) sector.
-    hisNumStubsPerSec_ = inputDir.make<TH1F>("NumStubsPerSec", "; Number of stubs per sector", 250, -0.5, 249.5);
+    hisNumStubsPerSec_ = inputDir.make<TH1F>("NumStubsPerSec", "; No. of stubs per sector", 150, -0.5, 299.5);
 
     return inputDir;
   }
@@ -396,7 +385,8 @@ namespace tmtt {
 
   void Histos::fillEtaPhiSectors(const InputData& inputData, const matrix<unique_ptr<Sector>>& mSectors) {
     // Allow only one thread to run this function at a time
-    std::lock_guard<std::mutex> myGuard(myMutex[1]);
+    static std::mutex myMutex;
+    std::lock_guard<std::mutex> myGuard(myMutex);
 
     const list<const Stub*>& vStubs = inputData.stubsConst();
     //const list<TP>& vTPs = inputData.getTPs();
@@ -455,8 +445,9 @@ namespace tmtt {
   void Histos::fillRphiHT(const matrix<unique_ptr<HTrphi>>& mHtRphis) {
     //--- Loop over (eta,phi) sectors, counting the number of stubs in the HT array of each.
 
-    // Allow only one thread to run this function at a time
-    std::lock_guard<std::mutex> myGuard(myMutex[2]);
+    // Allow only one thread to run this function at a time (UNCOMMENT IF YOU ADD HISTOS HERE)
+    //static std::mutex myMutex;
+    //std::lock_guard<std::mutex> myGuard(myMutex);
   }
 
   //=== Book histograms about r-z track filters (or other filters applied after r-phi HT array).
@@ -470,8 +461,9 @@ namespace tmtt {
   //=== Fill histograms about r-z track filters.
 
   void Histos::fillRZfilters(const matrix<unique_ptr<Make3Dtracks>>& mMake3Dtrks) {
-    // Allow only one thread to run this function at a time
-    std::lock_guard<std::mutex> myGuard(myMutex[3]);
+    // Allow only one thread to run this function at a time (UNCOMMENT IF YOU ADD HISTOS HERE)
+    //static std::mutex myMutex;
+    //std::lock_guard<std::mutex> myGuard(myMutex);
   }
 
   //=== Book histograms studying track candidates found by Hough Transform.
@@ -496,11 +488,11 @@ namespace tmtt {
     profNumTrackCands_[tName]->GetXaxis()->SetBinLabel(1, "reco tracks including fakes");
     profNumTrackCands_[tName]->LabelsOption("d");
 
+    hisNumTrksPerNon_[tName] = inputDir.make<TH1F>(addn("NumTrksPerNon"), "; No. tracks per nonant;", 100, -0.5, 399.5);
+
     unsigned int nEta = numEtaRegions_;
-    float maxAbsQoverPt = 1. / houghMinPt_;  // Max. |q/Pt| covered by  HT array.
-    hisNumTracksVsQoverPt_[tName] = inputDir.make<TH1F>(
-        addn("NumTracksVsQoverPt"), "; Q/Pt; No. of tracks in tracker", 100, -maxAbsQoverPt, maxAbsQoverPt);
-    hisNumTrksPerNon_[tName] = inputDir.make<TH1F>(addn("NumTrksPerNon"), "; No. tracks per nonant;", 200, -0.5, 199.5);
+    hisNumTracksVsQoverPt_[tName] =
+        inputDir.make<TH1F>(addn("NumTracksVsQoverPt"), "; Q/Pt; No. of tracks in tracker", 100, -0.5, 0.5);
     if (TMTT) {
       profNumTracksVsEta_[tName] = inputDir.make<TProfile>(
           addn("NumTracksVsEta"), "; #eta region; No. of tracks in tracker", nEta, -0.5, nEta - 0.5);
@@ -511,7 +503,7 @@ namespace tmtt {
     profStubsOnTracks_[tName] =
         inputDir.make<TProfile>(addn("StubsOnTracks"), "; ; No. of stubs on tracks per event", 1, 0.5, 1.5);
     hisStubsOnTracksPerNon_[tName] =
-        inputDir.make<TH1F>(addn("StubsOnTracksPerNon"), "; No. of stubs on tracks per nonant", 1000, -0.5, 999.5);
+        inputDir.make<TH1F>(addn("StubsOnTracksPerNon"), "; No. of stubs on tracks per nonant", 100, -0.5, 4999.5);
 
     hisStubsPerTrack_[tName] = inputDir.make<TH1F>(addn("StubsPerTrack"), ";No. of stubs per track;", 50, -0.5, 49.5);
     hisLayersPerTrack_[tName] =
@@ -519,26 +511,26 @@ namespace tmtt {
 
     if (TMTT) {
       hisNumStubsPerLink_[tName] =
-          inputDir.make<TH1F>(addn("NumStubsPerLink"), "; Mean #stubs per MHT output opto-link;", 50, -0.5, 199.5);
+          inputDir.make<TH1F>(addn("NumStubsPerLink"), "; Mean #stubs per MHT output opto-link;", 50, -0.5, 249.5);
       profMeanStubsPerLink_[tName] =
           inputDir.make<TProfile>(addn("MeanStubsPerLink"), "; Mean #stubs per MHT output opto-link;", 36, -0.5, 35.5);
     }
 
     hisFracMatchStubsOnTracks_[tName] = inputDir.make<TH1F>(
-        addn("FracMatchStubsOnTracks"), "; Fraction of stubs on tracks matching best TP;", 101, -0.005, 1.005);
+        addn("FracMatchStubsOnTracks"), "; Frac. of stubs per trk matching best TP;", 101, -0.005, 1.005);
 
     if (TMTT) {
-      // Study duplication of tracks within HT.
-      profDupTracksVsEta_[tName] = inputDir.make<TProfile>(
-          addn("DupTracksVsTPeta"), "; #eta; No. of duplicate tracks per TP in individual HT array;", 15, 0.0, 3.0);
-      profDupTracksVsInvPt_[tName] = inputDir.make<TProfile>(
-          addn("DupTracksVsInvPt"), "; 1/Pt; No. of duplicate tracks per TP", 16, 0., maxAbsQoverPt);
+      // Study duplication of tracks within an individual HT array.
+      profDupTracksVsEta_[tName] =
+          inputDir.make<TProfile>(addn("DupTracksVsTPeta"), "; #eta; No. of dup. trks per TP;", 15, 0.0, 3.0);
+      profDupTracksVsInvPt_[tName] =
+          inputDir.make<TProfile>(addn("DupTracksVsInvPt"), "; 1/Pt; No. of dup. trks per TP", 25, 0., 0.5);
     }
 
     // Histos of track params.
     hisQoverPt_[tName] = inputDir.make<TH1F>(addn("QoverPt"), "; track q/Pt", 100, -0.5, 0.5);
     hisPhi0_[tName] = inputDir.make<TH1F>(addn("Phi0"), "; track #phi0", 70, -3.5, 3.5);
-    hisEta_[tName] = inputDir.make<TH1F>(addn("Eta"), "; track #eta", 70, -3.5, 3.5);
+    hisEta_[tName] = inputDir.make<TH1F>(addn("Eta"), "; track #eta", 60, -3.0, 3.0);
     hisZ0_[tName] = inputDir.make<TH1F>(addn("Z0"), "; track z0", 100, -25.0, 25.0);
 
     // Histos of track parameter resolution
@@ -548,47 +540,44 @@ namespace tmtt {
     hisZ0Res_[tName] = inputDir.make<TH1F>(addn("Z0Res"), "; track resolution in z0", 100, -10.0, 10.0);
 
     // Histos for tracking efficiency vs. TP kinematics
-    hisRecoTPinvptForEff_[tName] = inputDir.make<TH1F>(
-        addn("RecoTPinvptForEff"), "; 1/Pt of TP (used for effi. measurement);", 24, 0., 1.5 * maxAbsQoverPt);
+    hisRecoTPinvptForEff_[tName] =
+        inputDir.make<TH1F>(addn("RecoTPinvptForEff"), "; TP 1/Pt of recoed tracks (for effi.);", 50, 0., 0.5);
     hisRecoTPetaForEff_[tName] =
-        inputDir.make<TH1F>(addn("RecoTPetaForEff"), "; #eta of TP (used for effi. measurement);", 20, -3., 3.);
+        inputDir.make<TH1F>(addn("RecoTPetaForEff"), "; TP #eta of recoed tracks (for effi.);", 20, -3., 3.);
     hisRecoTPphiForEff_[tName] =
-        inputDir.make<TH1F>(addn("RecoTPphiForEff"), "; #phi of TP (used for effi. measurement);", 20, -M_PI, M_PI);
+        inputDir.make<TH1F>(addn("RecoTPphiForEff"), "; TP #phi of recoed tracks (for effi.);", 20, -M_PI, M_PI);
 
     // Histo for efficiency to reconstruct track perfectly (no incorrect hits).
     hisPerfRecoTPinvptForEff_[tName] = inputDir.make<TH1F>(
-        addn("PerfRecoTPinvptForEff"), "; 1/Pt of TP (used for perf. effi. measurement);", 24, 0., 1.5 * maxAbsQoverPt);
-    hisPerfRecoTPetaForEff_[tName] = inputDir.make<TH1F>(
-        addn("PerfRecoTPetaForEff"), "; #eta of TP (used for perf. effi. measurement);", 20, -3., 3.);
+        addn("PerfRecoTPinvptForEff"), "; TP 1/Pt of recoed tracks (for perf. effi.);", 50, 0., 0.5);
+    hisPerfRecoTPetaForEff_[tName] =
+        inputDir.make<TH1F>(addn("PerfRecoTPetaForEff"), "; TP #eta of recoed tracks (for perf. effi.);", 20, -3., 3.);
 
     // Histos for  tracking efficiency vs. TP production point
     hisRecoTPd0ForEff_[tName] =
-        inputDir.make<TH1F>(addn("RecoTPd0ForEff"), "; d0 of TP (used for effi. measurement);", 40, 0., 4.);
+        inputDir.make<TH1F>(addn("RecoTPd0ForEff"), "; TP d0 of recoed tracks (for effi.);", 40, 0., 4.);
     hisRecoTPz0ForEff_[tName] =
-        inputDir.make<TH1F>(addn("RecoTPz0ForEff"), "; z0 of TP (used for effi. measurement);", 50, 0., 25.);
+        inputDir.make<TH1F>(addn("RecoTPz0ForEff"), "; TP z0 of recoed tracks (for effi.);", 50, 0., 25.);
 
     // Histos for algorithmic tracking efficiency vs. TP kinematics
-    hisRecoTPinvptForAlgEff_[tName] = inputDir.make<TH1F>(
-        addn("RecoTPinvptForAlgEff"), "; 1/Pt of TP (used for alg. effi. measurement);", 24, 0., 1.5 * maxAbsQoverPt);
+    hisRecoTPinvptForAlgEff_[tName] =
+        inputDir.make<TH1F>(addn("RecoTPinvptForAlgEff"), "; TP 1/Pt of recoed tracks (for alg. effi.);", 50, 0., 0.5);
     hisRecoTPetaForAlgEff_[tName] =
-        inputDir.make<TH1F>(addn("RecoTPetaForAlgEff"), "; #eta of TP (used for alg. effi. measurement);", 20, -3., 3.);
+        inputDir.make<TH1F>(addn("RecoTPetaForAlgEff"), "; TP #eta of recoed tracks (for alg. effi.);", 20, -3., 3.);
     hisRecoTPphiForAlgEff_[tName] = inputDir.make<TH1F>(
-        addn("RecoTPphiForAlgEff"), "; #phi of TP (used for alg. effi. measurement);", 20, -M_PI, M_PI);
+        addn("RecoTPphiForAlgEff"), "; TP #phi of recoed tracks (for alg. effi.);", 20, -M_PI, M_PI);
 
     // Histo for efficiency to reconstruct track perfectly (no incorrect hits).
-    hisPerfRecoTPinvptForAlgEff_[tName] = inputDir.make<TH1F>(addn("PerfRecoTPinvptForAlgEff"),
-                                                              "; 1/Pt of TP (used for perf. alg. effi. measurement);",
-                                                              24,
-                                                              0.,
-                                                              1.5 * maxAbsQoverPt);
-    hisPerfRecoTPetaForAlgEff_[tName] = inputDir.make<TH1F>(
-        addn("PerfRecoTPetaForAlgEff"), "; #eta of TP (used for perf. alg. effi. measurement);", 20, -3., 3.);
+    hisPerfRecoTPinvptForAlgEff_[tName] = inputDir.make<TH1F>(
+        addn("PerfRecoTPinvptForAlgEff"), "; TP 1/Pt of recoed tracks (for perf. alg. effi.);", 50, 0., 0.5);
+    hisPerfRecoTPetaForAlgEff_[tName] =
+        inputDir.make<TH1F>(addn("PerfRecoTPetaForAlgEff"), "; TP #eta (for perf. alg. effi.);", 20, -3., 3.);
 
     // Histos for algorithmic tracking efficiency vs. TP production point
     hisRecoTPd0ForAlgEff_[tName] =
-        inputDir.make<TH1F>(addn("RecoTPd0ForAlgEff"), "; d0 of TP (used for alg. effi. measurement);", 40, 0., 4.);
+        inputDir.make<TH1F>(addn("RecoTPd0ForAlgEff"), "; TP d0 of recoed tracks (for alg. effi.);", 40, 0., 4.);
     hisRecoTPz0ForAlgEff_[tName] =
-        inputDir.make<TH1F>(addn("RecoTPz0ForAlgEff"), "; z0 of TP (used for alg. effi. measurement);", 50, 0., 25.);
+        inputDir.make<TH1F>(addn("RecoTPz0ForAlgEff"), "; TP z0 of recoed tracks (for alg. effi.);", 50, 0., 25.);
 
     return inputDir;
   }
@@ -599,7 +588,8 @@ namespace tmtt {
                               const matrix<std::unique_ptr<Make3Dtracks>>& mMake3Dtrks,
                               const string& tName) {
     // Allow only one thread to run this function at a time
-    std::lock_guard<std::mutex> myGuard(myMutex[4]);
+    static std::mutex myMutex;
+    std::lock_guard<std::mutex> myGuard(myMutex);
 
     vector<L1track3D> tracks;
     bool withRZfilter = (tName == "RZ") ? true : false;
@@ -683,6 +673,7 @@ namespace tmtt {
             } else {
               std::stringstream text;
               text << "\n ===== HISTOS MESS UP: Increase size of nLinks ===== " << link << "\n";
+              static std::once_flag printOnce;
               std::call_once(
                   printOnce, [](string t) { edm::LogWarning("L1track") << t; }, text.str());
             }
@@ -701,12 +692,13 @@ namespace tmtt {
     for (const L1track3D& trk : tracks) {
       hisNumTracksVsQoverPt_[tName]->Fill(trk.qOverPt());  // Plot reconstructed q/Pt of track cands.
       hisStubsPerTrack_[tName]->Fill(trk.numStubs());      // Stubs per track.
+      hisLayersPerTrack_[tName]->Fill(trk.numLayers());
     }
 
     // Count fraction of stubs on each track matched to a TP that are from same TP.
 
     for (const L1track3D& trk : tracks) {
-      // Only consider tracks that match a tracking particle used for the alg. efficiency measurement.
+      // Only consider tracks that match a tracking particle for the alg. efficiency measurement.
       const TP* tp = trk.matchedTP();
       if (tp != nullptr) {
         if (tp->useForAlgEff()) {
@@ -718,9 +710,8 @@ namespace tmtt {
     // Count total number of tracking particles in the event that were reconstructed,
     // counting also how many of them were reconstructed multiple times (duplicate tracks).
 
-    unsigned int nRecoedTPsForEff =
-        0;  // Total no. of TPs used for the efficiency measurement that were reconstructed as at least one track.
-    unsigned int nRecoedTPs = 0;           // Total no. of TPs that were reconstructed as at least one track.
+    unsigned int nRecoedTPsForEff = 0;     // Total no. of TPs for effi measurement recoed as >= 1 track.
+    unsigned int nRecoedTPs = 0;           // Total no. of TPs recoed as >= 1 one track.
     unsigned int nEtaSecsMatchingTPs = 0;  // Total no. of eta sectors that all TPs were reconstructed in
     unsigned int nSecsMatchingTPs = 0;     // Total no. of eta x phi sectors that all TPs were reconstructed in
     unsigned int nTrksMatchingTPs = 0;     // Total no. of tracks that all TPs were reconstructed as
@@ -779,7 +770,7 @@ namespace tmtt {
 
     //--- Plot mean number of tracks/event, counting number due to different kinds of duplicates
 
-    // Plot number of TPs used for the efficiency measurement that are reconstructed.
+    // Plot number of TPs for the efficiency measurement that are reconstructed.
     profNumTrackCands_[tName]->Fill(7.0, nRecoedTPsForEff);
     // Plot number of TPs that are reconstructed.
     profNumTrackCands_[tName]->Fill(6.0, nRecoedTPs);
@@ -873,9 +864,6 @@ namespace tmtt {
   //=== Book histograms for studying track fitting.
 
   map<string, TFileDirectory> Histos::bookTrackFitting() {
-    const float maxEta = settings_->maxStubEta();
-    const float maxAbsQoverPt = 1. / houghMinPt_;  // Max. |q/Pt| covered by  HT array.
-
     map<string, TFileDirectory> inputDirMap;
 
     for (const string& fitName : trackFitters_) {
@@ -925,28 +913,25 @@ namespace tmtt {
       hisFitEtaUnmatched_[fitName] =
           inputDir.make<TH1F>(addn("FitEtaUnmatched"), "Fitted #eta for unmatched tracks", 70, -3.5, 3.5);
 
-      const unsigned int nBinsChi2 = 29;
-      const float chi2dofBins[nBinsChi2 + 1] = {0.0, 0.2, 0.4,  0.6,  0.8,  1.0,  1.2,  1.4,  1.6,  1.8,
-                                                2.0, 2.4, 2.8,  3.2,  3.6,  4.0,  4.5,  5.0,  6.0,  7.0,
-                                                8.0, 9.0, 10.0, 12.0, 14.0, 16.0, 18.0, 20.0, 25.0, 30.0};
+      const unsigned int nBinsChi2 = 39;
+      const float chi2dofBins[nBinsChi2 + 1] = {0.0,  0.2,  0.4,  0.6,   0.8,   1.0,   1.2,   1.4,   1.6,   1.8,
+                                                2.0,  2.4,  2.8,  3.2,   3.6,   4.0,   4.5,   5.0,   6.0,   7.0,
+                                                8.0,  9.0,  10.0, 12.0,  14.0,  16.0,  18.0,  20.0,  25.0,  30.0,
+                                                40.0, 50.0, 75.0, 100.0, 150.0, 200.0, 250.0, 350.0, 500.0, 1000.0};
 
-      hisFitChi2DofMatched_[fitName] =
-          inputDir.make<TH1F>(addn("FitChi2DofMatched"), ";#chi^{2}/DOF;", nBinsChi2, chi2dofBins);
       hisFitChi2DofRphiMatched_[fitName] =
           inputDir.make<TH1F>(addn("FitChi2DofRphiMatched"), ";#chi^{2}rphi;", nBinsChi2, chi2dofBins);
       hisFitChi2DofRzMatched_[fitName] =
           inputDir.make<TH1F>(addn("FitChi2DofRzMatched"), ";#chi^{2}rz/DOF;", nBinsChi2, chi2dofBins);
-      profFitChi2DofVsInvPtMatched_[fitName] = inputDir.make<TProfile>(
-          addn("FitChi2DofVsInvPtMatched"), "; 1/p_{T}; Fit #chi^{2}/dof", 25, 0., maxAbsQoverPt);
+      profFitChi2DofRphiVsInvPtMatched_[fitName] =
+          inputDir.make<TProfile>(addn("FitChi2DofRphiVsInvPtMatched"), "; 1/p_{T}; Fit #chi^{2}rphi/dof", 25, 0., 0.5);
 
-      hisFitChi2DofUnmatched_[fitName] =
-          inputDir.make<TH1F>(addn("FitChi2DofUnmatched"), ";#chi^{2}/DOF;", nBinsChi2, chi2dofBins);
       hisFitChi2DofRphiUnmatched_[fitName] =
           inputDir.make<TH1F>(addn("FitChi2DofRphiUnmatched"), ";#chi^{2}rphi/DOF;", nBinsChi2, chi2dofBins);
       hisFitChi2DofRzUnmatched_[fitName] =
           inputDir.make<TH1F>(addn("FitChi2DofRzUnmatched"), ";#chi^{2}rz/DOF;", nBinsChi2, chi2dofBins);
-      profFitChi2DofVsInvPtUnmatched_[fitName] = inputDir.make<TProfile>(
-          addn("FitChi2DofVsInvPtUnmatched"), "; 1/p_{T}; Fit #chi2/dof", 25, 0., maxAbsQoverPt);
+      profFitChi2DofRphiVsInvPtUnmatched_[fitName] = inputDir.make<TProfile>(
+          addn("FitChi2DofRphiVsInvPtUnmatched"), "; 1/p_{T}; Fit #chi^{2}rphi/dof", 25, 0., 0.5);
 
       // Monitoring specific track fit algorithms.
       if (fitName.find("KF") != string::npos) {
@@ -970,76 +955,72 @@ namespace tmtt {
       // Plots of helix param resolution.
 
       hisQoverPtResVsTrueEta_[fitName] = inputDir.make<TProfile>(
-          addn("QoverPtResVsTrueEta"), "q/p_{T} resolution; |#eta|; q/p_{T} resolution", 24, 0.0, maxEta);
+          addn("QoverPtResVsTrueEta"), "q/p_{T} resolution; |#eta|; q/p_{T} resolution", 30, 0.0, 3.0);
       hisPhi0ResVsTrueEta_[fitName] = inputDir.make<TProfile>(
-          addn("PhiResVsTrueEta"), "#phi_{0} resolution; |#eta|; #phi_{0} resolution", 24, 0.0, maxEta);
+          addn("PhiResVsTrueEta"), "#phi_{0} resolution; |#eta|; #phi_{0} resolution", 30, 0.0, 3.0);
       hisEtaResVsTrueEta_[fitName] =
-          inputDir.make<TProfile>(addn("EtaResVsTrueEta"), "#eta resolution; |#eta|; #eta resolution", 24, 0.0, maxEta);
-      hisZ0ResVsTrueEta_[fitName] = inputDir.make<TProfile>(
-          addn("Z0ResVsTrueEta"), "z_{0} resolution; |#eta|; z_{0} resolution", 24, 0.0, maxEta);
-      hisD0ResVsTrueEta_[fitName] = inputDir.make<TProfile>(
-          addn("D0ResVsTrueEta"), "d_{0} resolution; |#eta|; d_{0} resolution", 24, 0.0, maxEta);
+          inputDir.make<TProfile>(addn("EtaResVsTrueEta"), "#eta resolution; |#eta|; #eta resolution", 30, 0.0, 3.0);
+      hisZ0ResVsTrueEta_[fitName] =
+          inputDir.make<TProfile>(addn("Z0ResVsTrueEta"), "z_{0} resolution; |#eta|; z_{0} resolution", 30, 0.0, 3.0);
+      hisD0ResVsTrueEta_[fitName] =
+          inputDir.make<TProfile>(addn("D0ResVsTrueEta"), "d_{0} resolution; |#eta|; d_{0} resolution", 30, 0.0, 3.0);
 
       hisQoverPtResVsTrueInvPt_[fitName] = inputDir.make<TProfile>(
-          addn("QoverPtResVsTrueInvPt"), "q/p_{T} resolution; 1/p_{T}; q/p_{T} resolution", 25, 0.0, maxAbsQoverPt);
+          addn("QoverPtResVsTrueInvPt"), "q/p_{T} resolution; 1/p_{T}; q/p_{T} resolution", 25, 0.0, 0.5);
       hisPhi0ResVsTrueInvPt_[fitName] = inputDir.make<TProfile>(
-          addn("PhiResVsTrueInvPt"), "#phi_{0} resolution; 1/p_{T}; #phi_{0} resolution", 25, 0.0, maxAbsQoverPt);
-      hisEtaResVsTrueInvPt_[fitName] = inputDir.make<TProfile>(
-          addn("EtaResVsTrueInvPt"), "#eta resolution; 1/p_{T}; #eta resolution", 25, 0.0, maxAbsQoverPt);
+          addn("PhiResVsTrueInvPt"), "#phi_{0} resolution; 1/p_{T}; #phi_{0} resolution", 25, 0.0, 0.5);
+      hisEtaResVsTrueInvPt_[fitName] =
+          inputDir.make<TProfile>(addn("EtaResVsTrueInvPt"), "#eta resolution; 1/p_{T}; #eta resolution", 25, 0.0, 0.5);
       hisZ0ResVsTrueInvPt_[fitName] = inputDir.make<TProfile>(
-          addn("Z0ResVsTrueInvPt"), "z_{0} resolution; 1/p_{T}; z_{0} resolution", 25, 0.0, maxAbsQoverPt);
+          addn("Z0ResVsTrueInvPt"), "z_{0} resolution; 1/p_{T}; z_{0} resolution", 25, 0.0, 0.5);
       hisD0ResVsTrueInvPt_[fitName] = inputDir.make<TProfile>(
-          addn("D0ResVsTrueInvPt"), "d_{0} resolution; 1/p_{T}; d_{0} resolution", 25, 0.0, maxAbsQoverPt);
+          addn("D0ResVsTrueInvPt"), "d_{0} resolution; 1/p_{T}; d_{0} resolution", 25, 0.0, 0.5);
 
       // Duplicate track histos.
       profDupFitTrksVsEta_[fitName] =
           inputDir.make<TProfile>(addn("DupFitTrksVsEta"), "; #eta; No. of duplicate tracks per TP", 12, 0., 3.);
-      profDupFitTrksVsInvPt_[fitName] = inputDir.make<TProfile>(
-          addn("DupFitTrksVsInvPt"), "; 1/Pt; No. of duplicate tracks per TP", houghNbinsPt_, 0., maxAbsQoverPt);
+      profDupFitTrksVsInvPt_[fitName] =
+          inputDir.make<TProfile>(addn("DupFitTrksVsInvPt"), "; 1/Pt; No. of duplicate tracks per TP", 25, 0., 0.5);
 
       // Histos for tracking efficiency vs. TP kinematics. (Binning must match similar histos in bookTrackCands()).
-      hisFitTPinvptForEff_[fitName] = inputDir.make<TH1F>(
-          addn("FitTPinvptForEff"), "; 1/Pt of TP (used for effi. measurement);", 24, 0., 1.5 * maxAbsQoverPt);
+      hisFitTPinvptForEff_[fitName] =
+          inputDir.make<TH1F>(addn("FitTPinvptForEff"), "; TP 1/Pt of fitted tracks (for effi.);", 50, 0., 0.5);
       hisFitTPetaForEff_[fitName] =
-          inputDir.make<TH1F>(addn("FitTPetaForEff"), "; #eta of TP (used for effi. measurement);", 20, -3., 3.);
+          inputDir.make<TH1F>(addn("FitTPetaForEff"), "; TP #eta of fitted tracks (for effi.);", 20, -3., 3.);
       hisFitTPphiForEff_[fitName] =
-          inputDir.make<TH1F>(addn("FitTPphiForEff"), "; #phi of TP (used for effi. measurement);", 20, -M_PI, M_PI);
+          inputDir.make<TH1F>(addn("FitTPphiForEff"), "; TP #phi of fitted tracks (for effi.);", 20, -M_PI, M_PI);
 
       // Histo for efficiency to reconstruct track perfectly (no incorrect hits). (Binning must match similar histos in bookTrackCands()).
       hisPerfFitTPinvptForEff_[fitName] = inputDir.make<TH1F>(
-          addn("PerfFitTPinvptForEff"), "; 1/Pt of TP (used for perf. effi. measurement);", 24, 0., 1.5 * maxAbsQoverPt);
+          addn("PerfFitTPinvptForEff"), "; TP 1/Pt of fitted tracks (for perf. effi.);", 50, 0., 0.5);
       hisPerfFitTPetaForEff_[fitName] = inputDir.make<TH1F>(
-          addn("PerfFitTPetaForEff"), "; #eta of TP (used for perfect effi. measurement);", 20, -3., 3.);
+          addn("PerfFitTPetaForEff"), "; TP #eta of fitted tracks (for perfect effi.);", 20, -3., 3.);
 
       // Histos for tracking efficiency vs. TP production point. (Binning must match similar histos in bookTrackCands()).
       hisFitTPd0ForEff_[fitName] =
-          inputDir.make<TH1F>(addn("FitTPd0ForEff"), "; d0 of TP (used for effi. measurement);", 40, 0., 4.);
+          inputDir.make<TH1F>(addn("FitTPd0ForEff"), "; TP d0 of fitted tracks (for effi.);", 40, 0., 4.);
       hisFitTPz0ForEff_[fitName] =
-          inputDir.make<TH1F>(addn("FitTPz0ForEff"), "; z0 of TP (used for effi. measurement);", 50, 0., 25.);
+          inputDir.make<TH1F>(addn("FitTPz0ForEff"), "; TP z0 of fitted tracks (for effi.);", 50, 0., 25.);
 
       // Histos for algorithmic tracking efficiency vs. TP kinematics. (Binning must match similar histos in bookTrackCands()).
-      hisFitTPinvptForAlgEff_[fitName] = inputDir.make<TH1F>(
-          addn("FitTPinvptForAlgEff"), "; 1/Pt of TP (used for alg. effi. measurement);", 24, 0., 1.5 * maxAbsQoverPt);
-      hisFitTPetaForAlgEff_[fitName] = inputDir.make<TH1F>(
-          addn("FitTPetaForAlgEff"), "; #eta of TP (used for alg. effi. measurement);", 20, -3., 3.);
+      hisFitTPinvptForAlgEff_[fitName] =
+          inputDir.make<TH1F>(addn("FitTPinvptForAlgEff"), "; TP 1/Pt of fitted tracks (for alg. effi.);", 50, 0., 0.5);
+      hisFitTPetaForAlgEff_[fitName] =
+          inputDir.make<TH1F>(addn("FitTPetaForAlgEff"), "; TP #eta of fitted tracks (for alg. effi.);", 20, -3., 3.);
       hisFitTPphiForAlgEff_[fitName] = inputDir.make<TH1F>(
-          addn("FitTPphiForAlgEff"), "; #phi of TP (used for alg. effi. measurement);", 20, -M_PI, M_PI);
+          addn("FitTPphiForAlgEff"), "; TP #phi of fitted tracks (for alg. effi.);", 20, -M_PI, M_PI);
 
       // Histo for efficiency to reconstruct track perfectly (no incorrect hits). (Binning must match similar histos in bookTrackCands()).
-      hisPerfFitTPinvptForAlgEff_[fitName] =
-          inputDir.make<TH1F>(addn("PerfFitTPinvptForAlgEff"),
-                              "; 1/Pt of TP (used for perf. alg. effi. measurement);",
-                              24,
-                              0.,
-                              1.5 * maxAbsQoverPt);
-      hisPerfFitTPetaForAlgEff_[fitName] = inputDir.make<TH1F>(
-          addn("PerfFitTPetaForAlgEff"), "; #eta of TP (used for perf. alg. effi. measurement);", 20, -3., 3.);
+      hisPerfFitTPinvptForAlgEff_[fitName] = inputDir.make<TH1F>(
+          addn("PerfFitTPinvptForAlgEff"), "; TP 1/Pt of fitted tracks (for perf. alg. effi.);", 50, 0., 0.5);
+      hisPerfFitTPetaForAlgEff_[fitName] =
+          inputDir.make<TH1F>(addn("PerfFitTPetaForAlgEff"), "; TP #eta (for perf. alg. effi.);", 20, -3., 3.);
 
       // Histos for algorithmic tracking efficiency vs. TP production point. (Binning must match similar histos in bookTrackCands()).
       hisFitTPd0ForAlgEff_[fitName] =
-          inputDir.make<TH1F>(addn("FitTPd0ForAlgEff"), "; d0 of TP (used for alg. effi. measurement);", 40, 0., 4.);
+          inputDir.make<TH1F>(addn("FitTPd0ForAlgEff"), "; TP d0 of fitted tracks (for alg. effi.);", 40, 0., 4.);
       hisFitTPz0ForAlgEff_[fitName] =
-          inputDir.make<TH1F>(addn("FitTPz0ForAlgEff"), "; z0 of TP (used for alg. effi. measurement);", 50, 0., 25.);
+          inputDir.make<TH1F>(addn("FitTPz0ForAlgEff"), "; TP z0 of fitted tracks (for alg. effi.);", 50, 0., 25.);
     }
     return inputDirMap;
   }
@@ -1049,7 +1030,8 @@ namespace tmtt {
   void Histos::fillTrackFitting(const InputData& inputData,
                                 const map<string, list<const L1fittedTrack*>>& mapFinalTracks) {
     // Allow only one thread to run this function at a time
-    std::lock_guard<std::mutex> myGuard(myMutex[5]);
+    static std::mutex myMutex;
+    std::lock_guard<std::mutex> myGuard(myMutex);
 
     const list<TP>& vTPs = inputData.getTPs();
 
@@ -1066,6 +1048,7 @@ namespace tmtt {
 
       for (const L1fittedTrack* fitTrk : fittedTracks) {
         nFitTracks++;
+
         // Get matched truth particle, if any.
         const TP* tp = fitTrk->matchedTP();
         if (tp != nullptr)
@@ -1153,19 +1136,22 @@ namespace tmtt {
           hisFitZ0Matched_[fitName]->Fill(fitTrk->z0());
           hisFitEtaMatched_[fitName]->Fill(fitTrk->eta());
 
-          hisFitChi2DofMatched_[fitName]->Fill(fitTrk->chi2dof());
-          hisFitChi2DofRphiMatched_[fitName]->Fill(fitTrk->chi2rphi() / fitTrk->numDOFrphi());
-          hisFitChi2DofRzMatched_[fitName]->Fill(fitTrk->chi2rz() / fitTrk->numDOFrz());
-          profFitChi2DofVsInvPtMatched_[fitName]->Fill(std::abs(fitTrk->qOverPt()), fitTrk->chi2dof());
+          // Only plot matched chi2 for tracks with no incorrect stubs.
+          if (fitTrk->purity() == 1.) {
+            hisFitChi2DofRphiMatched_[fitName]->Fill(fitTrk->chi2rphi() / fitTrk->numDOFrphi());
+            hisFitChi2DofRzMatched_[fitName]->Fill(fitTrk->chi2rz() / fitTrk->numDOFrz());
+            profFitChi2DofRphiVsInvPtMatched_[fitName]->Fill(std::abs(fitTrk->qOverPt()),
+                                                             (fitTrk->chi2rphi() / fitTrk->numDOFrphi()));
 
-          if (fitName.find("KF") != string::npos) {
-            // No. of skipped layers on track during Kalman track fit.
-            if (nSkippedLayers == 0) {
-              hisKalmanChi2DofSkipLay0Matched_[fitName]->Fill(fitTrk->chi2dof());
-            } else if (nSkippedLayers == 1) {
-              hisKalmanChi2DofSkipLay1Matched_[fitName]->Fill(fitTrk->chi2dof());
-            } else if (nSkippedLayers >= 2) {
-              hisKalmanChi2DofSkipLay2Matched_[fitName]->Fill(fitTrk->chi2dof());
+            if (fitName.find("KF") != string::npos) {
+              // No. of skipped layers on track during Kalman track fit.
+              if (nSkippedLayers == 0) {
+                hisKalmanChi2DofSkipLay0Matched_[fitName]->Fill(fitTrk->chi2dof());
+              } else if (nSkippedLayers == 1) {
+                hisKalmanChi2DofSkipLay1Matched_[fitName]->Fill(fitTrk->chi2dof());
+              } else if (nSkippedLayers >= 2) {
+                hisKalmanChi2DofSkipLay2Matched_[fitName]->Fill(fitTrk->chi2dof());
+              }
             }
           }
 
@@ -1176,10 +1162,10 @@ namespace tmtt {
           hisFitZ0Unmatched_[fitName]->Fill(fitTrk->z0());
           hisFitEtaUnmatched_[fitName]->Fill(fitTrk->eta());
 
-          hisFitChi2DofUnmatched_[fitName]->Fill(fitTrk->chi2dof());
           hisFitChi2DofRphiUnmatched_[fitName]->Fill(fitTrk->chi2rphi() / fitTrk->numDOFrphi());
           hisFitChi2DofRzUnmatched_[fitName]->Fill(fitTrk->chi2rz() / fitTrk->numDOFrz());
-          profFitChi2DofVsInvPtUnmatched_[fitName]->Fill(std::abs(fitTrk->qOverPt()), fitTrk->chi2dof());
+          profFitChi2DofRphiVsInvPtUnmatched_[fitName]->Fill(std::abs(fitTrk->qOverPt()),
+                                                             (fitTrk->chi2rphi() / fitTrk->numDOFrphi()));
 
           if (fitName.find("KF") != string::npos) {
             // No. of skipped layers on track during Kalman track fit.

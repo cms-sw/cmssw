@@ -33,8 +33,6 @@ namespace tmtt {
     // Initialize constants from configuration parameters.
     MuxHToutputs(const Settings* settings);
 
-    ~MuxHToutputs() {}
-
     // Determine which tracks are transmitted on each HT output optical link, taking into account the multiplexing
     // of multiple (eta,phi) sectors onto single links and the truncation of the tracks caused by the requirement
     // to output all the tracks within the time-multiplexed period.

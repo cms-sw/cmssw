@@ -24,8 +24,6 @@ namespace tmtt {
     // Digitize track
     DigitalTrack(const Settings* settings, const std::string& fitterName, const L1fittedTrack* fitTrk);
 
-    ~DigitalTrack() {}
-
     //--- The functions below return variables post-digitization.
 
     // half inverse curvature of track.

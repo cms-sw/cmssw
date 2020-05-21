@@ -69,8 +69,6 @@ namespace tmtt {
          const DegradeBend* degradeBend,
          const StubKiller* stubKiller);
 
-    ~Stub() {}
-
     bool operator==(const Stub& stubOther) { return (this->index() == stubOther.index()); }
 
     // Return reference to original TTStub.
@@ -269,8 +267,8 @@ namespace tmtt {
     std::array<const TP*, 2> assocTPofCluster_;
 
     std::unique_ptr<DigitalStub> digitalStub_;  // Class used to digitize stub if required.
-    bool digitizeWarningsOn_;                   // Enable warnings about accessing non-digitized quantities.
     DigiStage lastDigiStep_;
+    bool digitizeWarningsOn_;  // Enable warnings about accessing non-digitized quantities.
 
     // Info about tracker module containing stub.
     const TrackerModule* trackerModule_;
@@ -280,15 +278,15 @@ namespace tmtt {
 
     // These module variables are needed only to support the Hybrid stub constructor.
     // (Otherwise, they could be taken from trackerModule_).
-    bool psModule_;
     unsigned int layerId_;
     unsigned int layerIdReduced_;
-    bool barrel_;
-    bool tiltedBarrel_;
     float tiltAngle_;
     float stripPitch_;
     float stripLength_;
     unsigned int nStrips_;
+    bool psModule_;
+    bool barrel_;
+    bool tiltedBarrel_;
 
     const float rejectedStubBend_ = 99999.;  // Bend set to this if stub rejected.
 
