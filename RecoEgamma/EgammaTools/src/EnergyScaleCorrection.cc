@@ -387,11 +387,11 @@ EnergyScaleCorrection::CorrectionCategory::CorrectionCategory(const std::string&
     etaMax_ = 3;
   } else {
     if (p1 != std::string::npos) {
-      p1 = category.find("_", p1);
-      p2 = category.find("_", p1 + 1);
+      p1 = category.find('_', p1);
+      p2 = category.find('_', p1 + 1);
       etaMin_ = std::stof(category.substr(p1 + 1, p2 - p1 - 1));
       p1 = p2;
-      p2 = category.find("-", p1);
+      p2 = category.find('-', p1);
       etaMax_ = std::stof(category.substr(p1 + 1, p2 - p1 - 1));
     }
   }
@@ -417,11 +417,11 @@ EnergyScaleCorrection::CorrectionCategory::CorrectionCategory(const std::string&
   p1 = category.find("-Et_");
 
   if (p1 != std::string::npos) {
-    p1 = category.find("_", p1);
-    p2 = category.find("_", p1 + 1);
+    p1 = category.find('_', p1);
+    p2 = category.find('_', p1 + 1);
     etMin_ = std::stof(category.substr(p1 + 1, p2 - p1 - 1));
     p1 = p2;
-    p2 = category.find("-", p1);
+    p2 = category.find('-', p1);
     etMax_ = std::stof(category.substr(p1 + 1, p2 - p1 - 1));
   }
 
@@ -437,13 +437,13 @@ EnergyScaleCorrection::CorrectionCategory::CorrectionCategory(const std::string&
   // R9 region
   p1 = category.find("-R9");
   if (p1 != std::string::npos) {
-    p1 = category.find("_", p1);
-    p2 = category.find("_", p1 + 1);
+    p1 = category.find('_', p1);
+    p2 = category.find('_', p1 + 1);
     r9Min_ = std::stof(category.substr(p1 + 1, p2 - p1 - 1));
     // If there is one value, just set lower bound
     if (p2 != std::string::npos) {
       p1 = p2;
-      p2 = category.find("-", p1);
+      p2 = category.find('-', p1);
       r9Max_ = std::stof(category.substr(p1 + 1, p2 - p1 - 1));
       if (r9Max_ >= 1.0)
         r9Max_ = std::numeric_limits<float>::max();
@@ -453,7 +453,7 @@ EnergyScaleCorrection::CorrectionCategory::CorrectionCategory(const std::string&
   p1 = category.find("gainEle_");  // Position of first character
   if (p1 != std::string::npos) {
     p1 += 8;                      // Position of character after _
-    p2 = category.find("-", p1);  // Position of - or end of string
+    p2 = category.find('-', p1);  // Position of - or end of string
     gain_ = std::stoul(category.substr(p1, p2 - p1), nullptr);
   }
   //so turns out the code does an inclusive X<=Y<=Z search for bins

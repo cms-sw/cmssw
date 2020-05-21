@@ -106,7 +106,7 @@ namespace edm {
                            "TrivialFileCatalog::connect: Malformed url for file catalog configuration");
     }
 
-    m_url = m_url.erase(0, m_url.find(":") + 1);
+    m_url = m_url.erase(0, m_url.find(':') + 1);
 
     std::vector<std::string> tokens;
     boost::algorithm::split(tokens, m_url, boost::is_any_of(std::string("?")));

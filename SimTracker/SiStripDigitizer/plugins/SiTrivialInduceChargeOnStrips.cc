@@ -74,9 +74,9 @@ namespace {
     std::string mode = conf.getParameter<bool>("APVpeakmode") ? "Peak" : "Dec";
     for (int i = 0; i < nTypes; ++i) {
       std::string version = "";
-      if (typeArray[i].find("W") != std::string::npos && mode == "Dec")
+      if (typeArray[i].find('W') != std::string::npos && mode == "Dec")
         version = conf.getParameter<bool>("CouplingConstantsRunIIDecW") ? "RunII" : "";
-      else if (typeArray[i].find("B") != std::string::npos && mode == "Dec")
+      else if (typeArray[i].find('B') != std::string::npos && mode == "Dec")
         version = conf.getParameter<bool>("CouplingConstantsRunIIDecB") ? "RunII" : "";
 
       auto dc = conf.getParameter<std::vector<double> >("CouplingConstant" + version + mode + typeArray[i]);

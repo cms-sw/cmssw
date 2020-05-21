@@ -10,7 +10,7 @@ HcalForwardLibWriter::HcalForwardLibWriter(const edm::ParameterSet& iConfig) {
   nshowers = theParms.getParameter<int>("Nshowers");
 
   std::string pName = fp.fullPath();
-  if (pName.find(".") == 0)
+  if (pName.find('.') == 0)
     pName.erase(0, 2);
   theDataFile = pName;
   readUserData();

@@ -45,7 +45,7 @@ PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
   dumpSense_ = p.getUntrackedParameter<bool>("DumpSense", false);
   dd4hep_ = p.getUntrackedParameter<bool>("DD4Hep", false);
   name_ = p.getUntrackedParameter<std::string>("Name", "*");
-  nchar_ = name_.find("*");
+  nchar_ = name_.find('*');
   name_.assign(name_, 0, nchar_);
   names_ = p.getUntrackedParameter<std::vector<std::string> >("Names");
   G4cout << "PrintGeomInfoAction:: initialised for dd4hep " << dd4hep_ << " with verbosity levels:"

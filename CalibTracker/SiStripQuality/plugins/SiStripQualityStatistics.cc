@@ -61,7 +61,7 @@ void SiStripQualityStatistics::dqmEndJob(DQMStore::IBooker& booker, DQMStore::IG
   std::string filename = TkMapFileName_;
   if (!filename.empty()) {
     tkMapFullIOVs->save(false, 0, 0, filename);
-    filename.erase(filename.begin() + filename.find("."), filename.end());
+    filename.erase(filename.begin() + filename.find('.'), filename.end());
     tkMapFullIOVs->print(false, 0, 0, filename);
 
     if (saveTkHistoMap_) {
@@ -306,9 +306,9 @@ void SiStripQualityStatistics::updateAndSave(const SiStripQuality* siStripQualit
   sRun << "_Run_" << std::setw(6) << std::setfill('0') << run_.run() << std::setw(0);
 
   if (!filename.empty()) {
-    filename.insert(filename.find("."), sRun.str());
+    filename.insert(filename.find('.'), sRun.str());
     tkMap->save(true, 0, 0, filename);
-    filename.erase(filename.begin() + filename.find("."), filename.end());
+    filename.erase(filename.begin() + filename.find('.'), filename.end());
     tkMap->print(true, 0, 0, filename);
   }
 }

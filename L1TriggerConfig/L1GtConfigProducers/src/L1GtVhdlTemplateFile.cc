@@ -241,7 +241,7 @@ bool L1GtVhdlTemplateFile::extractParametersFromString(const std::string &str,
   // the routine is making sure, that it's not extracting a parameter from
   // a comment
   if (int pos1 = str.find("$(") != std::string::npos && str.substr(0, 2) != "--") {
-    int pos2 = str.find(")");
+    int pos2 = str.find(')');
     // get the substituion parameter
     std::string tempStr = (str.substr(pos1 + 1, (pos2 - pos1 - 1)));
     // return a pair with the substitution parameter and the
@@ -327,7 +327,7 @@ bool L1GtVhdlTemplateFile::split(const std::string &param, std::vector<std::stri
   }
 
   std::string temp = param.substr(i);
-  std::size_t pos = temp.find(" ");
+  std::size_t pos = temp.find(' ');
 
   if (pos != std::string::npos) {
     std::string temp2 = temp.substr(0, pos);

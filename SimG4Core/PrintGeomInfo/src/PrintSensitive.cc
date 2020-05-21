@@ -12,7 +12,7 @@
 
 PrintSensitive::PrintSensitive(const edm::ParameterSet &p) {
   name_ = p.getUntrackedParameter<std::string>("Name", "*");
-  nchar_ = name_.find("*");
+  nchar_ = name_.find('*');
   name_.assign(name_, 0, nchar_);
   std::cout << "PrintSensitive:: Print position of all Sensitive Touchables: "
             << " for names (0-" << nchar_ << ") = " << name_ << "\n";

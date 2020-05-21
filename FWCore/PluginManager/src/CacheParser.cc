@@ -202,7 +202,7 @@ namespace edmplugin {
 
   std::string& CacheParser::restoreSpaces(std::string& io) {
     std::string::size_type index = 0;
-    while (std::string::npos != (index = io.find_first_of("%", index))) {
+    while (std::string::npos != (index = io.find_first_of('%', index))) {
       io[index] = ' ';
     }
     return io;

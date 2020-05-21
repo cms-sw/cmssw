@@ -13,7 +13,7 @@ namespace dqmoffline {
 
       for (auto requestedTriggerName : requestedTriggers) {
         std::string name(requestedTriggerName);
-        std::size_t wildcarPosition = name.find("*");
+        std::size_t wildcarPosition = name.find('*');
         if (wildcarPosition != std::string::npos) {
           // take everything up to the wildcard
           name = name.substr(0, wildcarPosition - 1);

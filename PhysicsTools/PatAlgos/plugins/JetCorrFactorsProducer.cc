@@ -274,7 +274,7 @@ void JetCorrFactorsProducer::produce(edm::Event& event, const edm::EventSetup& s
       // factors, which might be flavor dependent or not. In the default configuration
       // the CorrectionFactor will look like this: 'Uncorrected': 1 ; 'L2Relative': x ;
       // 'L3Absolute': x ; 'L5Flavor': v, x, y, z ; 'L7Parton': v, x, y, z
-      jec.push_back(std::make_pair((corrLevel->second[idx]).substr(0, (corrLevel->second[idx]).find("_")), factors));
+      jec.push_back(std::make_pair((corrLevel->second[idx]).substr(0, (corrLevel->second[idx]).find('_')), factors));
     }
     // create the actual object with the scale factors we want the valuemap to refer to
     // label_ corresponds to the label of the module instance

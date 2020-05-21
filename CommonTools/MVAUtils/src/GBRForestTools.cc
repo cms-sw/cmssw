@@ -167,7 +167,7 @@ namespace {
     int rootTrainingVersion(0);
     if (info.find("ROOT Release") != info.end()) {
       std::string s = info["ROOT Release"];
-      rootTrainingVersion = std::stoi(s.substr(s.find("[") + 1, s.find("]") - s.find("[") - 1));
+      rootTrainingVersion = std::stoi(s.substr(s.find('[') + 1, s.find(']') - s.find('[') - 1));
     }
 
     // Get the boosting weights

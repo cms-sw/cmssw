@@ -1030,7 +1030,7 @@ namespace evf {
     //take only first three tokens delimited by "_" in the renamed raw file name
     std::string jsonStem = boost::filesystem::path(rawSourcePath).stem().string();
     size_t pos = 0, n_tokens = 0;
-    while (n_tokens++ < 3 && (pos = jsonStem.find("_", pos + 1)) != std::string::npos) {
+    while (n_tokens++ < 3 && (pos = jsonStem.find('_', pos + 1)) != std::string::npos) {
     }
     std::string reducedJsonStem = jsonStem.substr(0, pos);
 
@@ -1462,7 +1462,7 @@ namespace evf {
         std::string fileInfo;
         std::map<std::string, std::string> serverMap;
         while (std::getline(response_stream, fileInfo) && fileInfo != "\r") {
-          auto pos = fileInfo.find("=");
+          auto pos = fileInfo.find('=');
           if (pos == std::string::npos)
             continue;
           auto stitle = fileInfo.substr(0, pos);

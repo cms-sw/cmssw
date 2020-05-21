@@ -226,7 +226,7 @@ bool TrackerGeometry::isThere(GeomDetEnumerators::SubDetector subdet) const {
 
 void TrackerGeometry::fillTestMap(const GeometricDet* gd) {
   const std::string& temp = gd->name();
-  std::string name = temp.substr(temp.find(":") + 1);
+  std::string name = temp.substr(temp.find(':') + 1);
   DetId detid = gd->geographicalId();
   float thickness = gd->bounds()->thickness();
   std::string nameTag;
@@ -292,7 +292,7 @@ TrackerGeometry::ModuleType TrackerGeometry::moduleType(const std::string& name)
 
   // TIB
   else if (name.find("TIB") != std::string::npos) {
-    if (name.find("0") != std::string::npos)
+    if (name.find('0') != std::string::npos)
       return ModuleType::IB1;
     else
       return ModuleType::IB2;
@@ -300,7 +300,7 @@ TrackerGeometry::ModuleType TrackerGeometry::moduleType(const std::string& name)
 
   // TOB
   else if (name.find("TOB") != std::string::npos) {
-    if (name.find("0") != std::string::npos)
+    if (name.find('0') != std::string::npos)
       return ModuleType::OB1;
     else
       return ModuleType::OB2;
@@ -308,29 +308,29 @@ TrackerGeometry::ModuleType TrackerGeometry::moduleType(const std::string& name)
 
   // TID
   else if (name.find("TID") != std::string::npos) {
-    if (name.find("0") != std::string::npos)
+    if (name.find('0') != std::string::npos)
       return ModuleType::W1A;
-    else if (name.find("1") != std::string::npos)
+    else if (name.find('1') != std::string::npos)
       return ModuleType::W2A;
-    else if (name.find("2") != std::string::npos)
+    else if (name.find('2') != std::string::npos)
       return ModuleType::W3A;
   }
 
   // TEC
   else if (name.find("TEC") != std::string::npos) {
-    if (name.find("0") != std::string::npos)
+    if (name.find('0') != std::string::npos)
       return ModuleType::W1B;
-    else if (name.find("1") != std::string::npos)
+    else if (name.find('1') != std::string::npos)
       return ModuleType::W2B;
-    else if (name.find("2") != std::string::npos)
+    else if (name.find('2') != std::string::npos)
       return ModuleType::W3B;
-    else if (name.find("3") != std::string::npos)
+    else if (name.find('3') != std::string::npos)
       return ModuleType::W4;
-    else if (name.find("4") != std::string::npos)
+    else if (name.find('4') != std::string::npos)
       return ModuleType::W5;
-    else if (name.find("5") != std::string::npos)
+    else if (name.find('5') != std::string::npos)
       return ModuleType::W6;
-    else if (name.find("6") != std::string::npos)
+    else if (name.find('6') != std::string::npos)
       return ModuleType::W7;
   }
 

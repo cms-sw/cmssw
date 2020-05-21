@@ -45,8 +45,8 @@ std::unique_ptr<const L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObj
     }
   }
 
-  std::string tscKey = objectKey.substr(0, objectKey.find(":"));
-  std::string rsKey = objectKey.substr(objectKey.find(":") + 1, std::string::npos);
+  std::string tscKey = objectKey.substr(0, objectKey.find(':'));
+  std::string rsKey = objectKey.substr(objectKey.find(':') + 1, std::string::npos);
 
   edm::LogInfo("L1-O2O: L1TMuonGlobalParamsOnlineProd")
       << "Producing L1TMuonGlobalParams with TSC key =" << tscKey << " and RS key = " << rsKey;
@@ -87,7 +87,7 @@ std::unique_ptr<const L1TMuonGlobalParams> L1TMuonGlobalParamsOnlineProd::newObj
 
   // for debugging dump the configs to local files
   {
-    std::ofstream output(std::string("/tmp/").append(hw_key.substr(0, hw_key.find("/"))).append(".xml"));
+    std::ofstream output(std::string("/tmp/").append(hw_key.substr(0, hw_key.find('/'))).append(".xml"));
     output << hw_payload;
     output.close();
   }

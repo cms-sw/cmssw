@@ -122,7 +122,7 @@ void TauJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& 
       //   'Uncorrected' : 1 ;
       //   'L2Relative'  : x ;
       //   'L3Absolute'  : x ;
-      jec.push_back(std::make_pair(corrLevel.substr(0, corrLevel.find("_")), jecFactor));
+      jec.push_back(std::make_pair(corrLevel.substr(0, corrLevel.find('_')), jecFactor));
     }
 
     // create the actual object with the scale factors we want the valuemap to refer to

@@ -43,7 +43,7 @@ class StormLcgGtStorageMaker : public StorageMaker {
       throw cms::Exception("StormLCGStorageMaker") << "no turl found in command '" << comm << "' output:\n" << output;
 
     start += 5;
-    std::string turl(output, start, output.find_first_of("\n", start) - start);
+    std::string turl(output, start, output.find_first_of('\n', start) - start);
     LogDebug("StormLCGStorageMaker") << "file to open: " << turl << std::endl;
     return turl;
   }

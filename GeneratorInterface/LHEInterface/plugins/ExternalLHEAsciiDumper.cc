@@ -67,7 +67,7 @@ void ExternalLHEAsciiDumper::endRun(edm::Run const& iRun, edm::EventSetup const&
 
   unsigned int iout = 0;
 
-  size_t lastdot = lheFileName_.find_last_of(".");
+  size_t lastdot = lheFileName_.find_last_of('.');
   std::string basename = lheFileName_.substr(0, lastdot);
   std::string extension = lastdot != std::string::npos ? lheFileName_.substr(lastdot + 1, std::string::npos) : "";
 

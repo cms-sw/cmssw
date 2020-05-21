@@ -85,7 +85,7 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup &eSetup_) {
       constexpr unsigned int kSLen = 128;
       char sRun[kSLen];
       snprintf(sRun, kSLen, "_Run_%d", runNumber_);
-      filename.insert(filename.find("."), sRun);
+      filename.insert(filename.find('.'), sRun);
 
       saveTkMap(filename, minValue, maxValue);
     }

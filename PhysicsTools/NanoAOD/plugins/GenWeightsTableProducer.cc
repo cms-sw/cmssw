@@ -193,7 +193,7 @@ namespace {
   };
 
   float stof_fortrancomp(const std::string& str) {
-    std::string::size_type match = str.find("d");
+    std::string::size_type match = str.find('d');
     if (match != std::string::npos) {
       std::string pre = str.substr(0, match);
       std::string post = str.substr(match + 1);

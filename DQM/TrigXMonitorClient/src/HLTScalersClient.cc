@@ -264,7 +264,7 @@ void HLTScalersClient::endLuminosityBlock(const edm::LuminosityBlock &lumiSeg, c
         std::istringstream fnames(line);
         std::string label;
         int bin;
-        if (fnames.str().find("#") == 0)  // skip comment lines
+        if (fnames.str().find('#') == 0)  // skip comment lines
           continue;
         if (fnames >> bin >> label) {
           if (debug_) {

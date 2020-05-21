@@ -796,7 +796,7 @@ namespace gen {
     for (unsigned int iss = 0; iss < settings.size(); iss++) {
       if (settings[iss].find("QED-brem-off") == std::string::npos)
         continue;
-      size_t fnd1 = settings[iss].find(":");
+      size_t fnd1 = settings[iss].find(':');
       if (fnd1 == std::string::npos)
         continue;
 

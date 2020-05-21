@@ -212,7 +212,7 @@ Source::Source(timespec now, std::unique_ptr<XrdCl::File> fh, const std::string 
 }
 
 bool Source::getHostname(const std::string &id, std::string &hostname) {
-  size_t pos = id.find(":");
+  size_t pos = id.find(':');
   hostname = id;
   if ((pos != std::string::npos) && (pos > 0)) {
     hostname = id.substr(0, pos);
@@ -240,7 +240,7 @@ bool Source::getHostname(const std::string &id, std::string &hostname) {
 
 bool Source::getDomain(const std::string &host, std::string &domain) {
   getHostname(host, domain);
-  size_t pos = domain.find(".");
+  size_t pos = domain.find('.');
   if (pos != std::string::npos && (pos < domain.size())) {
     domain = domain.substr(pos + 1);
   }

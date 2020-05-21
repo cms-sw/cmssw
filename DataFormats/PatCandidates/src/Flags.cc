@@ -33,7 +33,7 @@ std::string Flags::maskToString(uint32_t mask) {
 }
 
 uint32_t Flags::get(const std::string &str) {
-  size_t idx = str.find_first_of("/");
+  size_t idx = str.find_first_of('/');
   if (idx != std::string::npos) {
     std::string set = str.substr(0, idx);
     if (set == "Core")
@@ -78,7 +78,7 @@ const std::string &Flags::Core::bitToString(Core::Bits bit) {
 }
 
 Flags::Core::Bits Flags::Core::get(const std::string &instr) {
-  size_t idx = instr.find_first_of("/");
+  size_t idx = instr.find_first_of('/');
   const std::string &str = (idx == std::string::npos) ? instr : instr.substr(idx + 1);
   if (str == "All")
     return All;
@@ -148,7 +148,7 @@ Flags::Selection::Bits Flags::Selection::get(int8_t bit) {
 }
 
 Flags::Selection::Bits Flags::Selection::get(const std::string &instr) {
-  size_t idx = instr.find_first_of("/");
+  size_t idx = instr.find_first_of('/');
   const std::string &str = (idx == std::string::npos) ? instr : instr.substr(idx + 1);
   if (str == "All")
     return All;
@@ -219,7 +219,7 @@ const std::string &Flags::Overlap::bitToString(Overlap::Bits bit) {
 }
 
 Flags::Overlap::Bits Flags::Overlap::get(const std::string &instr) {
-  size_t idx = instr.find_first_of("/");
+  size_t idx = instr.find_first_of('/');
   const std::string &str = (idx == std::string::npos) ? instr : instr.substr(idx + 1);
   if (str == "All")
     return All;
@@ -287,7 +287,7 @@ const std::string &Flags::Isolation::bitToString(Isolation::Bits bit) {
 }
 
 Flags::Isolation::Bits Flags::Isolation::get(const std::string &instr) {
-  size_t idx = instr.find_first_of("/");
+  size_t idx = instr.find_first_of('/');
   const std::string &str = (idx == std::string::npos) ? instr : instr.substr(idx + 1);
   if (str == "All")
     return All;

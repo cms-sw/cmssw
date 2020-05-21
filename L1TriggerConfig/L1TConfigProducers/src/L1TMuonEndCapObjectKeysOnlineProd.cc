@@ -27,7 +27,7 @@ void L1TMuonEndCapObjectKeysOnlineProd::fillObjectKeys(L1TriggerKeyExt* pL1Trigg
   // simply assign the algo key to the record
   pL1TriggerKey->add("L1TMuonEndCapParamsO2ORcd", "L1TMuonEndCapParams", EMTFKey);
 
-  std::string tscKey = EMTFKey.substr(0, EMTFKey.find(":"));
+  std::string tscKey = EMTFKey.substr(0, EMTFKey.find(':'));
 
   ////////////////////////
   // the block below reproduces L1TMuonEndCapParamsOnlineProd identically

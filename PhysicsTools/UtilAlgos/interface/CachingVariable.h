@@ -333,7 +333,7 @@ public:
         //do something fancy for multiple variable from one PSet
         std::vector<std::string> vars = arg.iConfig.getParameter<std::vector<std::string> >("vars");
         for (unsigned int v = 0; v != vars.size(); ++v) {
-          unsigned int sep = vars[v].find(":");
+          unsigned int sep = vars[v].find(':');
           std::string name = vars[v].substr(0, sep);
           std::string expr = vars[v].substr(sep + 1);
 

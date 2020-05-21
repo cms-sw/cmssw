@@ -33,8 +33,8 @@ namespace ecaldqm {
         lumiFlag_(false),
         batchMode_(false),
         active_(false) {
-    if (path_.empty() || path_.find("/") == std::string::npos ||
-        (otype_ != binning::kChannel && path_.find("/") == path_.size() - 1))
+    if (path_.empty() || path_.find('/') == std::string::npos ||
+        (otype_ != binning::kChannel && path_.find('/') == path_.size() - 1))
       throw_(_path + " cannot be used for ME path name");
 
     switch (kind_) {

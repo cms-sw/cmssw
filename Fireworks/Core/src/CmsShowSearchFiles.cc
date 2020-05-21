@@ -123,7 +123,7 @@ void CmsShowSearchFiles::prefixChoosen(Int_t iIndex) {
 
 void CmsShowSearchFiles::fileEntryChanged(const char* iFileName) {
   std::string fileName = iFileName;
-  size_t index = fileName.find_last_of(".");
+  size_t index = fileName.find_last_of('.');
   std::string postfix;
   if (index != std::string::npos) {
     postfix = fileName.substr(index, std::string::npos);
@@ -149,7 +149,7 @@ void CmsShowSearchFiles::hyperlinkClicked(const char* iLink) {
 
   m_webFile->addToVisited(iLink);
   std::string fileName = iLink;
-  size_t index = fileName.find_last_of(".");
+  size_t index = fileName.find_last_of('.');
   std::string postfix = fileName.substr(index, std::string::npos);
 
   if (postfix != s_rootPostfix) {
@@ -175,7 +175,7 @@ void CmsShowSearchFiles::showPrefixes() {
     int index = 0;
     for (const char* const(*it)[s_columns] = s_prefixes; it != itEnd; ++it, ++index) {
       //only add the protocols this version of the code actually can load
-      std::string prefix = std::string((*it)[0]).substr(0, std::string((*it)[0]).find_first_of(":") + 1);
+      std::string prefix = std::string((*it)[0]).substr(0, std::string((*it)[0]).find_first_of(':') + 1);
       if (s_httpPrefix == prefix || s_filePrefix == prefix ||
           (gPluginMgr->FindHandler("TSystem", prefix.c_str()) &&
            gPluginMgr->FindHandler("TSystem", prefix.c_str())->CheckPlugin() != -1)) {
@@ -232,7 +232,7 @@ static std::string readRemote(const char* url) {
 void CmsShowSearchFiles::sendToWebBrowser(std::string& fileName) {
   //  std::cout << "CmsShowSearchFiles::sendToWebBrowser " <<  fileName << std::endl ;
 
-  size_t index = fileName.find_first_of(":");
+  size_t index = fileName.find_first_of(':');
   if (index != std::string::npos) {
     ++index;
   } else {

@@ -1478,10 +1478,10 @@ std::pair<bool, unsigned int> FedRawDataInputSource::getEventReport(unsigned int
 
 long FedRawDataInputSource::initFileList() {
   std::sort(fileNames_.begin(), fileNames_.end(), [](std::string a, std::string b) {
-    if (a.rfind("/") != std::string::npos)
-      a = a.substr(a.rfind("/"));
-    if (b.rfind("/") != std::string::npos)
-      b = b.substr(b.rfind("/"));
+    if (a.rfind('/') != std::string::npos)
+      a = a.substr(a.rfind('/'));
+    if (b.rfind('/') != std::string::npos)
+      b = b.substr(b.rfind('/'));
     return b > a;
   });
 
@@ -1489,7 +1489,7 @@ long FedRawDataInputSource::initFileList() {
     //get run number from first file in the vector
     boost::filesystem::path fileName = fileNames_[0];
     std::string fileStem = fileName.stem().string();
-    auto end = fileStem.find("_");
+    auto end = fileStem.find('_');
     if (fileStem.find("run") == 0) {
       std::string runStr = fileStem.substr(3, end - 3);
       try {
@@ -1520,8 +1520,8 @@ evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getFile(unsigned int& ls,
     std::string fileStem = fileName.stem().string();
     if (fileStem.find("ls"))
       fileStem = fileStem.substr(fileStem.find("ls") + 2);
-    if (fileStem.find("_"))
-      fileStem = fileStem.substr(0, fileStem.find("_"));
+    if (fileStem.find('_'))
+      fileStem = fileStem.substr(0, fileStem.find('_'));
 
     if (!fileListLoopMode_)
       ls = boost::lexical_cast<unsigned int>(fileStem);

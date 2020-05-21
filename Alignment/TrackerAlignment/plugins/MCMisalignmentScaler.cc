@@ -232,9 +232,9 @@ MCMisalignmentScaler::ScalerMap MCMisalignmentScaler::decodeSubDetectors(const e
     const auto& factor = pset.getUntrackedParameter<double>("factor");
 
     std::vector<int> sides;
-    if (name.find("-") != std::string::npos)
+    if (name.find('-') != std::string::npos)
       sides.push_back(1);
-    if (name.find("+") != std::string::npos)
+    if (name.find('+') != std::string::npos)
       sides.push_back(2);
     if (sides.empty()) {  // -> use both sides
       sides.push_back(1);

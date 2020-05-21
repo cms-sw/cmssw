@@ -230,7 +230,7 @@ void RPCChamberQuality::performeClientOperation(std::string MESufix,
   RCQ = igetter.get(meName.str());
   //  if (RCQ)  RCQ->Reset();
 
-  int pos = MESufix.find_last_of("_");
+  int pos = MESufix.find_last_of('_');
   meName.str("");
   meName << summaryDir_ << "/RPCChamberQuality_Distribution" << MESufix.substr(pos);
   RCQD = igetter.get(meName.str());

@@ -139,7 +139,7 @@ std::string LumiCorrectionSource::translateFrontierConnect(const std::string& co
   std::string result;
   const std::string fproto("frontier://");
   std::string::size_type startservlet = fproto.length();
-  std::string::size_type endservlet = connectStr.find("(", startservlet);
+  std::string::size_type endservlet = connectStr.find('(', startservlet);
   if (endservlet == std::string::npos) {
     endservlet = connectStr.rfind('/', connectStr.length());
   }

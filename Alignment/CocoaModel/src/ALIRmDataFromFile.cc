@@ -49,8 +49,8 @@ ALIbool ALIRmDataFromFile::setAngleZ(const ALIdouble val) {
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void ALIRmDataFromFile::constructRm() {
-  if (theDataFilled.find("X") == std::string::npos || theDataFilled.find("Y") == std::string::npos ||
-      theDataFilled.find("Z") == std::string::npos) {
+  if (theDataFilled.find('X') == std::string::npos || theDataFilled.find('Y') == std::string::npos ||
+      theDataFilled.find('Z') == std::string::npos) {
     std::cerr << "!!!  ALIRmDataFromFile::constructRm. FATAL ERROR: building rm while one angle is missing: "
               << theDataFilled << std::endl;
   } else {

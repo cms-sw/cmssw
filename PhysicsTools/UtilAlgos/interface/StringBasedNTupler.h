@@ -238,12 +238,12 @@ public:
           uint sep = leavesS[l].find(separator);
           std::string name = leavesS[l].substr(0, sep);
           //removes spaces from the variable name
-          /*uint*/ int space = name.find(" ");
+          /*uint*/ int space = name.find(' ');
           while (space != -1 /*std::string::npos*/) {
             std::string first = name.substr(0, space);
             std::string second = name.substr(space + 1);
             name = first + second;
-            space = name.find(" ");
+            space = name.find(' ');
           }
           std::string expr = leavesS[l].substr(sep + 1);
           std::string branchAlias = branches[b] + "_" + name;

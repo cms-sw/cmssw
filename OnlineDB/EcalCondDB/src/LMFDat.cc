@@ -208,10 +208,10 @@ void LMFDat::adjustParameters(int count, std::string &sql, Statement *stmt) {
   // adjust positional parameters and change them according to their
   // decalred type
   std::size_t nw = 0;
-  std::size_t n = sql.find(":");
+  std::size_t n = sql.find(':');
   for (int done = 1; done < count; done++) {
     // skip already bound variables
-    n = sql.find(":", n + 1);
+    n = sql.find(':', n + 1);
   }
   while (n != std::string::npos) {
     char type = sql.at(n + 1);
@@ -225,7 +225,7 @@ void LMFDat::adjustParameters(int count, std::string &sql, Statement *stmt) {
       stmt->setInt(nw + count, atoi(_wherePars[nw].c_str()));
       nw++;
     }
-    n = sql.find(":", n + 1);
+    n = sql.find(':', n + 1);
   }
 }
 

@@ -1104,7 +1104,7 @@ void SiStripCommissioningSource::directory(std::stringstream& dir, uint32_t run_
   std::stringstream ip;
   //for ( uint16_t ii = 0; ii < 4; ++ii ) {
   while (pos != std::string::npos) {
-    std::string::size_type tmp = host_ip.find(".", pos);
+    std::string::size_type tmp = host_ip.find('.', pos);
     if (tmp != std::string::npos) {
       ip << std::setw(3) << std::setfill('0') << host_ip.substr(pos, tmp - pos) << ".";
       pos = tmp + 1;  // skip the delimiter "."

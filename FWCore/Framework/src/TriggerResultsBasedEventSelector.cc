@@ -32,7 +32,7 @@ namespace {
     std::string trimmed_path_spec(path_spec);
     remove_whitespace(trimmed_path_spec);
 
-    std::string::size_type colon = trimmed_path_spec.find(":");
+    std::string::size_type colon = trimmed_path_spec.find(':');
     if (colon == std::string::npos) {
       output.first = trimmed_path_spec;
     } else {

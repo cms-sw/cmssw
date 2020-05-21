@@ -155,7 +155,7 @@ void HcaluLUTTPGCoder::update(const char* filename, bool appendMSB) {
   std::getline(file, buffer);
   std::getline(file, buffer);
 
-  unsigned int index = buffer.find("H", 0);
+  unsigned int index = buffer.find('H', 0);
   while (index < buffer.length()) {
     std::string subdetStr = buffer.substr(index, 2);
     if (subdetStr == "HB")
@@ -167,7 +167,7 @@ void HcaluLUTTPGCoder::update(const char* filename, bool appendMSB) {
     //TODO Check subdet
     //else exception
     index += 2;
-    index = buffer.find("H", index);
+    index = buffer.find('H', index);
   }
 
   // Get upper/lower ranges for ieta/iphi/depth

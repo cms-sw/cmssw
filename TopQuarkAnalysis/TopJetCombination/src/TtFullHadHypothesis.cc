@@ -166,8 +166,8 @@ void TtFullHadHypothesis::setCandidate(const edm::Handle<std::vector<pat::Jet> >
   edm::Ptr<pat::Jet> ptr = edm::Ptr<pat::Jet>(handle, idx);
   // disentangle the correction from the potential flavor tag
   // by the separating ':'; the flavor tag can be empty though
-  std::string step = correctionLevel.substr(0, correctionLevel.find(":"));
-  std::string flavor = correctionLevel.substr(1 + correctionLevel.find(":"));
+  std::string step = correctionLevel.substr(0, correctionLevel.find(':'));
+  std::string flavor = correctionLevel.substr(1 + correctionLevel.find(':'));
   float corrFactor = 1.;
   if (flavor == "wMix")
     corrFactor = 0.75 * ptr->jecFactor(step, "uds") + 0.25 * ptr->jecFactor(step, "charm");

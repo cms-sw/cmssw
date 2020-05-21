@@ -124,7 +124,7 @@ void RequestManager::initialize(std::weak_ptr<RequestManager> self) {
   }
 
   std::string orig_site;
-  if (!Source::getXrootdSiteFromURL(m_name, orig_site) && (orig_site.find(".") == std::string::npos)) {
+  if (!Source::getXrootdSiteFromURL(m_name, orig_site) && (orig_site.find('.') == std::string::npos)) {
     std::string hostname;
     if (Source::getHostname(orig_site, hostname)) {
       Source::getDomain(hostname, orig_site);
@@ -140,7 +140,7 @@ void RequestManager::initialize(std::weak_ptr<RequestManager> self) {
     file.reset(new XrdCl::File());
     auto opaque = prepareOpaqueString();
     std::string new_filename =
-        m_name + (!opaque.empty() ? ((m_name.find("?") == m_name.npos) ? "?" : "&") + opaque : "");
+        m_name + (!opaque.empty() ? ((m_name.find('?') == m_name.npos) ? "?" : "&") + opaque : "");
     SyncHostResponseHandler handler;
     XrdCl::XRootDStatus openStatus = file->Open(new_filename, m_flags, m_perms, &handler);
     if (!openStatus
@@ -553,16 +553,16 @@ std::string RequestManager::prepareOpaqueString() const {
 
     for (const auto &it : m_activeSources) {
       count++;
-      ss << it->ExcludeID().substr(0, it->ExcludeID().find(":")) << ",";
+      ss << it->ExcludeID().substr(0, it->ExcludeID().find(':')) << ",";
     }
     for (const auto &it : m_inactiveSources) {
       count++;
-      ss << it->ExcludeID().substr(0, it->ExcludeID().find(":")) << ",";
+      ss << it->ExcludeID().substr(0, it->ExcludeID().find(':')) << ",";
     }
   }
   for (const auto &it : m_disabledExcludeStrings) {
     count++;
-    ss << it.substr(0, it.find(":")) << ",";
+    ss << it.substr(0, it.find(':')) << ",";
   }
   if (count) {
     std::string tmp_str = ss.str();
@@ -1071,7 +1071,7 @@ std::shared_future<std::shared_ptr<Source>> XrdAdaptor::RequestManager::OpenHand
   m_shared_future = m_promise.get_future().share();
 
   auto opaque = manager.prepareOpaqueString();
-  std::string new_name = manager.m_name + ((manager.m_name.find("?") == manager.m_name.npos) ? "?" : "&") + opaque;
+  std::string new_name = manager.m_name + ((manager.m_name.find('?') == manager.m_name.npos) ? "?" : "&") + opaque;
   edm::LogVerbatim("XrdAdaptorInternal") << "Trying to open URL: " << new_name;
   m_file.reset(new XrdCl::File());
   m_outstanding_open = true;

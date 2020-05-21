@@ -91,7 +91,7 @@ void Herwig7Interface::initRepository(const edm::ParameterSet &pset) {
   while (!runModeTemp.empty()) {
     // Split first part of List
     std::string choice;
-    size_t pos = runModeTemp.find(",");
+    size_t pos = runModeTemp.find(',');
     if (std::string::npos == pos)
       choice = runModeTemp;
     else

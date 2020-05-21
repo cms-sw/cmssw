@@ -208,7 +208,7 @@ namespace edm {
         //  frontier://(serverurl=cmsfrontier.cern.ch:8000/FrontierInt)/CMS_COND_ECAL
         std::string::size_type startservlet = proto.length();
         // if user supplied extra parenthesized options, stop servlet there
-        std::string::size_type endservlet = input.find("(", startservlet);
+        std::string::size_type endservlet = input.find('(', startservlet);
         if (endservlet == std::string::npos) {
           endservlet = input.rfind('/', input.length());
         }

@@ -28,7 +28,7 @@ void MeasurementDiffEntry::buildOptONamesList(const std::vector<ALIstring>& wl) 
   //--------- Fill list with names
   for (int ii = 0; ii < NPairs; ii++) {
     //--- take out Entry names from object names
-    int isl = wl[ii * 2].rfind("/");
+    int isl = wl[ii * 2].rfind('/');
     AddOptONameListItem(wl[ii * 2].substr(0, isl));
     // Check for separating '&'
     if (ii != NPairs - 1 && wl[2 * ii + 1] != ALIstring("&")) {

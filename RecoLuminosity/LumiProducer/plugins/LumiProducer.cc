@@ -244,7 +244,7 @@ LumiProducer::LumiProducer::LumiProducer(const edm::ParameterSet& iConfig)
   //test if need frontier servlet site-local translation
   if (connectStr.substr(0, fproto.length()) == fproto) {
     std::string::size_type startservlet = fproto.length();
-    std::string::size_type endservlet = connectStr.find("(", startservlet);
+    std::string::size_type endservlet = connectStr.find('(', startservlet);
     if (endservlet == std::string::npos) {
       endservlet = connectStr.rfind('/', connectStr.length());
     }

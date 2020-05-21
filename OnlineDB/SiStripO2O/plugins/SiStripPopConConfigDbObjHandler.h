@@ -61,7 +61,7 @@ namespace popcon {
              << this->logDBEntry().exectime << "\n"
              << this->logDBEntry().execmessage << "\n"
              << "\n\n-- user text "
-             << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@"));
+             << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of('@'));
         } else {
           ss << " First object for this tag ";
         }
@@ -87,7 +87,7 @@ namespace popcon {
 
       //get log information from previous upload
       if (!this->logDBEntry().usertext.empty())
-        ss_logdb << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_first_of("@"));
+        ss_logdb << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_first_of('@'));
       else
         ss_logdb << "";
 

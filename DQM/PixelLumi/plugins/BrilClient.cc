@@ -53,7 +53,7 @@ void BrilClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker_,
   // Parse the json
   for (auto &mainTree : json.get_child("OccupancyPlots")) {
     std::string title = mainTree.second.get<std::string>("titles");
-    std::size_t pos = title.find(",");
+    std::size_t pos = title.find(',');
     if (pos <= 0) {
       edm::LogWarning("BrilClient") << "BrilClient::dqmEndLuminosityBlock"
                                     << " Invalid title" << title << std::endl;

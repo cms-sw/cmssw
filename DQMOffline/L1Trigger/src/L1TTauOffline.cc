@@ -144,7 +144,7 @@ void L1TTauOffline::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, 
   for (auto trigNamesIt = triggerPath_.begin(); trigNamesIt != triggerPath_.end(); trigNamesIt++) {
     std::string tNameTmp = (*trigNamesIt);
     std::string tNamePattern = "";
-    std::size_t found0 = tNameTmp.find("*");
+    std::size_t found0 = tNameTmp.find('*');
     if (found0 != std::string::npos)
       tNamePattern = tNameTmp.substr(0, tNameTmp.size() - 1);
     else

@@ -683,7 +683,7 @@ namespace dqm::implementation {
     for (auto me : this->getAllContents(this->cwd_)) {
       const auto& name = me->getPathname();
       auto subdirname = name.substr(this->cwd_.length(), std::string::npos);
-      auto dirname = subdirname.substr(0, subdirname.find("/"));
+      auto dirname = subdirname.substr(0, subdirname.find('/'));
       subdirs.insert(dirname);
     }
     std::vector<std::string> out;

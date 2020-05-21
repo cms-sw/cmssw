@@ -133,7 +133,7 @@ void LumiCalculator::beginRun(const edm::Run& run, const edm::EventSetup& c) {
         trgpathMmap_.erase(hltname);
         continue;
       }
-      if (l1pathname.find("(") != std::string::npos) {
+      if (l1pathname.find('(') != std::string::npos) {
         if (showTrgInfo_) {
           *log_ << "  L1SeedsLogicalExpression(Complex)\t" << l1pathname << "\n";
           *log_ << "\tskip:contain complex logic\n";

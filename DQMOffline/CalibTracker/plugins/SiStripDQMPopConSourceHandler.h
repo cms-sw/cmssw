@@ -88,7 +88,7 @@ void SiStripDQMPopConSourceHandler<T>::getNewObjects() {
          << this->logDBEntry().exectime << "\n"
          << this->logDBEntry().execmessage << "\n";
       if (!this->logDBEntry().usertext.empty())
-        ss << "\n-- user text " << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@"));
+        ss << "\n-- user text " << this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of('@'));
     } else {
       ss << " First object for this tag ";
     }
@@ -119,7 +119,7 @@ bool SiStripDQMPopConSourceHandler<T>::isTransferNeeded() {
 
   //get log information from previous upload
   if (!this->logDBEntry().usertext.empty())
-    ss_logdb = this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of("@") + 2);
+    ss_logdb = this->logDBEntry().usertext.substr(this->logDBEntry().usertext.find_last_of('@') + 2);
 
   std::string ss = getMetaDataString();
   if ((!m_iovSequence) || checkForCompatibility(ss_logdb)) {

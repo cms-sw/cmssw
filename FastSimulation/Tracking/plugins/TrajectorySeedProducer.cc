@@ -106,7 +106,7 @@ TrajectorySeedProducer::TrajectorySeedProducer(const edm::ParameterSet& conf) {
     std::string::size_type pos = 0;
     unsigned int nHitsPerSeed = 0;
     while (pos != std::string::npos) {
-      pos = line.find("+");
+      pos = line.find('+');
       std::string layer = line.substr(0, pos);
       TrackingLayer layerSpec = TrackingLayer::createFromString(layer);
       trackingLayerList.push_back(layerSpec);

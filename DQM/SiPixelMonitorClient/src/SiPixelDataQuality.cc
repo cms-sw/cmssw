@@ -117,7 +117,7 @@ int SiPixelDataQuality::getDetId(MonitorElement *mE) {
   int detId = 0;
 
   if (mEName.find("_3") != string::npos) {
-    string detIdString = mEName.substr((mEName.find_last_of("_")) + 1, 9);
+    string detIdString = mEName.substr((mEName.find_last_of('_')) + 1, 9);
     std::istringstream isst;
     isst.str(detIdString);
     isst >> detId;
@@ -305,7 +305,7 @@ void SiPixelDataQuality::computeGlobalQualityFlag(
     return;
 
   string currDir = iBooker.pwd();
-  string dname = currDir.substr(currDir.find_last_of("/") + 1);
+  string dname = currDir.substr(currDir.find_last_of('/') + 1);
 
   if ((!Tier0Flag && dname.find("Module_") != string::npos) ||
       (Tier0Flag && (dname.find("Ladder_") != string::npos || dname.find("Blade_") != string::npos))) {
@@ -896,7 +896,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore::IBooker &iBooker,
     string currDir = iBooker.pwd();
     if (currDir.find("Reference") != string::npos || currDir.find("Additional") != string::npos)
       return;
-    string dname = currDir.substr(currDir.find_last_of("/") + 1);
+    string dname = currDir.substr(currDir.find_last_of('/') + 1);
     if (dname.find("Module_") != string::npos && currDir.find("Reference") == string::npos) {
       vector<string> meVec = iGetter.getMEs();
       int detId = -1;

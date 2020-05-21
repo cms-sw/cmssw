@@ -49,7 +49,7 @@ void PixelToLNKAssociateFromAscii::init(const string& cfg_name) {
       //
       // treat # lines
       //
-      string::size_type pos = line.find("#");
+      string::size_type pos = line.find('#');
       if (pos != string::npos)
         line = line.erase(pos);
 
@@ -90,7 +90,7 @@ void PixelToLNKAssociateFromAscii::init(const string& cfg_name) {
       if (posM != string::npos) {
         if (posR != string::npos) {
           string strM = line.substr(posM + 4, posR - posM - 5);
-          string::size_type pos = strM.find(" ");
+          string::size_type pos = strM.find(' ');
           if (pos != string::npos)
             strM = strM.substr(pos + 1);
           string strR = line.substr(posR + 4);
@@ -99,7 +99,7 @@ void PixelToLNKAssociateFromAscii::init(const string& cfg_name) {
           addConnections(fedId, linkId, strM, range);
         } else {
           string strM = line.substr(posM + 4);
-          string::size_type pos = strM.find(" ");
+          string::size_type pos = strM.find(' ');
           if (pos != string::npos)
             strM = strM.substr(pos + 1);
           addConnections(fedId, linkId, strM, Range(0, 0));
@@ -131,7 +131,7 @@ void PixelToLNKAssociateFromAscii::addConnections(int fedId, int linkId, std::st
   if (pos != string::npos) {
     string module0 = module;
     // strip the trailing spaces
-    string::size_type p = module0.find(" ");
+    string::size_type p = module0.find(' ');
     //string::size_type p1 = module0.find_first_of(" ");
     //string::size_type p2 = module0.find_last_not_of(" ");
     //cout<<p<<" "<<p1<<" "<<p2<<endl;
@@ -226,21 +226,21 @@ void PixelToLNKAssociateFromAscii::addConnections(int fedId, int linkId, std::st
     module = module.substr(pos + 9);
 
     // disk
-    pos = module.find("_");
+    pos = module.find('_');
     if (pos == string::npos)
       throw cms::Exception("problem with disk formatting");
     int disk = atoi(module.substr(1, pos - 1).c_str());
     module = module.substr(pos + 1);
 
     // blade
-    pos = module.find("_");
+    pos = module.find('_');
     if (pos == string::npos)
       throw cms::Exception("problem with blade formatting");
     int blade = atoi(module.substr(3, pos - 3).c_str());
     module = module.substr(pos + 1);
 
     //pannel
-    pos = module.find("_");
+    pos = module.find('_');
     if (pos == string::npos)
       throw cms::Exception("problem with pannel formatting");
     int pannel = atoi(module.substr(3, pos - 3).c_str());
@@ -507,7 +507,7 @@ PixelToLNKAssociateFromAscii::Range PixelToLNKAssociateFromAscii::readRange(cons
   //for(int i=0; i<len;i++) {
   // cout<<i<<" "<<l[i]<<endl;
   //}
-  string::size_type p = l.find(",");
+  string::size_type p = l.find(',');
   if (p != string::npos) {
     //cout<<p<<" "<<len<<endl;
     l1 = l.substr(0, p - 1 + 1);

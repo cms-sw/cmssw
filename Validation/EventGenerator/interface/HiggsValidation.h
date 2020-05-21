@@ -123,7 +123,7 @@ private:
 
   private:
     void fill(std::string s) {
-      size_t pos = s.find("+");
+      size_t pos = s.find('+');
       std::string particle1 = s.substr(0, pos);
       std::string particle2 = s.substr(pos + 1, s.length() - pos);
       std::pair<int, int> decay;

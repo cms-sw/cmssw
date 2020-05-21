@@ -246,8 +246,8 @@ void DTCompactMapWriter::buildSteering(std::istream& jobDesc) {
       while (*ptr_line == ' ')
         ptr_line++;
       std::string key(ptr_line);
-      int off_blank = key.find(" ");
-      int off_equal = key.find("=");
+      int off_blank = key.find(' ');
+      int off_equal = key.find('=');
       if (off_equal < 0)
         off_equal = max_line_length;
       if (off_blank < 0)
@@ -263,7 +263,7 @@ void DTCompactMapWriter::buildSteering(std::istream& jobDesc) {
       while (*ptr_line == ' ')
         ptr_line++;
       std::string val(ptr_line);
-      int off_value = val.find(" ");
+      int off_value = val.find(' ');
       if ((off_value > 0) && (off_value < static_cast<int>(val.length())))
         val.erase(off_value++, val.length());
       // go to next token

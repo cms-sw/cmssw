@@ -437,11 +437,11 @@ void DTHVStatusHandler::dumpHVAliases() {
     if ((iofw == al) || (iofc == al) || (iofs == al) || (iofq == al) || (iofl == al)) {
       break;
     }
-    int ioew = an.find("_", iofw);
-    int ioec = an.find("_", iofc);
-    int ioes = an.find("_", iofs);
-    int ioeq = an.find("_", iofq);
-    int ioel = an.find("_", iofl);
+    int ioew = an.find('_', iofw);
+    int ioec = an.find('_', iofc);
+    int ioes = an.find('_', iofs);
+    int ioeq = an.find('_', iofq);
+    int ioel = an.find('_', iofl);
     std::string swhe(an.substr(iofw, ioew - iofw));
     const char* cwhe = swhe.c_str();
     int whe = cwhe[1] - '0';

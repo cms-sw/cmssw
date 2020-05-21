@@ -62,8 +62,8 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
   // dictionary that maps algorithm name to it's index
   std::unordered_map<std::string, int, std::hash<std::string>> algoName2bit;
 
-  std::string uGTtscKey = objectKey.substr(0, objectKey.find(":"));
-  std::string uGTrsKey = objectKey.substr(objectKey.find(":") + 1, std::string::npos);
+  std::string uGTtscKey = objectKey.substr(0, objectKey.find(':'));
+  std::string uGTrsKey = objectKey.substr(objectKey.find(':') + 1, std::string::npos);
 
   std::string stage2Schema = "CMS_TRG_L1_CONF";
 
@@ -161,16 +161,16 @@ std::unique_ptr<const L1TGlobalPrescalesVetos> L1TGlobalPrescalesVetosOnlineProd
   }
 
   // for debugging purposes dump the payloads to /tmp
-  std::ofstream output1(std::string("/tmp/").append(prescale_key.substr(0, prescale_key.find("/"))).append(".xml"));
+  std::ofstream output1(std::string("/tmp/").append(prescale_key.substr(0, prescale_key.find('/'))).append(".xml"));
   output1 << xmlPayload_prescale;
   output1.close();
-  std::ofstream output2(std::string("/tmp/").append(mask_key.substr(0, mask_key.find("/"))).append(".xml"));
+  std::ofstream output2(std::string("/tmp/").append(mask_key.substr(0, mask_key.find('/'))).append(".xml"));
   output2 << xmlPayload_mask_finor;
   output2.close();
-  std::ofstream output3(std::string("/tmp/").append(bxmask_key.substr(0, bxmask_key.find("/"))).append(".xml"));
+  std::ofstream output3(std::string("/tmp/").append(bxmask_key.substr(0, bxmask_key.find('/'))).append(".xml"));
   output3 << xmlPayload_mask_algobx;
   output3.close();
-  std::ofstream output4(std::string("/tmp/").append(vetomask_key.substr(0, vetomask_key.find("/"))).append(".xml"));
+  std::ofstream output4(std::string("/tmp/").append(vetomask_key.substr(0, vetomask_key.find('/'))).append(".xml"));
   output4 << xmlPayload_mask_veto;
   output4.close();
 
